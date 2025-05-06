@@ -15,13 +15,22 @@ import {
   pluck,
   reject,
   toPairs,
-  toUpper
+  toUpper,
+  type
 } from 'ramda';
 
-import { ResourceType, SeverityCode, centreonBaseURL } from '@centreon/ui';
+import {
+  ResourceType,
+  SelectEntry,
+  SeverityCode,
+  centreonBaseURL
+} from '@centreon/ui';
 
 import { WidgetResourceType } from '../AddEditWidget/models';
 import { Resource, SeverityStatus, Status } from './models';
+
+export const isResourceString = (resources: Array<SelectEntry> | string) =>
+  equals(type(resources), 'String');
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -29,7 +38,10 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
+      !isEmpty(resourceType) &&
+      !isEmpty(
+        isResourceString(resources) ? resources : resources.filter((v) => v)
+      )
   );
 
 const serviceCriteria = {
@@ -157,6 +169,9 @@ export const getResourcesUrl = ({
         name: name.replace('-', '_'),
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
+            if (isResourceString(subResources)) {
+              return [{ id: subResources, name: subResources }];
+            }
             return subResources.map(({ name: resourceName }) => ({
               id: includes(name, ['name', 'parent_name'])
                 ? `\\b${resourceName}\\b`

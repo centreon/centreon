@@ -35,6 +35,7 @@ import {
 import {
   type ShowInput,
   type WidgetDataResource,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
@@ -44,11 +45,6 @@ export const getProperty = <T>({ propertyName, obj }): T | undefined =>
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
-const namedEntitySchema = object().shape({
-  id: mixed().required(),
-  name: string().required()
-});
-
 const metricSchema = object().shape({
   id: number().required(),
   name: string().required(),
@@ -56,9 +52,13 @@ const metricSchema = object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<WidgetPropertyProps, 'defaultValue' | 'type'>;
   t: TFunction;
 }
+
+const getResourcesValidation = (properties) => {
+  return properties.required ? mixed().required() : mixed();
+};
 
 const getYupValidatorType = ({
   t,
@@ -104,9 +104,7 @@ const getYupValidatorType = ({
                   properties.required || properties.requireResourceType
                     ? string().required(t(labelRequired) as string)
                     : string(),
-                resources: properties.required
-                  ? array().of(namedEntitySchema).min(1)
-                  : array()
+                resources: getResourcesValidation(properties)
               })
               .optional()
           )
@@ -235,3 +233,10 @@ export const areResourcesFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const buildResourceTypeNameForSearchParameter = (
+  resourceType: WidgetResourceType
+): string =>
+  equals(resourceType, WidgetResourceType.service)
+    ? 'name'
+    : `${resourceType.replace('-', '_')}.name`;

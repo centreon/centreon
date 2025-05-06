@@ -1,5 +1,4 @@
 import { equals, isNil } from 'ramda';
-/* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -10,11 +9,6 @@ import {
   Typography
 } from '@mui/material';
 
-import {
-  MultiConnectedAutocompleteField,
-  SelectField,
-  SingleConnectedAutocompleteField
-} from '@centreon/ui';
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
@@ -23,7 +17,6 @@ import {
   labelDelete,
   labelResourceType,
   labelResources,
-  labelSelectAResource,
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
@@ -32,6 +25,8 @@ import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
 import useResources from './useResources';
+import ResourceField from './ResourceField';
+import { SelectField } from '@centreon/ui';
 
 const Resources = ({
   propertyName,
@@ -39,7 +34,8 @@ const Resources = ({
   restrictedResourceTypes,
   excludedResourceTypes,
   required,
-  useAdditionalResources
+  useAdditionalResources,
+  allowRegexOnResourceTypes
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -63,13 +59,18 @@ const Resources = ({
     changeIdValue,
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    getIsRegexAllowedOnResourceType,
+    getIsRegexFieldOnResourceType,
+    changeRegexFieldOnResourceType,
+    changeRegexField
   } = useResources({
     excludedResourceTypes,
     propertyName,
     required,
     restrictedResourceTypes,
-    useAdditionalResources
+    useAdditionalResources,
+    allowRegexOnResourceTypes
   });
 
   const { canEditField } = useCanEditProperties();
@@ -112,6 +113,13 @@ const Resources = ({
               ? WidgetResourceType.hostGroup
               : resource.resourceType;
 
+            const allowRegex = getIsRegexAllowedOnResourceType(
+              resource.resourceType
+            );
+            const isRegexField = getIsRegexFieldOnResourceType(
+              resource.resourceType
+            );
+
             return (
               <ItemComposition.Item
                 className={classes.resourceCompositionItem}
@@ -137,65 +145,38 @@ const Resources = ({
                   selectedOptionId={resourceTypeSelectedOptionId}
                   onChange={changeResourceType(index)}
                 />
-                {singleResourceSelection ? (
-                  <SingleConnectedAutocompleteField
-                    exclusionOptionProperty="name"
-                    changeIdValue={changeIdValue(resource.resourceType)}
-                    className={classes.resources}
-                    disableClearable={singleResourceSelection}
-                    disabled={
-                      !canEditField ||
-                      isValidatingResources ||
-                      (equals(
-                        resource.resourceType,
-                        WidgetResourceType.service
-                      ) &&
-                        !hasSelectedHostForSingleMetricwidget) ||
-                      !resource.resourceType
-                    }
-                    field={getSearchField(resource.resourceType)}
-                    getEndpoint={getResourceResourceBaseEndpoint({
-                      index,
-                      resourceType: resource.resourceType
-                    })}
-                    label={t(labelSelectAResource)}
-                    limitTags={2}
-                    queryKey={`${resource.resourceType}-${index}`}
-                    value={resource.resources[0] || null}
-                    onChange={changeResource(index)}
-                  />
-                ) : (
-                  <MultiConnectedAutocompleteField
-                    exclusionOptionProperty="name"
-                    changeIdValue={changeIdValue(resource.resourceType)}
-                    chipProps={{
-                      color: 'primary',
-                      onDelete: (_, option): void =>
-                        deleteResourceItem({
-                          index,
-                          option,
-                          resources: resource.resources
-                        })
-                    }}
-                    className={classes.resources}
-                    disabled={
-                      !canEditField ||
-                      isValidatingResources ||
-                      !resource.resourceType
-                    }
-                    field={getSearchField(resource.resourceType)}
-                    getEndpoint={getResourceResourceBaseEndpoint({
-                      index,
-                      resourceType: resource.resourceType
-                    })}
-                    label={t(labelSelectAResource)}
-                    limitTags={2}
-                    placeholder=""
-                    queryKey={`${resource.resourceType}-${index}`}
-                    value={resource.resources || []}
-                    onChange={changeResources(index)}
-                  />
-                )}
+                <ResourceField
+                  disabled={
+                    singleResourceSelection
+                      ? !canEditField ||
+                        isValidatingResources ||
+                        (equals(
+                          resource.resourceType,
+                          WidgetResourceType.service
+                        ) &&
+                          !hasSelectedHostForSingleMetricwidget) ||
+                        !resource.resourceType
+                      : !canEditField ||
+                        isValidatingResources ||
+                        !resource.resourceType
+                  }
+                  resource={resource}
+                  index={index}
+                  allowRegex={allowRegex}
+                  isRegexField={isRegexField}
+                  changeIdValue={changeIdValue}
+                  changeResource={changeResource}
+                  changeResources={changeResources}
+                  getSearchField={getSearchField}
+                  getResourceResourceBaseEndpoint={
+                    getResourceResourceBaseEndpoint
+                  }
+                  deleteResourceItem={deleteResourceItem}
+                  changeRegexFieldOnResourceType={
+                    changeRegexFieldOnResourceType
+                  }
+                  changeRegexField={changeRegexField}
+                />
               </ItemComposition.Item>
             );
           })}

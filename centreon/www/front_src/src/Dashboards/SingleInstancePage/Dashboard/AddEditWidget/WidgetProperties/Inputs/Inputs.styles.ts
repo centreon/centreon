@@ -42,6 +42,18 @@ export const useResourceStyles = makeStyles()((theme) => ({
   },
   warningText: {
     color: theme.palette.warning.main
+  },
+  regexIcon: {
+    marginRight: theme.spacing(4),
+    padding: 0
+  },
+  selectedRegexIcon: {
+    padding: 0
+  },
+  selectedRegexIconColor: {
+    color: theme.palette.background.paper,
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: '50%'
   }
 }));
 

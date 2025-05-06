@@ -141,3 +141,6 @@ export const labelLast2Months = 'Last 2 months';
 export const labelGenericWidgets = 'Generic widgets';
 export const labelRealTimeWidgets = 'Real time widgets';
 export const labelMBIReportingWidgets = 'MBI reporting widgets';
+export const labelActivateRegex = 'Activate Regex';
+export const labelDeactivateRegex = 'Deactivate Regex';
+export const labelEnterRegex = 'Enter Regex';
