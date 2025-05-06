@@ -48,15 +48,7 @@ class ErrorResponse extends AbstractResponse
         private readonly array $context = [],
         private readonly ?\Throwable $exception = null
     ) {
-        parent::__construct($message);
-    }
-
-    /**
-     * @return array<string,mixed>
-     */
-    public function getContext(): array
-    {
-        return $this->context;
+        parent::__construct($message, $context);
     }
 
     /**
