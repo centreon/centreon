@@ -24,7 +24,11 @@ const initialize = ({
           globalRefreshInterval={globalRefreshInterval}
           hasDescription={false}
           id={widgetId}
-          panelOptions={{ url }}
+          panelOptions={{
+            url,
+            refreshInterval: 'custom',
+            refreshIntervalCustom: 100
+          }}
           queryClient={new QueryClient()}
           refreshCount={0}
           store={store}

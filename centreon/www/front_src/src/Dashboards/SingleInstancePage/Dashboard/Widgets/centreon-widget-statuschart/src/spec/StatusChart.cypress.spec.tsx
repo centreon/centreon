@@ -120,6 +120,111 @@ const displayTypes = [
   }
 ];
 
+describe.only('Status chart', () => {
+  it('displays nothing when the API data is empty', () => {
+    cy.interceptAPIRequest({
+      alias: 'getResourcesByHost',
+      method: Method.GET,
+      path: `./api/latest${hostStatusesEndpoint}**`,
+      response: undefined
+    });
+
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('not.exist');
+  });
+
+  it('displays a message when values are null', () => {
+    cy.fixture('Widgets/StatusChart/hostStatusesNullValues.json').then(
+      (data) => {
+        cy.interceptAPIRequest({
+          alias: 'getResourcesByHost',
+          method: Method.GET,
+          path: `./api/latest${hostStatusesEndpoint}**`,
+          response: data
+        });
+      }
+    );
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('No host found').should('be.visible');
+  });
+
+  it('redirects to resources status when an arc is clicked', () => {
+    cy.fixture('Widgets/StatusChart/hostStatuses.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getResourcesByHost',
+        method: Method.GET,
+        path: `./api/latest${hostStatusesEndpoint}**`,
+        response: data
+      });
+    });
+    cy.window().then((window) => {
+      cy.stub(window, 'open').as('windowOpen');
+    });
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('be.visible');
+    cy.get('path[fill="#FF6666"]').click(10, 10);
+
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22host%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbHost%5C%5Cb%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22host_group%22%2C%22value%22%3A%5B%7B%22id%22%3A%22HG1%22%2C%22name%22%3A%22HG1%22%7D%2C%7B%22id%22%3A%22HG2%22%2C%22name%22%3A%22HG2%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+    );
+  });
+
+  it('redirects to resources status when a slice is clicked', () => {
+    cy.fixture('Widgets/StatusChart/hostStatuses.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getResourcesByHost',
+        method: Method.GET,
+        path: `./api/latest${hostStatusesEndpoint}**`,
+        response: data
+      });
+    });
+    cy.window().then((window) => {
+      cy.stub(window, 'open').as('windowOpen');
+    });
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Pie,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('be.visible');
+    cy.get('path[fill="#FF6666"]').click(10, 10);
+
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22host%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbHost%5C%5Cb%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22host_group%22%2C%22value%22%3A%5B%7B%22id%22%3A%22HG1%22%2C%22name%22%3A%22HG1%22%7D%2C%7B%22id%22%3A%22HG2%22%2C%22name%22%3A%22HG2%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+    );
+  });
+});
+
 describe('Public widget', () => {
   it('sends a request to the public API when the widget is displayed in a public page', () => {
     interceptRequests();
