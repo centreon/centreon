@@ -1,5 +1,5 @@
 export const labelAdditionalConnectorConfiguration =
-  'Additional connector configurations';
+  'Additional Configurations';
 export const labelName = 'Name';
 export const labelType = 'Type';
 export const labelTypes = 'Types';
@@ -22,19 +22,19 @@ export const labelClear = 'Clear';
 export const labelPollers = 'Pollers';
 export const labelCancel = 'Cancel';
 export const labelDeleteAdditionalConnectorConfiguration =
-  'Delete additional connector configuration';
+  'Delete additional configuration';
 export const labelDeleteAdditionalConnectorDescription =
-  'The {{name}} additional connector configuration will be permanently deleted.';
+  'The {{name}} additional configuration will be permanently deleted.';
 export const labelSomeConnectorsMayNotWorkAnymore =
   'The corresponding connectors will not work anymore.';
 export const labelAdditionalConnectorDeleted =
-  'Additional connector configuration deleted';
+  'Additional configuration deleted';
 export const labelAdditionalConnectorDuplicated =
-  'Additional connector configuration duplicated';
+  'Additional configuration duplicated';
 export const labelAdditionalConnectorCreated =
-  'Additional connector configuration created';
+  'Additional configuration created';
 export const labelAdditionalConnectorUpdated =
-  'Additional connector configuration updated';
+  'Additional configuration updated';
 export const labelDuplicateConnectorConfiguration =
   'Duplicate connector configuration';
 export const labelSave = 'Save';
@@ -45,9 +45,9 @@ export const labelNameMustBeAtLeast =
   'The name should be at least 3 characters long';
 export const labelRequired = 'Required';
 export const labelCreateConnectorConfiguration =
-  'Create additional connector configuration';
+  'Create additional configuration';
 export const labelUpdateConnectorConfiguration =
-  'Update additional connector configuration';
+  'Update additional configuration';
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
 export const labelSelectType = 'Select type';

@@ -1,0 +1,19 @@
+{
+  "name": "rta",
+  "unit": "B",
+  "resources": [
+    {
+      "critical_high_threshold": 100,
+      "critical_low_threshold": null,
+      "current_value": 10,
+      "id": 1,
+      "max": 120,
+      "min": 0,
+      "uuid": "h1-s1",
+      "name": "Ping_1",
+      "parent_name": "Centreon_server",
+      "warning_high_threshold": 80,
+      "warning_low_threshold": null
+    }
+  ]
+}

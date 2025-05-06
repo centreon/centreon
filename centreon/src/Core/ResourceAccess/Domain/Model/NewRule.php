@@ -69,8 +69,6 @@ class NewRule
         }
 
         Assertion::notEmpty($this->datasetFilters, "{$shortName}::datasetFilters");
-
-        $this->assertContactAndOrContactGroup();
     }
 
     /**
@@ -145,21 +143,6 @@ class NewRule
     public function doesApplyToAllContactGroups(): bool
     {
         return $this->applyToAllContactGroups;
-    }
-
-    /**
-     * @throws \InvalidArgumentException
-     */
-    private function assertContactAndOrContactGroup(): void
-    {
-        if (
-            $this->linkedContactIds === []
-            && $this->linkedContactGroupIds === []
-            && $this->applyToAllContacts === false
-            && $this->applyToAllContactGroups === false
-        ) {
-            throw new \InvalidArgumentException('At least one contact or contactgroup should be linked to the rule');
-        }
     }
 }
 

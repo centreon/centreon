@@ -173,7 +173,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteServiceInDB($select ?? []);
+            deleteServiceByApi($select ?? []);
         } else {
             unvalidFormMessage();
         }

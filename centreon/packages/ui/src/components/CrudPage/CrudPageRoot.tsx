@@ -83,7 +83,9 @@ export const CrudPageRoot = <
     <PageLayout>
       <PageLayout.Header>
         <PageHeader>
-          <PageHeader.Title title={labels.title} />
+          <PageHeader.Main>
+            <PageHeader.Title title={labels.title} />
+          </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>

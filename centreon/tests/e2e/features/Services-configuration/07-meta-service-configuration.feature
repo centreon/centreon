@@ -1,4 +1,3 @@
-@REQ_MON-151561
 Feature: Edit a meta service
   As a Centreon user
   I want to manipulate a meta service

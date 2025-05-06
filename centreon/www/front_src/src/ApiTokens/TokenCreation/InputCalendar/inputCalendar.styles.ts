@@ -47,7 +47,7 @@ export const useStyles = makeStyles<StyleProps>()(
     },
     root: {
       '> div': {
-        '& div:nth-child(1)': {
+        '& div:nth-of-type(1)': {
           '> div': {
             '& .MuiDateCalendar-root': {
               height: theme.spacing(38.5)

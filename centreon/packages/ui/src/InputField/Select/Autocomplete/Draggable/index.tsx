@@ -181,9 +181,19 @@ const DraggableAutocomplete = (
         {...renderProps}
         error={error}
         helperText={error}
-        inputProps={{
-          ...renderProps.inputProps,
-          value: inputText || ''
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            input: {
+              ...renderProps?.InputProps
+            },
+            inputLabel: {
+              ...renderProps?.inputLabel
+            },
+            htmlInput: {
+              ...renderProps.inputProps,
+              value: inputText || ''
+            }
+          }
         }}
         label={label}
         required={required}

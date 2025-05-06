@@ -78,4 +78,12 @@ interface ReadAccessGroupRepositoryInterface
      * @return bool
      */
     public function hasAccessToResources(array $accessGroupIds): bool;
+
+    /**
+     * Finds ACL resources by a hostgroup ID.
+     *
+     * @param int $hostGroupId
+     * @return int[] An array of distinct ACL resource IDs
+     */
+    public function findAclResourcesByHostGroupId(int $hostGroupId): array;
 }

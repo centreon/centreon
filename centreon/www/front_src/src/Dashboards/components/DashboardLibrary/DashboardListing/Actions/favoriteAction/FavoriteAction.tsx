@@ -25,16 +25,21 @@ interface Props {
   dashboardId: number;
   isFavorite: boolean;
   refetch?: () => void;
+  isFetching: boolean;
 }
 
-const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
+const FavoriteAction = ({
+  dashboardId,
+  isFavorite,
+  refetch,
+  isFetching
+}: Props) => {
   const { t } = useTranslation();
   const labelSuccess = useRef('');
   const { showSuccessMessage } = useSnackbar();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [color, setColor] = useState('');
-  const [title, setTitle ]= useState('');
-
+  const [title, setTitle] = useState('');
 
   const getEndpoint = (data: FavoriteEndpoint) => {
     if (data?.dashboardId) {
@@ -50,17 +55,17 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const onError = () => {
     const previousColor = isFavorite ? 'success' : 'default';
-    const previousTitle =   getLabel({
+    const previousTitle = getLabel({
       setLabel: labelAddToFavorites,
       unsetLabel: labelRemoveFromFavorites,
       asFavorite: isFavorite
     });
 
     setColor(previousColor);
-    setTitle(previousTitle)
+    setTitle(previousTitle);
   };
 
-  const { mutateAsync } = useMutationQuery({
+  const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint,
     method: isFavorite ? Method.DELETE : Method.POST,
     onSuccess,
@@ -78,12 +83,12 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
   const handleFavorites = () => {
     const expectedColor = isFavorite ? 'default' : 'success';
 
-    const expectedTitle =  getLabel({
+    const expectedTitle = getLabel({
       setLabel: labelRemoveFromFavorites,
       unsetLabel: labelAddToFavorites,
       asFavorite: isFavorite
-    })
-    setTitle(expectedTitle)
+    });
+    setTitle(expectedTitle);
 
     setColor(expectedColor);
 
@@ -112,13 +117,12 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
 
   const defaultColor = isFavorite ? 'success' : 'default';
 
-
   return (
     <IconButton
       title={title || defaultTitle}
       onClick={handleFavorites}
       color={color || defaultColor}
-      disabled={isPending}
+      disabled={isFetching || isMutating}
       size="small"
       ariaLabel="FavoriteIconButton"
     >

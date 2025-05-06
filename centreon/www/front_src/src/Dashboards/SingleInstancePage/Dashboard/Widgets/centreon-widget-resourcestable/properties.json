@@ -45,6 +45,10 @@
         {
           "id": "in_downtime",
           "name": "In downtime"
+        },
+        {
+          "id": "in_flapping",
+          "name": "Flapping"
         }
       ],
       "defaultValue": ["unhandled_problems"]
@@ -178,5 +182,6 @@
     }
   },
   "moduleName": "centreon-widget-resourcestable",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "Real time widgets"
 }

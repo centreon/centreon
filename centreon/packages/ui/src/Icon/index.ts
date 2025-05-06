@@ -1,4 +1,5 @@
 export { DowntimeIcon } from './DowntimeIcon';
+export { FlappingIcon } from './FlappingIcon';
 export { AcknowledgementIcon } from './AcknowledgementIcon';
 export { HostIcon } from './HostIcon';
 export { ServiceIcon } from './ServiceIcon';

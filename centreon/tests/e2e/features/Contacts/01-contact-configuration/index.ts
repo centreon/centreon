@@ -106,7 +106,6 @@ Then('a new contact is created with identical properties', () => {
     .should('have.value', contacts.default.pager);
   cy.getIframeBody().find('#contact_template_id').should('have.value', '19');
   cy.checkLegacyRadioButton(contacts.default.isNotificationsEnabled);
-
 });
 
 When('the user deletes the configured contact', () => {

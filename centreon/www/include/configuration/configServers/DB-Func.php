@@ -721,6 +721,11 @@ function insertServer(array $data): int
         $fields
     );
 
+    /**
+     * Update poller ACL.
+     */
+    $centreon->user->access->updatePollerACL();
+
     return (int)$poller["last_id"];
 }
 
