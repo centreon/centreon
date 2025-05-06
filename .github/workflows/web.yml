@@ -488,6 +488,7 @@ jobs:
           find centreon -type f -name "compose*.*" -not -path "*vendor*" -delete
           find centreon -type f -name "package*.*" -not -path "*vendor*" -delete
           find centreon -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+          find centreon -type f -name "symfony.lock" -delete
         shell: bash
 
       - name: Replace macros in source code
