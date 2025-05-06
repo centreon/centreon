@@ -149,6 +149,10 @@ if [ "$PROJECT" = "centreon" ]; then
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
+    else
+       echo "diff $POT_FILE_PATH :"
+       git diff "$POT_FILE_PATH"
+       git diff --numstat | grep "$POT_FILE_PATH"
     fi
 
     # Merge existing translation file with new POT file
