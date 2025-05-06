@@ -17715,3 +17715,10 @@ msgstr "Erweiterter Modus"
 
 # msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
 # msgstr ""
+
+# msgid "This month"
+# msgstr ""
+
+# msgid "This year"
+# msgstr ""
+

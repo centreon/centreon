@@ -18532,3 +18532,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Maximum"
 # msgstr ""
+ 
+# msgid "This month"
+# msgstr ""
+
+# msgid "This year"
+# msgstr ""
+
