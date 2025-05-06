@@ -371,15 +371,6 @@ try {
                 if (!isset($msg_restart[$host["id"]])) {
                     $msg_restart[$host["id"]] = "";
                 }
-                if (count($listBrokerFile) > 0) {
-                    passthru(
-                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}") . ' >> ' . escapeshellcmd($centcore_pipe),
-                        $return
-                    );
-                    if ($return) {
-                        throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
-                    }
-                }
                 $msg_restart[$host["id"]] .= _("<br><b>Centreon : </b>All configuration will be send to " .
                     $host['name'] . " by centcore in several minutes.");
             }
