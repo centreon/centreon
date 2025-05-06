@@ -165,9 +165,9 @@ class SAML implements ProviderAuthenticationInterface
         CentreonSession::writeSessionClose('saml', [
             'samlSessionIndex' => $auth->getSessionIndex(),
             'samlNameId' => $auth->getNameId(),
-            'samlNameIdFormat' => ! empty($samlNameIdFormat) ? $samlNameIdFormat : null,
-            'samlNameIdNameQualifier' => ! empty($samlNameIdNameQualifier) ? $samlNameIdNameQualifier : null,
-            'samlNameIdSPNameQualifier' => ! empty($samlNameIdSPNameQualifier) ? $samlNameIdSPNameQualifier : null,
+            'samlNameIdFormat' => $auth->getNameIdFormat() ?: null,
+            'samlNameIdNameQualifier' => $auth->getNameIdNameQualifier() ?: null,
+            'samlNameIdSPNameQualifier' => $auth->getNameIdSPNameQualifier() ?: null,
         ]);
 
         $this->loginLogger->info(Provider::SAML, 'checking security access rules');
