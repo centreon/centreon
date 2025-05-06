@@ -62,8 +62,6 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
-COPY *.deb /tmp/debs-centreon/
-
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 
@@ -78,6 +76,25 @@ elif [[ "$STABILITY" == "stable" ]]; then
 fi
 
 apt-get update
+
+#############################
+# install base dependencies #
+#############################
+
+apt-get install -y \
+  apache2 \
+  apt-transport-https \
+  curl \
+  jq \
+  python3 \
+  sed \
+  snmpd \
+  software-properties-common \
+  sudo
+
+############################
+# install php dependencies #
+############################
 
 apt-get install -y \
   php8.2-common \
