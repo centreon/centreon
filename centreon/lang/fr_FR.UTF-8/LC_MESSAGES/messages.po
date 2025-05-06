@@ -18488,7 +18488,7 @@ msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une s
 msgid "Generate new token"
 msgstr "Générer un nouveau jeton"
 
-msgid "Token copied to the clipboard"
+msgid "Authentication token copied to the clipboard"
 msgstr "Jeton copié dans le presse-papiers"
 
 msgid "Token could not be copied"
@@ -19818,6 +19818,72 @@ msgstr "Disponibilité d'une Activité Métier"
 
 msgid "Displays availability and alerts of a Business Activity for a given period."
 msgstr "Affiche la disponibilité et les alertes d'une activité métier pour une période donnée."
+
+msgid "Authentication tokens"
+msgstr "Jetons d'authentification"
+
+msgid "Never expire"
+msgstr "N'expire jamais"
+
+msgid "Generate token"
+msgstr "Générer un jeton"
+
+msgid "Create authentication token"
+msgstr "Créer un jeton d'authentification"
+
+msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Pensez à bien le stocker."
+
+msgid "Done"
+msgstr "Terminé"
+
+msgid "Disable token"
+msgstr "Désactiver le jeton"
+
+msgid "Token disabled"
+msgstr "Jeton désactivé"
+
+msgid "Token deleted"
+msgstr "Jeton supprimé"
+
+msgid "Last 60 days"
+msgstr "Les 60 derniers jours"
+
+msgid "Last 90 days"
+msgstr "Les 90 derniers jours"
+
+msgid "Last 1 year"
+msgstr "La dernière année"
+
+msgid "In 7 days"
+msgstr "Dans 7 jours"
+
+msgid "In 30 days"
+msgstr "Dans 30 jours"
+
+msgid "In 60 days"
+msgstr "Dans 60 jours"
+
+msgid "In 90 days"
+msgstr "Dans 90 jours"
+
+msgid "In 1 year"
+msgstr "Dans 1 an"
+
+msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "Enable token"
+msgstr "Activer le jeton"
+
+msgid "Token enabled"
+msgstr "Jeton activé"
 
 msgid "Requested authentication context"
 msgstr "Contexte d'authentification requis"

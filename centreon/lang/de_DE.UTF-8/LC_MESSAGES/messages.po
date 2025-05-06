@@ -1893,7 +1893,7 @@ msgstr "Allgemeine Informationen"
 #: centreon/www/include/eventLogs/export/data.php:127
 #: centreon/www/include/eventLogs/export/data.php:152
 msgid "Type"
-msgstr "Typ"
+msgstr "Type"
 
 #: centreon/smarty_translate.php:1005 centreon/smarty_translate.php:1014
 #: centreon/www/include/reporting/dashboard/initReport.php:319
@@ -16359,7 +16359,7 @@ msgstr "Erweiterter Modus"
 # msgid "Generate new token"
 # msgstr ""
 
-# msgid "Token copied to the clipboard"
+# msgid "Authentication token copied to the clipboard"
 # msgstr ""
 
 # msgid "Token could not be copied"
@@ -16375,19 +16375,12 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Token has been created"
-# msgstr ""
 
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 # msgstr ""
 
 # msgid "Delete token"
 # msgstr ""
 
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
-# msgstr ""
-
-# msgid "Delete token"
-# msgstr ""
 
 # msgid "Failed to copy link"
 # msgstr ""
@@ -17120,9 +17113,6 @@ msgstr "Erweiterter Modus"
 # msgid "Additional Configurations"
 # msgstr ""
 
-# msgid "Types"
-# msgstr ""
-
 # msgid "Updated by"
 # msgstr ""
 
@@ -17690,6 +17680,54 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Displays availability and alerts of a Business Activity for a given period."
+# msgstr ""
+
+# msgid "Authentication tokens"
+# msgstr ""
+
+# msgid "Never expire"
+# msgstr ""
+
+# msgid "Generate token"
+# msgstr ""
+
+# msgid "Create authentication token"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+# msgstr ""
+
+# msgid "Done"
+# msgstr ""
+
+# msgid "Disable token"
+# msgstr ""
+
+# msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
+# msgstr ""
+
+# msgid "Token disabled"
+# msgstr ""
+
+# msgid "Token deleted"
+# msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "Enable token"
+# msgstr ""
+
+# msgid "Token enabled"
 # msgstr ""
 
 # msgid "Requested authentication context"
