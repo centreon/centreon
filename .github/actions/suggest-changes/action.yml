@@ -67,7 +67,6 @@ runs:
           debug(`Diff output: ${diff.stdout}`)
 
           // Create an array of changes from the diff output based on patches
-          console.log(diff.stdout);
           const parsedDiff = await parseGitDiff(diff.stdout)
 
           // Get changed files from parsedDiff (changed files have type 'ChangedFile')
@@ -127,6 +126,8 @@ runs:
               debug(`Number of lines: ${fromFileRange.lines}`)
               debug(`Changes: ${JSON.stringify(changes)}`)
 
+              console.log(path);
+              console.log(changes);
               const comment =
                 fromFileRange.lines <= 1
                   ? createSingleLineComment(path, fromFileRange, changes)
