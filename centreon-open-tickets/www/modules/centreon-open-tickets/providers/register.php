@@ -36,3 +36,16 @@ $register_providers['GlpiRestApi'] = 11;
 $register_providers['RequestTracker2'] = 12;
 $register_providers['Itop'] = 13;
 $register_providers['EasyVistaRest'] = 14;
+
+/* 
+  to register a custom provider, create the file:
+  /usr/share/centreon/www/modules/centreon-open-tickets/providers/custom_register.conf.php
+
+  write the following structure inside it (use a value above 100 for your provider):
+  <?php
+  $register_providers=['MyCompanyCustomProvider'] = 1000;
+*/
+$customRegisterFile = $centreon_path . 'www/modules/centreon-open-tickets/providers/custom_register.conf.php';
+if (file_exists($customRegisterFile)) {
+  include $customRegisterFile;
+}
