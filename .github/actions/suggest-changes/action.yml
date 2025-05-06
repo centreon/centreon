@@ -145,6 +145,8 @@ runs:
             })
           )
 
+          console.log('Comments:', comments)
+
           // Create a review with the suggested changes if there are any
           if (comments.length > 0) {
             await github.rest.pulls.createReview({
