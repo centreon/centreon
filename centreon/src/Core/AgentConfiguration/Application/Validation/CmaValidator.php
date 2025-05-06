@@ -28,12 +28,21 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\CmaToken;
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
+
+    public function __construct(
+        private readonly ReadTokenRepositoryInterface $tokenRepository,
+    )
+    {
+    }
+
     /**
      * @inheritDoc
      */
@@ -59,6 +68,10 @@ class CmaValidator implements TypeValidatorInterface
                 $this->validateFilename("configuration.{$key}", $value, false);
             }
 
+            if ($key === 'tokens') {
+                $this->validateTokens($value, $request->connection_mode);
+            }
+
             if ($key === 'hosts') {
                 foreach ($value as $host) {
                     /** @var array{
@@ -79,7 +92,6 @@ class CmaValidator implements TypeValidatorInterface
     /**
      * @param string $name
      * @param ?string $value
-     * @param bool $isCertificate
      *
      * @throws AgentConfigurationException
      */
@@ -91,6 +103,24 @@ class CmaValidator implements TypeValidatorInterface
 
         if ($value === null || preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
+        }
+    }
+
+    /**
+     * Summary of validateTokens
+     * @param array<array{name:string,creator_id:int}> $tokens
+     */
+    private function validateTokens(array $tokens): void
+    {
+        if ($connectionMode !== ConnectionModeEnum::INSECURE && $tokens === []) {
+            AgentConfigurationException::tokensAreMandatory();
+        }
+
+        foreach ($tokens as $token) {
+            $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creatorId']);
+            if ( $tokenObj === null || ! $tokenObj instanceOf CmaToken) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creatorId']);
+            }
         }
     }
 }
