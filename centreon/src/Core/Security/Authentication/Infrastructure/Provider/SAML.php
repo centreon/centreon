@@ -156,10 +156,6 @@ class SAML implements ProviderAuthenticationInterface
             throw InvalidUserIdAttributeException::create();
         }
 
-        $samlNameIdFormat = $auth->getNameIdFormat();
-        $samlNameIdNameQualifier = $auth->getNameIdNameQualifier();
-        $samlNameIdSPNameQualifier = $auth->getNameIdSPNameQualifier();
-
         $this->username = $attrs[0];
 
         CentreonSession::writeSessionClose('saml', [
