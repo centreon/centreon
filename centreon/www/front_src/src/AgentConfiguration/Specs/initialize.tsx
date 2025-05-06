@@ -120,7 +120,11 @@ const mockRequest = (isListingEmpty): void => {
 const initialize = ({ isListingEmpty = false }) => {
   const store = createStore();
 
-  store.set(userAtom, { is_admin: true });
+  store.set(userAtom, {
+    timezone: 'Europe/Paris',
+    locale: 'en',
+    is_admin: true
+  });
   store.set(platformFeaturesAtom, {
     featureFlags: {},
     isCloudPlatform: false
