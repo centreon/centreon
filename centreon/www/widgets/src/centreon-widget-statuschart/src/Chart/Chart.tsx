@@ -90,6 +90,7 @@ const Chart = ({
               <Legend
                 getLinkToResourceStatusPage={getLinkToResourceStatusPage}
                 resourceType={resourceType}
+                resources={resources}
                 {...props}
               />
             )}
@@ -119,6 +120,7 @@ const Chart = ({
               <Legend
                 getLinkToResourceStatusPage={getLinkToResourceStatusPage}
                 resourceType={resourceType}
+                resources={resources}
                 {...props}
               />
             )}

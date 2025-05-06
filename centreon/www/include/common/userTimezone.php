@@ -50,6 +50,7 @@ session_start();
 session_write_close();
 
 $sid = session_id();
+$centreon = null;
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
@@ -64,11 +65,14 @@ if (isset($_SESSION['centreon'])) {
         $buffer->writeElement("state", "nok");
     }
 } else {
-    $currentTime = date_format('%c', time());
+    $currentTime = date_format(date_create(), '%c');
     $buffer->writeElement("state", "nok");
 }
 $buffer->writeElement("time", $currentTime);
-$buffer->writeElement("timezone", $centreon->CentreonGMT->getActiveTimezone($centreon->user->getMyGMT()));
+$buffer->writeElement("timezone", $centreon !== null
+    ? $centreon->CentreonGMT->getActiveTimezone($centreon->user->getMyGMT())
+    : date_default_timezone_get()
+);
 $buffer->endElement();
 
 header('Content-Type: text/xml');
