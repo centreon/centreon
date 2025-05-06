@@ -14,7 +14,12 @@ import {
   buildListingEndpoint
 } from '@centreon/ui';
 import { Resource } from '../../../models';
-import { formatBAStatus, formatStatus } from '../../../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  formatBAStatus,
+  formatStatus,
+  isResourceString
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -104,7 +109,9 @@ export const getListingQueryParameters = ({
   page
 }: GetListingQueryParametersProps): ListingParameters => {
   const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const searchConditions = resourcesToApplyToSearchParameters.map(
@@ -118,11 +125,23 @@ export const getListingQueryParameters = ({
     }
   );
 
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
+
   const search = isEmpty(flatten(searchConditions))
     ? {}
     : {
         search: {
-          conditions: flatten(searchConditions)
+          conditions: flatten([
+            ...searchConditions,
+            ...resourcesWithRegexConditions
+          ])
         }
       };
 
@@ -190,12 +209,22 @@ export const buildCondensedViewEndpoint = ({
 
   const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourceType,
-        values: {
-          $rg: `^${resource.name}$`
-        }
-      }));
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
+      return resourcesToApply.map((resource) => {
+        return {
+          field: resourceType,
+          values: {
+            $rg: `^${resource.name}$`
+          }
+        };
+      });
     }
   );
 

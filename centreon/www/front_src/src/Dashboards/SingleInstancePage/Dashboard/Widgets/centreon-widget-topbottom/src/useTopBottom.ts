@@ -15,7 +15,11 @@ import {
   Metric,
   Resource
 } from '../../models';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getResourcesSearchQueryParameters,
+  getWidgetEndpoint
+} from '../../utils';
 
 import { WidgetResourceType } from '../../../AddEditWidget/models';
 import { metricsTopDecoder } from './api/decoder';
@@ -67,6 +71,9 @@ const useTopBottom = ({
 
   const formattedMetricName = encodeURIComponent(metricName);
 
+  const { resourcesSearchConditions } =
+    getResourcesSearchQueryParameters(resources);
+
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>
@@ -77,14 +84,7 @@ const useTopBottom = ({
           parameters: {
             limit: topBottomSettings.numberOfValues,
             search: {
-              lists: resources.map((resource) => ({
-                field: equals(resource.resourceType, 'hostgroup')
-                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                  : resourceTypeQueryParameter[resource.resourceType],
-                values: equals(resource.resourceType, 'service')
-                  ? pluck('name', resource.resources)
-                  : pluck('id', resource.resources)
-              }))
+              conditions: resourcesSearchConditions
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')

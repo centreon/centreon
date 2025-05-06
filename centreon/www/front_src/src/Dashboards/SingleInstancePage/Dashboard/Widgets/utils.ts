@@ -172,6 +172,7 @@ export const getResourcesUrl = ({
             if (isResourceString(subResources)) {
               return [{ id: subResources, name: subResources }];
             }
+
             return subResources.map(({ name: resourceName }) => ({
               id: includes(name, ['name', 'parent_name'])
                 ? `\\b${resourceName}\\b`
@@ -437,10 +438,14 @@ export const getResourcesSearchQueryParameters = (
   }>;
 } => {
   const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesCustomParameters) &&
+      !isResourceString(resourcesToApply)
   );
   const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
@@ -454,6 +459,15 @@ export const getResourcesSearchQueryParameters = (
     }
   );
 
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
+
   const resourcesCustomParameters = resourcesToApplyToCustomParameters.map(
     ({ resourceType, resources: resourcesToApply }) => ({
       name: includes(resourceType, categories)
@@ -465,9 +479,19 @@ export const getResourcesSearchQueryParameters = (
 
   return {
     resourcesCustomParameters,
-    resourcesSearchConditions: flatten(resourcesSearchConditions)
+    resourcesSearchConditions: flatten([
+      ...resourcesSearchConditions,
+      ...resourcesWithRegexConditions
+    ])
   };
 };
+
+export const buildResourceTypeNameForSearchParameter = (
+  resourceType: WidgetResourceType
+): string =>
+  equals(resourceType, WidgetResourceType.service)
+    ? 'name'
+    : `${resourceType.replace('-', '_')}.name`;
 
 export const getIsMetaServiceSelected = (
   resources: Array<Resource> = []

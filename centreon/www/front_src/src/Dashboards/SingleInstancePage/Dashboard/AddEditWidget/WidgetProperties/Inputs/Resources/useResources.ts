@@ -212,6 +212,13 @@ const singleMetricBaseResources = [
 const isResourcesString = (resources: Array<SelectEntry> | string) =>
   equals(type(resources), 'String');
 
+const getIsRegexResourceType = ({ resourceType, resources }): boolean =>
+  resources.some(
+    (resource: WidgetDataResource) =>
+      resourceType === resource.resourceType &&
+      isResourcesString(resource.resources)
+  );
+
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
@@ -229,15 +236,6 @@ const useResources = ({
   | 'allowRegexOnResourceTypes'
 >): UseResourcesState => {
   const [isValidatingResources, setIsValidatingResources] = useState(false);
-  const [isRegexFieldPerResourceType, setIsRegexPerResourceType] = useState({
-    [WidgetResourceType.host]: false,
-    [WidgetResourceType.service]: false,
-    [WidgetResourceType.serviceGroup]: false,
-    [WidgetResourceType.metaService]: false,
-    [WidgetResourceType.serviceCategory]: false,
-    [WidgetResourceType.hostGroup]: false,
-    [WidgetResourceType.hostCategory]: false
-  });
 
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -246,6 +244,37 @@ const useResources = ({
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
+
+  const [isRegexFieldPerResourceType, setIsRegexPerResourceType] = useState({
+    [WidgetResourceType.host]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.host,
+      resources: value
+    }),
+    [WidgetResourceType.service]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.service,
+      resources: value
+    }),
+    [WidgetResourceType.serviceGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceGroup,
+      resources: value
+    }),
+    [WidgetResourceType.metaService]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.metaService,
+      resources: value
+    }),
+    [WidgetResourceType.serviceCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.serviceCategory,
+      resources: value
+    }),
+    [WidgetResourceType.hostGroup]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostGroup,
+      resources: value
+    }),
+    [WidgetResourceType.hostCategory]: getIsRegexResourceType({
+      resourceType: WidgetResourceType.hostCategory,
+      resources: value
+    })
+  });
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),

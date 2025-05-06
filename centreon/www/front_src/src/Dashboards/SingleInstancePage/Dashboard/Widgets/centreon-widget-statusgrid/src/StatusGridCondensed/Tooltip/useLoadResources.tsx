@@ -10,6 +10,7 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
+import { isResourceString } from '../../../../utils';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -61,6 +62,14 @@ export const useLoadResources = ({
 
   const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {
