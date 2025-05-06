@@ -241,6 +241,8 @@ jobs:
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
+          git diff
+
           # if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
           #   git config user.name "technique-ci"
           #   git config user.email "technique+ci@centreon.com"

@@ -29,14 +29,12 @@ runs:
       with:
         github-token: ${{ inputs.token }}
         script: |
-          const { debug, getInput } = core;
+          const { debug } = core;
           const { getExecOutput } = exec;
-          // import { Octokit } from '@octokit/action'
 
           const { readFileSync } = require('fs');
           const { env } = require('process');
-          // const parseGitDiff = require('parse-git-diff');
-          // import parseGitDiff from 'parse-git-diff';
+
           const { default: parseGitDiff } = require('parse-git-diff');
 
           /*
@@ -60,7 +58,8 @@ runs:
           // Get the diff between the head branch and the base branch (limit to the files in the pull request)
           const diff = await getExecOutput(
             'git',
-            ['diff', '--unified=1', '--', ...pullRequestFiles],
+            ['diff', '--unified=1'],
+            // ['diff', '--unified=1', '--', ...pullRequestFiles],
             { silent: true }
           )
 
@@ -126,8 +125,15 @@ runs:
               debug(`Number of lines: ${fromFileRange.lines}`)
               debug(`Changes: ${JSON.stringify(changes)}`)
 
-              console.log(path);
-              console.log(changes);
+              core.notice(
+                generateSuggestionBody(changes),
+                {
+                  title: `Suggestion for ${path} at line ${fromFileRange.start}`,
+                  startLine: fromFileRange.start,
+                  endLine: fromFileRange.start + fromFileRange.lines - 1,
+                  file: path,
+                }
+              )
               const comment =
                 fromFileRange.lines <= 1
                   ? createSingleLineComment(path, fromFileRange, changes)
