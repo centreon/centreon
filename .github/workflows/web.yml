@@ -219,7 +219,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.head_ref || github.ref_name }}
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          # token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           fetch-depth: 10
 
       - run: |
