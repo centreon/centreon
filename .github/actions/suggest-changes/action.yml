@@ -125,8 +125,15 @@ runs:
               debug(`Number of lines: ${fromFileRange.lines}`)
               debug(`Changes: ${JSON.stringify(changes)}`)
 
-              console.log(path);
-              console.log(changes);
+              core.notice(
+                generateSuggestionBody(changes),
+                {
+                  title: `Suggestion for ${path} at line ${fromFileRange.start}`,
+                  startLine: fromFileRange.start,
+                  endLine: fromFileRange.start + fromFileRange.lines - 1,
+                  file: path,
+                }
+              )
               const comment =
                 fromFileRange.lines <= 1
                   ? createSingleLineComment(path, fromFileRange, changes)
