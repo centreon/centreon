@@ -156,13 +156,22 @@ class SAML implements ProviderAuthenticationInterface
             throw InvalidUserIdAttributeException::create();
         }
 
+        $samlNameIdFormat = $auth->getNameIdFormat();
+        $samlNameIdNameQualifier = $auth->getNameIdNameQualifier();
+        $samlNameIdSPNameQualifier = $auth->getNameIdSPNameQualifier();
+
         $this->username = $attrs[0];
+
         CentreonSession::writeSessionClose('saml', [
             'samlSessionIndex' => $auth->getSessionIndex(),
             'samlNameId' => $auth->getNameId(),
+            'samlNameIdFormat' => ! empty($samlNameIdFormat) ? $samlNameIdFormat : null,
+            'samlNameIdNameQualifier' => ! empty($samlNameIdNameQualifier) ? $samlNameIdNameQualifier : null,
+            'samlNameIdSPNameQualifier' => ! empty($samlNameIdSPNameQualifier) ? $samlNameIdSPNameQualifier : null,
         ]);
 
         $this->loginLogger->info(Provider::SAML, 'checking security access rules');
+
         $this->conditions->validate($this->configuration, $auth->getAttributes());
         $this->rolesMapping->validate($this->configuration, $auth->getAttributes());
         $this->groupsMapping->validate($this->configuration, $auth->getAttributes());
@@ -422,21 +431,24 @@ class SAML implements ProviderAuthenticationInterface
     public function logout(): void
     {
         $returnTo = '/login';
-        $parameters = [];
-        $nameId = null;
-        $sessionIndex = null;
 
-        if (isset($_SESSION['saml']['samlNameId'])) {
-            $nameId = $_SESSION['saml']['samlNameId'];
-        }
-
-        if (isset($_SESSION['saml']['samlSessionIndex'])) {
-            $sessionIndex = $_SESSION['saml']['samlSessionIndex'];
-        }
+        $samlNameId = $_SESSION['saml']['samlNameId'] ?? null;
+        $samlSessionIndex = $_SESSION['saml']['samlSessionIndex'] ?? null;
+        $samlNameIdFormat = $_SESSION['saml']['samlNameIdFormat'] ?? null;
+        $samlNameIdNameQualifier = $_SESSION['saml']['samlNameIdNameQualifier'] ?? null;
+        $samlNameIdSPNameQualifier = $_SESSION['saml']['samlNameIdSPNameQualifier'] ?? null;
 
         $this->info('logout from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
+
+        $auth->logout(
+            returnTo: $returnTo,
+            nameId: $samlNameId,
+            sessionIndex: $samlSessionIndex,
+            nameIdFormat: $samlNameIdFormat,
+            nameIdNameQualifier: $samlNameIdNameQualifier,
+            nameIdSPNameQualifier: $samlNameIdSPNameQualifier
+        );
     }
 
     public function handleCallbackLogoutResponse(): void
