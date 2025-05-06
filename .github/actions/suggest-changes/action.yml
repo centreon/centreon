@@ -31,7 +31,7 @@ runs:
 
           const { readFileSync } = require('fs');
           const { env } = require('process');
-          const { parseGitDiff } = require('parse-git-diff');
+          const parseGitDiff = require('parse-git-diff');
           // const parseGitDiff = await import('parse-git-diff');
           console.log(parseGitDiff);
 
