@@ -42,6 +42,16 @@ include_once _CENTREON_PATH_ . "/www/class/centreonMeta.class.php";
 include_once _CENTREON_PATH_ . "/www/class/centreonContactgroup.class.php";
 include_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
 
+if (!file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
+    # Are we in a terminal? If not then we are more likely run from cron
+    if (posix_isatty(STDIN)) {
+        fwrite(STDERR, "Configuration file \"" . _CENTREON_ETC_ . "/centreon.conf.php\" does not exist.\n");
+        exit(1);
+    } else {
+        exit(0);
+    }
+}
+
 $centreonDbName = $conf_centreon['db'];
 $centreonLog = new CentreonLog();
 
