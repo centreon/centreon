@@ -58,10 +58,6 @@ fi
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
-
-COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
-
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 
@@ -122,6 +118,8 @@ chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 apt-get clean
 
 EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 EXPOSE 80
 
