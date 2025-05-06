@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
-import { useResourceStyles } from '../Inputs.styles';
-import {
-  labelActivateRegex,
-  labelSelectAResource
-} from '../../../../translatedLabels';
 import {
   MultiConnectedAutocompleteField,
   RegexIcon,
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
-import { ReactElement } from 'react';
-import { WidgetDataResource } from '../../../models';
-import { UseResourcesState } from './useResources';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  labelActivateRegex,
+  labelSelectAResource
+} from '../../../../translatedLabels';
+import { WidgetDataResource } from '../../../models';
+import { useResourceStyles } from '../Inputs.styles';
 import RegexField from './RegexField';
+import { UseResourcesState } from './useResources';
 
 interface Props
   extends Pick<

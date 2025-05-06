@@ -35,6 +35,7 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
+import Widget from '../../../../Widgets/centreon-widget-topbottom/src';
 import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
@@ -51,7 +52,6 @@ import {
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
 import {
-  Widget,
   WidgetDataResource,
   WidgetPropertyProps,
   WidgetResourceType
@@ -60,7 +60,6 @@ import {
   buildResourceTypeNameForSearchParameter,
   getDataProperty
 } from '../utils';
-import Widget from '../../../../Widgets/centreon-widget-topbottom/src';
 
 export interface UseResourcesState {
   addButtonHidden?: boolean;

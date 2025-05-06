@@ -24,9 +24,9 @@ import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
-import useResources from './useResources';
-import ResourceField from './ResourceField';
 import { SelectField } from '@centreon/ui';
+import ResourceField from './ResourceField';
+import useResources from './useResources';
 
 const Resources = ({
   propertyName,

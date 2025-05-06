@@ -415,11 +415,6 @@ const resourceTypesCustomParameters = [
   'service-group',
   'service-category'
 ];
-const resourcesSearchMapping = {
-  host: 'parent_name',
-  'meta-service': 'name',
-  service: 'name'
-};
 const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
 const categories = ['host-category', 'service-category'];
 
@@ -451,7 +446,7 @@ export const getResourcesSearchQueryParameters = (
   const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
-        field: resourcesSearchMapping[resourceType],
+        field: buildResourceTypeNameForSearchParameter(resourceType),
         values: {
           $rg: `^${resource.name}$`
         }

@@ -1,9 +1,8 @@
 import { useAtomValue } from 'jotai';
-import { equals, isNil, pluck } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import {
   buildListingEndpoint,
-  resourceTypeQueryParameter,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
@@ -20,8 +19,6 @@ import {
   getResourcesSearchQueryParameters,
   getWidgetEndpoint
 } from '../../utils';
-
-import { WidgetResourceType } from '../../../AddEditWidget/models';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';

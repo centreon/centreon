@@ -1,11 +1,11 @@
 import { RegexIcon, TextField } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
-import { useResourceStyles } from '../Inputs.styles';
 import { useTranslation } from 'react-i18next';
 import {
   labelDeactivateRegex,
   labelEnterRegex
 } from '../../../../translatedLabels';
+import { useResourceStyles } from '../Inputs.styles';
 
 const RegexField = ({
   changeRegexFieldOnResourceType,
