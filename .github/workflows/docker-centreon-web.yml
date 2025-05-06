@@ -256,7 +256,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        include:
+          - operating_system: "bookworm"
+            database: "mysql:8.0"
 
     name: dockerize ${{ matrix.operating_system }}
 
