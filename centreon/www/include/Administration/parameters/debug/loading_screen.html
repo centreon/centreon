@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Center the loader */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3576c0;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+.wait-message {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+
+#top-message {
+  margin : 10%;
+}
+
+#bottom-message {
+  margin : 23%;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 } 
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom { 
+  from{ bottom:-100px; opacity:0 } 
+  to{ bottom:0; opacity:1 }
+}
+
+</style>
+</head>
+<body onload="generate_audit()" style="margin:0;">
+
+<div id="loader"></div>
+<h2  class = "wait-message" id="top-message">Generating archive, please wait 😁</h2>
+<p class = "wait-message" id="bottom-message">This might be a good time to get a coffee ☕</p>
+</div>
+
+<script>
+function generate_audit() {
+        window.location.href='audit.php';
+}
+</script>
+
+</body>
+</html>

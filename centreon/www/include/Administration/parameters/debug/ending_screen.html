@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+        <html>
+                <head>
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <style>
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 }
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom {
+  from{ bottom:-100px; opacity:0 }
+  to{ bottom:0; opacity:1 }
+}
+
+#myDiv {
+  display: block;
+  text-align: center;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+</style>
+                </head>
+                <body style="margin:0;">
+                        <div id="myDiv" class="animate-bottom">
+  <h2></h2>
+        <h2>You are now ready to open a ticket !</h2>
+  <a href="https://support.centreon.com" target="_blank" rel="noopener noreferrer">Contact the support team</a>
+</div>
+                </body>
+        </html>
