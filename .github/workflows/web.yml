@@ -251,7 +251,7 @@ jobs:
           # fi
         shell: bash
 
-      - uses: ./.github/actions/suggests-changes
+      - uses: ./.github/actions/suggest-changes
         with:
           comment: automatic code suggestions
 
