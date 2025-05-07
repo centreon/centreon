@@ -16,7 +16,9 @@ elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
 fi
 
-apt-get install -y /tmp/packages-centreon/centreon-*.deb
+ls -lrh /tmp/packages-centreon/*
+exit 1
+apt-get install -y /tmp/packages-centreon/centreon-web.deb
 
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
