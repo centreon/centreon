@@ -54,6 +54,7 @@ echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSI
 echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
+apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
 touch /var/log/php8.2-fpm-centreon-error.log
