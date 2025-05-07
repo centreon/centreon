@@ -50,6 +50,7 @@ final class AddAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -76,6 +77,20 @@ final class AddAgentConfiguration
             }
 
             $request->pollerIds = array_unique($request->pollerIds);
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $pollers = $this->readAcRepository->findPollersByIds($request->pollerIds);
+                foreach ($pollers as $poller) {
+                    if ($poller !== null && $poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                        $presenter->presentResponse(
+                            new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                        );
+
+                        return;
+                    }
+                }
+            }
+
             $type = Type::from($request->type);
 
             $this->validator->validateRequestOrFail($request);
@@ -150,8 +165,12 @@ final class AddAgentConfiguration
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
-    {
+    private function save(
+        NewAgentConfiguration $agentConfiguration,
+        array $pollers,
+        ?string $module,
+        array $needBrokerDirectives
+    ): int {
         try {
             $this->repositoryManager->startTransaction();
 
