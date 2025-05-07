@@ -58,8 +58,7 @@ enabled = 1
 " > /etc/yum.repos.d/mariadb.repo
 
 echo "Adding trusted mariadb package signing keys..."
-rpm_key_url="https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY"
-if rpm --import $rpm_key_url
+if rpm --import "https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY"
 then
   curl -o /etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY
   echo "Successfully added trusted package signing keys"
