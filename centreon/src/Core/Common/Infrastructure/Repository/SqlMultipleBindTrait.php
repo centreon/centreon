@@ -65,7 +65,7 @@ trait SqlMultipleBindTrait
         QueryParameterTypeEnum $paramType
     ): array {
         $placeholders = [];
-        $parameters   = [];
+        $parameters = [];
 
         foreach (array_values($values) as $idx => $val) {
             $name = "{$prefix}_{$idx}";
@@ -80,8 +80,8 @@ trait SqlMultipleBindTrait
         }
 
         return [
-            'parameters'     => $parameters,
-            'placeholderList'=> implode(', ', $placeholders),
+            'parameters' => $parameters,
+            'placeholderList' => implode(', ', $placeholders),
         ];
     }
 }

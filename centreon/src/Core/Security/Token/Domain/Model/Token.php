@@ -27,59 +27,50 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
 
-class Token
+abstract class Token
 {
     public const MAX_TOKEN_NAME_LENGTH = 255;
     public const MAX_USER_NAME_LENGTH = 255;
 
+    protected string $shortName;
+
     /**
      * @param TrimmedString $name
-     * @param int $userId
-     * @param TrimmedString $userName
      * @param int|null $creatorId
      * @param TrimmedString $creatorName
      * @param \DateTimeInterface $creationDate
-     * @param \DateTimeInterface $expirationDate
+     * @param ?\DateTimeInterface $expirationDate
+     * @param TokenTypeEnum $type
      * @param bool $isRevoked
      *
      * @throws AssertionFailedException
      */
     public function __construct(
         private readonly TrimmedString $name,
-        private readonly int $userId,
-        private readonly TrimmedString $userName,
         private readonly ?int $creatorId,
         private readonly TrimmedString $creatorName,
         private readonly \DateTimeInterface $creationDate,
-        private readonly \DateTimeInterface $expirationDate,
-        private readonly bool $isRevoked = false,
+        private readonly ?\DateTimeInterface $expirationDate,
+        private readonly TokenTypeEnum $type,
+        private bool $isRevoked = false,
     ) {
-        Assertion::notEmptyString((string) $name, 'Token::name');
-        Assertion::maxLength((string) $name, self::MAX_TOKEN_NAME_LENGTH, 'Token::name');
-        Assertion::positiveInt($this->userId, 'Token::userId');
-        Assertion::notEmptyString((string) $userName, 'Token::userName');
-        Assertion::maxLength((string) $userName, self::MAX_USER_NAME_LENGTH, 'Token::userName');
+        Assertion::notEmptyString((string) $name, "{$this->shortName}::name");
+        Assertion::maxLength((string) $name, self::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
+
         if ($this->creatorId !== null) {
-            Assertion::positiveInt($this->creatorId, 'Token::creatorId');
+            Assertion::positiveInt($this->creatorId, "{$this->shortName}::creatorId");
         }
-        Assertion::notEmptyString((string) $creatorName, 'Token::creatorName');
-        Assertion::maxLength((string) $creatorName, self::MAX_USER_NAME_LENGTH, 'Token::creatorName');
-        Assertion::maxDate($creationDate, $expirationDate, 'Token::creationDate');
+        Assertion::notEmptyString((string) $creatorName, "{$this->shortName}::creatorName");
+        Assertion::maxLength((string) $creatorName, self::MAX_USER_NAME_LENGTH, "{$this->shortName}::creatorName");
+
+        if ($expirationDate !== null) {
+            Assertion::minDate($expirationDate, $creationDate, "{$this->shortName}::expirationDate");
+        }
     }
 
     public function getName(): string
     {
         return $this->name->value;
-    }
-
-    public function getUserId(): int
-    {
-        return $this->userId;
-    }
-
-    public function getUserName(): string
-    {
-        return $this->userName->value;
     }
 
     public function getCreatorId(): ?int
@@ -97,7 +88,7 @@ class Token
         return $this->creationDate;
     }
 
-    public function getExpirationDate(): \DateTimeInterface
+    public function getExpirationDate(): ?\DateTimeInterface
     {
         return $this->expirationDate;
     }
@@ -105,5 +96,15 @@ class Token
     public function isRevoked(): bool
     {
         return $this->isRevoked;
+    }
+
+    public function getType(): TokenTypeEnum
+    {
+        return $this->type;
+    }
+
+    public function setIsRevoked(bool $isRevoked): void
+    {
+        $this->isRevoked = $isRevoked;
     }
 }

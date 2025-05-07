@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2025 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -113,22 +113,34 @@ try {
     $fromClause = substr($queryForCount, $fromPos);
 
     $countSql = 'SELECT COUNT(*) AS total' . $fromClause;
-    $countRow = $pearDB->fetchAssociative($countSql, $listParams);
+    $countRow = $pearDB->fetchAssociative($countSql, $queryParams);
     $totalRows    = (int) ($countRow['total'] ?? 0);
 } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         'Error fetching host categories list',
-        ['search' => $search, 'hcString' => $hcString],
+        [
+            'hcString' => $hcString,
+            'search' => $search,
+            'limit' => $limit,
+            'num' => $num
+        ],
         $exception
     );
-    $hostCategories = [];
-    $totalRows = 0;
+    throw new RepositoryException(
+        "Error fetching host categories list",
+        [
+            'hcString' => $hcString,
+            'search' => $search,
+            'limit' => $limit,
+            'num' => $num
+        ],
+        $exception
+    );
 }
 
 // Prepare pagination and template
-$rows = $hostCategories;
-$rowsCount = $totalRows;
+$rows = $totalRows;
 $search = tidySearchKey($search, $advanced_search);
 
 include_once "./include/common/checkPagination.php";
@@ -141,15 +153,13 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // Header menu definitions
-$tpl->assignMultiple([
-    'headerMenu_name' => _('Name'),
-    'headerMenu_desc' => _('Alias'),
-    'headerMenu_status' => _('Status'),
-    'headerMenu_hc_type' => _('Type'),
-    'headerMenu_hostAct' => _('Enabled Hosts'),
-    'headerMenu_hostDeact' => _('Disabled Hosts'),
-    'headerMenu_options' => _('Options')
-]);
+$tpl->assign('headerMenu_name',  _('Name'));
+$tpl->assign('headerMenu_desc',  _('Alias'));
+$tpl->assign('headerMenu_status',  _('Status'));
+$tpl->assign('headerMenu_hc_type', _('Type'));
+$tpl->assign('headerMenu_hostAct', _('Enabled Hosts'));
+$tpl->assign('headerMenu_hostDeact', _('Disabled Hosts'));
+$tpl->assign('headerMenu_options', _('Options'));
 
 // Build search form
 $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=$p");
