@@ -8233,7 +8233,7 @@ msgstr "Toutes les heures"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:224
 msgid "Daily"
-msgstr "Quotidienne"
+msgstr "Journalière"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:225
 msgid "Weekly"
@@ -19876,3 +19876,37 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 msgid "The selected inherited service template does not contain any check command. You must select one here."
 msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
+
+msgid "Business Activity availability history"
+msgstr "Historique de la disponibilité d’une Activité Métier"
+
+msgid "Displays availability, performance and alerts for a Business Activity"
+msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
+
+msgid "Aggregation frequency"
+msgstr "Fréquence d'agrégation"
+
+msgid "Reporting period"
+msgstr "Période de génération"
+
+msgid "This month"
+msgstr "Ce mois-ci"
+
+msgid "This year"
+msgstr "Cette année"
+
+msgid "Display availability as"
+msgstr "Afficher la disponibilité comme"
+
+msgid "Y-axis boundaries"
+msgstr "Limitations de l'axe Y"
+
+msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
+msgstr "Les seuils peuvent être masqués si les valeurs min et max personnalisées de l'axe Y sont inférieures/supérieures aux seuils."
+
+msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
+
+msgid "Custom boundaries apply to the percentage."
+msgstr "Les limitations personnalisées s'appliquent au pourcentage."
+

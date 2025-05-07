@@ -9,7 +9,7 @@
     "aggregationPeriod": {
       "type": "radio",
       "defaultValue": "daily",
-      "label": "Aggregation period",
+      "label": "Aggregation frequency",
       "options": [
         {
           "id": "daily",
@@ -31,7 +31,7 @@
     "reportingPeriod": {
       "type": "select",
       "defaultValue": "0",
-      "label": "Reporting Period",
+      "label": "Reporting period",
       "options": [
         {
           "id": "0",
@@ -55,7 +55,7 @@
         },
         {
           "id": "5",
-          "name": "Last 12 year"
+          "name": "Last 12 months"
         }
       ],
       "hiddenCondition": [
