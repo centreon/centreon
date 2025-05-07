@@ -28,12 +28,21 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\CmaToken;
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
+
+    public function __construct(
+        private readonly ReadTokenRepositoryInterface $tokenRepository,
+    )
+    {
+    }
+
     /**
      * @inheritDoc
      */
@@ -59,19 +68,38 @@ class CmaValidator implements TypeValidatorInterface
                 $this->validateFilename("configuration.{$key}", $value, false);
             }
 
+            if ($key === 'tokens') {
+                if ($connectionMode !== ConnectionModeEnum::INSECURE && $tokens === []) {
+                    AgentConfigurationException::tokensAreMandatory();
+                }
+                $this->validateTokens($value, $request->connection_mode);
+            }
+
             if ($key === 'hosts') {
+                $tokens = [];
                 foreach ($value as $host) {
                     /** @var array{
                      *		address: string,
                      *		port: int,
                      *		poller_ca_certificate: ?string,
-                     *		poller_ca_name: ?string
+                     *		poller_ca_name: ?string,
+                     *      token?: ?array{name:string,creator_id:int}
                      *	} $host
                      */
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
+
+                    if (
+                        $connectionMode !== ConnectionModeEnum::INSECURE
+                        && (! isset($host['token']) ||  $host['token'] === null)
+                    ) {
+                        AgentConfigurationException::tokensAreMandatory();
+                    }
+
+                    $tokens[] = $host['token'];
                 }
+                $this->validateTokens($tokens);
             }
         }
     }
@@ -79,7 +107,6 @@ class CmaValidator implements TypeValidatorInterface
     /**
      * @param string $name
      * @param ?string $value
-     * @param bool $isCertificate
      *
      * @throws AgentConfigurationException
      */
@@ -91,6 +118,20 @@ class CmaValidator implements TypeValidatorInterface
 
         if ($value === null || preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
+        }
+    }
+
+    /**
+     * Summary of validateTokens
+     * @param array<array{name:string,creator_id:int}> $tokens
+     */
+    private function validateTokens(array $tokens): void
+    {
+        foreach ($tokens as $token) {
+            $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creatorId']);
+            if ( $tokenObj === null || ! $tokenObj instanceOf CmaToken) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creatorId']);
+            }
         }
     }
 }

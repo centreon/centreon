@@ -35,11 +35,13 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *		otel_public_certificate: string,
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
+ *      tokens?: array<array{name:string,creator_id:int}>,
  *		hosts: array<array{
  *			address: string,
  *			port: int,
  *			poller_ca_certificate: ?string,
  *			poller_ca_name: ?string,
+ *          token?: ?array{name:string,creator_id:int}
  *		}>
  *  }
  */
@@ -81,7 +83,23 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             $parameters['hosts'] = [];
         }
 
+        if ($parameters['is_reverse'] === false) {
+            Assertion::notEmpty($parameters['tokens'] ?? [], 'configuration.tokens');
+            foreach ($parameters['tokens'] as $token) {
+                Assertion::notEmptyString($token);
+            }
+        } else {
+            $parameters['tokens'] = [];
+        }
+
         foreach ($parameters['hosts'] as $host) {
+            if ($parameters['is_reverse'] === true) {
+                Assertion::notNull($host['token'], 'configuration.hosts[].token');
+                Assertion::notEmptyString($host['token']['name']);
+                Assertion::positiveInt($host['token']['creator_id']);
+            } else {
+                $host['token'] = null;
+            }
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
             $this->validateOptionalCertificate(
@@ -173,7 +191,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @param ?string $certificate
      * @param string $field Used for error reporting
-     * 
+     *
      * @throws AssertionFailedException
      */
     private function validateCertificate(?string $certificate, string $field): void
@@ -187,7 +205,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @param ?string $certificate
      * @param string $field Used for error reporting
-     * 
+     *
      * @throws AssertionFailedException
      */
     private function validateOptionalCertificate(?string $certificate, string $field): void
