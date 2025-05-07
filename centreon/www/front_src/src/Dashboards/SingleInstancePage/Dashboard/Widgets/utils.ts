@@ -481,13 +481,19 @@ export const getResourcesSearchQueryParameters = (
   };
 };
 
+const resourceTypeMapping = {
+  [WidgetResourceType.host]: 'parent_name',
+  [WidgetResourceType.service]: 'name',
+  [WidgetResourceType.metaService]: 'name',
+  [WidgetResourceType.serviceGroup]: 'service_group.name',
+  [WidgetResourceType.hostGroup]: 'host_group.name',
+  [WidgetResourceType.serviceCategory]: 'service_category.name',
+  [WidgetResourceType.hostCategory]: 'host_category.name'
+};
+
 export const buildResourceTypeNameForSearchParameter = (
   resourceType: WidgetResourceType
-): string =>
-  equals(resourceType, WidgetResourceType.service) ||
-  equals(resourceType, WidgetResourceType.metaService)
-    ? 'name'
-    : `${resourceType.replace('-', '_')}.name`;
+): string => resourceTypeMapping[resourceType];
 
 export const getIsMetaServiceSelected = (
   resources: Array<Resource> = []

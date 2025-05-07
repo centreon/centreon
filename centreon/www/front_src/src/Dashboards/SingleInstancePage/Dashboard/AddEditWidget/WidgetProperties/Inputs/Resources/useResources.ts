@@ -51,6 +51,7 @@ import {
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
 import {
+  Widget,
   WidgetDataResource,
   WidgetPropertyProps,
   WidgetResourceType
