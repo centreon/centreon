@@ -131,12 +131,34 @@ FROM web_dependencies AS web_dependencies_collect
 
 RUN bash -e <<EOF
 
-dnf install -y \
-  centreon-common \
-  centreon-gorgone \
-  centreon-engine \
-  centreon-broker-cbd \
-  centreon-connector
+mkdir -p /tmp/packages-collect
+cd /tmp/packages-collect
+
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-cbd-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-core-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-graphite-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-influxdb-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-broker-selinux-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-clib-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-collect-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-collect-client-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-connector-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-connector-perl-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-connector-ssh-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-engine-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-engine-daemon-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-engine-opentelemetry-25.05.0-1746623347.286f827.el9.x86_64.rpm
+wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-167934-module-cfg-file/centreon-engine-selinux-25.05.0-1746623347.286f827.el9.x86_64.rpm
+
+dnf install -y ./centreon*.rpm centreon-common centreon-gorgone
+
+# dnf install -y \
+#   centreon-common \
+#   centreon-gorgone \
+#   centreon-engine \
+#   centreon-broker-cbd \
+#   centreon-connector
 
 dnf clean all --enablerepo=*
 

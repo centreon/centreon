@@ -45,6 +45,7 @@ const AUTOLOGIN_FIELDS = ['autologin', 'useralias', 'token'];
 updateCentreonBaseUri();
 include __DIR__ . '/index.html';
 
+
 CentreonSession::start();
 
 /*
