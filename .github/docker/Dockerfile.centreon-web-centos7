@@ -41,9 +41,22 @@ yum install -y remi-release-7.rpm
 rm -f remi-release-7.rpm
 yum-config-manager --enable remi-php81
 
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version=7 --mariadb-server-version="mariadb-10.5" --skip-maxscale
-echo "Replace broken EL7 mariadb repo."
-sed -i 's#^baseurl = https:\/\/dlm.*#baseurl = https://mirror.mariadb.org/yum/10.5/rhel/7/x86_64#g' /etc/yum.repos.d/mariadb.repo
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version=7 --mariadb-server-version="mariadb-10.3" --skip-maxscale
+echo "Using custom mariadb repofile for rhel 7 as repo_setup script does not support it anymore."
+echo "[mariadb-main]
+name = MariaDB Server
+baseurl = https://mirror.mariadb.org/yum/10.5/rhel/7/x86_64
+gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY
+gpgcheck = 1
+enabled = 1
+
+[mariadb-tools]
+name = MariaDB Tools
+baseurl = https://downloads.mariadb.com/Tools/rhel/7/x86_64
+gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Enterprise-GPG-KEY
+gpgcheck = 1
+enabled = 1
+" > /etc/yum.repos.d/mariadb.repo
 yum install -y MariaDB-server MariaDB-client
 rpm -e --nodeps galera-4
 rm -f /var/lib/mysql/ib_logfile0
