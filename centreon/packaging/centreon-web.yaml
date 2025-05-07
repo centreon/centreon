@@ -428,44 +428,13 @@ overrides:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
       - centreon-perl-libs
-      - centreon-poller = ${VERSION}-${RELEASE}${DIST}
-      - centreon-broker-cbd >= ${MAJOR_VERSION}
-      - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
-      - bc
-      - cronie
-      - initscripts
-      - "(mariadb or mysql)"
-      - httpd
-      - php-common >= 8.2
-      - php-common < 8.3
-      - php-cli
-      - php-pdo
-      - php-mysqlnd
-      - php-gd
-      - php-xml
-      - php-mbstring
-      - php-ldap
-      - php-snmp
-      - php-intl
-      - php-fpm
-      - php-curl
-      - php-zip
-      - php-pear
-      - php-json
-      - openssl
-      - perl-DBD-MySQL
-      - perl-DBI
-      - perl-HTML-Parser
-      - perl(Net::SNMP)
+      # - perl-DBD-MySQL
+      # - perl-DBI
+      # - perl-HTML-Parser
+      # - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
-      - net-snmp
-      - net-snmp-utils
-      - rsync
-      - brotli
-      - lua-curl >= 0.3.13-20
     provides:
-      - centreon-backup
       - centreon-clapi
       - centreon-knowledgebase
       - centreon-partitioning
