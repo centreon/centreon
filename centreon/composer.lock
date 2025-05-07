@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "224ee21226b87fe9e7ffb75e616439a0",
+    "content-hash": "d6967cc08a82e27e24c172acb3a0c7f3",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -7053,12 +7053,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "c0547ab9cc2b98ebd1bfada9bc896ef95321e507"
+                "reference": "d9f9771573768d2e24d9591fdf5ebc7bd5141a5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/c0547ab9cc2b98ebd1bfada9bc896ef95321e507",
-                "reference": "c0547ab9cc2b98ebd1bfada9bc896ef95321e507",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d9f9771573768d2e24d9591fdf5ebc7bd5141a5b",
+                "reference": "d9f9771573768d2e24d9591fdf5ebc7bd5141a5b",
                 "shasum": ""
             },
             "require": {
@@ -7114,7 +7114,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/24.10.x"
             },
-            "time": "2025-04-03T07:20:39+00:00"
+            "time": "2025-04-07T07:21:13+00:00"
         },
         {
             "name": "clue/ndjson-react",
@@ -9518,6 +9518,56 @@
                 "source": "https://github.com/phpstan/phpstan-beberlei-assert/tree/1.1.3"
             },
             "time": "2024-09-11T15:44:56+00:00"
+        },
+        {
+            "name": "phpstan/phpstan-mockery",
+            "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan-mockery.git",
+                "reference": "98cac6e256b4ee60fdeb26a7dd81bb271b454e80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan-mockery/zipball/98cac6e256b4ee60fdeb26a7dd81bb271b454e80",
+                "reference": "98cac6e256b4ee60fdeb26a7dd81bb271b454e80",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0",
+                "phpstan/phpstan": "^1.12"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6.11",
+                "nikic/php-parser": "^4.13.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/phpstan-phpunit": "^1.4",
+                "phpstan/phpstan-strict-rules": "^1.6",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan Mockery extension",
+            "support": {
+                "issues": "https://github.com/phpstan/phpstan-mockery/issues",
+                "source": "https://github.com/phpstan/phpstan-mockery/tree/1.1.3"
+            },
+            "time": "2024-09-11T15:47:29+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -13235,7 +13285,7 @@
         "ext-simplexml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.2"
     },
