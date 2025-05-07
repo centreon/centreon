@@ -1,13 +1,24 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 apt-get update
-apt-get install -y locales php-cli gettext zstd
+apt-get install -y \
+    gettext \
+    git \
+    locales \
+    php-cli \
+    zstd
 apt-get clean
+
+echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "fr_FR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "es_ES.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "pt_BR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "pt_PT.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "de_DE.UTF-8 UTF-8" | tee -a /etc/locale.gen
+locale-gen
 
 EOF
 
-ENV LANG en_US.utf8
-
-WORKDIR /src
+ENV LANG=en_US.utf8
