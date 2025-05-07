@@ -45,9 +45,10 @@ interface InitializeProps {
   isEditing?: boolean;
   properties?: FederatedWidgetProperties;
   restrictedResourceTypes?: Array<string>;
-  singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   singleResourceType?: boolean;
+  forcedResourceType?: string;
+  defaultResourceTypes?: Array<string>;
 }
 
 const initialize = ({
@@ -57,14 +58,14 @@ const initialize = ({
   restrictedResourceTypes = [],
   excludedResourceTypes = [],
   singleResourceSelection = false,
-  singleMetricSelection = false,
   emptyData = false,
-  properties = widgetDataProperties
+  properties = widgetDataProperties,
+  forcedResourceType,
+  defaultResourceTypes
 }: InitializeProps): void => {
   const store = createStore();
   store.set(widgetPropertiesAtom, {
     ...properties,
-    singleMetricSelection,
     singleResourceSelection
   });
   store.set(isEditingAtom, isEditing);
@@ -150,6 +151,8 @@ const initialize = ({
               restrictedResourceTypes={restrictedResourceTypes}
               singleResourceType={singleResourceType}
               type=""
+              forcedResourceType={forcedResourceType}
+              defaultResourceTypes={defaultResourceTypes}
             />
           </Formik>
         </Provider>
@@ -160,7 +163,11 @@ const initialize = ({
 
 describe('Resources', () => {
   it('displays host and service type when the corresponding atom is set to true', () => {
-    initialize({ singleMetricSelection: true, singleResourceSelection: true });
+    initialize({
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service'],
+      singleResourceSelection: true
+    });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
@@ -443,8 +450,9 @@ describe('Resources tree', () => {
   it('allows to select a meta-service or host as resource type when corresponding props and restricted resoource types are set', () => {
     initialize({
       restrictedResourceTypes: ['host', 'meta-service'],
-      singleMetricSelection: true,
-      singleResourceSelection: true
+      singleResourceSelection: true,
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();

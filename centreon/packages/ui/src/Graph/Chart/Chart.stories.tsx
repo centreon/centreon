@@ -717,3 +717,44 @@ export const WithAdditionalLines: Story = {
     />
   )
 };
+
+export const linesAndBarsMinMax: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    min: 10,
+    max: 30,
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsMinMaxForUnit: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    min: 10,
+    max: 30,
+    boundariesUnit: '%',
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
