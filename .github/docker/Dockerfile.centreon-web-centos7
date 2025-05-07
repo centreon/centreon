@@ -56,6 +56,17 @@ gpgkey = file:///etc/pki/rpm-gpg/MariaDB-Enterprise-GPG-KEY
 gpgcheck = 1
 enabled = 1
 " > /etc/yum.repos.d/mariadb.repo
+
+echo "Adding trusted package signing keys..."
+rpm_key_url="https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY"
+if rpm --import ${rpm_key_url}
+  then
+    curl -o /etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY
+    msg info 'Successfully added trusted package signing keys'
+  else
+    msg error 'Failed to add trusted package signing keys'
+  fi
+
 yum install -y MariaDB-server MariaDB-client
 rpm -e --nodeps galera-4
 rm -f /var/lib/mysql/ib_logfile0
