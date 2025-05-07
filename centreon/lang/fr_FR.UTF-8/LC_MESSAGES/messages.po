@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 08:34+0000\n"
+"POT-Creation-Date: 2025-05-07 08:48+0000\n"
 "PO-Revision-Date: 2017-03-17 09:57+0100\n"
 "Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
 "Language-Team: Centreon Team\n"
@@ -19229,11 +19229,6 @@ msgstr "mois"
 msgid "movement"
 msgstr "mouvement"
 
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "new translation"
-msgstr "Visualiser une escalade"
-
 #: centreon/www/install/front_translate.php
 msgid "none"
 msgstr "aucun"
@@ -19408,6 +19403,10 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 #, fuzzy
 msgid "{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
+
+#, fuzzy
+#~ msgid "new translation"
+#~ msgstr "Visualiser une escalade"
 
 #~ msgid "Correlation file"
 #~ msgstr "Fichier de corrélation"

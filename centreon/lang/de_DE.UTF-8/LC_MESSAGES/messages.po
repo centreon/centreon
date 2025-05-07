@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 08:33+0000\n"
+"POT-Creation-Date: 2025-05-07 08:48+0000\n"
 "PO-Revision-Date: 2022-08-19 12:55+0200\n"
 "Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
 "Language-Team: Centreon Team\n"
@@ -19637,11 +19637,6 @@ msgstr "Letzter Monat"
 msgid "movement"
 msgstr "Bewegung"
 
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "new translation"
-msgstr "Eskalation anzeigen"
-
 #: centreon/www/install/front_translate.php
 msgid "none"
 msgstr ""
@@ -19816,6 +19811,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
 msgstr ""
+
+#, fuzzy
+#~ msgid "new translation"
+#~ msgstr "Eskalation anzeigen"
 
 #~ msgid "Retention file"
 #~ msgstr "Aufbewahrungsdatei"

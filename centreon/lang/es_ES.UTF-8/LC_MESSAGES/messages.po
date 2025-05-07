@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 08:34+0000\n"
+"POT-Creation-Date: 2025-05-07 08:48+0000\n"
 "PO-Revision-Date: 2018-10-15 09:28+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -25499,11 +25499,6 @@ msgstr "El mes pasado"
 msgid "movement"
 msgstr "movimiento"
 
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "new translation"
-msgstr "Visualizar una escalada"
-
 #: centreon/www/install/front_translate.php
 msgid "none"
 msgstr ""
@@ -25676,6 +25671,10 @@ msgstr ""
 #, fuzzy
 msgid "{{total}} element(s) found"
 msgstr "artículo (s) encontrado (s)"
+
+#, fuzzy
+#~ msgid "new translation"
+#~ msgstr "Visualizar una escalada"
 
 #~ msgid "Correlation file"
 #~ msgstr "Archivo de correlación"

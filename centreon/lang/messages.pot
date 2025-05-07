@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 08:34+0000\n"
+"POT-Creation-Date: 2025-05-07 08:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20126,10 +20126,6 @@ msgstr ""
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "movement"
-msgstr ""
-
-#: centreon/www/install/index.php
-msgid "new translation"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
