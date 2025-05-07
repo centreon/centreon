@@ -176,6 +176,9 @@ export const useInputs = (): {
                     label: t(labelPollers),
                     connectedAutocomplete: {
                       additionalConditionParameters: [],
+                      customQueryParameters: [
+                        { name: 'exclude_central', value: true }
+                      ],
                       endpoint: pollersEndpoint,
                       filterKey: 'name',
                       chipColor: 'primary'

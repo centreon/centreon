@@ -1,7 +1,8 @@
 import { IconButton } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 import { DeleteOutline } from '@mui/icons-material';
-import { useSetAtom } from 'jotai';
-import { isNotNil, pick } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNotNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { itemToDeleteAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
@@ -19,6 +20,13 @@ const Action = ({ row }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  const { isAdmin } = useAtomValue(userAtom);
+  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
+
+  const hasCentral = row?.pollers?.some((poller) =>
+    equals(poller?.isCentral, true)
+  );
+
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
 
   const askBeforeDelete = (): void => {
@@ -31,6 +39,10 @@ const Action = ({ row }: Props): JSX.Element => {
         : undefined
     });
   };
+
+  if (!isAdmin && isCloudPlatform && hasCentral) {
+    return;
+  }
 
   return (
     <IconButton

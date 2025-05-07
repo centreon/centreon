@@ -1,6 +1,8 @@
 import { Listing } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { isNotNil } from 'ramda';
+import { equals, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   changeSortAtom,
@@ -33,8 +35,22 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   const changeSort = useSetAtom(changeSortAtom);
   const setOpenFormModal = useSetAtom(openFormModalAtom);
 
-  const updateAgentConfiguration = ({ id, internalListingParentId }) => {
-    if (isNotNil(internalListingParentId)) {
+  const { isAdmin } = useAtomValue(userAtom);
+  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
+
+  const updateAgentConfiguration = ({
+    id,
+    internalListingParentId,
+    pollers
+  }) => {
+    const hasCentral = pollers.some((poller) =>
+      equals(poller?.isCentral, true)
+    );
+
+    if (
+      isNotNil(internalListingParentId) ||
+      (!isAdmin && isCloudPlatform && hasCentral)
+    ) {
       return;
     }
 
