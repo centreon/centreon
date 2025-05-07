@@ -6,6 +6,7 @@ ARG IS_CLOUD
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+
 # Install required dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     libldap2-dev \
@@ -17,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     wget \
+    gpg \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-install \
         pdo_mysql \
@@ -35,10 +37,6 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
     --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
     
-echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
-wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
 if [[ "$STABILITY" == "testing" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
@@ -46,7 +44,16 @@ elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
 fi
 
-ls -lrh /tmp/packages-centreon/*
+VERSION_CODENAME=\$(
+  . /etc/os-release
+  echo \$VERSION_CODENAME
+)
+
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
 touch /var/log/php8.2-fpm-centreon-error.log
