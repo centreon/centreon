@@ -84,11 +84,12 @@ UPDATE `cfg_nagios` SET `log_file` = '@monitoring_varlog@/centengine.log',
     `max_debug_file_size` = '1000000000',
     `log_pid` = '1',
     `cfg_file` = 'centengine.cfg',
-    `logger_version` = 'log_v2_enabled';
+    `logger_version` = 'log_v2_enabled',
+    `broker_module_cfg_file` = '@centreonbroker_etc@/centreal-module.json';
 
 INSERT INTO `cfg_nagios_logger`
-(`cfg_nagios_id`, `log_v2_logger`, `log_level_functions`, `log_level_config`, `log_level_events`, `log_level_checks`, `log_level_notifications`, `log_level_eventbroker`, `log_level_external_command`, `log_level_commands`, `log_level_downtimes`, `log_level_comments`, `log_level_macros`, `log_level_process`, `log_level_runtime`, `broker_module_cfg_file`) VALUES
-(1, 'file', 'warning', 'info', 'info', 'info', 'info', 'warning', 'info', 'warning', 'info', 'info', 'warning', 'info', 'warning', '@centreonbroker_etc@/centreal-module.json');
+(`cfg_nagios_id`, `log_v2_logger`, `log_level_functions`, `log_level_config`, `log_level_events`, `log_level_checks`, `log_level_notifications`, `log_level_eventbroker`, `log_level_external_command`, `log_level_commands`, `log_level_downtimes`, `log_level_comments`, `log_level_macros`, `log_level_process`, `log_level_runtime`) VALUES
+(1, 'file', 'warning', 'info', 'info', 'info', 'info', 'warning', 'info', 'warning', 'info', 'info', 'warning', 'info', 'warning');
 
 INSERT INTO `cfg_nagios_broker_module` (`cfg_nagios_id`, `broker_module`) VALUES (1, '@centreon_engine_lib@/externalcmd.so');
 
