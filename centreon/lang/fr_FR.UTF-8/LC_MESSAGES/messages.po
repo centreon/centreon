@@ -19658,7 +19658,7 @@ msgid "Displays the distribution of current statuses on a BA, as a chronological
 msgstr "Affiche la répartition des statuts actuels sur une BA, sous forme de frise chronologique pour une période donnée."
 
 msgid "Business Activity status timeline"
-msgstr "Chronologie de statut d'une activité métier"
+msgstr "Historique du statut d’une Activité Métier"
 
 
 
