@@ -19655,7 +19655,7 @@ msgid "Select a Business Activity to display the preview."
 msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
 
 msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-msgstr "Affiche la répartition des statuts actuels sur une BA, sous forme de frise chronologique pour une période donnée."
+msgstr "Affiche la répartition des statuts actuels sur une activité métier, sous forme de frise chronologique pour une période donnée."
 
 msgid "Business Activity status timeline"
 msgstr "Historique du statut d’une Activité Métier"
