@@ -83,7 +83,7 @@ final class UpdateAgentConfiguration
             if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
                 $pollers = $this->readAcRepository->findPollersByAcId($request->id);
                 foreach ($pollers as $poller) {
-                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                    if ($poller !== null && $poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
                         $presenter->setResponseStatus(new ForbiddenResponse(
                             AgentConfigurationException::accessNotAllowed()
                         ));

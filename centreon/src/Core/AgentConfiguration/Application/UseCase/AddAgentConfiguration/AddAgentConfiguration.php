@@ -165,8 +165,12 @@ final class AddAgentConfiguration
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
-    {
+    private function save(
+        NewAgentConfiguration $agentConfiguration,
+        array $pollers,
+        ?string $module,
+        array $needBrokerDirectives
+    ): int {
         try {
             $this->repositoryManager->startTransaction();
 

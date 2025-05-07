@@ -48,6 +48,7 @@ final class DeleteAgentConfigurationPollerLink
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -79,9 +80,22 @@ final class DeleteAgentConfigurationPollerLink
                 return;
             }
 
+            $pollers = $this->readAcRepository->findPollersByAcId($acId);
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                foreach ($pollers as $poller) {
+                    if ($poller !== null && $poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                        $presenter->setResponseStatus(
+                            new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                        );
+
+                        return;
+                    }
+                }
+            }
+
             $linkedPollerIds = array_map(
                 static fn(Poller $poller): int => $poller->id,
-                $this->readAcRepository->findPollersByAcId($acId)
+                $pollers
             );
 
             if (false === $this->user->isAdmin()) {
