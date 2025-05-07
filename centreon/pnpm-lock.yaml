@@ -514,7 +514,7 @@ importers:
   packages/ui:
     dependencies:
       '@centreon/ui-context':
-        specifier: link:../ui-context
+        specifier: workspace:*
         version: link:../ui-context
       '@lexical/html':
         specifier: ^0.27.0
@@ -11050,6 +11050,9 @@ packages:
   third-party-web@0.26.5:
     resolution: {integrity: sha512-tDuKQJUTfjvi9Fcrs1s6YAQAB9mzhTSbBZMfNgtWNmJlHuoFeXO6dzBFdGeCWRvYL50jQGK0jPsBZYxqZQJ2SA==}
 
+  third-party-web@0.26.6:
+    resolution: {integrity: sha512-GsjP92xycMK8qLTcQCacgzvffYzEqe29wyz3zdKVXlfRD5Kz1NatCTOZEeDaSd6uCZXvGd2CNVtQ89RNIhJWvA==}
+
   three@0.174.0:
     resolution: {integrity: sha512-p+WG3W6Ov74alh3geCMkGK9NWuT62ee21cV3jEnun201zodVF4tCE5aZa2U122/mkLRmhJJUQmLLW1BH00uQJQ==}
 
@@ -14565,7 +14568,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.44':
     dependencies:
-      third-party-web: 0.26.5
+      third-party-web: 0.26.6
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -24645,6 +24648,8 @@ snapshots:
       tslib: 2.8.1
 
   third-party-web@0.26.5: {}
+
+  third-party-web@0.26.6: {}
 
   three@0.174.0: {}
 
