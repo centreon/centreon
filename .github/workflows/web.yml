@@ -228,13 +228,9 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-
-          echo "IS_NIGHTLY=$IS_NIGHTLY"
-          echo "EVENT_NAME=$EVENT_NAME"
-          echo "HAS_UPDATE_TRANSLATIONS_LABEL=$HAS_UPDATE_TRANSLATIONS_LABEL"
-
           TRANSLATIONS_PATCH_FILE=""
+
+          git config --global --add safe.directory $GITHUB_WORKSPACE
 
           cd centreon
 
