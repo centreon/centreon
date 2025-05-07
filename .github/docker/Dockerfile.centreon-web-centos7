@@ -62,9 +62,9 @@ rpm_key_url="https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY"
 if rpm --import ${rpm_key_url}
 then
   curl -o /etc/pki/rpm-gpg/MariaDB-Server-GPG-KEY https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY
-  msg info 'Successfully added trusted package signing keys'
+  echo "Successfully added trusted package signing keys"
 else
-  msg error 'Failed to add trusted package signing keys'
+  echo "Failed to add trusted package signing keys"
 fi
 
 yum install -y MariaDB-server MariaDB-client
