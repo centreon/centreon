@@ -30,6 +30,13 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\ActionLog\Domain\Model\ActionLog;
 use CentreonLog;
 
+// Only these fields are permitted from user input
+const ALLOWED_FIELDS = [
+    'hc_name', 'hc_alias', 'hc_type',
+    'hc_severity_level', 'hc_severity_icon',
+    'hc_comment', 'hc_activate',
+    'hc_hosts', 'hc_hostsTemplate'
+];
 /**
  * Retrieve only the allowed host-category form fields and sanitize them.
  */
@@ -38,16 +45,8 @@ function getHostCategoryValues(): array
     global $form;
     $raw = $form ? $form->getSubmitValues() : [];
 
-    // Only these fields are permitted from user input
-    $allowed = [
-        'hc_name', 'hc_alias', 'hc_type',
-        'hc_severity_level', 'hc_severity_icon',
-        'hc_comment', 'hc_activate',
-        'hc_hosts', 'hc_hostsTemplate'
-    ];
-
     $ret = [];
-    foreach ($allowed as $field) {
+    foreach (ALLOWED_FIELDS as $field) {
         if (!array_key_exists($field, $raw)) {
             continue;
         }
@@ -118,7 +117,7 @@ function testHostCategorieExistence(?string $name = null): bool
             ['hcName' => $name],
             $exception
         );
-        throw new RepositoryException('Unable to check host category existence', ['hcName' => $name]);
+        throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
 
     return !($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
@@ -181,10 +180,19 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error enabling host categories',
-            [],
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ],
             $exception
         );
-        throw new RepositoryException('Unable to enable host categories', []);
+        throw new RepositoryException(
+            'Unable to enable host categories',
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ], $exception
+        );
     }
 }
 
@@ -237,10 +245,20 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error disabling host categories',
-            [],
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ],
             $exception
         );
-        throw new RepositoryException('Unable to disable host categories', []);
+        throw new RepositoryException(
+            'Unable to disable host categories',
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ],
+            $exception
+        );
     }
 }
 
@@ -290,10 +308,18 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error deleting host categories',
-            [],
+            [
+                'hostCategories' => $hostCategories,
+            ],
             $exception
         );
-        throw new RepositoryException('Unable to delete host categories');
+        throw new RepositoryException(
+            'Unable to delete host categories',
+            [
+                'hostCategories' => $hostCategories,
+            ],
+            $exception
+        );
     }
 }
 
@@ -416,7 +442,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
             ['map' => $aclMap],
             $exception
         );
-        throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap]);
+        throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap], $exception);
     }
 }
 
@@ -475,10 +501,24 @@ function insertHostCategories(array $ret = []): int
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error inserting host category',
-            [],
+            [
+                'hcName' => $ret['hc_name'] ?? '',
+                'params' => $params,
+                'ret' => $ret,
+                'hcId' => $hcId ?? null,
+            ],
             $exception
         );
-        throw new RepositoryException('Unable to insert host category');
+        throw new RepositoryException(
+            'Unable to insert host category',
+            [
+                'hcName' => $ret['hc_name'] ?? '',
+                'params' => $params,
+                'ret' => $ret,
+                'hcId' => $hcId ?? null,
+            ],
+            $exception
+        );
     }
 }
 
@@ -593,7 +633,7 @@ function updateHostCategories(int $hcId): void
             ['hcId' => $hcId],
             $exception
         );
-        throw new RepositoryException('Unable to update host category', ['hcId' => $hcId]);
+        throw new RepositoryException('Unable to update host category', ['hcId' => $hcId], $exception);
     }
 }
 
@@ -654,6 +694,6 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             ['hcId' => $hcId],
             $exception
         );
-        throw new RepositoryException('Unable to update host relations', ['hcId' => $hcId]);
+        throw new RepositoryException('Unable to update host relations', ['hcId' => $hcId], $exception);
     }
 }
