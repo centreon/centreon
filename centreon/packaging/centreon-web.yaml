@@ -512,9 +512,6 @@ overrides:
 
   deb:
     depends:
-      - "centreon-common (>= ${MAJOR_VERSION}~)"
-      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-perl-libs
       - rrdtool
       - locales
       - gettext
