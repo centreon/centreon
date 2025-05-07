@@ -1,3 +1,1 @@
 <?php
-
-_('new translation');
