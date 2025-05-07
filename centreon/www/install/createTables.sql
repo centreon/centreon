@@ -588,7 +588,7 @@ CREATE TABLE `cfg_nagios` (
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
   `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
-  `broker_module_cfgg_file` varchar(255) DEFAULT NULL,
+  `broker_module_cfg_file` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
   KEY `cmd2_index` (`global_service_event_handler`),

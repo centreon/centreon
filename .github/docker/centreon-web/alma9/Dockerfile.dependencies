@@ -155,6 +155,8 @@ wget https://centreon.jfrog.io/artifactory/installers/centreon-collect/MON-16793
 
 dnf install -y ./centreon*.rpm centreon-common centreon-gorgone
 
+rm -rf /tmp/packages-collect
+
 # dnf install -y \
 #   centreon-common \
 #   centreon-gorgone \
