@@ -18,7 +18,8 @@ depends:
   - policycoreutils
   - selinux-policy
   - selinux-policy-targeted
-  - centreon-common-selinux = ${VERSION}-${RELEASE}${DIST}
+  - centreon-common-selinux >= ${MAJOR_VERSION}
+  - centreon-common-selinux < ${NEXT_MAJOR_VERSION}
 
 contents:
   - src: "../selinux/centreon-web.pp"

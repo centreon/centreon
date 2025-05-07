@@ -119,6 +119,7 @@ FROM web_dependencies AS web_dependencies_collect
 RUN bash -e <<EOF
 
 dnf install -y \
+  centreon-common \
   centreon-gorgone \
   centreon-engine \
   centreon-broker-cbmod \
