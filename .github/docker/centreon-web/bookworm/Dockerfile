@@ -6,25 +6,6 @@ ARG IS_CLOUD
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
-    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
-    --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
-
-if [[ "$STABILITY" == "testing" ]]; then
-  for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
-elif [[ "$STABILITY" == "stable" ]]; then
-  for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
-fi
-
-ls -lrh /tmp/packages-centreon/*
-exit 1
-apt-get install -y /tmp/packages-centreon/centreon-web.deb
-
-touch /var/log/php8.2-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
-
-EOF
-
 # Install required dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     libldap2-dev \
@@ -35,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpng-dev \
     libonig-dev \
-    git \
+    wget \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
     && docker-php-ext-install \
         pdo_mysql \
@@ -49,6 +30,29 @@ RUN apt-get update && apt-get install -y \
         zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
+    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
+    --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+    
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+
+if [[ "$STABILITY" == "testing" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
+elif [[ "$STABILITY" == "stable" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
+fi
+
+ls -lrh /tmp/packages-centreon/*
+apt-get install -y /tmp/packages-centreon/centreon-web*.deb
+
+touch /var/log/php8.2-fpm-centreon-error.log
+chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+
+EOF
 
 COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
