@@ -219,11 +219,22 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.head_ref || github.ref_name }}
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           fetch-depth: 10
 
-      - run: |
+      - name: Build translations
+        id: build-translations
+        env:
+          IS_NIGHTLY: ${{ needs.get-environment.outputs.is_nightly }}
+          EVENT_NAME: ${{ github.event_name }}
+          HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+        run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
+
+          echo "IS_NIGHTLY=$IS_NIGHTLY"
+          echo "EVENT_NAME=$EVENT_NAME"
+          echo "HAS_UPDATE_TRANSLATIONS_LABEL=$HAS_UPDATE_TRANSLATIONS_LABEL"
+
+          TRANSLATIONS_PATCH_FILE=""
 
           cd centreon
 
@@ -241,15 +252,34 @@ jobs:
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
-          if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
-            git config user.name "technique-ci"
-            git config user.email "technique+ci@centreon.com"
-            git status
-            git add .
-            git commit -m "chore(lang): update translations"
-            git push
+          if [[ `git status --porcelain` ]]; then
+            if [[ "$IS_NIGHTLY" == "true" || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git status
+              git add .
+              git commit -m "chore(lang): update translations"
+              git push
+            else
+              echo "::notice::Translations have been updated, but the workflow is not a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
+              cd ..
+              git diff > translations.patch
+              TRANSLATIONS_PATCH_FILE="translations.patch"
+            fi
+          else
+            echo "No changes in translations"
           fi
+
+          echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
         shell: bash
+
+      - name: Upload translations patch
+        if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: translations-patch
+          path: ${{ steps.build-translations.outputs.translations_patch_file }}
+          retention-days: 1
 
       - uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
