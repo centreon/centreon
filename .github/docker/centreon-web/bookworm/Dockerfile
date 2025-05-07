@@ -44,6 +44,12 @@ elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
 fi
 
+echo 'Acquire::Retries "10"; \
+Acquire::https::Timeout "300"; \
+Acquire::http::Timeout "300"; \
+APT::Install-Recommends "false"; \
+APT::Install-Suggests "false";' > /etc/apt/apt.conf.d/99custom
+
 VERSION_CODENAME=\$(
   . /etc/os-release
   echo \$VERSION_CODENAME
