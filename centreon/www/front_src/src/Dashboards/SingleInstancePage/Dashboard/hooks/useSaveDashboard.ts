@@ -14,6 +14,7 @@ import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { isEmpty, isNil } from 'ramda';
+
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
