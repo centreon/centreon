@@ -12,7 +12,8 @@ function do_file($file)
     if (empty($content)) {
         return;
     }
-    preg_match_all("/export\sconst\slabel.*\s=\n?\s+'?\"?(.*)'?\"?;/", $content, $matches);
+
+    preg_match_all("/export\sconst\slabel.*\s=\n?\s+(?:'|\"|`)(.+)(?:'|\"|`);/", $content, $matches);
 
     if (count($matches[0]) > 0) {
         echo "/* $file */\n";
