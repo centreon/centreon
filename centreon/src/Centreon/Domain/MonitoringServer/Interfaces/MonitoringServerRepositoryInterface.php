@@ -128,4 +128,12 @@ interface MonitoringServerRepositoryInterface
      * @param int $monitoringServerId
      */
     public function deleteServer(int $monitoringServerId): void;
+
+    /**
+     * Find remote servers IPs.
+     *
+     * @return string[]
+     * @throws MonitoringServerException
+     */
+    public function findRemoteServersIps(): array;
 }
