@@ -116,7 +116,7 @@ export const getStatusFromThresholds = ({
 };
 
 const getBALink = (id: number): string => {
-  return `/main.php?p=20701&o=d&ba_id=${id}`;
+  return `/monitoring/bam/bas/${id}`;
 };
 
 export const getBooleanRuleLink = (id: number): string => {
