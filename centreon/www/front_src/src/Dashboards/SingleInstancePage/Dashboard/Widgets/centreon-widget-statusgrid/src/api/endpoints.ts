@@ -134,7 +134,9 @@ export const getListingQueryParameters = ({
       }
     }));
 
-  const search = isEmpty(flatten(searchConditions))
+  const search = isEmpty(
+    flatten([...searchConditions, ...resourcesWithRegexConditions])
+  )
     ? {}
     : {
         search: {
