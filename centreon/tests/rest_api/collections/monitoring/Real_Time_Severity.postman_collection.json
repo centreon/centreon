@@ -1939,13 +1939,14 @@
 									"                            icon: {\r",
 									"                                type: \"object\",\r",
 									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" },\r",
 									"                                    url: { type: \"string\" }\r",
 									"                                },\r",
-									"                                required: [\"name\", \"url\"]\r",
+									"                                required: [\"id\", \"name\", \"url\"]\r",
 									"                            },\r",
-									"                            required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
-									"                        }\r",
+									"                        },\r",
+									"                        required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
 									"                    },\r",
 									"                    meta: {\r",
 									"                        type: \"object\",\r",
@@ -1958,9 +1959,9 @@
 									"                        },\r",
 									"                        required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
 									"                    }\r",
-									"                },\r",
-									"                required: [\"result\", \"meta\"]\r",
-									"            }\r",
+									"                }\r",
+									"            },\r",
+									"            required: [\"result\", \"meta\"]\r",
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
@@ -2071,13 +2072,14 @@
 									"                            icon: {\r",
 									"                                type: \"object\",\r",
 									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" },\r",
 									"                                    url: { type: \"string\" }\r",
 									"                                },\r",
-									"                                required: [\"name\", \"url\"]\r",
-									"                            },\r",
-									"                            required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
-									"                        }\r",
+									"                                required: [\"id\", \"name\", \"url\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
 									"                    },\r",
 									"                    meta: {\r",
 									"                        type: \"object\",\r",
@@ -2090,9 +2092,9 @@
 									"                        },\r",
 									"                        required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
 									"                    }\r",
-									"                },\r",
-									"                required: [\"result\", \"meta\"]\r",
-									"            }\r",
+									"                }\r",
+									"            },\r",
+									"            required: [\"result\", \"meta\"]\r",
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
@@ -2800,13 +2802,14 @@
 									"                            icon: {\r",
 									"                                type: \"object\",\r",
 									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" },\r",
 									"                                    url: { type: \"string\" }\r",
 									"                                },\r",
-									"                                required: [\"name\", \"url\"]\r",
-									"                            },\r",
-									"                            required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
-									"                        }\r",
+									"                                required: [\"id\", \"name\", \"url\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
 									"                    },\r",
 									"                    meta: {\r",
 									"                        type: \"object\",\r",
@@ -2819,9 +2822,9 @@
 									"                        },\r",
 									"                        required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
 									"                    }\r",
-									"                },\r",
-									"                required: [\"result\", \"meta\"]\r",
-									"            }\r",
+									"                }\r",
+									"            },\r",
+									"            required: [\"result\", \"meta\"]\r",
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
@@ -2930,13 +2933,14 @@
 									"                            icon: {\r",
 									"                                type: \"object\",\r",
 									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" },\r",
 									"                                    url: { type: \"string\" }\r",
 									"                                },\r",
-									"                                required: [\"name\", \"url\"]\r",
-									"                            },\r",
-									"                            required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
-									"                        }\r",
+									"                                required: [\"id\", \"name\", \"url\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
 									"                    },\r",
 									"                    meta: {\r",
 									"                        type: \"object\",\r",
@@ -2949,9 +2953,9 @@
 									"                        },\r",
 									"                        required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
 									"                    }\r",
-									"                },\r",
-									"                required: [\"result\", \"meta\"]\r",
-									"            }\r",
+									"                }\r",
+									"            },\r",
+									"            required: [\"result\", \"meta\"]\r",
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
@@ -3588,13 +3592,14 @@
 									"                            icon: {\r",
 									"                                type: \"object\",\r",
 									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" },\r",
 									"                                    url: { type: \"string\" }\r",
 									"                                },\r",
-									"                                required: [\"name\", \"url\"]\r",
-									"                            },\r",
-									"                            required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
-									"                        }\r",
+									"                                required: [\"id\", \"name\", \"url\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"type\", \"id\", \"name\", \"level\", \"icon\"]\r",
 									"                    },\r",
 									"                    meta: {\r",
 									"                        type: \"object\",\r",
@@ -3607,9 +3612,9 @@
 									"                        },\r",
 									"                        required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
 									"                    }\r",
-									"                },\r",
-									"                required: [\"result\", \"meta\"]\r",
-									"            }\r",
+									"                }\r",
+									"            },\r",
+									"            required: [\"result\", \"meta\"]\r",
 									"        };\r",
 									"\r",
 									"        pm.expect(responseJson).to.have.jsonSchema(schema);\r",
@@ -3765,6 +3770,168 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity2Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity3Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity3Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity3Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity2Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity3Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity3Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity3Id",
+			"value": ""
+		},
+		{
+			"key": "Host1Name",
+			"value": ""
+		},
+		{
+			"key": "Host1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host1Id",
+			"value": ""
+		},
+		{
+			"key": "Host2Name",
+			"value": ""
+		},
+		{
+			"key": "Host2Alias",
+			"value": ""
+		},
+		{
+			"key": "Host2Id",
+			"value": ""
+		},
+		{
+			"key": "Service1Name",
+			"value": ""
+		},
+		{
+			"key": "Service1Id",
+			"value": ""
+		},
+		{
+			"key": "Service2Name",
+			"value": ""
+		},
+		{
+			"key": "Service2Id",
+			"value": ""
+		},
+		{
+			"key": "expectedHttpStatus",
+			"value": ""
+		},
+		{
+			"key": "maxNumberOfTries",
+			"value": ""
+		},
+		{
+			"key": "sleepBetweenTries",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_non_admin",
+			"value": ""
 		}
 	]
 }
