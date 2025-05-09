@@ -1,7 +1,7 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   T,
   always,
@@ -60,6 +60,7 @@ import {
   buildResourceTypeNameForSearchParameter,
   getDataProperty
 } from '../utils';
+import { resourceTypeToToggleRegexAtom } from './atoms';
 
 export interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -98,7 +99,15 @@ export interface UseResourcesState {
     resourceType: WidgetResourceType
   ) => boolean;
   getIsRegexFieldOnResourceType: (resourceType: WidgetResourceType) => boolean;
-  changeRegexFieldOnResourceType: ({ resourceType, index }) => () => void;
+  changeRegexFieldOnResourceType: ({
+    resourceType,
+    index,
+    bypassResourcesCheck
+  }: {
+    resourceType: WidgetResourceType;
+    index: number;
+    bypassResourcesCheck?: boolean;
+  }) => () => void;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -277,6 +286,7 @@ const useResources = ({
       resources: value
     })
   });
+  const setResourceToToggleRegex = useSetAtom(resourceTypeToToggleRegexAtom);
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
@@ -763,15 +773,21 @@ const useResources = ({
   );
 
   const changeRegexFieldOnResourceType = useCallback(
-    ({ resourceType, index }) =>
+    ({ resourceType, index, bypassResourcesCheck = false }) =>
       (): void => {
+        if (!isEmpty(value?.[index].resources) && !bypassResourcesCheck) {
+          setResourceToToggleRegex({ resourceType, index });
+
+          return;
+        }
+
         setIsRegexPerResourceType((current) => ({
           ...current,
           [resourceType]: !current[resourceType]
         }));
         setFieldValue(`data.${propertyName}.${index}.resources`, []);
       },
-    []
+    [value]
   );
 
   const changeRegexField =

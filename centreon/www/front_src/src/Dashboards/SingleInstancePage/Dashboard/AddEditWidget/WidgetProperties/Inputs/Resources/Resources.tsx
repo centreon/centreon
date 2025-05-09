@@ -27,6 +27,7 @@ import { areResourcesFullfilled } from '../utils';
 import { SelectField } from '@centreon/ui';
 import ResourceField from './ResourceField';
 import useResources from './useResources';
+import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 
 const Resources = ({
   propertyName,
@@ -183,6 +184,9 @@ const Resources = ({
         </ItemComposition>
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>
+      <ConfirmationResourceTypeToggleRegexModal
+        changeRegexFieldOnResourceType={changeRegexFieldOnResourceType}
+      />
     </div>
   );
 };
