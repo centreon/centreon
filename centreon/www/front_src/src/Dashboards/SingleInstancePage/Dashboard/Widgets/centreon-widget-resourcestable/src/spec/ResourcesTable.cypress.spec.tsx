@@ -264,7 +264,7 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources').then(({ request }) => {
       expect(request.url.searchParams.get('search')).to.equal(
-        '{"$and":[{"$or":[{"host.name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
       );
     });
   });
