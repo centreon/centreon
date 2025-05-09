@@ -84,28 +84,29 @@ $serviceStateLabels = array(
     4 => "Pending"
 );
 
-$query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, name FROM servicegroups ";
-$whereConditions = [];
-$whereParams = [];
+$baseQuery = "FROM servicegroups ";
 
-if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
+$bindParams = [];
+
+if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']) != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
-    $operand = CentreonUtils::operandToMysqlFormat($tab[0]);
-    $searchString = $tab[1];
-
-    if ($operand && $searchString) {
-        $whereConditions[] = "name $operand :search_string";
-        $whereParams[':search_string'] = $searchString;
+    $op = $tab[0];
+    if (isset($tab[1])) {
+        $search = $tab[1];
+    }
+    if ($op && isset($search) && trim($search) != "") {
+        $baseQuery = CentreonUtils::conditionBuilder(
+            $baseQuery,
+            "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+        );
+        $bindParams[':search'] = [$search, PDO::PARAM_STR];
     }
 }
 
 if (! $centreon->user->admin) {
-    $whereConditions[] = "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")";
-
-}
-
-if ($whereConditions) {
-    $query .= " WHERE " . implode(" AND ", $whereConditions);
+    [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getServiceGroups(), ':servicegroup_name_', PDO::PARAM_STR);
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+    $bindParams = array_merge($bindParams, $bindValues);
 }
 
 $orderBy = "name ASC";
@@ -113,39 +114,65 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
     $orderBy = $preferences['order_by'];
 }
 
-$query .= " ORDER BY $orderBy";
+try {
+    // Query to count total rows
+    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    if ($bindParams !== []) {
+        $countStatement = $dbb->prepareQuery($countQuery);
+        $dbb->executePreparedQuery($countStatement, $bindParams, true);
+    } else {
+        $countStatement = $dbb->executeQuery($countQuery);
+    }
+    $nbRows = (int) $dbb->fetchColumn($countStatement);
 
-$stmt = $dbb->prepare($query);
-// bind params
-foreach ($whereParams as $key => $value) {
-    $stmt->bindValue($key, $value, \PDO::PARAM_STR);
-}
-$stmt->execute();
+    // Main SELECT query
+    $query = "SELECT DISTINCT 1 AS REALTIME, name, servicegroup_id " . $baseQuery;
+    $query .= " ORDER BY $orderBy";
 
-$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
-$data = array();
-$detailMode = false;
-if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
-    $detailMode = true;
-}
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $data[$row['name']]['name'] = $row['name'];
+    // Prepare the query
+    $statement = $dbb->prepareQuery($query);
 
-    $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
-        $row['name'],
-        $centreon->user->admin,
-        $aclObj,
-        $preferences,
-        $detailMode
+    // Execute the query
+    $dbb->executePreparedQuery($statement, $bindParams, true);
+    $data = [];
+    $detailMode = false;
+    if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {
+        $detailMode = true;
+    }
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $data[$row['name']]['name'] = $row['name'];
+
+        $data[$row['name']]['host_state'] = $sgMonObj->getHostStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        );
+        $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
+            $row['name'],
+            $centreon->user->admin,
+            $aclObj,
+            $preferences,
+            $detailMode
+        );
+    }
+} catch (CentreonDbException $e){
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        "Error while exporting service group monitoring",
+        [
+            'message' => $e->getMessage(),
+            'parameters' => [
+                'entries_per_page' => $entriesPerPage,
+                'page' => $page,
+                'orderby' => $orderby
+            ]
+        ],
+        $e
     );
-    $data[$row['name']]['service_state'] = $sgMonObj->getServiceStates(
-        $row['name'],
-        $centreon->user->admin,
-        $aclObj,
-        $preferences,
-        $detailMode
-    );
 }
+
 $template->assign('preferences', $preferences);
 $template->assign('hostStateLabels', $hostStateLabels);
 $template->assign('serviceStateLabels', $serviceStateLabels);
