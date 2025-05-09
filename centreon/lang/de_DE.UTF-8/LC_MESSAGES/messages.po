@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 09:50+0000\n"
+"POT-Creation-Date: 2025-05-09 10:04+0000\n"
 "PO-Revision-Date: 2022-08-19 12:55+0200\n"
 "Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
 "Language-Team: Centreon Team\n"
@@ -19749,10 +19749,6 @@ msgstr ""
 #, fuzzy
 msgid "the community"
 msgstr "SNMP-Community"
-
-#: centreon/www/install/index.php
-msgid "this a test from technique-ci"
-msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 #, fuzzy

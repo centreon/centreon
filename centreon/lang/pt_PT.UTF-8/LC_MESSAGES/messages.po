@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 09:50+0000\n"
+"POT-Creation-Date: 2025-05-09 10:04+0000\n"
 "PO-Revision-Date: 2018-10-24 11:53+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -22069,10 +22069,6 @@ msgstr ""
 #, fuzzy
 msgid "the community"
 msgstr "Comunidade SNMP"
-
-#: centreon/www/install/index.php
-msgid "this a test from technique-ci"
-msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 #, fuzzy
