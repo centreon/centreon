@@ -126,6 +126,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
                 <ResourcesTable
+                  hasDescription={false}
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
