@@ -1,23 +1,27 @@
 import { useAtomValue } from 'jotai';
-import { equals, isNil, pluck } from 'ramda';
+import { equals, isEmpty, isNil, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
-  resourceTypeQueryParameter,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
+import { WidgetResourceType } from '../../../AddEditWidget/models';
 import {
   CommonWidgetProps,
   GlobalRefreshInterval,
   Metric,
   Resource
 } from '../../models';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
-
-import { WidgetResourceType } from '../../../AddEditWidget/models';
+import {
+  areResourcesFullfilled,
+  buildResourceTypeNameForSearchParameter,
+  getWidgetEndpoint,
+  isResourceString
+} from '../../utils';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
@@ -77,14 +81,32 @@ const useTopBottom = ({
           parameters: {
             limit: topBottomSettings.numberOfValues,
             search: {
-              lists: resources.map((resource) => ({
-                field: equals(resource.resourceType, 'hostgroup')
-                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                  : resourceTypeQueryParameter[resource.resourceType],
-                values: equals(resource.resourceType, 'service')
-                  ? pluck('name', resource.resources)
-                  : pluck('id', resource.resources)
-              }))
+              lists: resources
+                .filter((resource) => !isResourceString(resource.resources))
+                .map((resource) => ({
+                  field: equals(resource.resourceType, 'hostgroup')
+                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                    : resourceTypeQueryParameter[resource.resourceType],
+                  values: equals(resource.resourceType, 'service')
+                    ? pluck('name', resource.resources)
+                    : pluck('id', resource.resources)
+                })),
+              conditions: isEmpty(
+                resources.filter((resource) =>
+                  isResourceString(resource.resources)
+                )
+              )
+                ? undefined
+                : resources
+                    .filter((resource) => isResourceString(resource.resources))
+                    .map((resource) => ({
+                      field: buildResourceTypeNameForSearchParameter(
+                        resource.resourceType
+                      ),
+                      values: {
+                        $rg: resource.resources
+                      }
+                    }))
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')
