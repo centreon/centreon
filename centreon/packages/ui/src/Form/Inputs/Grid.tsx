@@ -4,6 +4,7 @@ import { InputPropsWithoutGroup } from './models';
 
 import { Box, Typography } from '@mui/material';
 import { FormikValues, useFormikContext } from 'formik';
+import { isNotEmpty, isNotNil } from 'ramda';
 import { getInput } from '.';
 
 interface StylesProps {
@@ -47,12 +48,17 @@ const Grid = ({
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
 
+        const key =
+          isNotNil(field.label) || isNotEmpty(field.label)
+            ? field.label
+            : field.additionalLabel;
+
         if (field.hideInput?.(values) ?? false) {
           return null;
         }
 
         return (
-          <Box sx={{ width: '100%' }} key={field.fieldName}>
+          <Box sx={{ width: '100%' }} key={key}>
             {field.additionalLabel && (
               <Typography
                 sx={{ marginBottom: 0.5, color: 'primary.main' }}
