@@ -216,11 +216,13 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Build translations
         id: build-translations
         env:
           IS_NIGHTLY: ${{ needs.get-environment.outputs.is_nightly }}
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
@@ -244,16 +246,23 @@ jobs:
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
-          if [[ `git status --porcelain` ]]; then
-            if [[ "$IS_NIGHTLY" == "true" || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
-              git config user.name "github-actions[bot]"
-              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git status
-              git add .
-              git commit -m "chore(lang): update translations"
-              git push
+          if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]]; then
+            if [[ ( "$IS_NIGHTLY" == "false" && "$STABILITY" == "unstable" ) || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
+              if [[ "$(git log -1 --pretty=format:'%an')" != "technique-ci" ]]; then
+                git config user.name "technique-ci"
+                git config user.email "technique+ci@centreon.com"
+                git status
+                git add .
+                git commit -m "chore(lang): update translations"
+                git push
+              else
+                echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
+                cd ..
+                git diff > translations.patch
+                TRANSLATIONS_PATCH_FILE="translations.patch"
+              fi
             else
-              echo "::notice::Translations have been updated, but the workflow is not a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
+              echo "::notice::Translations have been updated, but the workflow is a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
               cd ..
               git diff > translations.patch
               TRANSLATIONS_PATCH_FILE="translations.patch"
