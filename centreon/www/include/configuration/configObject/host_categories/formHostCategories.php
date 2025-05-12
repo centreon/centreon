@@ -49,8 +49,8 @@ $initialValues = [];
 $hc = [];
 if (in_array($o, ['c','w'], true) && $hc_id) {
     try {
-        $qb    = $pearDB->createQueryBuilder();
-        $query = $qb->select('*')
+        $queryBuilder = $pearDB->createQueryBuilder();
+        $query = $queryBuilder->select('*')
             ->from('hostcategories')
             ->where('hc_id = :hc_id')
             ->getQuery();
@@ -63,7 +63,7 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
         ) ?: [];
         // map old field names for the form
         $hc['hc_severity_level'] = $hc['level'] ?? '';
-        $hc['hc_severity_icon']  = $hc['icon_id'] ?? '';
+        $hc['hc_severity_icon'] = $hc['icon_id'] ?? '';
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
@@ -76,7 +76,7 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
 }
 
 // Fetch image lists
-$extImg          = return_image_list(1);
+$extImg = return_image_list(1);
 $extImgStatusmap = return_image_list(2);
 
 /*
