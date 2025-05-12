@@ -22467,9 +22467,6 @@ msgstr "Disponibilité d'une Activité Métier"
 msgid "Displays availability and alerts of a Business Activity for a given period."
 msgstr "Affiche la disponibilité et les alertes d'une activité métier pour une période donnée."
 
-msgid "Authentication tokens"
-msgstr "Jetons d'authentification"
-
 #~ msgid "Countdown"
 #~ msgstr "Compte à rebours"
 
@@ -22627,9 +22624,3 @@ msgstr "Ce mois"
 msgid "This year"
 msgstr "Cette année"
 
-#~ msgid ""
-#~ "The selected inherited service template does not contain any check "
-#~ "command. You must select one here."
-#~ msgstr ""
-#~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
-#~ "vérification. Vous devez en sélectionner une ici."
