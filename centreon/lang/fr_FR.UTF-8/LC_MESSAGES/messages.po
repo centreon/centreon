@@ -22628,6 +22628,3 @@ msgstr "Voulez-vous quitter ce mode de saisie ?"
 msgid "Your changes will not be saved if you switch to the other input mode."
 msgstr "Vos modifications ne seront pas enregistrées si vous passez à l'autre mode de saisie."
 
-msgid "Stay"
-msgstr "Rester"
-
