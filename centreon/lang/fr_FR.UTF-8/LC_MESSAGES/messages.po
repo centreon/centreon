@@ -22606,7 +22606,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Host group updated"
 #~ msgstr "Groupe d'hôtes mis à jour"
 
-
 #~ msgid ""
 #~ "The selected inherited service template does not contain any check "
 #~ "command. You must select one here."
