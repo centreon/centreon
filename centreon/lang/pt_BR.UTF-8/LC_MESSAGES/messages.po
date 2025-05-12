@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-12 13:28+0000\n"
+"POT-Creation-Date: 2025-05-12 09:19+0000\n"
 "PO-Revision-Date: 2018-10-19 13:42+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -112,10 +112,6 @@ msgstr "horas"
 
 #: centreon/www/install/front_translate.php
 msgid "24h/24h - 7/7 days"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "24x7"
 msgstr ""
 
 #: centreon/www/include/home/customViews/index.php
@@ -406,7 +402,6 @@ msgid "Acknowledge services of hosts"
 msgstr "Reconhecimento de serviços associados aos hosts"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -1216,7 +1211,6 @@ msgstr "Apelido / Login"
 msgid "Alias already exists"
 msgstr "Apelido já existe"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/reporting/dashboard/initReport.php
@@ -2031,7 +2025,6 @@ msgstr "Exemplo de Argumento"
 msgid "Arguments"
 msgstr "Argumentos"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Ascending"
 msgstr "Ascendente"
@@ -2225,10 +2218,6 @@ msgstr ""
 msgid "Authors"
 msgstr "Autores"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Auto"
-msgstr "Automático"
-
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Auto Rescheduling"
 msgstr "Reagendamento Automatico"
@@ -2294,10 +2283,6 @@ msgstr "Média"
 msgid "Avg"
 msgstr "Média"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Axes"
-msgstr ""
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #, fuzzy
 msgid "BBDO version"
@@ -2308,7 +2293,6 @@ msgstr "Nova versão"
 msgid "Back"
 msgstr "Retornar"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Background color"
 msgstr "Cor de fundo"
@@ -2421,16 +2405,6 @@ msgstr ""
 msgid "Base"
 msgstr "Base"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Base 10"
-msgstr "Base"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Base 2"
-msgstr "Base"
-
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Base URL"
@@ -2485,15 +2459,10 @@ msgstr "Endereços de clientes de bloqueios"
 msgid "Blocking duration must be less than or equal to 7 days"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Both"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Both identity provider and Centreon UI"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Bottom"
@@ -2572,22 +2541,6 @@ msgstr ""
 "Mas não edite os arquivos SQL se você não souber o que esta fazendo. "
 "Atualize esta página para verificar se o problema foi resolvido."
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 1"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 2"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 3"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Button 4"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "By"
 msgstr ""
@@ -2627,11 +2580,6 @@ msgid ""
 "process (example: deploying your configuration, updating administration "
 "parameters, etc...)."
 msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "By name"
-msgstr "Nome Banco de dados"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -3985,10 +3933,6 @@ msgstr "Nome da imagem obrigatorio"
 msgid "Compulsory name"
 msgstr "Nome obrigatorio"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Condensed"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Condition value"
 msgstr "Valor da condição"
@@ -4391,10 +4335,6 @@ msgstr ""
 "                                     permissões de escrita do usuário do "
 "webserver no mesmo."
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Countdown"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Create"
@@ -4611,7 +4551,6 @@ msgstr ""
 "interrompa este processo.<br/><br/>"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 msgid "Curve"
 msgstr "Curva"
 
@@ -4624,7 +4563,6 @@ msgstr "Tipo de servidor"
 msgid "Curves"
 msgstr "Curvas"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Custom"
@@ -4734,10 +4672,6 @@ msgstr "Última atualização"
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Dashboards"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Dashes"
 msgstr ""
 
 #: centreon/www/install/menu_translation.php
@@ -4870,11 +4804,6 @@ msgstr "Data"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Date Format"
-msgstr "Formato da Data"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Date format"
 msgstr "Formato da Data"
 
 #: centreon/www/install/front_translate.php
@@ -5246,7 +5175,6 @@ msgstr "Serviços Dependentes"
 msgid "Deploy configuration"
 msgstr "Aplicar configuração"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Descending"
 msgstr "Descendente"
@@ -5919,10 +5847,6 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Donut chart"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Dots"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9639,7 +9563,6 @@ msgstr "Ativa Detecção de Variação"
 msgid "Flap Detection Option"
 msgstr "Opções de Detecção de Variação"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -10162,15 +10085,6 @@ msgstr "Opções Globais"
 msgid "Graph per page for Performances"
 msgstr "Gráfico de performance por página"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Graph style"
-msgstr "Lista de gráficos"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Graph style for average"
-msgstr ""
-
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Graph template"
@@ -10182,10 +10096,6 @@ msgstr "Modelo de Gráfico"
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Graphs"
 msgstr "Gráficos"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Grid"
-msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Gridline type"
@@ -10236,11 +10146,6 @@ msgstr "Nome do Grupo"
 msgid "Group monitoring"
 msgstr "Monitoramento"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Group name"
-msgstr "Nome do Grupo"
-
 #: centreon/www/install/front_translate.php
 msgid "Group value"
 msgstr "Valor do grupo"
@@ -10273,7 +10178,6 @@ msgstr "Método"
 msgid "HTTP Port"
 msgstr "Porta TCP"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Hard"
@@ -10336,7 +10240,6 @@ msgid "Help"
 msgstr "Ajuda"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "Hidden"
@@ -10345,10 +10248,6 @@ msgstr "Oculto"
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Hidden Graph And Legend"
 msgstr "Ocultar Gráfico e Legenda"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Hide"
-msgstr ""
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
 msgid "Hide graphs of selected Services"
@@ -10404,15 +10303,10 @@ msgid "Home"
 msgstr "Inicio"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Horizontal"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
 msgid "Horizontal bar chart"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -11286,7 +11180,6 @@ msgstr "Em Manutenção"
 msgid "In Scheduled Downtime?"
 msgstr "Em Agendamento de Manutenção ?"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "In downtime"
@@ -12066,10 +11959,6 @@ msgstr "Layout"
 msgid "Leave"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Left"
-msgstr ""
-
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Legacy version"
 msgstr "Versão legada"
@@ -12141,11 +12030,6 @@ msgstr "Cor da Linha"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Line width"
 msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Linear"
-msgstr "Cor da Linha"
 
 #: centreon/www/install/front_translate.php
 msgid "Link copied"
@@ -12267,7 +12151,6 @@ msgstr "Associações"
 msgid "Links Management"
 msgstr "Gestão de Associações"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
@@ -12365,10 +12248,6 @@ msgstr "Sem registros (por padrão)"
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Log options"
 msgstr "Opções de Registro"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Logarithmic"
-msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #, fuzzy
@@ -13881,7 +13760,6 @@ msgstr "N/D"
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/centreon_broker_translation.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/class/centreonConfigCentreonBroker.php
 #: centreon/www/include/home/customViews/index.php
@@ -14289,10 +14167,6 @@ msgstr "Nenhuma página wiki definida"
 msgid "No {{type}} found with this status"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Non-workhours"
-msgstr ""
-
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
@@ -14553,10 +14427,6 @@ msgstr "Notificado"
 msgid "Notify"
 msgstr "Notificar"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Number"
-msgstr ""
-
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
 msgid "Number \"%s\" was expected to be at least \"%d\" and at most \"%d\""
@@ -14750,10 +14620,6 @@ msgstr "Um por retenção"
 msgid "One peer retention mode"
 msgstr "Modo de retenção em um par"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Only one"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Only passive checks are enabled"
@@ -14821,16 +14687,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Optimization"
 msgstr "Otimização"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Option 1"
-msgstr "Opções"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Option 2"
-msgstr "Opções"
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
@@ -15211,7 +15067,6 @@ msgstr "Padrão de substituição para autenticação (SSO)"
 msgid "Peers"
 msgstr "Pares"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
@@ -15236,11 +15091,6 @@ msgstr "Usuários associados a lista de acesso"
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Percent State Change"
-msgstr "Porcetagem de Alteração de Estado"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Percentage"
 msgstr "Porcetagem de Alteração de Estado"
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -15693,15 +15543,6 @@ msgstr "Arquivo de chave privada (SSH)"
 msgid "Private key path"
 msgstr "Arquivo de chave privada (SSH)"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Problem (Critical)"
-msgstr "Critico"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Problem (Down/Critical)"
-msgstr ""
-
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Problem display properties"
 msgstr "Propriedades de exibição de problemas"
@@ -15864,14 +15705,6 @@ msgstr "Depuração do RRDTool"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Radio"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Radio 1"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Radio 2"
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -16436,18 +16269,8 @@ msgstr "Acessos de Recursos"
 msgid "Resources access list link"
 msgstr "Link para lista de acesso de Recursos"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Resources linked to a ticket"
-msgstr "Usuários associados a lista de acesso"
-
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Resources storage"
-msgstr "Armazenagem de recursos"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Resources with no ticket"
 msgstr "Armazenagem de recursos"
 
 #: centreon/src/Centreon/Infrastructure/MonitoringServer/Repository/Exception/MonitoringServerConfigurationRepositoryException.php
@@ -16552,11 +16375,6 @@ msgstr "Revisar formulário após salvar"
 #: centreon/www/install/front_translate.php
 msgid "Revoked"
 msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Right"
-msgstr "Altura"
 
 #: centreon/www/install/front_translate.php
 msgid "Role"
@@ -17274,7 +17092,6 @@ msgid "Server type"
 msgstr "Tipo de servidor"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
@@ -17982,11 +17799,6 @@ msgstr "Compartilhar visão"
 msgid "Shortcuts"
 msgstr "Atalhos de Host"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Show"
-msgstr "Mostre status de Disponivel"
-
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Show Critical status"
 msgstr "Mostre status de Criticos"
@@ -18103,10 +17915,6 @@ msgstr "Tamanho máximo"
 msgid "Slider"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Smooth"
-msgstr ""
-
 #: centreon/www/install/smarty_translate.php
 msgid "Snmp Traps"
 msgstr "Traps SNMP"
@@ -18119,7 +17927,6 @@ msgstr "Grupo de traps SNMP"
 msgid "Snmp trap manufacturer"
 msgstr "Construtores de trap de SNMP"
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Soft"
 msgstr ""
@@ -18127,10 +17934,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Soft Service Dependencies Option"
 msgstr "Verificando dependencias de Serviço"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Solid"
-msgstr ""
 
 #: centreon/www/install/react_translation.php
 #: centreon/www/install/front_translate.php
@@ -18310,10 +18113,6 @@ msgstr "Opções para Salvar"
 msgid "Stalking options not allowed (%s)"
 msgstr "Opções para Salvar"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Standard"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 #: centreon/www/widgets/service-monitoring/src/action.php
 #: centreon/www/widgets/host-monitoring/src/action.php
@@ -18389,7 +18188,6 @@ msgstr "Estatísticas"
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/step_upgrade/step4.php
 #: centreon/www/install/step_upgrade/step2.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 #: centreon/www/include/Administration/parameters/general/form.php
@@ -18564,7 +18362,6 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/step_upgrade/step4.php
-#: centreon/www/install/dashboard_widgets.php
 msgid "Step"
 msgstr "Etapa"
 
@@ -18696,14 +18493,6 @@ msgstr "Enviar resultado para este host"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Submit result for this service"
 msgstr "Enviar resultado para este serviço"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Success (OK)"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "Success (OK/Up)"
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
@@ -19667,11 +19456,6 @@ msgstr "Unidade de Tempo"
 msgid "Time Zone"
 msgstr "Fuso Horário"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Time format"
-msgstr "Formato da Data"
-
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
@@ -19681,11 +19465,6 @@ msgstr "Período de Tempo"
 #: centreon/www/install/front_translate.php
 msgid "Time that must pass before new connection is allowed"
 msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Time zone"
-msgstr "Fuso horário"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -19820,11 +19599,6 @@ msgstr "O Problema foi colocado em conhecimento"
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
-msgstr "Utilitarios"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Tooltips"
 msgstr "Utilitarios"
 
 #: centreon/www/install/front_translate.php
@@ -20076,10 +19850,6 @@ msgstr "Definir valores de condições autorizadas"
 msgid "Unblock"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Undefined (Unreachable/Unknown)"
-msgstr ""
-
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
@@ -20091,7 +19861,6 @@ msgstr "Indeterminável"
 msgid "Undo"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Unhandled"
 msgstr "Sem tratados"
@@ -20584,11 +20353,6 @@ msgstr "Verificação de Checagem (Forçado)"
 msgid "Version"
 msgstr "Versão"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Vertical"
-msgstr "Critico"
-
 #: centreon/www/include/Administration/parameters/general/form.php
 #, fuzzy
 msgid "Vertical Inheritance Only"
@@ -20913,7 +20677,6 @@ msgid "WARNING"
 msgstr "AVISO"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/eventLogs/viewLog.php
@@ -21105,11 +20868,6 @@ msgstr "Largura"
 #: centreon/www/include/configuration/configKnowledge/display-services.php
 msgid "Wiki page defined"
 msgstr "Página Wiki definida"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "Workhours"
-msgstr "horas"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Write metrics"
@@ -22123,10 +21881,6 @@ msgstr "Caminho do Arquivo"
 msgid "are working fine."
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "areaOpacity"
-msgstr ""
-
 #: centreon/www/install/react_translation.php
 msgid "as"
 msgstr "como"
@@ -22178,15 +21932,6 @@ msgstr "criar ou carregar"
 msgid "d/m/Y H:i:s"
 msgstr "d/m/Y - H:i:s"
 
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "dashLength"
-msgstr "Size"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "dashOffset"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "day"
@@ -22211,10 +21956,6 @@ msgstr "Desativar notificações"
 msgid "disabled"
 msgstr "Desativado"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "dotOffset"
-msgstr ""
-
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "error"
 msgstr "erro"
@@ -22235,11 +21976,6 @@ msgstr ""
 #: centreon/www/class/centreonGraphNg.class.php
 msgid "graph on"
 msgstr "gráfico em"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "gridLinesType"
-msgstr "Cor da Linha"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -22315,21 +22051,6 @@ msgstr "semana passada"
 #, fuzzy
 msgid "last year"
 msgstr "ano passado"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "legendDisplayMode"
-msgstr "Exibir"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "legendPlacement"
-msgstr "Substituição"
-
-#: centreon/www/install/dashboard_widgets.php
-#, fuzzy
-msgid "lineWidth"
-msgstr "Largura"
 
 #: centreon/www/class/centreonContact.class.php
 #, fuzzy
@@ -22413,10 +22134,6 @@ msgstr ""
 msgid "removed"
 msgstr "Remover"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "scaleLogarithmicBase"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "second"
@@ -22459,18 +22176,6 @@ msgstr ""
 #: centreon/www/include/monitoring/acknowlegement/serviceAcknowledge.php
 msgid "sticky"
 msgstr "Confirmação persistente em caso de mudança de estado não OK"
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub1"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub2"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "sub3"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "technical"
@@ -23301,6 +23006,9 @@ msgstr "item (s) encontrado (s)"
 #~ msgid "Retention file"
 #~ msgstr "Arquivo de retenção"
 
+#~ msgid "Auto"
+#~ msgstr "Automático"
+
 #~ msgid "TCP port"
 #~ msgstr "Porta TCP"
 
@@ -23639,6 +23347,9 @@ msgstr "item (s) encontrado (s)"
 
 #~ msgid "Performance broker page work only with Centreon Broker."
 #~ msgstr "A página de desempenho só funciona com o Centreon Broker."
+
+#~ msgid "Length"
+#~ msgstr "Size"
 
 #~ msgid "SNMP information"
 #~ msgstr "Informação SNMP"
@@ -24065,6 +23776,9 @@ msgstr "item (s) encontrado (s)"
 
 #~ msgid "Hosts list"
 #~ msgstr "hosts"
+
+#~ msgid "Graph List"
+#~ msgstr "Lista de gráficos"
 
 #~ msgid "Force Reload"
 #~ msgstr "Forçar o recarregamento"
