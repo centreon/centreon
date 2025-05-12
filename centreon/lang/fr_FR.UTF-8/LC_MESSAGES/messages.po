@@ -22612,3 +22612,13 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgstr ""
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
+
+msgid "Activate Regex"
+msgstr "Activer Regex"
+
+msgid "Deactivate Regex"
+msgstr "Désactiver Regex"
+
+msgid "Enter Regex"
+msgstr "Saisir Regex"
+

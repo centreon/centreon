@@ -24302,3 +24302,13 @@ msgstr "item (s) encontrado (s)"
 
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
+
+# msgid "Activate Regex"
+# msgstr ""
+
+# msgid "Deactivate Regex"
+# msgstr ""
+
+# msgid "Enter Regex"
+# msgstr ""
+

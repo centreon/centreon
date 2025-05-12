@@ -20870,3 +20870,13 @@ msgstr ""
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Erweiterter Modus"
+
+# msgid "Activate Regex"
+# msgstr ""
+
+# msgid "Deactivate Regex"
+# msgstr ""
+
+# msgid "Enter Regex"
+# msgstr ""
+
