@@ -70,17 +70,17 @@ $offset = $num * $limit;
 
 try {
     // Build main query
-    $qb = $pearDB->createQueryBuilder()
+    $queryBuilder = $pearDB->createQueryBuilder()
         ->select('hc.hc_id', 'hc.hc_name', 'hc.hc_alias', 'hc.level', 'hc.hc_activate')
         ->from('hostcategories', 'hc');
 
     $parameters = [];
 
     if ($search !== '') {
-        $qb->andWhere(
-            $qb->expr()->or(
-                $qb->expr()->like('hc.hc_name', ':search'),
-                $qb->expr()->like('hc.hc_alias', ':search')
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->or(
+                $queryBuilder->expr()->like('hc.hc_name', ':search'),
+                $queryBuilder->expr()->like('hc.hc_alias', ':search')
             )
         );
         $parameters[] = QueryParameter::string('search', "%$search%");
@@ -90,18 +90,18 @@ try {
         $hcIds = array_map('intval', explode(',', $hcString));
         list($binds, $placeholders) = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
         if (count($binds) > 0) {
-            $qb->andWhere("hc.hc_id IN ( $placeholders )");
+            $queryBuilder->andWhere("hc.hc_id IN ( $placeholders )");
             $parameters = array_merge($parameters, $binds);
         }
     }
 
-    $queryForCount = $qb->getQuery();
+    $queryForCount = $queryBuilder->getQuery();
 
-    $qb->orderBy('hc.hc_name')
+    $queryBuilder->orderBy('hc.hc_name')
        ->offset($offset)
        ->limit($limit);
 
-    $mainQuery   = $qb->getQuery();
+    $mainQuery   = $queryBuilder->getQuery();
     $queryParams = QueryParameters::create($parameters);
 
     // Execute fetch
