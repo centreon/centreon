@@ -53,11 +53,12 @@ runs:
   steps:
     - name: Remove lockfiles and development files
       run: |
-        cd ${{ inputs.module_name }}
-        find ${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "symfony.lock" -delete
+        ls
+        base_directory=$(echo ${{ inputs.nfpm_file_pattern }} | cut -d "/" -f1)
+        find /$base_directory/${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find /$base_directory/${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
+        find /$base_directory/${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find /$base_directory/${{ inputs.module_name }} -type f -name "symfony.lock" -delete
         cd ..
       shell: bash
 
