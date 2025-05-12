@@ -135,8 +135,7 @@ try {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         "Error while processing host categories: " . $exception->getMessage(),
-        [],
-        $exception
+        exception: $exception
     );
     $msg = new CentreonMsg();
     $msg->setImage("./img/icons/warning.png");
