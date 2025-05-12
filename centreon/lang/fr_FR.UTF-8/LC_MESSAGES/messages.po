@@ -22619,5 +22619,3 @@ msgstr "Sans TLS"
 msgid "Insecure TLS"
 msgstr "TLS non sécurisé"
 
-msgid "The selected inherited service template does not contain any check command. You must select one here."
-msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
