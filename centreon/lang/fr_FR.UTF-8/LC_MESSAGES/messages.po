@@ -4747,7 +4747,7 @@ msgstr "Afficher les détails"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Display downtime and acknowledgment on chart"
 msgstr ""
-"Afficher les plages de maintenances et acquittements sur les ghraphiques"
+"Afficher les plages de maintenances et acquittements sur les graphiques"
 
 #: centreon/www/install/front_translate.php
 msgid "Display events"
