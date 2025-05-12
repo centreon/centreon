@@ -3,11 +3,14 @@ import SaveIcon from '@mui/icons-material/SaveAlt';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Visualization } from '../../models';
+import { labelExportToCSV } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import ModalExport from './ModalExport';
 
 const ExportCsv = () => {
+  const { t } = useTranslation();
   const [display, setDisplay] = useState(false);
   const currentVisualization = useAtomValue(selectedVisualizationAtom);
 
@@ -25,6 +28,7 @@ const ExportCsv = () => {
         onClick={openModalExport}
         disabled={!equals(Visualization.All, currentVisualization)}
         aria-label="exportCsvButton"
+        title={t(labelExportToCSV)}
       >
         <SaveIcon />
       </IconButton>

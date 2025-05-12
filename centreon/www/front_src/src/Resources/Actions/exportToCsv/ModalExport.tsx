@@ -14,14 +14,13 @@ import RadioButtons from './RadioButtons';
 import Warning from './Warning';
 import { defaultCheckedColumnAtom, defaultCheckedPageAtom } from './atoms';
 import useExportCsvStyles from './exportCsv.styles';
-import { ColumnId, columnOptions, PageId, pageOptions } from './models';
+import { ColumnId, PageId, columnOptions, pageOptions } from './models';
 import useExportCSV from './useExportCsv';
 
 interface Props {
   onCancel: () => void;
   open: boolean;
 }
-
 
 const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -48,11 +47,10 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
     setIsAllPagesChecked(equals(PageId.allPages, id));
   };
 
-  const confirm = ()=>{
-    exportCsv()
-    onCancel()
-  }
-
+  const confirm = () => {
+    exportCsv();
+    onCancel();
+  };
 
   return (
     <Modal open={open} hasCloseButton={false} size="medium">

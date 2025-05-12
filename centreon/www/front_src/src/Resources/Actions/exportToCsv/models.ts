@@ -1,4 +1,9 @@
-import { labelAllColumns, labelAllPages, labelCurrentPageOnly, labelVisibleColumnsOnly } from '../../translatedLabels';
+import {
+  labelAllColumns,
+  labelAllPages,
+  labelCurrentPageOnly,
+  labelVisibleColumnsOnly
+} from '../../translatedLabels';
 
 export interface ListSearch {
   array: Array<string>;
@@ -26,7 +31,6 @@ export interface Count {
     search: object;
   };
 }
-
 
 export enum ColumnId {
   visibleColumns = 'visibleColumns',

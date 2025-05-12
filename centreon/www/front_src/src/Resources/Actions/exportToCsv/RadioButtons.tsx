@@ -9,6 +9,7 @@ import {
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { SyntheticEvent, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import useExportCsvStyles from './exportCsv.styles';
 
 interface Props<T> {
@@ -25,6 +26,7 @@ const RadioButtons = <T extends string>({
   getData
 }: Props<T>) => {
   const { classes } = useExportCsvStyles();
+  const { t } = useTranslation();
 
   const [checked, setChecked] = useAtom(defaultChecked);
 
@@ -67,7 +69,7 @@ const RadioButtons = <T extends string>({
           }
           labelPlacement="end"
           onChange={change}
-          label={name}
+          label={t(name)}
         />
       ))}
     </RadioGroup>

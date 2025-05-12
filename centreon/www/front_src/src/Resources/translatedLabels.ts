@@ -322,6 +322,6 @@ export const labelWarningExportToCsv =
   'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
 export const labelExportProcessingInProgress = 'Export processing in progress';
 export const labelFilteredResources =
-  'You are about to export the status of the resources you have filtered. You can export up to 10,000 lines.';
+  'You are about to export the status of the resources you have filtered. You can export up to 10,000 rows.';
 export const labelFilterRessources =
   'Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows.';
