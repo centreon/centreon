@@ -26,7 +26,7 @@ namespace Core\Application\Common\UseCase;
 final class NotFoundResponse extends AbstractResponse
 {
     /**
-     * @param string|Throwable $objectNotFound
+     * @param string|\Throwable $objectNotFound
      * @param array<string,mixed> $context
      * @param \Throwable|null $exception
      */
