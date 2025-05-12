@@ -1,9 +1,4 @@
 import { ConfirmationModal } from '@centreon/ui/components';
-import {
-  ResourceTypeToToggleRegexAtom,
-  resourceTypeToToggleRegexAtom
-} from './atoms';
-import { WidgetResourceType } from '../../../models';
 import { useTranslation } from 'react-i18next';
 import {
   labelDoYouWantToLeaveThisInputMode,
@@ -11,6 +6,11 @@ import {
   labelStay,
   labelYourChangesWillNotBeSavedIfYouSwitch
 } from '../../../../translatedLabels';
+import { WidgetResourceType } from '../../../models';
+import {
+  ResourceTypeToToggleRegexAtom,
+  resourceTypeToToggleRegexAtom
+} from './atoms';
 
 interface Props {
   changeRegexFieldOnResourceType: ({

@@ -25,9 +25,9 @@ import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
 import { SelectField } from '@centreon/ui';
+import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
 import useResources from './useResources';
-import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 
 const Resources = ({
   propertyName,
