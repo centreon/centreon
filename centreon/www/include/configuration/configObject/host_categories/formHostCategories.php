@@ -229,10 +229,16 @@ if ($form->validate()) {
             $hcObj->setValue($newId);
             $valid = true;
         } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                "Error while inserting host category: " . $exception->getMessage(),
+                [],
+                $exception
+            );
             $msg = new CentreonMsg();
             $msg->setImage("./img/icons/warning.png");
             $msg->setTextStyle("bold");
-            $msg->setText($exception->getMessage());
+            $msg->setText('Error while inserting host category');
         }
     }
     elseif ($form->getSubmitValue('submitC')) {
@@ -241,10 +247,16 @@ if ($form->validate()) {
             updateHostCategoriesInDB($hcObj->getValue());
             $valid = true;
         } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                "Error while updating host category: " . $exception->getMessage(),
+                [],
+                $exception
+            );
             $msg = new CentreonMsg();
             $msg->setImage("./img/icons/warning.png");
             $msg->setTextStyle("bold");
-            $msg->setText($exception->getMessage());
+            $msg->setText('Error while updating host category');
         }
     }
 }

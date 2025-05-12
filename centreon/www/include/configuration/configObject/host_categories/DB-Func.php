@@ -111,12 +111,6 @@ function testHostCategorieExistence(?string $name = null): bool
             ])
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error checking host category existence',
-            ['hcName' => $name],
-            $exception
-        );
         throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
 
@@ -177,15 +171,6 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
             );
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error enabling host categories',
-            [
-                'hcId' => $hcId,
-                'hcArr' => $hcArr,
-            ],
-            $exception
-        );
         throw new RepositoryException(
             'Unable to enable host categories',
             [
@@ -242,15 +227,6 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
             );
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error disabling host categories',
-            [
-                'hcId' => $hcId,
-                'hcArr' => $hcArr,
-            ],
-            $exception
-        );
         throw new RepositoryException(
             'Unable to disable host categories',
             [
@@ -305,14 +281,6 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
         }
         $centreon->user->access->updateACL();
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error deleting host categories',
-            [
-                'hostCategories' => $hostCategories,
-            ],
-            $exception
-        );
         throw new RepositoryException(
             'Unable to delete host categories',
             [
@@ -435,13 +403,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
         CentreonACL::duplicateHcAcl($aclMap);
         $centreon->user->access->updateACL();
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error duplicating host categories',
-            ['map' => $aclMap],
-            $exception
-        );
+    } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
         throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap], $exception);
     }
 }
@@ -498,17 +460,6 @@ function insertHostCategories(array $ret = []): int
 
         return $hcId;
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error inserting host category',
-            [
-                'hcName' => $ret['hc_name'] ?? '',
-                'params' => $params,
-                'ret' => $ret,
-                'hcId' => $hcId ?? null,
-            ],
-            $exception
-        );
         throw new RepositoryException(
             'Unable to insert host category',
             [
@@ -627,12 +578,6 @@ function updateHostCategories(int $hcId): void
             );
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating host category',
-            ['hcId' => $hcId],
-            $exception
-        );
         throw new RepositoryException('Unable to update host category', ['hcId' => $hcId], $exception);
     }
 }
@@ -688,12 +633,6 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             );
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating host relations',
-            ['hcId' => $hcId],
-            $exception
-        );
         throw new RepositoryException('Unable to update host relations', ['hcId' => $hcId], $exception);
     }
 }
