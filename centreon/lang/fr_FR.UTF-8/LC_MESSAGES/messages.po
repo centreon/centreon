@@ -22613,9 +22613,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
 
-msgid "Select a Business Activity to display the preview."
-msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
 msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
 msgstr "Affiche la répartition des statuts actuels sur une activité métier, sous forme de frise chronologique pour une période donnée."
 
