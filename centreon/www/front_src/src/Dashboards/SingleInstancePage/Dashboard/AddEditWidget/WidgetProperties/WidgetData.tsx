@@ -18,6 +18,8 @@ const WidgetData = (): JSX.Element => {
 
   const widgetData = useWidgetInputs('data');
 
+  console.log({widgetData})
+
   const isWidgetSelected = !isNil(widgetData);
 
   return (

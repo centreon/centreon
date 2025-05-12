@@ -60,6 +60,13 @@ const internalWidgets: Array<
     panelDefaultHeight: 4
   },
   {
+    name: 'hostgroupavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
+  },
+  {
     name: 'resourcestable',
     panelMinWidth: 12,
     panelMinHeight: 3,

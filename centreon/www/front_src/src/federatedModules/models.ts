@@ -128,7 +128,7 @@ export interface FederatedWidgetProperties {
   };
   customBaseColor?: boolean;
   data: {
-    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;// others ?????
   };
   description: string;
   icon?: string;

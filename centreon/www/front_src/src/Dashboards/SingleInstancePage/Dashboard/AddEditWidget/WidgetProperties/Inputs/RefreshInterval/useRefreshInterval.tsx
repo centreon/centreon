@@ -42,6 +42,9 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
 
   const { values, setFieldValue } = useFormikContext();
 
+
+  console.log({values,refreshIntervalCustomProperty})
+
   const platformRefreshInterval = useAtomValue(refreshIntervalAtom);
   const dashboardRefreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
 
@@ -52,6 +55,8 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     getProperty({ obj: values, propertyName: refreshIntervalCustomProperty }) ||
       defaultInterval
   );
+
+  console.log('result',getProperty({ obj: values, propertyName: refreshIntervalCustomProperty }))
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),

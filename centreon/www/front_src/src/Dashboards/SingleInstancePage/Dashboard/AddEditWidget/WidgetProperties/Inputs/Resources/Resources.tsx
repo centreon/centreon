@@ -116,6 +116,8 @@ const Resources = ({
               ? WidgetResourceType.hostGroup
               : resource.resourceType;
 
+
+
             return (
               <ItemComposition.Item
                 className={classes.resourceCompositionItem}
