@@ -1,0 +1,21 @@
+FROM ubuntu:noble
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN bash -e <<EOF
+
+apt-get update
+
+apt-get install -y debmake pbuilder dh-exec aptitude zstd ca-certificates
+
+echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+
+apt-get update
+
+apt-get install -y nfpm=2.41.1
+
+apt-get clean
+
+EOF
+
+WORKDIR /src
