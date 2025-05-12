@@ -128,7 +128,7 @@ $form->addElement('text', 'hc_alias', _('Alias'), $attrsText);
  */
 $form->addElement('header', 'relation', _('Relation'));
 $hctype = $form->addElement('checkbox', 'hc_type', _('Severity type'), null, ['id' => 'hc_type']);
-if (! empty($hc['level'])) {
+if (isset($hc['level']) && $hc['level'] != "") {
     $hctype->setValue('1');
 }
 $form->addElement('text', 'hc_severity_level', _('Level'), ['size' => '10']);
