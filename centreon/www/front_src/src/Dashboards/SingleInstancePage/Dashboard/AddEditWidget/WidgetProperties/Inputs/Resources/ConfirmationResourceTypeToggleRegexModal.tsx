@@ -4,6 +4,13 @@ import {
   resourceTypeToToggleRegexAtom
 } from './atoms';
 import { WidgetResourceType } from '../../../models';
+import { useTranslation } from 'react-i18next';
+import {
+  labelDoYouWantToLeaveThisInputMode,
+  labelLeave,
+  labelStay,
+  labelYourChangesWillNotBeSavedIfYouSwitch
+} from '../../../../translatedLabels';
 
 interface Props {
   changeRegexFieldOnResourceType: ({
@@ -20,6 +27,7 @@ interface Props {
 const ConfirmationResourceTypeToggleRegexModal = ({
   changeRegexFieldOnResourceType
 }: Props): JSX.Element => {
+  const { t } = useTranslation();
   const confirm = ({ resourceType, index }: ResourceTypeToToggleRegexAtom) => {
     changeRegexFieldOnResourceType({
       resourceType,
@@ -32,10 +40,10 @@ const ConfirmationResourceTypeToggleRegexModal = ({
     <ConfirmationModal
       atom={resourceTypeToToggleRegexAtom}
       labels={{
-        cancel: 'Cancel',
-        confirm: 'Confirm',
-        description: 'Description',
-        title: 'Title'
+        cancel: t(labelStay),
+        confirm: t(labelLeave),
+        description: t(labelYourChangesWillNotBeSavedIfYouSwitch),
+        title: t(labelDoYouWantToLeaveThisInputMode)
       }}
       onConfirm={confirm}
     />
