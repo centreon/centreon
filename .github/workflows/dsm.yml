@@ -106,11 +106,6 @@ jobs:
           find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
         shell: bash
 
-      - name: Remove lockfiles and development files
-        run: |
-          find ./centreon-dsm -type f -name "compose*.*" -not -path "*vendor*" -delete
-        shell: bash
-
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:

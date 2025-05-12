@@ -155,11 +155,6 @@ jobs:
           sed -i '/\(BmcItsm\|Mail\|Serena\)/d' centreon-open-tickets/www/modules/centreon-open-tickets/providers/register.php
         shell: bash
 
-      - name: Remove lockfiles and development files
-        run: |
-          find ./centreon-open-tickets -type f -name "compose*.*" -not -path "*vendor*" -delete
-        shell: bash
-
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:

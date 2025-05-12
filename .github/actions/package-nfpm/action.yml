@@ -51,6 +51,16 @@ runs:
   using: composite
 
   steps:
+    - name: Remove lockfiles and development files
+      run: |
+        cd ${{ inputs.module_name }}
+        find ${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "symfony.lock" -delete
+        cd ..
+      shell: bash
+
     - name: Parse distrib name
       id: parse-distrib
       uses: ./.github/actions/parse-distrib
