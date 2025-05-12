@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "bc49639a-9d43-4f34-b212-75150b3c1b33",
+		"_postman_id": "11208b37-db12-4d5e-9fc7-f5cd2e6fe9de",
 		"name": "Media",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc49639a-9d43-4f34-b212-75150b3c1b33?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -1464,7 +1463,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1475,7 +1475,6 @@
 									"/  Check code status\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"pm.test(\"The media has been added.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"\r",
@@ -1493,9 +1492,38 @@
 									"\r",
 									"pm.test(\"There is no error.\", function () {\r",
 									"    pm.expect(responseJson.errors).to.be.an('Array').that.is.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    id: { type: \"integer\" },\r",
+									"                    filename: { type: \"string\" },\r",
+									"                    directory: { type: \"string\" },\r",
+									"                    md5: { type: \"string\" }\r",
+									"                }\r",
+									"            },\r",
+									"            errors: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    filename: { type: \"string\" },\r",
+									"                    directory: { type: \"string\" },\r",
+									"                    reason: { type: \"string\" },\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"errors\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1546,7 +1574,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1562,7 +1591,7 @@
 									"\r",
 									"const responseJson = pm.response.json();\r",
 									"console.log(responseJson);\r",
-									"pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
+									"pm.test(\"The medias retrieved are listed with all their informations\", function () {\r",
 									"    // Check the number of media (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
@@ -1573,10 +1602,47 @@
 									"        \"directory\": \"ppm\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
-									"    \r",
-									"})"
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the media listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        filename: { type: \"string\" },\r",
+									"                        directory: { type: \"string\" },\r",
+									"                        md5: { type: \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"filename\", \"directory\", \"md5\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1628,7 +1694,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1643,9 +1710,23 @@
 									"    pm.response.to.have.status(400);\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewMedia::directory] The string is empty, but non empty string was expected\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1690,7 +1771,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1705,9 +1787,23 @@
 									"    pm.response.to.have.status(500);\r",
 									"    pm.expect(responseJson.message).to.eql(\"[data] The property data is required\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1767,6 +1863,19 @@
 									"pm.test(\"The media has not been added, because the data is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"    pm.expect(responseJson.message).to.eql(\"[data] The property does not contain the file\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});\r",
 									""
 								],
@@ -1953,7 +2062,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1981,9 +2091,38 @@
 									"\r",
 									"pm.test(\"There is no error.\", function () {\r",
 									"    pm.expect(responseJson.errors).to.be.an('Array').that.is.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    id: { type: \"integer\" },\r",
+									"                    filename: { type: \"string\" },\r",
+									"                    directory: { type: \"string\" },\r",
+									"                    md5: { type: \"string\" }\r",
+									"                }\r",
+									"            },\r",
+									"            errors: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    filename: { type: \"string\" },\r",
+									"                    directory: { type: \"string\" },\r",
+									"                    reason: { type: \"string\" },\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"errors\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2033,7 +2172,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2067,9 +2207,46 @@
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the media listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        filename: { type: \"string\" },\r",
+									"                        directory: { type: \"string\" },\r",
+									"                        md5: { type: \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"filename\", \"directory\", \"md5\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2500,7 +2677,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2515,9 +2693,23 @@
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add media\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2582,6 +2774,19 @@
 									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});\r",
 									""
 								],
@@ -2770,7 +2975,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2785,9 +2991,23 @@
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add media\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2837,7 +3057,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2852,9 +3073,23 @@
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
