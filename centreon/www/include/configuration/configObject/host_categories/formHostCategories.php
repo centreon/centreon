@@ -232,8 +232,7 @@ if ($form->validate()) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 "Error while inserting host category: " . $exception->getMessage(),
-                [],
-                $exception
+                exception: $exception
             );
             $msg = new CentreonMsg();
             $msg->setImage("./img/icons/warning.png");
@@ -250,8 +249,7 @@ if ($form->validate()) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 "Error while updating host category: " . $exception->getMessage(),
-                [],
-                $exception
+                exception: $exception
             );
             $msg = new CentreonMsg();
             $msg->setImage("./img/icons/warning.png");
