@@ -28113,3 +28113,12 @@ msgstr "artículo (s) encontrado (s)"
 # msgid "Enter Regex"
 # msgstr ""
 
+# msgid "Do you want to leave this input mode?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you switch to the other input mode."
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""
+
