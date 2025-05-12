@@ -10,15 +10,19 @@ import {
   labelActivateRegex,
   labelAddFilter,
   labelDelete,
+  labelDoYouWantToLeaveThisInputMode,
   labelEnterRegex,
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelLeave,
   labelResourceType,
   labelSelectAResource,
   labelService,
   labelServiceCategory,
-  labelServiceGroup
+  labelServiceGroup,
+  labelStay,
+  labelYourChangesWillNotBeSavedIfYouSwitch
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
@@ -470,7 +474,7 @@ describe('Resources tree', () => {
   it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
     initialize({
       restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: ['host']
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -487,6 +491,66 @@ describe('Resources tree', () => {
         '{"$or":[{"host.name":{"$rg":"^Cen"}}]}'
       );
     });
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+    cy.contains(labelStay).click();
+
+    cy.contains('Host 0').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+    cy.contains(labelLeave).click();
+
+    cy.contains('Host 0').should('not.exist');
 
     cy.makeSnapshot();
   });
