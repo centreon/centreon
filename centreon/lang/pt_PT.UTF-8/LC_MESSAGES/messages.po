@@ -24168,8 +24168,6 @@ msgstr "item (s) encontrado (s)"
 #~ msgid "The value %1 is only supported by the operators %2 and %3"
 #~ msgstr "O valor %1 é somente suportado pelo os operadores %2 e %3"
 
-# msgid "Maximum"
-# msgstr ""
 
 # msgid "TLS"
 # msgstr ""
