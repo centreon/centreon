@@ -81,7 +81,7 @@ final class AddAgentConfiguration
             if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
                 $pollers = $this->readAcRepository->findPollersByIds($request->pollerIds);
                 foreach ($pollers as $poller) {
-                    if ($poller !== null && $poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
                         $presenter->presentResponse(
                             new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
                         );
