@@ -61,6 +61,7 @@ abstract class ExceptionFormatter
 
     /**
      * @param \Throwable $throwable
+     *
      * @return array<string,mixed>|null
      */
     private static function getPreviousInfos(\Throwable $throwable): ?array
