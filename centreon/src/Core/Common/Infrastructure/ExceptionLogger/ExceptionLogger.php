@@ -33,7 +33,7 @@ use Psr\Log\LogLevel;
  * @class ExceptionLogger
  * @package Core\Common\Infrastructure\ExceptionLogger
  */
-final readonly class ExceptionLogger
+final class ExceptionLogger
 {
     /**
      * ExceptionLogger constructor
@@ -41,7 +41,7 @@ final readonly class ExceptionLogger
      * @param LoggerInterface $logger
      */
     public function __construct(
-        private LoggerInterface $logger
+        private readonly LoggerInterface $logger
     ) {}
 
     /**

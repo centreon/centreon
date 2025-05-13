@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class ExceptionFormatter
  * @package Core\Common\Domain\Exception
  */
-abstract readonly class ExceptionFormatter
+abstract class ExceptionFormatter
 {
     /**
      * @param \Throwable $throwable
