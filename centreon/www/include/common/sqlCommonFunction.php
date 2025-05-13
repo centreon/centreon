@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
 
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 
 /**
@@ -43,4 +44,25 @@ function createMultipleBindQuery(array $list, string $prefix, int $bindType = nu
             SqlMultipleBindTrait::createMultipleBindQuery as public create;
         }
     })->create($list, $prefix, $bindType);
+}
+
+/**
+ * Create multiple bind parameters compatible with QueryParameterTypeEnum
+ *
+ * @param array<int|string, int|string> $values Scalar values to bind
+ * @param string $prefix Placeholder prefix (no colon)
+ * @param QueryParameterTypeEnum $paramType Type of binding (INTEGER|STRING)
+ *
+ * @return array{parameters: QueryParameter[], placeholderList: string}
+ */
+function createMultipleBindParameters(
+    array $values,
+    string $prefix,
+    QueryParameterTypeEnum $paramType
+): array {
+    return (new class {
+        use SqlMultipleBindTrait {
+            SqlMultipleBindTrait::createMultipleBindParameters as public create;
+        }
+    })->create($values, $prefix, $paramType);
 }
