@@ -20868,12 +20868,11 @@ msgstr ""
 #  msgstr ""
 #  msgid "View by service"
 #  msgstr ""
-
+#~ msgid "Advanced mode"
+#~ msgstr "Erweiterter Modus"
 # msgid "CMA authentication token(s)"
 # msgstr ""
-
 # msgid "Select an existing CMA token(s)"
 # msgstr ""
-
 # msgid "Create new CMA token"
 # msgstr ""

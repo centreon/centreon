@@ -22606,6 +22606,13 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Host group updated"
 #~ msgstr "Groupe d'hôtes mis à jour"
 
+#~ msgid ""
+#~ "The selected inherited service template does not contain any check "
+#~ "command. You must select one here."
+#~ msgstr ""
+#~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
+#~ "vérification. Vous devez en sélectionner une ici."
+
 msgid "CMA authentication token(s)"
 msgstr "Jeton(s) d'authentification CMA"
 
