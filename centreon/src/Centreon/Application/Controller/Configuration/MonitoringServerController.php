@@ -93,6 +93,8 @@ class MonitoringServerController extends AbstractController
 
                     return true;
                 });
+
+                $requestParameters->setTotal(count($servers));
             }
         }
 
