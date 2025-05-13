@@ -82,6 +82,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       is: (type, connectionMode) =>
         equals(type?.id, AgentType.CMA) &&
         equals(connectionMode?.id, ConnectionMode.secure),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
       then: (schema) =>
         schema
           .of(
