@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\TransformerException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
@@ -45,17 +46,17 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
  */
 final class ExportResourcesController extends AbstractController
 {
-    use LoggerTrait;
-
     /**
      * ExportResourcesController constructor
      *
      * @param ContactInterface $contact
      * @param RequestValidator $validator
+     * @param ExceptionLogger $exceptionLogger
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly RequestValidator $validator
+        private readonly RequestValidator $validator,
+        private readonly ExceptionLogger $exceptionLogger
     ) {}
 
     /**
@@ -75,7 +76,7 @@ final class ExportResourcesController extends AbstractController
         try {
             $useCaseRequest = $this->createExportRequest($request, $input);
         } catch (TransformerException $exception) {
-            $this->error('Error while creating export request', ['exception' => $exception->getContext()]);
+            $this->exceptionLogger->log($exception);
             $presenter->setResponseStatus(new ErrorResponse('Error while creating export request'));
 
             return $presenter->show();
@@ -170,20 +171,7 @@ final class ExportResourcesController extends AbstractController
                     ]);
                 }
             } catch (\Throwable $exception) {
-                $this->error(
-                    'Error while creating export with csv encoder',
-                    [
-                        'exception' => [
-                            'type' => $exception::class,
-                            'message' => $exception->getMessage(),
-                            'file' => $exception->getFile(),
-                            'line' => $exception->getLine(),
-                            'class' => $exception->getTrace()[0]['class'] ?? null,
-                            'method' => $exception->getTrace()[0]['function'] ?? null,
-                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
-                        ],
-                    ]
-                );
+                $this->exceptionLogger->log($exception);
                 echo $csvEncoder->encode("Oops ! An error occurred: {$exception->getMessage()}", CsvEncoder::FORMAT);
             }
         });

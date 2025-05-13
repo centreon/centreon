@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\CountResources;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
@@ -40,17 +40,17 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
  */
 class CountResourcesPresenterJson extends AbstractPresenter implements CountResourcesPresenterInterface
 {
-    use LoggerTrait;
-
     /**
      * CountResourcesPresenterJson constructor
      *
      * @param PresenterFormatterInterface $presenterFormatter
      * @param RequestParametersInterface $requestParameters
+     * @param ExceptionLogger $exceptionLogger
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
         protected RequestParametersInterface $requestParameters,
+        private readonly ExceptionLogger $exceptionLogger
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -64,21 +64,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
     {
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                $exception = $response->getException();
-                $this->error(
-                    $exception->getMessage(),
-                    [
-                        'exception' => [
-                            'type' => $exception::class,
-                            'message' => $exception->getMessage(),
-                            'file' => $exception->getFile(),
-                            'line' => $exception->getLine(),
-                            'class' => $exception->getTrace()[0]['class'] ?? null,
-                            'method' => $exception->getTrace()[0]['function'] ?? null,
-                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
-                        ],
-                    ]
-                );
+                $this->exceptionLogger->log($response->getException());
             }
             $this->setResponseStatus($response);
 
