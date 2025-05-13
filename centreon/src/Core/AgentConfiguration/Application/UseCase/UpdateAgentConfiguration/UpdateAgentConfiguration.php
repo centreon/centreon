@@ -81,15 +81,18 @@ final class UpdateAgentConfiguration
             }
 
             if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
-                $pollers = $this->readAcRepository->findPollersByAcId($request->id);
-                foreach ($pollers as $poller) {
-                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
-                        $presenter->setResponseStatus(new ForbiddenResponse(
-                            AgentConfigurationException::accessNotAllowed()
-                        ));
+                $linkedPollerIds = array_map(
+                    static fn(Poller $poller): int => $poller->id,
+                    $this->readAcRepository->findPollersByAcId($request->id)
+                );
 
-                        return;
-                    }
+                $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
                 }
             }
 

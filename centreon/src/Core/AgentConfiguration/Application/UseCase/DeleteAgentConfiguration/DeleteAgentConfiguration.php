@@ -78,10 +78,16 @@ final class DeleteAgentConfiguration
                 return;
             }
 
-            $pollers = $this->readAcRepository->findPollersByAcId($id);
-            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
-                foreach ($pollers as $poller) {
-                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+            $linkedPollerIds = array_map(
+                static fn(Poller $poller): int => $poller->id,
+                $this->readAcRepository->findPollersByAcId($id)
+            );
+
+            if (false === $this->user->isAdmin()) {
+                // non admin cannot delete central on cloud platform
+                if ($this->isCloudPlatform) {
+                    $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                    if ($centralPoller !== null) {
                         $presenter->setResponseStatus(new ForbiddenResponse(
                             AgentConfigurationException::accessNotAllowed()
                         ));
@@ -89,14 +95,7 @@ final class DeleteAgentConfiguration
                         return;
                     }
                 }
-            }
 
-            $linkedPollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
-                $pollers
-            );
-
-            if (false === $this->user->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessiblePollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
                     $linkedPollerIds,

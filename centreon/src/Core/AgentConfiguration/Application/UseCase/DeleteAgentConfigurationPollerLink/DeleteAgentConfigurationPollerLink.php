@@ -80,25 +80,24 @@ final class DeleteAgentConfigurationPollerLink
                 return;
             }
 
-            $pollers = $this->readAcRepository->findPollersByAcId($acId);
-            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
-                foreach ($pollers as $poller) {
-                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
-                        $presenter->setResponseStatus(
-                            new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
-                        );
-
-                        return;
-                    }
-                }
-            }
-
             $linkedPollerIds = array_map(
                 static fn(Poller $poller): int => $poller->id,
-                $pollers
+                $this->readAcRepository->findPollersByAcId($acId)
             );
 
             if (false === $this->user->isAdmin()) {
+                // non admin cannot delete servers on cloud platform if among them a central linked to the ac
+                if ($this->isCloudPlatform) {
+                    $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                    if ($centralPoller !== null) {
+                            $presenter->setResponseStatus(
+                                new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                            );
+    
+                            return;
+                    }
+                }
+
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessiblePollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
                     $linkedPollerIds,

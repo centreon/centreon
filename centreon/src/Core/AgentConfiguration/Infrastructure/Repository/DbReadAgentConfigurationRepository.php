@@ -174,55 +174,6 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findPollersByIds(array $pollerIds): array
-    {
-        if (empty($pollerIds)) {
-            return [];
-        }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($pollerIds, ':poller_id_');
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT
-                    ng.`id`,
-                    ng.`name`,
-                    ng.`localhost`,
-                    EXISTS (
-                        SELECT 1
-                        FROM `:db`.`remote_servers` rs
-                        WHERE rs.`ip` = ng.`ns_ip_address`
-                    ) as is_remote_server
-                FROM `:db`.`nagios_server` ng
-                WHERE ng.`id` IN ({$bindQuery})
-                SQL
-        ));
-
-        foreach ($bindValues as $bindParam => $bindValue) {
-            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        // Retrieve data
-        $pollers = [];
-        foreach ($statement as $result) {
-            /** @var array{id:int,name:string,localhost:string,is_remote_server:int} $result */
-            $pollers[] = new Poller(
-                $result['id'],
-                $result['name'],
-                $result['localhost'],
-                $result['is_remote_server']
-            );
-        }
-
-        return $pollers;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function findPollersWithBrokerDirective(string $module): array
     {
         $statement = $this->db->prepare($this->translateDbName(

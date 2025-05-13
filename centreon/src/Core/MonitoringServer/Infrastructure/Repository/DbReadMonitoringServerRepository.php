@@ -282,6 +282,42 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findCentralByIds(array $ids): ?MonitoringServer
+    {
+        if (empty($ids)) {
+            return null;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':poller_id_');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    ng.`id`,
+                    ng.`name`
+                FROM `:db`.`nagios_server` ng
+                WHERE ng.`id` IN ({$bindQuery})
+                    AND ng.`localhost` = '1'
+                    AND ng.`remote_id` IS NULL
+                SQL
+        ));
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        /** @var MSResultSet|false */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createMonitoringServerFromArray($data) : null;
+    }
+
+    /**
      * @param MSResultSet $result
      *
      * @throws AssertionFailedException
