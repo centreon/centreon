@@ -440,7 +440,7 @@ function insertHostCategories(array $ret = []): int
     $params = [
         QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
         QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
-        QueryParameter::int('level', isset($ret['hc_severity_level']) ? (int) $ret['hc_severity_level'] : null),
+        QueryParameter::int('level', !empty($ret['hc_severity_level']) ? (int) $ret['hc_severity_level'] : null),
         QueryParameter::int('icon_id', isset($ret['hc_severity_icon'])  ? (int) $ret['hc_severity_icon']  : null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
         QueryParameter::string('hc_activate', $activate),
