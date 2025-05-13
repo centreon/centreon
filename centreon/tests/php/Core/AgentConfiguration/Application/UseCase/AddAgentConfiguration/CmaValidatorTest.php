@@ -132,13 +132,13 @@ foreach (
     })->expectNotToPerformAssertions();
 }
 
-it("should throw an exception when a token is not provided and connection is not insecure or reverse", function () use ($filename): void {
+it("should throw an exception when a token is not provided and connection is not insecure or reverse", function (): void {
     $this->request->configuration['is_reverse'] = false;
     $this->expectException(AgentConfigurationException::class);
     $this->cmaValidator->validateParametersOrFail($this->request);
 });
 
-it("should throw an exception when a token is provided but invalid and connection is not insecure or reverse", function () use ($filename): void {
+it("should throw an exception when a token is provided but invalid and connection is not insecure or reverse", function (): void {
     $this->request->configuration['is_reverse'] = false;
     $this->request->configuration['tokens'] = [['name' => 'tokenName', 'creator_id' => 1]];
     $this->user
