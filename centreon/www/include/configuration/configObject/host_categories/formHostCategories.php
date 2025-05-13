@@ -71,7 +71,10 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
             ['hcId' => $hc_id],
             $exception
         );
-        throw new RepositoryException('Unable to load host category', ['hcId' => $hc_id], $exception);
+        $msg = new CentreonMsg();
+        $msg->setImage("./img/icons/warning.png");
+        $msg->setTextStyle("bold");
+        $msg->setText("Unable to load host category : hcId = $hc_id");
     }
 }
 
@@ -97,13 +100,7 @@ $attrHosttemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $
  * Create formulary
  */
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=$p");
-$form->addElement('hidden', 'centreon_token');
 
-$isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
-if (! $isPost) {
-    $token = createCSRFToken();
-    $form->getElement('centreon_token')->setValue($token);
-}
 switch ($o) {
     case 'a':
         $form->addElement('header', 'title',_('Add a host category'));
@@ -259,7 +256,7 @@ if ($form->validate()) {
     elseif ($form->getSubmitValue('submitC')) {
         try {
             // Update existing record
-            updateHostCategoriesInDB($hcObj->getValue());
+            updateHostCategoriesInDB((int) $hcObj->getValue());
             $valid = true;
         } catch (RepositoryException $exception) {
             CentreonLog::create()->error(
@@ -272,16 +269,6 @@ if ($form->validate()) {
             $msg->setTextStyle("bold");
             $msg->setText('Error while updating host category');
         }
-    }
-}
-else {
-    if ($isPost) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Unable to validate form',
-            ['formErrors' => $form->_errors]
-        );
-        throw new RepositoryException('Unable to validate form', ['formErrors' => $form->_errors]);
     }
 }
 
