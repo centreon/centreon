@@ -53,7 +53,7 @@ trait SqlMultipleBindTrait
     /**
      * Create multiple bind parameters compatible with QueryParameterTypeEnum
      *
-     * @param array<int|string, int|string> $values Scalar values to bind
+     * @param array<int|string, int|string|null> $values Scalar values to bind
      * @param string $prefix Placeholder prefix (no colon)
      * @param QueryParameterTypeEnum $paramType Type of binding (INTEGER|STRING)
      *
@@ -72,10 +72,14 @@ trait SqlMultipleBindTrait
             $placeholders[] = ':' . $name;
             switch ($paramType) {
                 case QueryParameterTypeEnum::INTEGER:
-                    $parameters[] = QueryParameter::int($name, (int) $val);
+                    $parameters[] = ($val === null)
+                        ? QueryParameter::null($name)
+                        : QueryParameter::int($name, (int) $val);
                     break;
                 default:
-                    $parameters[] = QueryParameter::string($name, (string) $val);
+                    $parameters[] = ($val === null)
+                        ? QueryParameter::null($name)
+                        : QueryParameter::string($name, (string) $val);
             }
         }
 

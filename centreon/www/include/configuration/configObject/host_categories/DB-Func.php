@@ -28,7 +28,6 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\ActionLog\Domain\Model\ActionLog;
-use CentreonLog;
 
 // Only these fields are permitted from user input
 const ALLOWED_FIELDS = [
@@ -143,7 +142,7 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 
     $updQuery = $pearDB->createQueryBuilder()
         ->update('hostcategories')
-        ->set('hc_activate', '1')
+        ->set('hc_activate', "'1'")
         ->where('hc_id = :hc_id')
         ->getQuery();
     $selQuery = $pearDB->createQueryBuilder()

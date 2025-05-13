@@ -87,11 +87,14 @@ try {
     }
 
     if (!$centreon->user->admin && $hcString !== "''") {
-        $hcIds = array_map('intval', explode(',', $hcString));
-        list($binds, $placeholders) = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
-        if (count($binds) > 0) {
-            $queryBuilder->andWhere("hc.hc_id IN ( $placeholders )");
-            $parameters = array_merge($parameters, $binds);
+        $hcIds = array_map(
+            fn(string $s) => (int) trim($s, "'\" \t\n\r\0\x0B"),
+            explode(',', $hcString)
+        );
+        $bindparams = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
+        if (count($bindparams["parameters"]) > 0) {
+            $queryBuilder->andWhere("hc.hc_id IN ( {$bindparams["placeholderList"]} )");
+            $parameters = array_merge($parameters, $bindparams["parameters"]);
         }
     }
 
@@ -127,16 +130,10 @@ try {
         ],
         $exception
     );
-    throw new RepositoryException(
-        "Error fetching host categories list",
-        [
-            'hcString' => $hcString,
-            'search' => $search,
-            'limit' => $limit,
-            'num' => $num
-        ],
-        $exception
-    );
+    $msg = new CentreonMsg();
+    $msg->setImage("./img/icons/warning.png");
+    $msg->setTextStyle("bold");
+    $msg->setText('Error fetching host categories list');
 }
 
 // Prepare pagination and template
@@ -175,73 +172,58 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtn);
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
-// Populate rows
-foreach ($hostCategories as $hc) {
-    // count enabled/disabled hosts per category
-    try {
-        $hostQb = $pearDB->createQueryBuilder()
-            ->select('h.host_id','h.host_activate')
-            ->from('hostcategories_relation','hcr')
-            ->join('hcr','host','h','h.host_id = hcr.host_host_id')
-            ->where('hcr.hostcategories_hc_id = :hcId')
-            ->andWhere("h.host_register = '1'");
+// count enabled/disabled hosts per category
+try {
+    $countsQuerybuilder = $pearDB->createQueryBuilder()
+        ->select('hcr.hostcategories_hc_id AS hc_id')
+        ->addSelect('SUM(CASE WHEN h.host_activate = "1" THEN 1 ELSE 0 END) AS enabled')
+        ->addSelect('SUM(CASE WHEN h.host_activate = "0" THEN 1 ELSE 0 END) AS disabled')
+        ->from('hostcategories_relation', 'hcr')
+        ->join('hcr', 'host', 'h', 'h.host_id = hcr.host_host_id')
+        ->where('h.host_register = "1"');
 
-        if (! $centreon->user->admin) {
-            $hostQb->join(
-                'h',
-                $aclDbName . '.centreon_acl',
-                'acl',
-                'acl.host_id = h.host_id'
+    if (! $centreon->user->admin) {
+        $subQuerybuilder = $pearDB->createQueryBuilder();
+        $subQuerybuilder -> select('1')
+            ->from("{$aclDbName}.centreon_acl", 'acl')
+            ->where(
+                $countsQuerybuilder->expr()->equal('acl.host_id', 'h.host_id')
             )
             ->andWhere(
-                'acl.group_id IN (' . $acl->getAccessGroupsString() . ')'
+                $countsQuerybuilder->expr()->in('acl.group_id', "({$acl->getAccessGroupsString()})")
             );
-        }
-
-        $hostSql    = $hostQb->getQuery();
-        $hostParams = QueryParameters::create([
-            QueryParameter::int('hcId', (int) $hc['hc_id'])
-        ]);
-        $hostRows = $pearDB->fetchAllAssociative($hostSql, $hostParams);
-
-        $actArr   = [];
-        $deactArr = [];
-        foreach ($hostRows as $rowH) {
-            if ($rowH['host_activate']) {
-                $actArr[$rowH['host_id']] = true;
-            } else {
-                $deactArr[$rowH['host_id']] = true;
-            }
-        }
-        $nbrhostAct   = count($actArr);
-        $nbrhostDeact = count($deactArr);
-    } catch (ConnectionException|CollectionException|ValueObjectException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            "Error fetching hosts for category {$hc['hc_id']}",
-            [
-                'hc_id' => $hc['hc_id'],
-                'search' => $search,
-                'limit' => $limit,
-                'num' => $num
-            ],
-            $exception
-        );
-        throw new RepositoryException(
-            "Unable to fetch hosts for category {$hc['hc_id']}",
-            [
-                'hc_id' => $hc['hc_id'],
-                'search' => $search,
-                'limit' => $limit,
-                'num' => $num
-            ],
-            $exception
+        $countsQuerybuilder->andWhere(
+            "EXISTS( {$subQuerybuilder->getQuery()} )"
         );
     }
+    $countsQuerybuilder->groupBy('hcr.hostcategories_hc_id');
 
+    $countsSql = $countsQuerybuilder->getQuery();
+    $countsRows = $pearDB->fetchAllAssociative($countsSql);
+
+    $countsByCategory = [];
+    foreach ($countsRows as $rowHc) {
+        $countsByCategory[$rowHc['hc_id']] = [
+            'enabled'  => (int) $rowHc['enabled'],
+            'disabled' => (int) $rowHc['disabled'],
+        ];
+    }
+} catch (ConnectionException|CollectionException|ValueObjectException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        "Error fetching host categories counts",
+        exception: $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage("./img/icons/warning.png");
+    $msg->setTextStyle("bold");
+    $msg->setText("Error fetching host categories counts");
+}
+// Populate rows
+foreach ($hostCategories as $hc) {
     // selection checkbox + action links
     $selectedElements = $form->addElement('checkbox', "select[{$hc['hc_id']}]");
-    $moptions         = '';
+    $moptions = '';
     if ($hc['hc_activate']) {
         $moptions .= "<a href='main.php?p={$p}&hc_id={$hc['hc_id']}&o=u"
                   . "&limit={$limit}&num={$num}&search={$search}&centreon_token={$centreonToken}'>"
@@ -259,33 +241,33 @@ foreach ($hostCategories as $hc) {
               . "event.returnValue=false;\" />";
 
     $elemArr[] = [
-        'MenuClass'        => "list_{$style}",
-        'RowMenu_select'   => $selectedElements->toHtml(),
-        'RowMenu_name'     => CentreonUtils::escapeSecure($hc['hc_name']),
-        'RowMenu_link'     => "main.php?p=$p&o=c&hc_id={$hc['hc_id']}",
-        'RowMenu_desc'     => CentreonUtils::escapeSecure($hc['hc_alias']),
-        'RowMenu_hc_type'  => $hc['level']
+        'MenuClass'=> "list_{$style}",
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => CentreonUtils::escapeSecure($hc['hc_name']),
+        'RowMenu_link' => "main.php?p=$p&o=c&hc_id={$hc['hc_id']}",
+        'RowMenu_desc' => CentreonUtils::escapeSecure($hc['hc_alias']),
+        'RowMenu_hc_type'=> $hc['level']
             ? _('Severity') . " ({$hc['level']})"
             : _('Regular'),
-        'RowMenu_status'   => $hc['hc_activate'] ? _('Enabled') : _('Disabled'),
-        'RowMenu_badge'    => $hc['hc_activate'] ? 'service_ok' : 'service_critical',
-        'RowMenu_hostAct'  => $nbrhostAct,
-        'RowMenu_hostDeact'=> $nbrhostDeact,
-        'RowMenu_options'  => $moptions,
+        'RowMenu_status' => $hc['hc_activate'] ? _('Enabled') : _('Disabled'),
+        'RowMenu_badge' => $hc['hc_activate'] ? 'service_ok' : 'service_critical',
+        'RowMenu_hostAct' => $countsByCategory[$hc['hc_id']]['enabled'] ?? 0,
+        'RowMenu_hostDeact' => $countsByCategory[$hc['hc_id']]['disabled'] ?? 0,
+        'RowMenu_options' => $moptions,
     ];
 
     $style = ($style === 'one') ? 'two' : 'one';
 }
 
 $tpl->assign('elemArr', $elemArr);
-$tpl->assign('limit',    $limit);
+$tpl->assign('limit', $limit);
 $tpl->assign('searchHC', $search);
 
 $tpl->assign(
     'msg',
     [
-        'addL'       => "main.php?p=$p&o=a",
-        'addT'       => _('Add'),
+        'addL' => "main.php?p=$p&o=a",
+        'addT' => _('Add'),
         'delConfirm' => _('Do you confirm the deletion ?')
     ]
 );
@@ -316,8 +298,8 @@ foreach (['o1', 'o2'] as $option) {
         null,
         [
             null => _("More actions..."),
-            'm'  => _("Duplicate"),
-            'd'  => _("Delete"),
+            'm' => _("Duplicate"),
+            'd' => _("Delete"),
             'ms' => _("Enable"),
             'mu' => _("Disable")
         ],
