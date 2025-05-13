@@ -31,10 +31,10 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 /**
  * @phpstan-type _CmaParameters array{
  *	    is_reverse: bool,
- *		connection_mode?: ConnectionModeEnum,
- *		otel_public_certificate: string,
- *		otel_private_key: string,
+ *		otel_public_certificate: ?string,
+ *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
+ *      tokens: array<array{name:string,creator_id:int}>,
  *		hosts: array<array{
  *			address: string,
  *			port: int,
@@ -62,23 +62,48 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      * @throws AssertionFailedException
      */
     public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
+        /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 
         if ($connectionMode === ConnectionModeEnum::SECURE) {
-            $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
-            $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+            $this->validateCertificate(
+                $parameters['otel_public_certificate'],
+                'configuration.otel_public_certificate'
+            );
+            $this->validateCertificate(
+                $parameters['otel_private_key'],
+                'configuration.otel_private_key'
+            );
+            $this->validateOptionalCertificate(
+                $parameters['otel_ca_certificate'],
+                'configuration.otel_ca_certificate'
+            );
         } else {
             $this->validateOptionalCertificate(
                 $parameters['otel_public_certificate'],
                 'configuration.otel_public_certificate'
             );
-            $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+            $this->validateOptionalCertificate(
+                $parameters['otel_private_key'],
+                'configuration.otel_private_key'
+            );
+            $this->validateOptionalCertificate(
+                $parameters['otel_ca_certificate'],
+                'configuration.otel_ca_certificate'
+            );
         }
 
         if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
             $parameters['hosts'] = [];
+        }
+
+        if ($connectionMode !== ConnectionModeEnum::INSECURE && $parameters['is_reverse'] === false) {
+            Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
+            foreach ($parameters['tokens'] as $token) {
+                Assertion::notEmptyString($token['name']);
+            }
+        } else {
+            $parameters['tokens'] = [];
         }
 
         foreach ($parameters['hosts'] as $host) {
@@ -173,13 +198,13 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @param ?string $certificate
      * @param string $field Used for error reporting
-     * 
+     *
      * @throws AssertionFailedException
      */
     private function validateCertificate(?string $certificate, string $field): void
     {
         Assertion::notEmptyString($certificate, $field);
-        Assertion::maxLength((string) $certificate, self::MAX_LENGTH, $field);
+        Assertion::maxLength($certificate ?? '', self::MAX_LENGTH, $field);
     }
 
     /**
@@ -187,7 +212,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @param ?string $certificate
      * @param string $field Used for error reporting
-     * 
+     *
      * @throws AssertionFailedException
      */
     private function validateOptionalCertificate(?string $certificate, string $field): void
