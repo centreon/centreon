@@ -2,7 +2,7 @@ import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Schema, array, boolean, mixed, number, object, string } from 'yup';
-import { AgentConfigurationForm, AgentType } from '../models';
+import { AgentConfigurationForm, AgentType, ConnectionMode } from '../models';
 import {
   labelAddressInvalid,
   labelInvalidExtension,
@@ -78,9 +78,10 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    tokens: array().when('$type', {
-      is: (type) => equals(type?.id, AgentType.CMA),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    tokens: array().when(['$type', '$connectionMode'], {
+      is: (type, connectionMode) =>
+        equals(type?.id, AgentType.CMA) &&
+        equals(connectionMode?.id, ConnectionMode.secure),
       then: (schema) =>
         schema
           .of(
@@ -91,6 +92,8 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             })
           )
           .min(1, t(labelRequired))
+          .required(),
+      otherwise: (schema) => schema.nullable()
     }),
     otelPublicCertificate: certificateValidation,
     otelCaCertificate: certificateNullableValidation,

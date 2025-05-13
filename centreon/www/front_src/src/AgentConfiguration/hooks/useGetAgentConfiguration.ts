@@ -31,7 +31,7 @@ const adaptAgentConfigurationToForm = (
               name,
               creatorId
             }),
-            agentConfiguration?.tokens || []
+            agentConfiguration.configuration?.tokens || []
           )
         }
       : {})
