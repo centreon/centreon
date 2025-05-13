@@ -25,7 +25,6 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\TransformerException;
