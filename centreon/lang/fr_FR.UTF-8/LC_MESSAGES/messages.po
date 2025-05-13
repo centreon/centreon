@@ -22643,7 +22643,7 @@ msgstr "L'export sera traité mais ne contiendra pas toutes les lignes. Vous pou
 msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
 msgstr "Vous allez exporter le statut des ressources que vous avez filtrées. Vous pouvez exporter jusqu'à 10 000 lignes."
 
-msgid "Number of lines"
+msgid "Number of rows"
 msgstr "Nombre de lignes"
 
 msgid "Visible columns only"
