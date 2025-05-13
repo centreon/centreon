@@ -36,9 +36,8 @@ use Centreon\Domain\RequestParameters\{
 use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
-use Psr\Log\LogLevel;
 use JMS\Serializer\Exception\ValidationFailedException;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
