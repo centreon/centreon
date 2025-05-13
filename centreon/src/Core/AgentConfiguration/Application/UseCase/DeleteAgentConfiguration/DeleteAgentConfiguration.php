@@ -81,7 +81,7 @@ final class DeleteAgentConfiguration
             $pollers = $this->readAcRepository->findPollersByAcId($id);
             if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
                 foreach ($pollers as $poller) {
-                    if ($poller !== null && $poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
                         $presenter->setResponseStatus(new ForbiddenResponse(
                             AgentConfigurationException::accessNotAllowed()
                         ));
