@@ -28,15 +28,14 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * Class
+ * Class.
  *
  * @class ExceptionLogger
- * @package Core\Common\Infrastructure\ExceptionLogger
  */
 final class ExceptionLogger
 {
     /**
-     * ExceptionLogger constructor
+     * ExceptionLogger constructor.
      *
      * @param LoggerInterface $logger
      */
@@ -45,7 +44,7 @@ final class ExceptionLogger
     ) {}
 
     /**
-     * Factory
+     * Factory.
      *
      * @return ExceptionLogger
      */
@@ -58,8 +57,6 @@ final class ExceptionLogger
      * @param \Throwable $throwable
      * @param array<string,mixed> $context
      * @param string $level {@see LogLevel}
-     *
-     * @return void
      */
     public function log(\Throwable $throwable, array $context = [], string $level = LogLevel::ERROR): void
     {

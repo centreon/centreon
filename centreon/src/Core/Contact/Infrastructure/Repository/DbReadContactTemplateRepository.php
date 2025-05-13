@@ -39,10 +39,9 @@ use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 
 /**
- * Class
+ * Class.
  *
  * @class DbReadContactTemplateRepository
- * @package Core\Contact\Infrastructure\Repository
  */
 class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
@@ -50,7 +49,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
-     * DbReadContactTemplateRepository constructor
+     * DbReadContactTemplateRepository constructor.
      *
      * @param ConnectionInterface $connection
      * @param SqlRequestParametersTranslator $sqlRequestTranslator

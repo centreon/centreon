@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace Core\Application\Common\UseCase;
 
 /**
- * Class
+ * Class.
  *
  * @class ErrorResponse
- * @package Core\Application\Common\UseCase
  *
  * @description This is a standard error response that has three properties to manage errors in the use cases:
  * - message : accepts either a string to be translated, or a Throwable object from which to obtain the message
@@ -37,7 +36,7 @@ namespace Core\Application\Common\UseCase;
 class ErrorResponse extends AbstractResponse
 {
     /**
-     * ErrorResponse constructor
+     * ErrorResponse constructor.
      *
      * @param string|\Throwable $message Only to have a message
      * @param array<string,mixed> $context

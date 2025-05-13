@@ -24,15 +24,15 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class ExceptionFormatter
- * @package Core\Common\Domain\Exception
  */
 abstract class ExceptionFormatter
 {
     /**
      * @param \Throwable $throwable
+     *
      * @return array<string,mixed>
      */
     public static function format(\Throwable $throwable): array

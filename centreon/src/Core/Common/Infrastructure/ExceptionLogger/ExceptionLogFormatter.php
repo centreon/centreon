@@ -27,10 +27,9 @@ use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\ExceptionFormatter;
 
 /**
- * Class
+ * Class.
  *
  * @class ExceptionLogFormatter
- * @package Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger
  */
 abstract class ExceptionLogFormatter
 {
