@@ -29,31 +29,24 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\TrimmedString;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokensResponse;
 use Core\Security\Token\Application\UseCase\FindTokens\TokenDto;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
 use Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository;
-use Tests\Core\Security\Token\Infrastructure\API\FindTokens\FindTokensPresenterStub;
 
 beforeEach(closure: function (): void {
-    $this->repository = $this->createMock(DbReadTokenRepository::class);
-    $this->user = $this->createMock(ContactInterface::class);
     $this->useCase = new FindTokens(
-        $this->createMock(RequestParametersInterface::class),
-        $this->repository,
-        $this->user
+        $this->repository = $this->createMock(DbReadTokenRepository::class),
+        $this->user = $this->createMock(ContactInterface::class),
     );
-    $this->presenter = new FindTokensPresenterStub($this->createMock(PresenterFormatterInterface::class));
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-    $this->user
-        ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)
-        ->willReturn(true);
     $this->user
         ->expects($this->once())
         ->method('hasRole')
@@ -64,32 +57,15 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->method('findByRequestParameters')
         ->willThrowException(new \Exception());
 
-    ($this->useCase)($this->presenter);
+    $response = ($this->useCase)();
 
-    expect($this->presenter->response)
+    expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->response->getMessage())
+        ->and($response->getMessage())
         ->toBe(TokenException::errorWhileSearching(new \Exception())->getMessage());
 });
 
-it('should present a ForbiddenResponse when the user does not have read rights', function (): void {
-    $this->user
-        ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)
-        ->willReturn(false);
-
-    ($this->useCase)($this->presenter);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ForbiddenResponse::class);
-});
-
 it('should present a FindTokensResponse when a non-admin user has read rights', function (): void {
-    $this->user
-        ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)
-        ->willReturn(true);
-
     $this->user
         ->method('hasRole')
         ->with(Contact::ROLE_MANAGE_TOKENS)
@@ -99,39 +75,39 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
     $expirationDate = $creationDate->add(\DateInterval::createFromDateString('1 day'));
     $this->repository
         ->expects($this->once())
-        ->method('findByIdAndRequestParameters')
+        ->method('findByUserIdAndRequestParameters')
         ->willReturn([
-            new Token(
-                new TrimmedString('fake'),
-                1,
-                new TrimmedString('non-admin'),
-                1,
-                new TrimmedString('non-admin'),
-                $creationDate,
-                $expirationDate,
-                false
+            new ApiToken(
+                name: new TrimmedString('fake'),
+                userId: 1,
+                userName: new TrimmedString('non-admin'),
+                creatorId: 1,
+                creatorName: new TrimmedString('non-admin'),
+                creationDate: $creationDate,
+                expirationDate: $expirationDate,
+                isRevoked: false
             ),
         ]);
 
-    ($this->useCase)($this->presenter);
+    $response = ($this->useCase)();
 
-    expect($this->presenter->response)
+    expect($response)
         ->toBeInstanceOf(FindTokensResponse::class)
-        ->and($this->presenter->response->tokens)
+        ->and($response->tokens)
         ->toHaveCount(1)
-        ->and(serialize($this->presenter->response->tokens[0]))
+        ->and(serialize($response->tokens[0]))
         ->toBe(
             serialize(
-                new TokenDto(
-                    'fake',
-                    1,
-                    'non-admin',
-                    1,
-                    'non-admin',
-                    $creationDate,
-                    $expirationDate,
-                    false
-                )
+                new ApiToken(
+                    name: new TrimmedString('fake'),
+                    userId: 1,
+                    userName: new TrimmedString('non-admin'),
+                    creatorId: 1,
+                    creatorName: new TrimmedString('non-admin'),
+                    creationDate: $creationDate,
+                    expirationDate: $expirationDate,
+                    isRevoked: false
+                ),
             )
         );
 });
@@ -139,7 +115,7 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
 it('should present a FindTokensResponse when user is an admin', function (): void {
     $this->user
         ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)
+        ->with(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)
         ->willReturn(true);
 
     $this->user
@@ -153,37 +129,33 @@ it('should present a FindTokensResponse when user is an admin', function (): voi
         ->expects($this->once())
         ->method('findByRequestParameters')
         ->willReturn([
-            new Token(
-                new TrimmedString('fake'),
-                1,
-                new TrimmedString('non-admin'),
-                1,
-                new TrimmedString('non-admin'),
-                $creationDate,
-                $expirationDate,
-                false
+            new JwtToken(
+                name: new TrimmedString('fake'),
+                creatorId: 1,
+                creatorName: new TrimmedString('non-admin'),
+                creationDate: $creationDate,
+                expirationDate: $expirationDate,
+                isRevoked: false
             ),
         ]);
 
-    ($this->useCase)($this->presenter);
+    $response = ($this->useCase)();
 
-    expect($this->presenter->response)
+    expect($response)
         ->toBeInstanceOf(FindTokensResponse::class)
-        ->and($this->presenter->response->tokens)
+        ->and($response->tokens)
         ->toHaveCount(1)
-        ->and(serialize($this->presenter->response->tokens[0]))
+        ->and(serialize($response->tokens[0]))
         ->toBe(
             serialize(
-                new TokenDto(
-                    'fake',
-                    1,
-                    'non-admin',
-                    1,
-                    'non-admin',
-                    $creationDate,
-                    $expirationDate,
-                    false
-                )
+                new JwtToken(
+                    name: new TrimmedString('fake'),
+                    creatorId: 1,
+                    creatorName: new TrimmedString('non-admin'),
+                    creationDate: $creationDate,
+                    expirationDate: $expirationDate,
+                    isRevoked: false,
+                ),
             )
         );
 });
