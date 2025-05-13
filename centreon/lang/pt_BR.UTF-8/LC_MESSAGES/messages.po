@@ -24350,7 +24350,7 @@ msgstr "item (s) encontrado (s)"
 # msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
 # msgstr ""
 
-# msgid "Number of lines"
+# msgid "Number of rows"
 # msgstr ""
 
 # msgid "Visible columns only"
