@@ -37,6 +37,7 @@ use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenFactory;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
@@ -211,9 +212,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
     {
         try {
             [$tokenBindValues, $tokensQuery] = $this->createMultipleBindQuery($tokenNames, ':tokenName_');
-            $queryParams = QueryParameters::create([
-                QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL),
-            ]);
+            $queryParams = QueryParameters::create([]);
             foreach ($tokenBindValues as $key => $value) {
                 /** @var string $value */
                 $queryParams->add($key, QueryParameter::string($key, $value));
@@ -238,19 +237,16 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 $queryParams
             );
 
-            if ($data === []) {
-                return [];
-            }
-
             $results = [];
             foreach ($data as $row) {
                 /** @var _Token $row */
-                $row['name'] = TokenFactory::create(
+                $results[$row['name']] = TokenFactory::create(
                     TokenTypeEnum::CMA,
                     $row
                 );
             }
 
+            /** @var array<string,JwtToken> $results */
             return $results;
         } catch (BusinessLogicException $exception) {
             $this->error(

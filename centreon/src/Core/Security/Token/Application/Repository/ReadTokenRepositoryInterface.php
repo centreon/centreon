@@ -42,10 +42,11 @@ interface ReadTokenRepositoryInterface
 
     /**
      * Find JWT tokens by their names.
+     * Response array is indexed by token name.
      *
      * @param string[] $tokenNames
      *
-     * @return JwtToken[]
+     * @return array<string,JwtToken>
      */
     public function findByNames(array $tokenNames): array;
 

@@ -116,7 +116,7 @@ class AgentConfiguration extends AbstractObjectJSON
             ],
             'tokens' => array_map(
                 static fn(JwtToken $token): array => [
-                    'token' => $token->getName(),
+                    'token' => $token->getToken(),
                     'encoding_key' => $token->getEncodingKey(),
                 ],
                 $this->readTokenRepository->findByNames(
@@ -126,7 +126,6 @@ class AgentConfiguration extends AbstractObjectJSON
                     )
                 )
             ),
-
         ];
 
         if ($data['is_reverse']) {
