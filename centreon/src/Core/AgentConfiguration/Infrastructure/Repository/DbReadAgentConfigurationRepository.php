@@ -145,12 +145,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 SELECT
                     rel.`poller_id` as id,
                     ng.`name`,
-                    ng.`localhost`,
-                    EXISTS (
-                    SELECT 1
-                    FROM `:db`.`remote_servers` rs
-                    WHERE rs.`ip` = ng.`ns_ip_address`
-                    ) as is_remote_server
+                    (ng.`localhost` = '1' AND ng.`remote_id` IS NULL) as is_central
                 FROM `:db`.`ac_poller_relation` rel
                 JOIN `:db`.`nagios_server` ng
                     ON rel.poller_id = ng.id
@@ -164,8 +159,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         // Retrieve data
         $pollers = [];
         foreach ($statement as $result) {
-            /** @var array{id:int,name:string,localhost:string,is_remote_server:int} $result */
-            $pollers[] = new Poller($result['id'], $result['name'],$result['localhost'], $result['is_remote_server']);
+            /** @var array{id:int,name:string,is_central:int} $result */
+            $pollers[] = new Poller($result['id'], $result['name'], $result['is_central'] === 1);
         }
 
         return $pollers;

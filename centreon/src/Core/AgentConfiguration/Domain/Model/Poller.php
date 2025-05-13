@@ -31,8 +31,7 @@ class Poller
     public function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly ?string $isLocalhost = null,
-        public readonly ?int $isRemoteServer = null,
+        public readonly ?bool $isCentral = null,
     ) {
     }
 
@@ -46,13 +45,8 @@ class Poller
         return $this->name;
     }
 
-    public function isLocalhost(): ?string
+    public function isCentral(): ?bool
     {
-        return $this->isLocalhost;
-    }
-
-    public function isRemoteServer(): ?int
-    {
-        return $this->isRemoteServer;
+        return $this->isCentral;
     }
 }
