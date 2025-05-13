@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationReposi
 use Core\AgentConfiguration\Application\UseCase\DeleteAgentConfiguration\DeleteAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -55,6 +56,7 @@ beforeEach(function (): void {
         id: $this->testedAcId = 1,
         name: 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     ));
 });

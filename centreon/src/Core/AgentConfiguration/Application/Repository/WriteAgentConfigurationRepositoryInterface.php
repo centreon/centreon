@@ -25,7 +25,14 @@ namespace Core\AgentConfiguration\Application\Repository;
 
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
+use Core\Common\Domain\Exception\RepositoryException;
 
+/**
+ * Interface
+ *
+ * @class WriteAgentConfigurationRepositoryInterface
+ * @package Core\AgentConfiguration\Application\Repository
+ */
 interface WriteAgentConfigurationRepositoryInterface
 {
     /**
@@ -33,7 +40,7 @@ interface WriteAgentConfigurationRepositoryInterface
      *
      * @param NewAgentConfiguration $agentConfiguration
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int
      */
@@ -44,7 +51,7 @@ interface WriteAgentConfigurationRepositoryInterface
      *
      * @param AgentConfiguration $agentConfiguration
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function update(AgentConfiguration $agentConfiguration): void;
 
@@ -53,7 +60,7 @@ interface WriteAgentConfigurationRepositoryInterface
      *
      * @param int $id
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function delete(int $id): void;
 
@@ -63,7 +70,7 @@ interface WriteAgentConfigurationRepositoryInterface
      * @param int $agentConfigurationId
      * @param int[] $pollerIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function linkToPollers(int $agentConfigurationId, array $pollerIds): void;
 
@@ -72,7 +79,7 @@ interface WriteAgentConfigurationRepositoryInterface
      *
      * @param int $agentConfigurationId
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function removePollers(int $agentConfigurationId): void;
 
@@ -82,7 +89,7 @@ interface WriteAgentConfigurationRepositoryInterface
      * @param int $agentConfigurationId
      * @param int $pollerId
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function removePoller(int $agentConfigurationId, int $pollerId): void;
 
@@ -92,7 +99,7 @@ interface WriteAgentConfigurationRepositoryInterface
      * @param string $module
      * @param int[] $pollerIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function addBrokerDirective(string $module, array $pollerIds): void;
 }
