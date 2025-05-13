@@ -11,12 +11,13 @@ use Centreon\Test\Behat\Administration\KBParametersPage;
  */
 class KnowledgeBaseContext extends CentreonContext
 {
+    public $hostName = 'MediawikiHost';
+    public $serviceHostName = 'Centreon-Server';
+    public $serviceName = 'MediawikiService';
+
     public function __construct()
     {
         parent::__construct();
-        $this->hostName = 'MediawikiHost';
-        $this->serviceHostName = 'Centreon-Server';
-        $this->serviceName = 'MediawikiService';
     }
 
     /**
@@ -32,13 +33,25 @@ class KnowledgeBaseContext extends CentreonContext
         $this->iAmLoggedIn();
 
         $page = new KBParametersPage($this);
-        $page->setProperties(
-            array(
-                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
-                'kb_wiki_account' => 'WikiSysop',
-                'kb_wiki_password' => 'centreon'
-            )
+        $this->spin(
+            function ($context) use ($page) {
+                try {
+                    $page->setProperties(
+                        array(
+                            'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
+                            'kb_wiki_account' => 'WikiSysop',
+                            'kb_wiki_password' => 'centreon'
+                        )
+                    );
+
+                    return true;
+                } catch (Exception) {
+                    return false;
+                }
+            },
+            'Unable to set page properties',
         );
+
         $page->save();
     }
 
@@ -136,13 +149,22 @@ class KnowledgeBaseContext extends CentreonContext
         );
 
         $this->spin(
-            function($context) {
-                $context->assertFind('css', '#wpTextbox1')->setValue('add wiki host page');
-                $context->assertFind('css', 'input[name="wpSave"]')->click();
+            function ($context) {
+                return $context->assertFind('css', '#wpTextbox1');
             },
-            'Wiki page is not loaded',
+            'Text box not found',
             120
         );
+
+        $this->spin(
+            function ($context) {
+                return $context->assertFind('css', 'input[name="wpSave"]');
+            },
+            'Save button not found',
+            120
+        );
+        $this->assertFind('css', '#wpTextbox1')->setValue('add wiki host page');
+        $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
         $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
@@ -194,12 +216,21 @@ class KnowledgeBaseContext extends CentreonContext
 
         $this->spin(
             function ($context) {
-                $context->assertFind('css', '#wpTextbox1')->setValue('add wiki service page');
-                $context->assertFind('css', 'input[name="wpSave"]')->click();
+                return $context->assertFind('css', '#wpTextbox1');
             },
-            'Wiki page is not loaded',
+            'Text box not found',
             120
         );
+
+        $this->spin(
+            function ($context) {
+                return $context->assertFind('css', 'input[name="wpSave"]');
+            },
+            'Save button not found',
+            120
+        );
+        $this->assertFind('css', '#wpTextbox1')->setValue('add wiki service page');
+        $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
         $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
