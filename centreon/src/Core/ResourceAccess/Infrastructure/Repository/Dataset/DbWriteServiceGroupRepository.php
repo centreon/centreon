@@ -36,8 +36,9 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(protected DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db)
     {
+        $this->db = $db;
     }
 
     /**
