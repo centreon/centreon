@@ -5233,7 +5233,7 @@ msgstr "Port d'accès au proxy internet"
 
 #: centreon-web/www/include/Administration/parameters/general/form.php:166
 msgid "Display downtime and acknowledgment on chart"
-msgstr "Afficher les plages de maintenances et acquittements sur les ghraphiques"
+msgstr "Afficher les plages de maintenances et acquittements sur les graphiques"
 
 #: centreon-web/www/include/Administration/parameters/general/form.php:173
 msgid "Display comment on chart"
@@ -7034,12 +7034,16 @@ msgstr "Convertir gd2 -> png :"
 msgid "Close"
 msgstr "Fermer"
 
-#: centreon-web/www/include/options/session/connected_user.php:50
-msgid "User kicked"
+#: centreon-web/www/include/options/session/connected_user.php:71
+msgid "You are not allowed to disconnect this user"
+msgstr "Vous n'êtes pas autorisé à déconnecter cet utilisateur."
+
+#: centreon-web/www/include/options/session/connected_user.php:77
+msgid "User disconnected"
 msgstr "Utilisateur déconnecté"
 
 #: centreon-web/www/include/options/session/connected_user.php:86
-msgid "Kick User"
+msgid "Disconnect user"
 msgstr "Déconnecter l'utilisateur"
 
 #: centreon-web/www/include/options/session/connected_user.php:99
@@ -19527,17 +19531,14 @@ msgstr "Le numéro du port doit être au minimum 1"
 msgid "Extension not allowed"
 msgstr "Extension non autorisée"
 
-msgid "Public certificate file name"
-msgstr "Nom de fichier du certificat public"
+msgid "CA"
+msgstr "CA"
 
-msgid "CA file name"
-msgstr "Nom de fichier du CA"
+msgid "CA Common Name (CN)"
+msgstr "Nom commun CA (CN)"
 
-msgid "Certificate file name"
-msgstr "Nom de fichier du certificat"
-
-msgid "Private key file name"
-msgstr "Nom de fichier de la clé privée"
+msgid "Private key"
+msgstr "Clé privée"
 
 msgid "Configuration provider"
 msgstr "Fournisseur de configuration"
@@ -19646,3 +19647,24 @@ msgstr "Rester"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+msgid "Relative paths are not allowed"  
+msgstr "Les chemins relatifs ne sont pas autorisés"  
+
+msgid "Invalid path"  
+msgstr "Chemin invalide"  
+
+msgid "Invalid extension"  
+msgstr "Extension invalide"
+
+msgid "Encryption level"
+msgstr "Niveau de chiffrement"
+
+msgid "You have selected No TLS for the encryption level."
+msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement."
+
+msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
+msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce paramètre est destiné uniquement aux tests et n’est pas autorisé en production. La supervision par l’agent s’arrêtera après 1 heure."
+
+msgid "The selected inherited service template does not contain any check command. You must select one here."
+msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."

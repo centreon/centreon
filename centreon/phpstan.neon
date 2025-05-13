@@ -28,6 +28,11 @@ parameters:
             messages:
                 - '#^Negated boolean expression is always false.$#'
                 - '#^Result of && is always false.$#'
+        - # Unsafe usage of new static(). Unblock usage of value object.
+            reportUnmatched: false
+            message: '#Unsafe usage of new static#'
+            paths:
+                - src/Core/Common/Domain/ValueObject
 
 services:
     errorFormatter.absolute:

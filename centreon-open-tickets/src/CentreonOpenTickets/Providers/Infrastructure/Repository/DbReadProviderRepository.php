@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Infrastructure\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -55,54 +56,61 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
      */
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
-        $sqlTranslator = $requestParameters !== null ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->setConcordanceArray([
-            'name' => 'alias',
-            'is_activated' => 'activate',
-        ]);
+        try {
+            $sqlTranslator = $requestParameters !== null ? new SqlRequestParametersTranslator($requestParameters) : null;
+            $sqlTranslator?->setConcordanceArray([
+                'name' => 'alias',
+                'is_activated' => 'activate',
+            ]);
 
-        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
+            $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
-        $request = <<<'SQL_WRAP'
-                SELECT SQL_CALC_FOUND_ROWS
-                    rule_id,
-                    alias,
-                    provider_id,
-                    activate
-                FROM `:db`.mod_open_tickets_rule
-            SQL_WRAP;
+            $request = <<<'SQL_WRAP'
+                    SELECT SQL_CALC_FOUND_ROWS
+                        rule_id,
+                        alias,
+                        provider_id,
+                        activate
+                    FROM `:db`.mod_open_tickets_rule
+                SQL_WRAP;
 
-        // handle search
-        $request .= $sqlTranslator?->translateSearchParameterToSql();
+            // handle search
+            $request .= $sqlTranslator?->translateSearchParameterToSql();
 
-        // handle sort
-        $sort = $sqlTranslator?->translateSortParameterToSql();
-        $request .= $sort ?? ' ORDER BY alias ASC';
+            // handle sort
+            $sort = $sqlTranslator?->translateSortParameterToSql();
+            $request .= $sort ?? ' ORDER BY alias ASC';
 
-        // handle pagination
-        $request .= $sqlTranslator?->translatePaginationToSql();
+            // handle pagination
+            $request .= $sqlTranslator?->translatePaginationToSql();
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator?->bindSearchValues($statement);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $sqlTranslator?->bindSearchValues($statement);
 
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
-        $statement->execute();
+            $statement->execute();
 
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
+            // Set total
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
+            }
+
+            $providers = [];
+
+            foreach ($statement as $record) {
+                /** @var _Provider $record */
+                $providers[] = $this->createProviderFromRecord($record);
+            }
+
+            return $providers;
+        } catch (\Throwable $ex) {
+            throw new RepositoryException(
+                message: 'Error while fetching provider rules',
+                previous: $ex
+            );
         }
-
-        $providers = [];
-
-        foreach ($statement as $record) {
-            /** @var _Provider $record */
-            $providers[] = $this->createProviderFromRecord($record);
-        }
-
-        return $providers;
     }
 
     /**
