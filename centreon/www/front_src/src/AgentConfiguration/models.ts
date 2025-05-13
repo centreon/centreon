@@ -14,7 +14,7 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<SelectEntry>;
+  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
 }
 
 export interface TelegrafConfiguration {
