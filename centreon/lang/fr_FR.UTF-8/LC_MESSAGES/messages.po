@@ -22612,3 +22612,12 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgstr ""
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
+
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
+
+msgid "Select an existing CMA token(s)"
+msgstr "Sélectionner un jeton CMA existant"
+
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"

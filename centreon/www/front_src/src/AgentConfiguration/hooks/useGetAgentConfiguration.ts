@@ -1,12 +1,16 @@
 import { useFetchQuery } from '@centreon/ui';
 import { useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { equals, isNotNil, map } from 'ramda';
 import { useEffect } from 'react';
 import { agentTypes, encryptionLevels } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
-import { AgentConfiguration, AgentConfigurationForm } from '../models';
+import {
+  AgentConfiguration,
+  AgentConfigurationForm,
+  AgentType
+} from '../models';
 
 const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
@@ -15,7 +19,23 @@ const adaptAgentConfigurationToForm = (
   type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type)),
   connectionMode: encryptionLevels.find(({ id }) =>
     equals(id, agentConfiguration.connectionMode)
-  )
+  ),
+  configuration: {
+    ...agentConfiguration.configuration,
+    ...(equals(AgentType.CMA, agentConfiguration.type) &&
+    !agentConfiguration.configuration.isReverse
+      ? {
+          tokens: map(
+            ({ name, creatorId }) => ({
+              id: `${name}_${creatorId}`,
+              name,
+              creatorId
+            }),
+            agentConfiguration.configuration?.tokens || []
+          )
+        }
+      : {})
+  }
 });
 
 interface UseGetAgentConfigurationState {
