@@ -121,6 +121,7 @@ class CfgNagios
             'cfg_file' => 'centengine.cfg',
             'logger_version' => 'log_v2_enabled',
             'log_pid' => '1',
+            'broker_module_cfg_file' => '@centreonbroker_etc@/central-module.json',
         ];
     }
 }
