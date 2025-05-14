@@ -293,13 +293,12 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             }
         }
 
-        /**
+        /*
          * If Yes and exception code !== 403 (Forbidden access),
          * we create a custom error message.
          * If we don't do that, an HTML error will appear.
          */
         if ($errorIsBeforeController) {
-            $message = $event->getThrowable()->getMessage();
             if ($event->getThrowable()->getCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
@@ -312,22 +311,6 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ) {
                 $errorCode = Response::HTTP_NOT_FOUND;
                 $statusCode = Response::HTTP_NOT_FOUND;
-            } elseif ($event->getThrowable()->getPrevious() instanceof ValidationFailedException) {
-                $message = '';
-                foreach ($event->getThrowable()->getPrevious()->getViolations() as $violation) {
-                    $message .= $violation->getPropertyPath() . ': ' . $violation->getMessage() . "\n";
-                }
-                if ($event->getThrowable() instanceof HttpException) {
-                    $errorCode = $event->getThrowable()->getStatusCode();
-                    $statusCode = $event->getThrowable()->getStatusCode();
-                } else {
-                    $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-                    $errorCode = $statusCode;
-                }
-            } else if ($event->getThrowable() instanceof HttpException) {
-                    $errorCode = $event->getThrowable()->getStatusCode();
-                    $statusCode = $event->getThrowable()->getStatusCode();
-
             } else {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = $event->getThrowable()->getCode()
@@ -338,9 +321,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 new Response(
                     json_encode([
                         'code' => $errorCode,
-                        'message' => $message,
+                        'message' => $event->getThrowable()->getMessage(),
                     ]),
-                    (int) $statusCode
+                    $statusCode
                 )
             );
         } else {
@@ -348,7 +331,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 ? $event->getThrowable()->getCode()
                 : Response::HTTP_INTERNAL_SERVER_ERROR;
             $httpCode = ($event->getThrowable()->getCode() >= 100 && $event->getThrowable()->getCode() < 600)
-                ? (int) $event->getThrowable()->getCode()
+                ? $event->getThrowable()->getCode()
                 : Response::HTTP_INTERNAL_SERVER_ERROR;
 
             if ($event->getThrowable() instanceof EntityNotFoundException) {
@@ -391,7 +374,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 ]);
             }
             $event->setResponse(
-                new Response($errorMessage, (int) $httpCode)
+                new Response($errorMessage, $httpCode)
             );
         }
         $this->logException($event->getThrowable());
