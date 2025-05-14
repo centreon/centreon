@@ -406,7 +406,7 @@ function updateHostDependencyHostParents(int $depId, array $list = []): void
                 ->getQuery();
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
-                QueryParameter::int('host', $host)
+                QueryParameter::int('host', (int) $host)
             ]));
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -440,7 +440,7 @@ function updateHostDependencyHostChilds(int $depId, array $list = []): void
                 ->getQuery();
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
-                QueryParameter::int('host', $host)
+                QueryParameter::int('host', (int) $host)
             ]));
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
