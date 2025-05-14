@@ -3,7 +3,8 @@
 		"_postman_id": "9536ebf6-3b65-4b2e-9647-82afa65dda83",
 		"name": "Agent_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-9536ebf6-3b65-4b2e-9647-82afa65dda83?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -391,6 +392,214 @@
 							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new host",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Host1Name\", \"host_001\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host \r",
+									"    pm.collectionVariables.set(\"Host1Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"address\": \"127.0.0.1\",\r",
+									"        \"monitoring_server_id\": 1,\r",
+									"        \"snmp_version\": null,\r",
+									"        \"timezone_id\": null,\r",
+									"        \"severity_id\": null,\r",
+									"        \"check_command_id\": null,\r",
+									"        \"check_timeperiod_id\": null,\r",
+									"        \"note_url\": null,\r",
+									"        \"note\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"max_check_attempts\": null,\r",
+									"        \"normal_check_interval\": null,\r",
+									"        \"retry_check_interval\": null,\r",
+									"        \"active_check_enabled\": 2,\r",
+									"        \"passive_check_enabled\": 2,\r",
+									"        \"notification_enabled\": 2,\r",
+									"        \"notification_options\": null,\r",
+									"        \"notification_interval\": null,\r",
+									"        \"notification_timeperiod_id\": null,\r",
+									"        \"add_inherited_contact_group\": false,\r",
+									"        \"add_inherited_contact\": false,\r",
+									"        \"first_notification_delay\": null,\r",
+									"        \"recovery_notification_delay\": null,\r",
+									"        \"acknowledgement_timeout\": null,\r",
+									"        \"freshness_checked\": 2,\r",
+									"        \"freshness_threshold\": null,\r",
+									"        \"flap_detection_enabled\": 2,\r",
+									"        \"low_flap_threshold\": null,\r",
+									"        \"high_flap_threshold\": null,\r",
+									"        \"event_handler_enabled\": 2,\r",
+									"        \"event_handler_command_id\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_alternative\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    pm.expect(responseJson.check_command_args).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.templates).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.groups).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.categories).to.be.an('Array').that.is.empty;\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the host creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            address: { type: \"string\" },\r",
+									"            monitoring_server_id: { type: \"integer\" },\r",
+									"            snmp_version: { type: [\"string\", \"null\"] },\r",
+									"            timezone_id: { type: [\"integer\", \"null\"] },\r",
+									"            severity_id: { type: [\"integer\", \"null\"] },\r",
+									"            check_command_id: { type: [\"integer\", \"null\"] },\r",
+									"            check_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
+									"            note_url: { type: [\"string\", \"null\"] },\r",
+									"            note: { type: [\"string\", \"null\"] },\r",
+									"            action_url: { type: [\"string\", \"null\"] },\r",
+									"            max_check_attempts: { type: [\"integer\", \"null\"] },\r",
+									"            normal_check_interval: { type: [\"integer\", \"null\"] },\r",
+									"            retry_check_interval: { type: [\"integer\", \"null\"] },\r",
+									"            active_check_enabled: { type: \"integer\" },\r",
+									"            passive_check_enabled: { type: \"integer\" },\r",
+									"            notification_enabled: { type: \"integer\" },\r",
+									"            notification_options: { type: [\"integer\", \"null\"] },\r",
+									"            notification_interval: { type: [\"integer\", \"null\"] },\r",
+									"            notification_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
+									"            add_inherited_contact_group: { type: \"boolean\" },\r",
+									"            add_inherited_contact: { type: \"boolean\" },\r",
+									"            first_notification_delay: { type: [\"integer\", \"null\"] },\r",
+									"            recovery_notification_delay: { type: [\"integer\", \"null\"] },\r",
+									"            acknowledgement_timeout: { type: [\"integer\", \"null\"] },\r",
+									"            freshness_checked: { type: \"integer\" },\r",
+									"            freshness_threshold: { type: [\"integer\", \"null\"] },\r",
+									"            flap_detection_enabled: { type: \"integer\" },\r",
+									"            low_flap_threshold: { type: [\"integer\", \"null\"] },\r",
+									"            high_flap_threshold: { type: [\"integer\", \"null\"] },\r",
+									"            event_handler_enabled: { type: \"integer\" },\r",
+									"            event_handler_command_id: { type: [\"integer\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            icon_alternative: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            is_activated: { type: \"boolean\" },\r",
+									"            check_command_args: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            event_handler_command_args: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            categories: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            groups: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            macros: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"id\", \"monitoring_server_id\", \"name\", \"address\", \"alias\", \"snmp_version\", \"geo_coords\", \"note_url\", \"note\", \"action_url\", \"icon_alternative\", \"comment\", \"timezone_id\", \"severity_id\", \"check_command_id\", \"check_timeperiod_id\", \"notification_timeperiod_id\", \"event_handler_command_id\", \"icon_id\", \"max_check_attempts\", \"normal_check_interval\", \"retry_check_interval\", \"notification_options\", \"notification_interval\", \"first_notification_delay\", \"recovery_notification_delay\", \"acknowledgement_timeout\", \"freshness_threshold\", \"low_flap_threshold\", \"high_flap_threshold\", \"freshness_checked\", \"active_check_enabled\", \"passive_check_enabled\", \"notification_enabled\", \"flap_detection_enabled\", \"event_handler_enabled\", \"check_command_args\", \"event_handler_command_args\", \"categories\", \"groups\", \"templates\", \"macros\", \"add_inherited_contact_group\", \"add_inherited_contact\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"name\": \"{{Host1Name}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts"
 							]
 						}
 					},
@@ -849,8 +1058,10 @@
 									"                {\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
+									"                    \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"                    \"poller_ca_certificate\": null,\r",
-									"                    \"poller_ca_name\": null\r",
+									"                    \"poller_ca_name\": null,\r",
+									"                    \"name\": pm.collectionVariables.get(\"Host1Name\")\r",
 									"                }\r",
 									"            ]\r",
 									"        },\r",
@@ -886,10 +1097,12 @@
 									"                            \"properties\": {\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
-									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] }\r",
+									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
 									"                            },\r",
-									"                            \"required\": [\"address\", \"port\", \"poller_ca_certificate\", \"poller_ca_name\"]\r",
+									"                            \"required\": [\"address\", \"port\", \"id\", \"poller_ca_certificate\", \"poller_ca_name\", \"name\"]\r",
 									"                        },\r",
 									"                    },\r",
 									"                },\r",
@@ -930,7 +1143,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -1831,7 +2044,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -1884,14 +2097,18 @@
 									"                {\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
+									"                    \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"                    \"poller_ca_certificate\": \"/etc/pki/ca-filé.crt\",\r",
-									"                    \"poller_ca_name\": null\r",
+									"                    \"poller_ca_name\": null,\r",
+									"                    \"name\": pm.collectionVariables.get(\"Host1Name\")\r",
 									"                },\r",
 									"                {\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
+									"                    \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"                    \"poller_ca_certificate\": null,\r",
-									"                    \"poller_ca_name\": null\r",
+									"                    \"poller_ca_name\": null,\r",
+									"                    \"name\": pm.collectionVariables.get(\"Host1Name\")\r",
 									"                }\r",
 									"            ]\r",
 									"        },\r",
@@ -1927,10 +2144,12 @@
 									"                            \"properties\": {\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
-									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] }\r",
+									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
 									"                            },\r",
-									"                            \"required\": [\"address\", \"port\", \"poller_ca_certificate\", \"poller_ca_name\"]\r",
+									"                            \"required\": [\"address\", \"port\", \"id\", \"poller_ca_certificate\", \"poller_ca_name\", \"name\"]\r",
 									"                        },\r",
 									"                    },\r",
 									"                },\r",
@@ -1970,7 +2189,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC3Name}}\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otél-certificate-name-ac2!.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otél_private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": \"ca-filé.crt\",\r\n            \"poller_ca_name\": null\r\n        },\r\n        {\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC3Name}}\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otél-certificate-name-ac2!.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otél_private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": \"ca-filé.crt\",\r\n            \"poller_ca_name\": null\r\n        },\r\n        {\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -3877,8 +4096,10 @@
 									"            \"hosts\": [{\r",
 									"                \"address\": \"localhost\",\r",
 									"                \"port\": 443,\r",
+									"                \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"                \"poller_ca_certificate\": \"/etc/pki/hi.crt\",\r",
-									"                \"poller_ca_name\": \"halo\"\r",
+									"                \"poller_ca_name\": \"halo\",\r",
+									"                \"name\": pm.collectionVariables.get(\"Host1Name\")\r",
 									"            }]\r",
 									"        },\r",
 									"        \"connection_mode\": \"secure\",\r",
@@ -3917,10 +4138,12 @@
 									"                            \"properties\": {\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
-									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] }\r",
+									"                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
 									"                            },\r",
-									"                            \"required\": [\"address\", \"port\", \"poller_ca_certificate\", \"poller_ca_name\"]\r",
+									"                            \"required\": [\"address\", \"port\", \"id\", \"poller_ca_certificate\", \"poller_ca_name\", \"name\"]\r",
 									"                        },\r",
 									"                    },\r",
 									"                },\r",
@@ -3961,7 +4184,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -4356,7 +4579,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations/{{AC4Id}}",
@@ -4927,7 +5150,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a centreon-agent configuration on a poller filtered",
+					"name": "Add a telegraf configuration on a poller filtered",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -5287,7 +5510,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"nop\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"nop\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations/{{AC4Id}}",
@@ -5304,7 +5527,7 @@
 					"response": []
 				},
 				{
-					"name": "Update a centreon-agent configuration",
+					"name": "Update a telegraf configuration",
 					"event": [
 						{
 							"listen": "prerequest",
