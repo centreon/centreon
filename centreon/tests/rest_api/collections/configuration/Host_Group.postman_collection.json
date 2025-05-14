@@ -8990,18 +8990,6 @@
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
-									"        \"icon\": null,\r",
-									"        \"geo_coords\": null,\r",
-									"        \"comment\": null,\r",
-									"        \"is_activated\": true,\r",
-									"        \"enabled_hosts_count\": 0,\r",
-									"        \"disabled_hosts_count\": 0\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
@@ -9009,17 +8997,29 @@
 									"        \"geo_coords\": null,\r",
 									"        \"comment\": \"I was created by the Read/Write user\",\r",
 									"        \"is_activated\": true,\r",
-									"        \"enabled_hosts_count\": 0,\r",
+									"        \"enabled_hosts_count\": 1,\r",
 									"        \"disabled_hosts_count\": 0\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[3]).to.eql({\r",
+									"    pm.expect(responseJson.result[2]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup6Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup6Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup6Alias\"),\r",
 									"        \"icon\": null,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true,\r",
+									"        \"enabled_hosts_count\": 0,\r",
+									"        \"disabled_hosts_count\": 0\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(responseJson.result[3]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"icon\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true,\r",
 									"        \"enabled_hosts_count\": 0,\r",
 									"        \"disabled_hosts_count\": 0\r",
@@ -12727,6 +12727,156 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup4Id",
+			"value": ""
+		},
+		{
+			"key": "Host1Name",
+			"value": ""
+		},
+		{
+			"key": "Host1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host1Id",
+			"value": ""
+		},
+		{
+			"key": "Host2Name",
+			"value": ""
+		},
+		{
+			"key": "Host2Alias",
+			"value": ""
+		},
+		{
+			"key": "Host2Id",
+			"value": ""
+		},
+		{
+			"key": "Host3Name",
+			"value": ""
+		},
+		{
+			"key": "Host3Alias",
+			"value": ""
+		},
+		{
+			"key": "Host3Id",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup5Id",
+			"value": ""
+		},
+		{
+			"key": "ACLResources",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Name",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Alias",
+			"value": ""
+		},
+		{
+			"key": "HostGroup6Id",
+			"value": ""
 		}
 	]
 }
