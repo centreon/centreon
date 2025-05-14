@@ -317,7 +317,7 @@ export const labelAllPages = 'All pages';
 export const labelCurrentPageOnly = 'Current page only';
 export const labelSelectColumns = 'Select columns';
 export const labelSelecetPages = 'Select pages';
-export const labelNumerOfLines = 'Number of lines';
+export const labelNumerOfLines = 'Number of rows';
 export const labelWarningExportToCsv =
   'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
 export const labelExportProcessingInProgress = 'Export processing in progress';
