@@ -18,7 +18,7 @@ on:
       - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   schedule:
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * 1-5"
 
 jobs:
   dispatch-to-maintained-branches:
