@@ -20806,6 +20806,19 @@ msgstr ""
 # msgstr ""
 # msgid "End"
 # msgstr ""
+
+# msgid "Reporting period"
+# msgstr ""
+
+# msgid "Business Activity availability"
+# msgstr ""
+
+# msgid "Displays availability and alerts of a Business Activity for a given period."
+# msgstr ""
+
+# msgid "Authentication tokens"
+# msgstr ""
+
 # msgid "Custom value"
 # msgstr ""
 # msgid "Notifications will only be sent during this time period"
@@ -20848,6 +20861,16 @@ msgstr ""
 # msgstr ""
 # msgid "Raw value"
 # msgstr ""
+
+# msgid "Token enabled"
+# msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
 # msgid "Human readable"
 # msgstr ""
 # msgid "You can choose only one resource for each resource type."
@@ -20860,6 +20883,13 @@ msgstr ""
 # msgstr ""
 # msgid "Base color"
 # msgstr ""
+
+# msgid "This month"
+# msgstr ""
+
+# msgid "This year"
+# msgstr ""
+
 #  msgid "Display view:"
 #  msgstr ""
 #  msgid "View all resources"
