@@ -25,6 +25,9 @@ inputs:
   is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
+  delivery_type:
+    description: "Delivery to feature or standard repository"
+    required: true
 
 runs:
   using: "composite"
@@ -85,10 +88,11 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        # Build upload target path based on is_cloud and release_type values
+        # Build upload target path based on is_cloud, delivery_type and release_type values
         # if cloud + hotfix or cloud + release, deliver to internal testing-<release_type>
         # if cloud + develop, delivery to internal unstable
         # if non-cloud, delivery to onprem testing or unstable
+        # if feature delivery, delivery to dedicated feature repository
 
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
         if [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.release_type }}" == "release" ]]); then
@@ -106,6 +110,12 @@ runs:
         elif [[ "${{ inputs.is_cloud }}" == "false" ]]; then
           echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+
+        # FEATURE REPOSITORY
+        elif [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
+          echo "[DEBUG] : Delivery to feature repositories, using rpm-feature repo."
+          ROOT_REPO_PATHS="rpm-feature-MON-xxxxx"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # ANYTHING ELSE
