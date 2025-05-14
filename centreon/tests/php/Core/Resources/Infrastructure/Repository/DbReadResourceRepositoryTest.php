@@ -148,8 +148,6 @@ it(
         $statement->method('fetchColumn')->willReturn(10);
 
         $dbConnection = $this->createMock(DatabaseConnection::class);
-        $dbConnection->expects($this->once())->method('getStorageDbName')->willReturn('centreon-monitoring');
-        $dbConnection->expects($this->once())->method('getCentreonDbName')->willReturn('centreon');
         $dbConnection->expects($this->once())->method('prepare')->with(generateExpectedSQLQuery(''))
             ->willReturn($statement);
         $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS() AS REALTIME')
