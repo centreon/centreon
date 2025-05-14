@@ -46,16 +46,15 @@ function getEnvironmentVariable(string $nameEnvVar): ?string
     return (is_string($envVarValue) && ! empty($envVarValue)) ? $envVarValue : null;
 }
 
-$dbHost = getEnvironmentVariable('MYSQL_HOST');
 $dbUser = getEnvironmentVariable('MYSQL_USER');
 $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfigCentreon = null;
 $dbConfigCentreonStorage = null;
 
-if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
+if (! is_null($dbUser) && ! is_null($dbPassword)) {
     $dbConfigCentreon = new ConnectionConfig(
-        host: $dbHost,
+        host: 'localhost',
         user: $dbUser,
         password: $dbPassword,
         databaseNameConfiguration: 'centreon',
@@ -63,7 +62,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         port: 3306
     );
     $dbConfigCentreonStorage = new ConnectionConfig(
-        host: $dbHost,
+        host: 'localhost',
         user: $dbUser,
         password: $dbPassword,
         databaseNameConfiguration: 'centreon_storage',

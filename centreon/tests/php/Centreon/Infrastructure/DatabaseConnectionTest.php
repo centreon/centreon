@@ -42,15 +42,14 @@ function getEnvironmentVariable(string $nameEnvVar): ?string
     return (is_string($envVarValue) && ! empty($envVarValue)) ? $envVarValue : null;
 }
 
-$dbHost = getEnvironmentVariable('MYSQL_HOST');
 $dbUser = getEnvironmentVariable('MYSQL_USER');
 $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfigCentreon = null;
 
-if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
+if (! is_null($dbUser) && ! is_null($dbPassword)) {
     $dbConfigCentreon = new ConnectionConfig(
-        host: $dbHost,
+        host: 'localhost',
         user: $dbUser,
         password: $dbPassword,
         databaseNameConfiguration: 'centreon',
