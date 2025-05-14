@@ -1,5 +1,6 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
+import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -345,6 +346,18 @@ export const useInputs = (): {
                     field: 'type',
                     values: {
                       $eq: 'cma'
+                    }
+                  },
+                  {
+                    field: 'expiration_date',
+                    values: {
+                      $ge: dayjs(Date.now())
+                    }
+                  },
+                  {
+                    field: 'is_revoked',
+                    values: {
+                      $eq: false
                     }
                   }
                 ],
