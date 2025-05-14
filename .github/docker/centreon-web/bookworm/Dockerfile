@@ -78,8 +78,7 @@ COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/ce
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
-RUN  ln -nsf /usr/share/centreon /var/www/html
-
+RUN ln -nsf /usr/share/centreon/ /var/www/html/
 WORKDIR /var/www/html
 
 ENV CENTREON_DATASET="1"
