@@ -16,8 +16,6 @@ on:
       - ".version"
       - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/veracode.json"
-      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -28,8 +26,6 @@ on:
       - ".version"
       - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/veracode.json"
-      - "!centreon-open-tickets/.veracode-exclusions"
 
 env:
   module: open-tickets
