@@ -63,18 +63,16 @@ export const useListMetrics = ({
         parameters: {
           limit: 1000,
           search: {
-            regex: {
-              fields: resources
-                .filter((resource) => isResourcesString(resource.resources))
-                .map((resource) =>
-                  buildResourceTypeNameForSearchParameter(resource.resourceType)
+            conditions: resources
+              .filter((resource) => isResourcesString(resource.resources))
+              .map((resource) => ({
+                field: buildResourceTypeNameForSearchParameter(
+                  resource.resourceType
                 ),
-              value: last(
-                resources.filter((resource) =>
-                  isResourcesString(resource.resources)
-                )
-              )?.resources as string
-            },
+                values: {
+                  $rg: resource.resources
+                }
+              })),
             lists: resources
               .filter((resource) => !isResourcesString(resource.resources))
               .map((resource) => ({
