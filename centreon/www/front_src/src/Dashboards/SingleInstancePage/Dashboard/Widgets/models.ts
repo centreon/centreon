@@ -21,7 +21,7 @@ export interface GlobalRefreshInterval {
 
 export interface Resource {
   resourceType: string;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 
 export interface NamedEntity {

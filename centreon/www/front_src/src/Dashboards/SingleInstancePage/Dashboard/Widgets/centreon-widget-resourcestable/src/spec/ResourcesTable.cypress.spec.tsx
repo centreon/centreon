@@ -51,6 +51,7 @@ import {
   metaServiceResources,
   resources,
   options as resourcesOptions,
+  resourcesRegex,
   selectedColumnIds
 } from './testUtils';
 
@@ -125,6 +126,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
                 <ResourcesTable
+                  hasDescription={false}
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
@@ -256,6 +258,16 @@ describe('View by all', () => {
     verifyListingRows();
 
     cy.makeSnapshot();
+  });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    render({ data: { resources: resourcesRegex }, options: resourcesOptions });
+
+    cy.waitForRequest('@getResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
   });
 
   it('executes a listing request with limit from widget properties', () => {
@@ -689,6 +701,7 @@ describe('View by host', () => {
 
     cy.makeSnapshot();
   });
+
   it('executes a listing request with limit from widget properties', () => {
     cy.contains('Centreon-Server').should('be.visible');
 

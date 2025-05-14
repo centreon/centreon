@@ -62,11 +62,12 @@ export interface WidgetPropertyProps {
   type: string;
   useAdditionalResources?: boolean;
   isRequiredProperty?: boolean;
+  allowRegexOnResourceTypes?: Array<WidgetResourceType>;
 }
 
 export interface WidgetDataResource {
   resourceType: WidgetResourceType;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 export interface WidgetDataMetric {
   id: number;
