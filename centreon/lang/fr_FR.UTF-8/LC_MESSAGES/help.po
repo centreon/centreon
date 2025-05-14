@@ -509,9 +509,9 @@ msgstr ""
 "avec le message d'état. Ce mode simple peut être utilisé si chaque trap peut "
 "être associé à exactement un état du moteur de supervision."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
@@ -537,8 +537,8 @@ msgstr ""
 "Définit si il est nécessaire ou pas de contrôler le service de manière "
 "active après réception d'un trap SNMP."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Clickable URL displayed in the Notes column of the Resources Status page."
 msgstr ""
@@ -619,8 +619,8 @@ msgstr "Commentaire de la règle d'accès aux menus."
 msgid "Comments regarding this resource rule."
 msgstr "Commentaire concernant cette règle de ressources."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid "Compatible with Centreon Broker only."
 msgstr "Compatible uniquement avec Centreon Broker."
 
@@ -727,8 +727,8 @@ msgid "Default sort in monitoring consoles."
 msgstr ""
 "Tri par défaut pour les pages de supervision des hôtes et des services."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "Define a description for this dependency for easier identification and "
 "differentiation."
@@ -748,8 +748,8 @@ msgstr ""
 "Définit ici un nom court pour le groupe de services. Ce nom sera utilisé "
 "pour afficher le groupe de services dans supervision, vues et rapports."
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid ""
 "Define a short name for this category. It will be displayed with this name "
 "in the ACL configuration."
@@ -757,8 +757,8 @@ msgstr ""
 "Définit un nom court pour cette catégorie. Il sera affiché avec ce nom dans "
 "la configuration des ACL."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid "Define a short name for this dependency."
 msgstr "Définit un nom court pour cette dépendance."
 
@@ -841,8 +841,8 @@ msgid "Define an optional string of notes pertaining to the host group."
 msgstr "Définit une chaine optionnelle pertinente pour le groupe d'hôtes."
 
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
 "icon image."
@@ -1493,8 +1493,8 @@ msgstr ""
 "ceux à la demande) de ce service. Par défaut les contrôles actifs de service "
 "sont activés."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Enable or disable passive checks here. When disabled submitted states will "
 "be not accepted."
@@ -1789,8 +1789,8 @@ msgstr ""
 "d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par exemple "
 "pour Paris, saisir : 48.51,2.20"
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Geographic coordinates to allow Centreon MAP to plot the resource on a "
 "geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
@@ -1926,8 +1926,8 @@ msgstr ""
 "IP/DNS des clients de confiance. Utilisez des virgules comme séparateur en "
 "cas de clients multiples"
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid "Icon for this severity."
 msgstr "Icône pour la sévérité."
 
@@ -2067,8 +2067,8 @@ msgstr ""
 msgid "Ignore ssl certificate."
 msgstr "Certificat CA (certificat émanant d'une autorité de certification)"
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid "Ignored by Centreon Engine."
 msgstr "Ignorée par Centreon Engine."
 
@@ -2085,9 +2085,9 @@ msgstr ""
 msgid "Images."
 msgstr "Images."
 
+#: centreon/www/include/options/accessLists/menusACL/help.php
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
-#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr "Groupes d'accès liés."
 
@@ -2099,8 +2099,8 @@ msgstr "Groupes d'utilisateurs liés."
 msgid "Implied users."
 msgstr "Utilisateurs liés."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Information note displayed as a tooltip in the Notes column of the Resources "
 "Status page."
@@ -3015,8 +3015,8 @@ msgstr ""
 msgid "Severities are defined in the service category object."
 msgstr "Les criticités sont définies au niveau des catégories d'objets."
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid ""
 "Severity level, must be a number. The items displayed will be sorted in "
 "ascending order. Thus the lowest severity is considered than the highest "
@@ -3769,8 +3769,8 @@ msgstr ""
 "où le message de sortie (output) change même si le statut de l'objet reste "
 "identique."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "This directive indicates whether or not the dependency inherits dependencies "
 "of the host that is being depended upon (also referred to as the master "
@@ -3855,8 +3855,8 @@ msgstr ""
 "identifiant le groupe d'hôtes. Il est prévu pour vous permettre d'identifier "
 "plus facilement un groupe d'hôte en particulier."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "This directive is used to define the criteria that determine when "
 "notifications for the dependent host should not be sent out. If the master "
@@ -4066,8 +4066,8 @@ msgstr ""
 "Cette variable est utilisée pour identifier la description d'un groupe de "
 "service dépendant."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "This directive is used to identify the description of the dependent service."
 msgstr ""
@@ -4200,8 +4200,8 @@ msgstr ""
 "d'un changement d'état du service est détecté (lorsque le service passe de "
 "l'état non OK ou rétablissement)."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "This directive is used to specify the criteria that determine when the "
 "dependent host should not be actively checked. If the master host is in one "
@@ -4263,8 +4263,8 @@ msgstr ""
 "virgules. La variable dependent_hostgroup peut être utilisée à la place ou "
 "en conjonction avec la variable dependent_host."
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
 msgid ""
 "This directive is used to specify the short name of the time period during "
 "which this dependency is valid. If this directive is not specified, the "
@@ -4367,8 +4367,8 @@ msgstr ""
 "Vous devez spécifier au moins un contact ou groupe de contacts dans chaque "
 "définition de service."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This is a list of contacts that should be notified whenever there are "
 "problems (or recoveries) with this host. Useful if you want notifications to "
@@ -5635,8 +5635,8 @@ msgid ""
 "enabling this option, please do not enable it."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This parameters are passed to the event handler commands in the same way "
 "check command parameters are handled. The format is: !ARG1!ARG2!...ARGn"
@@ -5773,8 +5773,8 @@ msgstr ""
 "à jour' dans la liste des Poller. La valeur doit être comprise entre 5 et "
 "600. La valeur par défaut est 30."
 
-#: centreon/www/include/Administration/parameters/gorgone/help.php
 #: centreon/www/include/Administration/parameters/api/help.php
+#: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid "Timeout value in seconds. Used to make actions calls timeout."
 msgstr ""
 
@@ -5825,8 +5825,8 @@ msgstr ""
 "Utiliser l'alias comme nom long ou description afin d'identifier la période "
 "de temps."
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid "Use this field for a longer description of this category."
 msgstr "Utiliser ce champ pour une description plus longue de cette catégorie."
 
@@ -5938,8 +5938,8 @@ msgstr ""
 "Lorsque l'option est activée, les messages de notification sont affichés "
 "quand une nouvelle alerte apparaît dans la console de supervision temps réel."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contact definition will not override the definitions on "
 "template levels, it will be appended instead."
@@ -5955,8 +5955,8 @@ msgstr ""
 "Lorsqu'activé, la définition des groupes de contacts additionnels ne "
 "remplace pas les définitions issues des modèles, elle sera complétée."
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contactgroup definition will not override the definitions "
 "on template levels, it will be appended instead."
@@ -6017,8 +6017,8 @@ msgstr "Connecteur activé ou non"
 msgid "Whether or not the password should be stored in database"
 msgstr "Le mot de passe doit-il être stocké en base de données ou non"
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid "Whether or not this category is enabled."
 msgstr "Cette catégorie est active."
 
@@ -6033,8 +6033,8 @@ msgstr ""
 msgid "Whether the poller is local"
 msgstr "Si le collecteur est local"
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
 msgid ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."
