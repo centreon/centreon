@@ -79,7 +79,7 @@ class CmaValidator implements TypeValidatorInterface
             }
 
             if ($key === 'tokens' && $configuration['is_reverse'] === false) {
-                if ($request->connectionMode !== ConnectionModeEnum::INSECURE && $value === []) {
+                if ($request->connectionMode !== ConnectionModeEnum::NO_TLS && $value === []) {
                     throw AgentConfigurationException::tokensAreMandatory();
                 }
                 $this->validateTokens($value);
@@ -95,7 +95,7 @@ class CmaValidator implements TypeValidatorInterface
         }
 
         if (
-            $request->connectionMode !== ConnectionModeEnum::INSECURE
+            $request->connectionMode !== ConnectionModeEnum::NO_TLS
             && $value === []
         ) {
             AgentConfigurationException::tokensAreMandatory();

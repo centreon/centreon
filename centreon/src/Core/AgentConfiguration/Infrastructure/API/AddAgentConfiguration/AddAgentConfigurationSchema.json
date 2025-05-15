@@ -25,8 +25,7 @@
             "type": "string",
             "enum": [
                 "secure",
-                "no-tls",
-                "insecure"
+                "no-tls"
             ],
             "default": "secure"
         },
