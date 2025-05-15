@@ -153,10 +153,10 @@ it(
             'centreon',
             'centreon',
             'centreon',
-            'centreon_storage'
+            'centreon-monitoring'
         );
         $dbConnection = $this->createMock(DatabaseConnection::class);
-        $dbConnection->expects($this->once())->method('getConnectionConfig')->willReturn($dbConfig);
+        $dbConnection->expects($this->exactly(2))->method('getConnectionConfig')->willReturn($dbConfig);
 
         $dbConnection->expects($this->once())->method('prepare')->with(generateExpectedSQLQuery(''))
             ->willReturn($statement);
@@ -201,10 +201,10 @@ it(
             'centreon',
             'centreon',
             'centreon',
-            'centreon_storage'
+            'centreon-monitoring'
         );
         $dbConnection = $this->createMock(DatabaseConnection::class);
-        $dbConnection->expects($this->once())->method('getConnectionConfig')->willReturn($dbConfig);
+        $dbConnection->expects($this->exactly(2))->method('getConnectionConfig')->willReturn($dbConfig);
 
         $accessGroupSubQuery = generateAccessGroupSubQuery($resourceACLProviders, $accessGroupIDs);
         $dbConnection
