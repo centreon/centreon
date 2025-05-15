@@ -149,4 +149,17 @@ class AgentConfigurationException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    public static function invalidToken(string $name, int $creatorId): self
+    {
+        return new self(
+            sprintf(_('Token with name "%s" and creator ID "%d" is not valid'), $name, $creatorId),
+            self::CODE_CONFLICT
+        );
+    }
+
+    public static function tokensAreMandatory(): self
+    {
+        return new self(_('Tokens are mandatory'), self::CODE_CONFLICT);
+    }
 }

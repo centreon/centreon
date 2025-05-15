@@ -27,6 +27,9 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -37,6 +40,7 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -104,12 +108,33 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+        $tokens = $this->readTokenRepository->findByNames(
+            array_map(
+                static fn(array $token): string => $token['name'],
+                $data['tokens']
+            )
+        );
+
+        $tokens = array_filter(
+            $tokens,
+            static fn(Token $token): bool =>  !(
+                $token->isRevoked()
+                || ($token->getExpirationDate() !== null && $token->getExpirationdate() < new \DateTimeImmutable())
+            )
+        );
         $configuration = [
             'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
-            ]
+            ],
+            'tokens' => array_map(
+                static fn(JwtToken $token): array => [
+                    'token' => $token->getToken(),
+                    'encoding_key' => $token->getEncodingKey(),
+                ],
+                $tokens
+            ),
         ];
 
         if ($data['is_reverse']) {
