@@ -108,6 +108,20 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+        $tokens = $this->readTokenRepository->findByNames(
+            array_map(
+                static fn(array $token): string => $token['name'],
+                $data['tokens']
+            )
+        );
+
+        $tokens = array_filter(
+            $tokens,
+            static fn(Token $token): bool =>  !(
+                $token->isRevoked()
+                || ($token->getExpirationDate() !== null && $token->getExpirationdate() < new \DateTimeImmutable())
+            )
+        );
         $configuration = [
             'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
             'centreon_agent' => [
@@ -119,12 +133,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     'token' => $token->getToken(),
                     'encoding_key' => $token->getEncodingKey(),
                 ],
-                $this->readTokenRepository->findByNames(
-                    array_map(
-                        static fn(array $token): string => $token['name'],
-                        $data['tokens']
-                    )
-                )
+                $tokens
             ),
         ];
 

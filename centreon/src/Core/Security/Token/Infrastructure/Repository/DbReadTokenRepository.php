@@ -496,6 +496,10 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
         try {
             // Search
             $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
+            // if ($this->sqlRequestTranslator->getRequestParameters()->hasSearchParameter('expiration_date')) {
+            //     $search .= ' OR expiration_date IS NULL ';
+            // }
+
             // Sort
             $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
             $sort = ! is_null($sort)
@@ -552,6 +556,29 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 FROM jwt_tokens
                 {$creatorIdFilter}
                 SQL;
+
+            // dd(<<<SQL
+            //         SELECT SQL_CALC_FOUND_ROWS
+            //             name,
+            //             user_id,
+            //             user_name,
+            //             creator_id,
+            //             creator_name,
+            //             creation_date,
+            //             expiration_date,
+            //             is_revoked,
+            //             token_type,
+            //             token_string,
+            //             encoding_key
+            //         FROM (
+            //             {$apiTokens}
+            //             UNION
+            //             {$jwtTokens}
+            //         ) AS tokenUnion
+            //         {$search}
+            //         {$sort}
+            //         {$pagination}
+            //         SQL);
 
             $results = $this->connection->fetchAllAssociative(
                 <<<SQL

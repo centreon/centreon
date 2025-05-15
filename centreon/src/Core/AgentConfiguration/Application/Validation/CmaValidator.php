@@ -132,7 +132,12 @@ class CmaValidator implements TypeValidatorInterface
                 throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
             }
             $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
-            if ( $tokenObj === null || ! $tokenObj instanceOf JwtToken) {
+            if (
+                $tokenObj === null
+                || ! $tokenObj instanceOf JwtToken
+                || $tokenObj->isRevoked()
+                || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
+            ) {
                 throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
             }
         }
