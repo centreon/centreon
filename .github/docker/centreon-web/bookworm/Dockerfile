@@ -83,7 +83,9 @@ COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configurat
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 RUN mv /usr/share/centreon/ /var/www/html/ &&\
-    chown -R www-data:www-data /var/www/html/centreon /etc/centreon
+    chown -R www-data:www-data /var/www/html/centreon /etc/centreon &&\
+    ln -s /var/www/html/centreon/ /usr/share/centreon
+
 WORKDIR /var/www/html
 
 ENV CENTREON_DATASET="1"
