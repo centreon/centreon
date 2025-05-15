@@ -16728,6 +16728,7 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+
 # msgid "An error occurred during authentication"
 # msgstr ""
 
@@ -16752,3 +16753,17 @@ msgstr "Erweiterter Modus"
 # msgid "The minimum allowed value is 10"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
