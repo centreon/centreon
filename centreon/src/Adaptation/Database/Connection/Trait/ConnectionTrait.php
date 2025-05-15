@@ -110,9 +110,11 @@ trait ConnectionTrait
     public function insert(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'INSERT INTO ')
-                && ! str_starts_with($query, 'insert into ')
-            ) {
+            // Clean up the query string
+            $query = ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(INSERT INTO|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::insertQueryBadFormat($query);
             }
 
@@ -244,9 +246,11 @@ trait ConnectionTrait
     public function update(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'UPDATE ')
-                && ! str_starts_with($query, 'update ')
-            ) {
+            // Clean up the query string
+            $query = ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(UPDATE|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::updateQueryBadFormat($query);
             }
 
@@ -275,9 +279,11 @@ trait ConnectionTrait
     public function delete(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'DELETE ')
-                && ! str_starts_with($query, 'delete ')
-            ) {
+            // Clean up the query string
+            $query = ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(DELETE|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::deleteQueryBadFormat($query);
             }
 
@@ -503,7 +509,12 @@ trait ConnectionTrait
         if (empty($query)) {
             throw ConnectionException::notEmptyQuery();
         }
-        if (! str_starts_with($query, 'SELECT') && ! str_starts_with($query, 'select')) {
+
+        // Clean up the query string
+        $query = ltrim($query);
+
+        // Check if the query starts with a valid SQL command
+        if (preg_match('/^(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }
