@@ -65,6 +65,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 
+<<<<<<< HEAD
         if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate(
                 $parameters['otel_public_certificate'],
@@ -78,6 +79,14 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 $parameters['otel_ca_certificate'],
                 'configuration.otel_ca_certificate'
             );
+=======
+        // For secure and insecure modes
+        if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
+            $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
+            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+        // For NO-TLS mode
+>>>>>>> 6aab5e59b5c2c81e9606652d5794a99d96c1cd6c
         } else {
             $this->validateOptionalCertificate(
                 $parameters['otel_public_certificate'],

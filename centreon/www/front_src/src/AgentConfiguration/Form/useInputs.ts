@@ -2,7 +2,7 @@ import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
 import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { listTokensDecoder } from '../api/decoders';
 import { listTokensEndpoint, pollersEndpoint } from '../api/endpoints';
@@ -18,6 +18,7 @@ import {
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
   labelHostConfigurations,
+  labelInsecure,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -45,8 +46,12 @@ export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.CMA, name: labelCMA }
 ];
 
-export const encryptionLevels: Array<SelectEntry> = [
+export const connectionModes: Array<SelectEntry> = [
   { id: ConnectionMode.secure, name: labelTLS },
+  {
+    id: ConnectionMode.insecure,
+    name: labelInsecure
+  },
   { id: ConnectionMode.noTLS, name: labelNoTLS }
 ];
 
@@ -144,7 +149,10 @@ export const useInputs = (): {
               required: true,
               label: t(labelEncryptionLevel),
               autocomplete: {
-                options: encryptionLevels
+                options: map(
+                  ({ id, name }) => ({ id, name: t(name) }),
+                  connectionModes
+                )
               }
             }
           ]
@@ -158,7 +166,7 @@ export const useInputs = (): {
         hideInput: (values) =>
           isNil(values.type) ||
           isNil(values?.connectionMode) ||
-          equals(values?.connectionMode?.id, ConnectionMode.secure),
+          !equals(values?.connectionMode?.id, ConnectionMode.noTLS),
         custom: {
           Component: EncryptionLevelWarning
         }
