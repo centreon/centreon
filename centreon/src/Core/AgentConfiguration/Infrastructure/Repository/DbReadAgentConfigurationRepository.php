@@ -145,7 +145,9 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 SELECT
                     rel.`poller_id` as id,
                     ng.`name`,
-                    (ng.`localhost` = '1' AND ng.`remote_id` IS NULL) as is_central
+                    (ng.`localhost` = '1' AND NOT EXISTS (
+                        SELECT 1 FROM `:db`.`remote_servers` rs WHERE rs.server_id = ng.id
+                    )) as is_central
                 FROM `:db`.`ac_poller_relation` rel
                 JOIN `:db`.`nagios_server` ng
                     ON rel.poller_id = ng.id

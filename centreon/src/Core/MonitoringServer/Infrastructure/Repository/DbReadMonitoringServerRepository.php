@@ -300,7 +300,11 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
                 FROM `:db`.`nagios_server` ng
                 WHERE ng.`id` IN ({$bindQuery})
                     AND ng.`localhost` = '1'
-                    AND ng.`remote_id` IS NULL
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM `:db`.`remote_servers` rs
+                        WHERE rs.server_id = ng.id
+                    )
                 SQL
         ));
 
