@@ -11368,7 +11368,7 @@ msgstr "Sans étape"
 
 #: centreon/www/install/front_translate.php
 msgid "No TLS"
-msgstr ""
+msgstr "Sans TLS"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -22773,3 +22773,7 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgstr ""
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
+
+msgid "Insecure TLS"
+msgstr "TLS non sécurisé"
+

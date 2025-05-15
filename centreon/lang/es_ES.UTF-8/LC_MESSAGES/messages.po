@@ -28379,6 +28379,16 @@ msgstr "artículo (s) encontrado (s)"
 # msgstr ""
 # msgid "Base color"
 # msgstr ""
+
+# msgid "TLS"
+# msgstr ""
+
+# msgid "No TLS"
+# msgstr ""
+
+# msgid "Insecure TLS"
+# msgstr ""
+
 #  msgid "Display view:"
 #  msgstr ""
 #  msgid "View all resources"
