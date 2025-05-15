@@ -4,7 +4,7 @@
 /**
  * Function to extract strings to translate from Dashboard widgets properties.json files
  */
-function extractValues($array, $keys = ["title", "description", "label", "secondaryLabel"], &$results = []) {
+function extractValues($array, $keys = ["title", "description", "label", "secondaryLabel", "name"], &$results = []) {
     foreach ($array as $key => $value) {
         if (in_array($key, $keys) && is_string($value)) {
             $results[$value] = $value;
