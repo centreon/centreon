@@ -27,7 +27,7 @@ const FormActions = <TResource extends object>({
   variant,
   enableSubmitWhenNotDirty,
   isCancelButtonVisible = true,
-  disableSubmit
+  disableSubmit = false
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
