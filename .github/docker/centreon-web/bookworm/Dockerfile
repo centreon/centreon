@@ -82,7 +82,7 @@ COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/ce
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
-RUN mv /usr/share/centreon/ /var/www/html/ \
+RUN mv /usr/share/centreon/ /var/www/html/ &&\
     chown -R www-data:www-data /var/www/html/centreon
 WORKDIR /var/www/html
 
