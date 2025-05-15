@@ -27,7 +27,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
@@ -46,8 +45,6 @@ use Core\Contact\Domain\Model\ContactTemplate;
  */
 class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
-    use LoggerTrait;
-
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
@@ -116,8 +113,6 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
 
             return $contactTemplates;
         } catch (TransformerException|ConnectionException $exception) {
-            $this->error('finding all contact template failed', ['exception' => $exception->getContext()]);
-
             throw new RepositoryException(
                 message: 'finding all contact template failed',
                 previous: $exception
@@ -151,11 +146,6 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
 
             return null;
         } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
-            $this->error(
-                'finding contact template by id failed',
-                ['id' => $id, 'exception' => $exception->getContext()]
-            );
-
             throw new RepositoryException(
                 'finding contact template by id failed',
                 ['id' => $id, 'exception' => $exception->getContext()],

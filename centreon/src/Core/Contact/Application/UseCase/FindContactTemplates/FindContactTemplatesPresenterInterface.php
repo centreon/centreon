@@ -24,7 +24,12 @@ declare(strict_types=1);
 namespace Core\Contact\Application\UseCase\FindContactTemplates;
 
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface FindContactTemplatesPresenterInterface extends PresenterInterface
 {
+    /**
+     * @param ResponseStatusInterface|FindContactTemplatesResponse $response
+     */
+    public function presentResponse(ResponseStatusInterface|FindContactTemplatesResponse $response): void;
 }
