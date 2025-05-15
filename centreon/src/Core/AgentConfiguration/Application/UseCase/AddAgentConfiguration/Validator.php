@@ -70,13 +70,7 @@ class Validator
         $this->validateNameOrFail($request);
         $this->validatePollersOrFail($request);
         $this->validateTypeOrFail($request);
-<<<<<<< HEAD
         $this->validateParametersOrFail($request);
-=======
-        if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
-            $this->validateParametersOrFail($request);
-        }
->>>>>>> 6aab5e59b5c2c81e9606652d5794a99d96c1cd6c
     }
 
     /**
