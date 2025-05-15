@@ -357,15 +357,16 @@ export const useInputs = (): {
                     }
                   },
                   {
-                    field: 'expiration_date',
-                    values: {
-                      $ge: dayjs(Date.now())
-                    }
-                  },
-                  {
                     field: 'is_revoked',
                     values: {
                       $eq: false
+                    }
+                  },
+                  {
+                    field: 'expiration_date',
+                    values: {
+                      $ge: dayjs(Date.now()),
+                      $eq: null
                     }
                   }
                 ],
