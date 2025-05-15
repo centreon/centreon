@@ -28397,4 +28397,4 @@ msgstr "artículo (s) encontrado (s)"
 # msgstr ""
 
 # msgid "Business Activity status timeline"
-# msgstr 
+# msgstr ""
