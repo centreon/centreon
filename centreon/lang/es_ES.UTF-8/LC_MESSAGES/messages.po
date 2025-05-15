@@ -14713,6 +14713,10 @@ msgstr ""
 msgid "Inputs"
 msgstr "entradas"
 
+#: centreon/www/install/front_translate.php
+msgid "Insecure TLS"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Insert in index data"
 msgstr "Insertar en la tabla index_data"
@@ -28378,6 +28382,12 @@ msgstr "artículo (s) encontrado (s)"
 # msgid "Please contact your administrator for more information."
 # msgstr ""
 # msgid "Base color"
+# msgstr ""
+# msgid "TLS"
+# msgstr ""
+# msgid "No TLS"
+# msgstr ""
+# msgid "Insecure TLS"
 # msgstr ""
 #  msgid "Display view:"
 #  msgstr ""
