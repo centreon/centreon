@@ -71,7 +71,7 @@ apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
 
-mkdir -p /var/log/centreon/ /usr/lib/centreon/plugins /usr/lib64/centreon-connector
+mkdir -p /var/log/centreon/ /usr/lib/centreon/plugins /usr/lib64/centreon-connector /usr/share/centreon/lib/centreon-broker
 touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log
 chown  -R www-data:www-data /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log 
 chmod 1230 /var/log/centreon/centreon-web.log
@@ -82,7 +82,8 @@ COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/ce
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
-RUN ln -nsf /usr/share/centreon/ /var/www/html/
+RUN mv /usr/share/centreon/ /var/www/html/ \
+    chown -R www-data:www-data /var/www/html/centreon
 WORKDIR /var/www/html
 
 ENV CENTREON_DATASET="1"

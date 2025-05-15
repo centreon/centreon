@@ -1,6 +1,6 @@
 {
-  "admin_password": "$2a$10$WPF2hTwY1cPpSi0gFK.UWu6wmv7PCGywFEhQSToqghmiSqiwq7Qla",
-  "confirm_password": "$2a$10$WPF2hTwY1cPpSi0gFK.UWu6wmv7PCGywFEhQSToqghmiSqiwq7Qla",
+  "admin_password": "Centreon2025!",
+  "confirm_password": "Centreon2025!",
   "firstname": "admin",
   "lastname": "admin",
   "email": "admin@centreon.com"
