@@ -515,6 +515,7 @@ overrides:
       - rrdtool
       - locales
       - gettext
+      - centreon-common
     provides:
       - centreon-web-common
       - centreon-widget-engine-status
