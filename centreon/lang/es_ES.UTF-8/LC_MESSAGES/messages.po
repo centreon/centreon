@@ -1,5 +1,6 @@
 #
 #: centreon/www/install/centreon_broker_translation.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
@@ -461,6 +462,7 @@ msgstr "Duración máxima de una absolución"
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Action"
 msgstr "Acción"
 
@@ -1210,6 +1212,7 @@ msgstr "Notificaciones"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/include/monitoring/acknowlegement/hostAcknowledge.php
 #: centreon/www/include/monitoring/acknowlegement/serviceAcknowledge.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Alias"
 msgstr "Alias"
 
@@ -1288,6 +1291,11 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
+msgid "All columns"
+msgstr "2 columnas"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
 msgid "All contact groups"
 msgstr "grupo de contactos"
 
@@ -1330,6 +1338,11 @@ msgstr "Ningún satélite seleccionado"
 #, fuzzy
 msgid "All metrics on this service are working fine."
 msgstr "Todos los comentarios de este servicio."
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "All pages"
+msgstr "Todos los coleccionistas"
 
 #: centreon/www/install/react_translation.php
 #, fuzzy
@@ -3127,6 +3140,7 @@ msgstr "Configuracion de graficos"
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/command/commandType.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Check"
 msgstr "verificación"
 
@@ -4613,6 +4627,11 @@ msgstr "Duración del estado actual."
 #, fuzzy
 msgid "Current notification number"
 msgstr "Número de notificación actual"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Current page only"
+msgstr "Contraseña de root"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -6153,6 +6172,7 @@ msgstr "duplicar"
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Duration"
 msgstr "duración"
 
@@ -12523,6 +12543,17 @@ msgstr "Exportadores en formato CSV"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
+msgid "Export processing in progress"
+msgstr "Velocidad de procesamiento de eventos"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Export processing might take some time. The real time data displayed at the "
+"output may have changed since the start of processing."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
 msgid "Export to CSV"
 msgstr "Exportadores en formato CSV"
 
@@ -12530,6 +12561,12 @@ msgstr "Exportadores en formato CSV"
 #, fuzzy
 msgid "Export to png"
 msgstr "Opciones de exportación"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Export will be processed but will not include all rows. You can still filter "
+"your resources to reduce the number of rows."
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Exporting and reloading the configuration. Please wait..."
@@ -12608,6 +12645,7 @@ msgid "External commands"
 msgstr "Comandos externos"
 
 #: centreon/www/install/front_translate.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #, fuzzy
 msgid "FQDN / Address"
 msgstr "Dirección IP"
@@ -14677,6 +14715,7 @@ msgstr "Información"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Information"
 msgstr "información"
 
@@ -15225,6 +15264,7 @@ msgstr "7 dias previos"
 #: centreon/www/include/monitoring/status/HostGroups/hostGroup.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Last Check"
 msgstr "Última comprobación"
 
@@ -17016,6 +17056,7 @@ msgstr "Información sobre el motor de supervisión."
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #, fuzzy
 msgid "Monitoring server"
 msgstr "Sistema de supervisión del usuario"
@@ -17694,6 +17735,7 @@ msgstr "URL"
 #: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneHost.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Notes"
 msgstr "Notas"
 
@@ -17704,6 +17746,10 @@ msgstr "URL"
 #: centreon/www/install/smarty_translate.php
 msgid "Nothing here, use the \"Add\" button"
 msgstr "Nada que mostrar, use el botón \"Agregar\""
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Notif"
+msgstr "Notificación"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -17853,11 +17899,13 @@ msgid "Notifications"
 msgstr "Notificaciones"
 
 #: centreon/www/install/front_translate.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #, fuzzy
 msgid "Notifications disabled"
 msgstr "Notificaciones deshabilitadas"
 
 #: centreon/www/install/front_translate.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #, fuzzy
 msgid "Notifications enabled"
 msgstr "Notificación habilitada"
@@ -17911,6 +17959,11 @@ msgstr "Número de entradas"
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 msgid "Number of linked services"
 msgstr "Número de servicios relacionados"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Number of rows"
+msgstr "Número de entradas"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/performance/viewMetrics.php
@@ -18360,7 +18413,23 @@ msgstr "Anfitriones"
 msgid "Parent Hosts"
 msgstr "Anfitriones"
 
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#, fuzzy
+msgid "Parent Resource Name"
+msgstr "Nombre del recurso"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#, fuzzy
+msgid "Parent Resource Status"
+msgstr "Estado de servicios"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#, fuzzy
+msgid "Parent Resource Type"
+msgstr "Tipo de fuente de datos"
+
 #: centreon/www/install/front_translate.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #, fuzzy
 msgid "Parent alias"
 msgstr "Plantillas para padres"
@@ -19699,7 +19768,13 @@ msgid "Resource Access Rule"
 msgstr "Gestión de acceso a recursos"
 
 #: centreon/www/include/configuration/configResources/formResources.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Resource Name"
+msgstr "Nombre del recurso"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#, fuzzy
+msgid "Resource Type"
 msgstr "Nombre del recurso"
 
 #: centreon/www/install/front_translate.php
@@ -20456,6 +20531,11 @@ msgstr "Seleccionar todo"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
+msgid "Select columns"
+msgstr "Centrarse en el arbol"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
 msgid "Select criterias"
 msgstr "Seleccionar todo"
 
@@ -20483,6 +20563,11 @@ msgstr "Adjunte Remote Servers adicionales"
 #, fuzzy
 msgid "Select metric"
 msgstr "Elige el periodo de tiempo ..."
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Select pages"
+msgstr "Tipo de criticidad"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -21274,6 +21359,7 @@ msgstr "Configuraciones de usuario"
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Severity"
 msgstr "criticidad"
 
@@ -21693,6 +21779,7 @@ msgstr "comenzado"
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 #: centreon/www/include/reporting/dashboard/initReport.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "State"
 msgstr "estatus"
 
@@ -21809,6 +21896,7 @@ msgstr "Habilitar estadísticas"
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Status"
 msgstr "estatus"
 
@@ -23302,6 +23390,7 @@ msgstr "Trampas SNMP"
 #: centreon/www/include/monitoring/status/Services/serviceJS.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Tries"
 msgstr "intentos"
 
@@ -24316,6 +24405,10 @@ msgstr "Métricas / curvas virtuales"
 msgid "Virtual metrics"
 msgstr "Métricas / curvas virtuales"
 
+#: centreon/www/install/front_translate.php
+msgid "Visible columns only"
+msgstr ""
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "WARNING"
@@ -24618,6 +24711,12 @@ msgstr ""
 msgid ""
 "You are about to enable the <strong>{{tokenName}}</strong> token. You must "
 "export the configuration for the change to be taken into account."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are about to export the status of the resources you have filtered. You "
+"can export up to 10,000 rows."
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step1.php
@@ -26696,9 +26795,6 @@ msgstr "artículo (s) encontrado (s)"
 #~ msgid "Information command"
 #~ msgstr "Información del pedido"
 
-#~ msgid "Notif"
-#~ msgstr "Notificación"
-
 #~ msgid "$HOSTADDRESS$"
 #~ msgstr "$HOSTADDRESS$"
 
@@ -28399,79 +28495,3 @@ msgstr "artículo (s) encontrado (s)"
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Modo avanzado"
-
-# ---- EXPORT CSV ----
-
-# msgid "Notifications enabled"
-# msgstr ""
-
-# msgid "Notifications disabled"
-# msgstr ""
-
-# msgid "All checks are disabled"
-# msgstr ""
-
-# msgid "Only passive checks are enabled"
-# msgstr ""
-
-# msgid "Only active checks are enabled"
-# msgstr ""
-
-# msgid "All checks are enabled"
-# msgstr ""
-
-# msgid "Resource Type"
-# msgstr ""
-
-# msgid "Parent Resource Type"
-# msgstr ""
-
-# msgid "Parent Resource Name"
-# msgstr ""
-
-# msgid "Parent Resource Status"
-# msgstr ""
-
-# msgid "An error occurred while filtering columns"
-# msgstr ""
-
-# msgid "Error while creating export request"
-# msgstr ""
-
-# msgid "Export format not supported"
-# msgstr ""
-
-# msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
-# msgstr ""
-
-# msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
-# msgstr ""
-
-# msgid "Number of rows"
-# msgstr ""
-
-# msgid "Visible columns only"
-# msgstr ""
-
-# msgid "All columns"
-# msgstr ""
-
-# msgid "Current page only"
-# msgstr ""
-
-# msgid "All pages"
-# msgstr ""
-
-# msgid "Select columns"
-# msgstr ""
-
-# msgid "Select pages"
-# msgstr ""
-
-# msgid "Export processing in progress"
-# msgstr ""
-
-# msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
-# msgstr ""
-
-# ---- END EXPORT CSV ----
