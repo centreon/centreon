@@ -9348,6 +9348,10 @@ msgstr ""
 msgid "Inputs"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Insecure TLS"
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Insert in index data"
 msgstr ""
