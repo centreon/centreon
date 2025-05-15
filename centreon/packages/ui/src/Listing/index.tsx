@@ -61,8 +61,13 @@ import {
   SortOrder
 } from './models';
 import { subItemsPivotsAtom } from './tableAtoms';
+<<<<<<< HEAD
 import { labelNoResultFound } from './translatedLabels';
 import useStyleTable from './useStyleTable';
+=======
+import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
+import useStyleTable, { useColumnStyle } from './useStyleTable';
+>>>>>>> 3b9d97aff5 (feat(resources) : csv export of resources status added (#7041))
 
 const subItemPrefixKey = 'listing';
 
@@ -203,10 +208,12 @@ const Listing = <
     columnConfiguration,
     columns
   });
-  const { dataStyle, getGridTemplateColumn } = useStyleTable({
-    checkable,
-    currentVisibleColumns,
+  const { dataStyle } = useStyleTable({
     listingVariant
+  });
+  const gridTemplateColumn = useColumnStyle({
+    checkable,
+    currentVisibleColumns
   });
 
   const { t } = useTranslation();
@@ -287,7 +294,7 @@ const Listing = <
 
   const { classes } = useListingStyles({
     dataStyle,
-    getGridTemplateColumn,
+    gridTemplateColumn,
     isResponsive,
     rows: rowsToDisplay
   });
