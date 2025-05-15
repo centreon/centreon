@@ -24466,3 +24466,80 @@ msgstr "item (s) encontrado (s)"
 # msgstr ""
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
+
+# ---- EXPORT CSV ----
+
+# msgid "Notifications enabled"
+# msgstr ""
+
+# msgid "Notifications disabled"
+# msgstr ""
+
+# msgid "All checks are disabled"
+# msgstr ""
+
+# msgid "Only passive checks are enabled"
+# msgstr ""
+
+# msgid "Only active checks are enabled"
+# msgstr ""
+
+# msgid "All checks are enabled"
+# msgstr ""
+
+# msgid "Resource Type"
+# msgstr ""
+
+# msgid "Parent Resource Type"
+# msgstr ""
+
+# msgid "Parent Resource Name"
+# msgstr ""
+
+# msgid "Parent Resource Status"
+# msgstr ""
+
+# msgid "An error occurred while filtering columns"
+# msgstr ""
+
+# msgid "Error while creating export request"
+# msgstr ""
+
+# msgid "Export format not supported"
+# msgstr ""
+
+# msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
+# msgstr ""
+
+# msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
+# msgstr ""
+
+# msgid "Number of rows"
+# msgstr ""
+
+# msgid "Visible columns only"
+# msgstr ""
+
+# msgid "All columns"
+# msgstr ""
+
+# msgid "Current page only"
+# msgstr ""
+
+# msgid "All pages"
+# msgstr ""
+
+# msgid "Select columns"
+# msgstr ""
+
+
+# msgid "Select pages"
+# msgstr ""
+
+# msgid "Export processing in progress"
+# msgstr ""
+
+# msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
+# msgstr ""
+
+# ---- END EXPORT CSV ----
