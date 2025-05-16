@@ -51,6 +51,11 @@ jobs:
           distribution: 'temurin' # Utiliser Temurin (OpenJDK)
           java-version: '17'
 
+      - name: Install Required Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget curl
+
       # - name: Display test input
       #   run: |
       #     echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
