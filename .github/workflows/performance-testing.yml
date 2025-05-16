@@ -1,23 +1,26 @@
 name: Performance Testing
 
 on:
-  workflow_dispatch:
-    inputs:
-      jmeter_domain:
-        description: 'Domain for JMeter tests (e.g., localhost)'
-        required: true
-        type: string
-      jmeter_port:
-        description: 'Port for JMeter tests (e.g., 4000)'
-        required: false
-        type: string
-      jmeter_protocol:
-        description: 'Protocol for JMeter tests (e.g., http)'
-        required: true
-        type: string
-      api_prefix:
-        description: 'API prefix to insert before /api/latest/configuration in the JMX file'
-        required: true
+  push:
+    branches:
+      - MON-159979
+  # workflow_dispatch:
+  #   inputs:
+  #     jmeter_domain:
+  #       description: 'Domain for JMeter tests (e.g., localhost)'
+  #       required: true
+  #       type: string
+  #     jmeter_port:
+  #       description: 'Port for JMeter tests (e.g., 4000)'
+  #       required: false
+  #       type: string
+  #     jmeter_protocol:
+  #       description: 'Protocol for JMeter tests (e.g., http)'
+  #       required: true
+  #       type: string
+  #     api_prefix:
+  #       description: 'API prefix to insert before /api/latest/configuration in the JMX file'
+  #       required: true
 
 jobs:
   performance-test:
