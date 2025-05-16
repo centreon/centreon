@@ -23,25 +23,45 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\TransformerException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 
-class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements ReadContactTemplateRepositoryInterface
+/**
+ * Class.
+ *
+ * @class DbReadContactTemplateRepository
+ */
+class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
+    use LoggerTrait;
+
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
-     * @param DatabaseConnection $db
+     * DbReadContactTemplateRepository constructor.
+     *
+     * @param ConnectionInterface $connection
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
-    {
-        $this->db = $db;
+    public function __construct(
+        ConnectionInterface $connection,
+        SqlRequestParametersTranslator $sqlRequestTranslator
+    ) {
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -54,75 +74,93 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     }
 
     /**
-     * @inheritDoc
+     * @throws RepositoryException
+     *
+     * @return ContactTemplate[]
      */
     public function findAll(): array
     {
-        $request = 'SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name FROM contact';
+        try {
+            $query = 'SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name FROM contact';
 
-        // Search
-        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
+            // Search
+            $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+            $query .= $searchRequest !== null
+                ? $searchRequest . ' AND '
+                : ' WHERE ';
 
-        $request .= 'contact_register = 0 ';
+            $query .= 'contact_register = 0 ';
 
-        // Sort
-        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY contact_id ASC';
+            // Sort
+            $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+            $query .= $sortRequest ?? ' ORDER BY contact_id ASC';
 
-        // Pagination
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+            // Pagination
+            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
 
-        $statement = $this->db->prepare($request);
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            );
 
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
+            // get data with pagination
+            $contactTemplates = [];
+            $results = $this->connection->fetchAllAssociative($query, $queryParameters);
+            foreach ($results as $result) {
+                $contactTemplates[] = DbContactTemplateFactory::createFromRecord($result);
+            }
+
+            // get total without pagination
+            if (($total = $this->connection->fetchOne('SELECT FOUND_ROWS() from contact')) !== false) {
+                $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            return $contactTemplates;
+        } catch (TransformerException|ConnectionException $exception) {
+            $this->error('finding all contact template failed', ['exception' => $exception->getContext()]);
+
+            throw new RepositoryException(
+                message: 'finding all contact template failed',
+                previous: $exception
+            );
         }
-
-        $statement->execute();
-
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        $contactTemplates = [];
-        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $contactTemplates[] = DbContactTemplateFactory::createFromRecord($result);
-        }
-
-        return $contactTemplates;
     }
 
     /**
-     * @inheritDoc
+     * @param int $id
+     *
+     * @throws RepositoryException
+     *
+     * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate
     {
-        $statement = $this->db->prepare(
-            'SELECT contact_id, contact_name FROM contact
-                WHERE contact_id = :id
-                AND contact_register = 0'
-        );
-        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
-        $statement->execute();
+        try {
+            $query = 'SELECT contact_id, contact_name FROM contact WHERE contact_id = :id AND contact_register = :register';
 
-        $contactTemplate = null;
-        if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /**
-             * @var array<string, string> $result
-             */
-            $contactTemplate = DbContactTemplateFactory::createFromRecord($result);
+            $queryParameters = QueryParameters::create([
+                QueryParameter::int('id', $id),
+                QueryParameter::int('register', 0),
+            ]);
+
+            $result = $this->connection->fetchAssociative($query, $queryParameters);
+
+            if ($result !== []) {
+                /** @var array<string, string> $result */
+                return DbContactTemplateFactory::createFromRecord($result);
+            }
+
+            return null;
+        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+            $this->error(
+                'finding contact template by id failed',
+                ['id' => $id, 'exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'finding contact template by id failed',
+                ['id' => $id, 'exception' => $exception->getContext()],
+                $exception
+            );
         }
-
-        return $contactTemplate;
     }
 }

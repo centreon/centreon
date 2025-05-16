@@ -34,6 +34,7 @@ parameters:
     paths:
         - src/Core
         - tests/php/Core
+        - src/Adaptation
     ignoreErrors:
         -
             message: '#^Undefined variable: \$this$#'

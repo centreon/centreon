@@ -84,7 +84,7 @@ switch ($o) {
         }
         try {
             require_once($path . "listDowntime.php");
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Error while listing downtime: ' . $ex->getMessage(),
@@ -119,7 +119,7 @@ switch ($o) {
     default:
         try {
             require_once($path . "listDowntime.php");
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: 'Error while listing downtime: ' . $ex->getMessage(),
