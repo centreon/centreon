@@ -13,7 +13,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { useLocale } from 'src/utils';
+import { useLocale } from '../utils';
 import { CustomTimePeriodProperty } from './models';
 
 interface ChangeDateProps {
