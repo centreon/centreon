@@ -350,7 +350,7 @@ class RequestParameters implements RequestParametersInterface
     {
         $sortRequestToAnalyze = json_decode($sortRequest ?: self::DEFAULT_SEARCH_OPERATOR, true);
         if (!is_array($sortRequestToAnalyze)) {
-            if ($sortRequest[0] != '{') {
+            if (!empty($sortRequest) && $sortRequest[0] != '{') {
                 $this->sort = [$sortRequest => self::DEFAULT_ORDER];
             } else {
                 throw new \RestBadRequestException("Bad format for the sort request parameter");

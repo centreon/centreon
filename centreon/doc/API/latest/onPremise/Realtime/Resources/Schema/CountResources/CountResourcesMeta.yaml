@@ -1,0 +1,9 @@
+type: object
+properties:
+  search:
+    type: object
+    description: "Search parameter passed to URL"
+  total:
+    type: integer
+    description: "Number of available resources"
+    example: 100
