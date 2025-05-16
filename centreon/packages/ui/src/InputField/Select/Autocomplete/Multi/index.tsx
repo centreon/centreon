@@ -9,10 +9,6 @@ import { SelectEntry } from '../..';
 import Option from '../../Option';
 
 const useStyles = makeStyles()((theme) => ({
-  checkbox: {
-    marginRight: theme.spacing(1),
-    padding: 0
-  },
   deleteIcon: {
     height: theme.spacing(1.5),
     width: theme.spacing(1.5)
@@ -37,6 +33,7 @@ export interface Props
   getOptionTooltipLabel?: (option) => string;
   getTagLabel?: (option) => string;
   optionProperty?: string;
+  customRenderTags?: (tags: React.ReactNode) => React.ReactNode;
 }
 
 const MultiAutocompleteField = ({
@@ -48,6 +45,7 @@ const MultiAutocompleteField = ({
   getTagLabel = (option): string => option[optionProperty],
   getOptionTooltipLabel,
   chipProps,
+  customRenderTags,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -65,6 +63,7 @@ const MultiAutocompleteField = ({
               deleteIcon: classes.deleteIcon,
               root: classes.tag
             }}
+            data-testid={`tag-option-chip-${option.id}`}
             label={getTagLabel(option)}
             size="medium"
             {...getTagProps({ index })}
@@ -106,7 +105,11 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{getOptionLabel(option)}</Option>
         </li>
       )}
-      renderTags={renderTags}
+      renderTags={(renderedValue, getTagProps): React.ReactNode =>
+        customRenderTags
+          ? customRenderTags(renderTags(renderedValue, getTagProps))
+          : renderTags(renderedValue, getTagProps)
+      }
       value={value}
       {...props}
     />

@@ -1,447 +1,447 @@
 {
-  "id": 1,
-  "name": "My Dashboard",
-  "description": "my description",
-  "created_at": "",
-  "updated_at": "",
-  "shares": {
-    "contacts": [
-      {
-        "id": 1,
-        "name": "Arnaud",
-        "email": "arnaud@centreon.com",
-        "role": "editor"
-      }
-    ],
-    "contact_groups": [
-      {
-        "id": 1,
-        "name": "Guest",
-        "email": "",
-        "role": "viewer"
-      }
-    ]
-  },
-  "created_by": {
     "id": 1,
-    "name": "Arnaud"
-  },
-  "updated_by": {
-    "id": 1,
-    "name": "Arnaud"
-  },
-  "panels": [
-    {
-      "id": 1,
-      "name": "centreon-widget-webpage",
-      "layout": {
-        "x": 0,
-        "y": 22,
-        "width": 12,
-        "height": 8,
-        "min_width": 6,
-        "min_height": 5
+    "name": "My Dashboard",
+    "description": "my description",
+    "created_at": "",
+    "updated_at": "",
+    "shares": {
+        "contacts": [
+            {
+                "id": 1,
+                "name": "Arnaud",
+                "email": "arnaud@centreon.com",
+                "role": "editor"
+            }
+        ],
+        "contact_groups": [
+            {
+                "id": 1,
+                "name": "Guest",
+                "email": "",
+                "role": "viewer"
+            }
+        ]
     },
-      "widget_type": "/widgets/webpage",
-      "widget_settings": {
-          "data": [],
-          "options": {
-              "url": "https://translate.google.com/",
-              "refreshInterval": "manual",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-webpage"
-          }
-      }
-  },
-  {
-      "id": 2,
-      "name": "centreon-widget-graph",
-      "layout": {
-        "x": 0,
-        "y": 0,
-        "width": 12,
-        "height": 5,
-        "min_width": 4,
-        "min_height": 3
+    "created_by": {
+        "id": 1,
+        "name": "Arnaud"
     },
-      "widget_type": "/widgets/graph",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "service",
-                      "resources": [
-                          {
-                              "id": "Memory",
-                              "name": "Memory"
-                          },
-                          {
-                              "id": "Ping",
-                              "name": "Ping"
-                          },
-                          {
-                              "id": "Load",
-                              "name": "Load"
-                          }
-                      ]
-                  }
-              ],
-              "metrics": [
-                  {
-                      "criticalHighThreshold": null,
-                      "criticalLowThreshold": null,
-                      "id": 4,
-                      "name": "rtmin",
-                      "unit": "ms",
-                      "warningHighThreshold": null,
-                      "warningLowThreshold": null,
-                      "excludedMetrics": [],
-                      "includeAllMetrics": true
-                  },
-                  {
-                      "criticalHighThreshold": null,
-                      "criticalLowThreshold": null,
-                      "id": 3,
-                      "name": "rtmax",
-                      "unit": "ms",
-                      "warningHighThreshold": null,
-                      "warningLowThreshold": null,
-                      "excludedMetrics": [],
-                      "includeAllMetrics": true
-                  },
-                  {
-                      "criticalHighThreshold": 50,
-                      "criticalLowThreshold": 0,
-                      "id": 2,
-                      "name": "pl",
-                      "unit": "%",
-                      "warningHighThreshold": 20,
-                      "warningLowThreshold": 0,
-                      "excludedMetrics": [],
-                      "includeAllMetrics": true
-                  },
-                  {
-                      "criticalHighThreshold": 400,
-                      "criticalLowThreshold": 0,
-                      "id": 1,
-                      "name": "rta",
-                      "unit": "ms",
-                      "warningHighThreshold": 200,
-                      "warningLowThreshold": 0,
-                      "excludedMetrics": [],
-                      "includeAllMetrics": true
-                  }
-              ],
-              "services": [
-                  {
-                      "uuid": "h14-s26",
-                      "id": 26,
-                      "name": "Ping",
-                      "parentName": "Centreon-Server"
-                  }
-              ]
-          },
-          "options": {
-              "timeperiod": {
-                  "start": null,
-                  "end": null,
-                  "timePeriodType": 1
-              },
-              "threshold": {
-                  "enabled": false,
-                  "customCritical": null,
-                  "criticalType": "default",
-                  "customWarning": null,
-                  "warningType": "default"
-              },
-              "refreshInterval": "manual",
-              "displayType": "line",
-              "curveType": "linear",
-              "showPoints": false,
-              "lineWidthMode": "auto",
-              "showArea": "auto",
-              "lineStyleMode": "solid",
-              "orientation": "auto",
-              "barRadius": 0,
-              "barOpacity": 100,
-              "showAxisBorder": true,
-              "yAxisTickLabelRotation": 0,
-              "isCenteredZero": false,
-              "showGridLines": true,
-              "scale": "linear",
-              "showLegend": true,
-              "tooltipMode": "all",
-              "tooltipSortOrder": "name",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-graph",
-              "gridLinesType": "all",
-              "legendDisplayMode": "grid",
-              "legendPlacement": "bottom"
-          }
-      }
-  },
-  {
-      "id": 3,
-      "name": "centreon-widget-topbottom",
-      "layout": {
-        "x": 0,
-        "y": 8,
-        "width": 12,
-        "height": 7,
-        "min_width": 2,
-        "min_height": 2
+    "updated_by": {
+        "id": 1,
+        "name": "Arnaud"
     },
-      "widget_type": "/widgets/topbottom",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "service",
-                      "resources": [
-                          {
-                              "id": "Ping",
-                              "name": "Ping"
-                          },
-                          {
-                              "id": "Memory",
-                              "name": "Memory"
-                          },
-                          {
-                              "id": "Load",
-                              "name": "Load"
-                          }
-                      ]
-                  }
-              ],
-              "metrics": [
-                  {
-                      "criticalHighThreshold": 400,
-                      "criticalLowThreshold": 0,
-                      "id": 1,
-                      "name": "rta",
-                      "unit": "ms",
-                      "warningHighThreshold": 200,
-                      "warningLowThreshold": 0,
-                      "excludedMetrics": [],
-                      "includeAllMetrics": true
-                  }
-              ],
-              "services": [
-                  {
-                      "uuid": "h14-s26",
-                      "id": 26,
-                      "name": "Ping",
-                      "parentName": "Centreon-Server"
-                  }
-              ]
-          },
-          "options": {
-              "topBottomSettings": {
-                  "numberOfValues": 10,
-                  "order": "top",
-                  "showLabels": true
-              },
-              "valueFormat": "human",
-              "threshold": {
-                  "enabled": true,
-                  "customCritical": null,
-                  "criticalType": "default",
-                  "customWarning": null,
-                  "warningType": "default",
-                  "baseColor": null
-              },
-              "refreshInterval": "manual",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-topbottom"
-          }
-      }
-  },
-  {
-      "id": 4,
-      "name": "centreon-widget-statusgrid",
-      "layout":{
-        "x": 0,
-        "y": 29,
-        "width": 12,
-        "height": 7,
-        "min_width": 2,
-        "min_height": 2
-    },
-      "widget_type": "/widgets/statusgrid",
-      "widget_settings": {
-        "data": {
-            "resources": [
-                {
-                    "resourceType": "service",
-                    "resources": []
-                }
-            ]
-        },
-        "options": {
-            "viewMode": "standard",
-            "resourceType": "host",
-            "statuses": [
-                "warning",
-                "problem"
-            ],
-            "sortBy": "status_severity_code",
-            "tiles": 100,
-            "refreshInterval": "default",
-            "description": {
-                "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                "enabled": true
+    "panels": [
+        {
+            "id": 1,
+            "name": "centreon-widget-webpage",
+            "layout": {
+                "x": 0,
+                "y": 22,
+                "width": 24,
+                "height": 8,
+                "min_width": 12,
+                "min_height": 5
             },
-            "name": "centreon-widget-statusgrid"
+            "widget_type": "/widgets/webpage",
+            "widget_settings": {
+                "data": [],
+                "options": {
+                    "url": "https://translate.google.com/",
+                    "refreshInterval": "manual",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-webpage"
+                }
+            }
+        },
+        {
+            "id": 2,
+            "name": "centreon-widget-graph",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 24,
+                "height": 5,
+                "min_width": 8,
+                "min_height": 3
+            },
+            "widget_type": "/widgets/graph",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "service",
+                            "resources": [
+                                {
+                                    "id": "Memory",
+                                    "name": "Memory"
+                                },
+                                {
+                                    "id": "Ping",
+                                    "name": "Ping"
+                                },
+                                {
+                                    "id": "Load",
+                                    "name": "Load"
+                                }
+                            ]
+                        }
+                    ],
+                    "metrics": [
+                        {
+                            "criticalHighThreshold": null,
+                            "criticalLowThreshold": null,
+                            "id": 4,
+                            "name": "rtmin",
+                            "unit": "ms",
+                            "warningHighThreshold": null,
+                            "warningLowThreshold": null,
+                            "excludedMetrics": [],
+                            "includeAllMetrics": true
+                        },
+                        {
+                            "criticalHighThreshold": null,
+                            "criticalLowThreshold": null,
+                            "id": 3,
+                            "name": "rtmax",
+                            "unit": "ms",
+                            "warningHighThreshold": null,
+                            "warningLowThreshold": null,
+                            "excludedMetrics": [],
+                            "includeAllMetrics": true
+                        },
+                        {
+                            "criticalHighThreshold": 50,
+                            "criticalLowThreshold": 0,
+                            "id": 2,
+                            "name": "pl",
+                            "unit": "%",
+                            "warningHighThreshold": 20,
+                            "warningLowThreshold": 0,
+                            "excludedMetrics": [],
+                            "includeAllMetrics": true
+                        },
+                        {
+                            "criticalHighThreshold": 400,
+                            "criticalLowThreshold": 0,
+                            "id": 1,
+                            "name": "rta",
+                            "unit": "ms",
+                            "warningHighThreshold": 200,
+                            "warningLowThreshold": 0,
+                            "excludedMetrics": [],
+                            "includeAllMetrics": true
+                        }
+                    ],
+                    "services": [
+                        {
+                            "uuid": "h14-s26",
+                            "id": 26,
+                            "name": "Ping",
+                            "parentName": "Centreon-Server"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeperiod": {
+                        "start": null,
+                        "end": null,
+                        "timePeriodType": 1
+                    },
+                    "threshold": {
+                        "enabled": false,
+                        "customCritical": null,
+                        "criticalType": "default",
+                        "customWarning": null,
+                        "warningType": "default"
+                    },
+                    "refreshInterval": "manual",
+                    "displayType": "line",
+                    "curveType": "linear",
+                    "showPoints": false,
+                    "lineWidthMode": "auto",
+                    "showArea": "auto",
+                    "lineStyleMode": "solid",
+                    "orientation": "auto",
+                    "barRadius": 0,
+                    "barOpacity": 100,
+                    "showAxisBorder": true,
+                    "yAxisTickLabelRotation": 0,
+                    "isCenteredZero": false,
+                    "showGridLines": true,
+                    "scale": "linear",
+                    "showLegend": true,
+                    "tooltipMode": "all",
+                    "tooltipSortOrder": "name",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-graph",
+                    "gridLinesType": "all",
+                    "legendDisplayMode": "grid",
+                    "legendPlacement": "bottom"
+                }
+            }
+        },
+        {
+            "id": 3,
+            "name": "centreon-widget-topbottom",
+            "layout": {
+                "x": 0,
+                "y": 8,
+                "width": 24,
+                "height": 7,
+                "min_width": 4,
+                "min_height": 2
+            },
+            "widget_type": "/widgets/topbottom",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "service",
+                            "resources": [
+                                {
+                                    "id": "Ping",
+                                    "name": "Ping"
+                                },
+                                {
+                                    "id": "Memory",
+                                    "name": "Memory"
+                                },
+                                {
+                                    "id": "Load",
+                                    "name": "Load"
+                                }
+                            ]
+                        }
+                    ],
+                    "metrics": [
+                        {
+                            "criticalHighThreshold": 400,
+                            "criticalLowThreshold": 0,
+                            "id": 1,
+                            "name": "rta",
+                            "unit": "ms",
+                            "warningHighThreshold": 200,
+                            "warningLowThreshold": 0,
+                            "excludedMetrics": [],
+                            "includeAllMetrics": true
+                        }
+                    ],
+                    "services": [
+                        {
+                            "uuid": "h14-s26",
+                            "id": 26,
+                            "name": "Ping",
+                            "parentName": "Centreon-Server"
+                        }
+                    ]
+                },
+                "options": {
+                    "topBottomSettings": {
+                        "numberOfValues": 10,
+                        "order": "top",
+                        "showLabels": true
+                    },
+                    "valueFormat": "human",
+                    "threshold": {
+                        "enabled": true,
+                        "customCritical": null,
+                        "criticalType": "default",
+                        "customWarning": null,
+                        "warningType": "default",
+                        "baseColor": null
+                    },
+                    "refreshInterval": "manual",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-topbottom"
+                }
+            }
+        },
+        {
+            "id": 4,
+            "name": "centreon-widget-statusgrid",
+            "layout": {
+                "x": 0,
+                "y": 29,
+                "width": 24,
+                "height": 7,
+                "min_width": 4,
+                "min_height": 2
+            },
+            "widget_type": "/widgets/statusgrid",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "service",
+                            "resources": []
+                        }
+                    ]
+                },
+                "options": {
+                    "viewMode": "standard",
+                    "resourceType": "host",
+                    "statuses": [
+                        "warning",
+                        "problem"
+                    ],
+                    "sortBy": "status_severity_code",
+                    "tiles": 100,
+                    "refreshInterval": "default",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-statusgrid"
+                }
+            }
+        },
+        {
+            "id": 5,
+            "name": "centreon-widget-statuschart",
+            "layout": {
+                "x": 0,
+                "y": 36,
+                "width": 24,
+                "height": 7,
+                "min_width": 4,
+                "min_height": 3
+            },
+            "widget_type": "/widgets/statuschart",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "",
+                            "resources": []
+                        }
+                    ]
+                },
+                "options": {
+                    "displayType": "donut",
+                    "resourceTypes": [
+                        "host",
+                        "service"
+                    ],
+                    "unit": "percentage",
+                    "displayValues": true,
+                    "displayLegend": true,
+                    "refreshInterval": "manual",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-statuschart"
+                }
+            }
+        },
+        {
+            "id": 6,
+            "name": "centreon-widget-resourcestable",
+            "layout": {
+                "x": 0,
+                "y": 15,
+                "width": 12,
+                "height": 8,
+                "min_width": 6,
+                "min_height": 3
+            },
+            "widget_type": "/widgets/resourcestable",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "service",
+                            "resources": [
+                                {
+                                    "id": "Ping",
+                                    "name": "Ping"
+                                },
+                                {
+                                    "id": "Memory",
+                                    "name": "Memory"
+                                },
+                                {
+                                    "id": "Load",
+                                    "name": "Load"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "options": {
+                    "statuses": [
+                        "warning",
+                        "problem"
+                    ],
+                    "states": [
+                        "unhandled_problems"
+                    ],
+                    "statusTypes": [],
+                    "refreshInterval": "manual",
+                    "isOpenTicketEnabled": false,
+                    "displayResources": "withoutTicket",
+                    "isDownHostHidden": false,
+                    "isUnreachableHostHidden": false,
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-resourcestable"
+                }
+            }
+        },
+        {
+            "id": 7,
+            "name": "centreon-widget-groupmonitoring",
+            "layout": {
+                "x": 0,
+                "y": 43,
+                "width": 24,
+                "height": 7,
+                "min_width": 8,
+                "min_height": 3
+            },
+            "widget_type": "/widgets/groupmonitoring",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "host-group",
+                            "resources": []
+                        }
+                    ]
+                },
+                "options": {
+                    "resourceTypes": [
+                        "host",
+                        "service"
+                    ],
+                    "statuses": [
+                        "1",
+                        "2"
+                    ],
+                    "refreshInterval": "manual",
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-groupmonitoring"
+                }
+            }
         }
+    ],
+    "own_role": "viewer",
+    "refresh": {
+        "type": "global",
+        "interval": null
     }
-  },
-  {
-      "id": 5,
-      "name": "centreon-widget-statuschart",
-      "layout": {
-        "x": 0,
-        "y": 36,
-        "width": 12,
-        "height": 7,
-        "min_width": 2,
-        "min_height": 3
-    },
-      "widget_type": "/widgets/statuschart",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "",
-                      "resources": []
-                  }
-              ]
-          },
-          "options": {
-              "displayType": "donut",
-              "resourceTypes": [
-                  "host",
-                  "service"
-              ],
-              "unit": "percentage",
-              "displayValues": true,
-              "displayLegend": true,
-              "refreshInterval": "manual",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-statuschart"
-          }
-      }
-  },
-  {
-      "id": 6,
-      "name": "centreon-widget-resourcestable",
-      "layout": {
-        "x": 0,
-        "y": 15,
-        "width": 12,
-        "height": 8,
-        "min_width": 6,
-        "min_height": 3
-    },
-      "widget_type": "/widgets/resourcestable",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "service",
-                      "resources": [
-                          {
-                              "id": "Ping",
-                              "name": "Ping"
-                          },
-                          {
-                              "id": "Memory",
-                              "name": "Memory"
-                          },
-                          {
-                              "id": "Load",
-                              "name": "Load"
-                          }
-                      ]
-                  }
-              ]
-          },
-          "options": {
-              "statuses": [
-                  "warning",
-                  "problem"
-              ],
-              "states": [
-                  "unhandled_problems"
-              ],
-              "statusTypes": [],
-              "refreshInterval": "manual",
-              "isOpenTicketEnabled": false,
-              "displayResources": "withoutTicket",
-              "isDownHostHidden": false,
-              "isUnreachableHostHidden": false,
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-resourcestable"
-          }
-      }
-  },
-  {
-      "id": 7,
-      "name": "centreon-widget-groupmonitoring",
-      "layout": {
-        "x": 0,
-        "y": 43,
-        "width": 12,
-        "height": 7,
-        "min_width": 4,
-        "min_height": 3
-    },
-      "widget_type": "/widgets/groupmonitoring",
-      "widget_settings": {
-          "data": {
-              "resources": [
-                  {
-                      "resourceType": "host-group",
-                      "resources": []
-                  }
-              ]
-          },
-          "options": {
-              "resourceTypes": [
-                  "host",
-                  "service"
-              ],
-              "statuses": [
-                  "1",
-                  "2"
-              ],
-              "refreshInterval": "manual",
-              "description": {
-                  "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-                  "enabled": true
-              },
-              "name": "centreon-widget-groupmonitoring"
-          }
-      }
-  }
-  ],
-  "own_role": "viewer",
-  "refresh": {
-    "type": "global",
-    "interval": null
-  }
 }

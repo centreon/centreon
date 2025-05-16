@@ -1,0 +1,5 @@
+FindUsersPermissions:
+  methods: GET
+  path: /users/acl/permissions
+  controller: 'Core\User\Infrastructure\API\FindUserPermissions\FindUserPermissionsController'
+  condition: "request.attributes.get('version') >= 24.10"

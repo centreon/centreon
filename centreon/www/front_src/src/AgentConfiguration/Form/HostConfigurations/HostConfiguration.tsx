@@ -64,8 +64,10 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         label={t(labelDNSIP)}
         dataTestId={labelDNSIP}
         fullWidth
-        inputProps={{
-          'aria-label': labelDNSIP
+        slotProps={{
+          htmlInput: {
+            'aria-label': labelDNSIP
+          }
         }}
         error={hostTouched?.address && hostErrors?.address}
       />
@@ -77,9 +79,14 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         dataTestId={labelPort}
         fullWidth
         error={hostTouched?.port && hostErrors?.port}
-        inputProps={{
-          min: 1,
-          max: 65535
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'data-testid': 'portInput',
+              min: 1,
+              max: 65535
+            }
+          }
         }}
       />
       <TextField
@@ -87,8 +94,12 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         onChange={changeStringInput('pollerCaCertificate')}
         label={t(labelCertificate)}
         dataTestId={labelCertificate}
-        inputProps={{
-          'aria-label': labelCertificate
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': labelCertificate
+            }
+          }
         }}
         fullWidth
         error={
@@ -101,8 +112,12 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         value={host?.pollerCaName || ''}
         onChange={changeStringInput('pollerCaName')}
         label={t(labelCaCertificate)}
-        inputProps={{
-          'aria-label': labelCaCertificate
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': labelCaCertificate
+            }
+          }
         }}
         dataTestId={labelCaCertificate}
         fullWidth

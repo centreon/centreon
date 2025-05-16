@@ -40,10 +40,12 @@ import {
 } from '../../testsUtils';
 import {
   labelAddAContact,
+  labelDashboardAddedToFavorites,
   labelDashboardUpdated,
   labelDelete,
   labelExpand,
   labelReduce,
+  labelRemoveFromFavorites,
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
@@ -630,7 +632,7 @@ describe('Dashboard', () => {
         const widgetName = widget.moduleName;
 
         cy.findByLabelText(widgetName)
-          .parentsUntil('[data-canmove="false"]')
+          .parentsUntil('[data-can-move="false"]')
           .last()
           .as('header')
           .scrollIntoView();
@@ -702,10 +704,10 @@ describe('Dashboard', () => {
 
       cy.get('.react-grid-item')
         .eq(3)
-        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 4, 252)');
-      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '585px');
+        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '593px');
 
-      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '484px');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
     });
   });
 
@@ -747,11 +749,11 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height')
-        .and('equal', '232px');
+        .and('equal', '216px');
 
       cy.get('[class*="react-resizable-handle-se"]')
         .eq(0)
@@ -760,7 +762,7 @@ describe('Dashboard', () => {
         .realMouseMove(-70, -70)
         .realMouseUp();
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height');
@@ -1128,6 +1130,38 @@ describe('Dashboard', () => {
       });
       cy.makeSnapshot();
     });
+
+    it('disable favorite icon button on click', () => {
+      initializeAndMount({
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      interceptDetailsDashboard({ path: 'Dashboards/favorites/details.json' });
+
+      cy.findByRole('button', { name: 'FavoriteIconButton' }).as(
+        'favoriteIcon'
+      );
+      cy.get('@favoriteIcon').dblclick();
+      cy.get('@favoriteIcon').should('be.disabled');
+
+      const labelSuccess = labelDashboardAddedToFavorites;
+
+      const updatedTitle = labelRemoveFromFavorites;
+
+      cy.waitForRequest('@addFavorite');
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('@favoriteIcon').should('be.enabled');
+
+      cy.findByText(labelSuccess).should('be.visible');
+
+      cy.get('@favoriteIcon').trigger('mouseover');
+
+      cy.findByText(updatedTitle).should('be.visible');
+    });
   });
 });
 
@@ -1204,7 +1238,7 @@ describe('Dashboard with complex layout', () => {
 
     cy.get('.react-grid-item')
       .eq(4)
-      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 315, 0)');
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
 
     cy.makeSnapshot();
   });

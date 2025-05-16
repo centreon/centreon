@@ -1,0 +1,12 @@
+{
+    "default": {
+        "name": "1VendorName",
+        "alias": "VendorAlias",
+        "description": "VendorDescription"
+    },
+    "vendor": {
+        "name": "1VendorName-changed",
+        "alias": "VendorAlias-changed",
+        "description": "VendorDescription-changed"
+    }
+}

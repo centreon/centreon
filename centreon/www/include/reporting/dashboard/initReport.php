@@ -66,12 +66,9 @@ $attrsTextI        = ["size"=>"3"];
 $attrsText        = ["size"=>"30"];
 $attrsTextarea    = ["rows"=>"5", "cols"=>"40"];
 
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path, "");
 
-/*
- * Smarty template initialization
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, "");
 $tpl->assign('o', $o);
 
 /*
