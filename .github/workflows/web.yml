@@ -1107,7 +1107,7 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: "master"
-          release_type: "hotfix"
+          release_type: "release"
           # is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           is_cloud: true
 
