@@ -32,11 +32,11 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  * @phpstan-type _TelegrafParameters array{
  *      connection_mode?: ConnectionModeEnum,
  *	    otel_public_certificate: string,
- *	    otel_ca_certificate: string|null,
- *	    otel_private_key: string,
+ *	    otel_ca_certificate: ?string,
+ *	    otel_private_key: ?string,
  *	    conf_server_port: int,
- *	    conf_certificate: string,
- *	    conf_private_key: string
+ *	    conf_certificate: ?string,
+ *	    conf_private_key: ?string
  *  }
  */
 class TelegrafConfigurationParameters implements ConfigurationParametersInterface
@@ -56,6 +56,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
      * @throws AssertionFailedException
      */
     public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
+        /** @var _TelegrafParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
@@ -143,26 +144,26 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     /**
      * Validates a certificate.
      *
-     * @param mixed $certificate
+     * @param ?string $certificate
      * @param string $field
      *
      * @throws AssertionFailedException
      */
-    private function validateCertificate($certificate, string $field): void
+    private function validateCertificate(?string $certificate, string $field): void
     {
         Assertion::notEmptyString($certificate, $field);
-        Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        Assertion::maxLength($certificate ?? '', self::MAX_LENGTH, $field);
     }
 
     /**
      * Validates an optional certificate.
      *
-     * @param mixed $certificate
+     * @param ?string $certificate
      * @param string $field
      *
      * @throws AssertionFailedException
      */
-    private function validateOptionalCertificate($certificate, string $field): void
+    private function validateOptionalCertificate(?string $certificate, string $field): void
     {
         if ($certificate !== null && $certificate !== '') {
             Assertion::maxLength($certificate, self::MAX_LENGTH, $field);

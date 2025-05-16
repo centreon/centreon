@@ -39,6 +39,7 @@
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -107,6 +108,7 @@ class Generate
     private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
 
     private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+    private ReadTokenRepositoryInterface $readTokenRepository;
 
     /**
      * Generate constructor
@@ -122,7 +124,10 @@ class Generate
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         $this->readAgentConfigurationRepository = $kernel->getContainer()
             ->get(ReadAgentConfigurationRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+            ?? throw new \Exception('ReadAcRepositoryInterface not found');
+        $this->readTokenRepository = $kernel->getContainer()
+            ->get(ReadTokenRepositoryInterface::class)
+            ?? throw new \Exception('ReadTokenRepositoryInterface not found');
     }
 
     /**
@@ -315,7 +320,8 @@ class Generate
         ))->reset();
         (new AgentConfiguration(
             $this->backend_instance,
-            $this->readAgentConfigurationRepository
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -337,7 +343,8 @@ class Generate
         $this->resetObjectsEngine();
         (new AgentConfiguration(
             $this->backend_instance,
-            $this->readAgentConfigurationRepository
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
