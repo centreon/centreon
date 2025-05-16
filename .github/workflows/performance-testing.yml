@@ -135,21 +135,21 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
-              echo "Running test: $i"
+            echo "Running test: $i"
 
-              ./jmeter -n -t "$i" \
-                -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
-                -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl \
-                -j $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log \
-                -LDEBUG
+            ./jmeter -n -t "$i" \
+              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
+              -l "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -j "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log" \
+              -LDEBUG
 
-              tail -n 50 $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log
+            tail -n 50 "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log"
 
-              ./jmeter -g $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl \
-                -o $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)
+            ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -o "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)"
           done
 
-          echo "Tests completed!""
+          echo "Tests completed!"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
