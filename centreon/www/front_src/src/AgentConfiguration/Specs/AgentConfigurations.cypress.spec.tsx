@@ -109,7 +109,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -182,7 +182,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
