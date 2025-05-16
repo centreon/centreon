@@ -109,7 +109,6 @@ describe('Agent configurations', () => {
       );
     });
 
-
     cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
