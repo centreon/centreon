@@ -102,8 +102,6 @@ jobs:
       #       docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
       #       fi
       #   shell: bash
-      - name: Adding commands
-        run: node commands.mjs
 
       - name: Adding hosts
         run: node hosts.mjs
