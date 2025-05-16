@@ -126,11 +126,6 @@ jobs:
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
           echo "Plugins installed successfully!"
 
-      - name: Verify CSV path and contents
-        run: |
-            echo "Checking users.csv path and permissions"
-            ls -l /home/runner/work/centreon
-
       - name: Run JMX Scripts
         run: |
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
@@ -142,17 +137,19 @@ jobs:
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
 
-              # Lancer le test avec logs en mode debug
-              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl -j $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log -LDEBUG
+              ./jmeter -n -t "$i" \
+                -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
+                -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl \
+                -j $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log \
+                -LDEBUG
 
-              # Afficher les 50 dernières lignes des logs pour debug
               tail -n 50 $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log
 
-              # Génération du rapport HTML
-              ./jmeter -g $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl -o $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)
+              ./jmeter -g $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl \
+                -o $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)
           done
 
-          echo "Tests completed!"
+          echo "Tests completed!""
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
