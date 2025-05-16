@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@centreon/ui-context';
 
 import shortLocales from './sortLocales';
+import { useLocale } from '../useLocale';
 
 interface FormatParameters {
   date: Date | string;
@@ -28,10 +29,11 @@ const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 
 const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
-  const { locale, timezone } = useAtomValue(userAtom);
+  const locale = useLocale();
+  const { timezone } = useAtomValue(userAtom);
 
   const format = ({ date, formatString }: FormatParameters): string => {
-    const normalizedLocale = locale.substring(0, 2);
+    const normalizedLocale = locale?.substring(0, 2);
 
     const timezoneDate = dayjs(
       new Date(date).toLocaleString('en', { timeZone: timezone })

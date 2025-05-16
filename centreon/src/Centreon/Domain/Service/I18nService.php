@@ -104,7 +104,20 @@ class I18nService
     }
 
     /**
-     * Get translation from centreon
+     * Get all translations fron Centreon and its modules
+     *
+     * @return array
+     */
+    public function getAllTranslations(): array
+    {
+        $centreonTranslation = $this->getAllCentreonTranslation();
+        $modulesTranslation = $this->getAllModulesTranslation();
+
+        return array_replace_recursive($centreonTranslation, $modulesTranslation)
+    }
+
+    /**
+     * Get all translations from centreon
      *
      * @return array
      */
@@ -122,6 +135,35 @@ class I18nService
 
             foreach ($files as $file) {
                 $data = unserialize($file->getContents());
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get translation from centreon
+     *
+     * @return array
+     */
+    private function getAllCentreonTranslation(): array
+    {
+        $data = [];
+
+        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+
+        foreach ($languages as $language) {
+            $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
+            $translationFile = "messages.ser";
+
+            if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+                $files = $this->finder
+                    ->name($translationFile)
+                    ->in($translationPath);
+
+                foreach ($files as $file) {
+                    $data += unserialize($file->getContents());
+                }
             }
         }
 
@@ -152,6 +194,41 @@ class I18nService
                         $data,
                         unserialize($file->getContents())
                     );
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get all translation from each installed module
+     *
+     * @return array
+     */
+    private function getAllModulesTranslation(): array
+    {
+        $data = [];
+
+        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+
+        foreach ($languages as $language) {
+            // loop over each installed modules to get translation
+            foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
+                $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$language}/LC_MESSAGES";
+                $translationFile = "messages.ser";
+
+                if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+                    $files = $this->finder
+                        ->name($translationFile)
+                        ->in($translationPath);
+
+                    foreach ($files as $file) {
+                        $data += array_replace_recursive(
+                            $data,
+                            unserialize($file->getContents())
+                        );
+                    }
                 }
             }
         }
