@@ -240,6 +240,7 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int $timezoneId
+     *
      * @return self
      */
     public function setTimezoneId(int $timezoneId): self
@@ -267,11 +268,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int $id
+     *
      * @return self
      */
     public function setId(int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -285,11 +288,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $name
+     *
      * @return self
      */
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -303,11 +308,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $alias
+     *
      * @return self
      */
     public function setAlias(string $alias): self
     {
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -321,11 +328,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $lang
+     *
      * @return self
      */
     public function setLang(string $lang): self
     {
         $this->lang = $lang;
+
         return $this;
     }
 
@@ -339,11 +348,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $email
+     *
      * @return self
      */
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -359,6 +370,7 @@ class Contact implements UserInterface, ContactInterface
      * Set if the user is admin or not.
      *
      * @param bool $isAdmin
+     *
      * @return self
      */
     public function setAdmin(bool $isAdmin): self
@@ -368,6 +380,7 @@ class Contact implements UserInterface, ContactInterface
             $this->addRole(self::ROLE_API_REALTIME);
             $this->addRole(self::ROLE_API_CONFIGURATION);
         }
+
         return $this;
     }
 
@@ -381,11 +394,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int|null $templateId
+     *
      * @return self
      */
     public function setTemplateId(?int $templateId): self
     {
         $this->templateId = $templateId;
+
         return $this;
     }
 
@@ -399,11 +414,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param bool $isActive
+     *
      * @return self
      */
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
         return $this;
     }
 
@@ -435,11 +452,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string|null $token
+     *
      * @return self
      */
     public function setToken(?string $token): self
     {
         $this->token = $token;
+
         return $this;
     }
 
@@ -453,11 +472,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string|null $encodedPassword
+     *
      * @return self
      */
     public function setEncodedPassword(?string $encodedPassword): self
     {
         $this->encodedPassword = $encodedPassword;
+
         return $this;
     }
 
@@ -489,6 +510,7 @@ class Contact implements UserInterface, ContactInterface
         foreach ($roles as $role) {
             $this->addRole($role);
         }
+
         return $this;
     }
 
@@ -509,6 +531,7 @@ class Contact implements UserInterface, ContactInterface
         foreach ($topologyRoles as $topologyRole) {
             $this->addTopologyRule($topologyRole);
         }
+
         return $this;
     }
 
@@ -601,6 +624,7 @@ class Contact implements UserInterface, ContactInterface
         } else {
             $this->removeRole(self::ROLE_API_REALTIME);
         }
+
         return $this;
     }
 
@@ -627,7 +651,7 @@ class Contact implements UserInterface, ContactInterface
      */
     public function addRole(string $roleName): void
     {
-        if (!in_array($roleName, $this->roles)) {
+        if (! in_array($roleName, $this->roles)) {
             $this->roles[] = $roleName;
         }
     }
@@ -651,7 +675,7 @@ class Contact implements UserInterface, ContactInterface
      */
     public function addTopologyRule(string $topologyRuleName): void
     {
-        if (!in_array($topologyRuleName, $this->topologyRulesNames)) {
+        if (! in_array($topologyRuleName, $this->topologyRulesNames)) {
             $this->topologyRulesNames[] = $topologyRuleName;
         }
     }
@@ -660,11 +684,13 @@ class Contact implements UserInterface, ContactInterface
      * timezone setter
      *
      * @param \DateTimeZone $timezone
+     *
      * @return self
      */
     public function setTimezone(\DateTimeZone $timezone): self
     {
         $this->timezone = $timezone;
+
         return $this;
     }
 
@@ -682,11 +708,13 @@ class Contact implements UserInterface, ContactInterface
      * locale setter
      *
      * @param string|null $locale
+     *
      * @return self
      */
     public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
+
         return $this;
     }
 
@@ -706,6 +734,7 @@ class Contact implements UserInterface, ContactInterface
     public function setDefaultPage(?Page $defaultPage): static
     {
         $this->defaultPage = $defaultPage;
+
         return $this;
     }
 
@@ -749,11 +778,13 @@ class Contact implements UserInterface, ContactInterface
      * Set user current theme.
      *
      * @param string $theme user's new theme.
+     *
      * @return self
      */
     public function setTheme(string $theme): self
     {
         $this->theme = $theme;
+
         return $this;
     }
 
@@ -785,5 +816,59 @@ class Contact implements UserInterface, ContactInterface
     public function getUserInterfaceDensity(): ?string
     {
         return $this->userInterfaceDensity;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormatDate(): string
+    {
+        $dateFormatter = new \IntlDateFormatter(
+            $this->getLocale(),
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::SHORT,
+            $this->getTimezone()
+        );
+        $format = $dateFormatter->getPattern();
+
+        return $this->convertIntlPatternToDateTimeFormat($format);
+    }
+
+    /**
+     * IntlDateFormatter used a different format than DateTime::format.
+     * This method converts IntlDateFormatter pattern to DateTime format.
+     *
+     * @param string $intlPattern
+     *
+     * @return string
+     */
+    private function convertIntlPatternToDateTimeFormat(string $intlPattern): string
+    {
+        $intlToPhp = [
+            'yyyy' => 'Y',
+            'yy' => 'y',
+            'MMMM' => 'F',
+            'MMM' => 'M',
+            'MM' => 'm',
+            'M' => 'n',
+            'dd' => 'd',
+            'd' => 'j',
+            'EEEE' => 'l',
+            'EEE' => 'D',
+            'HH' => 'H',
+            'H' => 'G',
+            'hh' => 'h',
+            'h' => 'g',
+            'mm' => 'i',
+            'ss' => 's',
+            'SSS' => 'u',
+            'a' => 'A',
+            'zzzz' => 'e',
+            'zzz' => 'T',
+            'zz' => 'T',
+            'z' => 'T',
+        ];
+
+        return strtr($intlPattern, $intlToPhp);
     }
 }
