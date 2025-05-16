@@ -113,52 +113,6 @@
 					"response": []
 				},
 				{
-					"name": "Create a fake host",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The host has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"HOST\",\r\n  \"values\": \"Host-1;Host-1;1.2.3.4;generic-host;Central;\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Create a fake poller-1",
 					"event": [
 						{
@@ -996,6 +950,7 @@
 									"        \"id\": pm.collectionVariables.get(\"AC2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"AC2Name\"),\r",
 									"        \"type\": \"centreon-agent\",\r",
+									"        \"connection_mode\": \"secure\",\r",
 									"        \"configuration\": {\r",
 									"            \"is_reverse\": true,\r",
 									"            \"otel_public_certificate\": \"/etc/pki/my-otel-certificate-name-ac2.crt\",\r",
@@ -1004,7 +959,6 @@
 									"            \"tokens\": [],\r",
 									"            \"hosts\": [\r",
 									"                {\r",
-									"                    \"id\": pm.collectionVariables.get(\"host1_id\"),\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
 									"                    \"poller_ca_certificate\": null,\r",
@@ -1012,7 +966,6 @@
 									"                }\r",
 									"            ]\r",
 									"        },\r",
-									"        \"connection_mode\": \"secure\",\r",
 									"        \"pollers\": [\r",
 									"            {\r",
 									"                \"id\": parseInt(pm.collectionVariables.get(\"poller1_Id\")),\r",
@@ -1049,7 +1002,6 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
-									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
@@ -1096,7 +1048,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {{host1_id}},\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -1977,7 +1929,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {{host1_id}},\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -2029,14 +1981,12 @@
 									"            \"tokens\": [],\r",
 									"            \"hosts\": [\r",
 									"                {\r",
-									"                    \"id\": pm.collectionVariables.get(\"host1_id\"),\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
 									"                    \"poller_ca_certificate\": \"/etc/pki/ca-filé.crt\",\r",
 									"                    \"poller_ca_name\": null\r",
 									"                },\r",
 									"                {\r",
-									"                    \"id\": pm.collectionVariables.get(\"host2_id\"),\r",
 									"                    \"address\": \"127.0.0.1\",\r",
 									"                    \"port\": 4317,\r",
 									"                    \"poller_ca_certificate\": null,\r",
@@ -2082,7 +2032,6 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
-									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
@@ -2128,7 +2077,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC3Name}}\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otél-certificate-name-ac2!.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otél_private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {{host1_id}},\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": \"ca-filé.crt\",\r\n            \"poller_ca_name\": null\r\n        },\r\n        {\r\n            \"id\": {{host2_id}},\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC3Name}}\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otél-certificate-name-ac2!.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otél_private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": \"ca-filé.crt\",\r\n            \"poller_ca_name\": null\r\n        },\r\n        {\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -4024,7 +3973,6 @@
 									"            \"otel_private_key\": \"/etc/pki/my-otel-private-key-name-ac4.key\",\r",
 									"            \"tokens\": [],\r",
 									"            \"hosts\": [{\r",
-									"                \"id\": pm.collectionVariables.get(\"host1_id\"),\r",
 									"                \"address\": \"localhost\",\r",
 									"                \"port\": 443,\r",
 									"                \"poller_ca_certificate\": \"/etc/pki/hi.crt\",\r",
@@ -4061,7 +4009,7 @@
 									"                    \"otel_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
 									"                    \"otel_private_key\": { \"type\": \"string\" },\r",
 									"                    \"tokens\": { \r",
-									"                        \"type: array\",\r",
+									"                        \"type\": \"array\",\r",
 									"                        \"properties\": {\r",
 									"                            \"name\": { \"type\" : \"string\" },\r",
 									"                            \"creator_id\": { \"type\": \"string\" }\r",
@@ -4072,7 +4020,6 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
-									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"address\": { \"type\": \"string\" },\r",
 									"                                \"port\": { \"type\": \"integer\" },\r",
 									"                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
@@ -4119,7 +4066,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {{host1_id},\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -4514,7 +4461,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {{host1_id}},\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{AC4Name}}\",\r\n    \"poller_ids\": [ {{Central_Id}}, {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac4.crt\",\r\n        \"otel_ca_certificate\": \"hello.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac4.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"localhost\",\r\n            \"port\": 443,\r\n            \"poller_ca_certificate\": \"hi.crt\",\r\n            \"poller_ca_name\": \"halo\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations/{{AC4Id}}",
@@ -5435,7 +5382,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"nop\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"id\": {host1_id\"}},\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"nop\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"is_reverse\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/agent-configurations/{{AC4Id}}",
@@ -6199,14 +6146,6 @@
 			"value": ""
 		},
 		{
-			"key": "AC3Name",
-			"value": ""
-		},
-		{
-			"key": "AC3Id",
-			"value": ""
-		},
-		{
 			"key": "api_login_user",
 			"value": ""
 		},
@@ -6216,6 +6155,10 @@
 		},
 		{
 			"key": "AC4Name",
+			"value": ""
+		},
+		{
+			"key": "AC4Id",
 			"value": ""
 		}
 	]

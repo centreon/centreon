@@ -51,7 +51,6 @@ beforeEach(function (): void {
         'tokens' => [],
         'hosts' => [
             [
-                'id' => 1,
                 'address' => '',
                 'port' => 0,
                 'poller_ca_certificate' => '/etc/pki/test.cer',
