@@ -242,9 +242,24 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
     );
 };
 
+$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update hostgroup table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            ALTER TABLE `hostgroup`
+                DROP COLUMN `hg_notes`,
+                DROP COLUMN `hg_notes_url`,
+                DROP COLUMN `hg_action_url`,
+                DROP COLUMN `hg_map_icon_image`,
+                DROP COLUMN `hg_rrd_retention`
+            SQL
+    );
+};
+
 try {
     $createJwtTable();
     $addConnectionModeColumnToAgentConfiguration();
+    $sunsetHostGroupFields();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {

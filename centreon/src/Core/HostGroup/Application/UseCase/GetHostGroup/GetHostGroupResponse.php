@@ -38,10 +38,10 @@ final class GetHostGroupResponse implements StandardResponseInterface
      * @param ?Media $icon
      */
     public function __construct(
-        readonly public HostGroup $hostgroup,
-        readonly public array $hosts = [],
-        readonly public array $rules = [],
-        readonly public ?Media $icon = null,
+        public readonly HostGroup $hostgroup,
+        public readonly array $hosts = [],
+        public readonly array $rules = [],
+        public readonly ?Media $icon = null,
     )
     {
     }

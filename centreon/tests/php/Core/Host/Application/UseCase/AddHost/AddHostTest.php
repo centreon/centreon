@@ -195,8 +195,24 @@ beforeEach(function (): void {
 
     // Settup groups
     $this->groups = [
-        $this->groupA = new HostGroup(6, 'grp-name-A', 'grp-alias-A', '', '', '', null, null, null, null, '', true),
-        $this->groupB = new HostGroup(7, 'grp-name-B', 'grp-alias-B', '', '', '', null, null, null, null, '', true),
+        $this->groupA = new HostGroup(
+            id: 6,
+            name: 'grp-name-A',
+            alias: 'grp-alias-A',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
+        $this->groupB = new HostGroup(
+            id: 7,
+            name: 'grp-name-B',
+            alias: 'grp-alias-B',
+            iconId: null,
+            geoCoords: null,
+            comment: '',
+            isActivated: true
+        ),
     ];
     $this->request->groups = [$this->groupA->getId(), $this->groupB->getId()];
 

@@ -213,12 +213,7 @@ it(
             id: 7,
             name: $this->addHostGroupRequest->name,
             alias: $this->addHostGroupRequest->alias,
-            notes: '',
-            notesUrl: '',
-            actionUrl: '',
             iconId: null,
-            iconMapId: null,
-            rrdRetention: null,
             geoCoords: GeoCoords::fromString($this->addHostGroupRequest->geoCoords),
             comment: $this->addHostGroupRequest->comment,
             isActivated: true
