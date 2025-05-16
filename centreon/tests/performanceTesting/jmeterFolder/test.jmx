@@ -19,7 +19,7 @@
       </ThreadGroup>
       <hashTree>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV">
-          <stringProp name="filename">C:/Workspace/centreon/centreon/tests/performanceTesting/users.csv</stringProp>
+          <stringProp name="filename">/github/workspace/centreon/tests/performanceTesting/users.csv</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
