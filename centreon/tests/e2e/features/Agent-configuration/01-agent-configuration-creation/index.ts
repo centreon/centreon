@@ -35,10 +35,34 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/tokens?*'
+  }).as('getTokens');
 });
 
 after(() => {
   cy.stopContainers();
+});
+
+Given('a CMA Token is configured', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'user-non-admin-for-AC',
+    loginViaApi: false
+  });
+  cy.navigateTo({
+    page: 'Authentication Tokens',
+    rootItemNumber: 1
+  });
+  cy.getByTestId({ testId: 'Add' }).click();
+  cy.contains('Create authentication token').should('be.visible');
+  cy.get('#Name').type('CMA-Token-001');
+  cy.getByTestId({ testId: 'Type' }).click();
+  cy.contains('Centreon monitoring agent').click();
+  cy.contains('button', 'Generate token').click();
+  cy.wait('@getTokens');
+  cy.contains('button', 'Done').click();
+  cy.logout();
 });
 
 Given('a non-admin user is in the Agents Configuration page', () => {
