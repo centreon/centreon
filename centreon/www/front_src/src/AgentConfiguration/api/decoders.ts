@@ -17,9 +17,13 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
         JsonDecoder.object(
           {
             id: JsonDecoder.number,
-            name: JsonDecoder.string
+            name: JsonDecoder.string,
+            isCentral: JsonDecoder.optional(JsonDecoder.boolean)
           },
-          'poller'
+          'poller',
+          {
+            isCentral: 'is_central'
+          }
         ),
         'pollers'
       )
@@ -91,13 +95,9 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
       JsonDecoder.object(
         {
           id: JsonDecoder.number,
-          name: JsonDecoder.string,
-          isCentral: JsonDecoder.optional(JsonDecoder.boolean)
+          name: JsonDecoder.string
         },
-        'poller',
-        {
-          isCentral: 'is_central'
-        }
+        'poller'
       ),
       'pollers'
     ),

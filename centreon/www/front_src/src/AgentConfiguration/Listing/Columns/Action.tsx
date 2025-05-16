@@ -22,10 +22,11 @@ const Action = ({ row }: Props): JSX.Element => {
 
   const { isAdmin } = useAtomValue(userAtom);
   const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
-
-  const hasCentral = row?.pollers?.some((poller) =>
-    equals(poller?.isCentral, true)
-  );
+  const hasCentral = (
+    isNotNil(row.internalListingParentId)
+      ? row.internalListingParentRow?.pollers
+      : row?.pollers
+  )?.some((poller) => equals(poller?.isCentral, true));
 
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
 
