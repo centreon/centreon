@@ -388,13 +388,14 @@ class CentreonCeip extends CentreonWebService
     {
         $agents = [];
         try {
+            $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
             $query = <<<'SQL'
                         SELECT `poller_id`, `enabled`, `infos`
-                        FROM `centreon_storage`.`agent_information`
+                        FROM `agent_information`
                     SQL;
-            $statement = $this->pearDB->executeQuery($query);
+            $statement = $pearDBO->executeQuery($query);
 
-            while (is_array($row = $this->pearDB->fetch($statement))) {
+            while (is_array($row = $pearDBO->fetch($statement))) {
                 /** @var array{poller_id:int,enabled:int,infos:string} $row */
                 $decodedInfos = json_decode($row['infos'], true);
                 if (! is_array($decodedInfos)) {

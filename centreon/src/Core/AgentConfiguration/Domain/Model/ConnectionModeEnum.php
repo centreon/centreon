@@ -26,4 +26,5 @@ namespace Core\AgentConfiguration\Domain\Model;
 enum ConnectionModeEnum {
     case SECURE;
     case NO_TLS;
+    case INSECURE;
 }

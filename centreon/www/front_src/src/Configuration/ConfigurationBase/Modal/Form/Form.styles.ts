@@ -8,9 +8,7 @@ export const useFormStyles = makeStyles()((theme) => ({
     background: theme.palette.background.listingHeader,
     color: theme.palette.common.white,
     flexDirection: 'row-reverse',
-    height: theme.spacing(4.5),
     justifyContent: 'space-between',
-    paddingInline: theme.spacing(1.25),
-    margin: theme.spacing(2, 0)
+    paddingInline: theme.spacing(1.25)
   }
 }));

@@ -24,6 +24,7 @@ import {
   labelDeletePoller,
   labelEncryptionLevel,
   labelHostConfigurations,
+  labelInsecure,
   labelInvalidExtension,
   labelInvalidPath,
   labelName,
@@ -37,6 +38,7 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
+  labelSelectExistingCMAToken,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
@@ -109,7 +111,8 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -182,7 +185,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -529,6 +532,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
+
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -536,7 +540,12 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).type('/certificate/test.crt');
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('privateKey.key');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -545,6 +554,7 @@ describe('Agent configurations modal', () => {
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
+          tokens: [{ name: 'token 1', creator_id: 1 }],
           is_reverse: false,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/certificate/test.crt',
@@ -639,7 +649,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAddHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -648,6 +661,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
+          tokens: [],
           is_reverse: true,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/test.cer',
@@ -769,10 +783,11 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAddHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
 
     cy.makeSnapshot();
 
-    cy.contains(labelSave).click();
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -782,6 +797,7 @@ describe('Agent configurations modal', () => {
         poller_ids: [1],
         configuration: {
           is_reverse: true,
+          tokens: [],
           otel_ca_certificate: null,
           otel_public_certificate: null,
           otel_private_key: null,
@@ -798,5 +814,94 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('send a Post request with certificate fields when connection mode is insecure', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).type('Insecure Agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
+
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).should('exist');
+    cy.findByLabelText(labelCaCertificate).should('exist');
+    cy.findAllByLabelText(labelPrivateKey).should('have.length', 2);
+
+    cy.contains(labelSave).should('be.disabled');
+
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('test.crt');
+    cy.findByLabelText(labelCaCertificate).type('ca.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
+    cy.findAllByLabelText(labelPublicCertificate).eq(1).type('test.cer');
+
+    cy.contains(labelSave).should('be.enabled');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        name: 'Insecure Agent',
+        connection_mode: 'insecure',
+        type: 'telegraf',
+        configuration: {
+          otel_private_key: 'test.key',
+          otel_ca_certificate: 'ca.crt',
+          otel_public_certificate: 'test.crt',
+          conf_certificate: 'test.cer',
+          conf_private_key: 'test.key',
+          conf_server_port: 1234
+        },
+        poller_ids: [1]
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('sends an update request with certificate fields when connection mode is insecure', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).clear().type('Insecure Agent');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        name: 'Insecure Agent',
+        type: 'telegraf',
+        connection_mode: 'insecure',
+        configuration: {
+          otel_private_key: 'test.key',
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: 'test.cer',
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.crt',
+          conf_server_port: 9090
+        },
+        poller_ids: [1, 2]
+      });
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
   });
 });

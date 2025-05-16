@@ -38,6 +38,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Token\Domain\Model\JwtToken;
 
 /**
  * @phpstan-type _AgentConfiguration array{
@@ -46,6 +47,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *  name:string,
  *  connection_mode:string,
  *  configuration:string,
+ *  tokens?: JwtToken[]
  * }
  */
 class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implements ReadAgentConfigurationRepositoryInterface
@@ -401,6 +403,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         $connectionMode = match ($row['connection_mode']) {
             'secure' => ConnectionModeEnum::SECURE,
             'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
             default => throw new \InvalidArgumentException('Invalid connection mode'),
         };
 
@@ -411,7 +414,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
                 Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
-                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode)
+                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
             }
         );
     }
