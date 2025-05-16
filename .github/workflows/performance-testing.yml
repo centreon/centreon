@@ -126,6 +126,11 @@ jobs:
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
           echo "Plugins installed successfully!"
 
+      - name: Verify CSV path and contents
+        run: |
+            echo "Checking users.csv path and permissions"
+            ls -l /home/runner/work/centreon
+
       - name: Run JMX Scripts
         run: |
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
