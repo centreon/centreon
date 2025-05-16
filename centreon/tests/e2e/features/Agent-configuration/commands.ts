@@ -106,6 +106,26 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
     .type(body.privateKFileName);
 });
 
+Cypress.Commands.add('addCMAToken', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'user-non-admin-for-AC',
+    loginViaApi: false
+  });
+  cy.navigateTo({
+    page: 'Authentication Tokens',
+    rootItemNumber: 1
+  });
+  cy.getByTestId({ testId: 'Add' }).click();
+  cy.contains('Create authentication token').should('be.visible');
+  cy.get('#Name').type('CMA-Token-001');
+  cy.getByTestId({ testId: 'Type' }).click();
+  cy.contains('Centreon monitoring agent').click();
+  cy.contains('button', 'Generate token').click();
+  cy.wait('@getTokens');
+  cy.contains('button', 'Done').click();
+  cy.logout();
+});
+
 interface Telegraf {
   name: string;
   pollerName: string;
@@ -134,6 +154,7 @@ declare global {
       ) => Cypress.Chainable;
       addTelegrafAgent: (body: Telegraf) => Cypress.Chainable;
       updateTelegrafAgent: (body: Telegraf) => Cypress.Chainable;
+      addCMAToken: () => Cypress.Chainable;
     }
   }
 }
