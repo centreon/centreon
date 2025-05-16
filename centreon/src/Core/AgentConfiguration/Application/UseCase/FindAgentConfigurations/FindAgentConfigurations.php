@@ -118,6 +118,7 @@ final class FindAgentConfigurations
                 $pollerDto = new PollerDto();
                 $pollerDto->id = $poller->getId();
                 $pollerDto->name = $poller->getName();
+                $pollerDto->isCentral = $poller->isCentral() ?? false;
 
                 return $pollerDto;
             }, $pollers);

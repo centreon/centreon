@@ -31,6 +31,7 @@ class Poller
     public function __construct(
         public readonly int $id,
         public readonly string $name,
+        public readonly ?bool $isCentral = null,
     ) {
     }
 
@@ -42,5 +43,10 @@ class Poller
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function isCentral(): ?bool
+    {
+        return $this->isCentral;
     }
 }

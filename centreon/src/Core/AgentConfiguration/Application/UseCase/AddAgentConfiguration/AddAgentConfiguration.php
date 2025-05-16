@@ -39,6 +39,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Application\Repository\RepositoryManagerInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 final class AddAgentConfiguration
 {
@@ -47,9 +48,11 @@ final class AddAgentConfiguration
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
         private readonly WriteAgentConfigurationRepositoryInterface $writeAcRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMsRepository,
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -76,6 +79,18 @@ final class AddAgentConfiguration
             }
 
             $request->pollerIds = array_unique($request->pollerIds);
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $centralPoller = $this->readMsRepository->findCentralByIds($request->pollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->presentResponse(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
+            }
+
             $type = Type::from($request->type);
 
             $this->validator->validateRequestOrFail($request);
@@ -150,8 +165,12 @@ final class AddAgentConfiguration
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
-    {
+    private function save(
+        NewAgentConfiguration $agentConfiguration,
+        array $pollers,
+        ?string $module,
+        array $needBrokerDirectives
+    ): int {
         try {
             $this->repositoryManager->startTransaction();
 

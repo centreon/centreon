@@ -57,7 +57,8 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      }
+      },
+      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
     });
 
   const fieldNamePath = split('.', fieldName);

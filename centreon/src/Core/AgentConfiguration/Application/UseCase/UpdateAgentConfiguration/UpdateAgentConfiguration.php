@@ -55,6 +55,7 @@ final class UpdateAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {}
 
     public function __invoke(
@@ -77,6 +78,22 @@ final class UpdateAgentConfiguration
                 );
 
                 return;
+            }
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $linkedPollerIds = array_map(
+                    static fn(Poller $poller): int => $poller->id,
+                    $this->readAcRepository->findPollersByAcId($request->id)
+                );
+
+                $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
             }
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
