@@ -703,8 +703,8 @@ const Listing = <
                       ) : (
                         <EmptyResult
                           label={
-                            labelNoResultFound
-                              ? t(labelNoResultFound)
+                            defaultLabelNoResultFound
+                              ? t(defaultLabelNoResultFound)
                               : t(defaultLabelNoResultFound)
                           }
                         />
