@@ -385,9 +385,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      * Remove charset part of contact lang
      *
      * @param string $lang
-     * @return string The contact locale
+     * @return string|null The contact locale
      */
-    private function parseLocaleFromContactLang(string $lang): string
+    private function parseLocaleFromContactLang(string $lang): ?string
     {
         $locale = Contact::DEFAULT_LOCALE;
 
