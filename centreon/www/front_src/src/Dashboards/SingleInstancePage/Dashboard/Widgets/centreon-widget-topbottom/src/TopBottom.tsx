@@ -12,9 +12,13 @@ import {
 } from '../../models';
 import { areResourcesFullfilled } from '../../utils';
 
+import { useRef } from 'react';
+import Label from './Label';
+import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 
 interface TopBottomProps
@@ -50,10 +54,15 @@ const TopBottom = ({
   playlistHash,
   widgetPrefixQuery
 }: TopBottomProps): JSX.Element => {
-  const { classes } = useTopBottomStyles();
+  const { classes } = useTopBottomStyles({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLParagraphElement>(null);
 
   const areResourcesOk = areResourcesFullfilled(resources);
-
+  const singleBarCurrentWidth = useSingleBarCurrentWidth({
+    containerRef,
+    labelRef
+  });
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     dashboardId,
     globalRefreshInterval,
@@ -83,19 +92,31 @@ const TopBottom = ({
   }
 
   return (
-    <div className={classes.container}>
-      {(metricsTop?.resources || []).map((metricTop, index) => (
-        <MetricTop
-          displayAsRaw={equals('raw', valueFormat)}
-          index={index}
-          isFromPreview={isFromPreview}
-          key={`${metricTop.name}_${metricTop.id}`}
-          metricTop={metricTop}
-          showLabels={topBottomSettings.showLabels}
-          thresholds={threshold}
-          unit={metricsTop?.unit || ''}
-        />
-      ))}
+    <div ref={containerRef} className={classes.topBottomContainer}>
+      <div className={classes.labelContainer}>
+        {(metricsTop?.resources || []).map((metricTop, index) => (
+          <Label
+            ref={labelRef}
+            key={`label_${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            index={index}
+          />
+        ))}
+      </div>
+
+      <MetricContainer singleBarCurrentWidth={singleBarCurrentWidth}>
+        {(metricsTop?.resources || []).map((metricTop) => (
+          <MetricTop
+            displayAsRaw={equals('raw', valueFormat)}
+            isFromPreview={isFromPreview}
+            key={`${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            showLabels={topBottomSettings.showLabels}
+            thresholds={threshold}
+            unit={metricsTop?.unit || ''}
+          />
+        ))}
+      </MetricContainer>
     </div>
   );
 };

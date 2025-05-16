@@ -10,10 +10,7 @@ import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps
-} from 'react-router';
+import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { Chip, Theme } from '@mui/material';

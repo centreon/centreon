@@ -65,10 +65,9 @@ try {
     exit;
 }
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/host-monitoring/src/";
-
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);

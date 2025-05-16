@@ -66,7 +66,7 @@ const FormButtons = (): JSX.Element => {
           {t(labelReset)}
         </Button>
         <SaveButton
-          dataTestId={labelSave}
+          data-testid={labelSave}
           disabled={not(canSubmit)}
           labelLoading={labelSaving}
           labelSave={labelSave}

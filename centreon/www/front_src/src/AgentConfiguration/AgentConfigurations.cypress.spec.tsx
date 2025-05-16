@@ -450,7 +450,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('discards the form when the cancel button is clicked and the corresponding button is clicked', () => {
+  it('leaves the form when the "Leave" button of the popup is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
@@ -458,14 +458,14 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
-    cy.contains('Discard').click();
+    cy.contains('Leave').click();
 
     cy.findByLabelText(labelName).should('not.exist');
 
     cy.makeSnapshot();
   });
 
-  it('resolves the form when the cancel button is clicked and the corresponding button is clicked', () => {
+  it('backs to the form when the "Stay" button of the popup is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
@@ -473,10 +473,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
-    cy.contains('Resolve').click();
+    cy.contains('Stay').click();
 
     cy.contains(labelAdd).should('exist');
-    cy.contains('Resolve').should('not.exist');
+    cy.contains('Stay').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -499,9 +499,19 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"name":"agent","type":"telegraf","configuration":{"otel_private_key":"test","otel_ca_certificate":null,"otel_public_certificate":"test","conf_certificate":"test","conf_private_key":"test","conf_server_port":1234},"poller_ids":[1]}'
-      );
+      expect(request.body).to.deep.equal({
+        name: 'agent',
+        type: 'telegraf',
+        configuration: {
+          otel_private_key: 'test',
+          otel_ca_certificate: null,
+          otel_public_certificate: 'test',
+          conf_certificate: 'test',
+          conf_private_key: 'test',
+          conf_server_port: 1234
+        },
+        poller_ids: [1]
+      });
     });
 
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
@@ -521,9 +531,19 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090},"poller_ids":[1,2]}'
-      );
+      expect(request.body).to.deep.equal({
+        name: 'agent updated',
+        type: 'telegraf',
+        configuration: {
+          otel_private_key: 'coucou',
+          otel_ca_certificate: 'coucou',
+          otel_public_certificate: 'coucou',
+          conf_certificate: 'coucou',
+          conf_private_key: 'coucou',
+          conf_server_port: 9090
+        },
+        poller_ids: [1, 2]
+      });
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
@@ -541,9 +561,19 @@ describe('Agent configurations modal', () => {
     cy.findByTestId('confirm').click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"name":"agent updated","type":"telegraf","configuration":{"otel_private_key":"coucou","otel_ca_certificate":"coucou","otel_public_certificate":"coucou","conf_certificate":"coucou","conf_private_key":"coucou","conf_server_port":9090},"poller_ids":[1,2]}'
-      );
+      expect(request.body).to.deep.equal({
+        name: 'agent updated',
+        type: 'telegraf',
+        configuration: {
+          otel_private_key: 'coucou',
+          otel_ca_certificate: 'coucou',
+          otel_public_certificate: 'coucou',
+          conf_certificate: 'coucou',
+          conf_private_key: 'coucou',
+          conf_server_port: 9090
+        },
+        poller_ids: [1, 2]
+      });
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
@@ -630,7 +660,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).deep.equal({
+      expect(request.body).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
         poller_ids: [1],
@@ -661,7 +691,7 @@ describe('Agent configurations modal', () => {
     cy.contains('central').click();
 
     cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.2');
-    cy.findByTestId(labelPort).find('input').should('have.value', '4317');
+    cy.findByTestId('portInput').should('have.value', '4317');
 
     cy.makeSnapshot();
   });
@@ -675,7 +705,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelDNSIP).type('127.0.0.1:8');
     cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.1');
-    cy.findByTestId(labelPort).find('input').should('have.value', '8');
+    cy.findByTestId('portInput').should('have.value', '8');
 
     cy.makeSnapshot();
   });
@@ -732,7 +762,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).deep.equal({
+      expect(request.body).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
         poller_ids: [1],

@@ -28,7 +28,9 @@ $errorMessage = '';
 
 /**
  * Updates the display name and description for the connections_count field in the cb_field table.
+ *
  * @param CentreonDB $pearDB
+ *
  * @throws Exception
  */
 $updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorMessage): void {
@@ -43,7 +45,25 @@ $updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorM
     );
 };
 
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
 try {
+    // DDL statements
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
+
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -52,10 +72,18 @@ try {
     $updateConnectionsCountDescription($pearDB);
 
     $pearDB->commit();
-} catch (Exception $e) {
-
+} catch (\Exception $e) {
     if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+        try {
+            $pearDB->rollBack();
+        } catch (PDOException $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+                customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+                exception: $e
+            );
+        }
     }
 
     CentreonLog::create()->error(

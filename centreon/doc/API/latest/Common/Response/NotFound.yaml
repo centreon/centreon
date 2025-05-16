@@ -11,4 +11,4 @@ content:
           example: 404
         message:
           type: string
-          example: "Service not found"
+          example: "Resource not found"

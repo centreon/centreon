@@ -97,8 +97,13 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               defaultValue={customInterval}
               disabled={!equals(RadioOptions.custom, value)}
               fallbackValue={defaultInterval}
-              inputProps={{
-                min: 1
+              textFieldSlotsAndSlotProps={{
+                slotProps: {
+                  htmlInput: {
+                    'data-testid': 'intervalInput',
+                    min: 1
+                  }
+                }
               }}
               size="compact"
               type="number"

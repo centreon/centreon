@@ -2,8 +2,7 @@ import type { ComponentColumnProps } from '@centreon/ui';
 
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import { getStatus } from './ServiceSubItemColumn/SubItem';
-
-import { useColumnStyles } from '.';
+import useColumnStyles from './colomuns.style';
 
 const ParentResourceColumn = ({
   row,

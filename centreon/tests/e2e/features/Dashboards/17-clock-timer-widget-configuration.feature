@@ -38,9 +38,3 @@ Feature: Configuring clock timer widget
     Given a dashboard with a Clock Timer widget
     When the dashboard administrator user duplicates the Clock timer widget
     Then a second Clock timer widget is displayed on the dashboard
-
-  @TEST_MON-146799
-  Scenario: Update the Background Color of the Clock Timer Widget
-    Given a dashboard with a Clock Timer widget
-    When the dashboard administrator updates the background color of the Clock Timer widget
-    Then the background color of the Clock Timer widget should reflect the updated color

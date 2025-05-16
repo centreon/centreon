@@ -73,7 +73,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {t(labelIsTheSelectedResource)}
       </>
     )
-  ];
+  ].filter((item) => item);
 
   const header = (
     <div className={classes.resourcesHeader}>
@@ -84,7 +84,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
-
   return (
     <div className={classes.resourcesContainer}>
       {header}
@@ -104,14 +103,18 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             }
             label={t(labelSelectMetric)}
             options={metrics}
-            value={head(selectedMetrics || []) || undefined}
+            value={head(selectedMetrics || []) || null}
             onChange={changeMetric}
           />
         ) : (
           <MultiAutocompleteField
             disableSortedOptions
-            ListboxProps={{
-              className: metricsClasses.listBox
+            autocompleteSlotsAndSlotProps={{
+              slotProps: {
+                listbox: {
+                  className: metricsClasses.listBox
+                }
+              }
             }}
             chipProps={{
               color: 'primary',

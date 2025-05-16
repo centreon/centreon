@@ -920,9 +920,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 // # End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path2, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path2);
 
 unset($service['service_template_model_stm_id']);
 // Just watch a host information
@@ -982,7 +981,7 @@ $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $serviceObj = $form->getElement('service_id');
     if ($form->getSubmitValue('submitA')) {
-        $serviceObj->setValue(insertServiceInDB());
+        $serviceObj->setValue(insertServiceTemplate($form->getSubmitValues()));
     } elseif ($form->getSubmitValue('submitC')) {
         /*
          * Before saving, we check if a password macro has changed its name to be able to give it the right password

@@ -8,6 +8,7 @@ import { SelectEntry } from '@centreon/ui';
 
 import {
   labelCustomize,
+  labelLast2Months,
   labelLast3Hours,
   labelLast3Months,
   labelLast6Hours,
@@ -15,11 +16,10 @@ import {
   labelLast7Days,
   labelLast12Hours,
   labelLast12Months,
+  labelLast14Days,
   labelLast24Hours,
   labelLast30Days,
-  labelLastHour,
-  labelLast14Days,
-  labelLast2Months
+  labelLastHour
 } from '../../../../translatedLabels';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';

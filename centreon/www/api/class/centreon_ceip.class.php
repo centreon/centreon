@@ -92,6 +92,7 @@ class CentreonCeip extends CentreonWebService
             ? [
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
+                'agent' => $this->getAgentInformation(),
                 'excludeAllText' => true,
                 'ceip' => true,
             ]
@@ -208,6 +209,9 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
+        // Get LACCESS
+        $laccess = $this->getLaccess();
+
         $accountInformation =  [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
@@ -229,6 +233,10 @@ class CentreonCeip extends CentreonWebService
 
         if (isset($licenseInfo['fingerprint'])) {
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+            $accountInformation['LACCESS'] = $laccess;
         }
 
         return $accountInformation;
@@ -260,7 +268,6 @@ class CentreonCeip extends CentreonWebService
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
-
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
                     /**
                      * @var array<
@@ -271,6 +278,7 @@ class CentreonCeip extends CentreonWebService
                     /** @var string $licenseClientName */
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
                     $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseMode = $licenseInformation[$module]['platform']['mode'] ?? null;
                     $licenseStart = DateTime::createFromFormat(
                         'Y-m-d',
                         $licenseInformation[$module]['licensing']['start']
@@ -320,6 +328,10 @@ class CentreonCeip extends CentreonWebService
             $licenseInformation['fingerprint'] = $fingerprint;
         }
 
+        if (isset($licenseMode)) {
+            $licenseInformation['mode'] = $licenseMode;
+        }
+
         return $licenseInformation;
     }
 
@@ -327,7 +339,7 @@ class CentreonCeip extends CentreonWebService
      * Get the major and minor versions of Centreon web.
      *
      * @return array{major: string, minor: string} with major and minor versions
-     *@throws PDOException
+     * @throws PDOException
      *
      */
     private function getCentreonVersion(): array
@@ -343,7 +355,7 @@ class CentreonCeip extends CentreonWebService
      * Get CEIP status.
      *
      * @return bool the status of CEIP
-     *@throws PDOException
+     * @throws PDOException
      *
      */
     private function isCeipActive(): bool
@@ -351,6 +363,89 @@ class CentreonCeip extends CentreonWebService
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
         return '1' === $this->sqlFetchValue($sql);
+    }
+
+    /**
+     * Fetch CEIP Agent info.
+     *
+     * @return array{
+     *   id: int,
+     *   enabled: bool,
+     *   infos: array{
+     *       agentMajor: string,
+     *       agentMinor: string,
+     *       agentPatch: int|null,
+     *       reverse: bool,
+     *       os: string,
+     *       osVersion: string,
+     *       nbAgent: int|null
+     *   }
+     * }
+     *
+     * @throws PDOException
+     */
+    private function getAgentInformation(): array
+    {
+        $agents = [];
+        try {
+            $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
+            $query = <<<'SQL'
+                        SELECT `poller_id`, `enabled`, `infos`
+                        FROM `agent_information`
+                    SQL;
+            $statement = $pearDBO->executeQuery($query);
+
+            while (is_array($row = $pearDBO->fetch($statement))) {
+                /** @var array{poller_id:int,enabled:int,infos:string} $row */
+                $decodedInfos = json_decode($row['infos'], true);
+                if (! is_array($decodedInfos)) {
+                    $this->logger->warning(
+                        "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                        ['context' => $row]
+                    );
+
+                    continue;
+                }
+
+                $agents[] = [
+                    'id' => $row['poller_id'],
+                    'enabled' => (bool) $row['enabled'],
+                    'infos' => array_map(function ($info) {
+                        return [
+                            'agentMajor' => $info['agent_major'] ?? '',
+                            'agentMinor' => $info['agent_minor'] ?? '',
+                            'agentPatch' => $info['agent_patch'] ?? null,
+                            'reverse' => $info['reverse'],
+                            'os' => $info['os'] ?? '',
+                            'osVersion' => $info['os_version'] ?? '',
+                            'nbAgent' => $info['nb_agent'] ?? null,
+                        ];
+                    }, $decodedInfos),
+                ];
+            }
+        } catch (Throwable $exception) {
+            $this->logger->error(
+                context: ['context' => $exception],
+                message: $exception->getMessage(),
+            );
+        }
+
+        return $agents;
+    }
+
+    /**
+     * Get LACCESS to complete the connection between Pendo and Salesforce.
+     *
+     * @return string LACCESS value from options table.
+     *
+     * @throws PDOException
+     *
+     */
+    private function getLaccess(): string
+    {
+        $sql = "SELECT `value` FROM `options` WHERE `key` = 'LACCESS' LIMIT 1";
+
+        return (string) $this->sqlFetchValue($sql);
     }
 
     /**
