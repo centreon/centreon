@@ -14,6 +14,9 @@ on:
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
+      delivery_type:
+        description: "context of delivery (feature branch or classic delivery)"
+        value: ${{ jobs.get-environment.outputs.delivery_type }}
       linked_dev_branch:
         description: "linked develop branch"
         value: ${{ jobs.get-environment.outputs.linked_dev_branch }}
@@ -60,6 +63,7 @@ jobs:
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
+      delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
       linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
       major_version: ${{ steps.get_version.outputs.major_version }}
@@ -385,6 +389,22 @@ jobs:
 
             return false;
 
+      - name: "Detect delivery type"
+        id: detect_delivery_type
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const getDeliveryType = (branchName) => {
+              switch (true) {
+                case /(^MON-150484-manage-delivery-to-feature-repositories$)|(^feature-MON-\d{5}.+)/.test(branchName):
+                  return 'feature';
+                default:
+                  return 'classic';
+              }
+            };
+
+            core.setOutput('delivery_type', getDeliveryType('${{ github.ref_name }}'));
+
       - name: Detect linked dev and stable branches
         id: linked_branches
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -474,6 +494,7 @@ jobs:
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
               ['is_cloud', '${{ steps.detect_cloud_version.outputs.result }}'],
+              ['delivery_type', '${{ steps.detect_delivery_type.outputs.delivery_type }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],
