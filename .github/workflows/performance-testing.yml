@@ -1,0 +1,231 @@
+name: Performance Testing
+
+on:
+  push:
+    branches:
+      - MON-159979
+  # workflow_dispatch:
+  #   inputs:
+  #     jmeter_domain:
+  #       description: 'Domain for JMeter tests (e.g., localhost)'
+  #       required: true
+  #       type: string
+  #     jmeter_port:
+  #       description: 'Port for JMeter tests (e.g., 4000)'
+  #       required: false
+  #       type: string
+  #     jmeter_protocol:
+  #       description: 'Protocol for JMeter tests (e.g., http)'
+  #       required: true
+  #       type: string
+  #     api_prefix:
+  #       description: 'API prefix to insert before /api/latest/configuration in the JMX file'
+  #       required: true
+
+jobs:
+  performance-test:
+    runs-on: centreon-perf-testing
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/performanceTesting
+
+    env:
+      CSV_FILE_PATH: users.csv
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Setup Java (OpenJDK 17)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Required Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget curl
+
+      # - name: Display test input
+      #   run: |
+      #     echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
+      #     echo "Test jmeter_port value is: ${{ github.event.inputs.jmeter_port }}"
+      #     echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
+      #     echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
+
+      # - name: Update JMeter .jmx with inputs
+      #   run: |
+      #     echo "Updating JMeter configuration with inputs..."
+
+      #     JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx
+
+      #     for JMX_FILE in $JMX_FILES; do
+      #       echo "Updating $JMX_FILE with inputs..."
+
+      #       # Replace values in file .jmx
+      #       if [[ -n "${{ github.event.inputs.jmeter_port }}" ]]; then
+      #           sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
+      #       else
+      #         sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\"></stringProp>|g" $JMX_FILE
+      #       fi
+      #       sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
+      #       sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
+      #       sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
+
+
+      #       echo "Updated $JMX_FILE:"
+      #       cat $JMX_FILE  # To check that values have been updated correctly
+      #     done
+
+      # - name: Adding hosts
+      #   run: node hosts.mjs
+
+      # - name: Adding users
+      #   run: node AddingUsers.mjs
+
+      - name: Display users.csv content
+        run: |
+            echo "Displaying contents of users.csv..."
+            cat $GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv
+
+      - name: Install JMeter
+        run: |
+          java -version
+          echo "Finding latest JMeter version..."
+          JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
+
+          echo "Latest JMeter version: $JMETER_VERSION"
+
+          echo "Downloading JMeter..."
+          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
+
+          echo "Unzipping JMeter..."
+          unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
+
+          rm jmeter.zip
+          echo "JMeter installed successfully!"
+
+
+      - name: Install JMeter Plugins
+        run: |
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/)
+          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
+
+          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
+          unzip -o jpgc-dummy-0.4.zip
+          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
+          echo "Plugins installed successfully!"
+
+      - name: Run JMX Scripts
+        run: |
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
+          cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
+
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
+
+          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
+            echo "Running test: $i"
+
+            ./jmeter -n -t "$i" \
+              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv" \
+              -l "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -j "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log" \
+              -LDEBUG
+
+            tail -n 50 "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log"
+
+            ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl" \
+              -o "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)"
+          done
+
+          echo "Tests completed!"
+
+      - name: Upload JMeter results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results
+          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+
+      - name: Upload JMeter HTML Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-html-reports
+          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
+
+      - name: Display HTML Report in GitHub Summary
+        run: |
+            echo "Looking for JTL files..."
+            ls -la $GITHUB_WORKSPACE/jmeter_results
+
+            # Loop through each JTL file and display HTML report for each JMX file
+            for JTL_FILE in $GITHUB_WORKSPACE/jmeter_results/*.jtl; do
+                echo "Found JTL file: $JTL_FILE"
+
+                # Check if the file exists before using it
+                if [ ! -f "$JTL_FILE" ]; then
+                    echo "Error: No JTL file found!"
+                    exit 1
+                fi
+
+                # Extract the base name (without extension) of the JTL file (e.g., results_test.jtl -> test)
+                base_name=$(basename "$JTL_FILE" .jtl)
+
+                # Add the report header for this test in the GitHub summary
+                echo "<h2>📊 JMeter Test Results </h2>" >> $GITHUB_STEP_SUMMARY
+                echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+                echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+                echo "<tbody>" >> $GITHUB_STEP_SUMMARY
+
+                # Initialize line counter for data rows only
+                line_counter=0
+
+                # Read the JTL file line by line and generate the HTML rows
+                while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
+                do
+                    # Skip the header row
+                    if [ "$timestamp" == "timeStamp" ]; then
+                        continue
+                    fi
+
+                    # Increment the line counter for data rows only
+                    line_counter=$((line_counter + 1))
+
+                    # If more than 5 rows, stop processing further rows and break the loop
+                    if [ "$line_counter" -gt 5 ]; then
+                        break
+                    fi
+
+                    # Check if success is "true" for success (🟢), else failure (🚨)
+                    if [ "$success" == "true" ]; then
+                        success_icon="🟢"
+                    else
+                        success_icon="🚨"
+                    fi
+
+                    # If Latency is "null", "0", or empty, set it to "N/A"
+                    if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
+                        latency="N/A"
+                    fi
+
+                    # Generate the HTML table row
+                    echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
+                done < "$JTL_FILE"
+
+                # If there were more than 5 data rows, add a message to the table
+                if [ "$line_counter" -gt 5 ]; then
+                    echo "<tr><td colspan='9' style='color: red;'> ℹ️ Please refer to the artifact for more details.</td></tr>" >> $GITHUB_STEP_SUMMARY
+                fi
+
+                echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
+            done
