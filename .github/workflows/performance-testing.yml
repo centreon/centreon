@@ -90,8 +90,8 @@ jobs:
       # - name: Adding hosts
       #   run: node hosts.mjs
 
-      # - name: Adding users
-      #   run: node AddingUsers.mjs
+      - name: Adding users
+        run: node AddingUsers.mjs
 
       # - name: Display users.csv content
       #   run: |
