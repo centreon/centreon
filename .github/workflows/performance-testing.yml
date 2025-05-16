@@ -93,10 +93,10 @@ jobs:
       # - name: Adding users
       #   run: node AddingUsers.mjs
 
-      # - name: Display users.csv content
-      #   run: |
-      #       echo "Displaying contents of users.csv..."
-      #       cat $GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv
+      - name: Display users.csv content
+        run: |
+            echo "Displaying contents of users.csv..."
+            cat $GITHUB_WORKSPACE/centreon/tests/performanceTesting/users.csv
 
       - name: Install JMeter
         run: |
