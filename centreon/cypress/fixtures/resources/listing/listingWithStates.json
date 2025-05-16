@@ -348,6 +348,75 @@
         }
       },
       "extra": []
+    },
+    {
+      "uuid": "h14-s25",
+      "duration": "2h 14m",
+      "last_check": "2m 27s",
+      "short_type": "s",
+      "id": 30,
+      "type": "service",
+      "name": "Load",
+      "alias": null,
+      "fqdn": null,
+      "host_id": 14,
+      "service_id": 25,
+      "icon": null,
+      "monitoring_server_name": "Central",
+      "parent": {
+        "uuid": "h14",
+        "id": 14,
+        "name": "Centreon-Server",
+        "type": "host",
+        "short_type": "h",
+        "status": null,
+        "alias": "Monitoring Server",
+        "fqdn": "127.0.0.1",
+        "monitoring_server_name": null,
+        "extra": []
+      },
+      "status": {
+        "code": 3,
+        "name": "UNKNOWN",
+        "severity_code": 3
+      },
+      "is_in_downtime": false,
+      "is_acknowledged": false,
+      "is_in_flapping": false,
+      "has_active_checks_enabled": true,
+      "has_passive_checks_enabled": false,
+      "last_status_change": "2024-10-16T12:29:45+02:00",
+      "tries": "3/3 (H)",
+      "information": "(Execute command failed)",
+      "performance_data": null,
+      "is_notification_enabled": false,
+      "severity": null,
+      "links": {
+        "endpoints": {
+          "details": "/centreon/api/latest/monitoring/resources/hosts/14/services/25",
+          "timeline": "/centreon/api/latest/monitoring/hosts/14/services/25/timeline",
+          "status_graph": "/centreon/api/latest/monitoring/hosts/14/services/25/metrics/status",
+          "performance_graph": null,
+          "acknowledgement": "/centreon/api/latest/monitoring/hosts/14/services/25/acknowledgements?limit=1",
+          "downtime": "/centreon/api/latest/monitoring/hosts/14/services/25/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1729082652%7D,%22end_time%22:%7B%22%24gt%22:1729082652%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1729082652%7D%7D%7D%7D%5D%7D",
+          "check": "/centreon/api/latest/monitoring/hosts/14/services/25/check",
+          "forced_check": "/centreon/api/latest/monitoring/hosts/14/services/25/check",
+          "metrics": "/centreon/api/latest/monitoring/hosts/14/services/25/metrics"
+        },
+        "uris": {
+          "configuration": "/centreon/main.php?p=60201&o=c&service_id=25",
+          "logs": "/centreon/main.php?p=20301&svc=14_25",
+          "reporting": "/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=14&item=25"
+        },
+        "externals": {
+          "action_url": "",
+          "notes": {
+            "label": "",
+            "url": ""
+          }
+        }
+      },
+      "extra": []
     }
   ],
   "meta": {
