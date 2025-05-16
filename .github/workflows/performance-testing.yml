@@ -131,14 +131,22 @@ jobs:
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
           cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report  # Créer le dossier pour le rapport HTML
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
-              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl
+
+              # Lancer le test avec logs en mode debug
+              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl -j $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log -LDEBUG
+
+              # Afficher les 50 dernières lignes des logs pour debug
+              tail -n 50 $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_$(basename "$i" .jmx).log
+
+              # Génération du rapport HTML
               ./jmeter -g $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl -o $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report/$(basename "$i" .jmx)
           done
+
           echo "Tests completed!"
 
       - name: Upload JMeter Results
