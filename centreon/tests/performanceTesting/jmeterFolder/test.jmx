@@ -10,9 +10,9 @@
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Login Users and Test Dashboard API">
-        <intProp name="ThreadGroup.num_threads">3</intProp>
+        <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <stringProp name="LoopController.loops">1</stringProp>
@@ -20,7 +20,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV">
           <stringProp name="filename">/home/runner/work/centreon/centreon/centreon/tests/performanceTesting/users.csv</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
@@ -32,7 +32,7 @@
           <boolProp name="quotedData">false</boolProp>
         </CSVDataSet>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login Request" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login Request">
           <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
@@ -67,7 +67,7 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler">
           <boolProp name="displayJMeterProperties">true</boolProp>
           <boolProp name="displayJMeterVariables">true</boolProp>
           <boolProp name="displaySystemProperties">true</boolProp>
@@ -110,35 +110,6 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding Up filtre">
-          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">qa-perf-platform/api/latest/users/filters/events-view</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;UP&quot;,&quot;name&quot;:&quot;Up&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;]}],&quot;name&quot;:&quot;Up filtre&quot;}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
-            <collectionProp name="HeaderManager.headers">
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
-                <stringProp name="Header.value">${AUTH_TOKEN}</stringProp>
-              </elementProp>
-            </collectionProp>
-          </HeaderManager>
-          <hashTree/>
-        </hashTree>
       </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
