@@ -63,7 +63,7 @@ const RadioButtons = <T extends string>({
             <Radio
               checked={getCheckedValue(id)}
               size="small"
-              slotProps={{ input: { 'data-testid': name } }}
+              inputProps={{ 'data-testid': name }}
               className={classes.radioInput}
             />
           }
