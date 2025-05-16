@@ -151,11 +151,11 @@ jobs:
 
           echo "Tests completed!"
 
-      - name: Upload JMeter Results
+      - name: Upload JMeter results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: jmeter_results
+          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_results
 
       - name: Upload JMeter HTML Reports
         uses: actions/upload-artifact@v4
