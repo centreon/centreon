@@ -62,7 +62,7 @@
   "require-dev": {
     "behat/behat": "^3.10",
     "behat/mink-selenium2-driver": "^1.5",
-    "centreon/centreon-test-lib": "dev-MON-164498-23.10.x-database-connectors-improved",
+    "centreon/centreon-test-lib": "23.10.x-dev",
     "friends-of-behat/mink": "^1.9",
     "friends-of-behat/mink-extension": "^2.5",
     "friendsofphp/php-cs-fixer": "^3.10",

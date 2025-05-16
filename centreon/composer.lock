@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c4aff652430b4dd90d727e7a0f9da1cb",
+    "content-hash": "6ca653fa389f16789c1e107610605426",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6876,16 +6876,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-164498-23.10.x-database-connectors-improved",
+            "version": "23.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "75b0caff9c1b48372c89b7c96b729295e56ee61a"
+                "reference": "f640728b151ab2b7644376ea47229d07a51a9c8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/75b0caff9c1b48372c89b7c96b729295e56ee61a",
-                "reference": "75b0caff9c1b48372c89b7c96b729295e56ee61a",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/f640728b151ab2b7644376ea47229d07a51a9c8e",
+                "reference": "f640728b151ab2b7644376ea47229d07a51a9c8e",
                 "shasum": ""
             },
             "require": {
@@ -6934,9 +6934,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-164498-23.10.x-database-connectors-improved"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/23.10.x"
             },
-            "time": "2025-05-14T12:53:11+00:00"
+            "time": "2025-05-16T06:37:56+00:00"
         },
         {
             "name": "composer/pcre",
