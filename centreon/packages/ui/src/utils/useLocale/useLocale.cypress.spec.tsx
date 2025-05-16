@@ -1,6 +1,6 @@
-import { createStore, Provider } from 'jotai';
-import { useLocale } from '.';
 import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
+import { Provider, createStore } from 'jotai';
+import { useLocale } from '.';
 
 const TestComponent = () => {
   const locale = useLocale();

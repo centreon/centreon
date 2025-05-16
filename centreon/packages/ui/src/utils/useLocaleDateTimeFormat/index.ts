@@ -5,8 +5,8 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
-import shortLocales from './sortLocales';
 import { useLocale } from '../useLocale';
+import shortLocales from './sortLocales';
 
 interface FormatParameters {
   date: Date | string;
