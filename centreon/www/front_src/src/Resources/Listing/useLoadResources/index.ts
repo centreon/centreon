@@ -28,12 +28,7 @@ import {
   selectedResourcesDetailsAtom,
   sendingDetailsAtom
 } from '../../Details/detailsAtoms';
-<<<<<<< HEAD
-import { ResourceDetails } from '../../Details/models';
-import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
-=======
 import type { ResourceDetails } from '../../Details/models';
->>>>>>> 3b9d97aff5 (feat(resources) : csv export of resources status added (#7041))
 import {
   appliedFilterAtom,
   customFiltersAtom,
@@ -44,7 +39,7 @@ import {
   hostsEndpoint
 } from '../../api/endpoint';
 import { resourceDetailsDecoder } from '../../decoders';
-import { ResourceListing, SortOrder, Visualization } from '../../models';
+import { type ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong
@@ -57,13 +52,8 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-<<<<<<< HEAD
-
-import { Search } from './models';
-=======
 import useGetCriteriaName from './useGetCriteriaName';
 import { getSearch } from './utils';
->>>>>>> 3b9d97aff5 (feat(resources) : csv export of resources status added (#7041))
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
