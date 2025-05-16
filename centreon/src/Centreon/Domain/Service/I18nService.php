@@ -113,7 +113,7 @@ class I18nService
         $centreonTranslation = $this->getAllCentreonTranslation();
         $modulesTranslation = $this->getAllModulesTranslation();
 
-        return array_replace_recursive($centreonTranslation, $modulesTranslation)
+        return array_replace_recursive($centreonTranslation, $modulesTranslation);
     }
 
     /**
