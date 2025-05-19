@@ -227,3 +227,9 @@ jobs:
 
                 echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
             done
+
+      - name: Cleaning up resources
+        run: node cleaningUpResources.mjs
+
+      - name: Cleaning up users
+        run: node cleaningUpUsers.mjs
