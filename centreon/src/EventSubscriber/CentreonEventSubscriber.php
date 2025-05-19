@@ -34,8 +34,10 @@ use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use JMS\Serializer\Exception\ValidationFailedException;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -71,7 +73,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
-     * @param LoggerInterface $logger
+     * @param ExceptionLogger $exceptionLogger
      * @param string $apiVersionLatest
      * @param string $apiHeaderName
      * @param string $translationPath
@@ -81,12 +83,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private Security $security,
         readonly private ApiPlatform $apiPlatform,
         readonly private ContactInterface $contact,
-        readonly private LoggerInterface $logger,
+        readonly private ExceptionLogger $exceptionLogger,
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
-    ) {
-    }
+    ) {}
 
     /**
      * Returns an array of event names this subscriber wants to listen to.
@@ -315,7 +316,6 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 $statusCode = $event->getThrowable()->getCode()
                     ?: Response::HTTP_INTERNAL_SERVER_ERROR;
             }
-            $this->logException($event->getThrowable());
             // Manage exception outside controllers
             $event->setResponse(
                 new Response(
@@ -348,7 +348,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                         true
                     ),
                 ]);
-            } elseif ($event->getThrowable() instanceof \PDOException) {
+            } elseif (
+                $event->getThrowable() instanceof \PDOException
+                || $event->getThrowable() instanceof RepositoryException
+            ) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => 'An error has occurred in a repository',
@@ -370,11 +373,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'message' => $event->getThrowable()->getMessage(),
                 ]);
             }
-            $this->logException($event->getThrowable());
             $event->setResponse(
                 new Response($errorMessage, $httpCode)
             );
         }
+        $this->logException($event->getThrowable());
     }
 
     /**
@@ -403,10 +406,15 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     private function logException(\Throwable $exception): void
     {
         if (! $exception instanceof HttpExceptionInterface || $exception->getCode() >= 500) {
-            $this->logger->critical($exception->getMessage(), ['context' => $exception]);
+            $level = LogLevel::CRITICAL;
         } else {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            $level = LogLevel::ERROR;
         }
+        $this->exceptionLogger->log(
+            throwable: $exception,
+            context: ['internal_error' => $exception],
+            level: $level
+        );
     }
 
     /**
