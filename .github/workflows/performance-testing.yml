@@ -166,7 +166,7 @@ jobs:
       - name: Display HTML Report in GitHub Summary
         run: |
             echo "Looking for JTL files..."
-            ls -la $GITHUB_WORKSPACE/jmeter_results
+            ls -la $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
 
             # Loop through each JTL file and display HTML report for each JMX file
             for JTL_FILE in $GITHUB_WORKSPACE/jmeter_results/*.jtl; do
