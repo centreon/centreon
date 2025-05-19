@@ -25,7 +25,7 @@ namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;s
 
 beforeEach(function (): void {
     $this->parameters = [
@@ -39,7 +39,11 @@ beforeEach(function (): void {
                 'address' => '0.0.0.0',
                 'port' => 442,
                 'poller_ca_certificate' => 'poller_certif',
-                'poller_ca_name' => 'ca_name'
+                'poller_ca_name' => 'ca_name',
+                'token' => [
+                    'name' => 'tokenName',
+                    'creator_id' => 1,
+                ],
             ]
         ]
     ];
