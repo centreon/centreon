@@ -1937,6 +1937,10 @@ msgstr ""
 msgid "Begin date"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Better"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Bind password"
 msgstr ""
@@ -6707,6 +6711,10 @@ msgstr ""
 msgid "Everything is ready !"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Exact"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 msgid "Example"
 msgstr ""
@@ -10170,6 +10178,10 @@ msgid "Max value of limit has to be %d instead %d"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Maximum"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Maximum 128 characters"
 msgstr ""
 
@@ -10411,6 +10423,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Mini Centreon Logo"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Minimum"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -13461,6 +13477,10 @@ msgstr ""
 
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "Request to the Central's API failed"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Requested authentication context"
 msgstr ""
 
 #: centreon/src/Core/Application/Configuration/User/UseCase/PatchUser/PatchUser.php
