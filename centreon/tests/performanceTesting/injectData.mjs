@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // List of scripts to execute
-const scripts = ["addingUsers.mjs", "hosts.mjs", "services.mjs", "metaservices.mjs", "hostGroup.mjs", "serviceGroups.mjs","reloadAclApplyConfig.mjs"];
+const scripts = ["injectingUsers.mjs", "hosts.mjs", "services.mjs", "metaservices.mjs", "hostGroup.mjs", "serviceGroups.mjs","reloadAclApplyConfig.mjs"];
 
 // Function to execute a script using Node.js
 function runScript(script) {
