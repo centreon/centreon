@@ -579,8 +579,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     protected function translateDbName(string $request): string
     {
         return str_replace(
-            array(':dbstg', ':db'),
-            array($this->db->getStorageDbName(), $this->db->getCentreonDbName()),
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }
