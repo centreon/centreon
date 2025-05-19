@@ -229,8 +229,5 @@ jobs:
             done
 
 
-      - name: Cleaning up users
-        run: node cleaningUpUsers.mjs
-
-      - name: Cleaning up resources
-        run: node cleaningUpResources.mjs
+      - name: Cleaning up database
+        run: node cleaningUpData.mjs
