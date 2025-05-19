@@ -68,7 +68,8 @@ const getBaseConfiguration = ({
             requiredVersion: '7.x',
             singleton: true
           }
-        }
+        },
+        { tailwindcss: { singleton: true, requiredVersion: '4.x' } }
       ],
       ...moduleFederationConfig
     })
