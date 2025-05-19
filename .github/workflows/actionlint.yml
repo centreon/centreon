@@ -35,11 +35,6 @@ jobs:
           SHELLCHECK_OPTS: "--severity=error"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
-            -ignore 'label "ubuntu-24.04" is unknown' \
-            -ignore 'label "common" is unknown' \
-            -ignore 'label "veracode" is unknown' \
-            -ignore 'label "infra" is unknown' \
-            -ignore 'label "centreon-perf-testing" is unknown' \
             -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common)" is unknown' \
             -ignore 'label "infrastructure" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
