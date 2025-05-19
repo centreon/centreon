@@ -747,7 +747,8 @@ jobs:
           ticket_squad: "DevSecOps"
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-environment, dockerize]
+    # needs: [get-environment, dockerize]
+    needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) && github.repository == 'centreon/centreon' }}
     strategy:
       fail-fast: false
@@ -834,7 +835,8 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
+    # needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
+    needs: [get-environment, changes,create-xray-test-plan-and-test-execution]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&
