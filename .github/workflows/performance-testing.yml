@@ -87,11 +87,8 @@ jobs:
       #       cat $JMX_FILE  # To check that values have been updated correctly
       #     done
 
-      # - name: Adding hosts
-      #   run: node hosts.mjs
-
-      # - name: Adding users
-      #   run: node AddingUsers.mjs
+      - name: Inject Data into database
+        run: node injectData.mjs
 
       - name: Display users.csv content
         run: |
