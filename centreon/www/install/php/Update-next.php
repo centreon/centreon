@@ -275,21 +275,24 @@ $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pea
     $brokerNagiosPair = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
 
     $errorMessage= 'Unable to update cfg_nagios table';
+    $preparedStatement = $pearDB->prepareQuery(
+        <<<'SQL'
+            UPDATE `cfg_nagios`
+            SET `broker_module_cfg_file` = :broker_module_config_file
+            WHERE `nagios_id` = :nagios_id
+        SQL
+    );
     foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
         if (preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches)) {
             $brokerConfigFile = $matches[1];
         } else {
             $brokerConfigFile = '';
         }
-        $statement = $pearDB->executeQuery(
-            <<<'SQL'
-                UPDATE `cfg_nagios`
-                SET `broker_module_cfg_file` = :broker_module_config_file
-                WHERE `nagios_id` = :nagios_id
-            SQL,
+        $pearDB->executePreparedQuery(
+            $preparedStatement,
             [
-                'broker_module_config_file' => $brokerConfigFile,
-                'nagios_id' => $nagiosId,
+                ':broker_module_config_file' => $brokerConfigFile,
+                ':nagios_id' => $nagiosId,
             ]
         );
     }
