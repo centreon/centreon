@@ -9,8 +9,8 @@ import {
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import { getTheme } from '../ThemeProvider';
 import { GlobalStyles } from '@mui/system';
+import { getTheme } from '../ThemeProvider';
 
 interface Props {
   children: ReactElement;
