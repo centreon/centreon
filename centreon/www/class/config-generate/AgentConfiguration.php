@@ -120,22 +120,6 @@ class AgentConfiguration extends AbstractObjectJSON
         ];
 
         if ($data['is_reverse']) {
-<<<<<<< HEAD
-            $configuration['centreon_agent']['reverse_connections'] = [];
-            foreach ($data['hosts'] as $host) {
-                if ($this->readHostRepository->exists($host['id'])) {
-                    $configuration['centreon_agent']['reverse_connections'][] = [
-                        'host' => $host['address'],
-                        'port' => $host['port'],
-                        'encryption' => $configuration['otel_server']['encryption'],
-                        'ca_certificate' => $host['poller_ca_certificate'] !== null
-                            ? $host['poller_ca_certificate']
-                            : '',
-                        'ca_name' => $host['poller_ca_name'],
-                    ];
-                }
-            }
-=======
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
@@ -153,7 +137,6 @@ class AgentConfiguration extends AbstractObjectJSON
                 ],
                 $data['hosts']
             );
->>>>>>> 35c73c2903e1930bd2be2eff0fd5ba720b546da3
         }
 
         return $configuration;
