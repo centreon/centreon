@@ -1,19 +1,19 @@
 {
   "global": {
     "base": 1000,
-    "title": "ping service"
+    "title": "Ping service"
   },
   "metrics": [
     {
       "metric_id": 2,
-      "metric": "centreon-server: pl",
-      "metric_legend": "centreon-server: pl",
-      "unit": "%",
+      "metric": "Centreon-Server: pl",
+      "metric_legend": "Centreon-Server: pl",
+      "unit": "B",
       "min": 0.0,
       "max": 100.0,
       "ds_data": {
-        "ds_color_line": "#f30b23",
-        "ds_color_area": "#f30b23",
+        "ds_color_line": "#F30B23",
+        "ds_color_area": "#F30B23",
         "ds_filled": true,
         "ds_invert": false,
         "ds_legend": null,
@@ -23,7 +23,7 @@
         "ds_color_line_mode": 0
       },
       "displayAs": "bar",
-      "legend": "centreon-server: packet loss",
+      "legend": "Centreon-Server: Packet Loss",
       "stack": 0,
       "warning_high_threshold": 20.0,
       "critical_high_threshold": 50.0,
@@ -31,17 +31,17 @@
       "critical_low_threshold": 0.0,
       "ds_order": 1,
       "data": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        10.0,
-        20.0,
+        1243.0,
+        3562.0,
+        3532.0,
+        9843.0,
+        3332.0,
+        6576.0,
+        5647.0,
+        8763.0,
+        7487.0,
+        4783.0,
+        6835.0,
         null,
         null
       ],
@@ -52,9 +52,9 @@
     },
     {
       "metric_id": 10,
-      "metric": "space used",
-      "metric_legend": "space used",
-      "unit": "b",
+      "metric": "Space used",
+      "metric_legend": "Space used",
+      "unit": "B",
       "min": 0.0,
       "max": 100.0,
       "ds_data": {
@@ -69,7 +69,7 @@
         "ds_color_line_mode": 0
       },
       "displayAs": "bar",
-      "legend": "space used",
+      "legend": "Space used",
       "stack": 0,
       "warning_high_threshold": 20.0,
       "critical_high_threshold": 50.0,
@@ -90,14 +90,14 @@
     },
     {
       "metric_id": 1,
-      "metric": "centreon-server: rta",
-      "metric_legend": "centreon-server: rta",
+      "metric": "Centreon-Server: rta",
+      "metric_legend": "Centreon-Server: rta",
       "unit": "ms",
       "min": 0.0,
       "max": null,
       "ds_data": {
-        "ds_color_line": "#29afee",
-        "ds_color_area": "#29afee",
+        "ds_color_line": "#29AFEE",
+        "ds_color_area": "#29AFEE",
         "ds_filled": true,
         "ds_invert": false,
         "ds_legend": null,
@@ -107,7 +107,7 @@
         "ds_color_line_mode": 0
       },
       "displayAs": "line",
-      "legend": "centreon-server: round-trip average time",
+      "legend": "Centreon-Server: Round-Trip Average Time",
       "stack": 0,
       "warning_high_threshold": 200.0,
       "critical_high_threshold": 400.0,
@@ -136,8 +136,8 @@
     },
     {
       "metric_id": 3,
-      "metric": "centreon-server: rtmax",
-      "metric_legend": "centreon-server: rtmax",
+      "metric": "Centreon-Server: rtmax",
+      "metric_legend": "Centreon-Server: rtmax",
       "unit": "ms",
       "min": null,
       "max": null,
@@ -145,7 +145,7 @@
         "ds_color_line": "#525256",
         "ds_color_area": "#525256",
         "ds_filled": false,
-        "ds_invert": false,
+        "ds_invert": true,
         "ds_legend": null,
         "ds_stack": false,
         "ds_order": 2,
@@ -153,7 +153,7 @@
         "ds_color_line_mode": 0
       },
       "displayAs": "line",
-      "legend": "centreon-server: round-trip maximum time",
+      "legend": "Centreon-Server: Round-Trip Maximum Time",
       "stack": 0,
       "warning_high_threshold": null,
       "critical_high_threshold": null,
@@ -182,8 +182,8 @@
     },
     {
       "metric_id": 4,
-      "metric": "centreon-server: rtmin",
-      "metric_legend": "centreon-server: rtmin",
+      "metric": "Centreon-Server: rtmin",
+      "metric_legend": "Centreon-Server: rtmin",
       "unit": "ms",
       "min": null,
       "max": null,
@@ -199,7 +199,7 @@
         "ds_color_line_mode": 0
       },
       "displayAs": "line",
-      "legend": "centreon-server: round-trip minimum time",
+      "legend": "Centreon-Server: Round-Trip Minimum Time",
       "stack": 0,
       "warning_high_threshold": null,
       "critical_high_threshold": null,
@@ -228,18 +228,18 @@
     }
   ],
   "times": [
-    "2024-06-19t10:50:00+02:00",
-    "2024-06-19t10:55:00+02:00",
-    "2024-06-19t11:00:00+02:00",
-    "2024-06-19t11:05:00+02:00",
-    "2024-06-19t11:10:00+02:00",
-    "2024-06-19t11:15:00+02:00",
-    "2024-06-19t11:20:00+02:00",
-    "2024-06-19t11:25:00+02:00",
-    "2024-06-19t11:30:00+02:00",
-    "2024-06-19t11:35:00+02:00",
-    "2024-06-19t11:40:00+02:00",
-    "2024-06-19t11:45:00+02:00",
-    "2024-06-19t11:50:00+02:00"
+    "2024-06-19T10:50:00+02:00",
+    "2024-06-19T10:55:00+02:00",
+    "2024-06-19T11:00:00+02:00",
+    "2024-06-19T11:05:00+02:00",
+    "2024-06-19T11:10:00+02:00",
+    "2024-06-19T11:15:00+02:00",
+    "2024-06-19T11:20:00+02:00",
+    "2024-06-19T11:25:00+02:00",
+    "2024-06-19T11:30:00+02:00",
+    "2024-06-19T11:35:00+02:00",
+    "2024-06-19T11:40:00+02:00",
+    "2024-06-19T11:45:00+02:00",
+    "2024-06-19T11:50:00+02:00"
   ]
 }

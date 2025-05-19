@@ -54,12 +54,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
-        version: 8
+        version: 10
         run_install: false
 
-    - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: 20
         cache: pnpm
@@ -75,7 +75,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
-      uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
       with:
         timeout_seconds: 120
         max_attempts: 10
@@ -84,7 +84,7 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@7271bed2a170d73c0b08939cd192db51a1c46c50 # v6.7.10
+      uses: cypress-io/github-action@6d4f8f59600b4259fe501be43a99bfc6c05c5927 # v6.8.0
       with:
         command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false

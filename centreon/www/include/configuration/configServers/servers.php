@@ -64,6 +64,9 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
     $p = $ret['topology_page'];
 }
 
+/*
+ * Build poller listing for ACL
+ */
 $serverResult =
     $centreon->user->access->getPollerAclConf(
         [

@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '25.03.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '25.05.0');
 
 --
 -- Contenu de la table `contact`
@@ -598,7 +598,6 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (36, 'rrd_cached_option', 'Enable RRDCached', 'Enable rrdcached option for Centreon, please see Centreon documentation to configure it.', 'radio', NULL),
 (37, 'rrd_cached', 'RRDCacheD listening socket/port', 'The absolute path to unix socket or TCP port for communicating with rrdcached daemon.', 'text', NULL),
 (38, 'max_size', 'Max file size in bytes', 'The maximum size of log file.', 'int', NULL),
-(39, 'check_replication', 'Replication enabled', 'When enabled, the broker engine will check whether or not the replication is up to date before attempting to update data.', 'radio', NULL),
 (40, 'rebuild_check_interval', 'Rebuild check interval in seconds', 'The interval between check if some metrics must be rebuild. The default value is 300s', 'int', NULL),
 (41, 'max_size', 'Maximum size of file', 'Maximum size in bytes.', 'int', NULL),
 (42, 'store_in_data_bin', 'Store in performance data in data_bin', 'It should be enabled to control whether or not Centreon Broker should insert performance data in the data_bin table.', 'radio', NULL),
@@ -680,7 +679,6 @@ INSERT INTO `cb_list` (`cb_list_id`, `cb_field_id`, `default_value`) VALUES
 (3, 15, NULL),
 (3, 69, NULL),
 (4, 24, NULL),
-(1, 39, 'no'),
 (1, 42, 'yes'),
 (1, 44, 'yes'),
 (1, 45, 'yes'),
@@ -863,8 +861,6 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (24, 22, 1, 4),
 (24, 23, 1, 5),
 (24, 24, 1, 6),
-(14, 39, 0, 11),
-(16, 39, 0, 8),
 (14, 40, 0, 12),
 (13, 42, 1, 5),
 (13, 43, 1, 6),
@@ -933,7 +929,6 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (34, 10, 1, 8),
 (34, 34, 0, 9),
 (34, 35, 0, 10),
-(34, 39, 0, 11),
 (34, 40, 0, 12),
 (34, 42, 1, 13),
 (34, 43, 1, 14),
@@ -1495,7 +1490,7 @@ INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, use
 VALUES (1, 4);
 
 INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
-VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":"minimum","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
 
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-generictext');

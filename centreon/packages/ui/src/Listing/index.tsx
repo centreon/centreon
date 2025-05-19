@@ -62,7 +62,7 @@ import {
 } from './models';
 import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
-import useStyleTable from './useStyleTable';
+import useStyleTable, { useColumnStyle } from './useStyleTable';
 
 const subItemPrefixKey = 'listing';
 
@@ -207,10 +207,12 @@ const Listing = <
     columnConfiguration,
     columns
   });
-  const { dataStyle, getGridTemplateColumn } = useStyleTable({
-    checkable,
-    currentVisibleColumns,
+  const { dataStyle } = useStyleTable({
     listingVariant
+  });
+  const gridTemplateColumn = useColumnStyle({
+    checkable,
+    currentVisibleColumns
   });
 
   const { t } = useTranslation();
@@ -291,7 +293,7 @@ const Listing = <
 
   const { classes } = useListingStyles({
     dataStyle,
-    getGridTemplateColumn,
+    gridTemplateColumn,
     isResponsive,
     rows: rowsToDisplay
   });
@@ -707,7 +709,9 @@ const Listing = <
                       ) : (
                         <EmptyResult
                           label={
-                            labelNoResultFound ? t(labelNoResultFound) : t(defaultLabelNoResultFound)
+                            labelNoResultFound
+                              ? t(labelNoResultFound)
+                              : t(defaultLabelNoResultFound)
                           }
                         />
                       ))}

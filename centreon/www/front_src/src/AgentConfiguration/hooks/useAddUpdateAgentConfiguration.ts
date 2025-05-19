@@ -19,6 +19,7 @@ import {
   AgentConfigurationAPI,
   AgentType,
   CMAConfiguration,
+  ConnectionMode,
   TelegrafConfiguration
 } from '../models';
 import {
@@ -32,16 +33,33 @@ const adaptTelegrafConfigurationToAPI = (
   const configuration =
     agentConfiguration.configuration as TelegrafConfiguration;
 
+  const getFieldBasedOnCertificate = (field) =>
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
+
   return {
-    ...omit(['pollers'], agentConfiguration),
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
+    connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      otel_private_key: configuration.otelPrivateKey,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      conf_certificate: configuration.confCertificate,
-      conf_private_key: configuration.confPrivateKey,
+      otel_private_key: getFieldBasedOnCertificate(
+        configuration.otelPrivateKey
+      ),
+      otel_ca_certificate: getFieldBasedOnCertificate(
+        configuration.otelCaCertificate
+      ),
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      ),
+      conf_certificate: getFieldBasedOnCertificate(
+        configuration.confCertificate
+      ),
+      conf_private_key: getFieldBasedOnCertificate(
+        configuration.confPrivateKey
+      ),
       conf_server_port: configuration.confServerPort
     }
   };
@@ -52,20 +70,35 @@ const adaptCMAConfigurationToAPI = (
 ): AgentConfigurationAPI => {
   const configuration = agentConfiguration.configuration as CMAConfiguration;
 
+  const getFieldBasedOnCertificate = (field) =>
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
+
   return {
-    ...omit(['pollers'], agentConfiguration),
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
+    connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      otel_private_key: configuration.otelPrivateKey,
+      otel_ca_certificate: getFieldBasedOnCertificate(
+        configuration.otelCaCertificate
+      ),
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      ),
+      otel_private_key: getFieldBasedOnCertificate(
+        configuration.otelPrivateKey
+      ),
       hosts: configuration.hosts.map((host) => ({
         address: host.address,
         port: host.port,
-        poller_ca_name: host.pollerCaName || null,
-        poller_ca_certificate: host.pollerCaCertificate || null
+        poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
+        poller_ca_certificate: getFieldBasedOnCertificate(
+          host.pollerCaCertificate
+        )
       }))
     }
   };

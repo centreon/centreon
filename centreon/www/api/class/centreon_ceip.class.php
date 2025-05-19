@@ -292,7 +292,7 @@ class CentreonCeip extends CentreonWebService
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
-                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        } else if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
                             $productLicense = 'MSP Edition';
                             $fingerprint = $fingerprintService->calculateFingerprint();
                         }
@@ -300,7 +300,7 @@ class CentreonCeip extends CentreonWebService
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
                         $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
                             $productLicense = 'MSP Edition';
                         }
                         break;
@@ -388,13 +388,14 @@ class CentreonCeip extends CentreonWebService
     {
         $agents = [];
         try {
+            $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
             $query = <<<'SQL'
                         SELECT `poller_id`, `enabled`, `infos`
-                        FROM `centreon_storage`.`agent_information`
+                        FROM `agent_information`
                     SQL;
-            $statement = $this->pearDB->executeQuery($query);
+            $statement = $pearDBO->executeQuery($query);
 
-            while (is_array($row = $this->pearDB->fetch($statement))) {
+            while (is_array($row = $pearDBO->fetch($statement))) {
                 /** @var array{poller_id:int,enabled:int,infos:string} $row */
                 $decodedInfos = json_decode($row['infos'], true);
                 if (! is_array($decodedInfos)) {
@@ -442,9 +443,20 @@ class CentreonCeip extends CentreonWebService
      */
     private function getLaccess(): string
     {
-        $sql = "SELECT `value` FROM `options` WHERE `key` = 'LACCESS' LIMIT 1";
+        $sql = "SELECT `value` FROM `options` WHERE `key` = 'impCompanyToken' LIMIT 1";
+        $impCompanyToken = (string) $this->sqlFetchValue($sql);
 
-        return (string) $this->sqlFetchValue($sql);
+        $decodedToken = json_decode($impCompanyToken, true);
+        if (is_array($decodedToken) && isset($decodedToken['token'])) {
+            return $decodedToken['token'];
+        }
+
+        $this->logger->error(
+            "Invalid JSON format in options table for key 'impCompanyToken'",
+            ['context' => $impCompanyToken]
+        );
+
+        return '';
     }
 
     /**
