@@ -593,7 +593,7 @@ Given(
     });
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: "Add a contact", tag: "input" }).click();
+     cy.getByTestId({ testId: 'Add a contact' }).click();
     cy.contains(dashboardViewerUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
     cy.getByLabel({ label: 'Save', tag: 'button' })
