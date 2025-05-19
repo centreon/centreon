@@ -17,5 +17,3 @@ export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';
 export * from './Chart/models';
 export * from './PieChart/models';
-
-
