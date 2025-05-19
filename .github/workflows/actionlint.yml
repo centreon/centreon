@@ -39,6 +39,7 @@ jobs:
             -ignore 'label "common" is unknown' \
             -ignore 'label "veracode" is unknown' \
             -ignore 'label "infra" is unknown' \
+            -ignore 'label "centreon-perf-testing" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
             -color
