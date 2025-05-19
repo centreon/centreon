@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // List of scripts to execute
-const scripts = ["cleaningUpResources.mjs", "cleaningUpUsers.mjs"];
+const scripts = ["deleteAllAddedRessources.mjs", "cleaningUpUsers.mjs"];
 
 // Function to execute a script using Node.js
 function runScript(script) {
