@@ -81,7 +81,7 @@ class CmaValidator implements TypeValidatorInterface
                 $this->validateTokens($value);
             }
 
-            if ($key === 'hosts') {
+            if ($key === 'hosts' && $configuration['is_reverse'] === true) {
                 foreach ($value as $host) {
                     /** @var array{
                      *		id: int,
@@ -97,15 +97,27 @@ class CmaValidator implements TypeValidatorInterface
                     if (! $this->readHostRepository->exists(hostId: $host['id'])) {
                         throw AgentConfigurationException::invalidHostId($host['id']);
                     }
+
+                    if (
+                        $request->connectionMode !== ConnectionModeEnum::NO_TLS
+                        && $host['token'] === null
+                    ) {
+                        throw AgentConfigurationException::tokensAreMandatory();
+                    }
+
+                    if ($host['token'] !== null) {
+                        $this->validateTokens([$host['token']]);
+                    }
                 }
             }
         }
 
         if (
             $request->connectionMode !== ConnectionModeEnum::NO_TLS
-            && $value === []
+            && $configuration['is_reverse'] === false
+            && $configuration['tokens'] === []
         ) {
-            AgentConfigurationException::tokensAreMandatory();
+            throw AgentConfigurationException::tokensAreMandatory();
         }
     }
 
