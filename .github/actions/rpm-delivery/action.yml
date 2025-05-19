@@ -115,7 +115,7 @@ runs:
         # FEATURE REPOSITORY
         elif [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
           echo "[DEBUG] : Delivery to feature repositories, using rpm-feature repo."
-          ROOT_REPO_PATHS="rpm-feature-MON-xxxxx"
+          ROOT_REPO_PATHS="rpm-$(echo "${{ github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # ANYTHING ELSE
