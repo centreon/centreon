@@ -25,7 +25,7 @@ namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;s
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 beforeEach(function (): void {
     $this->parameters = [
