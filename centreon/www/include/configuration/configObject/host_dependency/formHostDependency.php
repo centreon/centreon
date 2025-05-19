@@ -60,7 +60,11 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
         }
 
         # Set base value
-        $dep = array_map('myDecode', $result);
+        if ($result !== false) {
+            $dep = array_map('myDecode', $result);
+        } else {
+            $dep = [];
+        }
 
         # Set Notification Failure Criteria
         $dep["notification_failure_criteria"] = explode(',', $dep["notification_failure_criteria"]);
@@ -76,7 +80,7 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
-            'Error retrieving dependency: ' . $e->getMessage(),
+            'Error retrieving dependency: ' . $exception->getMessage(),
             ['depId' => $dep_id],
             $exception
         );
@@ -275,7 +279,7 @@ if ($form->validate()) {
     } catch (CentreonException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
-            'Error processing host dependancy form: ' . $e->getMessage(),
+            'Error processing host dependancy form: ' . $exception->getMessage(),
             ['depId' => (int) $depObj->getValue()],
             $exception
         );

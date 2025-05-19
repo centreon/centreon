@@ -135,6 +135,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
 
     foreach ($dependencies as $depId => $_) {
         try {
+            $pearDB->beginTransaction();
             // fetch original dependency row
             $sqlSel = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -224,7 +225,9 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 );
 
             }
+            $pearDB->commit();
         } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
+            $pearDB->rollBack();
             throw new RepositoryException(
                 'Error duplicating host dependency',
                 ['dep_id' => $depId],
