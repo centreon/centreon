@@ -59,8 +59,10 @@ export const getDefaultValues = (
     return {};
   }
 
+
   return Object.entries(options?.elements ?? options).reduce(
     (acc, [key, value]) => {
+
       if (!has('when', value.defaultValue)) {
         return {
           ...acc,
@@ -187,13 +189,32 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       };
     }, {});
 
+
+
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
-      (acc, [key, value]) => ({
+      (acc, [key, value]) => {
+
+        if(value?.selectType){
+          
+          console.log('----->',{value})
+      return ({
         ...acc,
-        [key]: value.defaultValue
-      }),
+        [key]: [{[key]:value.defaultValue,resourceType: value.selectType.defaultResourceType}],
+
+      })
+        }
+        
+        
+        return ({
+        ...acc,
+        [key]: value.defaultValue,
+
+      })},
       {}
     );
+
+    console.log({selectedWidgetProperties,data})
+
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);

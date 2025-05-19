@@ -41,7 +41,9 @@ const Resources = ({
   required,
   useAdditionalResources,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
+  selectType,
+  overrideAddButtonVisibility
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -83,9 +85,17 @@ const Resources = ({
     (value.length <= 1 && (required || isNil(required))) ||
     equals(value.length, 1);
 
+
   const isAddButtonHidden = !canEditField || singleResourceType;
   const isAddButtonDisabled =
     !areResourcesFullfilled(value) || isLastResourceInTree;
+
+  
+  const getResourceTypeSelectedOptionId=(resourceType)=> equals(resourceType,'hostgroup')? WidgetResourceType.hostGroup:resourceType;
+  const getDefaultDisabledSelectType = (resourceType)=>equals(selectType?.defaultResourceType, resourceType) && selectType?.disabled;
+  const getOverrideAddButtonVisibility=(value)=>value.find((resource)=>equals(overrideAddButtonVisibility?.matchedResourcesType,resource.resourceType))
+    
+
 
   return (
     <div className={classes.resourcesContainer}>
@@ -103,21 +113,13 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={isAddButtonHidden}
+          addButtonHidden={isAddButtonHidden || getOverrideAddButtonVisibility(value)}
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => {
-            const resourceTypeSelectedOptionId = equals(
-              resource.resourceType,
-              'hostgroup'
-            )
-              ? WidgetResourceType.hostGroup
-              : resource.resourceType;
-
-
-
+        
             return (
               <ItemComposition.Item
                 className={classes.resourceCompositionItem}
@@ -135,12 +137,13 @@ const Resources = ({
                   dataTestId={labelResourceType}
                   disabled={
                     !canEditField ||
+                    getDefaultDisabledSelectType(resource.resourceType)||
                     isValidatingResources ||
                     getResourceStatic(resource.resourceType)
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
-                  selectedOptionId={resourceTypeSelectedOptionId}
+                  selectedOptionId={getResourceTypeSelectedOptionId(resource.resourceType)}
                   onChange={changeResourceType(index)}
                 />
                 {singleResourceSelection ? (

@@ -228,6 +228,8 @@ const useResources = ({
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
 
+
+
   const getResourceStatic = (
     resourceType: WidgetResourceType
   ): boolean | undefined => {
@@ -240,6 +242,7 @@ const useResources = ({
         Boolean(forcedResourceType) &&
         widgetProperties?.singleResourceSelection &&
         equals(restrictedResourceTypes?.length, 1))
+        
     );
   };
 
@@ -588,6 +591,7 @@ const useResources = ({
 
   const getResourceTypeOptions = useCallback(
     (index, resource): Array<ResourceTypeOption> => {
+
       const availableResourceTypes =
         index < 1
           ? allResources
@@ -649,6 +653,7 @@ const useResources = ({
 
       return;
     }
+    
 
     setFieldValue(`data.${propertyName}`, [
       {

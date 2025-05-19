@@ -107,10 +107,11 @@
       "type": "resources",
       "defaultValue": [],
       "required": true,
-      "useAdditionalResources": false,
-      "restrictedResourceTypes": ["host-group", "host-category"],
-      "defaultResourceTypes": ["host-group", "host-category"],
-      "singleResourceType": true,
+      "useAdditionalResources": false,      
+      "excludedResourceTypes":["host","service-category","service","service-group"],
+       "overrideAddButtonVisibility":{
+         "matchedResourcesType":"host-category"
+        },
       "subInputs": [
         {
           "name": "warningtext",
@@ -124,7 +125,12 @@
             "label": "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
           }
         }
-      ]
+      ],
+      "selectType":{
+        "defaultResourceType":"host-group",
+        "disabled":true
+      }
+    
     }
   },
   "categories": {
@@ -633,5 +639,5 @@
       }
     }
   },
-  "singleResourceSelection": true
+  "singleResourceSelection": false
 }
