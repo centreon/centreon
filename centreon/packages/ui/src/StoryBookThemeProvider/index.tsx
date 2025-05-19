@@ -10,6 +10,7 @@ import {
 import { ThemeMode } from '@centreon/ui-context';
 
 import { getTheme } from '../ThemeProvider';
+import { GlobalStyles } from '@mui/system';
 
 interface Props {
   children: ReactElement;
@@ -23,7 +24,8 @@ const StoryBookThemeProvider = ({
   const theme = useMemo(() => createTheme(getTheme(themeMode)), [themeMode]);
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledEngineProvider injectFirst enableCssLayer>
+      <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         {children}
         <CssBaseline />

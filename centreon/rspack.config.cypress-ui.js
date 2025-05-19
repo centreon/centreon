@@ -20,7 +20,7 @@ const output = isDevelopmentMode
   : {};
 
 module.exports = merge(
-  getBaseConfiguration(true, './www/front_src/src/'),
+  getBaseConfiguration(true, './src/'),
   getDevConfiguration(),
   {
     devServer: {

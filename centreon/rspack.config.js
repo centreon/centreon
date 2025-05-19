@@ -9,11 +9,12 @@ const {
   isDevelopmentMode
 } = require('./packages/js-config/rspack/patch/devServer');
 
-module.exports = (enableCoverage = false) =>
+module.exports = (enableCoverage = false, postCssBase = undefined) =>
   merge(
     getBaseConfiguration({
       enableCoverage,
-      moduleName: 'centreon'
+      moduleName: 'centreon',
+      postCssBase: postCssBase || './www/front_src/src/'
     }),
     {
       devServer: {
