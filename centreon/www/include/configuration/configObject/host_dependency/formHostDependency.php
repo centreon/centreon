@@ -261,7 +261,7 @@ if ($o == WATCH_DEPENDENCY) {
 } elseif ($o == ADD_DEPENDENCY) {
     $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
-    $form->setDefaults(['inherits_parent' => '1']);
+    $form->setDefaults(['inherits_parent' => '0']);
 }
 $tpl->assign("nagios", $oreon->user->get_version());
 

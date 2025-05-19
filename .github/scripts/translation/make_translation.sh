@@ -115,11 +115,6 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
-    COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
-        git checkout $POT_FILE_PATH
-    fi
 
     rm -f $BASE_DIR_PROJECT/www/install/menu_translation.php
     rm -f $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
@@ -145,11 +140,6 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
-    COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
-        git checkout $POT_FILE_PATH
-    fi
 
     # Merge existing translation file with new POT file
     $MSGMERGE -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
