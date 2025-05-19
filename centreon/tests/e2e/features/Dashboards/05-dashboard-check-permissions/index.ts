@@ -25,6 +25,7 @@ before(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
     loginViaApi: true
@@ -592,7 +593,7 @@ Given(
     });
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: "Add a contact", tag: "input" }).click();
     cy.contains(dashboardViewerUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
     cy.getByLabel({ label: 'Save', tag: 'button' })
