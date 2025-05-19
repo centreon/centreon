@@ -1,27 +1,23 @@
 name: Performance Testing
 
 on:
-  push:
-    branches:
-      - MON-159979
-  # workflow_dispatch:
-  #   inputs:
-  #     jmeter_domain:
-  #       description: 'Domain for JMeter tests (e.g., localhost)'
-  #       required: true
-  #       type: string
-  #     jmeter_port:
-  #       description: 'Port for JMeter tests (e.g., 4000)'
-  #       required: false
-  #       type: string
-  #     jmeter_protocol:
-  #       description: 'Protocol for JMeter tests (e.g., http)'
-  #       required: true
-  #       type: string
-  #     api_prefix:
-  #       description: 'API prefix to insert before /api/latest/configuration in the JMX file'
-  #       required: true
-
+  workflow_dispatch:
+    inputs:
+      jmeter_domain:
+        description: 'Domain for JMeter tests (e.g., localhost)'
+        required: true
+        type: string
+      jmeter_port:
+        description: 'Port for JMeter tests (e.g., 4000)'
+        required: false
+        type: string
+      jmeter_protocol:
+        description: 'Protocol for JMeter tests (e.g., http)'
+        required: true
+        type: string
+      api_prefix:
+        description: 'API prefix to insert before /api/latest/configuration in the JMX file'
+        required: true
 jobs:
   performance-test:
     runs-on: centreon-perf-testing
@@ -56,36 +52,36 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y unzip wget curl
 
-      # - name: Display test input
-      #   run: |
-      #     echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
-      #     echo "Test jmeter_port value is: ${{ github.event.inputs.jmeter_port }}"
-      #     echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
-      #     echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
+      - name: Display inputs
+        run: |
+          echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
+          echo "Test jmeter_port value is: ${{ github.event.inputs.jmeter_port }}"
+          echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
+          echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
 
-      # - name: Update JMeter .jmx with inputs
-      #   run: |
-      #     echo "Updating JMeter configuration with inputs..."
+      - name: Update JMeter .jmx with inputs
+        run: |
+          echo "Updating JMeter configuration with inputs..."
 
-      #     JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx
+          JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx
 
-      #     for JMX_FILE in $JMX_FILES; do
-      #       echo "Updating $JMX_FILE with inputs..."
+          for JMX_FILE in $JMX_FILES; do
+            echo "Updating $JMX_FILE with inputs..."
 
-      #       # Replace values in file .jmx
-      #       if [[ -n "${{ github.event.inputs.jmeter_port }}" ]]; then
-      #           sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
-      #       else
-      #         sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\"></stringProp>|g" $JMX_FILE
-      #       fi
-      #       sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
-      #       sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
-      #       sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
+            # Replace values in file .jmx
+            if [[ -n "${{ github.event.inputs.jmeter_port }}" ]]; then
+                sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
+            else
+              sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\"></stringProp>|g" $JMX_FILE
+            fi
+            sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
+            sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
+            sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
 
 
-      #       echo "Updated $JMX_FILE:"
-      #       cat $JMX_FILE  # To check that values have been updated correctly
-      #     done
+            echo "Updated $JMX_FILE:"
+            cat $JMX_FILE  # To check that values have been updated correctly
+          done
 
       - name: Inject Data into database
         run: node injectData.mjs
