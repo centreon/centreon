@@ -65,7 +65,7 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
         <<<'SQL'
             UPDATE `topology`
             SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups',
+                `topology_url` = '/configuration/hosts/groups'
             WHERE `topology_name` = 'Host Groups'
                 AND `topology_page` = 60102
         SQL
