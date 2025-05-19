@@ -34,6 +34,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -805,12 +808,10 @@ function updateContactHostCommands($contactId = null, $fields = [])
     }
 
     try {
-        $query = "DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id";
-        $successDelete = $pearDB->executePreparedQuery($pearDB->prepare($query), ['contact_id' => $contactId]);
-
-        if (!$successDelete) {
-            return;
-        }
+        $pearDB->delete(
+            'DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id',
+            QueryParameters::create([QueryParameter::int('contact_id', $contactId)])
+        );
 
         $hostCommandIdsFromForm = $fields["contact_hostNotifCmds"] ?? $form->getSubmitValue("contact_hostNotifCmds");
 
@@ -819,14 +820,16 @@ function updateContactHostCommands($contactId = null, $fields = [])
         }
 
         $query = "INSERT INTO contact_hostcommands_relation(contact_contact_id, command_command_id) VALUES(:contact_id, :command_id)";
-        $pdoSth = $pearDB->prepareQuery($query);
         foreach ($hostCommandIdsFromForm as $hostCommandIdFromForm) {
-            $pearDB->executePreparedQuery(
-                $pdoSth,
-                ['contact_id' => $contactId, 'command_id' => (int)$hostCommandIdFromForm]
+            $pearDB->insert(
+                $query,
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', $contactId),
+                    QueryParameter::int('command_id', (int)$hostCommandIdFromForm)
+                ])
             );
         }
-    } catch (CentreonDbException $e) {
+    } catch (\Throwable $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and host commands",
