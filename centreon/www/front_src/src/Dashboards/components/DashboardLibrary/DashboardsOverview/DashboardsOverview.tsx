@@ -145,7 +145,7 @@ const DashboardsOverview = (): ReactElement => {
         <DataTable.EmptyState
           aria-label="create"
           canCreate={canCreateOrManageDashboards}
-          data-testid="create-dashboard"
+          dataTestid="create-dashboard"
           labels={emptyStateLabels}
           onCreate={createDashboard}
         />

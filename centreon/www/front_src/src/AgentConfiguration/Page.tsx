@@ -47,7 +47,7 @@ const AgentConfigurationPage = (): JSX.Element => {
           {isEmpty ? (
             <DataTable.EmptyState
               aria-label="create"
-              data-testid="create-agent-configuration"
+              dataTestid="create-agent-configuration"
               labels={{
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
                 description: t(labelWelcomeDescription),

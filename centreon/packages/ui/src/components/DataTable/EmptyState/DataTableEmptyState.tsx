@@ -19,12 +19,14 @@ type ListEmptyStateProps = {
     description?: string;
   };
   onCreate?: () => void;
+  dataTestid?: string;
 };
 
 const DataTableEmptyState = ({
   labels,
   onCreate,
-  canCreate = true
+  canCreate = true,
+  dataTestid
 }: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -47,6 +49,7 @@ const DataTableEmptyState = ({
             icon={<AddIcon />}
             iconVariant="start"
             onClick={() => onCreate?.()}
+            data-testid={dataTestid}
           >
             {t(labels.actions?.create || '')}
           </Button>
