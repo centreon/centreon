@@ -15,7 +15,8 @@
                 "otel_public_certificate",
                 "otel_ca_certificate",
                 "otel_private_key",
-                "hosts"
+                "hosts",
+                "tokens"
             ],
             "properties": {
                 "is_reverse": {
@@ -39,6 +40,23 @@
                         "string"
                     ]
                 },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "creator_id"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "creator_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
                 "hosts": {
                     "type": "array",
                     "items": {
@@ -46,7 +64,8 @@
                             "address",
                             "port",
                             "poller_ca_certificate",
-                            "poller_ca_name"
+                            "poller_ca_name",
+                            "token"
                         ],
                         "properties": {
                             "address": {
@@ -66,6 +85,20 @@
                                     "null",
                                     "string"
                                 ]
+                            },
+                            "token": {
+                                "type": [
+                                    "null",
+                                    "object"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "creator_id": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     }

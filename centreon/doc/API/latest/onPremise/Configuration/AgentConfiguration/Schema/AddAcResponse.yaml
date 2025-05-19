@@ -9,8 +9,21 @@ properties:
     example: "my-cfg-name"
   type:
     type: string
-    description: Type of configuration
+    description: |
+      Type of configuration
+        Supported types:
+          * telegraf
+          * centreon-agent
     example: telegraf
+  connection_mode:
+    type: string
+    description: |
+      Connection mode for the configuration
+      Supported modes:
+        * secure
+        * no-tls
+        * insecure
+    example: no-tls
   pollers:
     type: array
     items:

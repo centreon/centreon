@@ -76,7 +76,7 @@ class Validator
         $this->validateNameOrFail($request, $agentConfiguration);
         $this->validatePollersOrFail($request, $agentConfiguration);
         $this->validateTypeOrFail($request, $agentConfiguration);
-        if ($request->connectionMode === ConnectionModeEnum::SECURE) {
+        if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
             $this->validateParametersOrFail($request);
         }
     }
