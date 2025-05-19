@@ -84,7 +84,12 @@ class AgentConfiguration extends AbstractObjectJSON
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => ConnectionModeEnum::NO_TLS !== $connectionMode,
+            'encryption' => match ($connectionMode) {
+                ConnectionModeEnum::SECURE => 'full',
+                ConnectionModeEnum::INSECURE => 'insecure',
+                ConnectionModeEnum::NO_TLS => 'no',
+                default => 'full',
+            },
             'public_cert' => ! empty($data['otel_public_certificate'])
                 ? $data['otel_public_certificate']
                 : '',
@@ -115,6 +120,7 @@ class AgentConfiguration extends AbstractObjectJSON
         ];
 
         if ($data['is_reverse']) {
+<<<<<<< HEAD
             $configuration['centreon_agent']['reverse_connections'] = [];
             foreach ($data['hosts'] as $host) {
                 if ($this->readHostRepository->exists($host['id'])) {
@@ -129,6 +135,25 @@ class AgentConfiguration extends AbstractObjectJSON
                     ];
                 }
             }
+=======
+            $configuration['centreon_agent']['reverse_connections'] = array_map(
+                static fn(array $host): array => [
+                    'host' => $host['address'],
+                    'port' => $host['port'],
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
+                    'ca_certificate' => $host['poller_ca_certificate'] !== null
+                        ? $host['poller_ca_certificate']
+                        : '',
+                    'ca_name' => $host['poller_ca_name'],
+                ],
+                $data['hosts']
+            );
+>>>>>>> 35c73c2903e1930bd2be2eff0fd5ba720b546da3
         }
 
         return $configuration;
@@ -152,7 +177,12 @@ class AgentConfiguration extends AbstractObjectJSON
             'telegraf_conf_server' => [
                 'http_server' => [
                     'port' => $data['conf_server_port'],
-                    'encryption' => $otelConfiguration['encryption'],
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
                     'public_cert' => $data['conf_certificate'] !== null
                         ? $data['conf_certificate']
                         : '',

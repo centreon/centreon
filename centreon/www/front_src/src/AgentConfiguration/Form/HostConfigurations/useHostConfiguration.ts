@@ -2,7 +2,11 @@ import { SelectEntry } from '@centreon/ui';
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
-import { AgentConfigurationForm, HostConfiguration } from '../../models';
+import {
+  AgentConfigurationForm,
+  ConnectionMode,
+  HostConfiguration
+} from '../../models';
 import { portRegex } from '../useValidationSchema';
 
 interface UseHostConfigurationProps {
@@ -99,10 +103,9 @@ export const useHostConfiguration = ({
     [touched, index]
   );
 
-  const areCertificateFieldsVisible = equals(
-    values?.connectionMode?.id,
-    'secure'
-  );
+  const areCertificateFieldsVisible =
+    equals(values?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(values?.connectionMode?.id, ConnectionMode.insecure);
 
   return {
     changeAddress,
