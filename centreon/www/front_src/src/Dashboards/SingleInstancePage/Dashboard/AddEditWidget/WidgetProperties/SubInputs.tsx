@@ -26,11 +26,18 @@ const SubInputs = ({
   const previousSubInputsToDisplayRef = useRef<Array<SubInput> | undefined>();
   const { setFieldValue, values } = useFormikContext<Widget>();
 
+
+
+  // a verifierrrrrrrrrrrrrr
   const subInputsToDisplay = useMemo(
     () =>
       subInputs?.filter(({ displayValue, customPropertyMatch }) => {
         if (equals(customPropertyMatch?.method, 'pluck')) {
+
+          console.log('i should be heeeeeeeeeeeeeeeeeeeeeeeere')
           const valuesToCompare = pluck(customPropertyMatch?.property, value);
+
+          console.log({valuesToCompare,displayValue})
 
           return equals(valuesToCompare, displayValue);
         }
@@ -39,6 +46,8 @@ const SubInputs = ({
       }),
     [subInputs, value]
   );
+
+  console.log({subInputs, subInputsToDisplay})
 
   const hasSubInputs = useMemo(
     () => !isEmpty(subInputsToDisplay) && !isNil(subInputsToDisplay),

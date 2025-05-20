@@ -109,20 +109,44 @@
       "required": true,
       "useAdditionalResources": false,      
       "excludedResourceTypes":["host","service-category","service","service-group"],
-       "overrideAddButtonVisibility":{
+      "overrideAddButtonVisibility":{
          "matchedResourcesType":"host-category"
         },
       "subInputs": [
         {
           "name": "warningtext",
-          "displayValue": ["business-view"],
+          "displayValue": ["host-group"],
           "customPropertyMatch": {
             "method": "pluck",
             "property": "resourceType"
           },
           "input": {
             "type": "warning",
-            "label": "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups and host categories."
+          }
+        },
+            {
+          "name": "warningtext",
+          "displayValue": ["host-category"],
+          "customPropertyMatch": {
+            "method": "pluck",
+            "property": "resourceType"
+          },
+          "input": {
+            "type": "warning",
+            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups and host categories."
+          }
+        },
+            {
+          "name": "warningtext",
+          "displayValue": ["host"],
+          "customPropertyMatch": {
+            "method": "pluck",
+            "property": "resourceType"
+          },
+          "input": {
+            "type": "warning",
+            "label": "Data is aggregated daily for graphs presenting hosts."
           }
         }
       ],
