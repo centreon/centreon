@@ -1,9 +1,9 @@
+import '../../ThemeProvider/tailwindcss.css';
 import { Meta, StoryObj } from '@storybook/react';
 
 import { Add as AddIcon } from '@mui/icons-material';
 
 import { Button } from './Button';
-import '../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof Button> = {
   component: Button

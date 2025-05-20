@@ -6,10 +6,9 @@
   }
 
   &[data-size="small"] {
-    &[data-variant="primary"],
-    &[data-variant="secondary"] {
-      padding-left: --spacing(4);
-      padding-right: --spacing(4);
+    &[data-variant="primary"] {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
     }
 
     font-size: 14px;
