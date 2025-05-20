@@ -1,40 +1,39 @@
 .button {
-	&[data-size="medium"] {
-		font-size: 16px;
-		height: unset;
-		line-height: 24px;
-	}
+  &[data-size="medium"] {
+    font-size: 16px;
+    height: unset;
+    line-height: 24px;
+  }
 
-	&[data-size="small"] {
+  &[data-size="small"] {
+    &[data-variant="primary"],
+    &[data-variant="secondary"] {
+      padding-left: --spacing(4);
+      padding-right: --spacing(4);
+    }
 
-		&[data-variant="primary"],
-		&[data-variant="secondary"] {
-			padding-left: --spacing(4);
-			padding-right: --spacing(4);
-		}
+    font-size: 14px;
+    height: unset;
+    line-height: 22px;
+  }
 
-		font-size: 14px;
-		height: unset;
-		line-height: 22px;
-	}
+  &[data-variant="primary"]:not(:disabled) {
+    &[data-is-danger="true"] {
+      background-color: var(--color-error-main);
+    }
 
-	&[data-variant="primary"]:not(:disabled) {
-		&[data-is-danger="true"] {
-			background-color: var(--color-error-main);
-		}
+    background-color: var(--color-primary-main);
+  }
 
-		background-color: var(--color-primary-main);
-	}
+  &[data-variant="secondary"]:not(:disabled) {
+    &[data-is-danger="true"] {
+      border-color: var(--color-error-main);
+      color: var(--color-error-main);
+    }
 
-	&[data-variant="secondary"]:not(:disabled) {
-		&[data-is-danger="true"] {
-			border-color: var(--color-error-main);
-			color: var(--color-error-main);
-		}
+    border-color: var(--color-primary-main);
+    color: var(--color-primary-main);
+  }
 
-		border-color: var(--color-primary-main);
-		color: var(--color-primary-main);
-	}
-
-	text-wrap: nowrap;
+  text-wrap: nowrap;
 }

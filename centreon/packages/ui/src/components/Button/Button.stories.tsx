@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { Add, Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 
 import { Button } from './Button';
 import '../../ThemeProvider/tailwindcss.css';
