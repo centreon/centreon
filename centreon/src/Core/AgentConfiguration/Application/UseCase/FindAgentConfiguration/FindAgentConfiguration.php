@@ -81,7 +81,6 @@ final class FindAgentConfiguration
                         $configuration['hosts'][$index]['name'] = $hostNamesById->getName($host['id']);
                     }
                 }
-                $hostNamesById = $this->readHostRepository->findNames($hostIds);
             }
 
             return new FindAgentConfigurationResponse($agentConfiguration, $hostNamesById ?? null, $pollers);
