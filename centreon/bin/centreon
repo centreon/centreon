@@ -119,7 +119,7 @@ $db_storage = $dependencyInjector['realtime_db'];
 /**
  * Create Centreon API object
  */
-CentreonClapi\CentreonUtils::setUserName($options['u']);
+CentreonClapi\CentreonUtils::setUserName($options['u'] ?? "");
 $api = CentreonClapi\CentreonAPI::getInstance(
     ($options["u"] ?? ""),
     ($options["p"] ?? ""),
