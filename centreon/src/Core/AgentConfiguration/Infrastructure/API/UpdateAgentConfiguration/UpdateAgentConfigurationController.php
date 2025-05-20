@@ -93,9 +93,12 @@ final class UpdateAgentConfigurationController extends AbstractController
         $updateRequest->id = $id;
         $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
-        $updateRequest->connectionMode = $data['connection_mode'] === 'no-tls'
-            ? ConnectionModeEnum::NO_TLS
-            : ConnectionModeEnum::SECURE;
+        $updateRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $updateRequest->pollerIds = $data['poller_ids'];
         $updateRequest->configuration = $data['configuration'];
 
