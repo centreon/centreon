@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "d6967cc08a82e27e24c172acb3a0c7f3",
-=======
-    "content-hash": "89685a9df17de7b34f36bd857a1e5ef6",
->>>>>>> f76c586bb6 (feat(token): handle CMA tokens in API and UI (#7030))
+    "content-hash": "498a2dc0d619051a252db18313dfe6c9",
     "packages": [
         {
             "name": "beberlei/assert",
