@@ -396,7 +396,7 @@ jobs:
           script: |
             const getDeliveryType = (branchName) => {
               switch (true) {
-                case /(^MON-150484-manage-delivery-to-feature-repositories$)|(^feature-MON-\d{5}.+)/.test(branchName):
+                case /(^feature-MON-\d{5}.+)/.test(branchName):
                   return 'feature';
                 default:
                   return 'classic';
