@@ -19,6 +19,7 @@ info:
     + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
     + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
     + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -5316,6 +5317,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - requested_authn_context
         - logout_from
       properties:
         is_active:
@@ -5340,6 +5342,10 @@ components:
         user_id_attribute:
           type: string
           description: ""
+        requested_authn_context:
+          type: string
+          enum: ['minimum', 'exact', 'better', 'maximum']
+          description: "Requested authentication context"
         logout_from:
           type: boolean
           description: "Logout"
