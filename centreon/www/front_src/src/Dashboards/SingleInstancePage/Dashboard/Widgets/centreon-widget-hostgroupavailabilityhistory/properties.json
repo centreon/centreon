@@ -58,11 +58,11 @@
        "hiddenCondition": {
             "target": "options",
             "method": "includes",
-            "when": "options.resouceTypes",
+            "when": "options.resourceTypes",
             "matches": ["host-group", "host-category"]
           }
     },
-    "resouceTypes":{
+    "resourceTypes":{
       "type":"radio",
       "defaultValue": "host-group",
       "label": "Display resources with this resource type",
@@ -112,48 +112,49 @@
       "overrideAddButtonVisibility":{
          "matchedResourcesType":"host-category"
         },
-      "subInputs": [
+      "selectType":{
+        "defaultResourceType":"host-group",
+        "disabled":true
+      },
+        "subInputs": [
         {
           "name": "warningtext",
-          "displayValue": ["host-group"],
+          "displayValue": "host-group",
           "customPropertyMatch": {
-            "method": "pluck",
-            "property": "resourceType"
+            "target":"options",
+            "property": "resourceTypes"
           },
           "input": {
             "type": "warning",
-            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups and host categories."
+            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
           }
         },
             {
           "name": "warningtext",
-          "displayValue": ["host-category"],
+          "displayValue": "host-category",
           "customPropertyMatch": {
-            "method": "pluck",
-            "property": "resourceType"
+            "target":"options",
+             "property": "resourceTypes"
+
           },
           "input": {
             "type": "warning",
-            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups and host categories."
+            "label": "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
           }
         },
             {
           "name": "warningtext",
-          "displayValue": ["host"],
+          "displayValue": "host",
           "customPropertyMatch": {
-            "method": "pluck",
-            "property": "resourceType"
+          "target":"options",
+          "property": "resourceTypes"
           },
           "input": {
             "type": "warning",
             "label": "Data is aggregated daily for graphs presenting hosts."
           }
         }
-      ],
-      "selectType":{
-        "defaultResourceType":"host-group",
-        "disabled":true
-      }
+      ]
     
     }
   },

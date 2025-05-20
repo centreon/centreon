@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, isEmpty, isNil, isNotNil, pluck } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil, path, pluck } from 'ramda';
 
 import { Box, Stack } from '@mui/material';
 
@@ -9,6 +9,7 @@ import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
 
 import { DefaultComponent, propertiesInputType } from './useWidgetInputs';
+import { getDataProperty, getProperty } from './Inputs/utils';
 
 interface SubInputsProps {
   children: JSX.Element;
@@ -27,27 +28,39 @@ const SubInputs = ({
   const { setFieldValue, values } = useFormikContext<Widget>();
 
 
-
-  // a verifierrrrrrrrrrrrrr
-  const subInputsToDisplay = useMemo(
-    () =>
-      subInputs?.filter(({ displayValue, customPropertyMatch }) => {
+// a ajouter memoizationnnnnnn
+  
+  const subInputsToDisplay = subInputs?.filter(({ displayValue, customPropertyMatch }) => {
+        
+        const targetedValue =  customPropertyMatch?.target?  getProperty({
+                         obj: values,
+                         propertyName: "resourceTypes"
+                       }):value
+      
+      
+                       
+      
+                         
+      console.log({targetedValue, values})
+ 
+    
+    
         if (equals(customPropertyMatch?.method, 'pluck')) {
 
-          console.log('i should be heeeeeeeeeeeeeeeeeeeeeeeere')
-          const valuesToCompare = pluck(customPropertyMatch?.property, value);
+          const valuesToCompare = pluck(customPropertyMatch?.property, targetedValue);
 
-          console.log({valuesToCompare,displayValue})
 
           return equals(valuesToCompare, displayValue);
         }
 
-        return equals(displayValue, null) ? true : equals(value, displayValue);
-      }),
-    [subInputs, value]
-  );
 
-  console.log({subInputs, subInputsToDisplay})
+        return equals(displayValue, null) ? true : equals(targetedValue, displayValue);
+      })
+  
+
+  // console.log({values})
+
+
 
   const hasSubInputs = useMemo(
     () => !isEmpty(subInputsToDisplay) && !isNil(subInputsToDisplay),
