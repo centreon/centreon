@@ -67,6 +67,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/checkmarx-analysis.yml
     with:
+      module_directory: centreon-ha
       module_name: centreon-ha
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}

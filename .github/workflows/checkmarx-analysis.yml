@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       module_directory:
-        required: false
+        required: true
         type: string
 
     secrets:
