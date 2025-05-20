@@ -22135,3 +22135,63 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 
 #~ msgid "Display average as"
 #~ msgstr "Afficher la moyenne sous forme de"
+
+# ---- EXPORT CSV ----
+
+msgid "Resource Type"
+msgstr "Type de ressource"
+
+msgid "Parent Resource Type"
+msgstr "Type de ressource parent"
+
+msgid "Parent Resource Name"
+msgstr "Nom de la ressource parent"
+
+msgid "Parent Resource Status"
+msgstr "Statut de la ressource parent"
+
+msgid "An error occurred while filtering columns"
+msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+msgid "Error while creating export request"
+msgstr "Erreur lors de la création de la demande d'export"
+
+msgid "Export format not supported"
+msgstr "Format d'export non supporté"
+
+
+msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
+msgstr "L'export sera traité mais ne contiendra pas toutes les lignes. Vous pouvez cependant filtrer vos ressources pour réduire le nombre de lignes."
+
+msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
+msgstr "Vous allez exporter le statut des ressources que vous avez filtrées. Vous pouvez exporter jusqu'à 10 000 lignes."
+
+msgid "Number of rows"
+msgstr "Nombre de lignes"
+
+msgid "Visible columns only"
+msgstr "Colonnes visibles seulement"
+
+msgid "All columns"
+msgstr "Toutes les colonnes"
+
+msgid "Current page only"
+msgstr "Page courante seulement"
+
+msgid "All pages"
+msgstr "Toutes les pages"
+
+msgid "Select columns"
+msgstr "Sélectionner les colonnes"
+
+
+msgid "Select pages"
+msgstr "Sélectionner les pages"
+
+msgid "Export processing in progress"
+msgstr "Traitement de l'export en cours"
+
+msgid "Export processing might take some time. The real time data displayed at the output may have changed since the start of processing."
+msgstr "L'export peut prendre un certain temps. Les données en temps réel qui s'afficheront en sortie peuvent avoir changé depuis le début du traitement."
+
+# ---- END EXPORT CSV ----

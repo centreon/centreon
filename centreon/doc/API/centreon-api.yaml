@@ -4,6 +4,8 @@ info:
   description: |
     # New features
     + Added endpoint to deploy services in a host based on associated host template(s)
+    + Added endpoint to export resources : only csv format available for the moment
+    + Added endpoint to count resources
     # Updated features
     + Added host_category filter to /monitoring/hostgroups endpoint
     + Added new filters for the /monitoring/hosts/categories endpoint
@@ -1841,6 +1843,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/resources/count:
+    $ref: './latest/onPremise/Realtime/Resources/CountResources.yaml'
+  /monitoring/resources/export:
+    $ref: './latest/onPremise/Realtime/Resources/ExportResources.yaml'
   /monitoring/resources/hosts/{host_id}:
     get:
       tags:
