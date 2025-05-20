@@ -2521,6 +2521,11 @@ msgid "Broker Module"
 msgstr "Modulo Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+#, fuzzy
+msgid "Broker Module Configuration File"
+msgstr "Informações do modulo Broker"
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr "Opções do Modulo Broker"
 
@@ -23474,9 +23479,6 @@ msgstr "item (s) encontrado (s)"
 #~ msgstr ""
 #~ "Não foi possivel encontrar a variavel CENTREON_ETC . A sessão "
 #~ "provavelmente expirou."
-
-#~ msgid "Broker Module information"
-#~ msgstr "Informações do modulo Broker"
 
 #~ msgid "Congratulations, you have successfully installed Centreon!"
 #~ msgstr "Parabéns, o Centreon foi instalado com sucesso!"

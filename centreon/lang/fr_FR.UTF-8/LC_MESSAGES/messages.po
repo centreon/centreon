@@ -2050,6 +2050,11 @@ msgid "Broker Module"
 msgstr "Commande de lancement du module"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+#, fuzzy
+msgid "Broker Module Configuration File"
+msgstr "Information du module broker"
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr "Option de lancement du module"
 
@@ -19913,9 +19918,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Use a vault to store sensitive data"
 #~ msgstr "Utiliser un coffre fort pour stocker les données sensibles"
-
-#~ msgid "Broker Module information"
-#~ msgstr "Information du module broker"
 
 #~ msgid "Congratulations, you have successfully installed Centreon!"
 #~ msgstr ""
