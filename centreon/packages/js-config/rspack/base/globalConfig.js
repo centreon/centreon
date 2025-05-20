@@ -52,7 +52,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        type: 'css',
+        type: 'css/auto',
         use: [
           {
             loader: 'postcss-loader',

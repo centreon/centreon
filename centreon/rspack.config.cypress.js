@@ -15,36 +15,32 @@ const {
 
 const output = isDevelopmentMode
   ? {
-    publicPath
-  }
+      publicPath
+    }
   : {};
 
-module.exports = merge(
-  getBaseConfiguration(true, './www/front_src/src/'),
-  getDevConfiguration(),
-  {
-    devServer: {
-      ...devServer,
-      port: 9092,
-      static: [
-        {
-          directory: `${__dirname}/www/front_src/public`,
-          publicPath: '/'
-        }
-      ]
-    },
-    devtool: false,
-    output,
-    plugins: devServerPlugins,
-    resolve: {
-      alias: {
-        '@centreon/ui/fonts': path.resolve(
-          './node_modules/@centreon/ui/public/fonts'
-        ),
-        '@mui/material': path.resolve('./node_modules/@mui/material'),
-        'centreon-widgets': path.resolve('www', 'widgets', 'src'),
-        dayjs: path.resolve('./node_modules/dayjs')
+module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
+  devServer: {
+    ...devServer,
+    port: 9092,
+    static: [
+      {
+        directory: `${__dirname}/www/front_src/public`,
+        publicPath: '/'
       }
+    ]
+  },
+  devtool: false,
+  output,
+  plugins: devServerPlugins,
+  resolve: {
+    alias: {
+      '@centreon/ui/fonts': path.resolve(
+        './node_modules/@centreon/ui/public/fonts'
+      ),
+      '@mui/material': path.resolve('./node_modules/@mui/material'),
+      'centreon-widgets': path.resolve('www', 'widgets', 'src'),
+      dayjs: path.resolve('./node_modules/dayjs')
     }
   }
-);
+});

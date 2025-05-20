@@ -14,7 +14,7 @@ module.exports = (enableCoverage = false, postCssBase = undefined) =>
     getBaseConfiguration({
       enableCoverage,
       moduleName: 'centreon',
-      postCssBase: postCssBase || './www/front_src/src/'
+      postCssBase: postCssBase || './www/front_src/src'
     }),
     {
       devServer: {
