@@ -23,7 +23,7 @@ on:
 jobs:
   build:
     name: Checks before analysis
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       enable_analysis: ${{ steps.routing.outputs.enable_analysis }}
 
