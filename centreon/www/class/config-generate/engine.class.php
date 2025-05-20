@@ -135,7 +135,8 @@ class Engine extends AbstractObject
         enable_environment_macros,
         enable_macros_filter,
         macros_filter,
-        logger_version
+        logger_version,
+        broker_module_cfg_file
     ';
     /** @var string[] */
     protected $attributes_write = [
@@ -204,6 +205,7 @@ class Engine extends AbstractObject
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
+        'broker_module_cfg_file',
     ];
     /** @var string[] */
     protected $attributes_default = [
