@@ -22,37 +22,42 @@ on:
 
 jobs:
   build:
-    name: Binary preparation
-    runs-on: ubuntu-24.04
+    name: Checks before analysis
+    runs-on: centreon-ubuntu-22.04
     outputs:
-      enable_qg: ${{ steps.routing-mode.outputs.enable_qg }}
+      enable_analysis: ${{ steps.routing.outputs.enable_analysis }}
 
     steps:
-      - name: Set routing mode
-        id: routing-mode
+      - name: routing
+        id: routing
         run: |
           # Quality gate settings
           ENABLE_QG="true"
-          echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
-
-          # TODO to absorb from a flat file
-          # FILE_FILTER="!**/test*/**,!**/features/**"
-
-          # TODO to disable on stable branches
-          # THRESHOLD="--threshold 'sast-critical=1;sast-high=1"
+          if [[ "${{ vars.CHECKMARX_QUALITY_GATE }}" != "true" ]]; then
+            # disabling all QG in case of incident with the service
+            ENABLE_QG="false"
+            echo "Skipping analysis. Caused by QG override"
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.user.id }}" == "49699333" ]]; then
+            # disabling the QG in case of pull request opened by dependabot bot
+            # As dependabot will ne be able to access GH secrets
+            ENABLE_QG="false"
+            echo "Skipping analysis. Caused by dependabot PR"
+          fi
+          echo "enable_analysis=$ENABLE_QG" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
   pipeline-scan:
     needs: [build]
     name: Run a pipeline scan
     runs-on: ubuntu-24.04
-    if: needs.build.outputs.enable_qg == 'true'
+    if: needs.build.outputs.enable_analysis == 'true'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Checkmarx One CLI Action
-        uses: checkmarx/ast-github-action@ef93013c95adc60160bc22060875e90800d3ecfc # v.2.3.19
+        uses: checkmarx/ast-github-action@ef93013c95adc60160bc22060875e90800d3ecfc # v2.3.19
         with:
           project_name: ${{ inputs.module_name }}
           base_uri: ${{ secrets.base_uri }}

@@ -16,11 +16,6 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - "centreon/**"
   push:
@@ -76,7 +71,7 @@ jobs:
       cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
       cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
 
-#  set-skip-label:
-#    needs: [get-environment, checkmarx-analysis]
-#    if: needs.get-environment.outputs.skip_workflow == 'false'
-#    uses: ./.github/workflows/set-pull-request-skip-label.yml
+  set-skip-label:
+    needs: [get-environment, checkmarx-analysis]
+    if: needs.get-environment.outputs.skip_workflow == 'false'
+    uses: ./.github/workflows/set-pull-request-skip-label.yml
