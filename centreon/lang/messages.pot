@@ -2053,6 +2053,10 @@ msgid "Broker Module"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Broker Module Configuration File"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr ""
 
