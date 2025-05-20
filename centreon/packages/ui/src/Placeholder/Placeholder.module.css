@@ -1,0 +1,5 @@
+.placeholder {
+	display: flex;
+	flex-direction: row;
+	gap: --spacing(4);
+}
