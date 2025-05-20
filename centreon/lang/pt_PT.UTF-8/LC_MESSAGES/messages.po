@@ -17519,6 +17519,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+
 # msgid "An error occurred during authentication"
 # msgstr ""
 
@@ -17541,4 +17542,19 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "The minimum allowed value is 10"
+# msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
 # msgstr ""
