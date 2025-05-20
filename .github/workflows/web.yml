@@ -1048,7 +1048,8 @@ jobs:
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (needs.get-environment.outputs.delivery_type == 'feature' || contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
