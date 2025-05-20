@@ -39,7 +39,7 @@ jobs:
             echo "Skipping analysis. Caused by QG override"
           elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.user.id }}" == "49699333" ]]; then
             # disabling the QG in case of pull request opened by dependabot bot
-            # As dependabot will ne be able to access GH secrets
+            # As dependabot will not be able to access GH secrets
             ENABLE_QG="false"
             echo "Skipping analysis. Caused by dependabot PR"
           fi
