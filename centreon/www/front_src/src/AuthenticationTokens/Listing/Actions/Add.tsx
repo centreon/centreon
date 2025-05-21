@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { modalStateAtom } from '../../atoms';
 import { TokenType } from '../../models';
 import { labelAdd } from '../../translatedLabels';
