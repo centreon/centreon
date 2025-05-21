@@ -27,6 +27,7 @@ use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
@@ -55,13 +56,15 @@ class CmaValidator implements TypeValidatorInterface
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
-            if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
-                if ($key === 'otel_ca_certificate' && is_null($value)) {
-                    continue;
+            if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
+                if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
+                    if ($key === 'otel_ca_certificate' && is_null($value)) {
+                        continue;
+                    }
+                    $this->validateFilename("configuration.{$key}", $value, true);
+                } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
+                    $this->validateFilename("configuration.{$key}", $value, false);
                 }
-                $this->validateFilename("configuration.{$key}", $value, true);
-            } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
-                $this->validateFilename("configuration.{$key}", $value, false);
             }
 
             if ($key === 'hosts') {
