@@ -1,5 +1,5 @@
-name: dsm-analysis
-run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('dsm-analysis nightly {0}', github.ref_name) || '' }}
+name: ha-analysis
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('ha-analysis nightly {0}', github.ref_name) || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -17,7 +17,7 @@ on:
     - cron: "0 3 * * 1-5"
   pull_request:
     paths:
-      - "centreon-dsm/**"
+      - "centreon-ha/**"
   push:
     branches:
       - develop
@@ -25,16 +25,16 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "centreon-dsm/**"
+      - "centreon-ha/**"
 
 env:
-  module: dsm
+  module: ha
 
 jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
-      version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      version_file: centreon-ha/.env
 
   dispatch-to-maintained-branches:
     needs: [get-environment]
@@ -53,7 +53,7 @@ jobs:
           NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run dsm-analysis.yml -r "$target" -f nightly_manual_trigger=true
+            gh workflow run ha-analysis.yml -r "$target" -f nightly_manual_trigger=true
           done
         shell: bash
     env:
@@ -67,8 +67,8 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/checkmarx-analysis.yml
     with:
-      module_directory: centreon-dsm
-      module_name: centreon-dsm
+      module_directory: centreon-ha
+      module_name: centreon-ha
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
