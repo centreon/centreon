@@ -19,6 +19,10 @@ on:
         description: 'API prefix to insert before /api/latest/configuration in the JMX file'
         required: true
         type: string
+      number_of_users:
+        description: 'Number of users for the test (affects .env file)'
+        required: true
+        type: string
 
 jobs:
   performance-test:
@@ -61,6 +65,17 @@ jobs:
           echo "Test jmeter_port value is: ${{ github.event.inputs.jmeter_port }}"
           echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
           echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
+          echo "Test number_of_users value is: ${{ github.event.inputs.number_of_users }}"
+
+      - name: Update .env with input number of users
+        run: |
+          ENV_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/.env"
+
+          echo "Updating NUMBER_OF_USERS in $ENV_FILE"
+          sed -i "s/^NUMBER_OF_USERS=.*/NUMBER_OF_USERS=${{ github.event.inputs.number_of_users }}/" "$ENV_FILE"
+
+          echo "Updated .env file content:"
+          cat "$ENV_FILE"
 
       - name: Update JMeter .jmx with inputs
         run: |
