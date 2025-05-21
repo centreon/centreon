@@ -445,8 +445,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     private function initLanguage(ContactInterface $user): void
     {
-        $locale = $user->getLocale() ?? $this->getBrowserLocale();
-        $lang = $locale . '.' . Contact::DEFAULT_CHARSET;
+        $lang = ($user->getLang() === 'browser')
+            ? $this->getBrowserLocale() . '.' . Contact::DEFAULT_CHARSET
+            : $user->getLang();
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);
