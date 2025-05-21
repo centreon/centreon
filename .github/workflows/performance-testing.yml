@@ -181,71 +181,66 @@ jobs:
 
       - name: Display HTML Report in GitHub Summary
         run: |
-            echo "Looking for JTL files..."
-            ls -la $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          echo "Looking for JTL files..."
+          ls -la $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
 
-            # Loop through each JTL file and display HTML report for each JMX file
-            for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/*.jtl; do
+          # Variables (à adapter si tu as les inputs GitHub Actions sous un autre nom)
+          NUMBER_OF_USERS="${{ github.event.inputs.number_of_users }}"
+          RAMP_TIME="${{ github.event.inputs.ramp_time }}"
 
-                echo "Found JTL file: $JTL_FILE"
+          # Ajouter l’info nombre d’utilisateurs et ramp time avant les résultats
+          echo "<h2>📊 JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>👥 <strong>Nombre d'utilisateurs :</strong> $NUMBER_OF_USERS</p>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>⏳ <strong>Ramp Time (secondes) :</strong> $RAMP_TIME</p>" >> $GITHUB_STEP_SUMMARY
 
-                # Check if the file exists before using it
-                if [ ! -f "$JTL_FILE" ]; then
-                    echo "Error: No JTL file found!"
-                    exit 1
-                fi
+          # Boucle sur chaque fichier JTL
+          for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/*.jtl; do
 
-                # Extract the base name (without extension) of the JTL file (e.g., results_test.jtl -> test)
-                base_name=$(basename "$JTL_FILE" .jtl)
+              echo "Found JTL file: $JTL_FILE"
 
-                # Add the report header for this test in the GitHub summary
-                echo "<h2>📊 JMeter Test Results </h2>" >> $GITHUB_STEP_SUMMARY
-                echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
-                echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
-                echo "<tbody>" >> $GITHUB_STEP_SUMMARY
+              if [ ! -f "$JTL_FILE" ]; then
+                  echo "Error: No JTL file found!"
+                  exit 1
+              fi
 
-                # Initialize line counter for data rows only
-                line_counter=0
+              # En-tête du tableau
+              echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+              echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+              echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
-                # Read the JTL file line by line and generate the HTML rows
-                while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
-                do
-                    # Skip the header row
-                    if [ "$timestamp" == "timeStamp" ]; then
-                        continue
-                    fi
+              line_counter=0
 
-                    # Increment the line counter for data rows only
-                    line_counter=$((line_counter + 1))
+              while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
+              do
+                  if [ "$timestamp" == "timeStamp" ]; then
+                      continue
+                  fi
 
-                    # If more than 5 rows, stop processing further rows and break the loop
-                    if [ "$line_counter" -gt 5 ]; then
-                        break
-                    fi
+                  line_counter=$((line_counter + 1))
 
-                    # Check if success is "true" for success (🟢), else failure (🚨)
-                    if [ "$success" == "true" ]; then
-                        success_icon="🟢"
-                    else
-                        success_icon="🚨"
-                    fi
+                  if [ "$line_counter" -gt 5 ]; then
+                      break
+                  fi
 
-                    # If Latency is "null", "0", or empty, set it to "N/A"
-                    if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
-                        latency="N/A"
-                    fi
+                  if [ "$success" == "true" ]; then
+                      success_icon="🟢"
+                  else
+                      success_icon="🚨"
+                  fi
 
-                    # Generate the HTML table row
-                    echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
-                done < "$JTL_FILE"
+                  if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
+                      latency="N/A"
+                  fi
 
-                # If there were more than 5 data rows, add a message to the table
-                if [ "$line_counter" -gt 5 ]; then
-                    echo "<tr><td colspan='9' style='color: red;'> ℹ️ Please refer to the artifact for more details.</td></tr>" >> $GITHUB_STEP_SUMMARY
-                fi
+                  echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
+              done < "$JTL_FILE"
 
-                echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
-            done
+              if [ "$line_counter" -gt 5 ]; then
+                  echo "<tr><td colspan='9' style='color: red;'> ℹ️ Please refer to the artifact for more details.</td></tr>" >> $GITHUB_STEP_SUMMARY
+              fi
+
+              echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
+          done
 
       - name: Cleaning up database
         run: node cleaningUpData.mjs
