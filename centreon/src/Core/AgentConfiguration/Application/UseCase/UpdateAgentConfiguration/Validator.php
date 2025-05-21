@@ -30,7 +30,6 @@ use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Validation\TypeValidatorInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
