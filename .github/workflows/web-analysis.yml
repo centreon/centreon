@@ -39,7 +39,8 @@ jobs:
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
       github.ref_name == 'develop' &&
-      needs.get-environment.outputs.skip_workflow == 'false'
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.repository == 'centreon/centreon'
 
     runs-on: ubuntu-22.04
     steps:
