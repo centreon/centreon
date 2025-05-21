@@ -46,7 +46,6 @@ const DataCell = ({
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
   const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
@@ -83,7 +82,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.cell}
+          className="flex items-center h-full overflow-hidden whitespace-nowrap"
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
@@ -110,7 +109,7 @@ const DataCell = ({
       if (isCellHidden) {
         return (
           <Cell
-            className={classes.cell}
+            className="flex items-center h-full overflow-hidden whitespace-nowrap"
             isRowHighlighted={isRowHighlighted}
             listingVariant={listingVariant}
             onClick={(e): void => {
@@ -127,7 +126,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={cx(classes.cell, clickable && classes.clickable)}
+          className={`flex align-items h-full overflow-hidden whitespace-nowrap ${clickable && 'cursor-default'}`}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
