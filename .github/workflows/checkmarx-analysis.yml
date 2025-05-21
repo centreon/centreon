@@ -23,6 +23,9 @@ on:
 jobs:
   build:
     name: Checks before analysis
+    if: |
+      github.repository == 'centreon/centreon'
+
     runs-on: ubuntu-24.04
     outputs:
       enable_analysis: ${{ steps.routing.outputs.enable_analysis }}
