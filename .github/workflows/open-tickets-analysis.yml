@@ -43,7 +43,7 @@ jobs:
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
       github.ref_name == 'develop' &&
-      needs.get-environment.outputs.skip_workflow == 'false' 
+      needs.get-environment.outputs.skip_workflow == 'false'
 
     runs-on: ubuntu-24.04
     steps:
