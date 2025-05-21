@@ -119,9 +119,9 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW = 'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW';
 
     /**
-     * @var string|null
+     * @var string
      */
-    public const DEFAULT_LOCALE = null;
+    public const DEFAULT_LOCALE = 'en_US';
 
     /**
      * @var string
