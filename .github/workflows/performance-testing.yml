@@ -100,7 +100,7 @@ jobs:
             sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
             sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
-            sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">>${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
+            sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
 
             echo "Updated $JMX_FILE:"
             cat $JMX_FILE
