@@ -29,6 +29,7 @@ on:
 
 jobs:
   get-environment:
+    if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
@@ -39,8 +40,7 @@ jobs:
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
       github.ref_name == 'develop' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.skip_workflow == 'false'
 
     runs-on: ubuntu-22.04
     steps:

@@ -19,6 +19,7 @@ env:
 
 jobs:
   lint:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
 
     steps:
@@ -33,6 +34,7 @@ jobs:
           lint_path: ./src/
 
   cypress-component-testing:
+    if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
