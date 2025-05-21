@@ -1,4 +1,5 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -118,6 +119,16 @@ const mockRequest = (isListingEmpty): void => {
 
 const initialize = ({ isListingEmpty = false }) => {
   const store = createStore();
+
+  store.set(userAtom, {
+    timezone: 'Europe/Paris',
+    locale: 'en',
+    is_admin: true
+  });
+  store.set(platformFeaturesAtom, {
+    featureFlags: {},
+    isCloudPlatform: false
+  });
 
   i18next.use(initReactI18next).init({
     lng: 'en',
