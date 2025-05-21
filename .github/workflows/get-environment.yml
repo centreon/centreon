@@ -403,7 +403,7 @@ jobs:
               }
             };
 
-            core.setOutput('delivery_type', getDeliveryType('${{ github.ref_name }}'));
+            core.setOutput('delivery_type', getDeliveryType('${{ github.head_ref || github.ref_name  }}'));
 
       - name: Detect linked dev and stable branches
         id: linked_branches
