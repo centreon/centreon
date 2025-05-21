@@ -3,8 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useStyles = makeStyles()((theme) => ({
   modalHeader: {
     fontSize: theme.typography.h5.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    marginBottom: theme.spacing(-3)
+    fontWeight: theme.typography.fontWeightBold
   }
 }));
 
@@ -16,10 +15,8 @@ export const useFormStyles = makeStyles()((theme) => ({
     background: theme.palette.background.listingHeader,
     color: theme.palette.common.white,
     flexDirection: 'row-reverse',
-    height: theme.spacing(4.5),
     justifyContent: 'space-between',
-    paddingInline: theme.spacing(1.25),
-    margin: theme.spacing(3, 0, 1)
+    paddingInline: theme.spacing(1.25)
   }
 }));
 
