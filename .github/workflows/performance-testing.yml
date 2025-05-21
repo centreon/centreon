@@ -69,6 +69,7 @@ jobs:
           echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
           echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
           echo "Test number_of_users value is: ${{ github.event.inputs.number_of_users }}"
+          echo "Test number_of_users value is: ${{ github.event.inputs.ramp_time }}"
 
       - name: Update .env with input number of users
         run: |
