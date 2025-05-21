@@ -23,8 +23,7 @@ on:
 jobs:
   build:
     name: Checks before analysis
-    if: |
-      github.repository == 'centreon/centreon'
+    if: github.repository == 'centreon/centreon'
 
     runs-on: ubuntu-24.04
     outputs:
