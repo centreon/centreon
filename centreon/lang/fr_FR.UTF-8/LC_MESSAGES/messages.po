@@ -2050,6 +2050,11 @@ msgid "Broker Module"
 msgstr "Commande de lancement du module"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+#, fuzzy
+msgid "Broker Module Configuration File"
+msgstr "Information du module broker"
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr "Option de lancement du module"
 
@@ -2089,6 +2094,10 @@ msgstr "Activités métiers"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Business Activity Diagram"
 msgstr "Diagramme d'activité métier"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity availability"
+msgstr "Disponibilité d'une Activité Métier"
 
 #: centreon/www/install/front_translate.php
 msgid "Business Views"
@@ -4921,6 +4930,13 @@ msgstr ""
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays a web page"
 msgstr "Affiche une page web"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays availability and alerts of a Business Activity for a given period."
+msgstr ""
+"Affiche la disponibilité et les alertes d'une activité métier pour une "
+"période donnée."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays data on resource status and events, centralized in a table."
@@ -13409,6 +13425,10 @@ msgstr "Rapports"
 msgid "Reporting Period"
 msgstr "Période de génération"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Reporting period"
+msgstr "Période du rapport"
+
 #: centreon/src/Centreon/Infrastructure/Service/CentreonPaginationService.php
 #, php-format
 msgid "Repository class %s has to implement %s"
@@ -15290,6 +15310,7 @@ msgstr "Afficher plus de filtres"
 msgid "Show only dashboards added to favorites"
 msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Show thresholds"
 msgstr "Afficher les seuils"
@@ -16750,6 +16771,10 @@ msgstr ""
 msgid "This is the description of the text widget"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "This month"
+msgstr "Ce mois"
+
 #: centreon/www/install/front_translate.php
 msgid "This name already exists"
 msgstr "Ce nom existe déjà"
@@ -16829,6 +16854,7 @@ msgstr "Cette valeur doit être un entier inférieur à"
 msgid "This view name is required"
 msgstr "Le nom de la vue est obligatoire"
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "This week"
 msgstr "Cette semaine"
@@ -16843,6 +16869,10 @@ msgstr ""
 msgid "This will not be used because the number of attempts is not defined"
 msgstr ""
 "Ceci ne va pas être utilisé car le nombre de tentatives n'est pas défini"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "This year"
+msgstr "Cette année"
 
 #: centreon/www/install/smarty_translate.php
 #, fuzzy
@@ -18398,6 +18428,7 @@ msgstr "d/m/Y - H:i:s"
 msgid "Yes"
 msgstr "Oui"
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/reporting/dashboard/common-Func.php
@@ -19913,9 +19944,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Use a vault to store sensitive data"
 #~ msgstr "Utiliser un coffre fort pour stocker les données sensibles"
-
-#~ msgid "Broker Module information"
-#~ msgstr "Information du module broker"
 
 #~ msgid "Congratulations, you have successfully installed Centreon!"
 #~ msgstr ""

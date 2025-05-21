@@ -16,8 +16,6 @@ on:
       - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -28,8 +26,6 @@ on:
       - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
 
 env:
   module: dsm

@@ -11,8 +11,11 @@ export const useTextStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     justifyContent: 'center'
   },
-  threshold: {
-    textAlign: 'center'
+  thresholdRight: {
+    textAlign: 'start'
+  },
+  thresholdLeft: {
+    textAlign: 'end'
   },
   thresholds: {
     display: 'flex',

@@ -43,6 +43,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new AddAgentConfigurationPresenterStub();
@@ -50,9 +51,11 @@ beforeEach(function (): void {
         readAcRepository: $this->readAgentConfigurationRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
         writeAcRepository: $this->writeAgentConfigurationRepository = $this->createMock(WriteAgentConfigurationRepositoryInterface::class),
         readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        readMsRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
         repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false,
     );
 
     $this->testedAddRequest = new AddAgentConfigurationRequest();
