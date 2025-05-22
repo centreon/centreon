@@ -22898,6 +22898,12 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
 
+msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
+msgstr "Affiche la répartition des statuts actuels sur une activité métier, sous forme de frise chronologique pour une période donnée."
+
+msgid "Business Activity status timeline"
+msgstr "Historique du statut d’une Activité Métier"
+
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
@@ -22906,3 +22912,4 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+

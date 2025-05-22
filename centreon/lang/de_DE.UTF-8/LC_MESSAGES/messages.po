@@ -21298,3 +21298,12 @@ msgstr ""
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Erweiterter Modus"
+
+# msgid "Select a Business Activity to display the preview."
+# msgstr ""
+
+# msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
+# msgstr ""
+
+# msgid "Business Activity status timeline"
+# msgstr ""
