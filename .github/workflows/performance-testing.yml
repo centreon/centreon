@@ -255,24 +255,23 @@ jobs:
 
       - name: Run Pandas Analysis
         run: |
-            source .venv/bin/activate
-            if [[ -f analyze_results.py ]]; then
+          source .venv/bin/activate
+          if [[ -f analyze_results.py ]]; then
               python3 analyze_results.py >> $GITHUB_STEP_SUMMARY || true
-            else
-              echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
-              exit 0  # ou `true` pour ne pas faire échouer
-            fi
+          else
+            echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
+            exit 0  # ou `true` pour ne pas faire échouer
+          fi
 
-      - name: Download JTL-Analyzer
+      - name: Générer le rapport Markdown
         run: |
-          wget https://github.com/Abstracta/jtl-analyzer/releases/download/2.10.0/jtl-analyzer-2.10.0.jar -O jtl-analyzer.jar
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          python generate_report.py jmeter_results/results.jtl output_folder
 
-      - name: Generate JTL-Analyzer report
-        run: |
-          java -jar jtl-analyzer.jar -i centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_*.jtl -o centreon/tests/performanceTesting/jtl-analyzer-report
-
-      - name: Upload JTL-Analyzer Report
-        uses: actions/upload-artifact@v3
+      - name: Upload Markdown Report
+        uses: actions/upload-artifact@v4
         with:
-          name: jtl-analyzer-report
-          path: centreon/tests/performanceTesting/jtl-analyzer-report
+          name: jmeter-markdown-report
+          path: centreon/tests/performanceTesting/jmeterFolder/output_folder/report.md
