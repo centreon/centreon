@@ -184,14 +184,12 @@ jobs:
           echo "Looking for JTL files..."
           ls -la $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
 
-          # Variables (à adapter si tu as les inputs GitHub Actions sous un autre nom)
           NUMBER_OF_USERS="${{ github.event.inputs.number_of_users }}"
           RAMP_TIME="${{ github.event.inputs.ramp_time }}"
 
-          # Ajouter l’info nombre d’utilisateurs et ramp time avant les résultats
           echo "<h2>📊 JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
-          echo "<p>👥 <strong>Nombre d'utilisateurs :</strong> $NUMBER_OF_USERS</p>" >> $GITHUB_STEP_SUMMARY
-          echo "<p>⏳ <strong>Ramp Time (secondes) :</strong> $RAMP_TIME</p>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>👥 <strong>Number of users :</strong> $NUMBER_OF_USERS</p>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>⏳ <strong> Ramp-Up Time (seconds) :</strong> $RAMP_TIME</p>" >> $GITHUB_STEP_SUMMARY
 
           # Boucle sur chaque fichier JTL
           for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/*.jtl; do
@@ -244,3 +242,13 @@ jobs:
 
       - name: Cleaning up database
         run: node cleaningUpData.mjs
+
+      - name: Install Python and Pandas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip install pandas
+
+      - name: Analyze JMeter Results with Pandas
+        run: |
+          python3 centreon/tests/performanceTesting/analyze_results.py
