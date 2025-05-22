@@ -76,6 +76,7 @@ const DataCell = ({
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
           isRowHovered={isRowHovered}
+          isRowHighlighted={isRowHighlighted}
         />
       );
 
@@ -154,6 +155,7 @@ const DataCell = ({
                   disableRowCondition={disableRowCondition(row)}
                   formattedString={formattedString}
                   isRowHovered={isRowHovered}
+                  isRowHighlighted={isRowHighlighted}
                 />
               );
             }}

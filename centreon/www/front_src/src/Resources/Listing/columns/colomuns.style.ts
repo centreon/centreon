@@ -20,9 +20,6 @@ const useColumnStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
     whiteSpace: 'nowrap'
   },
   resourceNameText: {
-    color: isHovered
-      ? theme.palette.text.primary
-      : theme.palette.text.secondary,
     paddingLeft: theme.spacing(0.5)
   },
   statusChip: {

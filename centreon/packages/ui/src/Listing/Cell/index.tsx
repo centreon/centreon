@@ -151,7 +151,7 @@ const Cell = ({
           listingVariant,
           theme
         }),
-        color: getRowTextColor({
+        ...getRowTextColor({
           isRowHighlighted,
           disableRowCondition,
           row,

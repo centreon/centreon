@@ -8,21 +8,21 @@ interface Ellipsis {
   disableRowCondition: boolean;
   formattedString: string;
   isRowHovered: boolean;
+  isRowHighlighted?: boolean;
 }
 const EllipsisTypography = ({
   formattedString,
   isRowHovered,
   disableRowCondition,
   className,
-  dataStyle
-}: Ellipsis): JSX.Element => {
-  return (
-    <Typography
-      className={`${className} text-[${dataStyle.body.fontSize}] truncate ${(!isRowHovered || disableRowCondition) && 'text-text-secondary'}`}
-    >
-      {formattedString}
-    </Typography>
-  );
-};
+  dataStyle,
+  isRowHighlighted
+}: Ellipsis): JSX.Element => (
+  <Typography
+    className={`${className} text-[${dataStyle.body.fontSize}] truncate ${!isRowHighlighted && (!isRowHovered || disableRowCondition) && 'text-text-secondary'}`}
+  >
+    {formattedString}
+  </Typography>
+);
 
 export default EllipsisTypography;
