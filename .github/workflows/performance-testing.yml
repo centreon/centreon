@@ -246,20 +246,20 @@ jobs:
       - name: Install python3.11-venv
         run: sudo apt-get update && sudo apt-get install -y python3.11-venv
 
-      - name: Set up Python Virtual Environment
+      - name: Install dependencies
         run: |
-          python3 -m venv .venv
           source .venv/bin/activate
-          pip install --upgrade pip
-          pip install pandas
-          pip install pandas tabulate
+          pip install pandas tabulate matplotlib seaborn
 
-      - name: Run Pandas Analysis
+      - name: Run analysis script
         run: |
-            source .venv/bin/activate
-            if [[ -f analyze_results.py ]]; then
-              python3 analyze_results.py >> $GITHUB_STEP_SUMMARY || true
-            else
-              echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
-              exit 0  # ou `true` pour ne pas faire échouer
-            fi
+          source .venv/bin/activate
+          python3 analyze_results.py $CSV_FILE_PATH >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Upload analysis artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-analysis
+          path: |
+            errors_summary.csv
+            response_times.png
