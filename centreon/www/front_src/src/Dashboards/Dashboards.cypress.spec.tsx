@@ -644,7 +644,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelDuplicate).click();
 
         cy.waitForRequest('@createDashboard').then(({ request }) => {
-          expect(JSON.parse(request.body).name).to.be.equal('new name');
+          expect(request.body).to.deep.equal({ name: 'new name' });
         });
 
         cy.contains(labelDashboardDuplicated).should('be.visible');
