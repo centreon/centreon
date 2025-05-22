@@ -2581,6 +2581,11 @@ msgstr "Actividades de negocios"
 msgid "Business Activity availability"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+#, fuzzy
+msgid "Business Activity status timeline"
+msgstr "Actividades de negocios"
+
 #: centreon/www/install/front_translate.php
 msgid "Business Views"
 msgstr "Vistas de negocios"
@@ -5792,6 +5797,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as a "
+"chronological timeline for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -20506,6 +20517,10 @@ msgid "Select Timeperiod..."
 msgstr "Elige el periodo de tiempo ..."
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Select a Poller"
 msgstr "Seleccionar todo"
@@ -28521,12 +28536,3 @@ msgstr "artículo (s) encontrado (s)"
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Modo avanzado"
-
-# msgid "Select a Business Activity to display the preview."
-# msgstr ""
-
-# msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-# msgstr ""
-
-# msgid "Business Activity status timeline"
-# msgstr ""

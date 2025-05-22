@@ -2573,6 +2573,11 @@ msgstr "Atividades de Negócio"
 msgid "Business Activity availability"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+#, fuzzy
+msgid "Business Activity status timeline"
+msgstr "Atividades de Negócio"
+
 #: centreon/www/install/front_translate.php
 msgid "Business Views"
 msgstr "Visões de Negócio"
@@ -5751,6 +5756,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as a "
+"chronological timeline for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -17043,6 +17054,10 @@ msgid "Select Timeperiod..."
 msgstr "Selecione Período de Tempo..."
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Select a Poller"
 msgstr "Selecionar tudo"
@@ -24588,12 +24603,3 @@ msgstr "item (s) encontrado (s)"
 # msgstr ""
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
-
-# msgid "Select a Business Activity to display the preview."
-# msgstr ""
-
-# msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-# msgstr ""
-
-# msgid "Business Activity status timeline"
-# msgstr ""

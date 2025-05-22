@@ -2099,6 +2099,10 @@ msgstr "Diagramme d'activité métier"
 msgid "Business Activity availability"
 msgstr "Disponibilité d'une Activité Métier"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity status timeline"
+msgstr "Historique du statut d’une Activité Métier"
+
 #: centreon/www/install/front_translate.php
 msgid "Business Views"
 msgstr "Vues métiers"
@@ -4955,6 +4959,14 @@ msgstr ""
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
 msgstr "Affiche les métriques pour une période donnée."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as a "
+"chronological timeline for a given time period."
+msgstr ""
+"Affiche la répartition des statuts actuels sur une activité métier, sous "
+"forme de frise chronologique pour une période donnée."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -14366,6 +14378,10 @@ msgid "Select Timeperiod..."
 msgstr "Choisissez la période de temps..."
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+#: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Select a Poller"
 msgstr "Tout sélectionner"
@@ -22767,9 +22783,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Listening address"
 #~ msgstr "Addresse d'écoute"
 
-#~ msgid "Select a Business Activity to display the preview."
-#~ msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
 #~ msgid "There are errors in the form."
 #~ msgstr "Il y a des erreurs dans le formulaire."
 
@@ -22898,12 +22911,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
 
-msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-msgstr "Affiche la répartition des statuts actuels sur une activité métier, sous forme de frise chronologique pour une période donnée."
-
-msgid "Business Activity status timeline"
-msgstr "Historique du statut d’une Activité Métier"
-
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
@@ -22912,4 +22919,3 @@ msgstr "Historique du statut d’une Activité Métier"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
-
