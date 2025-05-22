@@ -24,8 +24,6 @@ on:
       - "!centreon/features/**"
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
-      - "!centreon/.veracode-exclusions"
-      - "!centreon/veracode.json"
       - "!centreon/packages/**"
   push:
     branches:
@@ -41,8 +39,6 @@ on:
       - "!centreon/features/**"
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
-      - "!centreon/.veracode-exclusions"
-      - "!centreon/veracode.json"
       - "!centreon/packages/**"
 
 env:
@@ -113,7 +109,7 @@ jobs:
           has_test_changes: ${{ steps.filter.outputs.has_test_changes || 'true' }}
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon'}}
+    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -569,7 +565,7 @@ jobs:
         uses: ./.github/actions/package-nfpm
         with:
           nfpm_file_pattern: "centreon/packaging/*.yaml"
-          module_name: centreon-web
+          module_name: centreon
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
