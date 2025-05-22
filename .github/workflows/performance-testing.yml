@@ -253,7 +253,12 @@ jobs:
           pip install --upgrade pip
           pip install pandas
 
-      - name: Analyze JMeter Results with Pandas
+      - name: Run Pandas Analysis
         run: |
-          source .venv/bin/activate
-          python3 centreon/tests/performanceTesting/analyze_results.py
+            source .venv/bin/activate
+            if [[ -f analyze_results.py ]]; then
+              python3 analyze_results.py >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
