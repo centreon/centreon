@@ -6,8 +6,12 @@
   "license": "GPL-2.0-only",
   "require": {
     "ext-ctype": "*",
+    "ext-curl": "*",
+    "ext-gettext": "*",
     "ext-iconv": "*",
+    "ext-intl": "*",
     "ext-json": "*",
+    "ext-ldap": "*",
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-phar": "*",

@@ -113,8 +113,7 @@ abstract class BusinessLogicException extends \Exception
     private function setGlobalContext(): void
     {
         $this->context = array_merge(
-            $this->getExceptionInfos($this),
-            ['previous' => $this->getPreviousInfos()],
+            $this->getExceptionContext(),
             ['context' => $this->getBusinessContext()]
         );
     }
@@ -133,55 +132,7 @@ abstract class BusinessLogicException extends \Exception
         );
     }
 
-    private function setExceptionContext(): void
-    {
-        $this->exceptionContext = array_merge(
-            $this->getExceptionInfos($this),
-            ['previous' => $this->getPreviousInfos()]
-        );
-    }
-
-    /**
-     * @param \Throwable $throwable
-     *
-     * @return array<string,mixed>
-     */
-    private function getExceptionInfos(\Throwable $throwable): array
-    {
-        $exceptionContext = [
-            'type' => $throwable::class,
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'code' => $throwable->getCode(),
-        ];
-
-        if (! empty($throwable->getTrace())) {
-            if (isset($throwable->getTrace()[0]['class'])) {
-                $exceptionContext['class'] = $throwable->getTrace()[0]['class'];
-            }
-            if (isset($throwable->getTrace()[0]['function'])) {
-                $exceptionContext['method'] = $throwable->getTrace()[0]['function'];
-            }
-        }
-
-        return $exceptionContext;
-    }
-
-    /**
-     * @return array<string,mixed>|null
-     */
-    private function getPreviousInfos(): ?array
-    {
-        $previousContext = null;
-        if ($this->getPrevious() !== null) {
-            if ($this->getPrevious() instanceof self) {
-                $previousContext = $this->getPrevious()->getExceptionContext();
-            } else {
-                $previousContext = $this->getExceptionInfos($this->getPrevious());
-            }
-        }
-
-        return $previousContext;
+    private function setExceptionContext(): void {
+        $this->exceptionContext = ExceptionFormatter::format($this);
     }
 }
