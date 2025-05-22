@@ -54,14 +54,14 @@ const Row = memo<RowProps>(
           {checkable && (
             <div className="p-1">
               <div>
-                <LoadingSkeleton className="p-5 w-full" />
+                <LoadingSkeleton className="w-full" />
               </div>
             </div>
           )}
           {visibleColumns.map(({ id }) => (
             <div className="p-1" key={`loading_${id}`}>
               <div>
-                <LoadingSkeleton className="p-5 w-full" />
+                <LoadingSkeleton className="w-full" />
               </div>
             </div>
           ))}

@@ -510,10 +510,10 @@ const Listing = <
   return (
     <div className="h-full w-full overflow-hidden">
       {loading && rows.length > 0 && (
-        <LinearProgress className="w-full h-[3]" />
+        <LinearProgress className="w-full h-[3px]" />
       )}
       {(!loading || (loading && rows.length < 1)) && (
-        <div className="w-full h-[3]" />
+        <div className="w-full h-[3px]" />
       )}
       <div
         className="bg-[none] flex-column h-full w-full"
@@ -570,7 +570,7 @@ const Listing = <
                   style={{
                     gridTemplateColumns: gridTemplateColumn,
                     gridTemplateRows: `${dataStyle.header.height}px repeat(${
-                      rows?.length || 1
+                      rowsToDisplay.length || 1
                     }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
                   }}
                   component="div"

@@ -71,6 +71,7 @@ const Content = ({
       {...attributes}
       ref={itemRef}
       style={style}
+      size={xs || 6}
     >
       <Paper className={classes.paper}>
         <div className={classes.tile}>
