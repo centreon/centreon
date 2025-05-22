@@ -116,44 +116,65 @@
         "defaultResourceType":"host-group",
         "disabled":true
       },
-        "subInputs": [
+      "subInputs": [
+          {
+          "name": "warningtext",
+          "displayValue": "host",
+          "customPropertyMatch": {
+            "externalTarget":{"target":"options", "property":"resourceTypes"},
+            "inputTypeCondition" : {"singleResourceSelection":true , "input":"resources"}
+          },
+          "input": {
+            "type": "snackBar",
+            "label": "In order to display the graph with this resource type, you must select only one resource group."
+          }
+        },
+        {
+          "name": "warningtext",
+          "displayValue": "host-category",
+          "customPropertyMatch": {
+            "externalTarget":{"target":"options", "property":"resourceTypes"},
+            "inputTypeCondition" : {"singleResourceSelection":true , "input":"resources"}
+          },
+          "input": {
+            "type": "snackBar",
+            "label": "In order to display the graph with this resource type, you must select only one resource group."
+          }
+        },
         {
           "name": "warningtext",
           "displayValue": "host-group",
           "customPropertyMatch": {
-            "target":"options",
-            "property": "resourceTypes"
+            "externalTarget":{"target":"options", "property":"resourceTypes"}
           },
           "input": {
             "type": "warning",
             "label": "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
           }
         },
-            {
+        {
           "name": "warningtext",
           "displayValue": "host-category",
           "customPropertyMatch": {
-            "target":"options",
-             "property": "resourceTypes"
-
+            "externalTarget":{"target":"options", "property":"resourceTypes"}
           },
           "input": {
             "type": "warning",
             "label": "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
           }
         },
-            {
+        {
           "name": "warningtext",
           "displayValue": "host",
           "customPropertyMatch": {
-          "target":"options",
-          "property": "resourceTypes"
+           "externalTarget":{"target":"options", "property":"resourceTypes"}
           },
           "input": {
             "type": "warning",
             "label": "Data is aggregated daily for graphs presenting hosts."
           }
         }
+
       ]
     
     }

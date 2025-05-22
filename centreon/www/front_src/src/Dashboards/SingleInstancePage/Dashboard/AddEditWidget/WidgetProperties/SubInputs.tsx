@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, isEmpty, isNil, isNotNil, path, pluck } from 'ramda';
+import { equals, find, isEmpty, isNil, isNotNil, pluck, propEq } from 'ramda';
 
 import { Box, Stack } from '@mui/material';
 
 import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
 
+import { useAtomValue } from 'jotai';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
+import { getProperty } from './Inputs/utils';
 import { DefaultComponent, propertiesInputType } from './useWidgetInputs';
-import { getDataProperty, getProperty } from './Inputs/utils';
-
 interface SubInputsProps {
   children: JSX.Element;
   subInputs?: Array<SubInput>;
@@ -26,40 +27,71 @@ const SubInputs = ({
 }: SubInputsProps): JSX.Element => {
   const previousSubInputsToDisplayRef = useRef<Array<SubInput> | undefined>();
   const { setFieldValue, values } = useFormikContext<Widget>();
-
-
-// a ajouter memoizationnnnnnn
+    const federatedWidgetsProperties = useAtomValue(
+      federatedWidgetsPropertiesAtom
+    );
+    
   
-  const subInputsToDisplay = subInputs?.filter(({ displayValue, customPropertyMatch }) => {
-        
-        const targetedValue =  customPropertyMatch?.target?  getProperty({
-                         obj: values,
-                         propertyName: "resourceTypes"
-                       }):value
-      
-      
-                       
-      
-                         
-      console.log({targetedValue, values})
- 
-    
-    
-        if (equals(customPropertyMatch?.method, 'pluck')) {
-
-          const valuesToCompare = pluck(customPropertyMatch?.property, targetedValue);
+    const selectedWidget = find(
+      propEq(values.moduleName, 'moduleName'),
+      federatedWidgetsProperties || []
+    );
 
 
-          return equals(valuesToCompare, displayValue);
+
+    const getDefaultDisplayInput = ({method, property, value,displayValue})=>{
+
+          if (equals(method, 'pluck')) {
+
+          const valuesToCompare = pluck(property, value);
+          
+          return equals(valuesToCompare, displayValue)
         }
 
+        return equals(displayValue, null) ? true  : equals(value, displayValue);
+    }
 
-        return equals(displayValue, null) ? true : equals(targetedValue, displayValue);
-      })
+    const getAdditionalInputField = (inputCondition) =>{
+      
+     const {singleResourceSelection, input} = inputCondition  || {}
+
+        if(!equals(selectedWidget?.singleResourceSelection,singleResourceSelection) && singleResourceSelection) {
+          const [data] = Array.isArray(value)?pluck(input, value):[]
+          
+           return data.length > 1 
+          }
+
+          return false
+    } 
+
   
+  const subInputsToDisplay =  subInputs?.filter(({ displayValue, customPropertyMatch }) => {
 
-  // console.log({values})
+    if(!customPropertyMatch){
 
+          return equals(displayValue, null) ? true  : equals(value, displayValue);
+    }
+   
+     const {property, method,externalTarget, inputTypeCondition} = customPropertyMatch
+
+     if(!externalTarget){
+
+      const displayInput = getDefaultDisplayInput({method,displayValue,value,property})
+      const additionalInputField = getAdditionalInputField(inputTypeCondition)
+
+       return inputTypeCondition? additionalInputField && displayInput : displayInput
+     }
+
+     const {property:externalTargetProperty} = externalTarget;
+     const externalTargetData = getProperty({obj: values,propertyName: externalTargetProperty})
+
+      const displayInput = getDefaultDisplayInput({method,displayValue,value:externalTargetData,property})
+      const additionalInputField = getAdditionalInputField(inputTypeCondition)
+       
+      return inputTypeCondition? additionalInputField && displayInput : displayInput
+      })
+
+  
 
 
   const hasSubInputs = useMemo(

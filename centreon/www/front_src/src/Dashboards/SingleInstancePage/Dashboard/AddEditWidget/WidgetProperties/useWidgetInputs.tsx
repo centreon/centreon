@@ -51,6 +51,7 @@ import {
   WidgetWarning
 } from './Inputs';
 import { handleHiddenConditions } from './handleHiddenConditions';
+import WidgetSnack from './Inputs/SnackBar';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -85,7 +86,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
   [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
   [FederatedWidgetOptionType.warning]: WidgetWarning,
-  [FederatedWidgetOptionType.boundaries]: WidgetBoundaries
+  [FederatedWidgetOptionType.boundaries]: WidgetBoundaries,
+  [FederatedWidgetOptionType.snackBar]: WidgetSnack,
+
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -115,7 +118,7 @@ export const useWidgetInputs = (
   const selectedWidgetProperties: {
     [key: string]: FederatedWidgetOption;
   } | null = path(widgetKey.split('.'), selectedWidget) || null;
-
+  
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
@@ -126,8 +129,8 @@ export const useWidgetInputs = (
             values
           }).map(([key, value]) => {
             const Component =
-              propertiesInputType[value.type] || DefaultComponent;
-
+            propertiesInputType[value.type] || DefaultComponent;
+            
             return {
               Component,
               group: value.group,
@@ -136,38 +139,38 @@ export const useWidgetInputs = (
                 ...(value as unknown as Omit<
                   WidgetPropertyProps,
                   'propertyName' | 'propertyType'
-                >),
-                propertyName: key,
-                propertyType: widgetKey
+                  >),
+                  propertyName: key,
+                  propertyType: widgetKey
+                }
+              };
+            })
+            : null,
+            [selectedWidgetProperties, values]
+          );
+          
+          useEffect(
+            () => {
+              validateForm();
+            },
+            useDeepCompare([widgetProperties])
+          );
+
+          useEffect(
+            () => {
+              if (!selectedWidget) {
+                return;
               }
-            };
-          })
-        : null,
-    [selectedWidgetProperties, values]
-  );
-
-  useEffect(
-    () => {
-      validateForm();
-    },
-    useDeepCompare([widgetProperties])
-  );
-
-  useEffect(
-    () => {
-      if (!selectedWidget) {
-        return;
-      }
-
-      setSingleResourceSelection(selectedWidget.singleResourceSelection);
-      setCustomBaseColor(selectedWidget.customBaseColor);
-    },
-    useDeepCompare([selectedWidget])
-  );
-
-  useEffect(() => {
-    setWidgetProperties(selectedWidget);
-  }, []);
-
+              
+              setSingleResourceSelection(selectedWidget.singleResourceSelection);
+              setCustomBaseColor(selectedWidget.customBaseColor);
+            },
+            useDeepCompare([selectedWidget])
+          );
+          
+          useEffect(() => {
+            setWidgetProperties(selectedWidget);
+          }, []);
+          
   return inputs;
 };

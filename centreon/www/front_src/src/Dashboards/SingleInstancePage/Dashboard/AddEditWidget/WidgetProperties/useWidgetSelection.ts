@@ -196,7 +196,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
         if(value?.selectType){
           
-          console.log('----->',{value})
       return ({
         ...acc,
         [key]: [{[key]:value.defaultValue,resourceType: value.selectType.defaultResourceType}],
@@ -213,7 +212,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
-    console.log({selectedWidgetProperties,data})
 
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
