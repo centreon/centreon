@@ -641,6 +641,7 @@ Then(
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
+
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
