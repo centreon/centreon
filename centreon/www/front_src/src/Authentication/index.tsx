@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Box, Container, Paper, Tab } from '@mui/material';
+import { TabContext, TabPanel } from '@mui/lab';
+import { Box, Container, Paper, Tab, Tabs } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -94,7 +94,7 @@ const Authentication = (): JSX.Element => {
 
   const appliedTab = useAtomValue(appliedTabAtom);
   const { themeMode } = useAtomValue(userAtom);
-  const setTab = useSetAtom(tabAtom);
+  const [tab, setTab] = useAtom(tabAtom);
 
   const changeTab = (_, newTab: Provider): void => {
     setTab(newTab);
@@ -148,13 +148,14 @@ const Authentication = (): JSX.Element => {
       <TabContext value={appliedTab}>
         <Container className={classes.container}>
           <Paper square className={classes.paper}>
-            <TabList
+            <Tabs
               className={classes.tabList}
               variant="fullWidth"
               onChange={changeTab}
+              value={tab}
             >
               {tabs}
-            </TabList>
+            </Tabs>
             {tabPanels}
           </Paper>
         </Container>
