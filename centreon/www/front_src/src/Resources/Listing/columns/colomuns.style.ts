@@ -1,10 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-interface StyleProps {
-  isHovered: boolean;
-}
-
-const useColumnStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
+const useColumnStyles = makeStyles()((theme) => ({
   extraSmallChip: {
     height: theme.spacing(1.25),
     lineHeight: theme.spacing(1.25),

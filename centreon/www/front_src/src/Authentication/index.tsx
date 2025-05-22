@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
