@@ -280,4 +280,4 @@ const MemoizedDataCell = memo<Props>(
 );
 
 export default MemoizedDataCell;
-export { type Props };
+export type { Props };
