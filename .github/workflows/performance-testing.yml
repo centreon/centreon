@@ -262,6 +262,8 @@ jobs:
             echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
             exit 0  # ou `true` pour ne pas faire échouer
           fi
+      - name: Check directory structure
+        run: ls -lR centreon/tests/performanceTesting
 
       - name: Générer le rapport Markdown
         run: |
@@ -269,7 +271,7 @@ jobs:
           source .venv/bin/activate
           pip install pandas matplotlib numpy
           python generate_report.py results.jtl output_folder
-        working-directory: centreon/tests/performanceTesting/jmeter_markdown_reporter
+        working-directory: centreon/tests/performanceTesting/jmeterFolder
 
       - name: Upload Markdown Report
         uses: actions/upload-artifact@v4
