@@ -55,7 +55,6 @@ export default (): void => {
       cy.get('[data-cy=themeSwitch]').as('switchMode').should('be.visible');
       cy.get('@switchMode').click();
       cy.get('header').should('have.css', 'background-color', 'rgb(0, 0, 0)');
-      cy.makeSnapshot('User Menu -- using the dark mode');
       cy.get('@switchMode').click();
       cy.get('header').should(
         'have.css',
