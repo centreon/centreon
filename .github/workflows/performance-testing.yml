@@ -252,6 +252,7 @@ jobs:
           source .venv/bin/activate
           pip install --upgrade pip
           pip install pandas
+          pip install pandas tabulate
 
       - name: Run Pandas Analysis
         run: |
