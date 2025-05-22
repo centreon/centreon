@@ -246,9 +246,13 @@ jobs:
       - name: Install python3.11-venv
         run: sudo apt-get update && sudo apt-get install -y python3.11-venv
 
+      - name: Setup Python venv
+        run: python3 -m venv .venv
+
       - name: Install dependencies
         run: |
           source .venv/bin/activate
+          pip install --upgrade pip
           pip install pandas tabulate matplotlib seaborn
 
       - name: Run analysis script
