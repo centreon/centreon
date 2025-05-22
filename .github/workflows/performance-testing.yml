@@ -243,6 +243,9 @@ jobs:
       - name: Cleaning up database
         run: node cleaningUpData.mjs
 
+      - name: Install python3.11-venv
+        run: sudo apt-get update && sudo apt-get install -y python3.11-venv
+
       - name: Set up Python Virtual Environment
         run: |
           python3 -m venv .venv
