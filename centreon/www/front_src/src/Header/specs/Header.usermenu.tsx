@@ -62,7 +62,6 @@ export default (): void => {
         'background-color',
         'rgb(37, 88, 145)'
       );
-      cy.makeSnapshot('User Menu -- using the light mode');
     });
 
     it('navigates to the logout page when the button is clicked', () => {
