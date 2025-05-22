@@ -49,6 +49,7 @@ beforeEach(function (): void {
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        false
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
