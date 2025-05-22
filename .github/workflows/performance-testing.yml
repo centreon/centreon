@@ -262,8 +262,6 @@ jobs:
             echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
             exit 0  # ou `true` pour ne pas faire échouer
           fi
-      - name: Check directory structure
-        run: ls -lR centreon/tests/performanceTesting
 
       - name: Générer le rapport Markdown
         run: |
