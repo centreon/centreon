@@ -267,8 +267,9 @@ jobs:
         run: |
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install -r requirements.txt
-          python generate_report.py jmeter_results/results.jtl output_folder
+          pip install pandas matplotlib numpy
+          python generate_report.py results.jtl output_folder
+        working-directory: centreon/tests/performanceTesting/jmeter_markdown_reporter
 
       - name: Upload Markdown Report
         uses: actions/upload-artifact@v4
