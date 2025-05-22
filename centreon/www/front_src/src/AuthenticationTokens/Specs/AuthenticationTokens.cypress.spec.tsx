@@ -3,10 +3,10 @@ import {
   labelCreateAuthenticationToken,
   labelDeleteToken,
   labelDisableToken,
-  // labelDisabled,
+  labelDisabled,
   labelDone,
   labelEnableToken,
-  // labelFilters,
+  labelFilters,
   labelName,
   labelRefresh,
   labelSearch,
@@ -59,28 +59,28 @@ describe('Authentication tokens', () => {
     cy.makeSnapshot();
   });
 
-  // it('applies filters and verifies the API request', () => {
-  //   cy.waitForRequest('@listToken');
+  it('applies filters and verifies the API request', () => {
+    cy.waitForRequest('@listToken');
 
-  //   cy.get(`[data-testid="${labelFilters}"]`).click();
+    cy.get(`[data-testid="${labelFilters}"]`).click();
 
-  //   cy.get(`[data-testid="${labelName}"]`).eq(1).clear().type('token 1');
+    cy.get(`[data-testid="${labelName}"]`).eq(1).clear().type('token 1');
 
-  //   cy.findByTestId(labelDisabled).click();
+    cy.findByTestId(labelDisabled).click();
 
-  //   cy.findByTestId(labelSearch).click();
+    cy.findByTestId(labelSearch).click();
 
-  //   cy.waitForRequest('@listToken').then(({ request }) => {
-  //     expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
-  //       $and: [
-  //         { $or: [{ token_name: { $rg: 'token 1' } }] },
-  //         { $or: [{ is_revoked: { $eq: true } }] }
-  //       ]
-  //     });
-  //   });
+    cy.waitForRequest('@listToken').then(({ request }) => {
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [
+          { $or: [{ token_name: { $rg: 'token 1' } }] },
+          { $or: [{ is_revoked: { $eq: true } }] }
+        ]
+      });
+    });
 
-  //   cy.makeSnapshot();
-  // });
+    cy.makeSnapshot();
+  });
 
   it('deletes a token and verifies the deletion request', () => {
     cy.waitForRequest('@listToken');
