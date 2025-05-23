@@ -1,5 +1,8 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import fs from 'fs';
+import readXlsxFile from 'read-excel-file/node';
+const path = require('path');
 
 const services = {
 	serviceCritical: {
@@ -44,20 +47,20 @@ const checkResourcesDetails = (name, statu, firstIndex, secondIndex) => {
 };
 
 before(() => {
-	cy.startContainers();
-	cy.addHost({
-		hostGroup: "Linux-Servers",
-		name: services.serviceOk.host,
-		template: "generic-host",
-	})
-		.addService({
-			activeCheckEnabled: false,
-			host: services.serviceOk.host,
-			maxCheckAttempts: 1,
-			name: services.serviceOk.name,
-			template: services.serviceOk.template,
-		})
-		.applyPollerConfiguration();
+	// cy.startContainers();
+	// cy.addHost({
+	// 	hostGroup: "Linux-Servers",
+	// 	name: services.serviceOk.host,
+	// 	template: "generic-host",
+	// })
+	// 	.addService({
+	// 		activeCheckEnabled: false,
+	// 		host: services.serviceOk.host,
+	// 		maxCheckAttempts: 1,
+	// 		name: services.serviceOk.name,
+	// 		template: services.serviceOk.template,
+	// 	})
+	// 	.applyPollerConfiguration();
 });
 
 beforeEach(() => {
@@ -88,6 +91,17 @@ Given("an admin user is logged in a Centreon server", () => {
 		jsonName: "admin",
 		loginViaApi: false,
 	});
+	cy.wait(5000);
+	cy.getByTestId({ testId: "SaveAltIcon" }).click();
+    cy.wait(5000);
+    cy.getByLabel({ label: "Export", tag: 'button' }).click()
+	cy.wait(4000)
+	const downloadsFolder = Cypress.config('downloadsFolder');
+	cy.task('getDownloadedFile', { downloadsFolder }).then(filePath => {
+    // tu peux lire le contenu du fichier ici
+       cy.log('Fichier téléchargé : ' + filePath);
+   // par exemple, lire avec read-excel-file (si utilisable ici)
+});
 });
 
 Given(
