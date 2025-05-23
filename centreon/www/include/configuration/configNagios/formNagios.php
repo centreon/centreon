@@ -95,7 +95,6 @@ if ($o != "a") {
     $dirArray = $mainCfg->getBrokerDirectives($nagiosId ?? null);
 } else {
     $dirArray[0]['in_broker_#index#'] = "/usr/lib64/centreon-engine/externalcmd.so";
-    $dirArray[1]['in_broker_#index#'] = "/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json";
 }
 $cdata->addJsData(
     'clone-values-broker',
@@ -551,6 +550,8 @@ foreach (CentreonMainCfg::EVENT_BROKER_OPTIONS as $bit => $label) {
     );
 }
 $form->addGroup($eventBrokerOptionsData, 'event_broker_options', _("Broker Module Options"), '&nbsp;');
+
+$form->addElement('text', 'broker_module_cfg_file', _("Broker Module Configuration File"), $attrsText2);
 
 // New options for enable whitelist of macros sent to Centreon Broker
 $enableMacrosFilter = [];

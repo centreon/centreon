@@ -2053,6 +2053,10 @@ msgid "Broker Module"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+msgid "Broker Module Configuration File"
+msgstr ""
+
+#: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module Options"
 msgstr ""
 
@@ -2091,6 +2095,14 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Business Activity Diagram"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity availability"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity status timeline"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5027,6 +5039,11 @@ msgid "Displays a web page"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays availability and alerts of a Business Activity for a given period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr ""
 
@@ -5038,6 +5055,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as a "
+"chronological timeline for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -14068,6 +14091,10 @@ msgstr ""
 msgid "Reporting Period"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Reporting period"
+msgstr ""
+
 #: centreon/src/Centreon/Infrastructure/Service/CentreonPaginationService.php
 #, php-format
 msgid "Repository class %s has to implement %s"
@@ -15167,6 +15194,10 @@ msgid "Select Timeperiod..."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select a Poller"
 msgstr ""
 
@@ -16156,6 +16187,7 @@ msgstr ""
 msgid "Show only dashboards added to favorites"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Show thresholds"
 msgstr ""
@@ -17591,6 +17623,10 @@ msgstr ""
 msgid "This is the description of the text widget"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "This month"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "This name already exists"
@@ -17664,6 +17700,7 @@ msgstr ""
 msgid "This view name is required"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "This week"
 msgstr ""
@@ -17674,6 +17711,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "This will not be used because the number of attempts is not defined"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "This year"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -19412,6 +19453,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/reporting/dashboard/common-Func.php

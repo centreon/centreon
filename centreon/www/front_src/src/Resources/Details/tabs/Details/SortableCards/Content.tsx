@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Grid, GridSize, Paper } from '@mui/material';
+import { GridSize, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import DetailsCard from '../DetailsCard';
 

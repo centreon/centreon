@@ -21,6 +21,7 @@ export interface Props {
     warning: string;
   };
   thresholds: Thresholds;
+  prefThresholds?: number;
 }
 
 export const Text = ({
@@ -28,7 +29,8 @@ export const Text = ({
   data,
   displayAsRaw,
   labels,
-  baseColor
+  baseColor,
+  prefThresholds = 14
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes, cx } = useTextStyles();
@@ -66,7 +68,7 @@ export const Text = ({
     <div className={classes.graphText}>
       <FluidTypography
         max="40px"
-        pref={16}
+        pref={14}
         sx={{ color, fontWeight: 'bold', textAlign: 'center' }}
         text={
           formatMetricValueWithUnit({
@@ -80,16 +82,16 @@ export const Text = ({
       {thresholds.enabled && (
         <div className={classes.thresholds}>
           <FluidTypography
-            containerClassName={cx(classes.threshold, classes.warning)}
+            containerClassName={cx(classes.thresholdLeft, classes.warning)}
             max="30px"
-            pref={14}
+            pref={prefThresholds}
             text={`${labels.warning}: ${warningThresholdLabels.join(' - ')}`}
             variant="h5"
           />
           <FluidTypography
-            containerClassName={cx(classes.threshold, classes.critical)}
+            containerClassName={cx(classes.thresholdRight, classes.critical)}
             max="30px"
-            pref={14}
+            pref={prefThresholds}
             text={`${labels.critical}: ${criticalThresholdLabels.join(' - ')}`}
             variant="h5"
           />

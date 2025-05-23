@@ -65,7 +65,7 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
         <<<'SQL'
             UPDATE `topology`
             SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups',
+                `topology_url` = '/configuration/hosts/groups'
             WHERE `topology_name` = 'Host Groups'
                 AND `topology_page` = 60102
         SQL
@@ -188,15 +188,20 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
 };
 
 /**
-  * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","secure","insecure").
-  *
-  * @param CentreonDB $pearDB
-  *
-  * @throws CentreonDbException
-  */
-  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+ * Add Column connection_mode to agent_configuration table.
+ * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ */
+$addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+
+    if ($pearDB->isColumnExist('agent_configuration', 'connection_mode')) {
+        return;
+    }
+
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `agent_configuration`
@@ -242,9 +247,71 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
     );
 };
 
+// -------------------------------------------- Broker modules directive -------------------------------------------- //
+$addColumnInEngineConf = function() use($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unabled to add column in cfg_nagios table';
+
+    if ($pearDB->isColumnExist('cfg_nagios', 'broker_module_cfg_file')) {
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `cfg_nagios`
+            ADD COLUMN `broker_module_cfg_file` VARCHAR(255) DEFAULT NULL
+        SQL
+    );
+};
+
+$removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to get data from cfg_nagios_broker_module table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `cfg_nagios_id`, `broker_module` FROM `cfg_nagios_broker_module`
+            WHERE `broker_module` LIKE '%cbmod.so %.json'
+        SQL
+    );
+
+    $brokerNagiosPair = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+    $errorMessage= 'Unable to update cfg_nagios table';
+    $preparedStatement = $pearDB->prepareQuery(
+        <<<'SQL'
+            UPDATE `cfg_nagios`
+            SET `broker_module_cfg_file` = :broker_module_config_file
+            WHERE `nagios_id` = :nagios_id
+        SQL
+    );
+    foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
+        if (preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches)) {
+            $brokerConfigFile = $matches[1];
+        } else {
+            $brokerConfigFile = '';
+        }
+        $pearDB->executePreparedQuery(
+            $preparedStatement,
+            [
+                ':broker_module_config_file' => $brokerConfigFile,
+                ':nagios_id' => $nagiosId,
+            ]
+        );
+    }
+
+    $errorMessage = 'Unable to delete rows from cfg_nagios_broker_module table';
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            DELETE FROM `cfg_nagios_broker_module`
+            WHERE `broker_module` LIKE '%cbmod.so %.json'
+        SQL
+    );
+};
+
+
 try {
     $createJwtTable();
     $addConnectionModeColumnToAgentConfiguration();
+    $addColumnInEngineConf();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -255,6 +322,7 @@ try {
     $updateSamlProviderConfiguration($pearDB);
     $updateAgentConfiguration($pearDB);
     $updateTopologyForAuthenticationTokens();
+    $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile();
 
     $pearDB->commit();
 
