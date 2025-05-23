@@ -104,7 +104,7 @@ Then('I should see only the rules that match the search query', () => {
     },
     { interval: 1000, timeout: 10000 }
   );
-  cy.get('[class$="-text-rowNotHovered"]').contains('Rule2');
+  cy.contains('Rule2').should('exist');
 });
 
 afterEach(() => {
