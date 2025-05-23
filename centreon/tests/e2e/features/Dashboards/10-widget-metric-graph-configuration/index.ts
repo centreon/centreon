@@ -674,6 +674,7 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
+  cy.waitForElementToBeVisible('path[data-testid*="stacked-bar-"]');
   cy.get('path[data-testid*="stacked-bar-"]').should('exist');
 });
 
