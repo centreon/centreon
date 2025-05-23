@@ -68,7 +68,7 @@ When('I click on the next page button', () => {
 });
 
 Then('I should see the next 5 rules displayed', () => {
-  cy.get('[role="row"]').should('have.length', 5);
+  cy.get('[role="row"]').should('have.length', 6);
   cy.get('[class$="-root-cell"]').should('be.visible');
 });
 
@@ -80,7 +80,7 @@ When('I click on the previous page button', () => {
 });
 
 Then('I should see the previous first 10 rules displayed', () => {
-  cy.get('[role="row"]').should('have.length', 10);
+  cy.get('[role="row"]').should('have.length', 11);
   cy.get('[class$="-root-cell"]').should('be.visible');
 });
 
