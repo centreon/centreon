@@ -430,7 +430,7 @@ sed -i 's#@VERSION@#%{version}#' centreon/selinux/*
 
 # Copy base files.
 %{__rm} -rf centreon/www/front_src
-%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/composer.json centreon/composer.lock centreon/symfony.lock centreon/container.php centreon/package.json centreon/pnpm-lock.yaml centreon/pnpm-workspace.yaml centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
+%{__cp} -r centreon/.env centreon/.env.local.php centreon/bootstrap.php centreon/container.php centreon/config centreon/GPL_LIB centreon/api centreon/src centreon/vendor centreon/www %buildroot%{_datadir}/centreon/
 
 # Install configuration files.
 %{__mv} %buildroot%{_datadir}/centreon/config/centreon.config.php.template %buildroot%{_datadir}/centreon/config/centreon.config.php
