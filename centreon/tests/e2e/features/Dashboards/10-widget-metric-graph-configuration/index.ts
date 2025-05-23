@@ -220,7 +220,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -382,15 +382,15 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user duplicates the Metrics Graph widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -421,10 +421,9 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
 When(
   'the dashboard administrator user deletes one of the Metrics Graph widgets',
   () => {
-    cy.getByTestId({ testId: 'DeleteIcon' }).click();
     cy.getByLabel({
-      label: 'Delete',
-      tag: 'button'
+      label: 'Delete widget',
+      tag: 'li'
     }).realClick();
   }
 );
@@ -675,7 +674,7 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('path[data-testid*="stacked-bar-"]').should('not.exist');
+  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
 });
 
 When(

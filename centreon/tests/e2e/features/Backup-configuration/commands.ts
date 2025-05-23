@@ -79,7 +79,7 @@ Cypress.Commands.add('selectCurrentDayCheckbox', () => {
 });
 
 Cypress.Commands.add('exportConfig', () => {
-  cy.get('#Pollers-button').click();
+  cy.getByLabel({ label: 'Pollers',tag:'button' }).click();
   cy.getByTestId({ testId: 'Export configuration' }).click();
   cy.getByTestId({ testId: 'Confirm' }).click();
 });
