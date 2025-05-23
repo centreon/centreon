@@ -647,12 +647,6 @@ fi
 %{_datadir}/centreon/.env
 %{_datadir}/centreon/.env.local.php
 %defattr(-, root, root, -)
-%{_datadir}/centreon/composer.json
-%{_datadir}/centreon/composer.lock
-%{_datadir}/centreon/symfony.lock
-%{_datadir}/centreon/package.json
-%{_datadir}/centreon/pnpm-lock.yaml
-%{_datadir}/centreon/pnpm-workspace.yaml
 %{_datadir}/centreon/bootstrap.php
 %{_datadir}/centreon/container.php
 %{_datadir}/centreon/GPL_LIB
