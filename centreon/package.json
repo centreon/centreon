@@ -18,7 +18,7 @@
     "test": "jest",
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
-    "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chrome --env updateSnapshots=true",
+    "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chromium --env updateSnapshots=true",
     "cypress:ui": "TZ=Etc/UTC cypress open --component --browser=chrome",
     "cypress:run": "TZ=Etc/UTC cypress run --component --browser=chromium",
     "cypress:run:coverage": "TZ=Etc/UTC cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
