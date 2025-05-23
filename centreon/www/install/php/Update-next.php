@@ -107,6 +107,20 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     }
 };
 
+$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update hostgroup table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            ALTER TABLE `hostgroup`
+                DROP COLUMN `hg_notes`,
+                DROP COLUMN `hg_notes_url`,
+                DROP COLUMN `hg_action_url`,
+                DROP COLUMN `hg_map_icon_image`,
+                DROP COLUMN `hg_rrd_retention`
+            SQL
+    );
+};
+
 // -------------------------------------------- Agent Configuration -------------------------------------------- //
 /**
  * Add prefix "/etc/pki/" and extensions (.crt, .key) to certificate and key paths in agent_configuration table.
@@ -246,7 +260,7 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
             SQL
     );
 };
-
+  
 // -------------------------------------------- Broker modules directive -------------------------------------------- //
 $addColumnInEngineConf = function() use($pearDB, &$errorMessage): void {
     $errorMessage = 'Unabled to add column in cfg_nagios table';
@@ -312,6 +326,7 @@ try {
     $createJwtTable();
     $addConnectionModeColumnToAgentConfiguration();
     $addColumnInEngineConf();
+    $sunsetHostGroupFields();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
