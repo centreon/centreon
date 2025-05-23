@@ -56,7 +56,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
-import { getDataProperty } from '../utils';
+import { getDataProperty, getProperty } from '../utils';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -193,7 +193,9 @@ const useResources = ({
   useAdditionalResources,
   excludedResourceTypes,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
+  customError,
+  singleResourceType
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -209,10 +211,14 @@ const useResources = ({
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const value = useMemo<Array<WidgetDataResource> | undefined>(
-    () => getDataProperty({ obj: values, propertyName }),
-    [getDataProperty({ obj: values, propertyName })]
-  );
+
+    
+    const value = useMemo<Array<WidgetDataResource> | undefined>(
+      () => getDataProperty({ obj: values, propertyName }),
+      [getDataProperty({ obj: values, propertyName })]
+    );
+    
+    console.log({value})
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
@@ -637,6 +643,33 @@ const useResources = ({
     ]
   );
 
+
+    const getErrorInput = (resourceType)=>{
+  
+      if(!customError){
+        return null
+      }
+  
+      const {customTarget,matches, inputTypeCondition, message, selectedType} = customError
+      const {singleResourceSelection, input} = inputTypeCondition || {}
+      const target = customTarget ? getProperty({propertyName:customTarget.property,obj: values}):value; 
+
+      if((!matches.includes(target) && matches) || !equals(selectedType, resourceType)){
+        return null
+       }
+  
+      if(!equals(singleResourceType,singleResourceSelection) && singleResourceSelection) {
+          const [data] = Array.isArray(value)?pluck(input, value):[];
+
+           return data?.length>1?message:null 
+      }
+      
+      return null
+    }
+
+
+    
+
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -704,7 +737,7 @@ const useResources = ({
     changeResources,
     deleteResource,
     deleteResourceItem,
-    error: errorToDisplay,
+    error: errorToDisplay ,
     getResourceResourceBaseEndpoint,
     getResourceStatic,
     getResourceTypeOptions,
@@ -714,7 +747,8 @@ const useResources = ({
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || [],
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    getErrorInput
   };
 };
 

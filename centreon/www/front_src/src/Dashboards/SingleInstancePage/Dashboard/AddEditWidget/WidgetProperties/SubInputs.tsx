@@ -72,9 +72,9 @@ const SubInputs = ({
           return equals(displayValue, null) ? true  : equals(value, displayValue);
     }
    
-     const {property, method,externalTarget, inputTypeCondition} = customPropertyMatch
+     const {property, method, customTarget, inputTypeCondition} = customPropertyMatch
 
-     if(!externalTarget){
+     if(!customTarget){
 
       const displayInput = getDefaultDisplayInput({method,displayValue,value,property})
       const additionalInputField = getAdditionalInputField(inputTypeCondition)
@@ -82,8 +82,8 @@ const SubInputs = ({
        return inputTypeCondition? additionalInputField && displayInput : displayInput
      }
 
-     const {property:externalTargetProperty} = externalTarget;
-     const externalTargetData = getProperty({obj: values,propertyName: externalTargetProperty})
+     const {property:customTargetProperty} = customTarget;
+     const externalTargetData = getProperty({obj: values,propertyName: customTargetProperty})
 
       const displayInput = getDefaultDisplayInput({method,displayValue,value:externalTargetData,property})
       const additionalInputField = getAdditionalInputField(inputTypeCondition)

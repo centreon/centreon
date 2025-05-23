@@ -29,7 +29,7 @@ import {
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
-import { areResourcesFullfilled } from '../utils';
+import { areResourcesFullfilled, getProperty } from '../utils';
 
 import useResources from './useResources';
 
@@ -43,7 +43,8 @@ const Resources = ({
   forcedResourceType,
   defaultResourceTypes,
   selectType,
-  overrideAddButtonVisibility
+  overrideAddButtonVisibility,
+  customError
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -67,7 +68,8 @@ const Resources = ({
     changeIdValue,
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    getErrorInput
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -75,10 +77,13 @@ const Resources = ({
     restrictedResourceTypes,
     useAdditionalResources,
     forcedResourceType,
-    defaultResourceTypes
+    defaultResourceTypes,
+    customError,
+    singleResourceType
   });
 
   const { canEditField } = useCanEditProperties();
+
 
   const deleteButtonHidden =
     !canEditField ||
@@ -87,15 +92,13 @@ const Resources = ({
 
 
   const isAddButtonHidden = !canEditField || singleResourceType;
-  const isAddButtonDisabled =
-    !areResourcesFullfilled(value) || isLastResourceInTree;
-
+  const isAddButtonDisabled = !areResourcesFullfilled(value) || isLastResourceInTree;
   
   const getResourceTypeSelectedOptionId=(resourceType)=> equals(resourceType,'hostgroup')? WidgetResourceType.hostGroup:resourceType;
   const getDefaultDisabledSelectType = (resourceType)=>equals(selectType?.defaultResourceType, resourceType) && selectType?.disabled;
   const getOverrideAddButtonVisibility=(value)=>value.find((resource)=>equals(overrideAddButtonVisibility?.matchedResourcesType,resource.resourceType))
-    
-
+  
+ 
 
   return (
     <div className={classes.resourcesContainer}>
@@ -118,8 +121,7 @@ const Resources = ({
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
-          {value.map((resource, index) => {
-        
+          {value.map((resource, index) => {        
             return (
               <ItemComposition.Item
                 className={classes.resourceCompositionItem}
@@ -148,6 +150,7 @@ const Resources = ({
                 />
                 {singleResourceSelection ? (
                   <SingleConnectedAutocompleteField
+                    error={getErrorInput(resource.resourceType)}
                     exclusionOptionProperty="name"
                     changeIdValue={changeIdValue(resource.resourceType)}
                     className={classes.resources}
@@ -175,6 +178,7 @@ const Resources = ({
                   />
                 ) : (
                   <MultiConnectedAutocompleteField
+                  error={getErrorInput(resource.resourceType)}
                     exclusionOptionProperty="name"
                     changeIdValue={changeIdValue(resource.resourceType)}
                     chipProps={{
