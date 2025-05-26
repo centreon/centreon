@@ -4,7 +4,6 @@ import {
   flatten,
   gt,
   isEmpty,
-  last,
   length,
   pipe,
   pluck,

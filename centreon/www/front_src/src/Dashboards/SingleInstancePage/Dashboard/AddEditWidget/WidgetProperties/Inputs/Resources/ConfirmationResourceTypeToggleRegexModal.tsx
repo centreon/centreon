@@ -1,4 +1,5 @@
 import { ConfirmationModal } from '@centreon/ui/components';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   labelDoYouWantToLeaveTheClassicMode,
@@ -13,7 +14,6 @@ import {
   ResourceTypeToToggleRegexAtom,
   resourceTypeToToggleRegexAtom
 } from './atoms';
-import { useAtomValue } from 'jotai';
 
 interface Props {
   changeRegexFieldOnResourceType: ({
