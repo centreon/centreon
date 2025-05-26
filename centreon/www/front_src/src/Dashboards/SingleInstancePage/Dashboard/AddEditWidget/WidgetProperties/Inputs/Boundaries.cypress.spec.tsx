@@ -67,8 +67,8 @@ describe('Boundaries', () => {
     cy.findByLabelText(labelMinValue).clear().type('20');
     cy.findByLabelText(labelMaxValue).clear().type('30');
 
-    cy.findByLabelText(labelMinValue).should('have.value', '200');
-    cy.findByLabelText(labelMaxValue).should('have.value', '300');
+    cy.findByLabelText(labelMinValue).should('have.value', '20');
+    cy.findByLabelText(labelMaxValue).should('have.value', '30');
 
     cy.makeSnapshot();
   });
