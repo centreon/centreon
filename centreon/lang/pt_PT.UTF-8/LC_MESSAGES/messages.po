@@ -24555,6 +24555,8 @@ msgstr "item (s) encontrado (s)"
 # msgstr ""
 # msgid "Insecure TLS"
 # msgstr ""
+# msgid "Maximum"
+# msgstr ""
 
 # msgid "Business Activity availability history"
 # msgstr "Historique de la disponibilité d’une Activité Métier"
