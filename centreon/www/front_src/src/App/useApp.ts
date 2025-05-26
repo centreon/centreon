@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 
 import type { Actions } from '@centreon/ui';
-import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
+import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -70,7 +70,7 @@ const useApp = (): UseAppState => {
   });
 
   const { sendRequest: logoutRequest } = useRequest({
-    request: postData
+    request: gettData
   });
 
   const { sendRequest: getCustomPlatformRequest } =
