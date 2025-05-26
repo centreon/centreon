@@ -75,6 +75,7 @@ jobs:
     runs-on: centreon-common
     needs: [get-environment, package]
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name != 'workflow_dispatch' &&
       github.repository == 'centreon/centreon'

@@ -151,7 +151,6 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable'
-
     runs-on: ubuntu-24.04
 
     steps:
