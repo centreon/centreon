@@ -34,7 +34,7 @@ import {
   labelUpdateConnectorConfiguration,
   labelVcenterNameMustBeUnique
 } from '../translatedLabels';
-import { defaultParameters } from '../utils';
+import { getDefaultParameters } from '../utils';
 
 const mockPageRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {
@@ -155,10 +155,10 @@ export default (): void => {
       cy.findByText(labelParameters).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
-      keys(defaultParameters).forEach((parameter) => {
+      keys(getDefaultParameters({ index: 0 })).forEach((parameter) => {
         cy.get(`input[data-testid="${parameter}_value"`)
           .should('be.visible')
-          .should('have.value', defaultParameters[parameter])
+          .should('have.value', getDefaultParameters({ index: 0 })[parameter])
           .should('not.be.disabled');
       });
 
