@@ -22874,16 +22874,16 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "vérification. Vous devez en sélectionner une ici."
 
 msgid "Activate Regex"
-msgstr "Activer Regex"
+msgstr "Activer le mode regex"
 
-msgid "Deactivate Regex"
-msgstr "Désactiver Regex"
+msgid "Deactivate regex mode"
+msgstr "Désactiver le mode regex"
 
-msgid "Enter Regex"
-msgstr "Saisir Regex"
+msgid "Enter regex"
+msgstr "Saisir une regex"
 
-msgid "Do you want to leave the Regex mode?"
-msgstr "Voulez-vous quitter le mode Regex ?"
+msgid "Do you want to leave the regex mode?"
+msgstr "Voulez-vous quitter le mode regex ?"
 
 msgid "Do you want to leave the classic mode?"
 msgstr "Voulez-vous quitter le mode classique ?"
@@ -22891,8 +22891,8 @@ msgstr "Voulez-vous quitter le mode classique ?"
 msgid "Your changes will not be saved if you switch to classic mode."
 msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode classique."
 
-msgid "Your changes will not be saved if you switch to Regex mode."
-msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode Regex."
+msgid "Your changes will not be saved if you switch to regex mode."
+msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode regex."
 
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
