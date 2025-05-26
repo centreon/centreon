@@ -57,7 +57,8 @@ const WidgetTextField = ({
     setFieldValue(
       `options.${propertyName}`,
       equals(text?.type, 'number') &&
-        equals(event.nativeEvent.inputType, 'insertReplacementText')
+        (equals(event.nativeEvent.inputType, '') ||
+          equals(event.nativeEvent.inputType, 'insertText'))
         ? Number(newText)
         : newText
     );
