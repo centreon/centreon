@@ -74,7 +74,10 @@ jobs:
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -149,7 +152,12 @@ jobs:
 
 #   promote:
 #     needs: [get-environment]
-#     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && needs.get-environment.outputs.is_cloud == 'false' && github.repository == 'centreon/centreon' }}
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#       github.event_name != 'workflow_dispatch' &&
+#       needs.get-environment.outputs.is_cloud == 'false' &&
+#       github.repository == 'centreon/centreon'
 #     runs-on: centreon-common
 #     strategy:
 #       matrix:
