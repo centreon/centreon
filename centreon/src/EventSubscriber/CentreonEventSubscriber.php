@@ -39,6 +39,7 @@ use Psr\Log\LogLevel;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, RequestEvent, ResponseEvent};
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -404,19 +405,41 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     /**
      * Set contact if he is logged in.
      */
-    public function initUser(): void
+    public function initUser(RequestEvent $event): void
     {
-        if ($user = $this->security->getUser()) {
-            /**
-             * @var Contact $user
-             */
-            EntityCreator::setContact($user);
-            /**
-             * @var ContactInterface $user
-             */
-            $this->initLanguage($user);
-            $this->initGlobalContact($user);
+        /** @var Contact $user */
+        $user = $this->security->getUser();
+        if (!$user) {
+            return;
         }
+        
+        $request = $event->getRequest();
+        if ($user->getLang() === 'browser') {
+            $locale = $this->guessLocale($request);
+            $user->setLocale($locale);
+        }
+
+        EntityCreator::setContact($user);
+        
+        $this->initLanguage($user);
+        $this->initGlobalContact($user);
+    }
+
+    /**
+     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client)
+     * 
+     * @todo improve this by moving the logic in a dedicated service
+     * @todo improve the array of supported locales by INJECTING them instead
+     */
+    private function guessLocale(Request $request)
+    {
+        $preferredLanguage = $request->getPreferredLanguage(['fr-FR', 'en-US', 'es-ES', 'pr-BR', 'pt-PT', 'de-DE']);
+        
+        // Reformating is necessary as the standard format uses "-" and we decided to store "_"
+        $locale = $preferredLanguage ? str_replace('-', '_', $preferredLanguage): 'en_US';
+
+        // Also Safari has its own format "fr-fr" instead of "fr-FR" hence the strtoupper
+        return substr($locale, 0, -2) . strtoupper(substr($locale, -2));
     }
 
     /**
@@ -445,27 +468,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     private function initLanguage(ContactInterface $user): void
     {
-        $lang = ($user->getLang() === 'browser')
-            ? $this->getBrowserLocale() . '.' . Contact::DEFAULT_CHARSET
-            : $user->getLang();
+        $lang = $user->getLocale() . '.' . Contact::DEFAULT_CHARSET;
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);
         bindtextdomain('messages', $this->translationPath);
         bind_textdomain_codeset('messages', Contact::DEFAULT_CHARSET);
         textdomain('messages');
-    }
-
-    /**
-     * Get browser locale if set in http header.
-     *
-     * @return string The browser locale
-     */
-    private function getBrowserLocale(): string
-    {
-        return isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-            ? (string) \Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-            : Contact::DEFAULT_LOCALE;
     }
 
     /**
