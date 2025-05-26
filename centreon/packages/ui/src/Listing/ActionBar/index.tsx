@@ -29,7 +29,7 @@ const useStyles = makeStyles<StyleProps>()(
     },
     actions: {
       flex: 1,
-      padding: theme.spacing(1, 0)
+      padding: theme.spacing(1, 1, 1, 0)
     },
     container: {
       alignItems: 'center',
