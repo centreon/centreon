@@ -408,9 +408,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     public function initUser(RequestEvent $event): void
     {
-        /** @var Contact $user */
+        /** @var ?Contact $user */
         $user = $this->security->getUser();
-        if (! $user) {
+        if ($user === null) {
             return;
         }
         
