@@ -42,4 +42,18 @@ interface ReadRealTimeHostCategoryRepositoryInterface
      * @return Tag[]
      */
     public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): array;
+
+    /**
+     * @param string $names
+     * @return string[]
+     */
+    public function existByName(array $names): array;
+
+    /**
+     * @param string[] $names
+     * @param AccessGroup[] $accessGroups
+     * @return string[]
+     */
+    public function existByNameAndAccessGroups(array $names, array $accessGroups): array;
 }
+

@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace Core\HostCategory\Infrastructure\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\HostCategory\Application\Repository\ReadRealTimeHostCategoryRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
 /**
@@ -41,14 +42,6 @@ use Core\Tag\RealTime\Domain\Model\Tag;
 class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB implements ReadRealTimeHostCategoryRepositoryInterface
 {
     use SqlMultipleBindTrait;
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @inheritDoc
@@ -231,4 +224,94 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     {
         return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
     }
+
+    public function existByName(array $names): array
+    {
+        try {
+            if ([] === $names) {
+                return [];
+            }
+
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($names, ':hc_');
+
+            $query = $this->translateDbName(
+                <<<SQL
+                    SELECT
+                        `id`
+                    FROM `:dbstg`.tags
+                    WHERE
+                        type = 3
+                        AND `name` IN ({$bindQuery})
+                SQL
+            );
+
+            $statement = $this->db->prepare($query);
+
+            foreach ($bindValues as $key => $value) {
+                $statement->bindValue($key, $value, \PDO::PARAM_STR);
+            }
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'An error occured while retrieving host categories',
+                previous: $exception
+            );
+        }
+    }
+
+    public function existByNameAndAccessGroups(array $names, array $accessGroups): array
+    {
+        try {
+            if ([] === $names || [] === $accessGroups) {
+                return [];
+            }
+
+            $accessGroupIds = array_map(
+                static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            [$bindValuesNames, $bindQueryNames] = $this->createMultipleBindQuery($names, ':hc_');
+            [$bindValuesAccessGroups, $bindQueryAccessGroups] = $this->createMultipleBindQuery($accessGroupIds, ':ag_');
+
+            $query = $this->translateDbName(
+                <<<SQL
+                    SELECT
+                        `name`
+                    FROM `:dbstg`.tags
+                    INNER JOIN `:db`.acl_resources_hc_relations arhr
+                        ON tags.id = arhr.hc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    WHERE
+                        type = 3
+                        AND `name` IN ({$bindQueryNames})
+                        AND ag.acl_group_id IN ({$bindQueryAccessGroups})
+                SQL
+            );
+
+            $statement = $this->db->prepare($query);
+
+            foreach ($bindValuesNames as $nameKey => $name) {
+                $statement->bindValue($nameKey, $name, \PDO::PARAM_STR);
+            }
+
+            foreach ($bindValuesAccessGroups as $accessGroupKey => $accessGroupId) {
+                $statement->bindValue($accessGroupKey, $accessGroupId, \PDO::PARAM_INT);
+            }
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'An error occured while retrieving host categories by access groups',
+                previous: $exception
+            );
+        }
+    }
 }
+
