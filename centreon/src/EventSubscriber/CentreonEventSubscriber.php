@@ -431,7 +431,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * @todo improve this by moving the logic in a dedicated service
      * @todo improve the array of supported locales by INJECTING them instead
      */
-    private function guessLocale(Request $request)
+    private function guessLocale(Request $request): string
     {
         $preferredLanguage = $request->getPreferredLanguage(['fr-FR', 'en-US', 'es-ES', 'pr-BR', 'pt-PT', 'de-DE']);
         
