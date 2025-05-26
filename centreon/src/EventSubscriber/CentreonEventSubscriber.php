@@ -404,12 +404,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
     /**
      * Set contact if he is logged in.
+     * @param RequestEvent $event
      */
     public function initUser(RequestEvent $event): void
     {
         /** @var Contact $user */
         $user = $this->security->getUser();
-        if (!$user) {
+        if (! $user) {
             return;
         }
         
@@ -430,6 +431,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * 
      * @todo improve this by moving the logic in a dedicated service
      * @todo improve the array of supported locales by INJECTING them instead
+     * @param Request $request
      */
     private function guessLocale(Request $request): string
     {
