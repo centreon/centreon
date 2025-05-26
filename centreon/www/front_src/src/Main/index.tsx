@@ -23,7 +23,6 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import reactRoutes from '../reactRoutes/routeMap';
 
-import LanguageDetector from './LanguageDetector';
 import { MainLoaderWithoutTranslation } from './MainLoader';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useMain, { router } from './useMain';
@@ -100,9 +99,7 @@ const Main = (): JSX.Element => {
 
   return (
     <Suspense fallback={<MainLoaderWithoutTranslation />}>
-      <LanguageDetector>
-        <Outlet />
-      </LanguageDetector>
+      <Outlet />
     </Suspense>
   );
 };
