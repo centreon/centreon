@@ -977,9 +977,6 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
       github.repository == 'centreon/centreon'
     steps:
