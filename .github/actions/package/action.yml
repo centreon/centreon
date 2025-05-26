@@ -116,6 +116,14 @@ runs:
         key: ${{ inputs.translation_cache_key }}
         fail-on-cache-miss: true
 
+    - name: Remove lockfiles and development files
+      run: |
+        find ${{ inputs.base_directory }} -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.base_directory }} -type f -name "package*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.base_directory }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.base_directory }} -type f -name "symfony.lock" -delete
+      shell: bash
+
     - if: ${{ inputs.package_extension == 'rpm' }}
       run: |
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
