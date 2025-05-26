@@ -6,13 +6,13 @@ const loadingIndicatorHeight = 3;
 
 interface StylesProps {
   dataStyle: TableStyle;
-  getGridTemplateColumn: string;
+  gridTemplateColumn: string;
   isResponsive: string;
   rows: Array<unknown>;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
-  (theme, { dataStyle, getGridTemplateColumn, rows, isResponsive }) => ({
+  (theme, { dataStyle, gridTemplateColumn, rows, isResponsive }) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
@@ -51,7 +51,7 @@ const useListingStyles = makeStyles<StylesProps>()(
       },
       alignItems: 'center',
       display: 'grid',
-      gridTemplateColumns: getGridTemplateColumn,
+      gridTemplateColumns: gridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
         rows?.length || 1
       }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`,
