@@ -24699,10 +24699,16 @@ msgstr "item (s) encontrado (s)"
 # msgid "Enter Regex"
 # msgstr ""
 
-# msgid "Do you want to leave this input mode?"
+# msgid "Do you want to leave the Regex mode?"
 # msgstr ""
 
-# msgid "Your changes will not be saved if you switch to the other input mode."
+# msgid "Do you want to leave the classic mode?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you switch to classic mode."
+# msgstr ""
+
+# msgid "Your changes will not be saved if you switch to Regex mode."
 # msgstr ""
 
 # msgid "Stay"

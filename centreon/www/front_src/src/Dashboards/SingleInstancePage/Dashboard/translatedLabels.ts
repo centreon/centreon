@@ -144,9 +144,13 @@ export const labelMBIReportingWidgets = 'MBI reporting widgets';
 export const labelActivateRegex = 'Activate Regex';
 export const labelDeactivateRegex = 'Deactivate Regex';
 export const labelEnterRegex = 'Enter Regex';
-export const labelDoYouWantToLeaveThisInputMode =
-  'Do you want to leave this input mode?';
-export const labelYourChangesWillNotBeSavedIfYouSwitch =
-  'Your changes will not be saved if you switch to the other input mode.';
+export const labelDoYouWantToLeaveTheRegexMode =
+  'Do you want to leave the Regex mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchRegexMode =
+  'Your changes will not be saved if you switch to classic mode.';
+export const labelDoYouWantToLeaveTheClassicMode =
+  'Do you want to leave the classic mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchClassicMode =
+  'Your changes will not be saved if you switch to Regex mode.';
 export const labelStay = 'Stay';
 export const labelLeave = 'Leave';

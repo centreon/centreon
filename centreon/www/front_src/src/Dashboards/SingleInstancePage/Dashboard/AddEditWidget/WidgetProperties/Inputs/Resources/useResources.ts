@@ -776,7 +776,11 @@ const useResources = ({
     ({ resourceType, index, bypassResourcesCheck = false }) =>
       (): void => {
         if (!isEmpty(value?.[index].resources) && !bypassResourcesCheck) {
-          setResourceToToggleRegex({ resourceType, index });
+          setResourceToToggleRegex({
+            resourceType,
+            index,
+            isRegexMode: isRegexFieldPerResourceType[resourceType]
+          });
 
           return;
         }
@@ -787,7 +791,7 @@ const useResources = ({
         }));
         setFieldValue(`data.${propertyName}.${index}.resources`, []);
       },
-    [value]
+    [value, isRegexFieldPerResourceType]
   );
 
   const changeRegexField =

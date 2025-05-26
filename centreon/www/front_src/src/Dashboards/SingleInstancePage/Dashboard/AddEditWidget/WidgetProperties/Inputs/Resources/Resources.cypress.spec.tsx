@@ -9,8 +9,10 @@ import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelActivateRegex,
   labelAddFilter,
+  labelDeactivateRegex,
   labelDelete,
-  labelDoYouWantToLeaveThisInputMode,
+  labelDoYouWantToLeaveTheClassicMode,
+  labelDoYouWantToLeaveTheRegexMode,
   labelEnterRegex,
   labelHost,
   labelHostCategory,
@@ -22,7 +24,8 @@ import {
   labelServiceCategory,
   labelServiceGroup,
   labelStay,
-  labelYourChangesWillNotBeSavedIfYouSwitch
+  labelYourChangesWillNotBeSavedIfYouSwitchClassicMode,
+  labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
@@ -507,8 +510,30 @@ describe('Resources tree', () => {
     cy.contains('Host 0').click();
     cy.findByTestId(`${labelActivateRegex}-host`).click();
 
-    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      allowRegexOnResourceTypes: [WidgetResourceType.host]
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(`${labelActivateRegex}-host`).click();
+    cy.get('[id="EnterRegexhost"]').type('Host');
+    cy.findByTestId(`${labelDeactivateRegex}-host`).click();
+
+    cy.contains(labelDoYouWantToLeaveTheRegexMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchRegexMode).should(
+      'be.visible'
+    );
 
     cy.makeSnapshot();
   });
@@ -525,8 +550,10 @@ describe('Resources tree', () => {
     cy.contains('Host 0').click();
     cy.findByTestId(`${labelActivateRegex}-host`).click();
 
-    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
     cy.contains(labelStay).click();
 
     cy.contains('Host 0').should('be.visible');
@@ -546,8 +573,10 @@ describe('Resources tree', () => {
     cy.contains('Host 0').click();
     cy.findByTestId(`${labelActivateRegex}-host`).click();
 
-    cy.contains(labelDoYouWantToLeaveThisInputMode).should('be.visible');
-    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitch).should('be.visible');
+    cy.contains(labelDoYouWantToLeaveTheClassicMode).should('be.visible');
+    cy.contains(labelYourChangesWillNotBeSavedIfYouSwitchClassicMode).should(
+      'be.visible'
+    );
     cy.contains(labelLeave).click();
 
     cy.contains('Host 0').should('not.exist');

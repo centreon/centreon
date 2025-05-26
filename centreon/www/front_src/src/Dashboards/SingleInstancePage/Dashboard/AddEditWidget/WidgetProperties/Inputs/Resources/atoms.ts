@@ -4,6 +4,7 @@ import { WidgetResourceType } from '../../../models';
 export interface ResourceTypeToToggleRegexAtom {
   resourceType: WidgetResourceType;
   index: number;
+  isRegexMode: boolean;
 }
 
 export const resourceTypeToToggleRegexAtom =
