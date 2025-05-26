@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import CopyIcon from '@mui/icons-material/FileCopyOutlined';
 import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
+import CopyIcon from '@mui/icons-material/FileCopyOutlined';
 
 import { endAdornment } from './EndAdornment';
 import { useStyles } from './TextField.styles';
