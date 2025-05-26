@@ -482,7 +482,6 @@ msgstr "Acción 3: Ejecutar una orden."
 msgid "Action Name"
 msgstr "Nombre de la acción."
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -721,10 +720,6 @@ msgstr "Agregar un host"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Add a Host Extended Info"
 msgstr "Añade información adicional al anfitrión"
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Add a Host Group"
-msgstr "Añadir un grupo de invitados"
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Add a Host Template"
@@ -1012,7 +1007,6 @@ msgstr "informaciones suplementarias"
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/configuration/configResources/formResources.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -1189,8 +1183,6 @@ msgstr "Notificaciones"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
@@ -3862,7 +3854,6 @@ msgstr "Tipo de comentario"
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -3975,7 +3966,6 @@ msgstr "Coleccionista obligatorio"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5515,7 +5505,6 @@ msgstr "Deshabilitar administrador de eventos"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
@@ -5550,7 +5539,6 @@ msgstr "Deshabilitar administrador de eventos"
 msgid "Disabled"
 msgstr "discapacitado"
 
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Disabled Hosts"
 msgstr "Hosts desactivados"
@@ -6591,7 +6579,6 @@ msgstr "Habilitar / deshabilitar cheques de servicios pasivos"
 msgid "Enable/Disable service checks"
 msgstr "Habilitar / Deshabilitar cheques de servicios"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #, fuzzy
@@ -6615,7 +6602,6 @@ msgstr "Activar / desactivar datos de rendimiento"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
@@ -6650,7 +6636,6 @@ msgstr "Activar / desactivar datos de rendimiento"
 msgid "Enabled"
 msgstr "activado"
 
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Enabled Hosts"
 msgstr "Hosts habilitados"
@@ -12606,10 +12591,6 @@ msgstr "Valor del recurso"
 msgid "Extended Info"
 msgstr "Informaciones complementarias"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Extended Information"
-msgstr "Información adicional"
-
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
 msgid "Extended Settings"
 msgstr "Opciones avanzadas"
@@ -13337,7 +13318,6 @@ msgstr "general"
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/home/customViews/formLoad.php
 #: centreon/www/include/configuration/configResources/formResources.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -13447,7 +13427,6 @@ msgstr "Generando archivos"
 msgid "Geo coordinates"
 msgstr "Coordenadas geograficas"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #, fuzzy
@@ -14487,7 +14466,6 @@ msgid "IP address or hostname"
 msgstr "Dirección IP o nombre de host"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -16272,7 +16250,6 @@ msgstr "Editar directorio"
 msgid "Mandatory field"
 msgstr "campo obligatorio"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 msgid "Mandatory field for ACL purpose."
@@ -16311,10 +16288,6 @@ msgstr "constructor"
 #: centreon/www/install/front_translate.php
 msgid "Many thanks to all the contributors to the security of Centreon"
 msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Map Icon"
-msgstr "Icono de la tarjeta"
 
 #: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementValidators/MariaDbRequirementException.php
 #, php-format
@@ -16433,10 +16406,6 @@ msgstr "El alias ya existe"
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Member of Host Groups"
 msgstr "Miembro del grupo de anfitriones."
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Members"
-msgstr ""
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 msgid "Memory file"
@@ -16746,7 +16715,6 @@ msgstr "Tipo de modificación"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -16873,10 +16841,6 @@ msgstr "Editar un host"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Modify a Host Extended Info"
 msgstr "Editar información adicional del anfitrión."
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Modify a Host Group"
-msgstr "Editar un grupo de invitados"
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Modify a Host Template"
@@ -17286,8 +17250,6 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/listMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
@@ -17348,7 +17310,6 @@ msgstr ""
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -17757,16 +17718,11 @@ msgid "Note URL"
 msgstr "URL"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneHost.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Notes"
 msgstr "Notas"
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Notes URL"
-msgstr "URL"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Nothing here, use the \"Add\" button"
@@ -18249,7 +18205,6 @@ msgstr "Opciones"
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/listGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/listMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -19254,10 +19209,6 @@ msgstr "Directorio para almacenar archivos de estado RRD"
 msgid "RRD length"
 msgstr "Tiempo de retención de datos en bases de datos RRD (en segundos)"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "RRD retention"
-msgstr "Retención de archivos RRD"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "RRDCacheD listening socket/port"
 msgstr ""
@@ -19429,7 +19380,6 @@ msgstr "ordinario"
 msgid "Regular Expression Matching Option"
 msgstr "Habilitar la gestión de expresiones regulares"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #, fuzzy
 msgid "Relation"
@@ -19650,7 +19600,6 @@ msgstr "Campo obligatorio"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -19699,7 +19648,6 @@ msgstr "Reprogramar servicios asociados."
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -19790,7 +19738,6 @@ msgstr "recurso"
 msgid "Resource Access Management"
 msgstr "Gestión de acceso a recursos"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #, fuzzy
 msgid "Resource Access Rule"
@@ -20195,7 +20142,6 @@ msgstr "sábado"
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -21881,7 +21827,6 @@ msgstr "Habilitar estadísticas"
 #: centreon/www/include/configuration/configKnowledge/display-hosts.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/listServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -24232,10 +24177,6 @@ msgstr "Ver un host"
 msgid "View a Host Extended Info"
 msgstr "Ver información adicional del anfitrión"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "View a Host Group"
-msgstr "Ver un grupo de invitados"
-
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "View a Host Template"
 msgstr "Ver una plantilla de host"
@@ -24903,10 +24844,6 @@ msgstr "No tienes permiso para acceder a este host"
 msgid "You are not allowed to access this host category"
 msgstr "No se le permite acceder a esta categoría de host"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "You are not allowed to access this host group"
-msgstr "No tienes permiso para acceder a este grupo host"
-
 #: centreon/www/include/configuration/configObject/meta_service/metaService.php
 msgid "You are not allowed to access this meta service"
 msgstr "No tienes permiso para acceder a este meta-servicio."
@@ -25220,12 +25157,6 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 msgid ""
 "You can't edit this downtime because you don't have access to all of its "
-"resources"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-msgid ""
-"You can't edit this hostgroup because you don't have access to all its "
 "resources"
 msgstr ""
 
@@ -25775,7 +25706,6 @@ msgstr ""
 msgid "error"
 msgstr "error"
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -26113,6 +26043,30 @@ msgstr ""
 #, fuzzy
 msgid "{{total}} element(s) found"
 msgstr "artículo (s) encontrado (s)"
+
+#~ msgid "Add a Host Group"
+#~ msgstr "Añadir un grupo de invitados"
+
+#~ msgid "Extended Information"
+#~ msgstr "Información adicional"
+
+#~ msgid "Map Icon"
+#~ msgstr "Icono de la tarjeta"
+
+#~ msgid "Modify a Host Group"
+#~ msgstr "Editar un grupo de invitados"
+
+#~ msgid "Notes URL"
+#~ msgstr "URL"
+
+#~ msgid "RRD retention"
+#~ msgstr "Retención de archivos RRD"
+
+#~ msgid "View a Host Group"
+#~ msgstr "Ver un grupo de invitados"
+
+#~ msgid "You are not allowed to access this host group"
+#~ msgstr "No tienes permiso para acceder a este grupo host"
 
 #~ msgid "Correlation file"
 #~ msgstr "Archivo de correlación"
