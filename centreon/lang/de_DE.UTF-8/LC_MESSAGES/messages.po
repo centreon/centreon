@@ -277,11 +277,6 @@ msgstr "API Zugriffskonfiguration"
 msgid "API Options"
 msgstr "API-Optionen"
 
-#: centreon/www/install/menu_translation.php
-#, fuzzy
-msgid "API Tokens"
-msgstr "API-Optionen"
-
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "API calling the Central returned a Client exception"
 msgstr ""
@@ -297,11 +292,6 @@ msgstr ""
 msgid "API calling the Central returned a Server exception"
 msgstr ""
 "Der API-Aufruf zum zentralen Server hat eine Server-Ausnahme zurückgegeben"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "API token"
-msgstr "API-Optionen"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Aborted."
@@ -566,16 +556,6 @@ msgstr "Active Directory"
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 msgid "Active Directory :"
 msgstr "Active Directory:"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Active tokens"
-msgstr "Aktionen"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Active/Revoked"
-msgstr "Aktiv"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 msgid "Actual"
@@ -1695,6 +1675,11 @@ msgstr "Authentifizierung erforderlich"
 msgid "Authentication Source"
 msgstr "Authentifizierungsquelle"
 
+#: centreon/www/install/menu_translation.php
+#, fuzzy
+msgid "Authentication Tokens"
+msgstr "Authentifizierungsmodus"
+
 #: centreon/www/install/front_translate.php
 #, fuzzy
 msgid "Authentication conditions"
@@ -1721,6 +1706,11 @@ msgstr "Authentifizierungsmodus"
 msgid "Authentication properties"
 msgstr "Authentifizierungseigenschaften"
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Authentication token copied to the clipboard"
+msgstr "Authentifizierungstoken konnte nicht gefunden werden"
+
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token expired"
 msgstr "Authentifizierungstoken abgelaufen"
@@ -1728,6 +1718,11 @@ msgstr "Authentifizierungstoken abgelaufen"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token not found"
 msgstr "Authentifizierungstoken konnte nicht gefunden werden"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Authentication tokens"
+msgstr "Authentifizierungsmodus"
 
 #: centreon/www/widgets/service-monitoring/src/action.php
 #: centreon/www/widgets/host-monitoring/src/action.php
@@ -3623,6 +3618,11 @@ msgstr "Ansicht erstellen"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
+msgid "Create authentication token"
+msgstr "Fehler beim Hinzufügen eines Authentifizierungstokens"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
 msgid "Create dashboard"
 msgstr "Erstellen oder laden"
 
@@ -3635,11 +3635,6 @@ msgstr "Neue Ansicht erstellen "
 #: centreon/www/install/front_translate.php
 msgid "Create new Remote Server"
 msgstr "Neuen Remote-Server erstellen"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Create new token"
-msgstr "Neue Ansicht erstellen "
 
 #: centreon/www/include/home/customViews/index.php
 msgid "Create new view "
@@ -4505,6 +4500,7 @@ msgstr "Verzeichnisname"
 msgid "Directory of light database for traps"
 msgstr "Verzeichnis der SQLite-Datenbanken für Traps"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
@@ -4590,6 +4586,11 @@ msgstr "Deaktivierte Hosts"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
+msgid "Disable token"
+msgstr "Deaktivierte Hosts"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
 msgid "Disable verify peer"
 msgstr "SSL Peerverifizierung deaktivieren"
 
@@ -4651,11 +4652,6 @@ msgstr "Deaktivierte Hosts"
 
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 msgid "Disabled hosts"
-msgstr "Deaktivierte Hosts"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Disabled tokens"
 msgstr "Deaktivierte Hosts"
 
 #: centreon/www/install/front_translate.php
@@ -4964,6 +4960,10 @@ msgid "Documentation"
 msgstr "Dokumentation"
 
 #: centreon/www/install/front_translate.php
+msgid "Done"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5269,6 +5269,7 @@ msgstr "Leere Zeile nach dieser Legende"
 msgid "Empty directory"
 msgstr "Leeres Verzeichnis"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
@@ -5443,6 +5444,16 @@ msgstr "Routing aktivieren"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Shell aktivieren"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Enable token"
+msgstr "Deaktivierte Hosts"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Enable/Disable"
+msgstr "Aktiviere bzw. Deaktiviere Auditprotokolle"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Enable/Disable Checks for a host"
@@ -7310,8 +7321,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid ""
-"For security reasons, the token can only be displayed once. Store it "
-"carefully."
+"For security reasons, the token can only be displayed once. Remember to "
+"store it well."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/engine/form.php
@@ -7514,7 +7525,7 @@ msgstr "SNMP-Trap Konfiguration erzeugen"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
-msgid "Generate new token"
+msgid "Generate token"
 msgstr "Erzeugen"
 
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
@@ -11038,6 +11049,11 @@ msgstr "Name des Protokollierers"
 #: centreon/www/install/front_translate.php
 msgid "Need help with search bar usage?"
 msgstr ""
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Never expire"
+msgstr "Session ist abgelaufen"
 
 #: centreon/www/include/options/media/images/syncDir.php
 msgid "New directory added :"
@@ -16341,11 +16357,6 @@ msgstr ""
 "Diese Einstellung kann mehrfach verwendet werden, überprüfen Sie die Nagios-"
 "Dokumentation."
 
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "This field is required"
-msgstr "Dieses Feld ist erforderlich"
-
 #: centreon/src/Centreon/Domain/HostConfiguration/Host.php
 msgid "This host is not a host template"
 msgstr "Dieser Host ist kein Hosttemplate"
@@ -16653,16 +16664,23 @@ msgid "Token"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Token copied to the clipboard"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Token could not be copied"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Token deleted successfully"
-msgstr ""
+#, fuzzy
+msgid "Token deleted"
+msgstr "Benutzerfilter"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Token disabled"
+msgstr "deaktiviert"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Token enabled"
+msgstr "Sicherung aktiviert"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -18005,9 +18023,23 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid ""
-"You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
-"cannot be undone. If you proceed, all requests made using this token will be "
-"<br> rejected. Do you want to delete the token?"
+"You are about to delete the <strong>{{tokenName}}</strong> token. This "
+"action cannot be undone. Do you want to delete this token anyway ? You must "
+"export the configuration for the change to be taken into account."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are about to disable the <strong>{{tokenName}}</strong> token. If you "
+"disable it, all requests made with this token will be rejected. Do you want "
+"to disable it ? You must export the configuration for the change to be taken "
+"into account."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are about to enable the <strong>{{tokenName}}</strong> token. You must "
+"export the configuration for the change to be taken into account."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -18378,11 +18410,6 @@ msgstr ""
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 #, fuzzy
 msgid "You are not allowed to list resource access rules"
-msgstr "Sie sind nicht dazu berechtigt, auf diesen Host zuzugreifen"
-
-#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
-#, fuzzy
-msgid "You are not allowed to list the tokens"
 msgstr "Sie sind nicht dazu berechtigt, auf diesen Host zuzugreifen"
 
 #: centreon/www/install/front_translate.php
@@ -19305,6 +19332,34 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "{{label}} should be at least {{min}} characters long"
 msgstr ""
+
+#, fuzzy
+#~ msgid "API Tokens"
+#~ msgstr "API-Optionen"
+
+#, fuzzy
+#~ msgid "API token"
+#~ msgstr "API-Optionen"
+
+#, fuzzy
+#~ msgid "Active tokens"
+#~ msgstr "Aktionen"
+
+#, fuzzy
+#~ msgid "Active/Revoked"
+#~ msgstr "Aktiv"
+
+#, fuzzy
+#~ msgid "Create new token"
+#~ msgstr "Neue Ansicht erstellen "
+
+#, fuzzy
+#~ msgid "This field is required"
+#~ msgstr "Dieses Feld ist erforderlich"
+
+#, fuzzy
+#~ msgid "You are not allowed to list the tokens"
+#~ msgstr "Sie sind nicht dazu berechtigt, auf diesen Host zuzugreifen"
 
 #~ msgid "Retention file"
 #~ msgstr "Aufbewahrungsdatei"
@@ -20358,50 +20413,3 @@ msgstr ""
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Erweiterter Modus"
-
-# msgid "Authentication tokens"
-# msgstr ""
-
-# msgid "Never expire"
-# msgstr ""
-
-# msgid "Generate token"
-# msgstr ""
-
-# msgid "Create authentication token"
-# msgstr ""
-
-# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
-# msgstr ""
-
-# msgid "Done"
-# msgstr ""
-
-# msgid "Disable token"
-# msgstr ""
-
-# msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
-# msgstr ""
-
-# msgid "Token disabled"
-# msgstr ""
-
-# msgid "Token deleted"
-# msgstr ""
-
-# msgid "Enable/Disable"
-# msgstr ""
-
-# msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
-# msgstr ""
-
-# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
-# msgstr ""
-
-# msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
-# msgstr ""
-
-# msgid "Enable token"
-# msgstr ""
-
-# msgid "Token enabled"

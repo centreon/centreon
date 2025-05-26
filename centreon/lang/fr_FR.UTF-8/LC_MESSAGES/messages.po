@@ -283,11 +283,6 @@ msgstr "Configuration d'accès à l'API"
 msgid "API Options"
 msgstr "Options"
 
-#: centreon/www/install/menu_translation.php
-#, fuzzy
-msgid "API Tokens"
-msgstr "Jeton d'API"
-
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/Exception/PlatformTopologyRepositoryException.php
 msgid "API calling the Central returned a Client exception"
 msgstr "L'API du Central a renvoyé une exception Client"
@@ -299,10 +294,6 @@ msgstr "L'API du Central a renvoyé une exception de Redirection"
 #: centreon/src/Centreon/Infrastructure/PlatformTopology/Repository/PlatformTopologyRegisterRepositoryAPI.php
 msgid "API calling the Central returned a Server exception"
 msgstr "L'API du Central a renvoyé une exception Server"
-
-#: centreon/www/install/front_translate.php
-msgid "API token"
-msgstr "Jeton d'API"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Aborted."
@@ -564,15 +555,6 @@ msgstr "Active Directory"
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 msgid "Active Directory :"
 msgstr "Active Directory :"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Active tokens"
-msgstr "Actions"
-
-#: centreon/www/install/front_translate.php
-msgid "Active/Revoked"
-msgstr "Actif/Révoqué"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 msgid "Actual"
@@ -1681,6 +1663,11 @@ msgstr "Source d'authentification"
 msgid "Authentication Source"
 msgstr "Source d'authentification"
 
+#: centreon/www/install/menu_translation.php
+#, fuzzy
+msgid "Authentication Tokens"
+msgstr "Jetons d'authentification"
+
 #: centreon/www/install/front_translate.php
 msgid "Authentication conditions"
 msgstr "Conditions d'authentification"
@@ -1706,6 +1693,10 @@ msgstr "Mode d'authentification"
 msgid "Authentication properties"
 msgstr "Propriétés d'authentification"
 
+#: centreon/www/install/front_translate.php
+msgid "Authentication token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token expired"
 msgstr "Le jeton d'authentification a expiré"
@@ -1713,6 +1704,10 @@ msgstr "Le jeton d'authentification a expiré"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token not found"
 msgstr "Jeton d'authentification non trouvé"
+
+#: centreon/www/install/front_translate.php
+msgid "Authentication tokens"
+msgstr "Jetons d'authentification"
 
 #: centreon/www/widgets/service-monitoring/src/action.php
 #: centreon/www/widgets/host-monitoring/src/action.php
@@ -3591,6 +3586,10 @@ msgid "Create and edit pollers"
 msgstr "Créer et modifier des collecteurs"
 
 #: centreon/www/install/front_translate.php
+msgid "Create authentication token"
+msgstr "Créer un jeton d'authentification"
+
+#: centreon/www/install/front_translate.php
 msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
 
@@ -3603,10 +3602,6 @@ msgstr "Créer un nouveau jeton"
 #: centreon/www/install/front_translate.php
 msgid "Create new Remote Server"
 msgstr "Créer un nouveau serveur distant"
-
-#: centreon/www/install/front_translate.php
-msgid "Create new token"
-msgstr "Créer un nouveau jeton"
 
 #: centreon/www/include/home/customViews/index.php
 msgid "Create new view "
@@ -4442,6 +4437,7 @@ msgstr ""
 "Répertoire de stockage de la base SQLite contenant la définition des traps "
 "SNMP"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
@@ -4525,6 +4521,10 @@ msgid "Disable autorefresh"
 msgstr "Désactiver l'actualisation automatique"
 
 #: centreon/www/install/front_translate.php
+msgid "Disable token"
+msgstr "Désactiver le jeton"
+
+#: centreon/www/install/front_translate.php
 msgid "Disable verify peer"
 msgstr "Désactiver la vérification du pair"
 
@@ -4586,11 +4586,6 @@ msgstr "Hôtes désactivés"
 
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 msgid "Disabled hosts"
-msgstr "Hôtes désactivés"
-
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Disabled tokens"
 msgstr "Hôtes désactivés"
 
 #: centreon/www/install/front_translate.php
@@ -4888,6 +4883,10 @@ msgid "Documentation"
 msgstr "Documentation"
 
 #: centreon/www/install/front_translate.php
+msgid "Done"
+msgstr "Terminé"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5180,6 +5179,7 @@ msgstr "Ligne vide après cette légende"
 msgid "Empty directory"
 msgstr "Répertoire vide"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/menusACL/listsMenusAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
 #: centreon/www/include/options/accessLists/actionsACL/listsActionsAccess.php
@@ -5348,6 +5348,15 @@ msgstr "Active le routage des traps"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Activer le shell"
+
+#: centreon/www/install/front_translate.php
+msgid "Enable token"
+msgstr "Activer le jeton"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Enable/Disable"
+msgstr "Activer/Désactiver les journaux d'audit"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Enable/Disable Checks for a host"
@@ -7112,11 +7121,11 @@ msgstr "Pour plus d'informations, consultez les notes de version sur "
 
 #: centreon/www/install/front_translate.php
 msgid ""
-"For security reasons, the token can only be displayed once. Store it "
-"carefully."
+"For security reasons, the token can only be displayed once. Remember to "
+"store it well."
 msgstr ""
 "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
-"fois. Stockez-le soigneusement."
+"fois. Pensez à bien le stocker."
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
@@ -7317,8 +7326,8 @@ msgid "Generate SNMP Trap configuration"
 msgstr "Générer la configuration des traps SNMP"
 
 #: centreon/www/install/front_translate.php
-msgid "Generate new token"
-msgstr "Générer un nouveau jeton"
+msgid "Generate token"
+msgstr "Générer un jeton"
 
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Generate trap database "
@@ -10823,6 +10832,10 @@ msgstr "Nom du journal d'évènements"
 #: centreon/www/install/front_translate.php
 msgid "Need help with search bar usage?"
 msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+
+#: centreon/www/install/front_translate.php
+msgid "Never expire"
+msgstr "N'expire jamais"
 
 #: centreon/www/include/options/media/images/syncDir.php
 msgid "New directory added :"
@@ -16019,10 +16032,6 @@ msgstr ""
 "Cette directive peut être utilisée plusieurs fois, se reporter à la "
 "documentation de nagios."
 
-#: centreon/www/install/front_translate.php
-msgid "This field is required"
-msgstr "Ce champ est obligatoire"
-
 #: centreon/src/Centreon/Domain/HostConfiguration/Host.php
 msgid "This host is not a host template"
 msgstr "Cet hôte n'est pas un modèle d'hôte"
@@ -16339,17 +16348,20 @@ msgid "Token"
 msgstr "Jeton"
 
 #: centreon/www/install/front_translate.php
-msgid "Authentication token copied to the clipboard"
-msgstr "Jeton copié dans le presse-papiers"
-
-#: centreon/www/install/front_translate.php
 msgid "Token could not be copied"
 msgstr "Le jeton n'a pas pu être copié"
 
 #: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Token deleted successfully"
-msgstr "La notification a été supprimée avec succès"
+msgid "Token deleted"
+msgstr "Jeton supprimé"
+
+#: centreon/www/install/front_translate.php
+msgid "Token disabled"
+msgstr "Jeton désactivé"
+
+#: centreon/www/install/front_translate.php
+msgid "Token enabled"
+msgstr "Jeton activé"
 
 #: centreon/www/install/front_translate.php
 msgid "Token endpoint"
@@ -17655,14 +17667,35 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid ""
-"You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
-"cannot be undone. If you proceed, all requests made using this token will be "
-"<br> rejected. Do you want to delete the token?"
+"You are about to delete the <strong>{{tokenName}}</strong> token. This "
+"action cannot be undone. Do you want to delete this token anyway ? You must "
+"export the configuration for the change to be taken into account."
 msgstr ""
-"Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette "
-"action est <br> irréversible. Si vous le supprimez, toutes les requêtes "
-"effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le "
-"jeton ?"
+"Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. "
+"Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? "
+"Vous devez exporter la configuration pour que le changement soit pris en "
+"compte."
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are about to disable the <strong>{{tokenName}}</strong> token. If you "
+"disable it, all requests made with this token will be rejected. Do you want "
+"to disable it ? You must export the configuration for the change to be taken "
+"into account."
+msgstr ""
+"Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</"
+"strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton "
+"seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la "
+"configuration pour que le changement soit pris en compte."
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"You are about to enable the <strong>{{tokenName}}</strong> token. You must "
+"export the configuration for the change to be taken into account."
+msgstr ""
+"Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. "
+"Vous devez exporter la configuration pour que le changement soit pris en "
+"compte."
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -17984,11 +18017,6 @@ msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications
 #, fuzzy
 msgid "You are not allowed to list resource access rules"
 msgstr "Vous n'êtes pas autorisé à accéder aux services"
-
-#: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
-#, fuzzy
-msgid "You are not allowed to list the tokens"
-msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 #: centreon/www/install/front_translate.php
 msgid "You are not allowed to log in"
@@ -18917,6 +18945,58 @@ msgstr "Le nom peut comporter au maximum 50 caractères"
 #, fuzzy
 msgid "{{label}} should be at least {{min}} characters long"
 msgstr "Le nom doit comporter au moins 3 caractères"
+
+#, fuzzy
+#~ msgid "API Tokens"
+#~ msgstr "Jeton d'API"
+
+#~ msgid "API token"
+#~ msgstr "Jeton d'API"
+
+#, fuzzy
+#~ msgid "Active tokens"
+#~ msgstr "Actions"
+
+#~ msgid "Active/Revoked"
+#~ msgstr "Actif/Révoqué"
+
+#~ msgid "Create new token"
+#~ msgstr "Créer un nouveau jeton"
+
+#, fuzzy
+#~ msgid "Disabled tokens"
+#~ msgstr "Hôtes désactivés"
+
+#~ msgid ""
+#~ "For security reasons, the token can only be displayed once. Store it "
+#~ "carefully."
+#~ msgstr ""
+#~ "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
+#~ "fois. Stockez-le soigneusement."
+
+#~ msgid "Generate new token"
+#~ msgstr "Générer un nouveau jeton"
+
+#~ msgid "This field is required"
+#~ msgstr "Ce champ est obligatoire"
+
+#, fuzzy
+#~ msgid "Token deleted successfully"
+#~ msgstr "La notification a été supprimée avec succès"
+
+#~ msgid ""
+#~ "You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
+#~ "cannot be undone. If you proceed, all requests made using this token will "
+#~ "be <br> rejected. Do you want to delete the token?"
+#~ msgstr ""
+#~ "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette "
+#~ "action est <br> irréversible. Si vous le supprimez, toutes les requêtes "
+#~ "effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le "
+#~ "jeton ?"
+
+#, fuzzy
+#~ msgid "You are not allowed to list the tokens"
+#~ msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
 
 #~ msgid "Correlation file"
 #~ msgstr "Fichier de corrélation"
@@ -22237,68 +22317,26 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
 
-msgid "Authentication tokens"
-msgstr "Jetons d'authentification"
+#~ msgid "Last 60 days"
+#~ msgstr "Les 60 derniers jours"
 
-msgid "Never expire"
-msgstr "N'expire jamais"
+#~ msgid "Last 90 days"
+#~ msgstr "Les 90 derniers jours"
 
-msgid "Generate token"
-msgstr "Générer un jeton"
+#~ msgid "Last 1 year"
+#~ msgstr "La dernière année"
 
-msgid "Create authentication token"
-msgstr "Créer un jeton d'authentification"
+#~ msgid "In 7 days"
+#~ msgstr "Dans 7 jours"
 
-msgid "For security reasons, the token can only be displayed once. Remember to store it well."
-msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Pensez à bien le stocker."
+#~ msgid "In 30 days"
+#~ msgstr "Dans 30 jours"
 
-msgid "Done"
-msgstr "Terminé"
+#~ msgid "In 60 days"
+#~ msgstr "Dans 60 jours"
 
-msgid "Disable token"
-msgstr "Désactiver le jeton"
+#~ msgid "In 90 days"
+#~ msgstr "Dans 90 jours"
 
-msgid "Token disabled"
-msgstr "Jeton désactivé"
-
-msgid "Token deleted"
-msgstr "Jeton supprimé"
-
-msgid "Last 60 days"
-msgstr "Les 60 derniers jours"
-
-msgid "Last 90 days"
-msgstr "Les 90 derniers jours"
-
-msgid "Last 1 year"
-msgstr "La dernière année"
-
-msgid "In 7 days"
-msgstr "Dans 7 jours"
-
-msgid "In 30 days"
-msgstr "Dans 30 jours"
-
-msgid "In 60 days"
-msgstr "Dans 60 jours"
-
-msgid "In 90 days"
-msgstr "Dans 90 jours"
-
-msgid "In 1 year"
-msgstr "Dans 1 an"
-
-msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-msgid "Enable token"
-msgstr "Activer le jeton"
-
-msgid "Token enabled"
-msgstr "Jeton activé"
+#~ msgid "In 1 year"
+#~ msgstr "Dans 1 an"
