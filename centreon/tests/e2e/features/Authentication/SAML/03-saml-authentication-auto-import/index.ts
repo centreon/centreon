@@ -121,8 +121,27 @@ Then(
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
 
     cy.url().should('include', '/monitoring/resources');
-    cy.waitForElementToBeVisible('[aria-label="Profile"]');
-    cy.logout();
+    cy.waitForElementToBeVisible('[data-cy="userIcon"]');
+    cy.get('[data-cy="userIcon"]').should('exist').click();
+    cy.intercept({
+      method: 'GET',
+      times: 1,
+      url: '/centreon/api/latest/authentication/logout'
+    }).as('logout');
+
+    cy.contains(/^Logout$/).click();
+
+    cy.waitUntil(() =>
+      cy.wait('@logout').then((interception) => {
+        return interception?.response?.statusCode === 302;
+      }),
+      {
+        errorMsg: 'Logout did not complete successfully',
+        timeout: 30000,
+        interval: 2000
+      }
+    );
+
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
