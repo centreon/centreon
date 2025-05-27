@@ -117,7 +117,7 @@ class CentreonMainCfg
      */
     private function setBrokerOptions(): void
     {
-        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so', 'wizard' => ''];
+        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so'];
     }
 
     /**
@@ -245,7 +245,7 @@ class CentreonMainCfg
      */
     public function insertBrokerDefaultDirectives($iId, $source)
     {
-        if (empty($iId) || !in_array($source, ['ui', 'wizard'])) {
+        if (empty($iId) || !in_array($source, ['ui'])) {
             return false;
         }
 
