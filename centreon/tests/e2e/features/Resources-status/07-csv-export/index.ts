@@ -98,9 +98,33 @@ Given("an admin user is logged in a Centreon server", () => {
 	cy.wait(4000)
 	const downloadsFolder = Cypress.config('downloadsFolder');
 	cy.task('getDownloadedFile', { downloadsFolder }).then(filePath => {
-    // tu peux lire le contenu du fichier ici
-       cy.log('Fichier téléchargé : ' + filePath);
-   // par exemple, lire avec read-excel-file (si utilisable ici)
+     cy.task('readCsvFile', { filePath }).then(csvContent => {
+		const rows = csvContent.split('\n').map(row => row.split(';').map(cell => cell.trim()));
+
+		// ✅ Exemple : Vérifier que le contenu contient une ligne avec "CRITICAL: Total connections: 373"
+		const hasCriticalInfo = rows.some(row =>
+		row.includes('CRITICAL: Total connections: 373')
+		);
+
+		expect(hasCriticalInfo).to.be.true;
+
+		// ✅ Autre exemple : vérifier l’état “Up” dans la colonne “Parent Resource Status”
+		const hasUpStatus = rows.some(row => row.includes('Up'));
+		expect(hasUpStatus).to.be.true;
+
+		// ✅ Tu peux aussi vérifier le nombre de colonnes
+		const expectedHeaders = [
+		'Status', 'Resource Type', 'Resource Name', 'Parent Resource Type',
+		'Parent Resource Name', 'Parent Resource Status', 'Duration',
+		'Last Check', 'Information', 'Tries', 'Severity', 'Notes', 'Action',
+		'State', 'Alias', 'Parent alias', 'FQDN / Address', 'Monitoring server',
+		'Notif', 'Check'
+		];
+
+		const actualHeaders = rows[0];
+		expect(actualHeaders).to.deep.include.members(expectedHeaders);
+
+});
 });
 });
 
