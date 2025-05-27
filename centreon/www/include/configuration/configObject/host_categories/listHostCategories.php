@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2025 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,152 +34,242 @@
  *
  */
 
+declare(strict_types=1);
+
 if (!isset($centreon)) {
     exit();
 }
 
-require_once "./class/centreonUtils.class.php";
-include "./include/common/autoNumLimit.php";
+require_once './class/centreonUtils.class.php';
+include './include/common/autoNumLimit.php';
+require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
-//Search
-$SearchTool = null;
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchH'] ?? $_GET['searchH'] ?? null
-);
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 
-if (isset($_POST['searchH']) || isset($_GET['searchH'])) {
-    //saving filters values
-    $centreon->historySearch[$url] = [];
+
+// Sanitize and persist/restore search input
+$rawSearch = $_POST['searchH'] ?? $_GET['searchH'] ?? null;
+if ($rawSearch !== null) {
+    $search = HtmlSanitizer::createFromString($rawSearch)
+        ->removeTags()
+        ->sanitize()
+        ->getString();
     $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-if (isset($search) && $search !== '') {
-    $SearchTool = " WHERE (hc_name LIKE :search OR hc_alias LIKE :search)";
-}
+// Calculate offset
+$offset = $num * $limit;
 
-$hcFilter = "";
-$hcQueryBinds = [];
-if (!$centreon->user->admin && $hcString != "''") {
-    $hcStringExploded = explode(",", $hcString);
-    foreach ($hcStringExploded as $key => $hcId) {
-        $hcQueryBinds[":hc_" . $key] = str_replace("'", "", $hcId);
+try {
+    // Build main query
+    $queryBuilder = $pearDB->createQueryBuilder()
+        ->select('hc.hc_id', 'hc.hc_name', 'hc.hc_alias', 'hc.level', 'hc.hc_activate')
+        ->from('hostcategories', 'hc');
+
+    $parameters = [];
+
+    if ($search !== '') {
+        $queryBuilder->andWhere(
+            $queryBuilder->expr()->or(
+                $queryBuilder->expr()->like('hc.hc_name', ':search'),
+                $queryBuilder->expr()->like('hc.hc_alias', ':search')
+            )
+        );
+        $parameters[] = QueryParameter::string('search', "%$search%");
     }
-    $hcQueryBindsString = implode(",", array_keys($hcQueryBinds));
-    $hcFilter = (is_null($SearchTool) ? ' WHERE' : ' AND') . " hc_id IN ($hcQueryBindsString)";
+
+    if (!$centreon->user->admin && $hcString !== "''") {
+        $hcIds = array_map(
+            fn(string $s) => (int) trim($s, "'\" \t\n\r\0\x0B"),
+            explode(',', $hcString)
+        );
+        $bindparams = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
+        if (count($bindparams["parameters"]) > 0) {
+            $queryBuilder->andWhere("hc.hc_id IN ( {$bindparams["placeholderList"]} )");
+            $parameters = array_merge($parameters, $bindparams["parameters"]);
+        }
+    }
+
+    $queryForCount = $queryBuilder->getQuery();
+
+    $queryBuilder->orderBy('hc.hc_name')
+       ->offset($offset)
+       ->limit($limit);
+
+    $mainQuery   = $queryBuilder->getQuery();
+    $queryParams = QueryParameters::create($parameters);
+
+    // Execute fetch
+    $hostCategories = $pearDB->fetchAllAssociative($mainQuery, $queryParams);
+
+    //build count query
+    //remove the select part of the query
+    $fromPos = stripos($queryForCount, ' FROM ');
+    $fromClause = substr($queryForCount, $fromPos);
+
+    $countSql = 'SELECT COUNT(*) AS total' . $fromClause;
+    $countRow = $pearDB->fetchAssociative($countSql, $queryParams);
+    $totalRows    = (int) ($countRow['total'] ?? 0);
+} catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error fetching host categories list',
+        [
+            'hcString' => $hcString,
+            'search' => $search,
+            'limit' => $limit,
+            'num' => $num
+        ],
+        $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage("./img/icons/warning.png");
+    $msg->setTextStyle("bold");
+    $msg->setText('Error fetching host categories list');
 }
 
-// Hostgroup list
-$query = "SELECT SQL_CALC_FOUND_ROWS hc_id, hc_name, hc_alias, level, hc_activate FROM hostcategories" .
-         $SearchTool . $hcFilter . " ORDER BY hc_name LIMIT :offset, :limit";
-$statement = $pearDB->prepare($query);
-$statement->bindValue(':offset', (int) $num * (int) $limit, \PDO::PARAM_INT);
-$statement->bindValue(':limit', (int) $limit, \PDO::PARAM_INT);
-if (isset($search) && $search !== '') {
-    $statement->bindValue(':search', "%" . $search . "%", \PDO::PARAM_STR);
-}
-foreach ($hcQueryBinds as $key => $hcId) {
-    $statement->bindValue($key, (int) $hcId, \PDO::PARAM_INT);
-}
-$statement->execute();
-
+// Prepare pagination and template
+$rows = $totalRows;
 $search = tidySearchKey($search, $advanced_search);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include_once "./include/common/checkPagination.php";
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /* Access level */
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("Alias"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_hc_type", _("Type"));
-$tpl->assign("headerMenu_hostAct", _("Enabled Hosts"));
-$tpl->assign("headerMenu_hostDeact", _("Disabled Hosts"));
-$tpl->assign("headerMenu_options", _("Options"));
+// Header menu definitions
+$tpl->assign('headerMenu_name',  _('Name'));
+$tpl->assign('headerMenu_desc',  _('Alias'));
+$tpl->assign('headerMenu_status',  _('Status'));
+$tpl->assign('headerMenu_hc_type', _('Type'));
+$tpl->assign('headerMenu_hostAct', _('Enabled Hosts'));
+$tpl->assign('headerMenu_hostDeact', _('Disabled Hosts'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+// Build search form
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=$p");
 // Different style between each lines
 $style = "one";
-
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtn = [
+    'class'   => 'btc bt_success',
+    'onClick' => "window.history.replaceState('', '', '?p={$p}');"
+];
+$form->addElement('submit', 'Search', _('Search'), $attrBtn);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
-for ($i = 0; $hc = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
-    $selectedElements = $form->addElement('checkbox', "select[" . $hc['hc_id'] . "]");
-    $moptions = "";
-    if ($hc["hc_activate"]) {
-        $moptions .= "<a href='main.php?p=" . $p . "&hc_id=" . $hc['hc_id'] . "&o=u&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Disabled") . "'></a>";
-    } else {
-        $moptions .= "<a href='main.php?p=" . $p . "&hc_id=" . $hc['hc_id'] . "&o=s&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' class='ico-14 margin_right'" .
-            "border='0' alt='" . _("Enabled") . "'></a>";
-    }
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-        "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" . $hc['hc_id'] . "]' />";
+// count enabled/disabled hosts per category
+try {
+    $countsQuerybuilder = $pearDB->createQueryBuilder()
+        ->select('hcr.hostcategories_hc_id AS hc_id')
+        ->addSelect('SUM(CASE WHEN h.host_activate = "1" THEN 1 ELSE 0 END) AS enabled')
+        ->addSelect('SUM(CASE WHEN h.host_activate = "0" THEN 1 ELSE 0 END) AS disabled')
+        ->from('hostcategories_relation', 'hcr')
+        ->join('hcr', 'host', 'h', 'h.host_id = hcr.host_host_id')
+        ->where('h.host_register = "1"');
 
-    // Check Nbr of Host / hc
-    $nbrhostAct = [];
-    $nbrhostDeact = [];
-    $nbrhostgroupAct = [];
-    $nbrhostgroupDeact = [];
-
-    $aclFrom = "";
-    $aclCond = "";
-    if (!$centreon->user->admin) {
-        $aclFrom = ", `$aclDbName`.centreon_acl acl ";
-        $aclCond = " AND h.host_id = acl.host_id AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
+    if (! $centreon->user->admin) {
+        $subQuerybuilder = $pearDB->createQueryBuilder();
+        $subQuerybuilder -> select('1')
+            ->from("{$aclDbName}.centreon_acl", 'acl')
+            ->where(
+                $countsQuerybuilder->expr()->equal('acl.host_id', 'h.host_id')
+            )
+            ->andWhere(
+                $countsQuerybuilder->expr()->in('acl.group_id', "({$acl->getAccessGroupsString()})")
+            );
+        $countsQuerybuilder->andWhere(
+            "EXISTS( {$subQuerybuilder->getQuery()} )"
+        );
     }
-    $hcStatement = $pearDB->prepare("SELECT h.host_id, h.host_activate " .
-        "FROM hostcategories_relation hcr, host h " . $aclFrom .
-        " WHERE hostcategories_hc_id = :hcId" .
-        " AND h.host_id = hcr.host_host_id " . $aclCond .
-        " AND h.host_register = '1' ");
-    $hcStatement->bindValue(':hcId', (int) $hc['hc_id'], \PDO::PARAM_INT);
-    $hcStatement->execute();
-    $nbrhostActArr = [];
-    $nbrhostDeactArr = [];
-    while ($row = $hcStatement->fetch()) {
-        if ($row['host_activate']) {
-            $nbrhostActArr[$row['host_id']] = true;
-        } else {
-            $nbrhostDeactArr[$row['host_id']] = true;
-        }
-    }
-    $nbrhostAct = count($nbrhostActArr);
-    $nbrhostDeact = count($nbrhostDeactArr);
+    $countsQuerybuilder->groupBy('hcr.hostcategories_hc_id');
 
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($hc["hc_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&hc_id=" . $hc['hc_id'], "RowMenu_desc" => CentreonUtils::escapeSecure($hc["hc_alias"]), "RowMenu_hc_type" => ($hc["level"] ? _('Severity') . ' (' . $hc['level'] . ')' : _('Regular')), "RowMenu_status" => $hc["hc_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $hc["hc_activate"] ? "service_ok" : "service_critical", "RowMenu_hostAct" => $nbrhostAct, "RowMenu_hostDeact" => $nbrhostDeact, "RowMenu_options" => $moptions];
-    // Switch color line
-    $style = $style != "two" ? "two" : "one";
+    $countsSql = $countsQuerybuilder->getQuery();
+    $countsRows = $pearDB->fetchAllAssociative($countsSql);
+
+    $countsByCategory = [];
+    foreach ($countsRows as $rowHc) {
+        $countsByCategory[$rowHc['hc_id']] = [
+            'enabled'  => (int) $rowHc['enabled'],
+            'disabled' => (int) $rowHc['disabled'],
+        ];
+    }
+} catch (ConnectionException|CollectionException|ValueObjectException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        "Error fetching host categories counts",
+        exception: $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage("./img/icons/warning.png");
+    $msg->setTextStyle("bold");
+    $msg->setText("Error fetching host categories counts");
 }
-$tpl->assign("elemArr", $elemArr);
+// Populate rows
+foreach ($hostCategories as $hc) {
+    // selection checkbox + action links
+    $selectedElements = $form->addElement('checkbox', "select[{$hc['hc_id']}]");
+    $moptions = '';
+    if ($hc['hc_activate']) {
+        $moptions .= "<a href='main.php?p={$p}&hc_id={$hc['hc_id']}&o=u"
+                  . "&limit={$limit}&num={$num}&search={$search}&centreon_token={$centreonToken}'>"
+                  . "<img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
+                  . _('Disabled') . "'></a>";
+    } else {
+        $moptions .= "<a href='main.php?p={$p}&hc_id={$hc['hc_id']}&o=s"
+                  . "&limit={$limit}&num={$num}&search={$search}&centreon_token={$centreonToken}'>"
+                  . "<img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='"
+                  . _('Enabled') . "'></a>";
+    }
+    $moptions .= "<input maxlength='3' size='3' value='1' style='margin-bottom:0px;' "
+              . "name='dupNbr[{$hc['hc_id']}]' "
+              . "onKeypress=\"if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))"
+              . "event.returnValue=false;\" />";
 
-// Different messages we put in the template
+    $elemArr[] = [
+        'MenuClass'=> "list_{$style}",
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => CentreonUtils::escapeSecure($hc['hc_name']),
+        'RowMenu_link' => "main.php?p=$p&o=c&hc_id={$hc['hc_id']}",
+        'RowMenu_desc' => CentreonUtils::escapeSecure($hc['hc_alias']),
+        'RowMenu_hc_type'=> $hc['level']
+            ? _('Severity') . " ({$hc['level']})"
+            : _('Regular'),
+        'RowMenu_status' => $hc['hc_activate'] ? _('Enabled') : _('Disabled'),
+        'RowMenu_badge' => $hc['hc_activate'] ? 'service_ok' : 'service_critical',
+        'RowMenu_hostAct' => $countsByCategory[$hc['hc_id']]['enabled'] ?? 0,
+        'RowMenu_hostDeact' => $countsByCategory[$hc['hc_id']]['disabled'] ?? 0,
+        'RowMenu_options' => $moptions,
+    ];
+
+    $style = ($style === 'one') ? 'two' : 'one';
+}
+
+$tpl->assign('elemArr', $elemArr);
+$tpl->assign('limit', $limit);
+$tpl->assign('searchHC', $search);
+
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    [
+        'addL' => "main.php?p=$p&o=a",
+        'addT' => _('Add'),
+        'delConfirm' => _('Do you confirm the deletion ?')
+    ]
 );
 
 ?>
@@ -190,26 +280,29 @@ $tpl->assign(
 </script>
 <?php
 foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' => "javascript: " .
-        "var bChecked = isChecked(); " .
-        "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {" .
-        " alert('" . _("Please select one or more items") . "'); return false;} " .
-        "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "else if (this.form.elements['" . $option . "'].selectedIndex == 4) {" .
-        "   setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "this.form.elements['" . $option . "'].selectedIndex = 0"];
+    $attrs1 = ['onchange' =>
+        "var bChecked=isChecked();".
+        "if(this.form.elements['$option'].selectedIndex!=0&&!bChecked){alert('"
+        . _("Please select one or more items") . "');return false;}".
+        "if(this.form.elements['$option'].selectedIndex==1&&confirm('"
+        . _("Do you confirm the duplication ?") . "')){setO(this.value);submit();}".
+        "else if(this.form.elements['$option'].selectedIndex==2&&confirm('"
+        . _("Do you confirm the deletion ?") . "')){setO(this.value);submit();}".
+        "else if(this.form.elements['$option'].selectedIndex==3){setO(this.value);submit();}".
+        "else if(this.form.elements['$option'].selectedIndex==4){setO(this.value);submit();}".
+        "this.form.elements['$option'].selectedIndex=0"
+    ];
     $form->addElement(
         'select',
         $option,
         null,
-        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+        [
+            null => _("More actions..."),
+            'm' => _("Duplicate"),
+            'd' => _("Delete"),
+            'ms' => _("Enable"),
+            'mu' => _("Disable")
+        ],
         $attrs1
     );
     $form->setDefaults([$option => null]);
@@ -218,12 +311,6 @@ foreach (['o1', 'o2'] as $option) {
     $o1->setSelected(null);
 }
 
-$tpl->assign('limit', $limit);
-$tpl->assign('searchHC', $search);
-
-/*
- * Apply a template definition
- */
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());

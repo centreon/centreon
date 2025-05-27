@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { T, always, cond, equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {

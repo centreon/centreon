@@ -5,6 +5,7 @@ import { BarRounded } from '@visx/shape';
 import { dec, equals, gt, pick } from 'ramda';
 
 import { BarGroupBar, SeriesPoint, StackKey } from '@visx/shape/lib/types';
+import { getStyle } from '../common/utils';
 import { BarStyle } from './models';
 import { UseBarStackProps, useBarStack } from './useBarStack';
 
@@ -112,6 +113,11 @@ const BarStack = ({
               [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop
             };
 
+            const style = getStyle({
+              style: barStyle,
+              metricId: Number(bar.key)
+            }) as BarStyle;
+
             return (
               <BarRounded
                 {...barRoundedProps}
@@ -133,8 +139,8 @@ const BarStack = ({
                   neutralValue
                 })}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                opacity={barStyle.opacity ?? 1}
-                radius={barWidth * barStyle.radius}
+                opacity={style?.opacity || 1}
+                radius={style?.radius ? barWidth * style.radius : 0}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
                 x={
                   isHorizontal

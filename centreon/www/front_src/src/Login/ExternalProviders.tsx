@@ -1,4 +1,4 @@
-import { isEmpty, isNil, or } from 'ramda';
+import { and, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -27,33 +27,38 @@ const ExternalProviders = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  if (or(isNil(providersConfiguration), isEmpty(providersConfiguration))) {
-    return null;
-  }
+  const hasProvidersConfiguration = and(
+    !isNil(providersConfiguration),
+    !isEmpty(providersConfiguration)
+  );
 
   return (
-    <div className={classes.otherProvidersContainer}>
-      <Divider>
-        <Typography>{t(labelOr)}</Typography>
-      </Divider>
-      {providersConfiguration?.map(({ name, authenticationUri }) => {
-        const dataTestId = `${labelLoginWith} ${name}`;
-        const data = `${t(labelLoginWith)} ${name}`;
+    <>
+      {hasProvidersConfiguration && (
+        <div className={classes.otherProvidersContainer}>
+          <Divider>
+            <Typography>{t(labelOr)}</Typography>
+          </Divider>
+          {providersConfiguration?.map(({ name, authenticationUri }) => {
+            const dataTestId = `${labelLoginWith} ${name}`;
+            const data = `${t(labelLoginWith)} ${name}`;
 
-        return (
-          <Button
-            aria-label={data}
-            color="primary"
-            data-testid={dataTestId}
-            href={authenticationUri}
-            key={name}
-            variant="contained"
-          >
-            {data}
-          </Button>
-        );
-      })}
-    </div>
+            return (
+              <Button
+                aria-label={data}
+                color="primary"
+                data-testid={dataTestId}
+                href={authenticationUri}
+                key={name}
+                variant="contained"
+              >
+                {data}
+              </Button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 

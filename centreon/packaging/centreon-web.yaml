@@ -234,21 +234,6 @@ contents:
       group: "centreon"
       mode: 0755
 
-  - src: "../composer.json"
-    dst: "/usr/share/centreon/composer.json"
-    file_info:
-      mode: 0664
-
-  - src: "../composer.lock"
-    dst: "/usr/share/centreon/composer.lock"
-    file_info:
-      mode: 0664
-
-  - src: "../symfony.lock"
-    dst: "/usr/share/centreon/symfony.lock"
-    file_info:
-      mode: 0664
-
   - src: "../bootstrap.php"
     dst: "/usr/share/centreon/bootstrap.php"
     file_info:
@@ -520,6 +505,7 @@ overrides:
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
       - "mariadb-client | mysql-client"
+      - cron
       - apache2
       - php8.2
       - php8.2-cli

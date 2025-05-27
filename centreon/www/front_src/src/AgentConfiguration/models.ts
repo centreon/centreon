@@ -5,20 +5,26 @@ export enum AgentType {
   CMA = 'centreon-agent'
 }
 
+export enum ConnectionMode {
+  secure = 'secure',
+  noTLS = 'no-tls',
+  insecure = 'insecure'
+}
+
 export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<SelectEntry>;
+  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
 }
 
 export interface TelegrafConfiguration {
-  otelPublicCertificate: string;
+  otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
-  otelPrivateKey: string;
+  otelPrivateKey: string | null;
   confServerPort: string | number;
-  confCertificate: string;
-  confPrivateKey: string;
+  confCertificate: string | null;
+  confPrivateKey: string | null;
 }
 
 export interface HostConfiguration {
@@ -30,19 +36,20 @@ export interface HostConfiguration {
 
 export interface CMAConfiguration {
   isReverse: boolean;
-  otelPublicCertificate: string;
+  otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
-  otelPrivateKey: string;
+  otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
 }
 
 export interface TelegrafConfigurationAPI {
-  otel_public_certificate: string;
+  otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
-  otel_private_key: string;
+  otel_private_key: string | null;
   conf_server_port: string | number;
-  conf_certificate: string;
-  conf_private_key: string;
+  conf_certificate: string | null;
+  conf_private_key: string | null;
+  connection_mode: string;
 }
 
 export interface HostConfigurationToAPI {
@@ -54,22 +61,25 @@ export interface HostConfigurationToAPI {
 
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
-  otel_public_certificate: string;
+  otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
-  otel_private_key: string;
+  otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
+  connection_mode: string;
 }
 
 export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationForm
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: SelectEntry | null;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationAPI

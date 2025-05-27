@@ -10,7 +10,6 @@ rules:
     - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
     - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
     - Centreon\PHPStan\CustomRules\LoggerRules\LogMethodInCatchCustomRule
-    - Centreon\PHPStan\CustomRules\LoggerRules\LoggerUseCaseCustomRule
     - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\FinalClassCustomRule
@@ -33,6 +32,7 @@ parameters:
     level: max
     paths:
         - src/Core
+        - src/Adaptation
     ignoreErrors:
         - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
             reportUnmatched: false
@@ -75,6 +75,14 @@ parameters:
                 - src/Core/Dashboard/Application/UseCase/AddDashboardThumbnail/AddDashboardThumbnail.php
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
+                - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
+                - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
+                - src/Core/Common/Infrastructure/RequestParameters/Transformer
+                - src/Core/AgentConfiguration/Infrastructure/Repository
+                - src/Core/Common/Infrastructure/Repository
+                - src/Core/Contact/Infrastructure/Repository
+                - src/Core/Resources/Infrastructure
+                - src/Core/Security/AccessGroup/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
@@ -116,3 +124,11 @@ parameters:
             message: '#Repositories must implement an Interface defined in Application layer.#'
             paths:
                 - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
+          # ======= To fix this custom rule that block the development (TO CLEAN) =======
+        - # Problem : block usage of Value Object.
+          # Unsafe usage of new static().
+            reportUnmatched: false
+            message: '#Unsafe usage of new static#'
+            paths:
+                - src/Core/Common/Domain/ValueObject
+

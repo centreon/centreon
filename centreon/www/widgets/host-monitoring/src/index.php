@@ -70,9 +70,9 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/host-monitoring/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
 
@@ -256,18 +256,49 @@ if (!$centreon->user->admin) {
     $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
 }
 
-// prepare order_by and limit of the query
-$query .= " ORDER BY :order_by LIMIT :limit OFFSET :offset";
+// prepare order_by
+$orderBy = 'h.name ASC';
 
-$orderBy = 'host_name ASC';
-if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
-    $orderBy = $preferences['order_by'];
-}
-$mainQueryParameters[] = [
-    'parameter' => "order_by",
-    'value' => $orderBy,
-    'type' => PDO::PARAM_STR
+// Define allowed columns and directions
+$allowedOrderColumns = [
+    'h.name',
+    'h.alias',
+    'criticality',
+    'address',
+    'state',
+    'output',
+    'check_attempt',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'scheduled_downtime_depth',
+    'acknowledged',
+    'notify',
+    'active_checks',
+    'passive_checks'
 ];
+
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
+
+$allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+$defaultDirection = ORDER_DIRECTION_ASC;
+
+$orderByToAnalyse = isset($preferences['order_by'])
+    ? trim($preferences['order_by'])
+    : null;
+
+if ($orderByToAnalyse !== null) {
+    $orderByToAnalyse .= " $defaultDirection";
+    [$column, $direction] = explode(' ', $orderByToAnalyse);
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderBy = $column . ' ' . $direction;
+    }
+}
+
+// concatenate order by + limit + offset  to the query
+$query .= "ORDER BY " . $orderBy . " LIMIT :limit OFFSET :offset";
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
 $mainQueryParameters[] = [

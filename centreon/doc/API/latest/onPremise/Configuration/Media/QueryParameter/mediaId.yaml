@@ -1,0 +1,8 @@
+in: path
+name: media_id
+required: true
+description: "Media ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

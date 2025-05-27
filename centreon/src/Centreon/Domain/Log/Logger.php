@@ -18,12 +18,12 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Log;
 
 use Psr\Log\LoggerInterface;
-use Centreon\Domain\Log\LoggerTrait;
 
 /**
  * This class is designed to be used in legacy codebase to use a logger
@@ -44,6 +44,19 @@ class Logger implements LoggerInterface
         log as traitLog;
     }
 
+    /**
+     * Factory
+     *
+     * @return LoggerInterface
+     */
+    public static function create(): LoggerInterface
+    {
+        return new self();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function emergency(string|\Stringable $message, array $context = []): void
     {
         $this->traitEmergency($message, $context);

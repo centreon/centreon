@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\Interfaces;
 
-use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\MonitoringServerResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -40,6 +40,15 @@ interface MonitoringServerRepositoryInterface
      * @throws \Exception
      */
     public function findServersWithRequestParameters(): array;
+
+    /**
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer[]
+     */
+  public function findAllServersWithAccessGroups(array $accessGroups): array;
 
     /**
      * @param AccessGroup[] $accessGroups
@@ -119,4 +128,12 @@ interface MonitoringServerRepositoryInterface
      * @param int $monitoringServerId
      */
     public function deleteServer(int $monitoringServerId): void;
+
+    /**
+     * Find remote servers IPs.
+     *
+     * @return string[]
+     * @throws MonitoringServerException
+     */
+    public function findRemoteServersIps(): array;
 }

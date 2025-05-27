@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router';
 
 import { PageLayout } from '@centreon/ui/components';
 

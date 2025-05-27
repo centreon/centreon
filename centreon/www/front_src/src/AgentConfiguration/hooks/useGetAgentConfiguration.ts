@@ -2,7 +2,7 @@ import { useFetchQuery } from '@centreon/ui';
 import { useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
 import { useEffect } from 'react';
-import { agentTypes } from '../Form/useInputs';
+import { agentTypes, connectionModes } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
@@ -12,7 +12,10 @@ const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
 ): AgentConfigurationForm => ({
   ...agentConfiguration,
-  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type))
+  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type)),
+  connectionMode: connectionModes.find(({ id }) =>
+    equals(id, agentConfiguration.connectionMode)
+  )
 });
 
 interface UseGetAgentConfigurationState {

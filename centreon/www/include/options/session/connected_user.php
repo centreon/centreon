@@ -46,7 +46,10 @@ $path = "./include/options/session/";
 require_once "./include/common/common-Func.php";
 require_once "./class/centreonMsg.class.php";
 
-$action = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["o"] ?? null);
+$action = \HtmlSanitizer::createFromString($_GET["o"] ?? "")
+    ->removeTags()
+    ->sanitize()
+    ->getString();
 
 $selectedUserId = filter_var(
     $_GET['user'] ?? null,
@@ -66,19 +69,21 @@ if ($selectedUserId) {
     switch ($action) {
         // logout action
         case KICK_USER:
+            // check if the user is allowed to kick this user
+            if ($centreon->user->admin == 0) {
+                $msg->setText(_("You are not allowed to disconnect this user"));
+                break;
+            }
             $stmt = $pearDB->prepare("DELETE FROM session WHERE user_id = :userId");
             $stmt->bindValue(':userId', $selectedUserId, \PDO::PARAM_INT);
             $stmt->execute();
-            $msg->setText(_("User kicked"));
+            $msg->setText(_("User disconnected"));
             break;
     }
 }
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $session_data = [];
 $res = $pearDB->query(
@@ -108,11 +113,12 @@ for ($cpt = 0; $r = $res->fetch(); $cpt++) {
     $session_data[$cpt]["current_page"] = $r["current_page"] . $rCP["topology_url_opt"];
     $session_data[$cpt]["topology_name"] = $rCP['topology_name'] != '' ? _($rCP["topology_name"]) : $rCP["topology_name"];
 
-    if ($centreon->user->admin) {
+    // $centreon->user->admin is a string '1' or '0'
+    if ($centreon->user->admin == 1) {
         // adding the link to be able to kick the user
         $session_data[$cpt]["actions"] =
             "<a href='./main.php?p=" . $p . "&o=k&user=" . $r['user_id'] . "'>" .
-                "<span title='" . _("Kick User") . "'>" .
+                "<span title='" . _("Disconnect user") . "'>" .
                     returnSvg("www/img/icons/delete.svg", "var(--icons-fill-color)", 22, 22) .
                 "</span>" .
             "</a>";

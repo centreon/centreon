@@ -53,6 +53,15 @@ function myReplace()
 
 require_once _CENTREON_PATH_ . "www/include/configuration/configObject/command/javascript/commandJs.php";
 
+const COMMAND_TYPE_CHECK = 2;
+const COMMAND_TYPE_MISC = 3;
+
+
+// Allow type 2 (check) and 3 (miscellaneous) for cloud instance
+if (isCloudPlatform() && isset($type) && ($type !== COMMAND_TYPE_CHECK && $type !== COMMAND_TYPE_MISC)) {
+    $type = COMMAND_TYPE_CHECK;
+}
+
 /*
  * Database retrieve information for Command
  */
@@ -261,11 +270,8 @@ $form->registerRule('exist', 'callback', 'testCmdExistence');
 $form->addRule('command_name', _("Name is already in use"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     "helpattr",
@@ -405,7 +411,12 @@ if ($valid) {
     $tpl->assign('errorMessage', $errorMessage);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
-    $tpl->assign('arg_desc_label', _("Argument Descriptions"));
     $tpl->assign('macro_desc_label', _("Macros Descriptions"));
-    $tpl->display("formCommand.ihtml");
+
+    if (!$isCloudPlatform) {
+        $tpl->assign('arg_desc_label', _("Argument Descriptions"));
+        $tpl->display("formCommandOnPrem.ihtml");
+    } else {
+        $tpl->display("formCommandCloud.ihtml");
+    }
 }

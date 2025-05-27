@@ -1,24 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  complement,
-  equals,
-  includes,
-  isEmpty,
-  isNil,
-  last,
-  length,
-  prop,
-  propEq,
-  split
-} from 'ramda';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import {
-  Method,
-  ResponseError,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { Method, useBulkResponse, useMutationQuery } from '@centreon/ui';
 
 import {
   DeleteResourceAccessRuleType,
@@ -55,8 +39,8 @@ const useDeleteRequest = ({
 }: UseDeleteRequestProps): UseDeleteRequestState => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { showSuccessMessage, showErrorMessage, showWarningMessage } =
-    useSnackbar();
+
+  const handleBulkResponse = useBulkResponse();
 
   const isSingleDelete = equals(deleteRule.deleteType, DeleteType.SingleItem);
   const fetchMethod = isSingleDelete ? Method.DELETE : Method.POST;
@@ -77,38 +61,16 @@ const useDeleteRequest = ({
     method: fetchMethod,
     onSettled,
     onSuccess: (response) => {
-      const { data } = response as ResponseError;
+      const data = response.results;
 
-      const successfullResponses =
-        data?.filter(propEq(204, 'status')) || isNil(data);
-      const failedResponses = data?.filter(complement(propEq(204, 'status')));
-      const failedResponsesIds = failedResponses
-        .map(prop('href'))
-        .map((item: string) =>
-          Number.parseInt(last(split('/', item)) as string, 10)
-        );
+      handleBulkResponse({
+        data,
+        labelWarning: t(labelFailedToDeleteSelectedRules),
+        labelFailed: t(labelFailed),
+        labelSuccess: t(labelSuccess),
+        items: selectedRows
+      });
 
-      if (isEmpty(successfullResponses)) {
-        showErrorMessage(t(labelFailed));
-
-        return;
-      }
-
-      if (length(successfullResponses) < length(data)) {
-        const failedResponsesNames = selectedRows
-          ?.filter((item) => includes(item.id, failedResponsesIds))
-          .map((item) => item.name);
-
-        showWarningMessage(
-          `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
-            ', '
-          )}`
-        );
-
-        return;
-      }
-
-      showSuccessMessage(t(labelSuccess));
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
     }
   });

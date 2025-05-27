@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
@@ -35,8 +36,7 @@ use Utility\SqlConcatenator;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
-    use RepositoryTrait;
-    use LoggerTrait;
+    use RepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -69,12 +69,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             SET
                 hg_name = :name,
                 hg_alias = :alias,
-                hg_notes = :notes,
-                hg_notes_url = :notes_url,
-                hg_action_url = :action_url,
                 hg_icon_image = :icon_image,
-                hg_map_icon_image = :map_icon_image,
-                hg_rrd_retention = :rrd_retention,
                 geo_coords = :geo_coords,
                 hg_comment = :comment,
                 hg_activate = :activate
@@ -98,12 +93,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 (
                     hg_name,
                     hg_alias,
-                    hg_notes,
-                    hg_notes_url,
-                    hg_action_url,
                     hg_icon_image,
-                    hg_map_icon_image,
-                    hg_rrd_retention,
                     geo_coords,
                     hg_comment,
                     hg_activate
@@ -112,12 +102,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 (
                     :name,
                     :alias,
-                    :notes,
-                    :notes_url,
-                    :action_url,
                     :icon_image,
-                    :map_icon_image,
-                    :rrd_retention,
                     :geo_coords,
                     :comment,
                     :activate
@@ -163,6 +148,35 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     /**
      * @inheritDoc
      */
+    public function addHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        if ($hostIds === []) {
+            return;
+        }
+
+        $bindValues = [];
+        $subQuery = [];
+        foreach ($hostIds as $key => $hostId) {
+            $bindValues[":host_id_{$key}"] = $hostId;
+            $subQuery[] = "(:host_id_{$key}, :group_id)";
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            'INSERT INTO `:db`.`hostgroup_relation` (host_host_id, hostgroup_hg_id) VALUES '
+            . implode(', ', $subQuery)
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->bindValue(':group_id', $hostGroupId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function unlinkFromHost(int $hostId, array $groupIds): void
     {
         if ($groupIds === []) {
@@ -187,6 +201,82 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     }
 
     /**
+     * @inheritDoc
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`hostgroup`
+            SET
+                hg_activate = :activate
+            WHERE
+                hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($isEnable));
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int
+    {
+        $this->info('Duplicate host group', ['id' => $hostGroupId]);
+
+        $query = <<<'SQL'
+            INSERT INTO `:db`.`hostgroup`
+            (
+                hg_name,
+                hg_alias,
+                geo_coords,
+                hg_comment,
+                hg_icon_image,
+                hg_activate
+            )
+            SELECT
+                CONCAT(hg_name, '_', :duplicateIndex),
+                hg_alias,
+                geo_coords,
+                hg_comment,
+                hg_icon_image,
+                hg_activate
+            FROM `:db`.`hostgroup`
+            WHERE hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':duplicateIndex', $duplicateIndex, \PDO::PARAM_STR);
+
+        $statement->execute();
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        if ($hostIds === []) {
+            return;
+        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    DELETE FROM `:db`.`hostgroup_relation`
+                    WHERE hostgroup_hg_id = :hostgroup_id
+                    AND host_host_id IN ({$bindQuery})
+                SQL
+        ));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param HostGroup|NewHostGroup $newHostGroup
      */
@@ -194,12 +284,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     {
         $statement->bindValue(':name', $newHostGroup->getName());
         $statement->bindValue(':alias', $this->emptyStringAsNull($newHostGroup->getAlias()));
-        $statement->bindValue(':notes', $this->emptyStringAsNull($newHostGroup->getNotes()));
-        $statement->bindValue(':notes_url', $this->emptyStringAsNull($newHostGroup->getNotesUrl()));
-        $statement->bindValue(':action_url', $this->emptyStringAsNull($newHostGroup->getActionUrl()));
         $statement->bindValue(':icon_image', $newHostGroup->getIconId(), \PDO::PARAM_INT);
-        $statement->bindValue(':map_icon_image', $newHostGroup->getIconMapId(), \PDO::PARAM_INT);
-        $statement->bindValue(':rrd_retention', $newHostGroup->getRrdRetention(), \PDO::PARAM_INT);
         $statement->bindValue(':geo_coords', $newHostGroup->getGeoCoords()?->__toString());
         $statement->bindValue(':comment', $this->emptyStringAsNull($newHostGroup->getComment()));
         $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($newHostGroup->isActivated()));

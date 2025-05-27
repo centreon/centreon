@@ -1,5 +1,5 @@
 import numeral from 'numeral';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { Box, Typography, useTheme } from '@mui/material';
 

@@ -22,56 +22,10 @@
 /*
  * Example :
  * [2024-08-08T12:20:05+02:00] ERROR : Error while getting widget preferences for the host monitoring custom view |
- * {"context":{"default":{"back_trace":{"file":"/usr/share/centreon/www/widgets/host-monitoring/src/index.php",
- * "line":100,"class":null,"function":null},"request_infos":{"url":"/centreon/widgets/host-monitoring/src/index.php?
- * widgetId=1&page=0","http_method":"GET","server":"localhost","referrer":"http://localhost/centreon/widgets/host-monit
- * oring/index.php?widgetId=1&customViewId=1"}},"exception":{"exception_type":"Exception","file":"/usr/share/centreon/
- * www/widgets/host-monitoring/src/index.php","line":97,"code":0,"message":"test message","previous":null},"custom":
- * {"widget_id":1}}}
+ * {"custom":{"widget_id":1},"exception":{"exception_type":"Exception","file":"/usr/share/centreon/
+ * www/widgets/host-monitoring/src/index.php","line":97,"code":0,"message":"test message","previous":null},"default":
+ * {"request_infos":{"uri":"/centreon/widgets/host-monitoring/src/index.php?widgetId=1&page=0","http_method":"GET","server":"localhost"}}
  */
-
-it('test contructor arguments of CentreonLog', function (): void {
-    $loggerTest = new CentreonLog([99 => 'custom.log'], __DIR__ . '/log');
-    expect($loggerTest->getLogFileHandler())->toEqual(
-        [
-            CentreonLog::TYPE_LOGIN => __DIR__ . '/log/login.log',
-            CentreonLog::TYPE_SQL => __DIR__ . '/log/sql-error.log',
-            CentreonLog::TYPE_LDAP => __DIR__ . '/log/ldap.log',
-            CentreonLog::TYPE_UPGRADE => __DIR__ . '/log/upgrade.log',
-            CentreonLog::TYPE_PLUGIN_PACK_MANAGER => __DIR__ . '/log/plugin-pack-manager.log',
-            CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
-            99 => __DIR__ . '/log/custom.log',
-        ]
-    );
-});
-
-it('test changing the path of an existing log', function (): void {
-    $loggerTest = new CentreonLog();
-    $loggerTest->setPathLogFile('/user/test')
-        ->pushLogFileHandler(CentreonLog::TYPE_LOGIN, 'login.log')
-        ->pushLogFileHandler(CentreonLog::TYPE_SQL, 'sql.log')
-        ->pushLogFileHandler(CentreonLog::TYPE_LDAP, 'ldap.log')
-        ->pushLogFileHandler(CentreonLog::TYPE_UPGRADE, 'upgrade.log')
-        ->pushLogFileHandler(CentreonLog::TYPE_PLUGIN_PACK_MANAGER, 'plugin.log')
-    ->pushLogFileHandler(CentreonLog::TYPE_BUSINESS_LOG, 'centreon-web.log');
-    expect($loggerTest->getLogFileHandler())->toEqual(
-        [
-            CentreonLog::TYPE_LOGIN => '/user/test/login.log',
-            CentreonLog::TYPE_SQL => '/user/test/sql.log',
-            CentreonLog::TYPE_LDAP => '/user/test/ldap.log',
-            CentreonLog::TYPE_UPGRADE => '/user/test/upgrade.log',
-            CentreonLog::TYPE_PLUGIN_PACK_MANAGER => '/user/test/plugin.log',
-            CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log'
-        ]
-    );
-});
-
-it('test adding custom log', function (): void {
-    $loggerTest = new CentreonLog();
-    $loggerTest->setPathLogFile('/user/test')
-        ->pushLogFileHandler(99, 'custom.log');
-    expect($loggerTest->getLogFileHandler())->toHaveKey(99, '/user/test/custom.log');
-});
 
 beforeEach(function (): void {
     if (! file_exists(__DIR__ . '/log')) {
@@ -97,6 +51,49 @@ afterEach(function (): void {
         $successDeleteFile = rmdir($this->centreonLogTest->pathToLogTest);
         expect($successDeleteFile)->toBeTrue();
     }
+});
+
+it('test contructor arguments of CentreonLog', function (): void {
+    $loggerTest = new CentreonLog([99 => 'custom.log'], __DIR__ . '/log');
+    expect($loggerTest->getLogFileHandler())->toEqual(
+        [
+            CentreonLog::TYPE_LOGIN => __DIR__ . '/log/login.log',
+            CentreonLog::TYPE_SQL => __DIR__ . '/log/sql-error.log',
+            CentreonLog::TYPE_LDAP => __DIR__ . '/log/ldap.log',
+            CentreonLog::TYPE_UPGRADE => __DIR__ . '/log/upgrade.log',
+            CentreonLog::TYPE_PLUGIN_PACK_MANAGER => __DIR__ . '/log/plugin-pack-manager.log',
+            CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
+            99 => __DIR__ . '/log/custom.log',
+        ]
+    );
+});
+
+it('test changing the path of an existing log', function (): void {
+    $loggerTest = new CentreonLog();
+    $loggerTest->setPathLogFile('/user/test')
+        ->pushLogFileHandler(CentreonLog::TYPE_LOGIN, 'login.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_SQL, 'sql.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_LDAP, 'ldap.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_UPGRADE, 'upgrade.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_PLUGIN_PACK_MANAGER, 'plugin.log')
+        ->pushLogFileHandler(CentreonLog::TYPE_BUSINESS_LOG, 'centreon-web.log');
+    expect($loggerTest->getLogFileHandler())->toEqual(
+        [
+            CentreonLog::TYPE_LOGIN => '/user/test/login.log',
+            CentreonLog::TYPE_SQL => '/user/test/sql.log',
+            CentreonLog::TYPE_LDAP => '/user/test/ldap.log',
+            CentreonLog::TYPE_UPGRADE => '/user/test/upgrade.log',
+            CentreonLog::TYPE_PLUGIN_PACK_MANAGER => '/user/test/plugin.log',
+            CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log'
+        ]
+    );
+});
+
+it('test adding custom log', function (): void {
+    $loggerTest = new CentreonLog();
+    $loggerTest->setPathLogFile('/user/test')
+        ->pushLogFileHandler(99, 'custom.log');
+    expect($loggerTest->getLogFileHandler())->toHaveKey(99, '/user/test/custom.log');
 });
 
 it('test log file handler is correct', function (): void {
@@ -258,10 +255,8 @@ it('test writing logs with a custom context', function (): void {
     $contentLog = file_get_contents($logfile);
     expect($contentLog)->toBeString()->toContain(
         "[{$this->centreonLogTest->date}",
-        '] NOTICE : login_message | {"context":{"default":{"back_trace":{"file":"' .
-        __FILE__ . '","line":' . (__LINE__ - 6) . ',"class":null,"function":null},' .
-        '"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}},"exception":null,"custom":' .
-        '{"custom_value1":"foo","custom_value2":"bar"}}}'
+        '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar"},"exception":null,"default":' .
+        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();
@@ -277,14 +272,155 @@ it('test writing logs with a custom context and an exception', function (): void
         expect(file_exists($logfile))->toBeTrue();
         $contentLog = file_get_contents($logfile);
         expect($contentLog)->toBeString()->toContain(
-            "[{$this->centreonLogTest->date}",
-            '] NOTICE : login_message | {"context":{"default":{"back_trace":',
             sprintf(
-                '"exception":{"exception_type":"RuntimeException","file":"%s","line":%s,"code":99,"message":' .
-                '"test_message_exception","previous":null},"custom":{"custom_value1":"foo"}}}',
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},"exception":{"exceptions":' .
+                '[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
+                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                'RuntimeException',
+                'test_message_exception',
                 $e->getFile(),
-                $e->getLine()
-            )
+                $e->getLine(),
+                99,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "{closure}",
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "->"
+            ),
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
+        );
+        $successDeleteFile = unlink($logfile);
+        expect($successDeleteFile)->toBeTrue();
+    }
+});
+
+it('test writing logs with a custom context and a native exception with a previous (native exception)', function (): void {
+    try {
+        $previous = new LogicException('test_message_exception_previous', 98);
+        throw new RuntimeException('test_message_exception', 99, $previous);
+    } catch (RuntimeException $e) {
+        $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
+        $this->centreonLogTest->loggerTest
+            ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
+        expect(file_exists($logfile))->toBeTrue();
+        $contentLog = file_get_contents($logfile);
+        expect($contentLog)->toBeString()->toContain(
+            sprintf(
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},' .
+                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
+                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
+                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                "RuntimeException",
+                "test_message_exception",
+                $e->getFile(),
+                $e->getLine(),
+                99,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "LogicException",
+                "test_message_exception_previous",
+                $e->getPrevious()->getFile(),
+                $e->getPrevious()->getLine(),
+                98,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "{closure}",
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "->"
+            ),
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
+        );
+        $successDeleteFile = unlink($logfile);
+        expect($successDeleteFile)->toBeTrue();
+    }
+});
+
+it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (native exception)', function (): void {
+    try {
+        $previous = new LogicException('test_message_exception_previous', 99);
+        throw new CentreonDbException('test_message_exception', ['contact' => 1], $previous);
+    } catch (CentreonDbException $e) {
+        $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
+        $this->centreonLogTest->loggerTest
+            ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
+        expect(file_exists($logfile))->toBeTrue();
+        $contentLog = file_get_contents($logfile);
+        expect($contentLog)->toBeString()->toContain(
+            sprintf(
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","from_exception":[{"contact":1}]},' .
+                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
+                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
+                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                "CentreonDbException",
+                "test_message_exception",
+                $e->getFile(),
+                $e->getLine(),
+                1,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "LogicException",
+                "test_message_exception_previous",
+                $e->getPrevious()->getFile(),
+                $e->getPrevious()->getLine(),
+                99,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "{closure}",
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "->"
+            ),
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
+        );
+        $successDeleteFile = unlink($logfile);
+        expect($successDeleteFile)->toBeTrue();
+    }
+});
+
+it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (BusinessLogicException with context) which have a native exception as previous', function (): void {
+    try {
+        $nativePrevious = new LogicException('test_message_native_exception_previous', 99);
+        $previous = new CentreonDbException('test_message_exception_previous', ['id' => 1, 'name' => 'John', 'age' => 48], $nativePrevious);
+        throw new StatisticException('test_message_exception', ['X' => 100.36, 'Y' => 888, 'graph' => true], $previous);
+    } catch (StatisticException $e) {
+        $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
+        $this->centreonLogTest->loggerTest
+            ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo', 'custom_value2' => 'bar'], $e);
+        expect(file_exists($logfile))->toBeTrue();
+        $contentLog = file_get_contents($logfile);
+        expect($contentLog)->toBeString()->toContain(
+            sprintf(
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar","from_exception":' .
+                '[{"X":100.36,"Y":888,"graph":true},{"id":1,"name":"John","age":48}]},' .
+                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
+                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
+                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
+                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                "StatisticException",
+                "test_message_exception",
+                $e->getFile(),
+                $e->getLine(),
+                0,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "CentreonDbException",
+                "test_message_exception_previous",
+                $e->getPrevious()->getFile(),
+                $e->getPrevious()->getLine(),
+                1,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "LogicException",
+                "test_message_native_exception_previous",
+                $e->getPrevious()->getPrevious()->getFile(),
+                $e->getPrevious()->getPrevious()->getLine(),
+                99,
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "{closure}",
+                "{closure}",
+                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
+                "->"
+            ),
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
@@ -297,6 +433,7 @@ it('test writing logs with a custom context and an exception', function (): void
  * @param string $date
  * @param string $message
  * @param int $line
+ *
  * @return void
  */
 function testContentLogWithoutContext(
@@ -310,10 +447,8 @@ function testContentLogWithoutContext(
     $contentLog = file_get_contents($logfile);
     expect($contentLog)->toBeString()->toContain(
         "[{$date}",
-        '] ' . strtoupper($level) . ' : ' . $message . ' | {"context":{"default":{"back_trace":{"file":' .
-        '"' . __FILE__ . '","line":' . $line . ',"class":null,"function":null},' .
-        '"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}},"exception":null,"custom":' .
-        'null}}'
+        '] ' . strtoupper($level) . ' : ' . $message . ' | {"custom":null,"exception":null,"default":' .
+        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();

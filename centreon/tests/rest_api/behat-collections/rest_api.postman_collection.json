@@ -8609,60 +8609,6 @@
 					"response": []
 				},
 				{
-					"name": "Setoutput check_replication",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setoutput\",\n  \"object\": \"centbrokercfg\",\n  \"values\": \"{{broker_name}};{{output_storage_id}};check_replication;{{output_check_replication}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Setoutput store_in_data_bin",
 					"event": [
 						{
@@ -9332,9 +9278,6 @@
 									"            case \"category\":",
 									"                tests[\"Body contains added output_category\"] = postman.getEnvironmentVariable(\"output_category\") == outputData[i]['parameter value'];",
 									"                break;",
-									"            case \"check_replication\":",
-									"                tests[\"Body contains added output_check_replication\"] = postman.getEnvironmentVariable(\"output_check_replication\") == outputData[i]['parameter value'];",
-									"                break;",
 									"            case \"db_host\":",
 									"                tests[\"Body contains added output_db_host\"] = postman.getEnvironmentVariable(\"output_db_host\") == outputData[i]['parameter value'];",
 									"                break;",
@@ -9746,60 +9689,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"action\": \"setoutput\",\n  \"object\": \"centbrokercfg\",\n  \"values\": \"{{broker_name}};{{output_sql_id}};retry_interval;{{output_retry_interval}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Setoutput check_replication",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setoutput\",\n  \"object\": \"centbrokercfg\",\n  \"values\": \"{{broker_name}};{{output_sql_id}};check_replication;{{output_check_replication}}\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -10387,9 +10276,6 @@
 									"                break;",
 									"            case \"category\":",
 									"                tests[\"Body contains added output_category\"] = postman.getEnvironmentVariable(\"output_category\") == outputData[i]['parameter value'];",
-									"                break;",
-									"            case \"check_replication\":",
-									"                tests[\"Body contains added output_check_replication\"] = postman.getEnvironmentVariable(\"output_check_replication\") == outputData[i]['parameter value'];",
 									"                break;",
 									"            case \"cleanup_check_interval\":",
 									"                tests[\"Body contains added output_cleanup_check_interval\"] = postman.getEnvironmentVariable(\"output_cleanup_check_interval\") == outputData[i]['parameter value'];",
@@ -24501,168 +24387,6 @@
 					"response": []
 				},
 				{
-					"name": "Setparam notes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setparam\",\n  \"object\": \"hg\",\n  \"values\": \"{{hg_name}};notes;{{hg_notes}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Setparam notes_url",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setparam\",\n  \"object\": \"hg\",\n  \"values\": \"{{hg_name}};notes_url;{{hg_notes_url}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Setparam action_url",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setparam\",\n  \"object\": \"hg\",\n  \"values\": \"{{hg_name}};action_url;{{hg_action_url}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Setparam icon_image",
 					"event": [
 						{
@@ -24690,60 +24414,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"action\": \"setparam\",\n  \"object\": \"hg\",\n  \"values\": \"{{hg_name}};icon_image;{{hg_icon_image}}\"\n}"
-						},
-						"url": {
-							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "http",
-							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Setparam map_icon_image",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"setparam\",\n  \"object\": \"hg\",\n  \"values\": \"{{hg_name}};map_icon_image;{{hg_map_icon_image}}\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",

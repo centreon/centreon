@@ -3,6 +3,7 @@ import { type ChangeEvent, useMemo, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
+  compose,
   equals,
   filter,
   find,
@@ -10,9 +11,12 @@ import {
   isEmpty,
   isNil,
   map,
+  prop,
   propEq,
   reduce,
   reject,
+  sortBy,
+  toLower,
   toPairs
 } from 'ramda';
 
@@ -32,7 +36,7 @@ import {
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import type { Widget } from '../models';
+import { type Widget, WidgetType } from '../models';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import usePlatformVersions from '../../../../../Main/usePlatformVersions';
@@ -113,14 +117,15 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   }, installedWidgets || []);
 
   const filteredWidgets = filter(
-    ({ title }) => title?.includes(search),
+    ({ title }) => toLower(title)?.includes(toLower(search)),
     availableWidgetsProperties || []
   );
 
   const formattedWidgets = map(
-    ({ title, moduleName }) => ({
+    ({ title, moduleName, widgetType }) => ({
       id: moduleName,
-      name: title
+      name: title,
+      widgetType
     }),
     filteredWidgets
   );
@@ -224,8 +229,21 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
+  const filterByType = (type) => {
+    return formattedWidgets.filter(({ widgetType }) =>
+      equals(widgetType, type)
+    );
+  };
+  const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
+
+  const formattedWidgetsByGroupTitle = [
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.Generic)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.RealTime)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.MBI))
+  ];
+
   return {
-    options: formattedWidgets,
+    options: formattedWidgetsByGroupTitle,
     searchWidgets,
     selectWidget,
     selectedWidget,

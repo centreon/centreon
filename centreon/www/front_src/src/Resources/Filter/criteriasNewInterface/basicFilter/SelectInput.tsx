@@ -20,6 +20,7 @@ import {
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
+import { serviceNamesEndpoint } from '../../api/endpoint';
 import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 
@@ -58,7 +59,7 @@ const SelectInput = ({
   )?.value as Array<SelectEntry>;
 
   const value = dataByFilterName?.value?.map((item) => ({
-    id: item?.valueId,
+    id: item?.valueId ?? item.id,
     name: item?.name
   })) as Array<SelectEntry>;
 
@@ -139,6 +140,9 @@ const SelectInput = ({
 
   const getEndpoint = ({ search, page }): string => {
     return buildResourcesEndpoint({
+      endpoint: equals(resourceType, SectionType.service)
+        ? serviceNamesEndpoint
+        : undefined,
       limit: 10,
       page,
       resourceTypes: [resourceType],
@@ -176,13 +180,16 @@ const SelectInput = ({
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
-      inputProps={{ dataTestId: resourceType }}
+      textFieldSlotsAndSlotProps={{
+        slotProps: { htmlInput: { 'data-testid': resourceType } }
+      }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
       placeholder={t(label[resourceType]) as string}
       search={dataByFilterName?.autocompleteSearch}
       value={value}
       onChange={handleChange}
+      exclusionOptionProperty="name"
     />
   );
 };

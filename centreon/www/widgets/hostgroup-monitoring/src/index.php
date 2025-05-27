@@ -43,6 +43,7 @@ require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
 
@@ -54,9 +55,9 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit;
 }
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
 
@@ -97,12 +98,13 @@ $hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
 
 $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
 
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
+const DEFAULT_ENTRIES_PER_PAGE= 10;
+
 try {
-    $query = <<<'SQL_WRAP'
-        SELECT SQL_CALC_FOUND_ROWS DISTINCT
-            1 AS REALTIME, name, hostgroup_id
-        FROM hostgroups 
-        SQL_WRAP;
+    $columns = 'SELECT DISTINCT 1 AS REALTIME, name, hostgroup_id ';
+    $baseQuery = ' FROM hostgroups';
 
     $bindParams = [];
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
@@ -112,35 +114,75 @@ try {
             $search = $tab[1];
         }
         if ($op && isset($search) && trim($search) !== '') {
-            $query = CentreonUtils::conditionBuilder(
-                $query,
+            $baseQuery = CentreonUtils::conditionBuilder(
+                $baseQuery,
                 "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
             );
-            $bindParams['search'] = [$search, PDO::PARAM_STR];
+            $bindParams[':search'] = [$search, PDO::PARAM_STR];
         }
     }
 
     if (!$centreon->user->admin) {
-        $query = CentreonUtils::conditionBuilder($query, "name IN (:hostgroups)");
-        $bindParams['hostgroups'] = [$aclObj->getHostGroupsString("NAME"), PDO::PARAM_STR];
+        [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+        $bindParams = array_merge($bindParams, $bindValues);
     }
 
-    $orderby = "name ASC";
-    if (isset($preferences['order_by']) && trim($preferences['order_by']) !== "") {
-        $orderby = $preferences['order_by'];
+    $orderby = "name " . ORDER_DIRECTION_ASC;
+
+    $allowedOrderColumns = ['name'];
+    $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+    $defaultDirection = ORDER_DIRECTION_ASC;
+
+    $orderByToAnalyse = isset($preferences['order_by'])
+        ? trim($preferences['order_by'])
+        : null;
+
+    if ($orderByToAnalyse !== null) {
+        $orderByToAnalyse .= " $defaultDirection";
+        [$column, $direction] = explode(' ', $orderByToAnalyse);
+
+        if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+            $orderby = $column . ' ' . $direction;
+        }
     }
 
-    $query .= "ORDER BY :orderby LIMIT :offset, :entries";
+    // Sanitize and validate input
+    $entriesPerPage = filter_var($preferences['entries'], FILTER_VALIDATE_INT);
+    if ($entriesPerPage === false || $entriesPerPage < 1) {
+        $entriesPerPage = DEFAULT_ENTRIES_PER_PAGE; // Default value
+    }
+    $offset = max(0, $page) * $entriesPerPage;
 
-    $statement = $dbb->prepareQuery($query);
+    // Query to count total rows
+    $countQuery = "SELECT COUNT(*) " . $baseQuery;
 
-    $bindParams = ['orderby' => [$orderby, PDO::PARAM_STR]];
-    $bindParams['offset'] = [$page * $preferences['entries'], PDO::PARAM_INT];
-    $bindParams['entries'] = [$preferences['entries'], PDO::PARAM_INT];
+    // Main SELECT query with LIMIT
+    $query = $columns . $baseQuery;
+    $query .= " ORDER BY $orderby";
+    $query .= " LIMIT :offset, :entriesPerPage";
 
-    $dbb->executePreparedQuery($statement, $bindParams, true);
+    // Execute count query
+    if (! empty($bindParams)) {
+        $countStatement = $dbb->prepareQuery($countQuery);
+        $dbb->executePreparedQuery($countStatement, $bindParams, true);
+    } else {
+        $countStatement= $dbb->executeQuery($countQuery);
+    }
 
-    $nbRows = (int) $dbb->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+    $nbRows = (int) $dbb->fetchColumn($countStatement);
+
+    $bindParams[':offset'] = [$offset, PDO::PARAM_INT];
+    $bindParams[':entriesPerPage'] = [$entriesPerPage, PDO::PARAM_INT];
+
+    // Execute main query
+    if (! empty($bindParams)) {
+        $statement = $dbb->prepareQuery($query);
+        $dbb->executePreparedQuery($statement, $bindParams, true);
+    } else {
+        $statement = $dbb->executeQuery($query);
+    }
+
     $data = [];
     $detailMode = false;
     if (isset($preferences['enable_detailed_mode']) && $preferences['enable_detailed_mode']) {

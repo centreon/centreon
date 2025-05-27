@@ -17,6 +17,7 @@ import { useAtomValue } from 'jotai';
 
 import {
   ColumnType,
+  truncate,
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
@@ -25,12 +26,16 @@ import type { Column } from '@centreon/ui';
 import { DisplayType } from '../models';
 import {
   labelAction,
+  labelAlias,
   labelDuration,
+  labelFqdn,
   labelHost,
   labelInformation,
   labelLastCheck,
+  labelMonitoringServer,
   labelOpenedOn,
   labelParent,
+  labelParentAlias,
   labelResource,
   labelService,
   labelServices,
@@ -54,7 +59,6 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
-import truncate from './truncate';
 
 interface ColumnProps {
   displayResources: 'withTicket' | 'withoutTicket';
@@ -230,7 +234,7 @@ const useColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),
@@ -258,6 +262,41 @@ const useColumns = ({
       rowMemoProps: ['is_in_downtime', 'is_acknowledged', 'name', 'links'],
       sortable: false,
       type: ColumnType.component
+    },
+    {
+      getFormattedString: ({ alias }): string => alias,
+      id: 'alias',
+      label: t(labelAlias),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ parent }): string => parent?.alias,
+      id: 'parent_alias',
+      label: t(labelParentAlias),
+      rowMemoProps: ['parent'],
+      sortField: 'parent_alias',
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ fqdn }): string => fqdn,
+      id: 'fqdn',
+      label: t(labelFqdn),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ monitoring_server_name }): string =>
+        monitoring_server_name,
+      id: 'monitoring_server_name',
+      label: t(labelMonitoringServer),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
     },
     ...(areTicketColumnsVisible && !isOnPublicPage
       ? [

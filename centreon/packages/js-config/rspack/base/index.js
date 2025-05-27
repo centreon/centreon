@@ -49,25 +49,19 @@ const getBaseConfiguration = ({
           },
           {
             react: {
-              requiredVersion: '18.x',
-              singleton: true
-            }
-          },
-          {
-            'react-dom': {
-              requiredVersion: '18.x',
+              requiredVersion: '19.x',
               singleton: true
             }
           },
           {
             'react-i18next': {
-              requiredVersion: '14.x',
+              requiredVersion: '15.x',
               singleton: true
             }
           },
           {
-            'react-router-dom': {
-              requiredVersion: '6.x',
+            'react-router': {
+              requiredVersion: '7.x',
               singleton: true
             }
           }

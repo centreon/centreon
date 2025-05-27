@@ -1,7 +1,7 @@
 import { Suspense, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import {
   LoadingSkeleton,

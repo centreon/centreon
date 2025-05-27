@@ -38,9 +38,9 @@
       "layout": {
         "x": 0,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 3,
+        "min_width": 6,
         "min_height": 3
       },
       "widget_settings": {
@@ -71,11 +71,11 @@
       "name": "centreon-widget-text",
       "widget_type": "/widgets/text",
       "layout": {
-        "x": 3,
+        "x": 6,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 3,
+        "min_width": 6,
         "min_height": 3
       },
       "widget_settings": {
@@ -106,11 +106,11 @@
       "name": "centreon-widget-singlemetric",
       "widget_type": "/widgets/singlemetric",
       "layout": {
-        "x": 6,
+        "x": 12,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 3,
+        "min_width": 6,
         "min_height": 3
       },
       "widget_settings": {

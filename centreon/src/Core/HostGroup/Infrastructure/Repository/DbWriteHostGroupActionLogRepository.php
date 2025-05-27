@@ -42,12 +42,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     private const HOSTGROUP_PROPERTIES_MAP = [
         'name' => 'hg_name',
         'alias' => 'hg_alias',
-        'notes' => 'hg_notes',
-        'notesUrl' => 'hg_notes_url',
-        'actionUrl' => 'hg_action_url',
         'iconId' => 'hg_icon_image',
-        'iconMapId' => 'hg_map_icon_image',
-        'rrdRetention' => 'hg_rrd_retention',
         'geoCoords' => 'geo_coords',
         'comment' => 'hg_comment',
         'isActivated' => 'hg_activate',
@@ -225,6 +220,83 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     public function unlinkFromHost(int $hostId, array $groupIds): void
     {
         $this->writeHostGroupRepository->unlinkFromHost($hostId, $groupIds);
+    }
+
+    public function addHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->addHostLinks($hostGroupId, $hostIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        try {
+            $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
+            if ($hostGroup === null) {
+                throw new RepositoryException('Cannot find hostgroup to enable/disable');
+            }
+
+            $this->writeHostGroupRepository->enableDisableHostGroup($hostGroupId, $isEnable);
+
+            $actionLog = new ActionLog(
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                $hostGroupId,
+                $hostGroup->getName(),
+                $isEnable ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
+                $this->contact->getId()
+            );
+            $this->writeActionLogRepository->addAction($actionLog);
+
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int
+    {
+        try {
+            $newHostGroupId = $this->writeHostGroupRepository->duplicate($hostGroupId, $duplicateIndex);
+            $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
+            if ($newHostGroupId === 0) {
+                throw new RepositoryException('Hostgroup ID cannot be 0');
+            }
+
+            if ($newHostGroup === null) {
+                throw new RepositoryException('Cannot find duplicated hostgroup');
+            }
+
+            $actionLog = new ActionLog(
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                $newHostGroupId,
+                $newHostGroup->getName(),
+                ActionLog::ACTION_TYPE_ADD,
+                $this->contact->getId()
+            );
+
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+
+            $details = $this->getHostGroupPropertiesAsArray($newHostGroup);
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
+
+            return $newHostGroupId;
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
+        }
+    }
+
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->deleteHostLinks($hostGroupId, $hostIds);
     }
 
     /**

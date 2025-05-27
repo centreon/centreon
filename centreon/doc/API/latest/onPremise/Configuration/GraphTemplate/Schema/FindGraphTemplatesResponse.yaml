@@ -26,26 +26,26 @@ properties:
     example: 1024
   grid:
     type: object
-    items:
+    properties:
       lower_limit:
-        type: float
+        type: number
         nullable: true
         description: "Lower limit of the grid"
         example: 115
       upper_limit:
-        type: float
+        type: number
         nullable: true
         description: "Upper limit of the grid"
         example: 115
       is_upper_limit_sized_to_max:
-        type: bool
+        type: boolean
         description: "Set the upper limit of the grid to the maximum value"
         example: false
   is_graph_scaled:
-    type: bool
+    type: boolean
     description: "Enable auto scale of the graph"
     example: true
   is_default_centreon_template:
-    type: bool
+    type: boolean
     description: "Set template as default template"
     example: false

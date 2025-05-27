@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { Typography } from '@mui/material';
 
@@ -10,23 +10,27 @@ import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
 
 import { useLegendStyles } from './Legend.styles';
+import { Resource } from '../../../models';
 
 interface Props {
   data: Array<FormattedResponse>;
   direction: 'row' | 'column';
-  getLinkToResourceStatusPage: (status) => string;
+  getLinkToResourceStatusPage: (status, resourceType) => string;
   title: string;
   total: number;
   unit: 'number' | 'percentage';
+  resourceType: string;
+  resources: Array<Resource>;
 }
 
 const Legend = ({
   data,
-  title,
   total,
   unit,
   direction,
-  getLinkToResourceStatusPage
+  getLinkToResourceStatusPage,
+  resourceType,
+  resources
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -40,7 +44,6 @@ const Legend = ({
         return (
           <div className={classes.legendItems} key={color}>
             <Tooltip
-              hasCaret
               classes={{
                 tooltip: classes.tooltip
               }}
@@ -52,9 +55,10 @@ const Legend = ({
                 <TooltipContent
                   color={color}
                   label={status}
-                  title={title}
                   total={total}
                   value={value}
+                  resourceType={resourceType}
+                  resources={resources}
                 />
               }
               position="bottom"
@@ -62,7 +66,7 @@ const Legend = ({
               <Link
                 rel="noopener noreferrer"
                 target="_blank"
-                to={getLinkToResourceStatusPage(status)}
+                to={getLinkToResourceStatusPage(status, resourceType)}
               >
                 <div
                   className={classes.legendItem}
@@ -84,20 +88,4 @@ const Legend = ({
   );
 };
 
-export default (getLinkToResourceStatusPage) =>
-  ({
-    data,
-    title,
-    total,
-    unit,
-    direction
-  }: Omit<Props, 'getLinkToResourceStatusPage'>) => (
-    <Legend
-      data={data}
-      direction={direction}
-      getLinkToResourceStatusPage={getLinkToResourceStatusPage}
-      title={title}
-      total={total}
-      unit={unit}
-    />
-  );
+export default Legend;

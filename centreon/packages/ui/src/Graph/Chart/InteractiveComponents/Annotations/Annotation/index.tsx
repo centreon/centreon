@@ -43,7 +43,7 @@ const Annotation = ({
 
   const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
 
-  const content = `${truncate(event.content)} (${t(labelBy)} ${
+  const content = `${truncate({ content: event.content })} (${t(labelBy)} ${
     event.contact?.name
   })`;
 

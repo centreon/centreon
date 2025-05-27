@@ -23,43 +23,75 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Domain\Exception\BusinessLogicException;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\NewApiToken;
+use Core\Security\Token\Domain\Model\NewJwtToken;
 use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\Token;
 
-class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteTokenRepositoryInterface
+class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRepositoryInterface
 {
     use LoggerTrait;
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
+    private const TYPE_API_MANUAL = 'manual';
 
     /**
      * @inheritDoc
      */
     public function deleteByNameAndUserId(string $tokenName, int $userId): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE token
-                FROM `:db`.`security_token` token
-                JOIN `:db`.`security_authentication_tokens` sat
-                    ON sat.provider_token_id = token.id
-                WHERE sat.token_name = :tokenName
-                    AND sat.user_id = :userId
-                SQL
-        ));
-        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
+        try {
+            $this->connection->delete
+            (
+                <<<'SQL'
+                    DELETE tokens FROM security_token tokens
+                    JOIN security_authentication_tokens sat
+                        ON sat.provider_token_id = tokens.id
+                    WHERE sat.token_name = :tokenName
+                        AND sat.user_id = :userId
+                    SQL,
+                QueryParameters::create([
+                    QueryParameter::string('tokenName', $tokenName),
+                    QueryParameter::int('userId', $userId),
+                ])
+            );
+
+            $this->connection->delete(
+                $this->queryBuilder->delete('jwt_tokens')
+                    ->where('token_name = :tokenName')
+                    ->andWhere('creator_id = :userId')
+                    ->getQuery(),
+                QueryParameters::create([
+                    QueryParameter::string('tokenName', $tokenName),
+                    QueryParameter::int('userId', $userId),
+                ])
+            );
+        } catch (BusinessLogicException $exception) {
+            $this->error(
+                "Delete token failed : {$exception->getMessage()}",
+                [
+                    'token_name' => $tokenName,
+                    'user_id' => $userId,
+                    'exception' => $exception->getContext(),
+                ]
+            );
+
+            throw new RepositoryException(
+                "Delete token failed : {$exception->getMessage()}",
+                ['token_name' => $tokenName, 'user_id' => $userId],
+                $exception
+            );
+        }
     }
 
     /**
@@ -67,29 +99,28 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
      */
     public function add(NewToken $newToken): void
     {
-        $isAlreadyInTransaction = $this->db->inTransaction();
-        if ($isAlreadyInTransaction === false) {
-            $this->db->beginTransaction();
-        }
         try {
-
-            $securityTokenId = $this->insertSecurityToken($newToken);
-
-            $this->insertSecurityAuthenticationToken(
-                $newToken,
-                $securityTokenId
+            if ($newToken instanceof NewJwtToken) {
+                $this->addJwtToken($newToken);
+            } else {
+                /** @var NewApiToken $newToken */
+                $this->addApiToken($newToken);
+            }
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Add token failed : {$exception->getMessage()}",
+                [
+                    'token_name' => $newToken->getName(),
+                    'creator_id' => $newToken->getCreatorId(),
+                    'exception' => $exception->getContext(),
+                ]
             );
 
-            if ($isAlreadyInTransaction === false) {
-                $this->db->commit();
-            }
-        } catch (\Throwable $ex) {
-            if ($isAlreadyInTransaction === false) {
-                $this->db->rollBack();
-            }
-            $this->error('Error, rollback transaction');
-
-            throw $ex;
+            throw new RepositoryException(
+                "Add token failed : {$exception->getMessage()}",
+                ['token_name' => $newToken->getName(), 'creator_id' => $newToken->getCreatorId()],
+                $exception
+            );
         }
     }
 
@@ -98,89 +129,215 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
      */
     public function update(Token $token): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                UPDATE `security_authentication_tokens`
-                SET
-                    `is_revoked` = :is_revoked
-                WHERE `token_name` = :token_name
-                    AND `user_id` = :user_id
-                SQL
-        ));
-        $statement->bindValue(':is_revoked', (int) $token->isRevoked(), \PDO::PARAM_INT);
-        $statement->bindValue(':token_name', $token->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':user_id', $token->getUserId(), \PDO::PARAM_INT);
+        try {
+            if ($token instanceof JwtToken) {
+                $this->updateJwtToken($token);
+            } else {
+                /** @var ApiToken $token */
+                $this->updateApiToken($token);
+            }
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Update token failed : {$exception->getMessage()}",
+                [
+                    'token_name' => $token->getName(),
+                    'creator_id' => $token->getCreatorId(),
+                    'exception' => $exception->getContext(),
+                ]
+            );
 
-        $statement->execute();
+            throw new RepositoryException(
+                "Update token failed : {$exception->getMessage()}",
+                ['token_name' => $token->getName(), 'creator_id' => $token->getCreatorId()],
+                $exception
+            );
+        }
+    }
+
+    // ------------------------------ JWT TOKEN METHODS ------------------------------
+
+    /**
+     * @param NewJwtToken $token
+     * @throws \Throwable
+     */
+    private function addJwtToken(NewJwtToken $token): void
+    {
+        $this->connection->insert(
+            $this->queryBuilder->insert('jwt_tokens')
+                ->values([
+                    'token_string' => ':tokenString',
+                    'token_name' => ':tokenName',
+                    'creator_id' => ':creatorId',
+                    'creator_name' => ':creatorName',
+                    'encoding_key' => ':encodingKey',
+                    'creation_date' => ':createdAt',
+                    'expiration_date' => ':expireAt',
+                ])
+                ->getQuery(),
+            QueryParameters::create([
+                QueryParameter::string('tokenString', $token->getToken()),
+                QueryParameter::string('tokenName', $token->getName()),
+                QueryParameter::int('creatorId', $token->getCreatorId()),
+                QueryParameter::string('creatorName', $token->getCreatorName()),
+                QueryParameter::string('encodingKey', $token->getEncodingKey()),
+                QueryParameter::int('createdAt', $token->getCreationDate()->getTimestamp()),
+                QueryParameter::int('expireAt', $token->getExpirationDate()?->getTimestamp()),
+            ])
+        );
     }
 
     /**
-     * @param NewToken $token
+     * @param JwtToken $token
+     * @throws \Throwable
+     */
+    private function updateJwtToken(JwtToken $token): void
+    {
+        $this->connection->update(
+            $this->queryBuilder->update('jwt_tokens')
+                ->set('is_revoked', ':isRevoked')
+                ->where('token_name = :tokenName')
+                ->getQuery(),
+            QueryParameters::create([
+                QueryParameter::int('isRevoked', (int) $token->isRevoked()),
+                QueryParameter::string('tokenName', $token->getName()),
+            ])
+        );
+    }
+
+    // ------------------------------ API TOKEN METHODS  ------------------------------
+
+    /**
+     * @param ApiToken $token
+     * @throws \Throwable
+     */
+    private function updateApiToken(ApiToken $token): void
+    {
+        $this->connection->update(
+            $this->queryBuilder->update('security_authentication_tokens')
+                ->set('is_revoked', ':isRevoked')
+                ->where('token_name = :tokenName')
+                ->andWhere('user_id = :userId')
+                ->getQuery(),
+            QueryParameters::create([
+                QueryParameter::int('isRevoked', (int) $token->isRevoked()),
+                QueryParameter::string('tokenName', $token->getName()),
+                QueryParameter::int('userId', $token->getUserId()),
+            ])
+        );
+    }
+
+    private function addApiToken(NewApiToken $token): void
+    {
+       $isTransactionActive = $this->connection->isTransactionActive();
+
+       try {
+            if (! $isTransactionActive) {
+                $this->connection->startTransaction();
+            }
+
+            $securityTokenId = $this->insertSecurityToken($token);
+            $this->insertSecurityAuthenticationToken($token, $securityTokenId);
+
+            if (! $isTransactionActive) {
+                $this->connection->commitTransaction();
+            }
+       } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Add token failed : {$exception->getMessage()}",
+                [
+                    'token_name' => $token->getName(),
+                    'creator_id' => $token->getCreatorId(),
+                    'exception' => $exception->getContext(),
+                ]
+            );
+
+            if (! $isTransactionActive) {
+                try {
+                    $this->connection->rollBackTransaction();
+                } catch (ConnectionException $rollbackException) {
+                    $this->error(
+                        "Rollback failed for tokens: {$rollbackException->getMessage()}",
+                        [
+                            'token_name' => $token->getName(),
+                            'creator_id' => $token->getCreatorId(),
+                            'exception' => $rollbackException->getContext(),
+                        ]
+                    );
+
+                    throw new RepositoryException(
+                        "Rollback failed for tokens: {$rollbackException->getMessage()}",
+                        ['token' => $token],
+                        $rollbackException
+                    );
+                }
+            }
+
+            throw new RepositoryException(
+                "Add token failed : {$exception->getMessage()}",
+                ['token_name' => $token->getName(), 'creator_id' => $token->getCreatorId()],
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @param NewApiToken $token
      *
      * @throws \Throwable
      */
     private function insertSecurityToken(NewToken $token): int
     {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                <<<'SQL'
-                    INSERT INTO `:db`.security_token
-                        (`token`, `creation_date`, `expiration_date`)
-                    VALUES
-                        (:token, :createdAt, :expireAt)
-                    SQL
-            )
+        $this->connection->insert(
+            $this->queryBuilder->insert('security_token')
+                ->values([
+                    'token' => ':token',
+                    'creation_date' => ':createdAt',
+                    'expiration_date' => ':expireAt',
+                ])
+                ->getQuery(),
+            QueryParameters::create([
+                QueryParameter::string('token', $token->getToken()),
+                QueryParameter::int('createdAt', $token->getCreationDate()->getTimestamp()),
+                QueryParameter::int('expireAt', $token->getExpirationDate()?->getTimestamp()),
+            ])
         );
-        $statement->bindValue(':token', $token->getToken(), \PDO::PARAM_STR);
-        $statement->bindValue(
-            ':createdAt',
-            $token->getCreationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(
-            ':expireAt',
-            $token->getExpirationDate()->getTimestamp(),
-            \PDO::PARAM_INT
-        );
-        $statement->execute();
 
-        return (int) $this->db->lastInsertId();
+        return (int) $this->connection->getLastInsertId();
     }
 
     /**
-     * @param NewToken $token
+     * @param NewApiToken $token
      * @param int $securityTokenId
      *
      * @throws \Throwable
      */
     private function insertSecurityAuthenticationToken(
-        NewToken $token,
+        NewApiToken $token,
         int $securityTokenId
     ): void {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                <<<'SQL'
-                    INSERT INTO `:db`.security_authentication_tokens
-                        (`token`, `provider_token_id`, `provider_configuration_id`, `user_id`,
-                        `token_name`, `token_type`, `creator_id`, `creator_name`)
-                    VALUES
-                        (:token, :tokenId, :configurationId, :userId,
-                        :tokenName, 'manual', :creatorId, :creatorName)
-                    SQL
-            )
+        $this->connection->insert(
+            $this->queryBuilder->insert('security_authentication_tokens')
+                ->values([
+                    'token' => ':token',
+                    'provider_token_id' => ':tokenId',
+                    'provider_configuration_id' => ':configurationId',
+                    'user_id' => ':userId',
+                    'token_name' => ':tokenName',
+                    'token_type' => ':tokenType',
+                    'creator_id' => ':creatorId',
+                    'creator_name' => ':creatorName',
+                ])
+                ->getQuery(),
+            QueryParameters::create([
+                QueryParameter::string('token', $token->getToken()),
+                QueryParameter::int('tokenId', $securityTokenId),
+                QueryParameter::int('configurationId', $token->getConfigurationProviderId()),
+                QueryParameter::int('userId', $token->getUserId()),
+                QueryParameter::string('tokenName', $token->getName()),
+                QueryParameter::string('tokenType', self::TYPE_API_MANUAL),
+                QueryParameter::int('creatorId', $token->getCreatorId()),
+                QueryParameter::string('creatorName', $token->getCreatorName()),
+            ])
         );
-        $statement->bindValue(':token', $token->getToken(), \PDO::PARAM_STR);
-        $statement->bindValue(':tokenId', $securityTokenId, \PDO::PARAM_INT);
-        $statement->bindValue(
-            ':configurationId',
-            $token->getConfigurationProviderId(),
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(':userId', $token->getUserId(), \PDO::PARAM_INT);
-        $statement->bindValue(':tokenName', $token->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':creatorId', $token->getCreatorId(), \PDO::PARAM_INT);
-        $statement->bindValue(':creatorName', $token->getCreatorName(), \PDO::PARAM_STR);
-
-        $statement->execute();
     }
 }

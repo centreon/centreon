@@ -91,5 +91,6 @@
         "group": "color"
       }
     }
-  }
+  },
+  "widgetType": "generic"
 }

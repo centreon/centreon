@@ -354,7 +354,7 @@ if ($export) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while fetching hosts',
-            $e->getOptions()
+            $e->getContext()
         );
     }
 }
@@ -639,6 +639,7 @@ if (!$is_admin) {
             AND (acl.service_id IS NULL OR acl.service_id = logs.service_id)
         )
     ";
+    $whereClauses[] = 'acl.group_id IN (' .  $access->getAccessGroupsString() . ')';
 }
 
 $whereClause = "WHERE " . implode(' AND ', $whereClauses);
@@ -700,7 +701,7 @@ try {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching logs',
-        $e->getOptions()
+        $e->getContext()
     );
 }
 
@@ -808,7 +809,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_BUSINESS_LOG,
                     'Error while fetching meta_services',
-                    $e->getOptions()
+                    $e->getContext()
                 );
             }
         } else {

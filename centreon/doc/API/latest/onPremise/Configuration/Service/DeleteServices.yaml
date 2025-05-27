@@ -1,0 +1,48 @@
+post:
+  tags:
+    - Service
+  summary: "Delete multiple services"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+              description: "List of service IDs to delete"
+              example: [ 1, 2 ]
+          required:
+            - ids
+  description: |
+    Delete multiple services from configuration
+  responses:
+    '200':
+      description: "Objects deleted"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                href:
+                  type: string
+                  format: uri
+                  description: "URI to the deleted service"
+                status:
+                  type: integer
+                  description: "HTTP Status Code of the operation"
+                message:
+                  type: string
+                  nullable: true
+                  description: "Error message for non 204 status"
+    '401':
+      $ref: '../../Common/Response/Unauthorized.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

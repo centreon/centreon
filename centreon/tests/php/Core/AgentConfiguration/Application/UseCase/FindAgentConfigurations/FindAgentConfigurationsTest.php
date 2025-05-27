@@ -34,6 +34,7 @@ use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgen
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -129,36 +130,44 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
         id: 1,
         name: 'acOne',
         type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.10',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new TelegrafConfigurationParameters(
+            [
+                'otel_server_address' => '10.10.10.10',
+                'otel_server_port' => 453,
+                'otel_public_certificate' => 'public_certif',
+                'otel_ca_certificate' => 'ca_certif',
+                'otel_private_key' => 'otel-key',
+                'conf_server_port' => 454,
+                'conf_certificate' => 'conf-certif',
+                'conf_private_key' => 'conf-key'
+            ],
+            ConnectionModeEnum::SECURE
+        )
     );
 
     $acTwo = new AgentConfiguration(
         id: 2,
         name: 'acTwo',
         type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.11',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new TelegrafConfigurationParameters(
+            [
+                'otel_server_address' => '10.10.10.11',
+                'otel_server_port' => 453,
+                'otel_public_certificate' => 'public_certif',
+                'otel_ca_certificate' => 'ca_certif',
+                'otel_private_key' => 'otel-key',
+                'conf_server_port' => 454,
+                'conf_certificate' => 'conf-certif',
+                'conf_private_key' => 'conf-key'
+            ],
+            ConnectionModeEnum::SECURE
+        )
     );
 
-    $pollerOne = new Poller(1, 'poller_1');
-    $pollerTwo = new Poller(2, 'poller_2');
+    $pollerOne = new Poller(1, 'poller_1', true);
+    $pollerTwo = new Poller(2, 'poller_2', false);
 
     $this->user
         ->expects($this->once())
@@ -187,9 +196,9 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
 
     ($this->useCase)($this->presenter);
 
-    expect($this->presenter->data)
+    expect(value: $this->presenter->data)
         ->toBeInstanceOf(FindAgentConfigurationsResponse::class)
-        ->and($this->presenter->data->agentConfigurations)
+        ->and(value: $this->presenter->data->agentConfigurations)
         ->toBeArray()
         ->and($this->presenter->data->agentConfigurations[0])
         ->toBeInstanceOf(AgentConfigurationDto::class)

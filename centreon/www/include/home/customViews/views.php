@@ -63,12 +63,9 @@ try {
     $viewObj = new CentreonCustomView($centreon, $db);
     $widgetObj = new CentreonWidget($centreon, $db);
 
-    /**
-     * Smarty
-     */
+    // Smarty template initialization
     $path = _CENTREON_PATH_ . "www/include/home/customViews/layouts/";
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path, $template, "./", _CENTREON_PATH_);
+    $template = SmartyBC::createSmartyTemplate($path, './');
 
     $viewId = $viewObj->getCurrentView();
     $permission = $viewObj->checkPermission($viewId) ? 1 : 0;

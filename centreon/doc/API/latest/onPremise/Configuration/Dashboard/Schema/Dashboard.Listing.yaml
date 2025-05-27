@@ -82,3 +82,8 @@ properties:
       directory:
         type: string
         example: 'dashboard'
+
+  is_favorite:
+    type: boolean
+    description: "Indicates if the dashboard is marked as favorite for current user"
+    example: true

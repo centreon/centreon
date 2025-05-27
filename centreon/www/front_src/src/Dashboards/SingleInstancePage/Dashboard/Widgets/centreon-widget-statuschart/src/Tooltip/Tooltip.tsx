@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
+import {
+  useLocaleDateTimeFormat,
+  usePluralizedTranslation
+} from '@centreon/ui';
 
 import { Resource } from '../../../models';
 import {
@@ -20,7 +23,7 @@ interface Props {
   color: string;
   label: string;
   resources: Array<Resource>;
-  title: string;
+  resourceType: string;
   total: number;
   value: number;
 }
@@ -30,18 +33,19 @@ const TooltipContent = ({
   color,
   value,
   total,
-  title,
-  resources: resourcesOptions
+  resources: resourcesOptions,
+  resourceType
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
 
   const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const { elementRef, isLoading, resources } = useTooltipContent({
     resources: resourcesOptions,
     status: label,
-    type: title.slice(0, -1)
+    type: resourceType
   });
 
   const isStatusOK = ['ok', 'up'].includes(label);
@@ -60,14 +64,14 @@ const TooltipContent = ({
       <Box className={classes.body}>
         {equals(value, 0) ? (
           <Typography className={classes.listContainer}>
-            {t(lableNoResourceFound(title.slice(0, -1)))}
+            {t(lableNoResourceFound(resourceType))}
           </Typography>
         ) : (
           <>
             <Typography className={classes.listContainer}>
               {isStatusOK
-                ? `${value}/${total} ${t(title)} ${t(labelAreWorkingFine)}`
-                : `${value} ${t(title)}`}
+                ? `${value}/${total} ${pluralizedT({ label: resourceType, count: value })} ${t(labelAreWorkingFine)}`
+                : `${value} ${pluralizedT({ label: resourceType, count: value })}`}
             </Typography>
             {!isStatusOK && (
               <Box className={classes.listContainer}>

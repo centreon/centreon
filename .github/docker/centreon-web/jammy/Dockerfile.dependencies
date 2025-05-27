@@ -3,6 +3,7 @@ ARG VERSION
 FROM ubuntu:jammy AS web_dependencies
 
 ARG VERSION
+ARG STABILITY
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -41,6 +42,12 @@ echo "deb https://packages.centreon.com/ubuntu-plugins-testing/ \$VERSION_CODENA
 echo "deb https://packages.centreon.com/ubuntu-plugins-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
+if [[ "$STABILITY" == "testing" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
+elif [[ "$STABILITY" == "stable" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
+fi
+
 apt-get update
 
 #############################
@@ -48,10 +55,13 @@ apt-get update
 #############################
 
 apt-get install -y \
+  apache2 \
   apt-transport-https \
   curl \
   jq \
   python3 \
+  sed \
+  snmpd \
   software-properties-common \
   sudo
 
@@ -92,6 +102,20 @@ apt-get install -y \
   php8.2-curl \
   php8.2-zip
 
+###################
+# install plugins #
+###################
+
+apt install -y centreon-plugin-operatingsystems-linux-snmp
+
+######################
+# SNMP configuration #
+######################
+
+sed -i '/^agentaddress/d' /etc/snmp/snmpd.conf
+echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
+sed -i 's/^rocommunity[[:space:]]*public.*/rocommunity  public default -V centreon/' /etc/snmp/snmpd.conf
+
 apt-get clean
 
 EOF
@@ -110,7 +134,6 @@ apt-get install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
 

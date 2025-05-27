@@ -75,7 +75,7 @@ $dbResult->closeCursor();
  * Var information to format the element
  */
 $attrsText = ["size" => "35"];
-$attrsTextLong = ["size" => "55", "maxlength" => "200"];
+$attrsTextLong = ["size" => "55", "maxlength" => "2048"];
 $attrsAdvSelect = ["style" => "width: 300px; height: 130px;"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
@@ -224,11 +224,8 @@ $form->addRule('tp_include', _('The selected template has the same time period a
 
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 if ($o == "w") {
     /*
