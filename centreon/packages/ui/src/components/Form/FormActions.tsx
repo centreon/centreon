@@ -13,6 +13,7 @@ export type FormActionsProps = {
   onCancel: () => void;
   variant: FormVariant;
   isCancelButtonVisible?: boolean;
+  disableSubmit?: boolean;
 };
 
 export type FormActionsLabels = {
@@ -25,14 +26,18 @@ const FormActions = <TResource extends object>({
   onCancel,
   variant,
   enableSubmitWhenNotDirty,
-  isCancelButtonVisible = true
+  isCancelButtonVisible = true,
+  disableSubmit = false
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
     useFormikContext<TResource>();
 
   const isSubmitDisabled =
-    isSubmitting || (!dirty && !enableSubmitWhenNotDirty) || !isValid;
+    disableSubmit ||
+    isSubmitting ||
+    (!dirty && !enableSubmitWhenNotDirty) ||
+    !isValid;
 
   return (
     <div className={classes.actions}>

@@ -584,10 +584,6 @@ msgstr ""
 "Comente para dar más precisión en la definición de la captura SNMP, por "
 "ejemplo, indicando los parámetros contenidos."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Comments on this host group."
-msgstr "Comentarios del grupo de anfitriones."
-
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid "Comments regarding the command."
 msgstr "Comentarios sobre el pedido"
@@ -763,22 +759,6 @@ msgstr "Establece un nombre corto para esta dependencia."
 msgid "Define a short name to identify the time period."
 msgstr "Establece un nombre corto para identificar el período de tiempo."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an image that should be associated with this host group in the "
-"statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
-"image. The GD2 image format is preferred, as other image formats must be "
-"converted first when the statusmap image is generated. The image will look "
-"best if it is 40x40 pixels in size."
-msgstr ""
-"Define una imagen que debe asociarse con el grupo de hosts en el CGI de mapa "
-"de estado en el motor de monitoreo. \n"
-"Puedes elegir una imagen en formato JPEG, PNG y GIF. \n"
-"Se prefiere GD2 porque se deberán convertir otros formatos de imagen antes "
-"de que se genere el mapa de estado. \n"
-"La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
-"píxeles."
-
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an image that should be associated with this host in the statusmap "
@@ -793,16 +773,6 @@ msgstr ""
 "El formato de imagen GD2 es preferible, ya que otros formatos de imagen "
 "deben convertirse primero cuando se genera la imagen de mapa de estado. \n"
 "La imagen tendrá una mejor resolución si tiene un tamaño de 40x40 píxeles."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more actions to be "
-"performed on the host group. You will see the link to the action URL in the "
-"host group details."
-msgstr ""
-"Define una URL opcional que se puede usar para proporcionar más acciones "
-"para ejecutar en el grupo host. \n"
-"Verá el enlace a la URL de acción en los detalles del grupo de hosts."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -824,25 +794,6 @@ msgstr ""
 "servicio. \n"
 "Podrías ver un enlace a la URL en los detalles del servicio."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more information about "
-"the host group. Any valid URL can be used. This can be very useful if you "
-"want to make detailed information on the host group, emergency contact "
-"methods, etc. available to other support staff."
-msgstr ""
-"Define una URL opcional que se puede usar para proporcionar más información "
-"sobre el grupo de hosts. \n"
-"Se puede utilizar cualquier URL válida. \n"
-"Esto puede ser muy útil si desea proporcionar información detallada sobre el "
-"grupo de anfitriones, los métodos de contacto de emergencia, etc. \n"
-"Disponible para otras personas en el equipo de soporte."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Define an optional string of notes pertaining to the host group."
-msgstr "Define una cadena opcional relevante para el grupo de hosts."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -1007,17 +958,6 @@ msgstr ""
 "notificaciones a este contacto. \n"
 "Si especifica \"Ninguno\" como una opción, el contacto no recibirá ningún "
 "tipo de notificaciones para los hosts."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define the image that should be associated with this host group here. This "
-"image will be displayed in the various places. The image will look best if "
-"it is 40x40 pixels in size."
-msgstr ""
-"Defina aquí la imagen que debe asociarse con el grupo de hosts. \n"
-"Esta imagen se mostrará en diferentes lugares. \n"
-"La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
-"píxeles."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -1812,18 +1752,6 @@ msgstr ""
 msgid "Generates configuration files and stores them in cache directory."
 msgstr "Genere los archivos de configuración y guárdelos en la carpeta cache."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-#, fuzzy
-msgid ""
-"Geographic coordinates to allow Centreon MAP to plot the host group on a "
-"geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
-"are 48.51,2.20"
-msgstr ""
-"Coordenadas geográficas utilizadas por el módulo de mapa de Centreon para "
-"posicionar los elementos. \n"
-"Expresado en \"Latitud, Longitud\", por ejemplo para las coordenadas de "
-"París ingrese \"48.51,2.20\""
-
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 #, fuzzy
@@ -1900,10 +1828,6 @@ msgstr ""
 #, fuzzy
 msgid "Host(s) to which the service is attached"
 msgstr "Puerto de conexión a la base de datos."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Hosts belonging to the group"
-msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid ""
@@ -2353,12 +2277,6 @@ msgstr "Nombre de la regla del menú."
 msgid "Name of resource rule."
 msgstr "Nombre de la regla de recursos."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Name of the host group. It must be unique and cannot contain white spaces, "
-"or special characters like ~!$%^&*\"|'<>?,()=."
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/host/help.php
 #, fuzzy
 msgid ""
@@ -2657,16 +2575,6 @@ msgstr ""
 "Ruta de acceso a las bases de datos de estado de RRD, por ejemplo / var / "
 "lib / centreon / status"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"RRD retention duration of all the services that are in this host group. If "
-"service is in multiple host groups, the highest retention value will be used."
-msgstr ""
-"Duración de la retención de datos en archivos RRD para todos los servicios "
-"relacionados con el grupo host. \n"
-"En el caso de que un servicio pertenezca a más de un grupo de hosts, se "
-"aplicará el mayor tiempo de retención."
-
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "RRD storage duration in seconds."
 msgstr ""
@@ -2745,10 +2653,6 @@ msgstr "Dirección de almacenamiento remoto para copiar copias de seguridad"
 msgid "Remote user used by SCP"
 msgstr ""
 "Usuario para acceder al almacenamiento remoto para copiar copias de seguridad"
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Resource access rule to which the host group should be linked"
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid "Resource access rule to which the service group should be linked"
@@ -3411,7 +3315,6 @@ msgstr ""
 "será reemplazado por el inicio de sesión en Autologin o * en la importación "
 "LDAP"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
@@ -3885,18 +3788,6 @@ msgstr ""
 "el grupo de servicio. \n"
 "Si especifica una nota aquí, será visible en la información extendida "
 "(cuando vea esta información sobre el servicio de grupo en cuestión)."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-#, fuzzy
-msgid ""
-"This directive is used to define is a longer name or description used to "
-"identify the host group.It is provided in order to allow you to more easily "
-"identify a particular host group."
-msgstr ""
-"Esta directiva se utiliza para definir un nombre largo o una descripción que "
-"identifique el grupo de hosts. \n"
-"Está pensado para ayudarlo a identificar un grupo particular de hosts más "
-"fácilmente."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php
@@ -5730,14 +5621,6 @@ msgstr ""
 "Especifica una lista con otros grupos de contactos cuyos miembros deben "
 "incluirse en este grupo."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"This optional directive can be used to include hosts from other host groups "
-"in this host group."
-msgstr ""
-"Esta directiva opcional se puede usar para incluir hosts de otros grupos de "
-"hosts en este grupo de hosts."
-
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid ""
 "This optional directive can be used to include services from other \"sub\" "
@@ -6157,10 +6040,6 @@ msgstr ""
 "Si la categoría es una criticidad, aparecerá en la Consola de supervisión en "
 "tiempo real."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Whether this host group is enabled."
-msgstr "Disponibilidad del grupo de invitados."
-
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Width of grid. Used to export the chart."
 msgstr ""
@@ -6329,6 +6208,101 @@ msgid ""
 "number of partitions created in advance to prevent issues, by default 10 "
 "days."
 msgstr ""
+
+#~ msgid "Comments on this host group."
+#~ msgstr "Comentarios del grupo de anfitriones."
+
+#~ msgid ""
+#~ "Define an image that should be associated with this host group in the "
+#~ "statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
+#~ "image. The GD2 image format is preferred, as other image formats must be "
+#~ "converted first when the statusmap image is generated. The image will "
+#~ "look best if it is 40x40 pixels in size."
+#~ msgstr ""
+#~ "Define una imagen que debe asociarse con el grupo de hosts en el CGI de "
+#~ "mapa de estado en el motor de monitoreo. \n"
+#~ "Puedes elegir una imagen en formato JPEG, PNG y GIF. \n"
+#~ "Se prefiere GD2 porque se deberán convertir otros formatos de imagen "
+#~ "antes de que se genere el mapa de estado. \n"
+#~ "La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
+#~ "píxeles."
+
+#~ msgid ""
+#~ "Define an optional URL that can be used to provide more actions to be "
+#~ "performed on the host group. You will see the link to the action URL in "
+#~ "the host group details."
+#~ msgstr ""
+#~ "Define una URL opcional que se puede usar para proporcionar más acciones "
+#~ "para ejecutar en el grupo host. \n"
+#~ "Verá el enlace a la URL de acción en los detalles del grupo de hosts."
+
+#~ msgid ""
+#~ "Define an optional URL that can be used to provide more information about "
+#~ "the host group. Any valid URL can be used. This can be very useful if you "
+#~ "want to make detailed information on the host group, emergency contact "
+#~ "methods, etc. available to other support staff."
+#~ msgstr ""
+#~ "Define una URL opcional que se puede usar para proporcionar más "
+#~ "información sobre el grupo de hosts. \n"
+#~ "Se puede utilizar cualquier URL válida. \n"
+#~ "Esto puede ser muy útil si desea proporcionar información detallada sobre "
+#~ "el grupo de anfitriones, los métodos de contacto de emergencia, etc. \n"
+#~ "Disponible para otras personas en el equipo de soporte."
+
+#~ msgid "Define an optional string of notes pertaining to the host group."
+#~ msgstr "Define una cadena opcional relevante para el grupo de hosts."
+
+#~ msgid ""
+#~ "Define the image that should be associated with this host group here. "
+#~ "This image will be displayed in the various places. The image will look "
+#~ "best if it is 40x40 pixels in size."
+#~ msgstr ""
+#~ "Defina aquí la imagen que debe asociarse con el grupo de hosts. \n"
+#~ "Esta imagen se mostrará en diferentes lugares. \n"
+#~ "La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
+#~ "píxeles."
+
+#, fuzzy
+#~ msgid ""
+#~ "Geographic coordinates to allow Centreon MAP to plot the host group on a "
+#~ "geographic view. Format: Latitude,Longitude. For example, Paris' "
+#~ "coordinates are 48.51,2.20"
+#~ msgstr ""
+#~ "Coordenadas geográficas utilizadas por el módulo de mapa de Centreon para "
+#~ "posicionar los elementos. \n"
+#~ "Expresado en \"Latitud, Longitud\", por ejemplo para las coordenadas de "
+#~ "París ingrese \"48.51,2.20\""
+
+#~ msgid ""
+#~ "RRD retention duration of all the services that are in this host group. "
+#~ "If service is in multiple host groups, the highest retention value will "
+#~ "be used."
+#~ msgstr ""
+#~ "Duración de la retención de datos en archivos RRD para todos los "
+#~ "servicios relacionados con el grupo host. \n"
+#~ "En el caso de que un servicio pertenezca a más de un grupo de hosts, se "
+#~ "aplicará el mayor tiempo de retención."
+
+#, fuzzy
+#~ msgid ""
+#~ "This directive is used to define is a longer name or description used to "
+#~ "identify the host group.It is provided in order to allow you to more "
+#~ "easily identify a particular host group."
+#~ msgstr ""
+#~ "Esta directiva se utiliza para definir un nombre largo o una descripción "
+#~ "que identifique el grupo de hosts. \n"
+#~ "Está pensado para ayudarlo a identificar un grupo particular de hosts más "
+#~ "fácilmente."
+
+#~ msgid ""
+#~ "This optional directive can be used to include hosts from other host "
+#~ "groups in this host group."
+#~ msgstr ""
+#~ "Esta directiva opcional se puede usar para incluir hosts de otros grupos "
+#~ "de hosts en este grupo de hosts."
+
+#~ msgid "Whether this host group is enabled."
+#~ msgstr "Disponibilidad del grupo de invitados."
 
 #~ msgid "Enable caching"
 #~ msgstr "Habilitar la gestión de caché"

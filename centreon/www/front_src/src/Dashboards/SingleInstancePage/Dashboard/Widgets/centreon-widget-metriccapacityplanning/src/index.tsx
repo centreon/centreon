@@ -7,7 +7,6 @@ import { WidgetProps } from './models';
 
 const Widget = ({
   panelData,
-  store,
   id,
   dashboardId,
   globalRefreshInterval,
@@ -28,7 +27,6 @@ const Widget = ({
     <FederatedComponent
       path="/bi/widget/metriccapacityplanning"
       panelData={panelData}
-      store={store}
       panelOptions={panelOptions}
       globalRefreshInterval={globalRefreshInterval}
       refreshCount={refreshCount}
