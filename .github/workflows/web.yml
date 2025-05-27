@@ -48,6 +48,7 @@ env:
 jobs:
   changes:
     if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     needs: [get-environment]
     runs-on: ubuntu-24.04
@@ -149,8 +150,7 @@ jobs:
   frontend-web-build:
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'stable'
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
 
     steps:
@@ -184,8 +184,7 @@ jobs:
   backend-dependencies:
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
 
     steps:
@@ -212,8 +211,7 @@ jobs:
   translation-build:
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.skip_workflow == 'false'
 
     runs-on: ubuntu-24.04
     container:
