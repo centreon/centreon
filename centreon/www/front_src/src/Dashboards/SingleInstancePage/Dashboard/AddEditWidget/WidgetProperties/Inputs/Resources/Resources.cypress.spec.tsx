@@ -19,7 +19,10 @@ import {
   labelServiceGroup
 } from '../../../../translatedLabels';
 import { widgetPropertiesAtom } from '../../../atoms';
-import { WidgetResourceType } from '../../../models';
+import {
+  ForceSingleAutocompleteConditions,
+  WidgetResourceType
+} from '../../../models';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints, resourceTypeOptions } from './useResources';
@@ -49,6 +52,7 @@ interface InitializeProps {
   singleResourceType?: boolean;
   forcedResourceType?: string;
   defaultResourceTypes?: Array<string>;
+  forceSingleAutocompleteConditions?: ForceSingleAutocompleteConditions;
 }
 
 const initialize = ({
@@ -61,7 +65,8 @@ const initialize = ({
   emptyData = false,
   properties = widgetDataProperties,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
+  forceSingleAutocompleteConditions
 }: InitializeProps): void => {
   const store = createStore();
   store.set(widgetPropertiesAtom, {
@@ -140,7 +145,9 @@ const initialize = ({
                     resources: []
                   },
               moduleName: 'widget',
-              options: {}
+              options: {
+                property: 'value'
+              }
             }}
             onSubmit={cy.stub()}
           >
@@ -153,6 +160,9 @@ const initialize = ({
               type=""
               forcedResourceType={forcedResourceType}
               defaultResourceTypes={defaultResourceTypes}
+              forceSingleAutocompleteConditions={
+                forceSingleAutocompleteConditions
+              }
             />
           </Formik>
         </Provider>
@@ -467,5 +477,39 @@ describe('Resources tree', () => {
     cy.contains('Host').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('displays a resource type autocomplete as single autocomplete when the corresponding property conditions are met', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'service'],
+      forceSingleAutocompleteConditions: {
+        resourceType: 'host',
+        conditions: [
+          {
+            target: 'options',
+            when: 'options.property',
+            method: 'equals',
+            matches: 'value'
+          }
+        ]
+      }
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.contains('Host 0').click();
+    cy.contains(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(/^Service$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Service 0').click();
+    cy.contains('Service 1').click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).blur();
+
+    cy.findAllByTestId(labelSelectAResource)
+      .eq(0)
+      .should('have.value', 'Host 0');
+    cy.findAllByTestId(labelSelectAResource).eq(1).should('have.value', '');
   });
 });

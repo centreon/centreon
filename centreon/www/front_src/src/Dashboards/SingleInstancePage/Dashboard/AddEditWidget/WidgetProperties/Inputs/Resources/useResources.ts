@@ -23,6 +23,7 @@ import {
   project,
   propEq,
   reject,
+  type,
   uniqBy
 } from 'ramda';
 
@@ -35,6 +36,7 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
+import { WidgetHiddenCondition } from '../../../../../../../federatedModules/models';
 import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
@@ -51,12 +53,19 @@ import {
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
 import {
+  ForceSingleAutocompleteConditions,
   Widget,
   WidgetDataResource,
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
+import { checkHiddenCondition } from '../../handleHiddenConditions';
 import { getDataProperty, getProperty } from '../utils';
+
+interface CheckForceSingleAutocompleteProps {
+  resourceType: string;
+  forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
+}
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -88,6 +97,9 @@ interface UseResourcesState {
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
   isValidatingResources: boolean;
+  checkForceSingleAutocomplete: (
+    props: CheckForceSingleAutocompleteProps
+  ) => boolean;
 }
 
 export const resourceTypeBaseEndpoints = {
@@ -729,6 +741,42 @@ const useResources = ({
     );
   }, [value, widgetProperties]);
 
+  const checkForceSingleAutocomplete = useCallback(
+    ({
+      resourceType,
+      forceSingleAutocompleteConditions
+    }: CheckForceSingleAutocompleteProps): boolean => {
+      if (
+        !forceSingleAutocompleteConditions ||
+        resourceType !== forceSingleAutocompleteConditions.resourceType
+      ) {
+        return false;
+      }
+
+      if (type(forceSingleAutocompleteConditions.conditions) === 'Array') {
+        return (
+          forceSingleAutocompleteConditions.conditions as Array<WidgetHiddenCondition>
+        ).some((condition) =>
+          checkHiddenCondition({
+            hasModule: true,
+            featureFlags: null,
+            hiddenCondition: condition,
+            values
+          })
+        );
+      }
+
+      return checkHiddenCondition({
+        hasModule: true,
+        featureFlags: null,
+        hiddenCondition:
+          forceSingleAutocompleteConditions.condition as WidgetHiddenCondition,
+        values
+      });
+    },
+    [values]
+  );
+
   return {
     addResource,
     changeIdValue,
@@ -748,7 +796,8 @@ const useResources = ({
     value: value || [],
     isValidatingResources,
     hideResourceDeleteButton,
-    getErrorInput
+    getErrorInput,
+    checkForceSingleAutocomplete
   };
 };
 
