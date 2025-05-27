@@ -70,7 +70,7 @@ const useApp = (): UseAppState => {
   });
 
   const { sendRequest: logoutRequest } = useRequest({
-    request: gettData
+    request: getData
   });
 
   const { sendRequest: getCustomPlatformRequest } =
