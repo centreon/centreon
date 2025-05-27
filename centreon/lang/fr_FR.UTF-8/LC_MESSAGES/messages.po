@@ -7906,7 +7906,7 @@ msgstr "Hard"
 
 #: centreon/www/include/eventLogs/viewLog.php
 msgid "Hard Only"
-msgstr "Etat validés (Hard) seulement"
+msgstr "État validés (Hard) seulement"
 
 #: centreon/www/include/monitoring/status/Services/serviceJS.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
@@ -8428,12 +8428,12 @@ msgstr "Ce nom de sévérité d'hôtes existe déjà"
 
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 msgid "Host state"
-msgstr "Etat de l'hôte"
+msgstr "État de l'hôte"
 
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/class/centreonGraphPoller.class.php
 msgid "Host status"
-msgstr "Etat des hôtes"
+msgstr "État des hôtes"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Host template"
@@ -9220,7 +9220,7 @@ msgstr "Sélectionnez un type de ressource"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AclConditionsException.php
 msgid "Invalid roles mapping fetched from provider"
-msgstr "Les roles récupérés depuis le serveur d'identité sont incorrects"
+msgstr "Les rôles récupérés depuis le serveur d'identité sont incorrects"
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, fuzzy, php-format
@@ -10414,7 +10414,7 @@ msgstr "Nom du méta-services"
 
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 msgid "Meta Service State"
-msgstr "Etat du Meta Service"
+msgstr "État du Meta Service"
 
 #: centreon/src/Centreon/Application/Controller/DowntimeController.php
 #: centreon/src/Centreon/Application/Controller/Monitoring/MetricController.php
@@ -11788,7 +11788,7 @@ msgstr "Paramètres de notification"
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Notification status"
-msgstr "Etat de la notification"
+msgstr "État de la notification"
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/menu_translation.php
@@ -14694,7 +14694,7 @@ msgstr "Raccourcis de service"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Service State"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/monitoring/status/Services/service.php
@@ -14751,7 +14751,7 @@ msgstr "Groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
-msgstr "Etat du groupe de services"
+msgstr "État du groupe de services"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -14803,12 +14803,12 @@ msgstr "Ce nom de sévérité de services existe déjà"
 
 #: centreon/www/include/reporting/dashboard/viewServicesLog.php
 msgid "Service state"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/class/centreonGraphPoller.class.php
 msgid "Service status"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Service template"
