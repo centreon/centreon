@@ -67,8 +67,12 @@ const reactRoutes = [
     comp: lazy(() => import('../AgentConfiguration/Page')),
     path: routeMap.agentConfigurations
   },
+  // {
+  //   comp: lazy(() => import('../Configuration/HostGroups')),
+  //   path: routeMap.hostGroups
+  // },
   {
-    comp: lazy(() => import('../Configuration/HostGroups')),
+    comp: lazy(() => import('../Configuration/AdditionnalConnectors')),
     path: routeMap.hostGroups
   }
 ];
