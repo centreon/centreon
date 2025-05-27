@@ -122,7 +122,7 @@ Then(
 
     cy.url().should('include', '/monitoring/resources');
 
-    cy.logout();
+    cy.logoutViaAPI();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
