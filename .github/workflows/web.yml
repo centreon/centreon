@@ -117,7 +117,7 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
           echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
           gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
         shell: bash
