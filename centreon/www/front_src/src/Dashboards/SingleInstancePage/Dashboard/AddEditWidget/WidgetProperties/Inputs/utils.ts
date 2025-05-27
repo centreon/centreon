@@ -180,7 +180,7 @@ const getYupValidatorType = ({
     ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
-      always(boundariesValidationSchema)
+      always(boundariesValidationSchema) // a regarder apres
     ]
   ])(properties.type);
 

@@ -22,7 +22,7 @@ const Widget = ({
 
   return (
     <FederatedComponent
-      path="/bi/widgets/hostgroupAvailabilityHistory"
+      path="/bi/widget/hgavailabilityhistory"
       panelData={panelData}
       panelOptions={panelOptions}
       globalRefreshInterval={globalRefreshInterval}
