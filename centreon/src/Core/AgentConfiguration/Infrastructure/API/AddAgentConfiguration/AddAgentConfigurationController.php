@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,6 +71,7 @@ final class AddAgentConfigurationController extends AbstractController
          * @var array{
          *     name:string,
          *     type:string,
+         *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
          * } $data
@@ -87,6 +89,12 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest = new AddAgentConfigurationRequest();
         $addRequest->type = $data['type'];
         $addRequest->name = $data['name'];
+        $addRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $addRequest->pollerIds = $data['poller_ids'];
         $addRequest->configuration = $data['configuration'];
 

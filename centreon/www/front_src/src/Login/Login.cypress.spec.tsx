@@ -358,8 +358,6 @@ describe('Login Page', () => {
     cy.findByLabelText(labelHideThePassword).click();
 
     cy.findByLabelText(labelPassword).should('have.attr', 'type', 'password');
-
-    cy.makeSnapshot();
   });
 
   it('redirects to the reset page when the submitted password is expired', () => {

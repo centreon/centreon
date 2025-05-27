@@ -35,12 +35,7 @@ beforeEach(function (): void {
                 'id' => 1,
                 'name' => 'host-name',
                 'alias' => 'host-alias',
-                'notes' => '',
-                'notesUrl' => '',
-                'actionUrl' => '',
                 'iconId' => 2,
-                'iconMapId' => null,
-                'rrdRetention' => null,
                 'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
                 'comment' => '',
                 'isActivated' => true,
@@ -76,9 +71,6 @@ foreach (
     [
         'name',
         'alias',
-        'notes',
-        'notesUrl',
-        'actionUrl',
         'comment',
     ] as $field
 ) {
@@ -99,9 +91,6 @@ foreach (
     [
         'name' => HostGroup::MAX_NAME_LENGTH,
         'alias' => HostGroup::MAX_ALIAS_LENGTH,
-        'notes' => HostGroup::MAX_NOTES_LENGTH,
-        'notesUrl' => HostGroup::MAX_NOTES_URL_LENGTH,
-        'actionUrl' => HostGroup::MAX_ACTION_URL_LENGTH,
         // We have skipped the comment max size test because it costs ~1 second
         // to run it, so more than 10 times the time of all the other tests.
         // At this moment, I didn't find any explanation, and considering
@@ -119,9 +108,7 @@ foreach (
     );
 }
 
-// FK fields : int = 0 forbidden
-
-foreach (['iconId', 'iconMapId'] as $field) {
+foreach (['iconId'] as $field) {
     it(
         "should throw an exception when host group {$field} is an empty integer",
         fn() => ($this->createHostGroup)([$field => 0])
@@ -131,9 +118,7 @@ foreach (['iconId', 'iconMapId'] as $field) {
     );
 }
 
-// FK fields : int < 0 forbidden
-
-foreach (['iconId', 'iconMapId'] as $field) {
+foreach (['iconId'] as $field) {
     it(
         "should throw an exception when host group {$field} is a negative integer",
         fn() => ($this->createHostGroup)([$field => -1])

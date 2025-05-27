@@ -164,4 +164,16 @@ class MonitoringServerService implements MonitoringServerServiceInterface
             throw new MonitoringServerException('Error when deleting a monitoring server', 0, $ex);
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findRemoteServersIps(): array
+    {
+        try {
+            return $this->monitoringServerRepository->findRemoteServersIps();
+        } catch (\Exception $ex) {
+            throw new MonitoringServerException('Error when searching for remote servers IPs', 0, $ex);
+        }
+    }
 }

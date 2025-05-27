@@ -29,7 +29,7 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateRows: 'auto',
     overflow: 'hidden',
-    padding: theme.spacing(1.5, 3, 1.5)
+    padding: theme.spacing(0, 3, 1.5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {

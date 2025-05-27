@@ -21,6 +21,7 @@ interface UseComputeBaseChartDimensionsState {
   graphHeight: number;
   graphWidth: number;
   legendRef: MutableRefObject<HTMLDivElement | null>;
+  titleRef: MutableRefObject<HTMLDivElement | null>;
 }
 
 export const useComputeBaseChartDimensions = ({
@@ -33,6 +34,7 @@ export const useComputeBaseChartDimensions = ({
   maxAxisCharacters
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const legendRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLDivElement | null>(null);
 
   const currentLegendHeight =
     legendHeight ?? (legendRef.current?.getBoundingClientRect().height || 0);
@@ -57,12 +59,17 @@ export const useComputeBaseChartDimensions = ({
       : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) - margin.top - 5 - legendBoundingHeight
+      ? (height || 0) -
+        margin.top -
+        legendBoundingHeight -
+        (titleRef.current?.getBoundingClientRect().height || 0) -
+        5
       : 0;
 
   return {
     graphHeight,
     graphWidth,
-    legendRef
+    legendRef,
+    titleRef
   };
 };

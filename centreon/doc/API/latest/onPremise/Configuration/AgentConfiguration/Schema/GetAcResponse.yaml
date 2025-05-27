@@ -14,7 +14,18 @@ properties:
 
       Supported types:
         * telegraf
+        * centreon-agent
     example: telegraf
+  connection_mode:
+    type: string
+    description: |
+      Connection mode for the configuration
+
+      Supported modes:
+        * secure
+        * no-tls
+        * insecure
+    example: no-tls
   pollers:
     type: array
     description: "List of pollers that are attached to this object"

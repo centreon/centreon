@@ -80,11 +80,13 @@ const Radio = ({
                   data-testid={`${dataTestId} ${optionLabel}`}
                   disabled={disabled}
                   id={getNormalizedId(`${dataTestId}${optionLabel}`)}
-                  inputProps={{
-                    'aria-label':
-                      (equals(type(optionLabel), 'String') &&
-                        t(optionLabel as string)) ||
-                      ''
+                  slotProps={{
+                    input: {
+                      'aria-label':
+                        (equals(type(optionLabel), 'String') &&
+                          t(optionLabel as string)) ||
+                        ''
+                    }
                   }}
                 />
               }

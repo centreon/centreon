@@ -22,3 +22,8 @@ export const labelLogoutUrl = 'Logout URL';
 export const labelCentreonUIOnly = 'Centreon UI only';
 export const labelBothIdentityProviderAndCentreonUI =
   'Both identity provider and Centreon UI';
+export const labelRequestedAuthnContext = 'Requested authentication context';
+export const labelMinimum = 'Minimum';
+export const labelExact = 'Exact';
+export const labelBetter = 'Better';
+export const labelMaximum = 'Maximum';

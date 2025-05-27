@@ -22,6 +22,7 @@ interface Props extends Pick<GaugeProps, 'thresholds' | 'baseColor'> {
   height: number;
   metric: Metric;
   width: number;
+  max?: number;
 }
 
 const ResponsiveGauge = ({
@@ -30,7 +31,8 @@ const ResponsiveGauge = ({
   thresholds,
   metric,
   displayAsRaw,
-  baseColor
+  baseColor,
+  max
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
   const svgRef = useRef<SVGSVGElement>(null);
@@ -53,11 +55,13 @@ const ResponsiveGauge = ({
         pluck('value', thresholds.critical)
       ])
     : [0];
-  const adaptedMaxValue = Math.max(
-    metric.maximum_value || 0,
-    Math.max(...thresholdValues) * 1.1,
-    head(metric.data) as number
-  );
+  const adaptedMaxValue =
+    max ||
+    Math.max(
+      metric.maximum_value || 0,
+      Math.max(...thresholdValues) * 1.1,
+      head(metric.data) as number
+    );
 
   const pieColor = getColorFromDataAndTresholds({
     baseColor,

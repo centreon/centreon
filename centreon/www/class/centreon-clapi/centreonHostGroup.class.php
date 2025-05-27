@@ -267,7 +267,7 @@ class CentreonHostGroup extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $authorizeParam = ['alias', 'comment', 'name', 'activate', 'notes', 'notes_url', 'action_url', 'icon_image', 'map_icon_image', 'geo_coords'];
+        $authorizeParam = ['alias', 'comment', 'name', 'activate', 'icon_image', 'geo_coords'];
         $unknownParam = [];
 
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {

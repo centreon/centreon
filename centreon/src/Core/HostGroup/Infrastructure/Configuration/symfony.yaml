@@ -27,3 +27,16 @@ services:
       - '@Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface'
       - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
       - '@Centreon\Infrastructure\DatabaseConnection'
+
+  Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups:
+    arguments:
+      $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+
+  Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroup:
+    arguments:
+      $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+  Core\HostGroup\Infrastructure\Serializer\HostGroupNormalizer:
+    arguments:
+      $mediaPath: '%media_path%'

@@ -38,6 +38,8 @@ class CfgNagios
      */
     public static function getConfiguration(string $name, int $serverID): array
     {
+        $configName = strtolower(str_replace(' ', '-', $name));
+
         return [
             'nagios_name' => $name,
             'use_timezone' => null,
@@ -124,6 +126,7 @@ class CfgNagios
             'cfg_file' => 'centengine.cfg',
             'log_pid' => '1',
             'logger_version' => 'log_v2_enabled',
+            'broker_module_cfg_file' => "/etc/centreon-broker/{$configName}-module.json",
         ];
     }
 }

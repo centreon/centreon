@@ -24,10 +24,38 @@ declare(strict_types=1);
 namespace Core\Application\Common\UseCase;
 
 /**
- * This is standard Error Response which accepts
- * - a string which will be translated
- * - a Throwable from which we will get the message.
+ * Class
+ *
+ * @class ErrorResponse
+ * @package Core\Application\Common\UseCase
+ *
+ * @description This is a standard error response that has three properties to manage errors in the use cases:
+ * - message : accepts either a string to be translated, or a Throwable object from which to obtain the message
+ * - context : is an array to contain information of the use case
+ * - exception : is a \Throwable object to throw the use case exceptions in the presenter
  */
 class ErrorResponse extends AbstractResponse
 {
+    /**
+     * ErrorResponse constructor
+     *
+     * @param string|\Throwable $message Only to have a message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null $exception
+     */
+    public function __construct(
+        string|\Throwable $message,
+        array $context = [],
+        private readonly ?\Throwable $exception = null
+    ) {
+        parent::__construct($message, $context);
+    }
+
+    /**
+     * @return \Throwable|null
+     */
+    public function getException(): ?\Throwable
+    {
+        return $this->exception;
+    }
 }

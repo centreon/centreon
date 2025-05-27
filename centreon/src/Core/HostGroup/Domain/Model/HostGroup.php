@@ -37,12 +37,7 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
      * @param int $id
      * @param string $name
      * @param string $alias
-     * @param string $notes
-     * @param string $notesUrl
-     * @param string $actionUrl
-     * @param int|null $iconId FK
-     * @param int|null $iconMapId FK
-     * @param int|null $rrdRetention Days
+     * @param int|null $iconId
      * @param GeoCoords|null $geoCoords
      * @param string $comment
      * @param bool $isActivated
@@ -52,16 +47,11 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
     public function __construct(
         int $id,
         string $name,
-        string $alias,
-        string $notes,
-        string $notesUrl,
-        string $actionUrl,
-        ?int $iconId,
-        ?int $iconMapId,
-        ?int $rrdRetention,
-        null|GeoCoords $geoCoords,
-        string $comment,
-        bool $isActivated,
+        string $alias = '',
+        ?int $iconId = null,
+        null|GeoCoords $geoCoords = null,
+        string $comment = '',
+        bool $isActivated = true,
     ) {
         Assertion::positiveInt($id, 'HostGroup::id');
         $this->id = $id;
@@ -69,12 +59,7 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
         parent::__construct(
             $name,
             $alias,
-            $notes,
-            $notesUrl,
-            $actionUrl,
             $iconId,
-            $iconMapId,
-            $rrdRetention,
             $geoCoords,
             $comment,
             $isActivated,

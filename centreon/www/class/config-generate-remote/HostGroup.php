@@ -42,26 +42,16 @@ class HostGroup extends AbstractObject
         hg_id,
         hg_name,
         hg_alias,
-        hg_notes,
-        hg_notes_url,
-        hg_action_url,
         hg_icon_image,
-        hg_map_icon_image,
         geo_coords,
-        hg_rrd_retention
     ';
     /** @var string[] */
     protected $attributesWrite = [
         'hg_id',
         'hg_name',
         'hg_alias',
-        'hg_notes',
-        'hg_notes_url',
-        'hg_action_url',
         'hg_icon_image',
-        'hg_map_icon_image',
         'geo_coords',
-        'hg_rrd_retention'
     ];
     /** @var null */
     protected $stmtHg = null;

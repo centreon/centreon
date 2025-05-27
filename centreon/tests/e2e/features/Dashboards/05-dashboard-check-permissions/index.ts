@@ -69,8 +69,8 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit('/centreon/home/dashboards');
-  cy.logout();
+  cy.visitDashboards();
+  cy.logoutViaAPI();
 });
 
 Given('an admin user is logged in on a platform with dashboards', () => {
