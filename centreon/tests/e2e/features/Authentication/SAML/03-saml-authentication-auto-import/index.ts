@@ -129,8 +129,7 @@ Then(
       url: '/centreon/api/latest/authentication/logout'
     }).as('logout');
 
-    cy.contains(/^Logout$/).click();
-
+    cy.getByTestId({testId: 'LogoutIcon' }).click();
     cy.waitUntil(() =>
       cy.wait('@logout').then((interception) => {
         return interception?.response?.statusCode === 302;
