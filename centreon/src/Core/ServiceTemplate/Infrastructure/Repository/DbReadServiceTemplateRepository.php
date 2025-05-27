@@ -358,7 +358,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
-        if (!empty($subRequest)) {
+        if (! empty($subRequest)) {
             $sqlConcatenator->appendWhere('scr.sc_id IN ('.$subRequest.')');
         }
         $sqlConcatenator->appendWhere("service_register = '0'");
@@ -672,7 +672,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     private function findServiceTemplatesRequest(array $accessGroupIds = []): string
     {
-        return <<<SQL
+        return <<<'SQL'
             SELECT service_id,
                    service.cg_additive_inheritance,
                    service.contact_additive_inheritance,
