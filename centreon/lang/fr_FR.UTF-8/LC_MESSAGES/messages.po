@@ -7906,7 +7906,7 @@ msgstr "Hard"
 
 #: centreon/www/include/eventLogs/viewLog.php
 msgid "Hard Only"
-msgstr "État validés (Hard) seulement"
+msgstr "États validés (Hard) seulement"
 
 #: centreon/www/include/monitoring/status/Services/serviceJS.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
