@@ -56,7 +56,7 @@ foreach ($parameters as $name => $value) {
     }
 }
 
-if ($err['required'] === [] && $err['required'] === [] && $err['file_not_found'] === []) {
+if ($err['required'] === [] && $err['directory_not_found'] === [] && $err['file_not_found'] === []) {
     $step->setEngineConfiguration($parameters);
 }
 
