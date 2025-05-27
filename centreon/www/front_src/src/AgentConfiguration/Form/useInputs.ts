@@ -15,7 +15,6 @@ import {
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
   labelHostConfigurations,
-  labelInsecure,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -44,10 +43,6 @@ export const agentTypes: Array<SelectEntry> = [
 
 export const connectionModes: Array<SelectEntry> = [
   { id: ConnectionMode.secure, name: labelTLS },
-  {
-    id: ConnectionMode.insecure,
-    name: labelInsecure
-  },
   { id: ConnectionMode.noTLS, name: labelNoTLS }
 ];
 
@@ -185,6 +180,9 @@ export const useInputs = (): {
                     label: t(labelPollers),
                     connectedAutocomplete: {
                       additionalConditionParameters: [],
+                      customQueryParameters: [
+                        { name: 'exclude_central', value: true }
+                      ],
                       endpoint: pollersEndpoint,
                       filterKey: 'name',
                       chipColor: 'primary'
