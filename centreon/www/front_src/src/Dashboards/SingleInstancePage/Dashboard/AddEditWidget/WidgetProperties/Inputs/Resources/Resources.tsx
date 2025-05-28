@@ -27,7 +27,7 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
-import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
+import { WidgetDataResource, WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
@@ -77,8 +77,7 @@ const Resources = ({
     restrictedResourceTypes,
     useAdditionalResources,
     forcedResourceType,
-    defaultResourceTypes,
-    singleResourceType
+    defaultResourceTypes
   });
 
   const { canEditField } = useCanEditProperties();
@@ -92,21 +91,21 @@ const Resources = ({
   const isAddButtonDisabled =
     !areResourcesFullfilled(value) || isLastResourceInTree;
 
-  const getResourceTypeSelectedOptionId = (resourceType) =>
+  const getResourceTypeSelectedOptionId = (resourceType: WidgetResourceType) =>
     equals(resourceType, 'hostgroup')
       ? WidgetResourceType.hostGroup
       : resourceType;
 
-  const getDefaultDisabledSelectType = (resourceType) =>
+  const getDefaultDisabledSelectType = (resourceType: WidgetResourceType) =>
     equals(selectType?.defaultResourceType, resourceType) &&
     selectType?.disabled;
     
-  const getOverrideAddButtonVisibility = (value) =>
-    value.find((resource) =>
+  const getOverrideAddButtonVisibility = (value:Array<WidgetDataResource>) =>
+    Boolean(value.find((resource) =>
       equals(
         overrideAddButtonVisibility?.matchedResourcesType,
         resource.resourceType
-      )
+      ))
     );
 
   return (
