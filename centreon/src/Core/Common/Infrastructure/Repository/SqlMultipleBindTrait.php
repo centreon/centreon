@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ trait SqlMultipleBindTrait
     }
 
     /**
-     * Create multiple bind parameters compatible with QueryParameterTypeEnum
+     * Create multiple bind parameters compatible with QueryParameterTypeEnum.
      *
      * @param array<int|string, int|string|null> $values Scalar values to bind
      * @param string $prefix Placeholder prefix (no colon)
