@@ -51,7 +51,6 @@ import {
   WidgetWarning
 } from './Inputs';
 import { handleHiddenConditions } from './handleHiddenConditions';
-import WidgetSnack from './Inputs/SnackBar';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -86,8 +85,7 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
   [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
   [FederatedWidgetOptionType.warning]: WidgetWarning,
-  [FederatedWidgetOptionType.boundaries]: WidgetBoundaries,
-  [FederatedWidgetOptionType.snackBar]: WidgetSnack,
+  [FederatedWidgetOptionType.boundaries]: WidgetBoundaries
 
 };
 

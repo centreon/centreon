@@ -116,38 +116,18 @@
         "defaultResourceType":"host-group",
         "disabled":true
       },
-      "customError": {
-        "customTarget":{ "target": "options", "property":"resourceTypes"},
-        "matches": ["host-category","host"],
-        "inputTypeCondition" : {"singleResourceSelection":true , "input":"resources"},
-        "message": "Error",
-        "selectedType":"host-group"
+      "forceSingleAutocompleteConditions": {
+        "resourceType": "host-group",
+        "conditions": [
+          {
+            "target": "options",
+             "when": "options.resourceTypes",
+            "method": "includes",
+            "matches": ["host","host-category"]
+          }
+        ]
       },
       "subInputs": [
-          {
-          "name": "warningtext",
-          "displayValue": "host",
-          "customPropertyMatch": {
-            "customTarget":{"target":"options", "property":"resourceTypes"},
-            "inputTypeCondition" : {"singleResourceSelection":true , "input":"resources"}
-          },
-          "input": {
-            "type": "snackBar",
-            "label": "In order to display the graph with the host type, you must select only one resource group."
-          }
-        },
-        {
-          "name": "warningtext",
-          "displayValue": "host-category",
-          "customPropertyMatch": {
-            "customTarget":{"target":"options", "property":"resourceTypes"},
-            "inputTypeCondition" : {"singleResourceSelection":true , "input":"resources"}
-          },
-          "input": {
-            "type": "snackBar",
-            "label": "In order to display the graph with the resource-category type, you must select only one resource group."
-          }
-        },
         {
           "name": "warningtext",
           "displayValue": "host-group",

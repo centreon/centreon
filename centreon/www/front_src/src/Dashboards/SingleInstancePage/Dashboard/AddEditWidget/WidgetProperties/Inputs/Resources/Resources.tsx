@@ -44,7 +44,6 @@ const Resources = ({
   defaultResourceTypes,
   selectType,
   overrideAddButtonVisibility,
-  customError,
   forceSingleAutocompleteConditions
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
@@ -70,7 +69,6 @@ const Resources = ({
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
     hideResourceDeleteButton,
-    getErrorInput,
     checkForceSingleAutocomplete
   } = useResources({
     excludedResourceTypes,
@@ -80,7 +78,6 @@ const Resources = ({
     useAdditionalResources,
     forcedResourceType,
     defaultResourceTypes,
-    customError,
     singleResourceType
   });
 
@@ -100,8 +97,6 @@ const Resources = ({
   const getDefaultDisabledSelectType = (resourceType)=>equals(selectType?.defaultResourceType, resourceType) && selectType?.disabled;
   const getOverrideAddButtonVisibility=(value)=>value.find((resource)=>equals(overrideAddButtonVisibility?.matchedResourcesType,resource.resourceType))
   
- 
-
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
@@ -157,7 +152,6 @@ const Resources = ({
                 />
                 {singleResourceSelection || forceSingleAutocomplete ? (
                   <SingleConnectedAutocompleteField
-                    error={getErrorInput(resource.resourceType)}
                     exclusionOptionProperty="name"
                     changeIdValue={changeIdValue(resource.resourceType)}
                     className={classes.resources}
@@ -185,7 +179,6 @@ const Resources = ({
                   />
                 ) : (
                   <MultiConnectedAutocompleteField
-                  error={getErrorInput(resource.resourceType)}
                     exclusionOptionProperty="name"
                     changeIdValue={changeIdValue(resource.resourceType)}
                     chipProps={{

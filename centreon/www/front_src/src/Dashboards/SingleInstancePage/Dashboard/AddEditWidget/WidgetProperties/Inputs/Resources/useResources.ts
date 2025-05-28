@@ -205,9 +205,7 @@ const useResources = ({
   useAdditionalResources,
   excludedResourceTypes,
   forcedResourceType,
-  defaultResourceTypes,
-  customError,
-  singleResourceType
+  defaultResourceTypes
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -656,32 +654,6 @@ const useResources = ({
   );
 
 
-    const getErrorInput = (resourceType)=>{
-  
-      if(!customError){
-        return null
-      }
-  
-      const {customTarget,matches, inputTypeCondition, message, selectedType} = customError
-      const {singleResourceSelection, input} = inputTypeCondition || {}
-      const target = customTarget ? getProperty({propertyName:customTarget.property,obj: values}):value; 
-
-      if((!matches.includes(target) && matches) || !equals(selectedType, resourceType)){
-        return null
-       }
-  
-      if(!equals(singleResourceType,singleResourceSelection) && singleResourceSelection) {
-          const [data] = Array.isArray(value)?pluck(input, value):[];
-
-           return data?.length>1?message:null 
-      }
-      
-      return null
-    }
-
-
-    
-
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -796,7 +768,6 @@ const useResources = ({
     value: value || [],
     isValidatingResources,
     hideResourceDeleteButton,
-    getErrorInput,
     checkForceSingleAutocomplete
   };
 };
