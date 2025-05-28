@@ -42,7 +42,7 @@ const labelError = 'This is an error from the server';
 const retrievedWeb = {
   modules: {},
   web: {
-    version: '21.10.1'
+    version: '23.10.1'
   }
 };
 
@@ -57,9 +57,9 @@ const retrievedWebWithItEditionInstalled = {
   },
   web: {
     fix: '1',
-    major: '21',
+    major: '23',
     minor: '10',
-    version: '21.10.1'
+    version: '23.10.1'
   }
 };
 
@@ -247,7 +247,7 @@ describe('Login Page', () => {
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');
     cy.contains(labelPoweredByCentreon).should('be.visible');
-    cy.contains('v. 21.10.1').should('be.visible');
+    cy.contains('v. 23.10.1').should('be.visible');
 
     cy.findByTestId('Login with openid').should(
       'have.attr',
@@ -267,7 +267,7 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal('{"login":"admin","password":"centreon"}');
+      expect(request.body).deep.equal({ login: 'admin', password: 'centreon' });
     });
 
     cy.waitForRequest('@getUser');
@@ -294,9 +294,10 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal(
-        '{"login":"invalid_alias","password":"invalid_password"}'
-      );
+      expect(request.body).deep.equal({
+        login: 'invalid_alias',
+        password: 'invalid_password'
+      });
     });
 
     cy.contains(labelInvalidCredentials)
@@ -427,7 +428,6 @@ describe('Login Page', () => {
 
 describe('Default custom login page', () => {
   beforeEach(() => {
-    setupBeforeEach();
     store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
@@ -437,6 +437,7 @@ describe('Default custom login page', () => {
         response: fixture
       })
     );
+    setupBeforeEach();
   });
 
   it('displays the login page with default custom login data when the IT edition extensions module is installed', () => {
@@ -450,7 +451,7 @@ describe('Default custom login page', () => {
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');
     cy.contains(labelPoweredByCentreon).should('be.visible');
-    cy.contains('v. 21.10.1').should('be.visible');
+    cy.contains('v. 23.10.1').should('be.visible');
     cy.findByLabelText(`${labelLoginWith} openid`).should(
       'have.attr',
       'href',
@@ -467,8 +468,10 @@ describe('Default custom login page', () => {
 
 describe('Custom login page with data', () => {
   beforeEach(() => {
-    setupBeforeEach();
     store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
+
+    setupBeforeEach();
+
     cy.fixture('login/loginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
         alias: 'getLoginCustomization',
@@ -477,13 +480,13 @@ describe('Custom login page with data', () => {
         response: fixture
       })
     );
+
+    mountComponentAndStubs();
   });
 
   it('displays the login page when it is customized', () => {
-    mountComponentAndStubs();
-
-    cy.waitForRequest('@getLoginCustomization');
     cy.waitForRequest('@getProvidersConfiguration');
+    cy.waitForRequest('@getLoginCustomization');
 
     cy.findByTestId(labelCentreonLogo).should('be.visible');
     cy.findByTestId(labelCentreonWallpaper).should('be.visible');
@@ -491,7 +494,7 @@ describe('Custom login page with data', () => {
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');
     cy.contains(labelPoweredByCentreon).should('be.visible');
-    cy.contains('v. 21.10.1').should('be.visible');
+    cy.contains('v. 23.10.1').should('be.visible');
     cy.findByLabelText(`${labelLoginWith} openid`).should(
       'have.attr',
       'href',
@@ -512,11 +515,11 @@ describe('Custom login page with data', () => {
 describe('Login page without module it edition extensions installed', () => {
   beforeEach(() => {
     setupBeforeEach();
+    mountComponentAndStubs();
   });
 
   it('displays the login page when the IT edition extensions module is not installed', () => {
-    mountComponentAndStubs();
-
+    cy.waitForRequest('@getTranslations');
     cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
@@ -525,7 +528,7 @@ describe('Login page without module it edition extensions installed', () => {
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');
     cy.contains(labelPoweredByCentreon).should('be.visible');
-    cy.contains('v. 21.10.1').should('be.visible');
+    cy.contains('v. 23.10.1').should('be.visible');
     cy.findByLabelText(`${labelLoginWith} openid`).should(
       'have.attr',
       'href',

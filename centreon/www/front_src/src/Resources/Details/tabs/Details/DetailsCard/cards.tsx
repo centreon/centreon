@@ -25,6 +25,7 @@ import {
   labelLatency,
   labelMonitoringServer,
   labelNextCheck,
+  labelParentAlias,
   labelPerformanceData,
   labelSeverity,
   labelStatusChangePercentage,
@@ -201,8 +202,8 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={details.parent?.uuid} />,
-      shouldBeDisplayed: !isNil(details.calculation_type),
-      title: labelCalculationType
+      shouldBeDisplayed: !isNil(details.parent?.uuid),
+      title: labelParentAlias
     },
     {
       isCustomCard: true,

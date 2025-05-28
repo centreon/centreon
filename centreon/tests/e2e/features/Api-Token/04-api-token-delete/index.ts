@@ -3,7 +3,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { Contact, Token, durationMap } from '../common';
 import tokens from '../../../fixtures/api-token/tokens.json';
 
-const tokenToDelete = tokens.Token_1.name;
+const tokenToDelete = tokens.Token_2.name;
 
 beforeEach(() => {
   cy.startContainers();
@@ -37,19 +37,21 @@ Given('I am logged in as an administrator', () => {
   });
 });
 
-Given('API tokens with predefined details are created', () => {
+Given('Authentication tokens with predefined details are created', () => {
   cy.fixture('api-token/tokens.json').then((tokens: Record<string, Token>) => {
     Object.values(tokens).forEach((token) => {
       const today = new Date();
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      const expirationDateISOString = expirationDate.toISOString();
+      // Get the ISO string without milliseconds
+      const expirationDateISOString = expirationDate.toISOString().split('.')[0] + "Z";
 
       const payload = {
         expiration_date: expirationDateISOString,
         name: token.name,
-        user_id: token.userId
+        user_id: token.userId,
+        type: token.type
       };
       cy.request({
         body: payload,
@@ -65,11 +67,11 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 
-When('I locate the API token to delete', () => {
+When('I locate the Authentication token to delete', () => {
   cy.get('.MuiTableBody-root .MuiTableRow-root')
     .contains(tokenToDelete)
     .parent()
@@ -84,7 +86,7 @@ When('I click on the "delete token" icon for that token', () => {
 });
 
 When('I confirm the deletion in the confirmation dialog', () => {
-  cy.getByTestId({ tag: 'button', testId: 'Confirm' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'confirm' }).click();
 });
 
 Then('the token is deleted successfully', () => {
@@ -95,7 +97,7 @@ Then('the token is deleted successfully', () => {
 });
 
 When('I cancel the deletion in the confirmation dialog', () => {
-  cy.getByTestId({ tag: 'button', testId: 'Cancel' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'cancel' }).click();
 });
 
 Then('the deletion action is cancelled', () => {

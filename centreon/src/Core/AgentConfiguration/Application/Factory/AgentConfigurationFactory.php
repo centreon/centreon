@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -35,6 +36,7 @@ class AgentConfigurationFactory
     /**
      * @param string $name
      * @param Type $type
+     * @param ConnectionModeEnum $connectionMode
      * @param array<string,mixed> $parameters
      *
      * @throws AssertionFailedException
@@ -44,15 +46,16 @@ class AgentConfigurationFactory
     public static function createNewAgentConfiguration(
         string $name,
         Type $type,
+        ConnectionModeEnum $connectionMode,
         array $parameters,
-    ): NewAgentConfiguration
-    {
+    ): NewAgentConfiguration{
         return new NewAgentConfiguration(
             name: $name,
             type: $type,
+            connectionMode: $connectionMode,
             configuration: match ($type) {
-                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
-                Type::CMA => new CmaConfigurationParameters($parameters)
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters, $connectionMode),
+                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
             }
         );
     }
@@ -62,6 +65,7 @@ class AgentConfigurationFactory
      * @param string $name
      * @param Type $type
      * @param array<string,mixed> $parameters
+     * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException
      *
@@ -72,15 +76,16 @@ class AgentConfigurationFactory
         string $name,
         Type $type,
         array $parameters,
-    ): AgentConfiguration
-    {
+        ConnectionModeEnum $connectionMode,
+    ): AgentConfiguration {
         return new AgentConfiguration(
             id: $id,
             name: $name,
             type: $type,
+            connectionMode: $connectionMode,
             configuration: match ($type) {
-                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters),
-                Type::CMA => new CmaConfigurationParameters($parameters)
+                Type::TELEGRAF => new TelegrafConfigurationParameters($parameters, $connectionMode),
+                Type::CMA => new CmaConfigurationParameters($parameters, $connectionMode)
             }
         );
     }

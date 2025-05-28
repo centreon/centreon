@@ -8,3 +8,5 @@ Core\AgentConfiguration\Domain\Model\AgentConfiguration:
       groups: ['AgentConfiguration:Read']
     type:
       groups: ['AgentConfiguration:Read']
+    connection_mode:
+      groups: ['AgentConfiguration:Read']

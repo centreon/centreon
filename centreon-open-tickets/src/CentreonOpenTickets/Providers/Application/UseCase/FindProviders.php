@@ -23,61 +23,50 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Application\UseCase;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use CentreonOpenTickets\Providers\Application\Exception\ProviderException;
 use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryInterface;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 final class FindProviders
 {
     use LoggerTrait;
-    public const ROLE_CONFIGURATION_OPEN_TICKETS = 'ROLE_CONFIGURATION_NOTIFICATIONS_RULES_RW';
 
     /**
-     * @param ContactInterface $contact
      * @param RequestParametersInterface $requestParameters
      * @param ReadProviderRepositoryInterface $repository
      */
     public function __construct(
-        private ContactInterface $contact,
         private RequestParametersInterface $requestParameters,
         private ReadProviderRepositoryInterface $repository
     ) {
     }
 
     /**
-     * @param FindProvidersPresenterInterface $presenter
+     * @return FindProvidersResponse|ResponseStatusInterface
      */
-    public function __invoke(FindProvidersPresenterInterface $presenter): void
+    public function __invoke(): FindProvidersResponse|ResponseStatusInterface
     {
-        if (! $this->contact->hasTopologyRole(self::ROLE_CONFIGURATION_OPEN_TICKETS)) {
-            $this->error(
-                "User doesn't have sufficient rights to get ticket providers information",
-                [
-                    'user_id' => $this->contact->getId(),
-                ]
-            );
-            $presenter->presentResponse(
-                new ForbiddenResponse(ProviderException::listingNotAllowed()->getMessage())
-            );
-
-            return;
-        }
-
         try {
             $providers = $this->repository->findAll($this->requestParameters);
-            $presenter->presentResponse($this->createResponse($providers));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (\Throwable $exception) {
-            $presenter->presentResponse(new ErrorResponse(ProviderException::errorWhileListingProviders()));
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+
+            return $this->createResponse($providers);
+        } catch (RepositoryException $exception) {
+            $this->error(
+                $exception->getMessage(),
+                [
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
+            );
+
+            return new ErrorResponse(ProviderException::errorWhileListingProviders());
         }
     }
 

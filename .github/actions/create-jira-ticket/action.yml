@@ -68,39 +68,44 @@ runs:
           "DevSecOps")
             ticket_squad_id=10524
             ticket_board_id=184
-            assign_to_current_sprint=true
+            squad_name="DEVSECOPS"
             ;;
           "Collect")
             ticket_squad_id=10255
             ticket_board_id=118
-            assign_to_current_sprint=true
+            squad_name="COLLECT"
             ;;
           "MAP")
             ticket_squad_id=10258
             ticket_board_id=149
-            assign_to_current_sprint=true
+            squad_name="MAP"
             ;;
           "Product Backlog")
-            ticket_squad_id=10623
-            ticket_board_id=211
-            assign_to_current_sprint=false
+            # Every two weeks, these tickets get assigned to either Metropolis or Gotham
+            if [[ $(( $(date -d '+1 week' '+%-V') % 4 )) -ge 2 ]]; then
+              ticket_squad_id=10625
+              ticket_board_id=213
+              squad_name="METROPOLIS"
+            else
+              ticket_squad_id=10882
+              ticket_board_id=225
+              squad_name="GOTHAM"
+            fi
             ;;
           *)
             echo "::error::Cannot find a valid squad for value ${{ inputs.ticket_squad }}."
             exit 1
             ;;
         esac
-        echo "Ticket will be assigned to the ${{ inputs.ticket_squad }} team."
 
-        if [[ $assign_to_current_sprint == true ]]; then
-          response=$(curl --request GET \
-            --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
-            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}")
-          current_sprint=$(echo "$response" | head -c -4 | jq .values[0].name)
-          echo "[DEBUG] current_sprint: $current_sprint"
-        else
-          current_sprint="null"
-        fi
+        echo "Ticket will be assigned to the $squad_name team."
+
+        current_sprint=$(curl --request GET \
+          --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id')
+
+        echo "[DEBUG] current_sprint: $current_sprint"
 
         # General updates on all template files
         sed -i \
@@ -155,8 +160,10 @@ runs:
         fi
       shell: bash
 
-    - name: Update existing Jira ticket
-      if: ${{ env.abort_ticket_creation == 'true' }}
+    - name: Update existing nightly Jira ticket
+      if: |
+        env.abort_ticket_creation == 'true' &&
+        contains(steps.get_context.outputs.parent_epic_key, 'MON-151547')
       run: |
         # Adding failed job labels for already existing ticket
         [ -n "${IFS+set}" ] && saved_IFS=$IFS
@@ -273,9 +280,9 @@ runs:
         )
 
         if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
-          DATA=$(echo "$DATA" | jq '.fields.sprint = "${{ steps.get_context.outputs.current_sprint }}"')
+          DATA=$(echo "$DATA" | jq '.fields.customfield_10007 = ${{ steps.get_context.outputs.current_sprint }}')
         fi
-        echo "[DEBUG] $DATA"
+        echo "[DEBUG] - DATA: $DATA"
 
         response=$(curl \
           --request POST \
@@ -303,9 +310,23 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data '{ "fields": { "priority": { "id": "1" } } }'
+        )
+
+        echo $response
+
+        # Update ticket status so that squad members can see it in their respective sprints
+        for transition_id in 11 21; do
+          response=$(curl \
+            --request POST \
+            --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/$ticket_key/transitions" \
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data "{\"transition\": {\"id\": \"$transition_id\"} }"
           )
 
           echo $response
+        done
 
       shell: bash
       env:
