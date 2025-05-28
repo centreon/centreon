@@ -38,7 +38,7 @@ const Parameters = (): ReactElement => {
       ))}
       <AddParameterGroupButton
         addButtonDisabled={false}
-        onAddItem={addParameterGroup}
+        onAddItem={addParameterGroup(parameters.length)}
       />
     </div>
   );

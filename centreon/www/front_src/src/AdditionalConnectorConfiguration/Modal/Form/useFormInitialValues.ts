@@ -2,7 +2,7 @@ import { equals } from 'ramda';
 
 import { additionalConnectorDecoder } from '../../api/decoders';
 import { getAdditionalConnectorEndpoint } from '../../api/endpoints';
-import { defaultParameters } from '../../utils';
+import { getDefaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration } from '../models';
 
 import { useFetchQuery } from '@centreon/ui';
@@ -14,7 +14,7 @@ interface InitialValuesState {
 const defaultInitialValues = {
   description: null,
   name: '',
-  parameters: { port: 5700, vcenters: [defaultParameters] },
+  parameters: { port: 5700, vcenters: [getDefaultParameters({ index: 0 })] },
   pollers: [],
   type: 1
 };
