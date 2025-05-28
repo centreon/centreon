@@ -21275,3 +21275,15 @@ msgstr ""
 #  msgstr ""
 #~ msgid "Advanced mode"
 #~ msgstr "Erweiterter Modus"
+
+# msgid "Hostgroup availability history"
+msgstr ""
+
+# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
+# msgstr ""

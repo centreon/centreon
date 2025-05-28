@@ -226,8 +226,6 @@ const useResources = ({
     [getDataProperty({ obj: values, propertyName })]
   );
 
-  console.log({ value });
-
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
     [getDataProperty({ obj: touched, propertyName })]

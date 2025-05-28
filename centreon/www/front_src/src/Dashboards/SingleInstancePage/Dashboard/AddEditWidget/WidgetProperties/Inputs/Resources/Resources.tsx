@@ -27,7 +27,11 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
-import { WidgetDataResource, WidgetPropertyProps, WidgetResourceType } from '../../../models';
+import {
+  WidgetDataResource,
+  WidgetPropertyProps,
+  WidgetResourceType
+} from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
@@ -99,13 +103,15 @@ const Resources = ({
   const getDefaultDisabledSelectType = (resourceType: WidgetResourceType) =>
     equals(selectType?.defaultResourceType, resourceType) &&
     selectType?.disabled;
-    
-  const getOverrideAddButtonVisibility = (value:Array<WidgetDataResource>) =>
-    Boolean(value.find((resource) =>
-      equals(
-        overrideAddButtonVisibility?.matchedResourcesType,
-        resource.resourceType
-      ))
+
+  const getOverrideAddButtonVisibility = (value: Array<WidgetDataResource>) =>
+    Boolean(
+      value.find((resource) =>
+        equals(
+          overrideAddButtonVisibility?.matchedResourcesType,
+          resource.resourceType
+        )
+      )
     );
 
   return (

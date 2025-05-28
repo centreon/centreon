@@ -85,7 +85,7 @@ export interface WidgetPropertyProps {
   subInputsDelimiter?: string;
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
   selectType?: SelectType;
-  overrideAddButtonVisibility?: OverrideAddButtonVisibility
+  overrideAddButtonVisibility?: OverrideAddButtonVisibility;
 }
 
 export interface WidgetDataResource {

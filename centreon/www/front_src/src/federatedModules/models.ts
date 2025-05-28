@@ -1,6 +1,9 @@
 import type { SelectEntry } from '@centreon/ui';
 import { ComponentType, LazyExoticComponent } from 'react';
-import { SelectType, WidgetType } from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
+import {
+  SelectType,
+  WidgetType
+} from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -128,7 +131,8 @@ export interface FederatedWidgetProperties {
   };
   customBaseColor?: boolean;
   data: {
-    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type' > & Record<'selectType',SelectType>;
+    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'> &
+      Record<'selectType', SelectType>;
   };
   description: string;
   icon?: string;

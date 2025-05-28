@@ -9,6 +9,7 @@
     "timePeriod": {
       "type": "select",
       "label": "Calculations based on time period",
+      "secondaryLabel": "These time periods are defined in MBI'S ETL options.",
       "defaultValue": "24x7",
       "options": [
         {
@@ -65,8 +66,8 @@
     "resourceTypes": {
       "type": "radio",
       "defaultValue": "host-group",
-      "label": "Display resources with this resource type",
-      "secondaryLabel": "If you want to display the graph with host categories and host, you must select only one hostgroup",
+      "label": "Display with this resource type",
+      "secondaryLabel": "If you want to display the graph with host categories and hosts, you must select only one hostgroup.",
       "options": [
         {
           "id": "host-group",
