@@ -1,5 +1,6 @@
 /* eslint-disable no-alert */
 /* eslint-disable react/prop-types */
+import '../ThemeProvider/tailwindcss.css';
 import { useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';

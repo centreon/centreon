@@ -6,7 +6,7 @@ const excludeNodeModulesExceptCentreonUi =
 module.exports = {
   cache: false,
   excludeNodeModulesExceptCentreonUi,
-  getModuleConfiguration: (enableCoverage) => ({
+  getModuleConfiguration: (enableCoverage, postCssBase = './') => ({
     rules: [
       {
         exclude: [excludeNodeModulesExceptCentreonUi],
@@ -51,8 +51,22 @@ module.exports = {
         type: 'asset/resource'
       },
       {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
+        test: /\.css$/,
+        type: 'css/auto',
+        use: [
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: {
+                  '@tailwindcss/postcss': {
+                    base: postCssBase
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   }),

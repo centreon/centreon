@@ -9,8 +9,6 @@ import { PredefinedRowSelection } from '../../models';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
-import { useStyles } from './SelectActionListingHeaderCell.styles';
-
 export interface SelectActionListingHeaderCellProps {
   onSelectAllClick: (event) => void;
   onSelectRowsWithCondition: (condition) => void;
@@ -26,27 +24,25 @@ const SelectActionListingHeaderCell = ({
   predefinedRowsSelection,
   onSelectRowsWithCondition
 }: SelectActionListingHeaderCellProps): JSX.Element => {
-  const { classes } = useStyles();
-
   const hasRows = not(equals(rowCount, 0));
 
   return (
     <TableCell
-      className={classes.checkboxHeaderCell}
+      className="bg-background-listing-header h-full pt-0 pr-1 pb-0 pl-3 flex flex-row items-center leading=[inherit] justify-start border-b-0"
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
     >
       <Checkbox
         checked={hasRows && selectedRowCount === rowCount}
-        className={classes.checkbox}
+        className="text-white"
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
-        inputProps={{ 'aria-label': 'Select all' }}
+        slotProps={{ input: { 'aria-label': 'Select all' } }}
         onChange={onSelectAllClick}
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
-          className={classes.predefinedRowsMenu}
+          className="text-white"
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
@@ -59,7 +55,7 @@ const SelectActionListingHeaderCell = ({
           )}
         </PopoverMenu>
       ) : (
-        <div className={classes.predefinedRowsMenu} />
+        <div className="text-white" />
       )}
     </TableCell>
   );

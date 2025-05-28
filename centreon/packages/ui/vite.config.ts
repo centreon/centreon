@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react-swc';
 import { defineConfig } from 'vite';
 import istanbul from 'vite-plugin-istanbul';
 import svgr from 'vite-plugin-svgr';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  base: '/',
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
@@ -28,6 +28,7 @@ export default defineConfig({
   },
   esbuild: {},
   plugins: [
+    tailwindcss(),
     svgr({
       svgrOptions: {
         icon: true,
@@ -50,6 +51,5 @@ export default defineConfig({
       include: 'src/*',
       requireEnv: false
     })
-  ],
-  root: '.'
+  ]
 });

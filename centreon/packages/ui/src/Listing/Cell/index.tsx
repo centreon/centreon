@@ -1,7 +1,6 @@
 import { useAtom } from 'jotai';
-import { append, equals, includes, isNil, omit, reject } from 'ramda';
+import { append, equals, includes, isNil, reject } from 'ramda';
 import { CSSObject } from 'tss-react';
-import { makeStyles } from 'tss-react/mui';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -9,7 +8,8 @@ import {
   TableCellBaseProps,
   TableCellProps,
   Theme,
-  alpha
+  alpha,
+  useTheme
 } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
@@ -23,11 +23,6 @@ import { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
-}
-
-interface StylesProps extends Props {
-  isRowHighlighted?: boolean;
-  listingVariant?: ListingVariant;
 }
 
 interface GetRowHighlightStyleProps {
@@ -78,54 +73,6 @@ const getRowTextColor = ({
   }
 };
 
-const useStyles = makeStyles<StylesProps>()(
-  (
-    theme,
-    {
-      isRowHovered,
-      row,
-      rowColorConditions,
-      disableRowCondition,
-      isRowHighlighted,
-      listingVariant
-    }
-  ) => ({
-    caret: {
-      transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.short
-      })
-    },
-    caretLess: {
-      transform: 'rotate3d(0,0,1,0deg)'
-    },
-    caretMore: {
-      transform: 'rotate3d(0,0,1,180deg)'
-    },
-    root: {
-      alignItems: 'center',
-      backgroundColor: getBackgroundColor({
-        disableRowCondition,
-        isRowHovered,
-        row,
-        rowColorConditions,
-        theme
-      }),
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      display: 'flex',
-      'div:nth-of-type(n)': {
-        alignItems: 'center',
-        display: 'flex'
-      },
-      height: '100%',
-      overflow: 'hidden',
-      ...getTextStyleByViewMode({ listingVariant, theme }),
-      p: getRowTextColor({ isRowHighlighted, disableRowCondition, row, theme }),
-      padding: theme.spacing(0, 1),
-      whiteSpace: 'nowrap'
-    }
-  })
-);
-
 interface Props
   extends Pick<
       DataCellProps,
@@ -160,15 +107,22 @@ const Cell = ({
   subItemsRowProperty,
   labelCollapse,
   labelExpand,
+  disableRowCondition,
+  isRowHovered,
+  isRowHighlighted,
+  rowColorConditions,
+  listingVariant,
+  row,
+  style,
   ...props
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles(props);
+  const theme = useTheme();
 
   const [subItemsPivots, setSubItemsPivots] = useAtom(subItemsPivotsAtom);
 
   const { children } = props;
 
-  const rowId = props.row?.id;
+  const rowId = row?.id;
 
   const click = (e): void => {
     e.preventDefault();
@@ -181,39 +135,46 @@ const Cell = ({
 
   const isSubItemsExpanded = isPivotExistInTheList(rowId)(subItemsPivots);
 
-  const hasSubItems = subItemsRowProperty && props.row[subItemsRowProperty];
+  const hasSubItems = subItemsRowProperty && row[subItemsRowProperty];
 
   return (
     <TableCell
+      style={{
+        backgroundColor: getBackgroundColor({
+          disableRowCondition,
+          isRowHovered,
+          row,
+          rowColorConditions,
+          theme
+        }),
+        ...getTextStyleByViewMode({
+          listingVariant,
+          theme
+        }),
+        ...getRowTextColor({
+          isRowHighlighted,
+          disableRowCondition,
+          row,
+          theme
+        }),
+        ...style
+      }}
       classes={{
-        root: cx(classes.root)
+        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
       }}
       component={'div' as unknown as ElementType<TableCellBaseProps>}
-      {...omit(
-        [
-          'isRowHovered',
-          'row',
-          'rowColorConditions',
-          'disableRowCondition',
-          'isRowHighlighted',
-          'listingVariant'
-        ],
-        props
-      )}
+      {...props}
     >
       {displaySubItemsCaret && hasSubItems && (
         <IconButton
           ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-            props.row.id
+            row.id
           }`}
           size="small"
           onClick={click}
         >
           <ExpandMoreIcon
-            className={cx(
-              classes.caret,
-              isSubItemsExpanded ? classes.caretMore : classes.caretLess
-            )}
+            className={`transition-transform ${isSubItemsExpanded ? 'rotate-z-180' : 'rotate-z-0'} transform-gpu`}
             fontSize="small"
           />
         </IconButton>

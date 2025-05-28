@@ -9,8 +9,8 @@ import { Tooltip } from '@centreon/ui/components';
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
 
-import { useLegendStyles } from './Legend.styles';
 import { Resource } from '../../../models';
+import { useLegendStyles } from './Legend.styles';
 
 interface Props {
   data: Array<FormattedResponse>;

@@ -194,7 +194,7 @@ Then(
   () => {
     cy.contains('p', agentsConfiguration.CMA1.name).should('be.visible');
     cy.get('div[role="table"]')
-      .find('div[class*="-tableBody"]')
+      .find('div.MuiTableBody-root')
       .find('div[role="row"]')
       .should('have.length', 1);
   }

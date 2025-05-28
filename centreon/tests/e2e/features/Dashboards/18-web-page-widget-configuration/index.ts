@@ -80,7 +80,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -139,8 +139,8 @@ Given('a dashboard having a configured web page widget', () => {
 
 When('the dashboard administrator user duplicates the web page widget', () => {
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'Duplicate' }).click({ force: true });
 });
 
 Then('a second web page widget is displayed on the dashboard', () => {
@@ -167,11 +167,8 @@ Given('a dashboard featuring two web page widgets', () => {
 
 When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'More actions' }).eq(1).click();
-  cy.getByTestId({ testId: 'DeleteIcon' }).click({ force: true });
-  cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
-  }).realClick();
+  cy.getByTestId({ testId: "Delete widget" }).click();
+	cy.getByTestId({ testId: "confirm" }).click();
 });
 
 Then('only the contents of the other widget are displayed', () => {

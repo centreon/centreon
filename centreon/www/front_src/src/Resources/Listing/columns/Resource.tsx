@@ -36,7 +36,7 @@ const ResourceColumn = ({
 
   if (isViewByHostMode) {
     return (
-      <div>
+      <div className="flex">
         <div className={classes.statusChip}>
           <StatusChip
             content={getStatus(status?.toLowerCase())?.label}

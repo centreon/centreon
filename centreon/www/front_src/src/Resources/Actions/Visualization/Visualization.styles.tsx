@@ -32,8 +32,7 @@ export const useStyles = makeStyles()((theme) => ({
   },
   visualizationContainer: {
     alignItems: 'center',
-    flexWrap: 'nowrap',
-    justifyContent: 'center'
+    flexWrap: 'nowrap'
   },
   small: {
     display: 'flex'

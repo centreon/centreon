@@ -14,7 +14,6 @@ GPL_LIB/SmartyCache/*
 #front development files
 www/static
 www/asset-manifest.json
-www/front_src/src/App.css
 www/service-worker.js
 www/include/core/menu/templates/*.js
 www/include/core/menu/templates/*.tpl

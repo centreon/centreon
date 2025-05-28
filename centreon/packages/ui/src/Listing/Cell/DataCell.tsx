@@ -14,7 +14,6 @@ import {
 } from '../models';
 import useStyleTable from '../useStyleTable';
 
-import { useStyles } from './DataCell.styles';
 import EllipsisTypography from './EllipsisTypography';
 
 import Cell from '.';
@@ -46,7 +45,6 @@ const DataCell = ({
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
   const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
@@ -78,12 +76,13 @@ const DataCell = ({
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
           isRowHovered={isRowHovered}
+          isRowHighlighted={isRowHighlighted}
         />
       );
 
       return (
         <Cell
-          className={classes.cell}
+          className="flex items-center h-full overflow-hidden whitespace-nowrap"
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
@@ -110,7 +109,7 @@ const DataCell = ({
       if (isCellHidden) {
         return (
           <Cell
-            className={classes.cell}
+            className="flex items-center h-full overflow-hidden whitespace-nowrap"
             isRowHighlighted={isRowHighlighted}
             listingVariant={listingVariant}
             onClick={(e): void => {
@@ -127,7 +126,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={cx(classes.cell, clickable && classes.clickable)}
+          className={`flex align-items h-full overflow-hidden whitespace-nowrap ${clickable && 'cursor-default'}`}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
@@ -156,6 +155,7 @@ const DataCell = ({
                   disableRowCondition={disableRowCondition(row)}
                   formattedString={formattedString}
                   isRowHovered={isRowHovered}
+                  isRowHighlighted={isRowHighlighted}
                 />
               );
             }}
@@ -280,4 +280,4 @@ const MemoizedDataCell = memo<Props>(
 );
 
 export default MemoizedDataCell;
-export { useStyles, type Props };
+export type { Props };

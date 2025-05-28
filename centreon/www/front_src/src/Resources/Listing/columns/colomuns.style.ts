@@ -1,10 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-interface StyleProps {
-  isHovered: boolean;
-}
-
-const useColumnStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
+const useColumnStyles = makeStyles()((theme) => ({
   extraSmallChip: {
     height: theme.spacing(1.25),
     lineHeight: theme.spacing(1.25),
@@ -20,9 +16,6 @@ const useColumnStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
     whiteSpace: 'nowrap'
   },
   resourceNameText: {
-    color: isHovered
-      ? theme.palette.text.primary
-      : theme.palette.text.secondary,
     paddingLeft: theme.spacing(0.5)
   },
   statusChip: {

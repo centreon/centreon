@@ -80,7 +80,7 @@ describe('Authentication configuration', () => {
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
     cy.findAllByLabelText(labelOpenIDConnectConfiguration)
-      .eq(1)
+      .eq(0)
       .as('OpenidConnectTab');
 
     cy.get('@OpenidConnectTab').click();
@@ -118,7 +118,7 @@ describe('Authentication configuration', () => {
     cy.findByLabelText(labelAuthenticationConditions).click();
     cy.findByLabelText(labelIdentityProvider).click();
 
-    cy.findAllByLabelText(labelSAMLConfiguration).eq(1).scrollIntoView();
+    cy.findAllByLabelText(labelSAMLConfiguration).eq(0).scrollIntoView();
 
     cy.makeSnapshot();
   });

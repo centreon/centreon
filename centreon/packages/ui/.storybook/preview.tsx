@@ -28,16 +28,29 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import StoryBookThemeProvider from '../src/StoryBookThemeProvider';
 import QueryProvider from '../src/api/QueryProvider';
 import { allModes } from './modes';
+import { useEffect } from 'react';
 
 initialize();
 
-const withThemeProvider: Decorator = (story, context): JSX.Element => (
-  <StoryBookThemeProvider
-    themeMode={useDarkMode() ? ThemeMode.dark : ThemeMode.light}
-  >
-    {story()}
-  </StoryBookThemeProvider>
-);
+const withThemeProvider: Decorator = (story, context): JSX.Element => {
+  const isDarkmode = useDarkMode();
+
+  useEffect(() => {
+    if (isDarkmode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkmode]);
+
+  return (
+    <StoryBookThemeProvider
+      themeMode={isDarkmode ? ThemeMode.dark : ThemeMode.light}
+    >
+      {story()}
+    </StoryBookThemeProvider>
+  );
+};
 
 const withQueryProvider: Decorator = (story, context): JSX.Element => (
   <QueryProvider>

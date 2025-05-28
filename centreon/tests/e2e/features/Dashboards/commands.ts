@@ -76,27 +76,19 @@ Cypress.Commands.add('editWidget', (nameOrPosition) => {
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
-  (accessRightsTestId, expectedElementCount, closeIconIndex) => {
-    const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
+  (accessRightsTestId: string, expectedElementCount: number) => {
+    const openModalAndCheck = (): Cypress.Chainable<boolean> => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
       cy.get('.MuiSelect-select').should('be.visible');
 
-      return cy
-        .get('.MuiSelect-select')
-        .should('be.visible')
-        .then(($element) => {
-          if (closeIconIndex !== undefined) {
-            cy.getByTestId({ testId: 'CloseIcon' }).eq(closeIconIndex).click();
-          } else {
-            cy.getByTestId({ testId: 'CloseIcon' }).click();
-          }
-
-          return cy.wrap($element.length === expectedElementCount);
-        });
+      return cy.get('.MuiSelect-select').should('be.visible').then(($elements) => {
+        cy.getByLabel({ label: 'close', tag: 'button' }).click();
+        return cy.wrap($elements.length === expectedElementCount);
+      });
     };
 
     return cy.waitUntil(() => openModalAndCheck(), {
-      errorMsg: 'The element does not exist',
+      errorMsg: 'The expected number of elements was not found',
       interval: 3000,
       timeout: 30000
     });
@@ -709,9 +701,8 @@ declare global {
       ): Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
-        expectedElementCount: number,
-        closeIconIndex?: number
-      ) => Cypress.Chainable;
+        expectedElementCount: number
+      ) => Cypress.Chainable<boolean>;
       waitUntilPingExists: () => Cypress.Chainable;
     }
   }

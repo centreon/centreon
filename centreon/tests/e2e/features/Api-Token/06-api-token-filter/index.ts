@@ -120,12 +120,12 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
-  cy.getByTestId({ testId: 'TuneIcon' }).click();
+  cy.getByTestId({ testId: 'Filters' }).click();
   if (filterBy === 'Name') {
     cy.getByTestId({ tag: 'input', testId: 'Name' }).type(tokensToSearch.name);
     cy.getByTestId({ testId: 'Search' }).click();
     cy.wait('@getTokens');
-    cy.getByTestId({ testId: 'TuneIcon' }).click();
+    cy.getByTestId({ testId: 'Filters' }).click();
     return;
   }
 
@@ -159,7 +159,7 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
   }
   cy.getByTestId({ testId: 'Search' }).click();
   cy.wait('@getTokens');
-  cy.getByTestId({ testId: 'TuneIcon' }).click();
+  cy.getByTestId({ testId: 'Filters' }).click();
 });
 
 Then(

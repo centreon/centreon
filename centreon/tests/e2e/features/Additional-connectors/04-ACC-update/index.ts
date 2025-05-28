@@ -109,7 +109,7 @@ When('the user updates some information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.getByTestId({ testId: 'CancelIcon' }).click();
+  cy.get('svg[class*="deleteIcon"]').click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
   cy.contains('Poller-1').click();
   cy.get('#Usernamevalue').type('admin');

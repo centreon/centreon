@@ -3,7 +3,6 @@
 import { memo, useEffect, useRef } from 'react';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import { TableRow, TableRowProps, useTheme } from '@mui/material';
 
@@ -13,27 +12,6 @@ import LoadingSkeleton from '../../LoadingSkeleton';
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
 import { performanceRowsLimit } from '../index';
 import { Column, ColumnConfiguration, RowColorCondition } from '../models';
-
-const useStyles = makeStyles()((theme) => {
-  return {
-    intersectionRow: {
-      display: 'contents',
-      width: '100%'
-    },
-    row: {
-      cursor: 'pointer',
-      display: 'contents',
-      width: '100%'
-    },
-    skeleton: {
-      height: theme.spacing(2.5),
-      width: '100%'
-    },
-    skeletonContainer: {
-      padding: theme.spacing(0.5)
-    }
-  };
-});
 
 type Props = {
   checkable: boolean;
@@ -70,22 +48,20 @@ const Row = memo<RowProps>(
     checkable,
     limit
   }: RowProps): JSX.Element => {
-    const { classes } = useStyles();
-
     if (not(isInViewport) && gte(limit, performanceRowsLimit)) {
       return (
-        <div style={{ display: 'contents' }}>
+        <div className="contents">
           {checkable && (
-            <div className={classes.skeletonContainer}>
+            <div className="p-1">
               <div>
-                <LoadingSkeleton className={classes.skeleton} />
+                <LoadingSkeleton className="w-full" />
               </div>
             </div>
           )}
           {visibleColumns.map(({ id }) => (
-            <div className={classes.skeletonContainer} key={`loading_${id}`}>
+            <div className="p-1" key={`loading_${id}`}>
               <div>
-                <LoadingSkeleton className={classes.skeleton} />
+                <LoadingSkeleton className="w-full" />
               </div>
             </div>
           ))}
@@ -95,7 +71,7 @@ const Row = memo<RowProps>(
 
     return (
       <TableRow
-        className={classes.row}
+        className="cursor-pointer contents w-full"
         component="div"
         tabIndex={tabIndex}
         onClick={onClick}
@@ -203,7 +179,6 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
     root: rowRef.current?.parentElement?.parentElement?.parentElement,
     rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`
   });
-  const { classes } = useStyles();
 
   const getFirstCellElement = (): ChildNode | null | undefined =>
     rowRef.current?.firstChild?.firstChild?.firstChild;
@@ -213,11 +188,7 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
   }, [getFirstCellElement()]);
 
   return (
-    <div
-      className={classes.intersectionRow}
-      data-is-hovered={isHovered}
-      ref={rowRef}
-    >
+    <div className="contents w-full" data-is-hovered={isHovered} ref={rowRef}>
       <Row {...rest} isHovered={isHovered} isInViewport={isInViewport} />
     </div>
   );
