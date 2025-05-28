@@ -268,5 +268,21 @@ export default (on: Cypress.PluginEvents): void => {
     fileExists: async ( filePath ) => {
       return fs.existsSync(filePath);
     },
+    getDownloadedFile({ downloadsFolder }) {
+      const files = fs.readdirSync(downloadsFolder);
+      const excelFile = files.find(file => file.endsWith('.csv') || file.endsWith('.xlsx'));
+      if (!excelFile) {
+        throw new Error('Aucun fichier Excel trouvé.');
+      }
+      return path.join(downloadsFolder, excelFile);
+    },
+    readCsvFile({ filePath }) {
+      return new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+          if (err) return reject(err);
+          resolve(data);
+        });
+      });
+    },
   });
 };

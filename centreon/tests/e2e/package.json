@@ -21,6 +21,7 @@
     "cypress-real-events": "^1.13.0",
     "cypress-wait-until": "^3.0.2",
     "path": "^0.12.7",
+    "read-excel-file": "^5.8.8",
     "shell-exec": "^1.1.2",
     "typescript": "^5.5.4"
   },
