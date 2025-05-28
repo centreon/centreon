@@ -32,6 +32,7 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class AddHostGroupController extends AbstractController
@@ -48,7 +49,8 @@ final class AddHostGroupController extends AbstractController
      * @throws AccessDeniedException
      *
      * @return Response
-     */
+	 */
+	#[Route(path: '/configuration/hosts/groups', name: 'hostGroupAttribute', methods: 'POST')]
     public function __invoke(
         Request $request,
         AddHostGroup $useCase,
