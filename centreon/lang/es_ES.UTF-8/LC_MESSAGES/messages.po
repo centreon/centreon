@@ -20,6 +20,7 @@ msgstr ""
 msgid " + Add a new entry"
 msgstr "+ Añadir nueva entrada"
 
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
 msgstr ""
@@ -19619,7 +19620,6 @@ msgstr "Campo obligatorio"
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -28472,33 +28472,48 @@ msgstr "artículo (s) encontrado (s)"
 # msgstr ""
 # msgid "Please contact your administrator for more information."
 # msgstr ""
-# msgid "Base color"
-# msgstr ""
-# msgid "TLS"
-# msgstr ""
-# msgid "No TLS"
-# msgstr ""
-# msgid "Insecure TLS"
-# msgstr ""
-#  msgid "Display view:"
-#  msgstr ""
-#  msgid "View all resources"
-#  msgstr ""
-#  msgid "View by host"
-#  msgstr ""
-#  msgid "View by service"
-#  msgstr ""
+
+# msgid "Encryption level"
+# msgstr "Nivel de encriptación"
+
+# msgid "You have selected No TLS for the encryption level."
+# msgstr "Ustéd ha seleccionado No TLS como su nivel de encriptación"
+
+# msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
+# msgstr "Ustéd ha seleccionado No TLS como su nivel de encriptación. Este parametro está pensado exclusivamente para uso de prueba y no puede ser utilizado en producción. El agente de supervisión se detendrá después de una hora."
+
+# msgid "Business Activity availability history"
+# msgstr "Historique de la disponibilité d’une Activité Métier"
+
+# msgid "Displays availability, performance and alerts for a Business Activity"
+# msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
+
+# msgid "Aggregation frequency"
+# msgstr "Fréquence d'agrégation"
+
+# msgid "Reporting period"
+# msgstr "Période de génération"
+
+# msgid "This month"
+# msgstr "Ce mois-ci"
+
+# msgid "This year"
+# msgstr "Cette année"
+
+# msgid "Display availability as"
+# msgstr "Afficher la disponibilité comme"
+
+# msgid "Y-axis boundaries"
+# msgstr "Limitations de l'axe Y"
+
+# msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
+# msgstr "Les seuils peuvent être masqués si les valeurs min et max personnalisées de l'axe Y sont inférieures/supérieures aux seuils."
+
+# msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+# msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
+
+# msgid "Custom boundaries apply to the percentage."
+# msgstr "Les limitations personnalisées s'appliquent au pourcentage."
+
 #~ msgid "Advanced mode"
 #~ msgstr "Modo avanzado"
-
-# msgid "Hostgroup availability history"
-# msgstr ""
-
-# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
-# msgstr ""
-
-# msgid "Display with this resource type"
-# msgstr ""
-
-# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
-# msgstr ""

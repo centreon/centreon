@@ -20,6 +20,7 @@ msgstr ""
 msgid " + Add a new entry"
 msgstr "+ Adicionar uma nova entrada"
 
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
 msgstr "Campos requeridos"
@@ -16164,7 +16165,6 @@ msgstr "Campo Requerido"
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -24555,17 +24555,41 @@ msgstr "item (s) encontrado (s)"
 # msgstr ""
 # msgid "Insecure TLS"
 # msgstr ""
+# msgid "Maximum"
+# msgstr ""
+
+# msgid "Business Activity availability history"
+# msgstr "Historique de la disponibilité d’une Activité Métier"
+
+# msgid "Displays availability, performance and alerts for a Business Activity"
+# msgstr "Affiche l’historique de la disponibilité d'une activité métier ou vue métier pour une période donnée."
+
+# msgid "Aggregation frequency"
+# msgstr "Fréquence d'agrégation"
+
+# msgid "Reporting period"
+# msgstr "Période de génération"
+
+# msgid "This month"
+# msgstr "Ce mois-ci"
+
+# msgid "This year"
+# msgstr "Cette année"
+
+# msgid "Display availability as"
+# msgstr "Afficher la disponibilité comme"
+
+# msgid "Y-axis boundaries"
+# msgstr "Limitations de l'axe Y"
+
+# msgid "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
+# msgstr "Les seuils peuvent être masqués si les valeurs min et max personnalisées de l'axe Y sont inférieures/supérieures aux seuils."
+
+# msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+# msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
+
+# msgid "Custom boundaries apply to the percentage."
+# msgstr "Les limitations personnalisées s'appliquent au pourcentage."
+
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
-
-# msgid "Hostgroup availability history"
-# msgstr ""
-
-# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
-# msgstr ""
-
-# msgid "Display with this resource type"
-# msgstr ""
-
-# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
-# msgstr ""

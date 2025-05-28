@@ -24,6 +24,7 @@ msgstr ""
 msgid " + Add a new entry"
 msgstr "+ Ajouter une nouvelle entrée"
 
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
 msgstr " Champs requis"
@@ -13509,7 +13510,6 @@ msgstr "Champ requis"
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -22881,16 +22881,3 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
-
-msgid "Hostgroup availability history"
-msgstr "Historique de la disponibilité des groupes d’hôtes"
-
-msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
-msgstr "Affiche l’historique de la disponibilité d’hôtes, catégories d’hôtes ou groupes d’hôtes appartenant à un groupe d’hôtes."
-
-msgid "Display with this resource type"
-msgstr "Afficher les ressources avec ce type"
-
-
-msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
-msgstr "Si vous souhaitez afficher le graphe avec les catégories d'hôtes et les hôtes, vous ne devez sélectionner qu'un seul groupe d'hôtes."
