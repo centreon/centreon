@@ -5152,7 +5152,6 @@ msgstr "Pointillés"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
@@ -6432,6 +6431,11 @@ msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
 "Erreur lors de la récupération des contacts autorisés à recevoir un partage "
 "de tableau de bord"
+
+#: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
+#, fuzzy
+msgid "Error while retrieving host dependencies"
+msgstr "Error lors de la récupération d'une sévérité d'hôtes"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while retrieving host severity"
@@ -11576,7 +11580,6 @@ msgid "Non-workhours"
 msgstr "Hors heures de travail"
 
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -11994,7 +11997,6 @@ msgstr "Ok"
 msgid "Ok services"
 msgstr "services"
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 msgid "Ok/Up"
 msgstr "Ok/Disponible"
@@ -12490,7 +12492,6 @@ msgstr "Pairs"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
@@ -17422,7 +17423,6 @@ msgstr "Liste des utilisateurs"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
@@ -17461,7 +17461,6 @@ msgstr "Jusqu'à"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
