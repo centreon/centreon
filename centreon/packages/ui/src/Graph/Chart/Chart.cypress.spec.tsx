@@ -231,8 +231,6 @@ describe('Line chart', () => {
         'true'
       );
       cy.get('[data-metric="hitratio"]').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('does not display the tooltip when the corresponding prop is set', () => {
@@ -446,7 +444,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 312.508173777963)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 227.55748987831032)"]').should(
         'be.visible'
       );
 
@@ -477,8 +475,6 @@ describe('Line chart', () => {
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the curve in a step style when the prop is set', () => {
@@ -491,8 +487,6 @@ describe('Line chart', () => {
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
       checkLegendInformation();
-
-      cy.makeSnapshot();
     });
 
     it('shows the area when the prop is set', () => {
@@ -528,8 +522,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="4.0625"]').should('be.visible');
-      cy.get('circle[cy="105.21757370835121"]').should('be.visible');
+      cy.get('circle[cx="28.4375"]').should('be.visible');
+      cy.get('circle[cy="231.74401768045848"]').should('be.visible');
 
       cy.makeSnapshot();
     });
