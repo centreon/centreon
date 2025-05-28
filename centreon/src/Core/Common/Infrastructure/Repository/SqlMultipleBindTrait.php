@@ -51,7 +51,7 @@ trait SqlMultipleBindTrait
     }
 
     /**
-     * Create multiple bind parameters compatible with QueryParameterTypeEnum
+     * Create multiple bind parameters compatible with QueryParameterTypeEnum.
      *
      * @param array<int|string, int|string|null> $values Scalar values to bind
      * @param string $prefix Placeholder prefix (no colon)
