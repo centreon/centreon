@@ -7,14 +7,15 @@ export enum AgentType {
 
 export enum ConnectionMode {
   secure = 'secure',
-  noTLS = 'no-tls'
+  noTLS = 'no-tls',
+  insecure = 'insecure'
 }
 
 export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<SelectEntry>;
+  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
 }
 
 export interface TelegrafConfiguration {
@@ -71,13 +72,14 @@ export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
-  connectionMode: string;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationForm
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: SelectEntry | null;
+  connectionMode: { id: ConnectionMode; name: string };
 }
 
 export interface AgentConfigurationAPI

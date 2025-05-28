@@ -1,0 +1,5 @@
+CountResources:
+    methods: GET
+    path: /monitoring/resources/count
+    controller: 'Core\Resources\Infrastructure\API\CountResources\CountResourcesController'
+    condition: "request.attributes.get('version') >= 24.10"

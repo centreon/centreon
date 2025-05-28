@@ -60,3 +60,4 @@ dependencies/**                         @centreon/owners-pipelines
 
 .gitleaks.toml                          @centreon/owners-security
 .gitleaksignore                         @centreon/owners-security
+**/workflows/*-analysis.yml             @centreon/owners-security

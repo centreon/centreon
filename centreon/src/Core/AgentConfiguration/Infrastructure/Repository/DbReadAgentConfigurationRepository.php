@@ -144,7 +144,10 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             <<<'SQL'
                 SELECT
                     rel.`poller_id` as id,
-                    ng.`name`
+                    ng.`name`,
+                    (ng.`localhost` = '1' AND NOT EXISTS (
+                        SELECT 1 FROM `:db`.`remote_servers` rs WHERE rs.server_id = ng.id
+                    )) as is_central
                 FROM `:db`.`ac_poller_relation` rel
                 JOIN `:db`.`nagios_server` ng
                     ON rel.poller_id = ng.id
@@ -158,8 +161,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         // Retrieve data
         $pollers = [];
         foreach ($statement as $result) {
-            /** @var array{id:int,name:string} $result */
-            $pollers[] = new Poller($result['id'], $result['name']);
+            /** @var array{id:int,name:string,is_central:int} $result */
+            $pollers[] = new Poller($result['id'], $result['name'], $result['is_central'] === 1);
         }
 
         return $pollers;
@@ -401,6 +404,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         $connectionMode = match ($row['connection_mode']) {
             'secure' => ConnectionModeEnum::SECURE,
             'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
             default => throw new \InvalidArgumentException('Invalid connection mode'),
         };
 
