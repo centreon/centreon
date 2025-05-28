@@ -1,6 +1,6 @@
 {
   "title": "Hostgroup availability history",
-  "description": "Displays availability, performance and alerts for a Business Activity",
+  "description": "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup.",
   "widgetType": "MBI",
   "canExpand": true,
   "moduleName": "centreon-widget-hostgroupavailabilityhistory",
