@@ -25,7 +25,7 @@
         }
       ]
     },
-  "reportingPeriod": {
+    "reportingPeriod": {
       "type": "select",
       "defaultValue": "0",
       "label": "Reporting period",
@@ -55,34 +55,32 @@
           "name": "Last 12 months"
         }
       ],
-       "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.resourceTypes",
-            "matches": ["host-group", "host-category"]
-          }
+      "hiddenCondition": {
+        "target": "options",
+        "method": "includes",
+        "when": "options.resourceTypes",
+        "matches": ["host-group", "host-category"]
+      }
     },
-    "resourceTypes":{
-      "type":"radio",
+    "resourceTypes": {
+      "type": "radio",
       "defaultValue": "host-group",
       "label": "Display resources with this resource type",
-      "secondaryLabel":"If you want to display the graph with host categories and host, you must select only one hostgroup",
-      "options":[
+      "secondaryLabel": "If you want to display the graph with host categories and host, you must select only one hostgroup",
+      "options": [
         {
-          "id":"host-group",
-          "name":"Host groups"
-
+          "id": "host-group",
+          "name": "Host groups"
         },
         {
-          "id":"host-category",
-          "name":"Host categories"
+          "id": "host-category",
+          "name": "Host categories"
         },
         {
-          "id":"host",
-          "name":"Host"
+          "id": "host",
+          "name": "Host"
         }
       ]
-
     },
     "threshold": {
       "type": "threshold",
@@ -107,23 +105,28 @@
       "type": "resources",
       "defaultValue": [],
       "required": true,
-      "useAdditionalResources": false,      
-      "excludedResourceTypes":["host","service-category","service","service-group"],
-      "overrideAddButtonVisibility":{
-         "matchedResourcesType":"host-category"
-        },
-      "selectType":{
-        "defaultResourceType":"host-group",
-        "disabled":true
+      "useAdditionalResources": false,
+      "excludedResourceTypes": [
+        "host",
+        "service-category",
+        "service",
+        "service-group"
+      ],
+      "overrideAddButtonVisibility": {
+        "matchedResourcesType": "host-category"
+      },
+      "selectType": {
+        "defaultResourceType": "host-group",
+        "disabled": true
       },
       "forceSingleAutocompleteConditions": {
         "resourceType": "host-group",
         "conditions": [
           {
             "target": "options",
-             "when": "options.resourceTypes",
+            "when": "options.resourceTypes",
             "method": "includes",
-            "matches": ["host","host-category"]
+            "matches": ["host", "host-category"]
           }
         ]
       },
@@ -132,7 +135,7 @@
           "name": "warningtext",
           "displayValue": "host-group",
           "customPropertyMatch": {
-            "customTarget":{"target":"options", "property":"resourceTypes"}
+            "customTarget": { "target": "options", "property": "resourceTypes" }
           },
           "input": {
             "type": "warning",
@@ -143,7 +146,7 @@
           "name": "warningtext",
           "displayValue": "host-category",
           "customPropertyMatch": {
-            "customTarget":{"target":"options", "property":"resourceTypes"}
+            "customTarget": { "target": "options", "property": "resourceTypes" }
           },
           "input": {
             "type": "warning",
@@ -154,16 +157,14 @@
           "name": "warningtext",
           "displayValue": "host",
           "customPropertyMatch": {
-           "customTarget":{"target":"options", "property":"resourceTypes"}
+            "customTarget": { "target": "options", "property": "resourceTypes" }
           },
           "input": {
             "type": "warning",
             "label": "Data is aggregated daily for graphs presenting hosts."
           }
         }
-
       ]
-    
     }
   },
   "categories": {
@@ -629,7 +630,7 @@
             }
           ]
         },
-          "tooltipMode": {
+        "tooltipMode": {
           "group": "tooltips",
           "type": "button-group",
           "label": "Display",

@@ -29,7 +29,7 @@ import {
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
-import { areResourcesFullfilled, getProperty } from '../utils';
+import { areResourcesFullfilled } from '../utils';
 
 import useResources from './useResources';
 
@@ -83,20 +83,32 @@ const Resources = ({
 
   const { canEditField } = useCanEditProperties();
 
-
   const deleteButtonHidden =
     !canEditField ||
     (value.length <= 1 && (required || isNil(required))) ||
     equals(value.length, 1);
 
-
   const isAddButtonHidden = !canEditField || singleResourceType;
-  const isAddButtonDisabled = !areResourcesFullfilled(value) || isLastResourceInTree;
-  
-  const getResourceTypeSelectedOptionId=(resourceType)=> equals(resourceType,'hostgroup')? WidgetResourceType.hostGroup:resourceType;
-  const getDefaultDisabledSelectType = (resourceType)=>equals(selectType?.defaultResourceType, resourceType) && selectType?.disabled;
-  const getOverrideAddButtonVisibility=(value)=>value.find((resource)=>equals(overrideAddButtonVisibility?.matchedResourcesType,resource.resourceType))
-  
+  const isAddButtonDisabled =
+    !areResourcesFullfilled(value) || isLastResourceInTree;
+
+  const getResourceTypeSelectedOptionId = (resourceType) =>
+    equals(resourceType, 'hostgroup')
+      ? WidgetResourceType.hostGroup
+      : resourceType;
+
+  const getDefaultDisabledSelectType = (resourceType) =>
+    equals(selectType?.defaultResourceType, resourceType) &&
+    selectType?.disabled;
+    
+  const getOverrideAddButtonVisibility = (value) =>
+    value.find((resource) =>
+      equals(
+        overrideAddButtonVisibility?.matchedResourcesType,
+        resource.resourceType
+      )
+    );
+
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
@@ -113,12 +125,14 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={isAddButtonHidden || getOverrideAddButtonVisibility(value)}
+          addButtonHidden={
+            isAddButtonHidden || getOverrideAddButtonVisibility(value)
+          }
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
-          {value.map((resource, index) => {        
+          {value.map((resource, index) => {
             const forceSingleAutocomplete = checkForceSingleAutocomplete({
               resourceType: resource.resourceType,
               forceSingleAutocompleteConditions
@@ -141,13 +155,15 @@ const Resources = ({
                   dataTestId={labelResourceType}
                   disabled={
                     !canEditField ||
-                    getDefaultDisabledSelectType(resource.resourceType)||
+                    getDefaultDisabledSelectType(resource.resourceType) ||
                     isValidatingResources ||
                     getResourceStatic(resource.resourceType)
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
-                  selectedOptionId={getResourceTypeSelectedOptionId(resource.resourceType)}
+                  selectedOptionId={getResourceTypeSelectedOptionId(
+                    resource.resourceType
+                  )}
                   onChange={changeResourceType(index)}
                 />
                 {singleResourceSelection || forceSingleAutocomplete ? (

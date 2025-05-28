@@ -60,7 +60,7 @@ import {
   WidgetResourceType
 } from '../../../models';
 import { checkHiddenCondition } from '../../handleHiddenConditions';
-import { getDataProperty, getProperty } from '../utils';
+import { getDataProperty } from '../utils';
 
 interface CheckForceSingleAutocompleteProps {
   resourceType: string;
@@ -221,14 +221,12 @@ const useResources = ({
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
+  const value = useMemo<Array<WidgetDataResource> | undefined>(
+    () => getDataProperty({ obj: values, propertyName }),
+    [getDataProperty({ obj: values, propertyName })]
+  );
 
-    
-    const value = useMemo<Array<WidgetDataResource> | undefined>(
-      () => getDataProperty({ obj: values, propertyName }),
-      [getDataProperty({ obj: values, propertyName })]
-    );
-    
-    console.log({value})
+  console.log({ value });
 
   const isTouched = useMemo<boolean | undefined>(
     () => getDataProperty({ obj: touched, propertyName }),
@@ -244,8 +242,6 @@ const useResources = ({
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
 
-
-
   const getResourceStatic = (
     resourceType: WidgetResourceType
   ): boolean | undefined => {
@@ -258,7 +254,6 @@ const useResources = ({
         Boolean(forcedResourceType) &&
         widgetProperties?.singleResourceSelection &&
         equals(restrictedResourceTypes?.length, 1))
-        
     );
   };
 
@@ -607,7 +602,6 @@ const useResources = ({
 
   const getResourceTypeOptions = useCallback(
     (index, resource): Array<ResourceTypeOption> => {
-
       const availableResourceTypes =
         index < 1
           ? allResources
@@ -653,7 +647,6 @@ const useResources = ({
     ]
   );
 
-
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -670,7 +663,6 @@ const useResources = ({
 
       return;
     }
-    
 
     setFieldValue(`data.${propertyName}`, [
       {
@@ -757,7 +749,7 @@ const useResources = ({
     changeResources,
     deleteResource,
     deleteResourceItem,
-    error: errorToDisplay ,
+    error: errorToDisplay,
     getResourceResourceBaseEndpoint,
     getResourceStatic,
     getResourceTypeOptions,

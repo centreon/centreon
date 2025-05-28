@@ -86,7 +86,6 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
   [FederatedWidgetOptionType.warning]: WidgetWarning,
   [FederatedWidgetOptionType.boundaries]: WidgetBoundaries
-
 };
 
 export const DefaultComponent = (): JSX.Element => (
@@ -116,7 +115,7 @@ export const useWidgetInputs = (
   const selectedWidgetProperties: {
     [key: string]: FederatedWidgetOption;
   } | null = path(widgetKey.split('.'), selectedWidget) || null;
-  
+
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
@@ -127,8 +126,8 @@ export const useWidgetInputs = (
             values
           }).map(([key, value]) => {
             const Component =
-            propertiesInputType[value.type] || DefaultComponent;
-            
+              propertiesInputType[value.type] || DefaultComponent;
+
             return {
               Component,
               group: value.group,
@@ -137,38 +136,38 @@ export const useWidgetInputs = (
                 ...(value as unknown as Omit<
                   WidgetPropertyProps,
                   'propertyName' | 'propertyType'
-                  >),
-                  propertyName: key,
-                  propertyType: widgetKey
-                }
-              };
-            })
-            : null,
-            [selectedWidgetProperties, values]
-          );
-          
-          useEffect(
-            () => {
-              validateForm();
-            },
-            useDeepCompare([widgetProperties])
-          );
-
-          useEffect(
-            () => {
-              if (!selectedWidget) {
-                return;
+                >),
+                propertyName: key,
+                propertyType: widgetKey
               }
-              
-              setSingleResourceSelection(selectedWidget.singleResourceSelection);
-              setCustomBaseColor(selectedWidget.customBaseColor);
-            },
-            useDeepCompare([selectedWidget])
-          );
-          
-          useEffect(() => {
-            setWidgetProperties(selectedWidget);
-          }, []);
-          
+            };
+          })
+        : null,
+    [selectedWidgetProperties, values]
+  );
+
+  useEffect(
+    () => {
+      validateForm();
+    },
+    useDeepCompare([widgetProperties])
+  );
+
+  useEffect(
+    () => {
+      if (!selectedWidget) {
+        return;
+      }
+
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
+      setCustomBaseColor(selectedWidget.customBaseColor);
+    },
+    useDeepCompare([selectedWidget])
+  );
+
+  useEffect(() => {
+    setWidgetProperties(selectedWidget);
+  }, []);
+
   return inputs;
 };

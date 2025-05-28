@@ -72,8 +72,6 @@ export const checkHiddenCondition = ({
     return !hasModule || isEmpty(formValue) || isNil(formValue);
   }
 
-  console.log('00000000',values)
-
   return !hasModule || equals(path(when.split('.'), values), matches);
 };
 

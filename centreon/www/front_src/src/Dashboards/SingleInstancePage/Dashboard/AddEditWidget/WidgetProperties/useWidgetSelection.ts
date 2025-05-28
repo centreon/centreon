@@ -59,10 +59,8 @@ export const getDefaultValues = (
     return {};
   }
 
-
   return Object.entries(options?.elements ?? options).reduce(
     (acc, [key, value]) => {
-
       if (!has('when', value.defaultValue)) {
         return {
           ...acc,
@@ -105,11 +103,10 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
   const installedWidgets = useMemo(
-    () => federatedWidgetsProperties
-      // federatedWidgetsProperties?.filter(({ moduleName }) =>
-      //   widgets?.includes(moduleName)
-      // )
-      ,
+    () => federatedWidgetsProperties,
+    // federatedWidgetsProperties?.filter(({ moduleName }) =>
+    //   widgets?.includes(moduleName)
+    // )
     [federatedWidgetsProperties, widgets]
   );
 
@@ -189,29 +186,27 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       };
     }, {});
 
-
-
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
       (acc, [key, value]) => {
-
-        if(value?.selectType){
-          
-      return ({
-        ...acc,
-        [key]: [{[key]:value.defaultValue,resourceType: value.selectType.defaultResourceType}],
-
-      })
+        if (value?.selectType) {
+          return {
+            ...acc,
+            [key]: [
+              {
+                [key]: value.defaultValue,
+                resourceType: value.selectType.defaultResourceType
+              }
+            ]
+          };
         }
-        
-        
-        return ({
-        ...acc,
-        [key]: value.defaultValue,
 
-      })},
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      },
       {}
     );
-
 
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
