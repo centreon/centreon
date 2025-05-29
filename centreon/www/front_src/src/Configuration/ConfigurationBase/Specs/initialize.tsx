@@ -124,7 +124,6 @@ const initialize = ({
               <ConfigurationBase
                 resourceType={resourceType}
                 columns={columns}
-                hasWriteAccess={true}
                 form={{
                   groups,
                   inputs,
@@ -147,6 +146,14 @@ const initialize = ({
                   'actions',
                   'is_activated'
                 ]}
+                actions={{
+                  massive: true,
+                  enableDisable: true,
+                  delete: true,
+                  duplicate: true,
+                  edit: true,
+                  viewDetails: true
+                }}
               />
             </Provider>
           </TestQueryProvider>
