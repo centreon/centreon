@@ -56,7 +56,7 @@ const reactRoutes = [
     path: routeMap.resourceAccessManagement
   },
   {
-    comp: lazy(() => import('../AdditionalConnectorConfiguration')),
+    comp: lazy(() => import('../Configuration/AdditionnalConnectors')),
     path: routeMap.additionalConnectorConfiguration
   },
   {
@@ -67,12 +67,8 @@ const reactRoutes = [
     comp: lazy(() => import('../AgentConfiguration/Page')),
     path: routeMap.agentConfigurations
   },
-  // {
-  //   comp: lazy(() => import('../Configuration/HostGroups')),
-  //   path: routeMap.hostGroups
-  // },
   {
-    comp: lazy(() => import('../Configuration/AdditionnalConnectors')),
+    comp: lazy(() => import('../Configuration/HostGroups')),
     path: routeMap.hostGroups
   }
 ];
