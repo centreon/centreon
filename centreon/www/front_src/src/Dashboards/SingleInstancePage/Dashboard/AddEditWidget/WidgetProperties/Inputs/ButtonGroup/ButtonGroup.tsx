@@ -2,15 +2,14 @@ import { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Tooltip from '../common/Tooltip';
+
 import {
   Button,
   ButtonGroup as MuiButtonGroup,
   Stack,
   Typography
 } from '@mui/material';
-
-import { Tooltip } from '@centreon/ui/components';
 
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
@@ -55,19 +54,7 @@ const ButtonGroup = ({
             </Button>
           ))}
         </MuiButtonGroup>
-        {secondaryLabel && (
-          <Tooltip
-            followCursor={false}
-            label={t(secondaryLabel)}
-            position="right"
-          >
-            <InfoOutlinedIcon
-              color="primary"
-              data-testid={`secondary-label-${propertyName}`}
-              fontSize="small"
-            />
-          </Tooltip>
-        )}
+        <Tooltip secondaryLabel={secondaryLabel} propertyName={propertyName} />
       </Stack>
     </div>
   );
