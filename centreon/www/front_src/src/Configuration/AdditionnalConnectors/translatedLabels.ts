@@ -75,9 +75,6 @@ export const labelYourFormHasUnsavedChanges =
 export const labelConfirm = 'Confirm';
 export const labelParameters = 'Parameters';
 export const labelParametersTooltip = 'Parameters tooltip';
-
-// added
-
 export const labelGeneralInformation = 'General information';
 export const labelSettings = 'Settings';
 export const labelcCenterESX = 'vCenter/ESX';
