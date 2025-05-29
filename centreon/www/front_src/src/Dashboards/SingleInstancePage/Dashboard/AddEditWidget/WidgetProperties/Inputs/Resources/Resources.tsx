@@ -27,11 +27,7 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
-import {
-  WidgetDataResource,
-  WidgetPropertyProps,
-  WidgetResourceType
-} from '../../../models';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 
@@ -143,7 +139,11 @@ const Resources = ({
                 onDeleteItem={deleteResource(index)}
               >
                 <SelectField
-                 formControlProps={{required: getDefaultRequiredSelectType(resource.resourceType)}}
+                  formControlProps={{
+                    required: getDefaultRequiredSelectType(
+                      resource.resourceType
+                    )
+                  }}
                   className={classes.resourceType}
                   dataTestId={labelResourceType}
                   disabled={
