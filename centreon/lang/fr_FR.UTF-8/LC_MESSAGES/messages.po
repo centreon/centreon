@@ -19758,9 +19758,6 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 msgid "{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
 
-#~ msgid "Add a Host Group"
-#~ msgstr "Ajouter un groupe d'hôtes"
-
 #~ msgid "Extended Information"
 #~ msgstr "Informations additionnelles"
 
@@ -19770,17 +19767,11 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Members"
 #~ msgstr "Membres"
 
-#~ msgid "Modify a Host Group"
-#~ msgstr "Modifier un groupe d'hôtes"
-
 #~ msgid "Notes URL"
 #~ msgstr "URL"
 
 #~ msgid "RRD retention"
 #~ msgstr "Rétention des fichiers RRD"
-
-#~ msgid "View a Host Group"
-#~ msgstr "Visualiser un groupe d'hôtes"
 
 #~ msgid "You are not allowed to access this host group"
 #~ msgstr "Vous n'êtes pas autorisé à accéder à ce groupe d'hôte"
@@ -22823,18 +22814,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Host groups deleted"
 #~ msgstr "Groupes d'hôtes supprimés"
 
-#~ msgid "Failed to delete the host group"
-#~ msgstr "Échec de la suppression du groupe d'hôtes"
-
-#~ msgid "Failed to duplicate the host group"
-#~ msgstr "Échec de la duplication du groupe d'hôtes"
-
-#~ msgid "Failed to enable the host group"
-#~ msgstr "Échec de l'activation du groupe d'hôtes"
-
-#~ msgid "Failed to disable the host group"
-#~ msgstr "Échec de la désactivation du groupe d'hôtes"
-
 #~ msgid "Last 60 days"
 #~ msgstr "Les 60 derniers jours"
 
@@ -22880,3 +22859,24 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+msgid "Failed to delete the host group"
+msgstr "Échec de la suppression du groupe d'hôtes"
+
+msgid "Failed to duplicate the host group"
+msgstr "Échec de la duplication du groupe d'hôtes"
+
+msgid "Failed to enable the host group"
+msgstr "Échec de l'activation du groupe d'hôtes"
+
+msgid "Failed to disable the host group"
+msgstr "Échec de la désactivation du groupe d'hôtes"
+
+msgid "Add a Host Group"
+msgstr "Ajouter un groupe d'hôtes"
+
+msgid "View a Host Group"
+msgstr "Visualiser un groupe d'hôtes"
+
+msgid "Modify a Host Group"
+msgstr "Modifier un groupe d'hôtes"
