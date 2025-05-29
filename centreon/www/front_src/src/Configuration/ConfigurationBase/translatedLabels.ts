@@ -22,9 +22,14 @@ export const labelDuplications = 'Duplications';
 export const labelEnableDisable = 'Enable/Disable';
 
 // actions
-export const labelAddResource = (type) => `Add a ${type}`;
-export const labelUpdateResource = (type) => `Modify a ${type}`;
-export const labelViewResource = (type) => `View a ${type}`;
+
+export const labelModalTitle = ({
+  action,
+  type
+}: { action: string; type: string }) => {
+  const article = /^[aeiou]/i.test(type) ? 'an' : 'a';
+  return `${action} ${article} ${type}`;
+};
 
 export const labelDeleteResource = (type) => `Delete ${type}`;
 export const labelDuplicateResource = (type) => `Duplicate ${type}`;
