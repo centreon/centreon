@@ -28,13 +28,6 @@ const PopoverFilter = (): JSX.Element => {
 
   const changedFiltersCount = countDifferences(initialValues, filters);
 
-  console.log('initialValues: ', initialValues);
-  console.log('filters: ', filters);
-  console.log(
-    'countDifferences(initialValues, filters): ',
-    countDifferences(initialValues, filters)
-  );
-
   return (
     <Suspense
       fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
