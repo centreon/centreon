@@ -11,7 +11,7 @@ export enum ResourceType {
   Service = 'service',
   HostGroup = 'host group',
   ServiceGroup = 'service group',
-  AdditionalConfigurations = 'additional configurations'
+  AdditionalConfigurations = 'additional configuration'
 }
 
 export interface Form {
