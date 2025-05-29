@@ -26,7 +26,6 @@ msgstr ""
 msgid " + Add a new entry"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
 msgstr ""
@@ -467,7 +466,6 @@ msgstr ""
 msgid "Action Name"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -728,10 +726,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Add a Host Extended Info"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Add a Host Group"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -1003,7 +997,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/configuration/configResources/formResources.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -1183,8 +1176,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
@@ -2095,6 +2086,14 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Business Activity Diagram"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity availability"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Business Activity status timeline"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3053,7 +3052,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -3167,7 +3165,6 @@ msgstr ""
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -4760,7 +4757,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
@@ -4811,7 +4807,6 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Disabled Hosts"
 msgstr ""
@@ -5031,6 +5026,11 @@ msgid "Displays a web page"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays availability and alerts of a Business Activity for a given period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr ""
 
@@ -5042,6 +5042,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Displays metrics for a given time period."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as a "
+"chronological timeline for a given time period."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -5309,8 +5315,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -5926,7 +5930,6 @@ msgstr ""
 msgid "Enable/Disable service checks"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Enable/disable resource"
@@ -5959,7 +5962,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
@@ -6010,7 +6012,6 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 msgid "Enabled Hosts"
 msgstr ""
@@ -6662,6 +6663,10 @@ msgstr ""
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
+msgid "Error while retrieving host dependencies"
+msgstr ""
+
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while retrieving host severity"
 msgstr ""
@@ -7220,10 +7225,6 @@ msgstr ""
 msgid "Extended Info"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Extended Information"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
 msgid "Extended Settings"
 msgstr ""
@@ -7583,7 +7584,6 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/smarty_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -7876,7 +7876,6 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/home/customViews/formLoad.php
 #: centreon/www/include/configuration/configResources/formResources.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -7984,7 +7983,6 @@ msgstr ""
 msgid "Geo coordinates"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Geographic coordinates"
@@ -9059,7 +9057,6 @@ msgid "IP address or hostname"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -10580,7 +10577,6 @@ msgstr ""
 msgid "Mandatory field"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
@@ -10617,10 +10613,6 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Many thanks to all the contributors to the security of Centreon"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Map Icon"
 msgstr ""
 
 #: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementValidators/MariaDbRequirementException.php
@@ -10757,10 +10749,6 @@ msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Member of Host Groups"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Members"
 msgstr ""
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
@@ -11069,7 +11057,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -11205,10 +11192,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Modify a Host Extended Info"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Modify a Host Group"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -11636,7 +11619,6 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/install/smarty_translate.php
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -11663,8 +11645,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/listMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
@@ -11733,7 +11713,6 @@ msgstr ""
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -12139,8 +12118,6 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -12216,16 +12193,11 @@ msgid "Note URL"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneHost.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Notes"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "Notes URL"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -12587,7 +12559,6 @@ msgstr ""
 msgid "Ok services"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 msgid "Ok/Up"
@@ -12710,7 +12681,6 @@ msgstr ""
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/listGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/listMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -13093,8 +13063,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -13729,10 +13697,6 @@ msgstr ""
 msgid "RRD length"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "RRD retention"
-msgstr ""
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "RRDCacheD listening socket/port"
 msgstr ""
@@ -13904,7 +13868,6 @@ msgstr ""
 msgid "Regular Expression Matching Option"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Relation"
 msgstr ""
@@ -14072,6 +14035,10 @@ msgstr ""
 msgid "Reporting Period"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Reporting period"
+msgstr ""
+
 #: centreon/src/Centreon/Infrastructure/Service/CentreonPaginationService.php
 #, php-format
 msgid "Repository class %s has to implement %s"
@@ -14221,7 +14188,6 @@ msgstr ""
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -14242,6 +14208,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -14283,7 +14250,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
@@ -14402,7 +14368,6 @@ msgstr ""
 msgid "Resource Access Management"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 msgid "Resource Access Rule"
 msgstr ""
@@ -14807,7 +14772,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/metaservice_dependency/formMetaServiceDependency.php
@@ -15168,6 +15132,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
 msgid "Select Timeperiod..."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -16160,6 +16128,7 @@ msgstr ""
 msgid "Show only dashboards added to favorites"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Show thresholds"
 msgstr ""
@@ -16523,7 +16492,6 @@ msgstr ""
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/servicegroup/listServiceGroup.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -17595,6 +17563,10 @@ msgstr ""
 msgid "This is the description of the text widget"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "This month"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "This name already exists"
@@ -17668,6 +17640,7 @@ msgstr ""
 msgid "This view name is required"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "This week"
 msgstr ""
@@ -17678,6 +17651,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "This will not be used because the number of attempts is not defined"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "This year"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -18299,8 +18276,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -18349,7 +18324,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
@@ -18839,10 +18813,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "View a Host Extended Info"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "View a Host Group"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -19416,6 +19386,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/reporting/dashboard/common-Func.php
@@ -19574,10 +19545,6 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "You are not allowed to access this host category"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
-msgid "You are not allowed to access this host group"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/meta_service/metaService.php
@@ -19843,13 +19810,6 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 msgid ""
 "You can't edit this downtime because you don't have access to all of its "
-"resources"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-#: centreon/www/install/smarty_translate.php
-msgid ""
-"You can't edit this hostgroup because you don't have access to all its "
 "resources"
 msgstr ""
 
@@ -20366,7 +20326,6 @@ msgstr ""
 msgid "error"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 #: centreon/www/include/configuration/configObject/service/formService.php

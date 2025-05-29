@@ -7,6 +7,8 @@ import {
 import { Typography, useTheme } from '@mui/material';
 
 import dayjs from 'dayjs';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 import { userAtom } from '@centreon/ui-context';
 import { Axis } from '@visx/visx';
@@ -22,6 +24,8 @@ import type { TimelineProps } from './models';
 import { useStyles } from './timeline.styles';
 import { useTimeline } from './useTimeline';
 
+dayjs.extend(utc);
+dayjs.extend(timezonePlugin);
 interface Props extends TimelineProps {
   width: number;
   height: number;
