@@ -63,14 +63,14 @@ export enum FieldType {
 
 export interface Endpoints {
   getAll: string;
-  getOne: ({ id }) => string;
-  deleteOne: ({ id }) => string;
-  delete: string;
-  duplicate: string;
-  enable: string;
-  disable: string;
-  create: string;
-  update: ({ id }) => string;
+  getOne?: ({ id }) => string;
+  deleteOne?: ({ id }) => string;
+  delete?: string;
+  duplicate?: string;
+  enable?: string;
+  disable?: string;
+  create?: string;
+  update?: ({ id }) => string;
 }
 
 export interface APIType {

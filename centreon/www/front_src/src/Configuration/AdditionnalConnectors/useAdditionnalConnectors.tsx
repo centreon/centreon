@@ -1,25 +1,24 @@
+import { omit, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { APIType, FieldType, FilterConfiguration } from '../models';
-
-import { omit, pluck } from 'ramda';
 import {
   additionalConnectorDecoder,
-  additionalConnectorsListDecoder
-} from './api/decoders';
-import {
   additionalConnectorsEndpoint,
+  additionalConnectorsListDecoder,
   getAdditionalConnectorEndpoint,
   getPollersEndpoint
-} from './api/endpoints';
+} from './api';
+
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   AdditionalConnectorConfiguration,
   ParameterKeys,
   Payload
 } from './models';
-import { labelName, labelPollers, labelTypes } from './translatedLabels';
 import { findConnectorTypeById, splitURL } from './utils';
+
+import { labelName, labelPollers, labelTypes } from './translatedLabels';
 
 interface UseAdditionnalConnectorsState {
   api: APIType;
@@ -55,10 +54,6 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
         getAll: additionalConnectorsEndpoint,
         getOne: getAdditionalConnectorEndpoint,
         deleteOne: getAdditionalConnectorEndpoint,
-        delete: additionalConnectorsEndpoint,
-        duplicate: additionalConnectorsEndpoint,
-        disable: additionalConnectorsEndpoint,
-        enable: additionalConnectorsEndpoint,
         create: additionalConnectorsEndpoint,
         update: getAdditionalConnectorEndpoint
       },

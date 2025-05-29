@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { SelectField } from '@centreon/ui';
 
 import { labelSelectType, labelType } from '../../translatedLabels';
-import { AdditionalConnectorConfiguration } from '../models';
 
-import { useConnectorTypeStyles } from './useConnectorTypeStyles';
+import { AdditionalConnectorConfiguration } from '../../models';
+import { useConnectorTypeStyles } from './ConnectorTypeStyles';
 
 const ConnectorType = (): ReactElement => {
   const { t } = useTranslation();
