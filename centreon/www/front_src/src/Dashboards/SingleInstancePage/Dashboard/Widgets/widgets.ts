@@ -74,7 +74,7 @@ const internalWidgets: Array<
     panelDefaultHeight: 4
   },
   {
-    name: 'hostgroupavailabilityhistory',
+    name: 'hgavailabilityhistory',
     panelMinHeight: 3,
     panelMinWidth: 8,
     panelDefaultHeight: 4,

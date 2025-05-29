@@ -28519,7 +28519,7 @@ msgstr "artículo (s) encontrado (s)"
 #~ msgstr "Modo avanzado"
 
 # msgid "Hostgroup availability history"
-msgstr ""
+# msgstr ""
 
 # msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
 # msgstr ""
