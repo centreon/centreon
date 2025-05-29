@@ -1,10 +1,10 @@
-import { Suspense } from 'react';
+import { JSX, Suspense } from 'react';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Badge } from '@mui/material';
 import { useAtomValue } from 'jotai';
-import { filter, length, pipe, toPairs } from 'ramda';
+import { equals, filter, length, pipe, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { configurationAtom, filtersAtom } from '../../atoms';
 import { labelFilters } from '../../translatedLabels';
@@ -14,7 +14,7 @@ import Filters from './Filters';
 const countDifferences = (defaultValues, values) =>
   pipe(
     toPairs,
-    filter(([key, val]) => val !== values[key]),
+    filter(([key, val]) => !equals(val, values[key])),
     length
   )(defaultValues);
 
@@ -27,6 +27,13 @@ const PopoverFilter = (): JSX.Element => {
   const initialValues = configuration?.filtersInitialValues;
 
   const changedFiltersCount = countDifferences(initialValues, filters);
+
+  console.log('initialValues: ', initialValues);
+  console.log('filters: ', filters);
+  console.log(
+    'countDifferences(initialValues, filters): ',
+    countDifferences(initialValues, filters)
+  );
 
   return (
     <Suspense

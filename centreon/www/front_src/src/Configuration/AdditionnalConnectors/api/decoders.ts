@@ -84,4 +84,7 @@ export const additionalConnectorDecoder = JsonDecoder.object(
     type: JsonDecoder.string
   },
   'Connector Configuration'
-);
+).map((connector) => ({
+  ...connector,
+  type: 1
+}));

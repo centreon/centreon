@@ -1,30 +1,94 @@
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { ObjectSchema, object, string } from 'yup';
+import { array, number, object, string } from 'yup';
 
+import { useAtomValue } from 'jotai';
+import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import {
-  labelInvalidCoordinateFormat,
+  labelAtLeastOneVCenterIsRequired,
+  labelAteastOnePollerIsRequired,
+  labelDescription,
+  labelDescriptionMustBeMost,
+  labelInvalidPortNumber,
+  labelMustBeAvalidURL,
   labelName,
-  labelRequired
+  labelNameMustBeAtLeast,
+  labelNameMustBeMost,
+  labelRequired,
+  labelVcenterNameMustBeUnique
 } from '../translatedLabels';
 
-interface UseValidationSchemaState {
-  validationSchema: ObjectSchema<{
-    name: string;
-    geoCoords?: string;
-  }>;
-}
-
-const useValidationSchema = (): UseValidationSchemaState => {
+const useValidationSchema = (): { validationSchema } => {
   const { t } = useTranslation();
+  const { mode } = useAtomValue(modalStateAtom);
+
+  const urlValidationSchema = string()
+    .required(t(labelRequired))
+    .matches(
+      /^(https?:\/\/)?((([a-zA-Z\d]([a-zA-Z\d-]*[a-zA-Z\d])*)\.)+[a-zA-Z]{2,}|((\d{1,3}\.){3}\d{1,3})|(\[([a-fA-F\d:]+)\]))(:\d+)?(\/[-a-zA-Z\d%_.~+]*)*(\?[;&a-zA-Z\d%_.~+=-]*)?(#[-a-zA-Z\d_]*)?$/i,
+      t(labelMustBeAvalidURL)
+    );
+
+  const selectEntryValidationSchema = object().shape({
+    id: number().required(t(labelRequired)),
+    name: string().required(t(labelRequired))
+  });
+
+  const secretsSchema = {
+    Password: string().required(t(labelRequired)),
+    Username: string().required(t(labelRequired))
+  };
+
+  const vcenterSchema = object().shape({
+    ...(equals(mode, 'add') && secretsSchema),
+    URL: urlValidationSchema,
+    'vCenter name': string()
+      .required(t(labelRequired))
+      .test(
+        'unique-vcenter-name',
+        t(labelVcenterNameMustBeUnique),
+        (value, context) => {
+          if (!value) return true;
+
+          const { options } = context;
+
+          const vcenters = options.context?.parameters.vcenters || [];
+
+          const duplicate =
+            vcenters.filter((vcenter) => vcenter['vCenter name'] === value)
+              .length > 1;
+
+          return !duplicate;
+        }
+      )
+  });
+
+  const parametersSchema = object().shape({
+    port: number()
+      .required(t(labelRequired))
+      .integer(t(labelInvalidPortNumber))
+      .min(1, t(labelInvalidPortNumber))
+      .max(65535, t(labelInvalidPortNumber)),
+    vcenters: array()
+      .of(vcenterSchema)
+      .min(1, t(labelAtLeastOneVCenterIsRequired))
+  });
 
   const validationSchema = object({
-    name: string().label(t(labelName)).required(t(labelRequired)),
-    geoCoords: string()
-      .matches(
-        /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/,
-        t(labelInvalidCoordinateFormat)
-      )
-      .nullable()
+    description: string()
+      .label(t(labelDescription) || '')
+      .max(180, t(labelDescriptionMustBeMost))
+      .nullable(),
+    name: string()
+      .label(t(labelName))
+      .min(3, t(labelNameMustBeAtLeast))
+      .max(50, t(labelNameMustBeMost))
+      .required(t(labelRequired)),
+    parameters: parametersSchema,
+    pollers: array()
+      .of(selectEntryValidationSchema)
+      .min(1, t(labelAteastOnePollerIsRequired)),
+    type: number().required(t(labelRequired))
   });
 
   return {

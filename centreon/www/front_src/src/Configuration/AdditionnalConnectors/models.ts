@@ -35,6 +35,24 @@ export interface AdditionalConnectorConfiguration {
   type: number;
 }
 
+export interface Payload
+  extends Omit<
+    AdditionalConnectorConfiguration,
+    'type' | 'pollers' | 'parameters'
+  > {
+  parameters: {
+    port: number;
+    vcenters: Array<{
+      name: string;
+      password: string | null;
+      url: string;
+      username: string | null;
+    }>;
+  };
+  pollers: Array<number>;
+  type: string;
+}
+
 // to be removed
 
 type Icon = NamedEntity & { url: string };

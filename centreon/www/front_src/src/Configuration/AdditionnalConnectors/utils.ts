@@ -3,19 +3,14 @@ import { NamedEntity, ParameterKeys } from './models';
 
 export const defaultSelectedColumnIds = [
   'name',
-  'alias',
-  'enabled_hosts_count',
-  'disabled_hosts_count',
-  'actions',
-  'is_activated'
+  'type',
+  'description',
+  'created_by',
+  'created_at',
+  'updated_by',
+  'updated_at',
+  'actions'
 ];
-
-// export const filtersInitialValues = {
-//   name: '',
-//   alias: '',
-//   enabled: false,
-//   disabled: false
-// };
 
 export const defaultParameters = {
   [ParameterKeys.name]: 'my_vcenter',
@@ -30,8 +25,24 @@ export const findConnectorTypeById = (id): NamedEntity | undefined => {
   return find(propEq(Number.parseInt(id, 10), 'id'), availableConnectorTypes);
 };
 
-export const filtersDefaultValue = {
+export const splitURL = (url) => {
+  const includesHTTPPrefix = url.match(/https?:\/\//);
+
+  if (!includesHTTPPrefix) {
+    return {
+      mainURL: url,
+      scheme: null
+    };
+  }
+
+  return {
+    mainURL: url.split('://')?.[1],
+    scheme: url.split('://')?.[0]
+  };
+};
+
+export const filtersInitialValues = {
   name: '',
-  pollers: [],
-  types: []
+  'poller.id': [],
+  type: []
 };

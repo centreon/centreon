@@ -30,6 +30,12 @@ const HostGroups = () => {
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       hasWriteAccess={hasWriteAccess}
+      actions={{
+        massive: true,
+        enableDisable: true,
+        delete: true,
+        duplicate: true
+      }}
     />
   );
 };

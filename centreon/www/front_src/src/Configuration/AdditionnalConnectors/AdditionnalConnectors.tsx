@@ -5,14 +5,14 @@ import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import { ResourceType } from '../models';
-import useHostGroups from './useHostGroups';
+import useAdditionnalConnectors from './useAdditionnalConnectors';
 
 const AdditionnalConnectors = () => {
   const { columns } = useColumns();
   const { groups, inputs } = useFormInputs();
   const { validationSchema } = useValidationSchema();
 
-  const { api, filtersConfiguration } = useHostGroups();
+  const { api, filtersConfiguration } = useAdditionnalConnectors();
 
   return (
     <ConfigurationBase
@@ -24,6 +24,9 @@ const AdditionnalConnectors = () => {
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       hasWriteAccess={true}
+      actions={{
+        delete: true
+      }}
     />
   );
 };

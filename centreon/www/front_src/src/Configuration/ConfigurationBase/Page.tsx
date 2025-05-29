@@ -1,5 +1,6 @@
 import { usePluralizedTranslation } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
+import { JSX } from 'react';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
@@ -13,10 +14,11 @@ const Page = ({
   columns,
   resourceType,
   form,
-  hasWriteAccess
+  hasWriteAccess,
+  actions
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'hasWriteAccess'
+  'columns' | 'form' | 'resourceType' | 'hasWriteAccess' | 'actions'
 >): JSX.Element => {
   const { classes } = useStyles();
   const { pluralizedT } = usePluralizedTranslation();
@@ -37,7 +39,11 @@ const Page = ({
       </PageLayout.Header>
       <PageLayout.Body>
         <Box className={classes.pageBody}>
-          <Listing columns={columns} hasWriteAccess={hasWriteAccess} />
+          <Listing
+            columns={columns}
+            hasWriteAccess={hasWriteAccess}
+            actions={actions}
+          />
         </Box>
       </PageLayout.Body>
       <Modal form={form} hasWriteAccess={hasWriteAccess} />

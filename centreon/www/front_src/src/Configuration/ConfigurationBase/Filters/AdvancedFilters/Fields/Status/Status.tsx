@@ -1,10 +1,6 @@
+import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import {
-  labelDisabled,
-  labelEnabled,
-  labelStatus
-} from '../../../translatedLabels';
+import { useFilterStyles } from '../../../Filters.styles';
 
 import {
   Checkbox,
@@ -13,11 +9,19 @@ import {
   Typography
 } from '@mui/material';
 
-import { useFilterStyles } from '../../Filters.styles';
+import useStatus from './useStatus';
 
-const Status = ({ change, filters }): JSX.Element => {
+import {
+  labelDisabled,
+  labelEnabled,
+  labelStatus
+} from '../../../../translatedLabels';
+
+const Status = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
+
+  const { valueEnable, valueDisable, change } = useStatus();
 
   return (
     <div className={classes.statusFilter}>
@@ -29,7 +33,7 @@ const Status = ({ change, filters }): JSX.Element => {
           control={
             <Checkbox
               data-testid={labelEnabled}
-              checked={filters.enabled}
+              checked={valueEnable}
               name={t(labelEnabled)}
               onChange={change('enabled')}
             />
@@ -40,7 +44,7 @@ const Status = ({ change, filters }): JSX.Element => {
           control={
             <Checkbox
               data-testid={labelDisabled}
-              checked={filters.disabled}
+              checked={valueDisable}
               name={t(labelDisabled)}
               onChange={change('disabled')}
             />

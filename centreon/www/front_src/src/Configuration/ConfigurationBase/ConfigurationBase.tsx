@@ -1,6 +1,6 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, isNotNil, not } from 'ramda';
-import { useEffect, useMemo } from 'react';
+import { JSX, useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
 import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
 
@@ -15,7 +15,8 @@ const Base = ({
   filtersConfiguration,
   filtersInitialValues,
   defaultSelectedColumnIds,
-  hasWriteAccess
+  hasWriteAccess,
+  actions
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -27,7 +28,8 @@ const Base = ({
       api,
       filtersConfiguration,
       filtersInitialValues,
-      defaultSelectedColumnIds
+      defaultSelectedColumnIds,
+      actions
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -42,7 +44,8 @@ const Base = ({
     api,
     filtersConfiguration,
     defaultSelectedColumnIds,
-    filtersInitialValues
+    filtersInitialValues,
+    actions
   ]);
 
   const isConfigurationValid = useMemo(
@@ -67,6 +70,7 @@ const Base = ({
       resourceType={resourceType}
       form={form}
       hasWriteAccess={hasWriteAccess}
+      actions={actions}
     />
   );
 };
