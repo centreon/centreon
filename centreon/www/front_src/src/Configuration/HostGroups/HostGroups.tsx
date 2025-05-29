@@ -12,10 +12,10 @@ import useHostGroups from './useHostGroups';
 
 const HostGroups = () => {
   const userPermissions = useAtomValue(userPermissionsAtom);
-  const hasWriteAccess = !!userPermissions?.configuration_host_group_write;
+  const canEdit = !!userPermissions?.configuration_host_group_write;
 
   const { columns } = useColumns();
-  const { groups, inputs } = useFormInputs({ hasWriteAccess });
+  const { groups, inputs } = useFormInputs({ canEdit });
   const { validationSchema } = useValidationSchema();
 
   const { api, filtersConfiguration } = useHostGroups();
@@ -29,12 +29,13 @@ const HostGroups = () => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
-      hasWriteAccess={hasWriteAccess}
       actions={{
         massive: true,
         enableDisable: true,
         delete: true,
-        duplicate: true
+        duplicate: true,
+        edit: canEdit,
+        viewDetails: true
       }}
     />
   );

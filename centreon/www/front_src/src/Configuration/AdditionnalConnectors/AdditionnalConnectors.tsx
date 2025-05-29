@@ -23,9 +23,9 @@ const AdditionnalConnectors = () => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
-      hasWriteAccess={true}
       actions={{
-        delete: true
+        delete: true,
+        edit: true
       }}
     />
   );

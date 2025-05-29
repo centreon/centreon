@@ -40,6 +40,7 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  viewDetails?: boolean;
 }
 
 export interface ConfigurationBase {
@@ -50,7 +51,6 @@ export interface ConfigurationBase {
   filtersConfiguration: Array<FilterConfiguration>;
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
-  hasWriteAccess: boolean;
   actions?: Actions;
 }
 

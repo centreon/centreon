@@ -7,6 +7,7 @@ import { PageHeader, PageLayout } from '@centreon/ui/components';
 import { Listing } from './Listing';
 import { Modal } from './Modal';
 
+import { or } from 'ramda';
 import { ConfigurationBase } from '../models';
 import { useStyles } from './Page.styles';
 
@@ -14,11 +15,10 @@ const Page = ({
   columns,
   resourceType,
   form,
-  hasWriteAccess,
   actions
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'hasWriteAccess' | 'actions'
+  'columns' | 'form' | 'resourceType' | 'actions'
 >): JSX.Element => {
   const { classes } = useStyles();
   const { pluralizedT } = usePluralizedTranslation();
@@ -41,14 +41,16 @@ const Page = ({
         <Box className={classes.pageBody}>
           <Listing
             columns={columns}
-            hasWriteAccess={hasWriteAccess}
+            hasWriteAccess={!!actions?.edit}
             actions={actions}
           />
         </Box>
       </PageLayout.Body>
-      <Modal form={form} hasWriteAccess={hasWriteAccess} />
-      <DeleteDialog />
-      <DuplicateDialog />
+      {or(!!actions?.edit, !!actions?.viewDetails) && (
+        <Modal form={form} hasWriteAccess={!!actions?.edit} />
+      )}
+      {actions?.delete && <DeleteDialog />}
+      {actions?.duplicate && <DuplicateDialog />}
     </PageLayout>
   );
 };
