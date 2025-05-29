@@ -47,7 +47,6 @@ const Resources = ({
   forcedResourceType,
   defaultResourceTypes,
   selectType,
-  overrideAddButtonVisibility,
   forceSingleAutocompleteConditions
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
@@ -100,19 +99,9 @@ const Resources = ({
       ? WidgetResourceType.hostGroup
       : resourceType;
 
-  const getDefaultDisabledSelectType = (resourceType: WidgetResourceType) =>
+  const getDefaultRequiredSelectType = (resourceType: WidgetResourceType) =>
     equals(selectType?.defaultResourceType, resourceType) &&
-    selectType?.disabled;
-
-  const getOverrideAddButtonVisibility = (value: Array<WidgetDataResource>) =>
-    Boolean(
-      value.find((resource) =>
-        equals(
-          overrideAddButtonVisibility?.matchedResourcesType,
-          resource.resourceType
-        )
-      )
-    );
+    selectType?.required;
 
   return (
     <div className={classes.resourcesContainer}>
@@ -130,9 +119,7 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={
-            isAddButtonHidden || getOverrideAddButtonVisibility(value)
-          }
+          addButtonHidden={isAddButtonHidden}
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
@@ -156,11 +143,11 @@ const Resources = ({
                 onDeleteItem={deleteResource(index)}
               >
                 <SelectField
+                 formControlProps={{required: getDefaultRequiredSelectType(resource.resourceType)}}
                   className={classes.resourceType}
                   dataTestId={labelResourceType}
                   disabled={
                     !canEditField ||
-                    getDefaultDisabledSelectType(resource.resourceType) ||
                     isValidatingResources ||
                     getResourceStatic(resource.resourceType)
                   }

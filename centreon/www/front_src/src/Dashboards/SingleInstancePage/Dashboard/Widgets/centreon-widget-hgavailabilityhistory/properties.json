@@ -111,14 +111,12 @@
         "host",
         "service-category",
         "service",
-        "service-group"
+        "service-group",
+        "meta-service"
       ],
-      "overrideAddButtonVisibility": {
-        "matchedResourcesType": "host-category"
-      },
       "selectType": {
         "defaultResourceType": "host-group",
-        "disabled": true
+        "required": true
       },
       "forceSingleAutocompleteConditions": {
         "resourceType": "host-group",
