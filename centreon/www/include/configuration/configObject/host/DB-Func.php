@@ -3073,6 +3073,13 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
             ? (int) $formData['command_command_id2']
             : null,
+        'check_command_id' => '' !== $formData['command_command_id']
+            ? (int) $formData['command_command_id']
+            : null,
+        'check_command_args' => array_values(array_filter(
+            explode('!', $formData['command_command_id_arg1']),
+            static fn(string $elem): bool => $elem !== ""
+        )),
     ];
 
     if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
@@ -3095,13 +3102,6 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'check_command_id' => '' !== $formData['command_command_id']
-                ? (int) $formData['command_command_id']
-                : null,
-            'check_command_args' => array_values(array_filter(
-                explode('!', $formData['command_command_id_arg1']),
-                static fn(string $elem): bool => $elem !== ""
-            )),
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
@@ -3211,6 +3211,13 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
             ? (int) $formData['command_command_id2']
             : null,
+        'check_command_id' => '' !== $formData['command_command_id']
+            ? (int) $formData['command_command_id']
+            : null,
+        'check_command_args' => array_values(array_filter(
+            explode('!', $formData['command_command_id_arg1']),
+            static fn(string $elem): bool => $elem !== ""
+        )),
     ];
 
     if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
@@ -3233,13 +3240,6 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'check_command_id' => '' !== $formData['command_command_id']
-                ? (int) $formData['command_command_id']
-                : null,
-            'check_command_args' => array_values(array_filter(
-                explode('!', $formData['command_command_id_arg1']),
-                static fn(string $elem): bool => $elem !== ""
-            )),
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
