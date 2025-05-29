@@ -22799,15 +22799,6 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
 
-msgid "Add a host Group"
-msgstr "Ajouter un groupe d'hôtes"
-
-msgid "View a host Group"
-msgstr "Visualiser un groupe d'hôtes"
-
-msgid "Modify a host Group"
-msgstr "Modifier un groupe d'hôtes"
-
 msgid "Host group created"
 msgstr "Groupe d'hôtes créé"
 
@@ -22874,21 +22865,8 @@ msgstr "Groupes d'hôtes supprimés"
 
 
 
-
-
-
-
 msgid "Failed to delete the additional configuration"
 msgstr "Échec de la suppression de configuration additionnelle"
-
-msgid "Failed to duplicate the additional configuration""
-msgstr "Échec de la duplication de configuration additionnelle"
-
-msgid "Failed to enable the additional configuration"
-msgstr "Échec de l'activation de configuration additionnelle"
-
-msgid "Failed to disable the additional configuration"
-msgstr "Échec de la désactivation de configuration additionnelle"
 
 msgid "Add an additional configuration"
 msgstr "Ajouter une configuration additionnelle"
