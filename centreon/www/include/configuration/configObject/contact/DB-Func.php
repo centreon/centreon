@@ -1622,7 +1622,7 @@ function filterNonAdminFields(array $ret): array
         'contact_lang', 'default_page', 'contact_location', 'contact_autologin_key', 'contact_auth_type',
         'contact_acl_groups', 'contact_address1', 'contact_address2', 'contact_address3', 'contact_address4',
         'contact_address5', 'contact_address6', 'contact_comment', 'contact_register', 'contact_activate',
-        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg'
+        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg','contact_ldap_dn'
     ];
 
     foreach ($ret as $field => $value) {
