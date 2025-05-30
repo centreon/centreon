@@ -366,7 +366,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
 
             /** @var array{id: int, name: string, alias: string|null, monitoring_server_id: int} $result */
             foreach ($statement as $result) {
-                $hosts[] = TinyHostFactory::createFromDb($result);
+                $hosts[$result['id']] = TinyHostFactory::createFromDb($result);
             }
         }
 

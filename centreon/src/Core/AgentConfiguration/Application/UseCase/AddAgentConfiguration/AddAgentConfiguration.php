@@ -39,6 +39,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Application\Repository\RepositoryManagerInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 final class AddAgentConfiguration
@@ -48,6 +49,7 @@ final class AddAgentConfiguration
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
         private readonly WriteAgentConfigurationRepositoryInterface $writeAcRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMsRepository,
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
@@ -226,12 +228,23 @@ final class AddAgentConfiguration
      */
     private function createResponse(AgentConfiguration $agentConfiguration, array $pollers): AddAgentConfigurationResponse
     {
+        $configuration = $agentConfiguration->getConfiguration()->getData();
+        if ($agentConfiguration->getType() === Type::CMA) {
+            $hostIds = array_map(static fn (array $host): int => $host['id'], $configuration['hosts']);
+            if (! empty($hostIds)) {
+                $hostNamesById = $this->readHostRepository->findNames($hostIds);
+                foreach ($configuration['hosts'] as $index => $host) {
+                    $configuration['hosts'][$index]['name'] = $hostNamesById->getName($host['id']);
+                }
+            }
+        }
+
         return new AddAgentConfigurationResponse(
             id: $agentConfiguration->getId(),
             type: $agentConfiguration->getType(),
             connectionMode: $agentConfiguration->getConnectionMode(),
             name: $agentConfiguration->getName(),
-            configuration: $agentConfiguration->getConfiguration()->getData(),
+            configuration: $configuration,
             pollers: $pollers
         );
     }
