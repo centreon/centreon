@@ -6,6 +6,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { userAtom } from '@centreon/ui-context';
 
 import { useLocale } from '../useLocale';
+
 import shortLocales from './sortLocales';
 
 interface FormatParameters {

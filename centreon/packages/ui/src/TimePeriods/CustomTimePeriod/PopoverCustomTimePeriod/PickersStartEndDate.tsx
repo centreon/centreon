@@ -16,8 +16,8 @@ import {
   DateTimePickerInputModel
 } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
-
 import { useLocale } from '../../../utils';
+
 import ErrorText from './ErrorText';
 import { PickersData, PickersStartEndDateDirection } from './models';
 import { PickersStartEndDateModel } from './usePickersStartEndDate';

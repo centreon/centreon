@@ -1,14 +1,16 @@
-import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
 import { Provider, createStore } from 'jotai';
+
+import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
+
 import { useLocale } from '.';
 
-const TestComponent = () => {
+const TestComponent = (): JSX.Element => {
   const locale = useLocale();
 
   return <p>{locale}</p>;
 };
 
-const initialize = ({ userLocale, browserLocale }) => {
+const initialize = ({ userLocale, browserLocale }): void => {
   const store = createStore();
 
   store.set(userAtom, { locale: userLocale });
@@ -25,7 +27,7 @@ const initialize = ({ userLocale, browserLocale }) => {
 
 describe('useLocale', () => {
   it('displays the user locale when the corresponding atom is set', () => {
-    initialize({ userLocale: 'fi', browserLocale: 'en' });
+    initialize({ browserLocale: 'en', userLocale: 'fi' });
 
     cy.contains('fi').should('be.visible');
   });

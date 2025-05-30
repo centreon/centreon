@@ -1,7 +1,8 @@
-import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 
-export const useLocale = () => {
+import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
+
+export const useLocale = (): string => {
   const user = useAtomValue(userAtom);
   const browserLocale = useAtomValue(browserLocaleAtom);
 
