@@ -1465,20 +1465,23 @@ function updateHost_MC($hostId = null)
         );
     }
 
-    $request = "UPDATE host SET ";
-    foreach (array_keys($bindParams) as $token) {
-        $request .= ltrim($token, ':') . " = " . $token . ", ";
-    }
-    $request = rtrim($request, ', ');
-    $request .= " WHERE host_id = :hostId";
-    $statement = $pearDB->prepare($request);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $statement->bindValue($token, $value, $paramType);
+    if (! empty($bindParams)) {
+        $request = "UPDATE host SET ";
+        foreach (array_keys($bindParams) as $token) {
+            $request .= ltrim($token, ':') . " = " . $token . ", ";
         }
+        $request = rtrim($request, ', ');
+        $request .= " WHERE host_id = :hostId";
+
+        $statement = $pearDB->prepare($request);
+        foreach ($bindParams as $token => $bindValues) {
+            foreach ($bindValues as $paramType => $value) {
+                $statement->bindValue($token, $value, $paramType);
+            }
+        }
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
     }
-    $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-    $statement->execute();
 
     /*
      *  update multiple templates
