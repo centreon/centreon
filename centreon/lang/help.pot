@@ -383,8 +383,8 @@ msgid ""
 "created beforehand."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/traps/help.php
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
+#: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Choose a vendor from the list. The vendor must have been created beforehand."
 msgstr ""
@@ -406,10 +406,10 @@ msgid ""
 "to exactly 1 monitoring engine status."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
@@ -470,10 +470,6 @@ msgid ""
 "Comment to describe per example the situation in which this trap will be "
 "send. Additionally the format and the parameters of the trap can be "
 "described."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Comments on this host group."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/help.php
@@ -609,8 +605,8 @@ msgid ""
 "to display the service group in monitoring, views and reporting."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Define a short name for this category. It will be displayed with this name "
 "in the ACL configuration."
@@ -625,15 +621,6 @@ msgstr ""
 msgid "Define a short name to identify the time period."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an image that should be associated with this host group in the "
-"statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
-"image. The GD2 image format is preferred, as other image formats must be "
-"converted first when the statusmap image is generated. The image will look "
-"best if it is 40x40 pixels in size."
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an image that should be associated with this host in the statusmap "
@@ -641,13 +628,6 @@ msgid ""
 "image format is preferred, as other image formats must be converted first "
 "when the statusmap image is generated. The image will look best if it is "
 "40x40 pixels in size."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more actions to be "
-"performed on the host group. You will see the link to the action URL in the "
-"host group details."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
@@ -664,19 +644,6 @@ msgid ""
 "service details."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more information about "
-"the host group. Any valid URL can be used. This can be very useful if you "
-"want to make detailed information on the host group, emergency contact "
-"methods, etc. available to other support staff."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Define an optional string of notes pertaining to the host group."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -781,13 +748,6 @@ msgid ""
 "Define the host states for which notifications can be sent out to this "
 "contact. If you specify None as an option, the contact will not receive any "
 "type of host notifications."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define the image that should be associated with this host group here. This "
-"image will be displayed in the various places. The image will look best if "
-"it is 40x40 pixels in size."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
@@ -1370,13 +1330,6 @@ msgstr ""
 msgid "Generates configuration files and stores them in cache directory."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Geographic coordinates to allow Centreon MAP to plot the host group on a "
-"geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
-"are 48.51,2.20"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -1440,10 +1393,6 @@ msgstr ""
 msgid "Host(s) to which the service is attached"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Hosts belonging to the group"
-msgstr ""
-
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid ""
 "Hosts that will be displayed to users. Services that belong to these hosts "
@@ -1497,8 +1446,8 @@ msgid ""
 "IP/DNS of trusted clients. Use coma as delimiter in case of multiple clients."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Icon for this severity."
 msgstr ""
 
@@ -1605,9 +1554,9 @@ msgstr ""
 msgid "Images."
 msgstr ""
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-#: centreon/www/include/options/accessLists/actionsACL/help.php
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr ""
 
@@ -1806,12 +1755,6 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Name of resource rule."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Name of the host group. It must be unique and cannot contain white spaces, "
-"or special characters like ~!$%^&*\"|'<>?,()=."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
@@ -2066,12 +2009,6 @@ msgstr ""
 msgid "RRD file directory, for example /var/lib/centreon/status"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"RRD retention duration of all the services that are in this host group. If "
-"service is in multiple host groups, the highest retention value will be used."
-msgstr ""
-
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "RRD storage duration in seconds."
 msgstr ""
@@ -2132,10 +2069,6 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid "Remote user used by SCP"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Resource access rule to which the host group should be linked"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
@@ -2352,8 +2285,8 @@ msgstr ""
 msgid "Severities are defined in the service category object."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Severity level, must be a number. The items displayed will be sorted in "
 "ascending order. Thus the lowest severity is considered than the highest "
@@ -2612,7 +2545,6 @@ msgid ""
 "by login in autologin or * in LDAP import"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
@@ -2947,13 +2879,6 @@ msgid ""
 "the service group. If you specify a note here, you will see it in the "
 "extended information CGI (when you are viewing information about the "
 "specified service group)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"This directive is used to define is a longer name or description used to "
-"identify the host group.It is provided in order to allow you to more easily "
-"identify a particular host group."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
@@ -4059,12 +3984,6 @@ msgid ""
 "whose members should be included in this group."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"This optional directive can be used to include hosts from other host groups "
-"in this host group."
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid ""
 "This optional directive can be used to include services from other \"sub\" "
@@ -4213,8 +4132,8 @@ msgid ""
 "Use the alias as a longer name or description to identify the time period."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Use this field for a longer description of this category."
 msgstr ""
 
@@ -4366,8 +4285,8 @@ msgstr ""
 msgid "Whether or not the password should be stored in database"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Whether or not this category is enabled."
 msgstr ""
 
@@ -4380,15 +4299,11 @@ msgstr ""
 msgid "Whether the poller is local"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Whether this host group is enabled."
 msgstr ""
 
 #: centreon/www/include/views/graphTemplates/help.php

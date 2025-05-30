@@ -718,38 +718,46 @@
 	<div id='tab4' class='tab'>
 		 <table class="formTable table">
 		 	<tr class="ListHeader">
-        <td class="FormHeader" colspan="2">
-          <h3>| {$form.header.title}</h3>
-        </td>
-      </tr>
-			<tr class="list_lvl_1">
-        <td class="ListColLvl1_name" colspan="2">
-          <h4>{$BrokerModule}</h4>
-        </td>
-      </tr>
+                <td class="FormHeader" colspan="2">
+                <h3>| {$form.header.title}</h3>
+                </td>
+            </tr>
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                <h4>{$BrokerModule}</h4>
+                </td>
+            </tr>
 			<tr class="list_one">
 				<td class="FormRowField">
 				<div style="text-decoration: underline;">{$form.multiple_broker_module.label}</div>
 				{$form.bkTextMultiple.label}
 				</td>
 				<td class="FormRowValue" id="multipleBroker">
-          {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="broker" cloneSet=$cloneSet}
+                {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="broker" cloneSet=$cloneSet}
 				</td>
 			</tr>
-      <tr class="list_two">
-          <td class="FormRowField">
-              <img class="helpTooltip" name="event_broker_options">
-              &nbsp;{$form.event_broker_options.label}
-          </td>
-          <td class="FormRowValue flex-row-wrap">
-              {$form.event_broker_options.html}
-          </td>
-      </tr>
-      <tr class="list_lvl_1">
-        <td class="ListColLvl1_name" colspan="2">
-          <h4>{$MacrosMgmt}</h4>
-        </td>
-      </tr>
+            <tr class="list_two">
+                <td class="FormRowField">
+                    <img class="helpTooltip" name="event_broker_options">
+                    &nbsp;{$form.event_broker_options.label}
+                </td>
+                <td class="FormRowValue flex-row-wrap">
+                    {$form.event_broker_options.html}
+                </td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField">
+                    {$form.broker_module_cfg_file.label}
+                </td>
+                <td class="FormRowValue">
+                    {$form.broker_module_cfg_file.html}
+                </td>
+            </tr>
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                <h4>{$MacrosMgmt}</h4>
+                </td>
+            </tr>
 			<tr class="list_one">
 				<td class="FormRowField"><img class="helpTooltip" name="enable_macros_filter">&nbsp;{$form.enable_macros_filter.label}</td>
 				<td class="FormRowValue">{$form.enable_macros_filter.html}</td>
