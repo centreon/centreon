@@ -24,25 +24,25 @@ use Core\Module\Domain\ModuleInformation;
 
 class DbReadModuleinformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
-	public function findByName(string $name): ?ModuleInformation
-	{
-		$query = $this->queryBuilder
-			->select('name', 'rname', 'mod_release')
-			->from('modules_informations')
-			->where($this->queryBuilder->expr()->equal('name', ':name'))
-			->getQuery();
+    public function findByName(string $name): ?ModuleInformation
+    {
+        $query = $this->queryBuilder
+            ->select('name', 'rname', 'mod_release')
+            ->from('modules_informations')
+            ->where($this->queryBuilder->expr()->equal('name', ':name'))
+            ->getQuery();
 
-		$queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
-		$result = $this->connection->fetchAssociative($query, $queryParameters);
+        $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
+        $result = $this->connection->fetchAssociative($query, $queryParameters);
 
-		if ($result !== []) {
-			return new ModuleInformation(
-				packageName: $result['name'],
-				displayName: $result['rname'],
-				version: $result['mod_release']
-			);
-		}
+        if ($result !== []) {
+            return new ModuleInformation(
+                packageName: $result['name'],
+                displayName: $result['rname'],
+                version: $result['mod_release']
+            );
+        }
 
-		return null;
-	}
+        return null;
+    }
 }
