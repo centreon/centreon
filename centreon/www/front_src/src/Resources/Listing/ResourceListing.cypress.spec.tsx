@@ -913,8 +913,6 @@ describe('Tree view : Feature Flag', () => {
       cy.findByText('Parent').click();
 
       cy.contains(/^D$/).should('be.visible');
-
-      cy.makeSnapshot();
     });
   });
 });
