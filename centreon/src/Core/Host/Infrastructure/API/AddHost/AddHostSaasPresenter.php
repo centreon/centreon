@@ -66,6 +66,8 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'check_timeperiod_id' => $response->checkTimeperiodId,
                         'event_handler_enabled' => $response->eventHandlerEnabled,
                         'event_handler_command_args' => $response->eventHandlerCommandArgs,
+                        'check_command_id' => $response->checkCommandId,
+                        'check_command_args' => $response->checkCommandArgs,
                         'categories' => array_map(
                             function (array $category) {
                                 return [
