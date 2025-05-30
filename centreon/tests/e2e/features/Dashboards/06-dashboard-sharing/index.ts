@@ -111,7 +111,7 @@ Given('a non-admin user who has update rights on a dashboard', () => {
 When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({ label: 'share', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
+  cy.getByTestId({ testId: "Add a contact" }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
   cy.getByTestId({ testId: `add_role` }).parent().click();
@@ -205,7 +205,7 @@ When(
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
+    cy.getByTestId({ testId: 'Add a contact' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
