@@ -210,6 +210,9 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
      */
     public function findByNames(array $tokenNames): array
     {
+        if ($tokenNames === []) {
+            return [];
+        }
         try {
             [$tokenBindValues, $tokensQuery] = $this->createMultipleBindQuery($tokenNames, ':tokenName_');
             $queryParams = QueryParameters::create([]);
