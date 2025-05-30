@@ -3,7 +3,6 @@ import { useLayoutEffect } from 'react';
 import i18next, { i18n, Resource, ResourceLanguage } from 'i18next';
 import { mergeAll, pipe, reduce, toPairs } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { getData, useLocale, useRequest } from '@centreon/ui';
 
@@ -11,6 +10,7 @@ import {
   externalTranslationEndpoint,
   internalTranslationEndpoint
 } from '../App/endpoint';
+
 import { getBrowserLocale } from './utils';
 
 interface UseInitializeTranslationState {

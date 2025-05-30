@@ -2,7 +2,6 @@ import type React from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals, find } from 'ramda';
-import type React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
