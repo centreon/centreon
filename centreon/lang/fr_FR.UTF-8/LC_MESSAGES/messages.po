@@ -22880,3 +22880,12 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
+
+msgid "Select an existing CMA token(s)"
+msgstr "Sélectionner un jeton CMA existant"
+
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"
