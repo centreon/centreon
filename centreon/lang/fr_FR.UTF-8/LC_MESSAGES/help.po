@@ -479,8 +479,8 @@ msgstr ""
 "Sélectionner un modèle de service depuis la liste. Ce modèle de service doit "
 "au préalable avoir été créé."
 
-#: centreon/www/include/configuration/configObject/traps/help.php
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
+#: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Choose a vendor from the list. The vendor must have been created beforehand."
 msgstr ""
@@ -509,10 +509,10 @@ msgstr ""
 "avec le message d'état. Ce mode simple peut être utilisé si chaque trap peut "
 "être associé à exactement un état du moteur de supervision."
 
-#: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
@@ -744,8 +744,8 @@ msgstr ""
 "Définit ici un nom court pour le groupe de services. Ce nom sera utilisé "
 "pour afficher le groupe de services dans supervision, vues et rapports."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Define a short name for this category. It will be displayed with this name "
 "in the ACL configuration."
@@ -1856,8 +1856,8 @@ msgstr ""
 "IP/DNS des clients de confiance. Utilisez des virgules comme séparateur en "
 "cas de clients multiples"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Icon for this severity."
 msgstr "Icône pour la sévérité."
 
@@ -2015,9 +2015,9 @@ msgstr ""
 msgid "Images."
 msgstr "Images."
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-#: centreon/www/include/options/accessLists/actionsACL/help.php
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr "Groupes d'accès liés."
 
@@ -2924,8 +2924,8 @@ msgstr ""
 msgid "Severities are defined in the service category object."
 msgstr "Les criticités sont définies au niveau des catégories d'objets."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Severity level, must be a number. The items displayed will be sorted in "
 "ascending order. Thus the lowest severity is considered than the highest "
@@ -5714,8 +5714,8 @@ msgstr ""
 "Utiliser l'alias comme nom long ou description afin d'identifier la période "
 "de temps."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Use this field for a longer description of this category."
 msgstr "Utiliser ce champ pour une description plus longue de cette catégorie."
 
@@ -5906,8 +5906,8 @@ msgstr "Connecteur activé ou non"
 msgid "Whether or not the password should be stored in database"
 msgstr "Le mot de passe doit-il être stocké en base de données ou non"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Whether or not this category is enabled."
 msgstr "Cette catégorie est active."
 
@@ -5922,8 +5922,8 @@ msgstr ""
 msgid "Whether the poller is local"
 msgstr "Si le collecteur est local"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."
