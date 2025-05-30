@@ -50,7 +50,7 @@ final class AddHostGroupController extends AbstractController
      *
      * @return Response
 	 */
-	#[Route(path: '/configuration/hosts/groups', name: 'hostGroupAttribute', methods: 'POST')]
+	#[Route(path: '/configuration/hosts/groups', name: 'AddHostGroupAttribute', methods: 'POST')]
     public function __invoke(
         Request $request,
         AddHostGroup $useCase,

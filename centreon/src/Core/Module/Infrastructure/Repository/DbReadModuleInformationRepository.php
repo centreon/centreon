@@ -35,7 +35,7 @@ class DbReadModuleinformationRepository extends DatabaseRepository implements Mo
 
         $queryParameters = QueryParameters::create([
             QueryParameter::string('name', $name),
-			]);
+		]);
 		$result = $this->connection->fetchAssociative($query, $queryParameters);
 
 		if ($result !== []) {
