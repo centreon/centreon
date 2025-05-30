@@ -383,6 +383,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
     /**
      * Set contact if he is logged in.
+     *
      * @param RequestEvent $event
      */
     public function initUser(RequestEvent $event): void
@@ -406,7 +407,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client)
+     * Guess the locale to use according to the provided Accept-Language header (sent by browser or http client).
      * 
      * @todo improve this by moving the logic in a dedicated service
      * @todo improve the array of supported locales by INJECTING them instead
