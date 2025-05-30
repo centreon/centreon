@@ -26,16 +26,13 @@ class DbReadModuleinformationRepository extends DatabaseRepository implements Mo
 {
 	public function findByName(string $name): ?ModuleInformation
 	{
-        $query = $this->queryBuilder
-            ->select('name', 'rname', 'mod_release')
-            ->from('modules_informations')
-            ->where($this->queryBuilder->expr()->equal('name', ':name'))
-            ->getQuery();
+		$query = $this->queryBuilder
+			->select('name', 'rname', 'mod_release')
+			->from('modules_informations')
+			->where($this->queryBuilder->expr()->equal('name', ':name'))
+			->getQuery();
 
-
-        $queryParameters = QueryParameters::create([
-            QueryParameter::string('name', $name),
-		]);
+		$queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
 		$result = $this->connection->fetchAssociative($query, $queryParameters);
 
 		if ($result !== []) {
@@ -45,6 +42,7 @@ class DbReadModuleinformationRepository extends DatabaseRepository implements Mo
 				version: $result['mod_release']
 			);
 		}
-        return null;
+
+		return null;
 	}
 }
