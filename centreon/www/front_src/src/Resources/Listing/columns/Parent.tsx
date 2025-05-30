@@ -1,47 +1,48 @@
-import { SeverityCode, type ComponentColumnProps } from "@centreon/ui";
+import { useMemo } from 'react';
 
-import { getStatus } from "./ServiceSubItemColumn/SubItem";
-import StatusChip from "./ServiceSubItemColumn/StatusChip";
+import { SeverityCode, type ComponentColumnProps } from '@centreon/ui';
 
-import { useColumnStyles } from ".";
-import { useMemo } from "react";
+import { getStatus } from './ServiceSubItemColumn/SubItem';
+import StatusChip from './ServiceSubItemColumn/StatusChip';
 
-const fallbackContent = { label: "D", severity: SeverityCode.High };
+import { useColumnStyles } from '.';
+
+const fallbackContent = { label: 'D', severity: SeverityCode.High };
 
 const ParentResourceColumn = ({
-	row,
-	isHovered,
-	renderEllipsisTypography,
+  row,
+  isHovered,
+  renderEllipsisTypography
 }: ComponentColumnProps): JSX.Element | null => {
-	const { classes } = useColumnStyles({ isHovered });
+  const { classes } = useColumnStyles({ isHovered });
 
-	const status = row?.parent?.status?.name;
+  const status = row?.parent?.status?.name;
 
-	const content = useMemo(
-		() => getStatus(status?.toLowerCase())?.label || fallbackContent.label,
-		[status],
-	);
-	const severityCode = useMemo(
-		() =>
-			getStatus(status?.toLowerCase())?.severity || fallbackContent.severity,
-		[status],
-	);
+  const content = useMemo(
+    () => getStatus(status?.toLowerCase())?.label || fallbackContent.label,
+    [status]
+  );
+  const severityCode = useMemo(
+    () =>
+      getStatus(status?.toLowerCase())?.severity || fallbackContent.severity,
+    [status]
+  );
 
-	if (!row.parent) {
-		return null;
-	}
+  if (!row.parent) {
+    return null;
+  }
 
-	return (
-		<>
-			<div className={classes.resourceDetailsCell}>
-				<StatusChip content={content} severityCode={severityCode} />
-			</div>
-			{renderEllipsisTypography?.({
-				className: classes.resourceNameText,
-				formattedString: row.parent?.name || "",
-			})}
-		</>
-	);
+  return (
+    <>
+      <div className={classes.resourceDetailsCell}>
+        <StatusChip content={content} severityCode={severityCode} />
+      </div>
+      {renderEllipsisTypography?.({
+        className: classes.resourceNameText,
+        formattedString: row.parent?.name || ''
+      })}
+    </>
+  );
 };
 
 export default ParentResourceColumn;
