@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
+import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 import {
   labelBetter,
   labelExact,
@@ -13,7 +14,6 @@ import {
   labelMinimum,
   labelRequestedAuthnContext
 } from '../translatedLabels';
-import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
   const { t } = useTranslation();

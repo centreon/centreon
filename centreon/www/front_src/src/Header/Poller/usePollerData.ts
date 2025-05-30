@@ -26,7 +26,7 @@ interface UsePollerDataResult {
 
 export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const userPermissions = useAtomValue(userPermissionsAtom);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
@@ -62,7 +62,7 @@ export const usePollerData = (): UsePollerDataResult => {
       isAllowed,
       isLoading
     }),
-    [isLoading, data]
+    [isLoading, data, i18n.language]
   );
 };
 

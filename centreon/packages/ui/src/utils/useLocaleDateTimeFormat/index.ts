@@ -5,6 +5,8 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { userAtom } from '@centreon/ui-context';
 
+import { useLocale } from '../useLocale';
+
 import shortLocales from './sortLocales';
 
 interface FormatParameters {
@@ -28,10 +30,11 @@ const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 
 const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
-  const { locale, timezone } = useAtomValue(userAtom);
+  const locale = useLocale();
+  const { timezone } = useAtomValue(userAtom);
 
   const format = ({ date, formatString }: FormatParameters): string => {
-    const normalizedLocale = locale.substring(0, 2);
+    const normalizedLocale = locale?.substring(0, 2);
 
     const timezoneDate = dayjs(
       new Date(date).toLocaleString('en', { timeZone: timezone })

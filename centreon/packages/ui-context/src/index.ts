@@ -15,6 +15,8 @@ export {
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
 
+export { browserLocaleAtom } from './browserLocaleAtom';
+
 export type {
   User,
   UserContext,
