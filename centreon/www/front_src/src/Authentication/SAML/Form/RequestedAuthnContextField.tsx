@@ -2,10 +2,12 @@ import type React from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals, find } from 'ramda';
+import type React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
+import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 import {
   labelBetter,
   labelExact,
@@ -13,7 +15,6 @@ import {
   labelMinimum,
   labelRequestedAuthnContext
 } from '../translatedLabels';
-import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
   const { t } = useTranslation();

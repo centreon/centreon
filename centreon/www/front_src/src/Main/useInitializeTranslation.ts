@@ -5,13 +5,13 @@ import { mergeAll, pipe, reduce, toPairs } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
-import { getData, useRequest } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import {
   externalTranslationEndpoint,
   internalTranslationEndpoint
 } from '../App/endpoint';
+import { getBrowserLocale } from './utils';
 
 interface UseInitializeTranslationState {
   getBrowserLocale: () => string;
@@ -27,9 +27,7 @@ const useInitializeTranslation = (): UseInitializeTranslationState => {
     request: getData
   });
 
-  const { locale } = useAtomValue(userAtom);
-
-  const getBrowserLocale = (): string => navigator.language.slice(0, 2);
+  const locale = useLocale();
 
   const initializeI18n = (retrievedTranslations?: ResourceLanguage): void => {
     i18next.use(initReactI18next).init({
