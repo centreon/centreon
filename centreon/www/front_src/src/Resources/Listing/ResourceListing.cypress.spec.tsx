@@ -903,5 +903,18 @@ describe('Tree view : Feature Flag', () => {
       cy.contains('Memory').should('be.visible');
       cy.makeSnapshot();
     });
+
+    it('displays a Down icon when the parent status is null', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findByTestId('Add columns').click();
+      cy.findByText('Parent').click();
+
+      cy.contains(/^D$/).should('be.visible');
+
+      cy.makeSnapshot();
+    });
   });
 });
