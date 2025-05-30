@@ -31,15 +31,16 @@ allOf:
         example: null
       check_command_id:
         type: integer
-        description: "Check command ID"
-        example: 1
+        description: "Check command ID."
+        minimum: 1
         nullable: true
+        example: null
       check_command_args:
         type: array
-        description: "Check command arguments"
         items:
           type: string
-        example: ["0", "OK"]
+          description: "Arguments of the check command."
+        example: ["80", "90"]
       max_check_attempts:
         type: integer
         description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
