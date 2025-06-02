@@ -3,7 +3,9 @@ import agentsConfiguration from '../../../fixtures/agents-configuration/agent-co
 
 before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/ac-acl-user.json'
+  );
 });
 
 beforeEach(() => {
@@ -41,7 +43,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 
@@ -54,18 +56,21 @@ When('the user confirms on the pop-up', () => {
   cy.wait('@deleteAgents');
 });
 
-Then('the agent configuration is no longer displayed in the listing page', () => {
-  cy.contains('Welcome to the poller/agent configuration page').should('be.visible');
-  cy.contains('telegraf-001').should('not.exist');
-});
+Then(
+  'the agent configuration is no longer displayed in the listing page',
+  () => {
+    cy.contains('Welcome to the poller/agent configuration page').should(
+      'be.visible'
+    );
+    cy.contains('telegraf-001').should('not.exist');
+  }
+);
 
 When('the user cancel on the pop-up', () => {
   cy.contains('button', 'Cancel').click();
 });
 
 Then('the agent configuration is still displayed in the listing page', () => {
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
+  cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });

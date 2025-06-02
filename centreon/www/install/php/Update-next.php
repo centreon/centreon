@@ -19,38 +19,225 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 $version = 'xx.xx.x';
 $errorMessage = '';
 
+// -------------------------------------------- Agent Configuration -------------------------------------------- //
+/**
+ * Add prefix "/etc/pki/" and extensions (.crt, .key) to certificate and key paths in agent_configuration table.
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$updateAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from agent_configuration table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `id`, `configuration` FROM `agent_configuration`
+        SQL
+    );
+
+    $errorMessage = 'Unable to update agent_configuration table';
+    $updates = [];
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $config = json_decode($row['configuration'], true);
+        if (! is_array($config)) {
+            continue;
+        }
+
+        foreach ($config as $key => $value) {
+            if (str_ends_with($key, '_certificate') && is_string($value)) {
+                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
+                $filename = preg_replace('/(\.crt|\.cer)$/', '', $filename);
+                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.crt';
+            } elseif (str_ends_with($key, '_key') && is_string($value)) {
+                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
+                $filename = preg_replace('/\.key$/', '', $filename);
+                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.key';
+            }
+
+            if ($key === 'hosts') {
+                foreach ($value as $index => $host) {
+                    if (! is_array($host)) {
+                        continue;
+                    }
+
+                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
+                        $config[$key][$index]['poller_ca_certificate'] = '/etc/pki/' . ltrim($host['poller_ca_certificate'], '/') . '.crt';
+                    }
+                }
+            }
+        }
+
+        $updatedConfig = json_encode($config);
+        $updates[] = [
+            'id' => $row['id'],
+            'configuration' => $updatedConfig
+        ];
+    }
+
+    if (! empty($updates)) {
+        $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
+        $params = [];
+        $whereParams = [];
+
+        foreach ($updates as $index => $update) {
+            $idParam = ":case_id{$index}";
+            $configParam = ":case_config{$index}";
+            $query .= "WHEN {$idParam} THEN {$configParam} ";
+            $params[$idParam] = $update['id'];
+            $params[$configParam] = $update['configuration'];
+
+            $whereParams[] = ":where_id{$index}";
+            $params[":where_id{$index}"] = $update['id'];
+        }
+
+        $query .= 'END WHERE `id` IN (' . implode(', ', $whereParams) . ')';
+
+        $statement = $pearDB->prepareQuery($query);
+        $pearDB->executePreparedQuery($statement, $params);
+    }
+};
+
+/**
+  * Add Column connection_mode to agent_configuration table.
+  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+  *
+  * @param CentreonDB $pearDB
+  *
+  * @throws CentreonDbException
+  */
+  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `agent_configuration`
+            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+            SQL
+    );
+};
+
+// -------------------------------------------- SAML configuration -------------------------------------------- //
+
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
+};
+
+// -------------------------------------------- Token -------------------------------------------- //
+
+$createJwtTable = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Failed to create table jwt_tokens';
+
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `jwt_tokens` (
+                `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+                `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
+                `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
+                `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
+                `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
+                `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
+                `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
+                `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+                PRIMARY KEY (`token_name`),
+                CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
+                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens'
+            SQL
+    );
+};
+
+$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update new authentication tokens topology';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+                SET
+                    `topology_name` = 'Authentication Tokens',
+                    `topology_url` = '/administration/authentication-token'
+            WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
+            SQL
+    );
+};
+
 try {
+    // DDL statements for configuration database
+    $createJwtTable();
+    $addConnectionModeColumnToAgentConfiguration();
+
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    $updateAgentConfiguration();
+    $updateSamlProviderConfiguration($pearDB);
+    $updateTopologyForAuthenticationTokens();
+
     $pearDB->commit();
-} catch (\Exception $e) {
+
+} catch (\Throwable $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $exception
+    );
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $e) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation",
-            customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-            exception: $e
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
 
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-        exception: $e
-    );
-
-    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,26 +190,30 @@ try {
     $changeAccNameInTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+
+} catch (\Throwable $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "{$versionOfTheUpgrade}: " . $errorMessage,
+        exception: $exception
+    );
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $e) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
-            customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-            exception: $e
+            message: "{$versionOfTheUpgrade}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new \Exception(
+            "{$versionOfTheUpgrade}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
 
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage,
-        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-        exception: $e
-    );
-
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("{$versionOfTheUpgrade}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

@@ -34,19 +34,21 @@ Given('I am logged in as an administrator', () => {
   });
 });
 
-Given('API tokens with predefined details are created', () => {
+Given('Authentication tokens with predefined details are created', () => {
   cy.fixture('api-token/tokens.json').then((tokens: Record<string, Token>) => {
     Object.values(tokens).forEach((token) => {
       const today = new Date();
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      const expirationDateISOString = expirationDate.toISOString();
+      // Get the ISO string without milliseconds
+      const expirationDateISOString = expirationDate.toISOString().split('.')[0] + "Z";
 
       const payload = {
         expiration_date: expirationDateISOString,
         name: token.name,
-        user_id: token.userId
+        user_id: token.userId,
+        type: token.type
       };
       cy.request({
         body: payload,
@@ -62,7 +64,7 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 

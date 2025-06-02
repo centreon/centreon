@@ -59,7 +59,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * Return a table containing all the translations.
+     * Return a table containing all the translations for a language.
      *
      * @return array
      * @throws \Exception
@@ -70,6 +70,25 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
             $translation = $this->services
                 ->get(ServiceProvider::CENTREON_I18N_SERVICE)
                 ->getTranslation();
+        } catch (\Exception) {
+            throw new \Exception("Translation files does not exists");
+        }
+
+        return $translation;
+    }
+
+    /**
+     * Return a table containing all the translations from all languages.
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function getAllTranslations(): array
+    {
+        try {
+            $translation = $this->services
+                ->get(ServiceProvider::CENTREON_I18N_SERVICE)
+                ->getAllTranslations();
         } catch (\Exception) {
             throw new \Exception("Translation files does not exists");
         }

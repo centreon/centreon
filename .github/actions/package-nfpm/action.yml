@@ -4,6 +4,9 @@ inputs:
   nfpm_file_pattern:
     description: The pattern of the nfpm configuration file(s)
     required: true
+  module_name:
+    description: The name of the module to be packaged
+    required: true
   package_extension:
     description: The package extension (deb or rpm)
     required: true
@@ -48,6 +51,14 @@ runs:
   using: composite
 
   steps:
+    - name: Remove lockfiles and development files
+      run: |
+        find ${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "symfony.lock" -delete
+      shell: bash
+
     - name: Parse distrib name
       id: parse-distrib
       uses: ./.github/actions/parse-distrib
@@ -124,6 +135,6 @@ runs:
       name: Upload package artifacts
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
-        name: ${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
+        name: ${{ inputs.module_name }}-${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
         path: ./*.${{ inputs.package_extension }}
         retention-days: 1

@@ -100,7 +100,7 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,

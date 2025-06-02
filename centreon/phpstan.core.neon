@@ -82,6 +82,9 @@ parameters:
                 - src/Core/Common/Domain
                 - src/Core/AgentConfiguration/Infrastructure/Repository
                 - src/Core/Common/Infrastructure/Repository
+                - src/Core/Contact/Infrastructure/Repository
+                - src/Core/Resources/Infrastructure
+                - src/Core/Security/AccessGroup/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
@@ -123,8 +126,9 @@ parameters:
             message: '#Repositories must implement an Interface defined in Application layer.#'
             paths:
                 - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
-          # To fix this custom rule that block the development (to clean)
-        - # Unsafe usage of new static(). Unblock usage of value object.
+          # ======= To fix this custom rule that block the development (TO CLEAN) =======
+        - # Problem : block usage of Value Object.
+          # Unsafe usage of new static().
             reportUnmatched: false
             message: '#Unsafe usage of new static#'
             paths:

@@ -62,6 +62,10 @@ services:
     Logger:
         class: Centreon\Domain\Log\Logger
 
+    Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger:
+      arguments:
+        $logger: '@Logger'
+
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
@@ -467,14 +471,6 @@ services:
     # Menu
     Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface:
         class: Centreon\Infrastructure\Menu\MenuRepositoryRDB
-
-    Core\Security\Authentication\Application\UseCase\LoginSession\LoginSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Core\Security\Authentication\Application\UseCase\LoginOpenIdSession\LoginOpenIdSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
 
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider

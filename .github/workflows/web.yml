@@ -212,23 +212,79 @@ jobs:
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 10
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-      - run: |
+      - name: Build translations
+        id: build-translations
+        env:
+          IS_NIGHTLY: ${{ needs.get-environment.outputs.is_nightly }}
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          EVENT_NAME: ${{ github.event_name }}
+          HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+        run: |
+          TRANSLATIONS_PATCH_FILE=""
+
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
           cd centreon
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-          for i in lang/* ; do
-            localefull=`basename $i`
-            langcode=`echo $localefull | cut -d _ -f 1`
+
+          for i in lang/*.UTF-8 ; do
+            localefull="$(basename "$i")"
+            langName="$(echo "$localefull" | cut -d . -f 1)"
+            langShortName="$(echo "$localefull" | cut -d _ -f 1)"
             mkdir -p "www/locale/$localefull/LC_MESSAGES"
+            bash ../.github/scripts/translation/make_translation.sh centreon $langName
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+            php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
           done
+
+          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+
+          if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]]; then
+            # avoid to always update POT-Creation-Date field
+            find -type f -regex '.+\.pot?' -exec sed -i -e 's/"POT-Creation-Date.*$/"POT-Creation-Date: 2025-01-01 00:00+0000\\n"/g' {} \;
+            if [[ ( "$IS_NIGHTLY" == "false" && "$STABILITY" == "unstable" ) || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
+              if [[ "$(git log -1 --pretty=format:'%an')" != "technique-ci" ]]; then
+                git config user.name "technique-ci"
+                git config user.email "technique+ci@centreon.com"
+                git status
+                git add .
+                git commit -m "chore(lang): update translations"
+                git push
+              else
+                echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
+                cd ..
+                git diff > translations.patch
+                TRANSLATIONS_PATCH_FILE="translations.patch"
+              fi
+            else
+              echo "::notice::Translations have been updated, but the workflow is a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
+              cd ..
+              git diff > translations.patch
+              TRANSLATIONS_PATCH_FILE="translations.patch"
+            fi
+          else
+            echo "No changes in translations"
+          fi
+
+          echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
         shell: bash
 
-      - uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      - name: Upload translations patch
+        if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: translations-patch
+          path: ${{ steps.build-translations.outputs.translations_patch_file }}
+          retention-days: 1
+
+      - uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -393,6 +449,14 @@ jobs:
         working-directory: centreon
         shell: bash
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
+      - name: Check Symfony configuration
+        run: composer symfony:check:ci
+        working-directory: centreon
+
       - name: Run of php-cs-fixer with strict_type
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
         working-directory: centreon
@@ -554,6 +618,7 @@ jobs:
         uses: ./.github/actions/package-nfpm
         with:
           nfpm_file_pattern: "centreon/packaging/*.yaml"
+          module_name: centreon
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -1163,3 +1228,27 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
     uses: ./.github/workflows/set-pull-request-skip-label.yml
+
+  clear-branch-cache:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, deliver-deb, deliver-rpm]
+    env:
+      GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    if: |
+      needs.get-environment.outputs.is_nightly == 'true' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: List and delete cache
+        run: |
+          mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          echo $cache_keys
+          while read row; do
+            gh cache delete $row
+            echo "Cache $row was deleted."
+          done <<< "$cache_keys"
+        shell: bash

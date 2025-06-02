@@ -24,6 +24,7 @@
     "doctrine/dbal": "^4.2",
     "dragonmantank/cron-expression": "3.1.0",
     "enshrined/svg-sanitize": "^0.15",
+    "firebase/php-jwt": "^6.11",
     "friendsofsymfony/rest-bundle": "^3.0",
     "jms/serializer-bundle": "^5.4",
     "justinrainbow/json-schema": "^5.2",
@@ -84,6 +85,7 @@
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",
+    "phpstan/phpstan-mockery": "1.1.*",
     "rector/rector": "1.2.*",
     "robertfausk/mink-panther-driver": "1.1.*",
     "squizlabs/php_codesniffer": "3.10.*",
@@ -168,7 +170,8 @@
     "phpstan:test:ci": "@phpstan:test --no-progress",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector process --dry-run --debug",
-    "rector:exec": "rector process --debug"
+    "rector:exec": "rector process --debug",
+    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
   },
   "extra": {
     "symfony": {

@@ -4,19 +4,18 @@ info:
   description: |
     # New features
     + Added endpoint to deploy services in a host based on associated host template(s)
+    + Added endpoint to export resources : only csv format available for the moment
+    + Added endpoint to count resources
+    + Added new endpoint to get a token
+    
     # Updated features
-    + Added host_category filter to /monitoring/hostgroups endpoint
-    + Added new filters for the /monitoring/hosts/categories endpoint
-    + Added new filters for the /monitoring/services/categories endpoint
-    + Remove snmp_community property from the hosts and host templates listing endpoints
-    + Added new filters to the /monitoring/servicegroups endpoint
-    + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
-    + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     + Update /configuration/contacts/groups endpoint by adding new listing properties
     + Content-type changed from application/json to multipart/form-data for dashboard partial update endpoint which is now a POST and not a PATCH
     + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
     + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
     + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
+    + Update token add/update endpoints
     +
     # Information
     All dates are in **ISO 8601** format
@@ -1840,6 +1839,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/resources/count:
+    $ref: './latest/onPremise/Realtime/Resources/CountResources.yaml'
+  /monitoring/resources/export:
+    $ref: './latest/onPremise/Realtime/Resources/ExportResources.yaml'
   /monitoring/resources/hosts/{host_id}:
     get:
       tags:
@@ -4540,9 +4543,9 @@ paths:
   /administration/tokens:
     $ref: "./latest/onPremise/Administration/Token/AddTokenAndFindTokens.yaml"
   /administration/tokens/{token_name}:
-    $ref: "./latest/onPremise/Administration/Token/DeleteToken.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
-    $ref: "./latest/onPremise/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:
@@ -5310,6 +5313,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - requested_authn_context
         - logout_from
       properties:
         is_active:
@@ -5334,6 +5338,10 @@ components:
         user_id_attribute:
           type: string
           description: ""
+        requested_authn_context:
+          type: string
+          enum: ['minimum', 'exact', 'better', 'maximum']
+          description: "Requested authentication context"
         logout_from:
           type: boolean
           description: "Logout"

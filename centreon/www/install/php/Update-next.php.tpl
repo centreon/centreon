@@ -21,6 +21,10 @@
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
+/**
+ * This file contains changes to be included in the next version.
+ * The actual version number should be added in the variable $version.
+ */
 $version = 'xx.xx.x';
 $errorMessage = '';
 
@@ -41,26 +45,30 @@ try {
     // TODO add your function calls to update the configuration database data here
 
     $pearDB->commit();
-} catch (\Exception $e) {
+
+} catch (\Throwable $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $exception
+    );
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $e) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation",
-            customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-            exception: $e
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
 
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
-        exception: $e
-    );
-
-    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

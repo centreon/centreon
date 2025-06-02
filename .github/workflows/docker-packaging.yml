@@ -56,8 +56,14 @@ jobs:
             dockerfile: packaging-nfpm-bookworm
             image: packaging-nfpm-bookworm
           - runner: ubuntu-24.04
+            dockerfile: packaging-jammy
+            image: packaging-jammy
+          - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-jammy
             image: packaging-nfpm-jammy
+          - runner: ubuntu-24.04
+            dockerfile: packaging-noble
+            image: packaging-noble
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-noble
             image: packaging-nfpm-noble
