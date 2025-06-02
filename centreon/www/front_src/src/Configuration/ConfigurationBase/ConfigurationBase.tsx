@@ -15,7 +15,8 @@ const Base = ({
   filtersConfiguration,
   filtersInitialValues,
   defaultSelectedColumnIds,
-  actions
+  actions,
+  labels
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -68,6 +69,7 @@ const Base = ({
       resourceType={resourceType}
       form={form}
       actions={actions}
+      labels={labels}
     />
   );
 };

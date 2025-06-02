@@ -52,6 +52,16 @@ export interface ConfigurationBase {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
+  labels: {
+    title: string;
+    welcomePage: {
+      title: string;
+      description?: string;
+      actions: {
+        create: string;
+      };
+    };
+  };
 }
 
 export enum FieldType {

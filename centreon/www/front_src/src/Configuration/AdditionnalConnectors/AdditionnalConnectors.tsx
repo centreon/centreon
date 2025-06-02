@@ -4,10 +4,19 @@ import useColumns from './Columns/useColumns';
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
+import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
+import {
+  labelAddAdditionalConfigurations,
+  labelAdditionalConnectorConfiguration,
+  labelPageDescription,
+  labelWelcomeToAdditionalConfigurations
+} from './translatedLabels';
 import useAdditionnalConnectors from './useAdditionnalConnectors';
 
 const AdditionnalConnectors = () => {
+  const { t } = useTranslation();
+
   const { columns } = useColumns();
   const { groups, inputs } = useFormInputs();
   const { validationSchema } = useValidationSchema();
@@ -26,6 +35,16 @@ const AdditionnalConnectors = () => {
       actions={{
         delete: true,
         edit: true
+      }}
+      labels={{
+        title: t(labelAdditionalConnectorConfiguration),
+        welcomePage: {
+          title: t(labelWelcomeToAdditionalConfigurations),
+          description: t(labelPageDescription),
+          actions: {
+            create: t(labelAddAdditionalConfigurations)
+          }
+        }
       }}
     />
   );

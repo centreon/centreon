@@ -78,3 +78,9 @@ export const labelParametersTooltip = 'Parameters tooltip';
 export const labelGeneralInformation = 'General information';
 export const labelSettings = 'Settings';
 export const labelcCenterESX = 'vCenter/ESX';
+
+export const labelWelcomeToAdditionalConfigurations =
+  'Welcome to the additional configurations page';
+export const labelPageDescription =
+  'For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here.';
+export const labelAddAdditionalConfigurations = 'Add additional configurations';
