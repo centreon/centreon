@@ -65,7 +65,7 @@ const useUser = (): (() => null | Promise<void>) => {
           id,
           isAdmin,
           isExportButtonEnabled,
-          locale: locale || 'en',
+          locale,
           name,
           themeMode,
           timezone,
