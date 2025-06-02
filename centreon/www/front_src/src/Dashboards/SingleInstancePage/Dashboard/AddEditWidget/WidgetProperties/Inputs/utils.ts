@@ -62,20 +62,6 @@ interface GetYupValidatorTypeProps {
   t: TFunction;
 }
 
-export const boundariesValidationSchema = object()
-  .shape({
-    min: number().required(),
-    max: number()
-      .test('isMinAboveMax', labelMinMustLowerThanMax, (value, context) => {
-        if (isNil(value) || isNil(context.parent.min)) {
-          return true;
-        }
-        return Number(value || 0) > context.parent.min;
-      })
-      .required()
-  })
-  .optional();
-
 const getYupValidatorType = ({
   t,
   properties
@@ -177,10 +163,6 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(number().min(1))
-    ],
-    [
-      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
-      always(boundariesValidationSchema) // a regarder apres
     ]
   ])(properties.type);
 
