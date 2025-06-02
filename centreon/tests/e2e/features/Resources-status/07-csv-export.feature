@@ -1,19 +1,17 @@
 Feature: Submit a Result to a Passive service or host
   As a Centreon user
-  I want to force the status and output of a passive service or host
-  To launch a specific event
+  I want to export the current status of resources
+  So that I can review or process them externally
 
-  Background:
-    Given an admin user is logged in a Centreon server
+  Scenario: Export resource status to CSV with all columns and all pages selected
+    Given an admin user is logged in and redirected to the Resource Status page
+    When the admin user clicks the Export button
+    Then a CSV file should be downloaded
+    And the CSV file should contain the correct headers and the expected data
 
-  @TEST_MON-158565
-  Scenario: Submit result to a passive service
-    Given one passive service has been configured using arguments status and output exists
-    When the user submits some results to this service
-    Then the values are set as wanted in Monitoring > Status details page of this service
-
-  @TEST_MON-158566
-  Scenario: Submit result to a passive host
-    Given one passive host has been configured using arguments status and output exists
-    When the user submits some results to this host
-    Then the values are set as wanted in Monitoring > Status details page of this host
+  Scenario: Export resource status to CSV using only the currently visible columns and pages
+    Given an admin user is logged in and redirected to the Resource Status page
+    When the admin user unchecks some columns in the table settings
+    And the admin user exports only visible columns and pages
+    Then a CSV file should be downloaded
+    And the CSV file should contain the updated headers and the expected data
