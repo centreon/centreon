@@ -516,9 +516,9 @@ overrides:
       - locales
       - gettext
       - centreon-common
+      - centreon-perl-libs
     provides:
       - centreon-web-common
-      - centreon-perl-libs
       - centreon-widget-engine-status
       - centreon-widget-global-health
       - centreon-widget-graph-monitoring
