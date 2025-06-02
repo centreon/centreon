@@ -229,10 +229,11 @@ sub get_alarms {
     # if hosts is disabled: it's an host on the wrong instance or instance is not running. otherwise we care about enabled only.
     my ($status, $sth) = $self->{db_centstorage}->query(
         "SELECT mdc.`cache_id`, mdc.`host_id`, mdc.`ctime`, mdc.`status`, mdc.`pool_prefix`, mdc.`id`, mdc.`macros`, mdc.`output`
-         FROM mod_dsm_cache mdc, hosts
-         WHERE mdc.host_id = hosts.host_id AND
-               hosts.enabled = '1'
-         "
+        FROM mod_dsm_cache mdc, hosts
+        WHERE mdc.host_id = hosts.host_id AND
+            hosts.enabled = '1'
+        GROUP BY CONCAT(mdc.host_id, '_', mdc.pool_prefix)
+        "
     );
     if ($status == -1) {
         $self->{logger}->writeLogError('cannot get alarms');
