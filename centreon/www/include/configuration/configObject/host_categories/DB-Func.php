@@ -92,11 +92,9 @@ function testHostCategorieExistence(?string $name = null): bool
     }
 
     $currentId = $form ? $form->getSubmitValue('hc_id') : null;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('hc_id')
-        ->from('hostcategories')
-        ->where('hc_name = :hc_name')
-        ->getQuery();
+    $query = <<<SQL
+            SELECT hc_id FROM hostcategories WHERE hc_name = :hc_name
+        SQL;
 
     try {
         $cleanName = \HtmlSanitizer::createFromString($name)
@@ -140,16 +138,13 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
         $hcArr = [$hcId => '1'];
     }
 
-    $updQuery = $pearDB->createQueryBuilder()
-        ->update('hostcategories')
-        ->set('hc_activate', "'1'")
-        ->where('hc_id = :hc_id')
-        ->getQuery();
-    $selQuery = $pearDB->createQueryBuilder()
-        ->select('hc_name')
-        ->from('hostcategories')
-        ->where('hc_id = :hc_id')
-        ->getQuery();
+    $updQuery = <<<SQL
+            UPDATE hostcategories SET hc_activate = '1' WHERE hc_id = :hc_id
+        SQL;
+
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
 
     try {
         foreach (array_keys($hcArr) as $key) {
@@ -196,16 +191,13 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
         $hcArr = [$hcId => '1'];
     }
 
-    $updQuery = $pearDB->createQueryBuilder()
-        ->update('hostcategories')
-        ->set('hc_activate', "'0'")
-        ->where('hc_id = :hc_id')
-        ->getQuery();
-    $selQuery = $pearDB->createQueryBuilder()
-        ->select('hc_name')
-        ->from('hostcategories')
-        ->where('hc_id = :hc_id')
-        ->getQuery();
+    $updQuery = <<<SQL
+            UPDATE hostcategories SET hc_activate = '0' WHERE hc_id = :hc_id
+        SQL;
+
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
 
     try {
         foreach (array_keys($hcArr) as $key) {
@@ -250,15 +242,13 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
         return;
     }
 
-    $selQuery = $pearDB->createQueryBuilder()
-        ->select('hc_name')
-        ->from('hostcategories')
-        ->where('hc_id = :hc_id')
-        ->getQuery();
-    $delQuery = $pearDB->createQueryBuilder()
-        ->delete('hostcategories')
-        ->where('hc_id = :hc_id')
-        ->getQuery();
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
+
+    $delQuery = <<<SQL
+            DELETE FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
 
     try {
         foreach (array_keys($hostCategories) as $key) {
@@ -303,14 +293,11 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
     try {
         foreach (array_keys($hostCategories) as $key) {
-            $hcId = (int)filter_var($key, FILTER_VALIDATE_INT);
+            $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
 
-            $selectQ = $pearDB->createQueryBuilder()
-                ->select('*')
-                ->from('hostcategories')
-                ->where('hc_id = :hc_id')
-                ->limit(1)
-                ->getQuery();
+            $selectQ = <<<SQL
+                    SELECT * FROM hostcategories WHERE hc_id = :hc_id LIMIT 1
+                SQL;
             $row = $pearDB->fetchAssociative(
                 $selectQ,
                 QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
@@ -328,17 +315,10 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                     continue;
                 }
 
-                $qbInsert = $pearDB->createQueryBuilder()
-                    ->insert('hostcategories')
-                    ->values([
-                        'hc_name' => ':hc_name',
-                        'hc_alias' => ':hc_alias',
-                        'level' => ':level',
-                        'icon_id' => ':icon_id',
-                        'hc_comment' => ':hc_comment',
-                        'hc_activate' => ':hc_activate',
-                    ]);
-                $insQuery = $qbInsert->getQuery();
+                $insQuery = <<<SQL
+                        INSERT INTO hostcategories (hc_name, hc_alias, level, icon_id, hc_comment, hc_activate)
+                        VALUES (:hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
+                    SQL;
 
                 $params = [
                     QueryParameter::string('hc_name', $newName),
@@ -358,24 +338,20 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 $aclMap[$newId] = $hcId;
 
                 if (empty($row['level'])) {
-                    $relSelect = $pearDB->createQueryBuilder()
-                        ->select('host_host_id')
-                        ->from('hostcategories_relation')
-                        ->where('hostcategories_hc_id = :hc_id')
-                        ->getQuery();
+                    $relSelect = <<<SQL
+                            SELECT host_host_id FROM hostcategories_relation WHERE hostcategories_hc_id = :hc_id
+                        SQL;
                     $hostRows = $pearDB->fetchAllAssociative(
                         $relSelect,
                         QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
                     );
                     foreach ($hostRows as $host) {
+                        $insertRelation = <<<SQL
+                                INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id)
+                                VALUES (:new, :host)
+                            SQL;
                         $pearDB->insert(
-                            $pearDB->createQueryBuilder()
-                                ->insert('hostcategories_relation')
-                                ->values([
-                                    'hostcategories_hc_id' => ':new',
-                                    'host_host_id' => ':host'
-                                ])
-                                ->getQuery(),
+                            $insertRelation,
                             QueryParameters::create([
                                 QueryParameter::int('new', $newId),
                                 QueryParameter::int('host', $host['host_host_id'])
@@ -420,17 +396,11 @@ function insertHostCategories(array $ret = []): int
         $ret = getHostCategoryValues();
     }
 
-    $qb = $pearDB->createQueryBuilder()
-        ->insert('hostcategories')
-        ->values([
-            'hc_name' => ':hc_name',
-            'hc_alias' => ':hc_alias',
-            'level' => ':level',
-            'icon_id' => ':icon_id',
-            'hc_comment' => ':hc_comment',
-            'hc_activate' => ':hc_activate',
-        ]);
-    $insQuery = $qb->getQuery();
+    $insQuery = <<<SQL
+            INSERT INTO hostcategories (hc_name, hc_alias, level, icon_id, hc_comment, hc_activate)
+            VALUES (:hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
+        SQL;
+
 
     // Enforce '0' or '1' on activation
     $rawAct  = $ret['hc_activate']['hc_activate'] ?? '';
@@ -523,16 +493,16 @@ function updateHostCategories(int $hcId): void
     // Whitelist & sanitize incoming values
     $ret = getHostCategoryValues();
 
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('hostcategories')
-        ->set('hc_name', ':hc_name')
-        ->set('hc_alias', ':hc_alias')
-        ->set('level', ':level')
-        ->set('icon_id', ':icon_id')
-        ->set('hc_comment', ':hc_comment')
-        ->set('hc_activate', ':hc_activate')
-        ->where('hc_id = :hc_id')
-        ->getQuery();
+    $query = <<<SQL
+            UPDATE hostcategories
+            SET hc_name = :hc_name,
+                hc_alias = :hc_alias,
+                level = :level,
+                icon_id = :icon_id,
+                hc_comment = :hc_comment,
+                hc_activate = :hc_activate
+            WHERE hc_id = :hc_id
+        SQL;
 
     // Prepare params with conditional binding
     $rawAct = $ret['hc_activate']['hc_activate'] ?? '';
@@ -596,11 +566,11 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
 
     try {
         // Delete old relations
+        $delQuery = <<<SQL
+                DELETE FROM hostcategories_relation WHERE hostcategories_hc_id = :hc_id
+            SQL;
         $pearDB->delete(
-            $pearDB->createQueryBuilder()
-                ->delete('hostcategories_relation')
-                ->where('hostcategories_hc_id = :hc_id')
-                ->getQuery(),
+            $delQuery,
             QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
         );
 
@@ -614,13 +584,10 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             return;
         }
 
-        $insertBuilder = $pearDB->createQueryBuilder()
-            ->insert('hostcategories_relation')
-            ->values([
-                'hostcategories_hc_id' => ':hc_id',
-                'host_host_id'         => ':host'
-            ]);
-        $insQuery = $insertBuilder->getQuery();
+        $insQuery = <<<SQL
+                INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id)
+                VALUES (:hc_id, :host)
+            SQL;
 
         foreach ($hosts as $hostId) {
             $pearDB->insert(

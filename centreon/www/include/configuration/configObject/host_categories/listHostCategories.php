@@ -70,19 +70,13 @@ $offset = $num * $limit;
 
 try {
     // Build main query
-    $queryBuilder = $pearDB->createQueryBuilder()
-        ->select('hc.hc_id', 'hc.hc_name', 'hc.hc_alias', 'hc.level', 'hc.hc_activate')
-        ->from('hostcategories', 'hc');
+    $mainSelect = 'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.level, hc.hc_activate ';
+    $mainQuery = 'FROM hostcategories hc';
 
     $parameters = [];
 
     if ($search !== '') {
-        $queryBuilder->andWhere(
-            $queryBuilder->expr()->or(
-                $queryBuilder->expr()->like('hc.hc_name', ':search'),
-                $queryBuilder->expr()->like('hc.hc_alias', ':search')
-            )
-        );
+        $mainQuery .= " WHERE (hc.hc_name LIKE :search OR hc.hc_alias LIKE :search)";
         $parameters[] = QueryParameter::string('search', "%$search%");
     }
 
@@ -93,29 +87,19 @@ try {
         );
         $bindparams = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
         if (count($bindparams["parameters"]) > 0) {
-            $queryBuilder->andWhere("hc.hc_id IN ( {$bindparams["placeholderList"]} )");
+            $mainQuery .= $search !== '' ? " AND " : " WHERE ";
+            $mainQuery .= "hc.hc_id IN ({$bindparams['placeholderList']})";
             $parameters = array_merge($parameters, $bindparams["parameters"]);
         }
     }
 
-    $queryForCount = $queryBuilder->getQuery();
+    $countSql = 'SELECT COUNT(*) AS total ' . $mainQuery;
 
-    $queryBuilder->orderBy('hc.hc_name')
-       ->offset($offset)
-       ->limit($limit);
-
-    $mainQuery   = $queryBuilder->getQuery();
+    $mainQuery = $mainSelect . $mainQuery . " ORDER BY hc.hc_name LIMIT :limit OFFSET :offset";
     $queryParams = QueryParameters::create($parameters);
 
     // Execute fetch
     $hostCategories = $pearDB->fetchAllAssociative($mainQuery, $queryParams);
-
-    //build count query
-    //remove the select part of the query
-    $fromPos = stripos($queryForCount, ' FROM ');
-    $fromClause = substr($queryForCount, $fromPos);
-
-    $countSql = 'SELECT COUNT(*) AS total' . $fromClause;
     $countRow = $pearDB->fetchAssociative($countSql, $queryParams);
     $totalRows    = (int) ($countRow['total'] ?? 0);
 } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -175,31 +159,27 @@ $centreonToken = createCSRFToken();
 
 // count enabled/disabled hosts per category
 try {
-    $countsQuerybuilder = $pearDB->createQueryBuilder()
-        ->select('hcr.hostcategories_hc_id AS hc_id')
-        ->addSelect('SUM(CASE WHEN h.host_activate = "1" THEN 1 ELSE 0 END) AS enabled')
-        ->addSelect('SUM(CASE WHEN h.host_activate = "0" THEN 1 ELSE 0 END) AS disabled')
-        ->from('hostcategories_relation', 'hcr')
-        ->join('hcr', 'host', 'h', 'h.host_id = hcr.host_host_id')
-        ->where('h.host_register = "1"');
+    $countsSql = <<<SQL
+            SELECT hcr.hostcategories_hc_id AS hc_id,
+                SUM(CASE WHEN h.host_activate = "1" THEN 1 ELSE 0 END) AS enabled,
+                SUM(CASE WHEN h.host_activate = "0" THEN 1 ELSE 0 END) AS disabled
+            FROM hostcategories_relation hcr
+            JOIN host h ON h.host_id = hcr.host_host_id
+            WHERE h.host_register = "1"
+        SQL;
 
     if (! $centreon->user->admin) {
-        $subQuerybuilder = $pearDB->createQueryBuilder();
-        $subQuerybuilder -> select('1')
-            ->from("{$aclDbName}.centreon_acl", 'acl')
-            ->where(
-                $countsQuerybuilder->expr()->equal('acl.host_id', 'h.host_id')
-            )
-            ->andWhere(
-                $countsQuerybuilder->expr()->in('acl.group_id', "({$acl->getAccessGroupsString()})")
-            );
-        $countsQuerybuilder->andWhere(
-            "EXISTS( {$subQuerybuilder->getQuery()} )"
-        );
+        $countsSql .= <<<SQL
+                AND EXISTS (
+                    SELECT 1
+                    FROM {$aclDbName}.centreon_acl acl
+                    WHERE acl.host_id = h.host_id
+                    AND acl.group_id IN ({$acl->getAccessGroupsString()})
+                )
+            SQL;
     }
-    $countsQuerybuilder->groupBy('hcr.hostcategories_hc_id');
+    $countsSql .= " GROUP BY hcr.hostcategories_hc_id";
 
-    $countsSql = $countsQuerybuilder->getQuery();
     $countsRows = $pearDB->fetchAllAssociative($countsSql);
 
     $countsByCategory = [];
