@@ -6,7 +6,6 @@ import { WidgetProps } from './models';
 
 const Widget = ({
   panelData,
-  store,
   id,
   dashboardId,
   globalRefreshInterval,
@@ -25,7 +24,6 @@ const Widget = ({
     <FederatedComponent
       path="/bam/widget"
       panelData={panelData}
-      store={store}
       panelOptions={panelOptions}
       globalRefreshInterval={globalRefreshInterval}
       refreshCount={refreshCount}
