@@ -2,6 +2,8 @@ import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import { capitalize } from '@mui/material';
+
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
@@ -121,40 +123,51 @@ const initialize = ({
         <SnackbarProvider>
           <TestQueryProvider>
             <Provider store={store}>
-              <ConfigurationBase
-                resourceType={resourceType}
-                columns={columns}
-                form={{
-                  groups,
-                  inputs,
-                  defaultValues: {
-                    name: '',
-                    alias: '',
-                    coordinates: ''
-                  }
-                }}
-                api={{
-                  endpoints: getEndpoints(resource),
-                  decoders: { getAll: resourceDecoderListDecoder },
-                  adapter: (data) => data
-                }}
-                filtersConfiguration={filters}
-                filtersInitialValues={filtersInitialValues}
-                defaultSelectedColumnIds={[
-                  'name',
-                  'alias',
-                  'actions',
-                  'is_activated'
-                ]}
-                actions={{
-                  massive: true,
-                  enableDisable: true,
-                  delete: true,
-                  duplicate: true,
-                  edit: true,
-                  viewDetails: true
-                }}
-              />
+              <div style={{ height: '100vh' }}>
+                <ConfigurationBase
+                  resourceType={resourceType}
+                  columns={columns}
+                  form={{
+                    groups,
+                    inputs,
+                    defaultValues: {
+                      name: '',
+                      alias: '',
+                      coordinates: ''
+                    }
+                  }}
+                  api={{
+                    endpoints: getEndpoints(resource),
+                    decoders: { getAll: resourceDecoderListDecoder },
+                    adapter: (data) => data
+                  }}
+                  filtersConfiguration={filters}
+                  filtersInitialValues={filtersInitialValues}
+                  defaultSelectedColumnIds={[
+                    'name',
+                    'alias',
+                    'actions',
+                    'is_activated'
+                  ]}
+                  actions={{
+                    massive: true,
+                    enableDisable: true,
+                    delete: true,
+                    duplicate: true,
+                    edit: true,
+                    viewDetails: true
+                  }}
+                  labels={{
+                    title: `${capitalize(resourceType)}s`,
+                    welcomePage: {
+                      title: 'Welcome to configuration base',
+                      actions: {
+                        create: 'Add configuration base'
+                      }
+                    }
+                  }}
+                />
+              </div>
             </Provider>
           </TestQueryProvider>
         </SnackbarProvider>
