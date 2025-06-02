@@ -99,7 +99,7 @@
     "vite-plugin-turbosnap": "^1.0.3"
   },
   "peerDependencies": {
-    "@centreon/ui-context": "link:../ui-context"
+    "@centreon/ui-context": "workspace:*"
   },
   "dependencies": {
     "@lexical/html": "^0.27.0",
