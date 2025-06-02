@@ -13,7 +13,6 @@ import {
 import { centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from './AddEditWidget/models';
-import { Resource } from './Widgets/models';
 import { getIsMetaServiceSelected } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
