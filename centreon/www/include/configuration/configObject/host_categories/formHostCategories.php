@@ -49,11 +49,9 @@ $initialValues = [];
 $hc = [];
 if (in_array($o, ['c','w'], true) && $hc_id) {
     try {
-        $queryBuilder = $pearDB->createQueryBuilder();
-        $query = $queryBuilder->select('*')
-            ->from('hostcategories')
-            ->where('hc_id = :hc_id')
-            ->getQuery();
+        $query = <<<SQL
+                    SELECT * FROM hostcategories WHERE hc_id = :hc_id
+                SQL;
 
         $hc = $pearDB->fetchAssociative(
             $query,
