@@ -1,8 +1,11 @@
-import type { ComponentColumnProps } from '@centreon/ui';
+import { SeverityCode, type ComponentColumnProps } from '@centreon/ui';
 
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import { getStatus } from './ServiceSubItemColumn/SubItem';
 import useColumnStyles from './colomuns.style';
+import { useMemo } from 'react';
+
+const fallbackContent = { label: 'D', severity: SeverityCode.High };
 
 const ParentResourceColumn = ({
   row,
@@ -13,6 +16,16 @@ const ParentResourceColumn = ({
 
   const status = row?.parent?.status?.name;
 
+  const content = useMemo(
+    () => getStatus(status?.toLowerCase())?.label || fallbackContent.label,
+    [status]
+  );
+  const severityCode = useMemo(
+    () =>
+      getStatus(status?.toLowerCase())?.severity || fallbackContent.severity,
+    [status]
+  );
+
   if (!row.parent) {
     return null;
   }
@@ -20,10 +33,7 @@ const ParentResourceColumn = ({
   return (
     <>
       <div className={classes.resourceDetailsCell}>
-        <StatusChip
-          content={getStatus(status?.toLowerCase())?.label}
-          severityCode={getStatus(status?.toLowerCase())?.severity}
-        />
+        <StatusChip content={content} severityCode={severityCode} />
       </div>
       {renderEllipsisTypography?.({
         className: classes.resourceNameText,

@@ -48,6 +48,7 @@ final class DeleteAgentConfiguration
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -83,6 +84,18 @@ final class DeleteAgentConfiguration
             );
 
             if (false === $this->user->isAdmin()) {
+                // non admin cannot delete central on cloud platform
+                if ($this->isCloudPlatform) {
+                    $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                    if ($centralPoller !== null) {
+                        $presenter->setResponseStatus(new ForbiddenResponse(
+                            AgentConfigurationException::accessNotAllowed()
+                        ));
+
+                        return;
+                    }
+                }
+
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessiblePollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
                     $linkedPollerIds,
