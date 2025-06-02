@@ -187,7 +187,6 @@ const useGraphQuery = ({
         });
   };
 
-
   const formatLegend = ({
     host = null,
     service = null,

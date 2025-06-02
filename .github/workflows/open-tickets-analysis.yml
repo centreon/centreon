@@ -32,6 +32,7 @@ env:
 
 jobs:
   get-environment:
+    if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php

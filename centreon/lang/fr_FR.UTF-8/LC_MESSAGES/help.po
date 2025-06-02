@@ -479,8 +479,8 @@ msgstr ""
 "Sélectionner un modèle de service depuis la liste. Ce modèle de service doit "
 "au préalable avoir été créé."
 
-#: centreon/www/include/configuration/configObject/traps/help.php
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
+#: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Choose a vendor from the list. The vendor must have been created beforehand."
 msgstr ""
@@ -509,10 +509,10 @@ msgstr ""
 "avec le message d'état. Ce mode simple peut être utilisé si chaque trap peut "
 "être associé à exactement un état du moteur de supervision."
 
-#: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
@@ -590,10 +590,6 @@ msgid ""
 msgstr ""
 "Commentaire permettant de donner plus de précision sur la définition du trap "
 "SNMP par exemple en indiquant les paramètres contenus."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Comments on this host group."
-msgstr "Commentaires du groupe d'hôtes."
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid "Comments regarding the command."
@@ -748,8 +744,8 @@ msgstr ""
 "Définit ici un nom court pour le groupe de services. Ce nom sera utilisé "
 "pour afficher le groupe de services dans supervision, vues et rapports."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Define a short name for this category. It will be displayed with this name "
 "in the ACL configuration."
@@ -766,20 +762,6 @@ msgstr "Définit un nom court pour cette dépendance."
 msgid "Define a short name to identify the time period."
 msgstr "Définit un nom court afin d'identifier la période de temps."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an image that should be associated with this host group in the "
-"statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
-"image. The GD2 image format is preferred, as other image formats must be "
-"converted first when the statusmap image is generated. The image will look "
-"best if it is 40x40 pixels in size."
-msgstr ""
-"Définit une image qui devrait être associée au groupe d'hôtes dans le CGI "
-"statusmap dans le moteur de supervision. Vous pouvez choisir une image au "
-"format JPEG, PNG et GIF. Le format GD2 est préféré, car les autres formats "
-"d'image devront être convertis avant que l'image statusmap soit générée. "
-"L'image aura un meilleur rendu si elle a une taille de 40x40 pixels."
-
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an image that should be associated with this host in the statusmap "
@@ -793,16 +775,6 @@ msgstr ""
 "GIF. Le format d'image GD2 est préférable, comme d'autres formats d'images "
 "doivent être convertis en premier lorsque l'image statusmap est généré. "
 "L'image aura une meilleur résolution si elle à une taille de 40x40 pixels."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more actions to be "
-"performed on the host group. You will see the link to the action URL in the "
-"host group details."
-msgstr ""
-"Définit une URL optionnelle qui peut être utilisée pour fournir plus "
-"d'actions à exécuter sur le groupe d'hôtes. Vous verrez le lien vers l'URL "
-"d'action dans les détails du groupe d'hôtes."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -823,24 +795,6 @@ msgstr ""
 "Définit une URL optionnelle fournissant des actions supplémentaires sur le "
 "service. Le lien sera visible dans les détails du service."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define an optional URL that can be used to provide more information about "
-"the host group. Any valid URL can be used. This can be very useful if you "
-"want to make detailed information on the host group, emergency contact "
-"methods, etc. available to other support staff."
-msgstr ""
-"Définie une URL optionnelle qui peut être utilisé pour fournir plus "
-"d'informations à propos du groupe d'hôtes. N'importe quelle URL valide peut "
-"être utilisée. Cela peut être très utile si vous souhaitez donner des "
-"informations détaillées sur le groupe d'hôtes, les méthodes de contact "
-"d'urgence, etc. Disponibles pour les autres personnes de l'équipe support."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Define an optional string of notes pertaining to the host group."
-msgstr "Définit une chaine optionnelle pertinente pour le groupe d'hôtes."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -995,16 +949,6 @@ msgstr ""
 "Définie les états des hôtes pour lesquels des notifications peuvent être "
 "envoyées à ce contact. Si vous spécifiez \"Aucune\" comme option, le contact "
 "ne recevra aucun type de notifications pour les hôtes."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Define the image that should be associated with this host group here. This "
-"image will be displayed in the various places. The image will look best if "
-"it is 40x40 pixels in size."
-msgstr ""
-"Définit ici l'image qui devrait être associée avec le groupe d'hôtes. Cette "
-"image sera affichée à différents endroits. L'image aura un meilleur rendu si "
-"elle fait une taille de 40x40 pixels."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -1779,16 +1723,6 @@ msgstr ""
 "Générer les fichiers de configuration et les enregistrer dans le dossier "
 "cache."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Geographic coordinates to allow Centreon MAP to plot the host group on a "
-"geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
-"are 48.51,2.20"
-msgstr ""
-"Coordonnées géographiques permettant à Centreon MAP de positionner le groupe "
-"d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par exemple "
-"pour Paris, saisir : 48.51,2.20"
-
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -1862,10 +1796,6 @@ msgstr ""
 msgid "Host(s) to which the service is attached"
 msgstr "Hôte(s) au(x)quel(s) le service est rattaché"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Hosts belonging to the group"
-msgstr "Hôtes faisant partie de ce groupe"
-
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid ""
 "Hosts that will be displayed to users. Services that belong to these hosts "
@@ -1926,8 +1856,8 @@ msgstr ""
 "IP/DNS des clients de confiance. Utilisez des virgules comme séparateur en "
 "cas de clients multiples"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Icon for this severity."
 msgstr "Icône pour la sévérité."
 
@@ -2085,9 +2015,9 @@ msgstr ""
 msgid "Images."
 msgstr "Images."
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-#: centreon/www/include/options/accessLists/actionsACL/help.php
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr "Groupes d'accès liés."
 
@@ -2330,14 +2260,6 @@ msgstr "Nom de la règle de menu."
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Name of resource rule."
 msgstr "Nom de la règle des ressources."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"Name of the host group. It must be unique and cannot contain white spaces, "
-"or special characters like ~!$%^&*\"|'<>?,()=."
-msgstr ""
-"Nom du groupe d’hôtes. Il doit être unique et ne peut pas contenir de "
-"caractères spéciaux tels que ~!$%^&*\"|'<>?,()=."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 #, fuzzy
@@ -2646,15 +2568,6 @@ msgstr ""
 "Chemin d'accès aux bases de données RRD de statut, par exemple /var/lib/"
 "centreon/status"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"RRD retention duration of all the services that are in this host group. If "
-"service is in multiple host groups, the highest retention value will be used."
-msgstr ""
-"Durée de rétention des données dans les fichiers RRD pour tous les services "
-"liés au groupe d'hôte. Dans le cas où un service appartient à plusieurs "
-"groupes d'hôtes, la durée de rétention la plus haute sera appliquée."
-
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "RRD storage duration in seconds."
 msgstr ""
@@ -2729,10 +2642,6 @@ msgid "Remote user used by SCP"
 msgstr ""
 "Utilisateur permettant d'accéder au stockage distant pour copier les "
 "sauvegardes"
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Resource access rule to which the host group should be linked"
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid "Resource access rule to which the service group should be linked"
@@ -3015,8 +2924,8 @@ msgstr ""
 msgid "Severities are defined in the service category object."
 msgstr "Les criticités sont définies au niveau des catégories d'objets."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Severity level, must be a number. The items displayed will be sorted in "
 "ascending order. Thus the lowest severity is considered than the highest "
@@ -3381,7 +3290,6 @@ msgstr ""
 "que filtre. %s sera remplacé par le l'identifiant dans pour la connexion "
 "automatique (autologin) ou par * pour l'import LDAP."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
@@ -3843,17 +3751,6 @@ msgstr ""
 "forme de note concernant le groupe de service. Si vous spécifiez une note "
 "ici, celle-ci sera visible dans les informations étendues (Quand vous "
 "visualisez ces informations concernant le service groupe en question)."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-#, fuzzy
-msgid ""
-"This directive is used to define is a longer name or description used to "
-"identify the host group.It is provided in order to allow you to more easily "
-"identify a particular host group."
-msgstr ""
-"Cette directive est utilisée pour définir un nom long ou une description "
-"identifiant le groupe d'hôtes. Il est prévu pour vous permettre d'identifier "
-"plus facilement un groupe d'hôte en particulier."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php
@@ -5612,14 +5509,6 @@ msgstr ""
 "liste avec d'autres groupes de contact dont les membres devraient être "
 "inclus dans ce groupe."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid ""
-"This optional directive can be used to include hosts from other host groups "
-"in this host group."
-msgstr ""
-"Cette directive optionnelle peut être utilisée afin d'inclure des hôtes "
-"depuis d'autres groupes d'hôtes dans ce groupe d'hôtes."
-
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid ""
 "This optional directive can be used to include services from other \"sub\" "
@@ -5825,8 +5714,8 @@ msgstr ""
 "Utiliser l'alias comme nom long ou description afin d'identifier la période "
 "de temps."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Use this field for a longer description of this category."
 msgstr "Utiliser ce champ pour une description plus longue de cette catégorie."
 
@@ -6017,8 +5906,8 @@ msgstr "Connecteur activé ou non"
 msgid "Whether or not the password should be stored in database"
 msgstr "Le mot de passe doit-il être stocké en base de données ou non"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Whether or not this category is enabled."
 msgstr "Cette catégorie est active."
 
@@ -6033,18 +5922,14 @@ msgstr ""
 msgid "Whether the poller is local"
 msgstr "Si le collecteur est local"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."
 msgstr ""
 "Si la catégorie est une criticité, elle apparaitra dans la console de "
 "supervision temps réel."
-
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-msgid "Whether this host group is enabled."
-msgstr "Disponibilité du groupe d'hôtes."
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Width of grid. Used to export the chart."
@@ -6204,6 +6089,106 @@ msgid ""
 "number of partitions created in advance to prevent issues, by default 10 "
 "days."
 msgstr ""
+
+#~ msgid "Comments on this host group."
+#~ msgstr "Commentaires du groupe d'hôtes."
+
+#~ msgid ""
+#~ "Define an image that should be associated with this host group in the "
+#~ "statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
+#~ "image. The GD2 image format is preferred, as other image formats must be "
+#~ "converted first when the statusmap image is generated. The image will "
+#~ "look best if it is 40x40 pixels in size."
+#~ msgstr ""
+#~ "Définit une image qui devrait être associée au groupe d'hôtes dans le CGI "
+#~ "statusmap dans le moteur de supervision. Vous pouvez choisir une image au "
+#~ "format JPEG, PNG et GIF. Le format GD2 est préféré, car les autres "
+#~ "formats d'image devront être convertis avant que l'image statusmap soit "
+#~ "générée. L'image aura un meilleur rendu si elle a une taille de 40x40 "
+#~ "pixels."
+
+#~ msgid ""
+#~ "Define an optional URL that can be used to provide more actions to be "
+#~ "performed on the host group. You will see the link to the action URL in "
+#~ "the host group details."
+#~ msgstr ""
+#~ "Définit une URL optionnelle qui peut être utilisée pour fournir plus "
+#~ "d'actions à exécuter sur le groupe d'hôtes. Vous verrez le lien vers "
+#~ "l'URL d'action dans les détails du groupe d'hôtes."
+
+#~ msgid ""
+#~ "Define an optional URL that can be used to provide more information about "
+#~ "the host group. Any valid URL can be used. This can be very useful if you "
+#~ "want to make detailed information on the host group, emergency contact "
+#~ "methods, etc. available to other support staff."
+#~ msgstr ""
+#~ "Définie une URL optionnelle qui peut être utilisé pour fournir plus "
+#~ "d'informations à propos du groupe d'hôtes. N'importe quelle URL valide "
+#~ "peut être utilisée. Cela peut être très utile si vous souhaitez donner "
+#~ "des informations détaillées sur le groupe d'hôtes, les méthodes de "
+#~ "contact d'urgence, etc. Disponibles pour les autres personnes de l'équipe "
+#~ "support."
+
+#~ msgid "Define an optional string of notes pertaining to the host group."
+#~ msgstr "Définit une chaine optionnelle pertinente pour le groupe d'hôtes."
+
+#~ msgid ""
+#~ "Define the image that should be associated with this host group here. "
+#~ "This image will be displayed in the various places. The image will look "
+#~ "best if it is 40x40 pixels in size."
+#~ msgstr ""
+#~ "Définit ici l'image qui devrait être associée avec le groupe d'hôtes. "
+#~ "Cette image sera affichée à différents endroits. L'image aura un meilleur "
+#~ "rendu si elle fait une taille de 40x40 pixels."
+
+#~ msgid ""
+#~ "Geographic coordinates to allow Centreon MAP to plot the host group on a "
+#~ "geographic view. Format: Latitude,Longitude. For example, Paris' "
+#~ "coordinates are 48.51,2.20"
+#~ msgstr ""
+#~ "Coordonnées géographiques permettant à Centreon MAP de positionner le "
+#~ "groupe d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par "
+#~ "exemple pour Paris, saisir : 48.51,2.20"
+
+#~ msgid "Hosts belonging to the group"
+#~ msgstr "Hôtes faisant partie de ce groupe"
+
+#~ msgid ""
+#~ "Name of the host group. It must be unique and cannot contain white "
+#~ "spaces, or special characters like ~!$%^&*\"|'<>?,()=."
+#~ msgstr ""
+#~ "Nom du groupe d’hôtes. Il doit être unique et ne peut pas contenir de "
+#~ "caractères spéciaux tels que ~!$%^&*\"|'<>?,()=."
+
+#~ msgid ""
+#~ "RRD retention duration of all the services that are in this host group. "
+#~ "If service is in multiple host groups, the highest retention value will "
+#~ "be used."
+#~ msgstr ""
+#~ "Durée de rétention des données dans les fichiers RRD pour tous les "
+#~ "services liés au groupe d'hôte. Dans le cas où un service appartient à "
+#~ "plusieurs groupes d'hôtes, la durée de rétention la plus haute sera "
+#~ "appliquée."
+
+#, fuzzy
+#~ msgid ""
+#~ "This directive is used to define is a longer name or description used to "
+#~ "identify the host group.It is provided in order to allow you to more "
+#~ "easily identify a particular host group."
+#~ msgstr ""
+#~ "Cette directive est utilisée pour définir un nom long ou une description "
+#~ "identifiant le groupe d'hôtes. Il est prévu pour vous permettre "
+#~ "d'identifier plus facilement un groupe d'hôte en particulier."
+
+#~ msgid ""
+#~ "This optional directive can be used to include hosts from other host "
+#~ "groups in this host group."
+#~ msgstr ""
+#~ "Cette directive optionnelle peut être utilisée afin d'inclure des hôtes "
+#~ "depuis d'autres groupes d'hôtes dans ce groupe d'hôtes."
+
+#~ msgid "Whether this host group is enabled."
+#~ msgstr "Disponibilité du groupe d'hôtes."
 
 #~ msgid "Enable caching"
 #~ msgstr "Activer la gestion du cache"
