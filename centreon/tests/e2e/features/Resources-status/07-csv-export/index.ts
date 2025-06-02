@@ -1,66 +1,181 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
-import fs from 'fs';
-import readXlsxFile from 'read-excel-file/node';
-const path = require('path');
+import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";;
 
-const services = {
-	serviceCritical: {
-		host: "host3",
-		name: "service3",
-		template: "SNMP-Linux-Load-Average",
-	},
-	serviceOk: { host: "host2", name: "service_test_ok", template: "Ping-LAN" },
-	serviceWarning: {
-		host: "host2",
-		name: "service2",
-		template: "SNMP-Linux-Memory",
-	},
-};
-const checkResourcesDetails = (name, statu, firstIndex, secondIndex) => {
-	cy.contains(name).click();
-	cy.get("div.css-6tzyx9-header")
-		.find("span.MuiChip-label")
-		.should("have.text", statu);
+import {
+	checkMetricsAreMonitored,
+	checkServicesAreMonitored,
+} from "../../../commons";
 
-	cy.get("div.css-h0171t-content")
-		.eq(firstIndex)
-		.find("h6")
-		.should("have.text", "Status information");
+const serviceOk = "service_test_ok";
+const serviceInDtName = "service_downtime_1";
+const secondServiceInDtName = "service_downtime_2";
+const serviceInAcknowledgementName = "service_ack_1";
 
-	cy.get("div.css-h0171t-content")
-		.eq(firstIndex)
-		.find("p")
-		.first()
-		.should("have.text", "Output");
+const COLUMNS_TO_COMPARE = [
+  "Status",
+  "Parent Resource Name",
+  "Parent Resource Status",
+  "Parent Resource Type",
+  "Parent alias",
+  "Resource Name",
+  "Resource Type"
+];
 
-	cy.get("div.css-h0171t-content")
-		.eq(secondIndex)
-		.find("h6")
-		.should("have.text", "Performance data");
+const ALL_COLUMNS = [
+  "Status",
+  "Resource Type",
+  "Resource Name",
+  "Parent Resource Type",
+  "Parent Resource Name",
+  "Parent Resource Status",
+  "Duration",
+  "Last Check",
+  "Information",
+  "Tries",
+  "Severity",
+  "Notes",
+  "Action",
+  "State",
+  "Alias",
+  "Parent alias",
+  "FQDN / Address",
+  "Monitoring server",
+  "Notif",
+  "Check"
+];
 
-	cy.get("div.css-h0171t-content")
-		.eq(secondIndex)
-		.find("p")
-		.first()
-		.should("have.text", "Performance data");
-};
+const normalize = (text: string) =>
+  text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
 
 before(() => {
+	cy.intercept({
+		method: "POST",
+		url: "/centreon/api/latest/authentication/providers/configurations/local",
+	}).as("postLocalAuthentication");
+
+	cy.intercept({
+		method: "GET",
+		url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
+	}).as("getNavigationList");
+
+	cy.intercept({
+		method: "GET",
+		url: "/centreon/api/latest/users/filters/events-view?page=1&limit=100",
+	}).as("getFilters");
+
+	cy.intercept("/centreon/api/latest/monitoring/resources*").as(
+		"monitoringEndpoint",
+	);
+
 	// cy.startContainers();
+
+	// cy.loginByTypeOfUser({
+	// 	jsonName: "admin",
+	// 	loginViaApi: true,
+	// }).wait("@getFilters");
+
+	// cy.disableListingAutoRefresh();
+
 	// cy.addHost({
-	// 	hostGroup: "Linux-Servers",
-	// 	name: services.serviceOk.host,
+	// 	activeCheckEnabled: false,
+	// 	checkCommand: "check_centreon_cpu",
+	// 	name: "host1",
 	// 	template: "generic-host",
 	// })
 	// 	.addService({
 	// 		activeCheckEnabled: false,
-	// 		host: services.serviceOk.host,
+	// 		host: "host1",
 	// 		maxCheckAttempts: 1,
-	// 		name: services.serviceOk.name,
-	// 		template: services.serviceOk.template,
+	// 		name: serviceInDtName,
+	// 		template: "SNMP-DISK-/",
+	// 	})
+	// 	.addService({
+	// 		activeCheckEnabled: false,
+	// 		host: "host1",
+	// 		maxCheckAttempts: 1,
+	// 		name: secondServiceInDtName,
+	// 		template: "Ping-LAN",
+	// 	})
+	// 	.addService({
+	// 		activeCheckEnabled: false,
+	// 		host: "host1",
+	// 		maxCheckAttempts: 1,
+	// 		name: serviceInAcknowledgementName,
+	// 		template: "SNMP-DISK-/",
+	// 	})
+	// 	.addService({
+	// 		activeCheckEnabled: false,
+	// 		host: "host1",
+	// 		maxCheckAttempts: 1,
+	// 		name: serviceOk,
+	// 		template: "Ping-LAN",
 	// 	})
 	// 	.applyPollerConfiguration();
+
+	// checkServicesAreMonitored([
+	// 	{
+	// 		name: serviceOk,
+	// 	},
+	// ]);
+
+	// cy.submitResults([
+	// 	{
+	// 		host: "host1",
+	// 		output: "submit_status_2",
+	// 		service: serviceInDtName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		host: "host1",
+	// 		output: "submit_status_2",
+	// 		service: secondServiceInDtName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		host: "host1",
+	// 		output: "submit_status_2",
+	// 		service: serviceInAcknowledgementName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		host: "host1",
+	// 		output: "submit_status_0",
+	// 		service: serviceOk,
+	// 		status: "ok",
+	// 	},
+	// ]);
+
+	// checkServicesAreMonitored([
+	// 	{
+	// 		name: serviceInDtName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		name: secondServiceInDtName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		name: serviceInAcknowledgementName,
+	// 		status: "critical",
+	// 	},
+	// 	{
+	// 		name: serviceOk,
+	// 		status: "ok",
+	// 	},
+	// ]);
+
+	// ["Disk-/", "Load", "Memory", "Ping"].forEach((service) => {
+	// 	cy.scheduleServiceCheck({ host: "Centreon-Server", service });
+	// });
+
+	// checkMetricsAreMonitored([
+	// 	{
+	// 		host: "Centreon-Server",
+	// 		name: "rta",
+	// 		service: "Ping",
+	// 	},
+	// ]);
+	// cy.logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -80,6 +195,9 @@ beforeEach(() => {
 		method: "GET",
 		url: "/centreon/api/latest/monitoring/resources/hosts/*",
 	}).as("getResourcesDetails");
+	 cy.intercept('/centreon/api/latest/monitoring/resources*')
+	 .as('monitoringEndpoint');
+	cy.intercept('GET', '**/monitoring/resources/count*').as('getResourceCount');
 });
 
 after(() => {
@@ -91,137 +209,55 @@ Given("an admin user is logged in a Centreon server", () => {
 		jsonName: "admin",
 		loginViaApi: false,
 	});
-	cy.wait(5000);
+	cy.wait("@monitoringEndpoint");
 	cy.getByTestId({ testId: "SaveAltIcon" }).click();
-    cy.wait(5000);
-    cy.getByLabel({ label: "Export", tag: 'button' }).click()
-	cy.wait(4000)
+	cy.wait("@getResourceCount");
+    cy.getByLabel({ label: "Export", tag: 'button' }).click();
+	cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Export processing in progress')) {
+        cy.wait('@getNavigationList');
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
 	const downloadsFolder = Cypress.config('downloadsFolder');
-	cy.task('getDownloadedFile', { downloadsFolder }).then(filePath => {
-     cy.task('readCsvFile', { filePath }).then(csvContent => {
-		const rows = csvContent.split('\n').map(row => row.split(';').map(cell => cell.trim()));
+	cy.task('getExportedFile', { downloadsFolder }).then(filePath => {
+	cy.task('readCsvFile', { filePath }).then(csvContent => {
+		const rows = (csvContent as string)
+		.trim()
+		.split('\n')
+		.map(row => row.split(';').map(cell => cell.trim()));
 
-		// ✅ Exemple : Vérifier que le contenu contient une ligne avec "CRITICAL: Total connections: 373"
-		const hasCriticalInfo = rows.some(row =>
-		row.includes('CRITICAL: Total connections: 373')
-		);
+		const rawHeaders  = rows[0];
+		const headers = rawHeaders.map(normalize);
+		// ✅ Log the headers (column names)
+		cy.log('Normalized CSV Headers:', headers.join(' | '));
+		expect(headers).to.deep.equal(ALL_COLUMNS);
 
-		expect(hasCriticalInfo).to.be.true;
+		const dataRows = rows.slice(1);
 
-		// ✅ Autre exemple : vérifier l’état “Up” dans la colonne “Parent Resource Status”
-		const hasUpStatus = rows.some(row => row.includes('Up'));
-		expect(hasUpStatus).to.be.true;
+		const rowObjects = dataRows.map(row => {
+		return headers.reduce((obj, header, i) => {
+			obj[header.replace(/"/g, '')] = row[i];
+			return obj;
+		}, {} as Record<string, string>);
+		});
+		cy.log('Formatted JSON from CSV:\n' + JSON.stringify(rowObjects, null, 2));
+		const firstTwoRows = rowObjects.slice(0, 2);
 
-		// ✅ Tu peux aussi vérifier le nombre de colonnes
-		const expectedHeaders = [
-		'Status', 'Resource Type', 'Resource Name', 'Parent Resource Type',
-		'Parent Resource Name', 'Parent Resource Status', 'Duration',
-		'Last Check', 'Information', 'Tries', 'Severity', 'Notes', 'Action',
-		'State', 'Alias', 'Parent alias', 'FQDN / Address', 'Monitoring server',
-		'Notif', 'Check'
-		];
+		cy.fixture('resources/criticalRessources.json').then(expectedData => {
+		const firstTwoExpected = expectedData.slice(0, 2);
 
-		const actualHeaders = rows[0];
-		expect(actualHeaders).to.deep.include.members(expectedHeaders);
+		// 🔍 Partial comparison: only specific properties
+		firstTwoRows.forEach((actualRow, index) => {
+			const expectedRow = firstTwoExpected[index];
 
+			COLUMNS_TO_COMPARE.forEach(key => {
+			expect(actualRow[key], `Line ${index + 1} - Key: ${key}`).to.equal(expectedRow[key]);
+			});
+		});
+
+		console.log('Partial field comparison successful');
+		});
+	});
+	});
 });
-});
-});
-
-Given(
-  'one passive service has been configured using arguments status and output exists',
-  () => {
-    cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
-  }
-);
-
-When("the user submits some results to this service", () => {
-	cy.visit("/centreon/monitoring/resources");
-	cy.get('input[placeholder="Search"]').clear().type("{enter}");
-	cy.wait("@getResources");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
-	cy.wait("@getResources");
-	cy.get('input[placeholder="Search"]')
-		.clear()
-		.type(`${services.serviceOk.name}{enter}`);
-	cy.wait("@getResources");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
-	cy.wait("@getResources");
-	cy.getByLabel({ label: "Select all" }).click();
-	cy.get("button#Moreactions").click();
-	cy.getByTestId({ testId: "Submit a status" }).click();
-	cy.contains("div", "Ok").click();
-	cy.contains("p", "Critical").click();
-	cy.getByLabel({ label: "Output" }).type("Output");
-	cy.getByLabel({ label: "Performance data" }).type("Performance data");
-	cy.contains("button", "Submit").click();
-	cy.waitUntil(
-		() => {
-			return cy
-				.getByLabel({ label: "Critical status services", tag: "a" })
-				.invoke("text")
-				.then((text) => {
-					if (text !== "1") {
-						cy.exportConfig();
-					}
-
-					return text === "1";
-				});
-		},
-		{ interval: 6000, timeout: 100000 },
-	);
-});
-
-Then(
-	"the values are set as wanted in Monitoring > Status details page of this service",
-	() => {
-		checkResourcesDetails(services.serviceOk.name, "Critical", 0, 10);
-	},
-);
-
-Given(
-  'one passive host has been configured using arguments status and output exists',
-  () => {
-    cy.setPassiveResource('/centreon/api/latest/configuration/hosts/15');
-  }
-);
-
-When("the user submits some results to this host", () => {
-	cy.visit("/centreon/monitoring/resources");
-	cy.get('input[placeholder="Search"]').clear().type("{enter}");
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
-	cy.get('input[placeholder="Search"]')
-		.clear()
-		.type(`type:host name:${services.serviceOk.host}{enter}`);
-	cy.getByTestId({ testId: "RefreshIcon" }).click();
-	cy.getByLabel({ label: "Select all" }).click();
-	cy.get("button#Moreactions").click();
-	cy.getByTestId({ testId: "Submit a status" }).click();
-	cy.get('div[role="combobox"]').contains("Up").click();
-	cy.contains("p", "Down").click();
-	cy.getByLabel({ label: "Output" }).type("Output");
-	cy.getByLabel({ label: "Performance data" }).type("Performance data");
-	cy.contains("button", "Submit").click();
-	cy.waitUntil(
-		() => {
-			return cy
-				.getByLabel({ label: "Down status hosts", tag: "a" })
-				.invoke("text")
-				.then((text) => {
-					if (text !== "1") {
-						cy.exportConfig();
-					}
-
-					return text === "1";
-				});
-		},
-		{ interval: 6000, timeout: 100000 },
-	);
-});
-
-Then(
-	"the values are set as wanted in Monitoring > Status details page of this host",
-	() => {
-		checkResourcesDetails(services.serviceOk.host, "Down", 0, 13);
-	},
-);

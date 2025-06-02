@@ -268,13 +268,20 @@ export default (on: Cypress.PluginEvents): void => {
     fileExists: async ( filePath ) => {
       return fs.existsSync(filePath);
     },
-    getDownloadedFile({ downloadsFolder }) {
-      const files = fs.readdirSync(downloadsFolder);
-      const excelFile = files.find(file => file.endsWith('.csv') || file.endsWith('.xlsx'));
-      if (!excelFile) {
-        throw new Error('Aucun fichier Excel trouvé.');
+    getExportedFile({ downloadsFolder }) {
+      const files = fs.readdirSync(downloadsFolder)
+        .filter(name => name.startsWith('ResourceStatusExport_all'))
+        .map(name => ({
+          name,
+          time: fs.statSync(path.join(downloadsFolder, name)).mtime.getTime(),
+        }))
+        .sort((a, b) => b.time - a.time);
+
+      if (files.length === 0) {
+        throw new Error('Aucun fichier correspondant trouvé dans le dossier des téléchargements');
       }
-      return path.join(downloadsFolder, excelFile);
+
+      return path.join(downloadsFolder, files[0].name);
     },
     readCsvFile({ filePath }) {
       return new Promise((resolve, reject) => {
