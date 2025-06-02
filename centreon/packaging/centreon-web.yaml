@@ -518,6 +518,7 @@ overrides:
       - centreon-common
     provides:
       - centreon-web-common
+      - centreon-perl-libs
       - centreon-widget-engine-status
       - centreon-widget-global-health
       - centreon-widget-graph-monitoring
