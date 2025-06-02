@@ -38,6 +38,18 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
     --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
+groupadd -g 6000 centreon
+useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon
+groupadd -g 6001 centreon-engine
+useradd -u 6001 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine
+groupadd -g 6002 centreon-broker
+useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker
+groupadd -g 6003 centreon-gorgone
+useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone
+usermod -aG centreon www-data
+#usermod -aG centreon-engine www-data
+#usermod -aG centreon-broker www-data
+
 echo 'Acquire::Retries "10"; \
 Acquire::https::Timeout "300"; \
 Acquire::http::Timeout "300"; \
