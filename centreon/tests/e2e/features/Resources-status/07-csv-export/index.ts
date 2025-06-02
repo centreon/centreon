@@ -240,7 +240,6 @@ When("the admin user clicks the Export button", () => {
   cy.getByLabel({ label: "Export", tag: "button" }).click();
   cy.get(".MuiAlert-message").then(($snackbar) => {
     if ($snackbar.text().includes("Export processing in progress")) {
-      cy.wait("@getNavigationList");
       cy.get(".MuiAlert-message").should("not.be.visible");
     }
   });
@@ -335,7 +334,6 @@ When("the admin user unchecks some columns in the table settings", () => {
   cy.getByLabel({ label: "Export", tag: "button" }).click();
   cy.get(".MuiAlert-message").then(($snackbar) => {
     if ($snackbar.text().includes("Export processing in progress")) {
-      cy.wait("@getNavigationList");
       cy.get(".MuiAlert-message").should("not.be.visible");
     }
   });
