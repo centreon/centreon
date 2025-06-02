@@ -57,7 +57,10 @@ export const getResourcesUrlForMetricsWidgets = ({
   widgetName
 }): string => {
   const filters = data?.resources.map(({ resourceType, resources }) => {
-    if (isResourceString(resources)) {
+    if (
+      
+      
+      nnn(resources)) {
       const name = cond<Array<string>, string>([
         [equals('host'), always('parent_name')],
         [equals('service'), always('name')],
