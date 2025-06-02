@@ -710,6 +710,15 @@ systemctl try-restart httpd || :
 %endif
 systemctl try-restart php-fpm || :
 
+# Update log file permissions which has been potentially created by centreon user
+APP_LOG_FILE="/var/log/centreon/centreon-web.log"
+if [ -f "$APP_LOG_FILE" ]; then
+    if [ $1 -eq 2 ]; then
+        chown apache:apache "$APP_LOG_FILE"
+    fi
+fi
+
+if
 %posttrans web
 
 # Change right for Centreon Engine and Centreon Broker configuration files
