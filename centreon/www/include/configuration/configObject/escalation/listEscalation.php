@@ -41,8 +41,15 @@ if (!isset($centreon)) {
 include_once "./class/centreonUtils.class.php";
 include "./include/common/autoNumLimit.php";
 
+const LIST_BY_HOSTS = 'h';
+const LIST_BY_SERVICES = 'sv';
+const LIST_BY_HOSTGROUPS = 'hg';
+const LIST_BY_SERVICEGROUPS = 'sg';
+const LIST_BY_METASERVICES = 'ms';
 
-$list = $_GET["list"] ?? null;
+$list = array_key_exists("list", $_GET) && $_GET["list"] !== null
+    ? HtmlSanitizer::createFromString($_GET["list"])->sanitize()->getString()
+    : null;
 
 $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchE'] ?? $_GET['searchE'] ?? null
@@ -58,56 +65,129 @@ if (isset($_POST['searchE']) || isset($_GET['searchE'])) {
 }
 
 $aclFrom = "";
-$aclCond = ['h' => '', 'sv' => '', 'hg' => '', 'sg' => '', 'ms' => ''];
-if (!$centreon->user->admin) {
+$aclCond = [
+    LIST_BY_HOSTS => '',
+    LIST_BY_SERVICES => '',
+    LIST_BY_HOSTGROUPS => '',
+    LIST_BY_SERVICEGROUPS => '',
+    LIST_BY_METASERVICES => ''];
+if (! $centreon->user->admin) {
+    /** @var CentreonACL $acl */
+    $aclIds = array_keys($acl->getAccessGroups());
+    $bindAccessGroups = [];
+    foreach ($aclIds as $aclId) {
+        $bindAccessGroups[':acl_' . $aclId] = $aclId;
+    }
+
+    $hostGroupIds = array_map(
+        static fn (string $hostGroupId) => (int) trim($hostGroupId, "' "),
+        explode(',', $hgString)
+    );
+    $bindHostGroups = [];
+    foreach ($hostGroupIds as $hostGroupId) {
+        $bindHostGroups[':hg_' . $hostGroupId] = $hostGroupId;
+    }
+
+    $serviceGroupIds = array_map(
+        static fn (string $serviceGroupId) => (int) trim($serviceGroupId, "' "),
+        explode(',', $sgString)
+    );
+    $bindServiceGroups = [];
+    foreach ($serviceGroupIds as $serviceGroupId) {
+        $bindHostGroups[':sg_' . $serviceGroupId] = $serviceGroupId;
+    }
+
+    $metaServiceIds = array_keys($acl->getMetaServices());
+    $bindMetaServices = [];
+    foreach ($metaServiceIds as $metaServiceId) {
+        $bindMetaServices[":ms_" . $metaServiceId] = $metaServiceId;
+    }
+
+    $accessGroupsAsString = implode(',', array_keys($bindAccessGroups));
     $aclFrom = ", `$dbmon`.centreon_acl acl ";
-    $aclCond['h'] = " AND ehr.host_host_id = acl.host_id
-                      AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
-    $aclCond['sv'] = " AND esr.host_host_id = acl.host_id
-                       AND esr.service_service_id = acl.service_id
-                       AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
-    $aclCond['hg'] = $acl->queryBuilder('AND', 'hostgroup_hg_id', $hgString);
-    $aclCond['sg'] = $acl->queryBuilder('AND', 'servicegroup_sg_id', $sgString);
-    $aclCond['ms'] = $acl->queryBuilder('AND', 'meta_service_meta_id', $acl->getMetaServiceString());
+    $aclCond[LIST_BY_HOSTS] = " AND ehr.host_host_id = acl.host_id AND acl.group_id IN ($accessGroupsAsString) ";
+    $aclCond[LIST_BY_SERVICES] = " AND esr.host_host_id = acl.host_id"
+        . " AND esr.service_service_id = acl.service_id"
+        . " AND acl.group_id IN ($accessGroupsAsString)";
+    $aclCond[LIST_BY_HOSTGROUPS] = $bindHostGroups !== []
+        ? $acl->queryBuilder('AND', 'hostgroup_hg_id', implode(',', array_keys($bindHostGroups)))
+        : '';
+    $aclCond[LIST_BY_SERVICEGROUPS] = $bindServiceGroups !== []
+        ? $acl->queryBuilder('AND', 'servicegroup_sg_id', implode(',', array_keys($bindServiceGroups)))
+        : '';
+    $aclCond[LIST_BY_METASERVICES] = $bindMetaServices !== []
+        ? $acl->queryBuilder('AND', 'meta_service_meta_id', implode(',', array_keys($bindMetaServices)))
+        : '';
 }
 
-
 $rq = "SELECT SQL_CALC_FOUND_ROWS esc_id, esc_name, esc_alias FROM escalation esc";
-if ($list && $list == "h") {
+if ($list && $list == LIST_BY_HOSTS) {
     $rq .= " WHERE (SELECT DISTINCT COUNT(host_host_id) " .
         " FROM escalation_host_relation ehr " . $aclFrom .
-        " WHERE ehr.escalation_esc_id = esc.esc_id " . $aclCond['h'] . ") > 0 ";
-} elseif ($list && $list == "sv") {
+        " WHERE ehr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_HOSTS] . ") > 0 ";
+} elseif ($list && $list == LIST_BY_SERVICES) {
     $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
         " FROM escalation_service_relation esr " . $aclFrom .
-        "WHERE esr.escalation_esc_id = esc.esc_id " . $aclCond['sv'] . ") > 0 ";
-} elseif ($list && $list == "hg") {
+        "WHERE esr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_SERVICES] . ") > 0 ";
+} elseif ($list && $list == LIST_BY_HOSTGROUPS) {
     $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
         "FROM escalation_hostgroup_relation ehgr " .
-        "WHERE ehgr.escalation_esc_id = esc.esc_id " . $aclCond['hg'] . ") > 0 ";
-} elseif ($list && $list == "sg") {
+        "WHERE ehgr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_HOSTGROUPS] . ") > 0 ";
+} elseif ($list && $list == LIST_BY_SERVICEGROUPS) {
     $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
         " FROM escalation_servicegroup_relation esgr " .
-        " WHERE esgr.escalation_esc_id = esc.esc_id " . $aclCond['sg'] . ") > 0 ";
-} elseif ($list && $list == "ms") {
+        " WHERE esgr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_SERVICEGROUPS] . ") > 0 ";
+} elseif ($list && $list == LIST_BY_METASERVICES) {
     $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
         " FROM escalation_meta_service_relation emsr " .
-        " WHERE emsr.escalation_esc_id = esc.esc_id " . $aclCond['ms'] . ") > 0 ";
+        " WHERE emsr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_METASERVICES] . ") > 0 ";
 }
 
 //Check if $search was init
 if ($search && $list) {
-    $rq .= " AND (esc.esc_name LIKE '%" . $search . "%' OR esc.esc_alias LIKE '%" . $search . "%')";
+    $rq .= " AND (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)";
 } elseif ($search) {
-    $rq .= " WHERE (esc.esc_name LIKE '%" . $search . "%' OR esc.esc_alias LIKE '%" . $search . "%')";
+    $rq .= " WHERE (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)";
 }
 
 // Set Order and limits
 $rq .= " ORDER BY esc_name LIMIT " . $num * $limit . ", " . $limit;
 
-$dbResult = $pearDB->query($rq);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$statement = $pearDB->prepare($rq);
+if (! $centreon->user->admin) {
+    switch($list) {
+        case LIST_BY_HOSTS:
+        case LIST_BY_SERVICES:
+            foreach ($bindAccessGroups as $accessGroupToken => $accessGroupId) {
+                $statement->bindValue($accessGroupToken, $accessGroupId, \PDO::PARAM_INT);
+            }
+            break;
+        case LIST_BY_HOSTGROUPS:
+            foreach ($bindHostGroups as $hostGroupToken => $hostGroupId) {
+                $statement->bindValue($hostGroupToken, $hostGroupId, \PDO::PARAM_INT);
+            }
+            break;
+        case LIST_BY_SERVICEGROUPS:
+            foreach ($bindServiceGroups as $serviceGroupToken => $serviceGroupId) {
+                $statement->bindValue($serviceGroupToken, $serviceGroupId, \PDO::PARAM_INT);
+            }
+            break;
+        case LIST_BY_METASERVICES:
+            foreach ($bindMetaServices as $metaServiceToken => $metaServiceId) {
+                $statement->bindValue($metaServiceToken, $metaServiceId, \PDO::PARAM_INT);
+            }
+            break;
+        default:
+            break;
+    }
+}
 
+if($search) {
+    $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+}
+
+$statement->execute();
+$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 include "./include/common/checkPagination.php";
 
 // Smarty template initialization
@@ -138,7 +218,7 @@ $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $esc = $dbResult->fetch(); $i++) {
+for ($i = 0; $esc = $statement->fetch(); $i++) {
     $esc = array_map("myEncode", $esc);
     $moptions = "";
     $selectedElements = $form->addElement('checkbox', "select[" . $esc['esc_id'] . "]");
