@@ -14,6 +14,18 @@ properties:
     minimum: 1
     nullable: true
     example: null
+  check_command_id:
+    type: integer
+    description: "Check command ID."
+    minimum: 1
+    nullable: true
+    example: null
+  check_command_args:
+    type: array
+    items:
+      type: string
+      description: "Arguments of the check command."
+    example: ["80", "90"]
   check_timeperiod_id:
     type: integer
     description: "Time period ID of the check command."
