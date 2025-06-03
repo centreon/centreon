@@ -94,7 +94,7 @@ if (! $centreon->user->admin) {
     );
     $bindServiceGroups = [];
     foreach ($serviceGroupIds as $serviceGroupId) {
-        $bindHostGroups[':sg_' . $serviceGroupId] = $serviceGroupId;
+        $bindServiceGroups[':sg_' . $serviceGroupId] = $serviceGroupId;
     }
 
     $metaServiceIds = array_keys($acl->getMetaServices());
