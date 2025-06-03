@@ -24,18 +24,20 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\HostGroup\Application\Repository\ReadRealTimeHostGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements ReadRealTimeHostGroupRepositoryInterface
+final class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements ReadRealTimeHostGroupRepositoryInterface
 {
-    use HostGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
 
     public function exists(int $hostGroupId): bool
     {
@@ -118,5 +120,45 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
                 previous: $exception
             );
         }
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        if ($accessGroupIds === []) {
+            return false;
+        }
+
+        $bindParams = $this->createMultipleBindParameters(
+            $accessGroupIds,
+            'access_group_id',
+            QueryParameterTypeEnum::INTEGER
+        );
+
+        $query = $this->translateDbName(
+            <<<SQL
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindParams['placeholderList']})
+                SQL
+        );
+
+        $queryParameters = QueryParameters::create($bindParams['parameters']);
+
+        while (($hasAccessToAll = (bool) $this->connection->fetchFirstColumn($query, $queryParameters)) !== false) {
+            if (true === $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
