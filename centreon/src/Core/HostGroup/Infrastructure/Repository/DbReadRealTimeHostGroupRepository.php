@@ -41,7 +41,7 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
     {
         try {
             $query = $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                     SELECT
                         1
                     FROM `:dbstg`.tag 
@@ -86,7 +86,7 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
 
         try {
             $query = $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                     SELECT
                         1
                     FROM `:dbstg`.tag 

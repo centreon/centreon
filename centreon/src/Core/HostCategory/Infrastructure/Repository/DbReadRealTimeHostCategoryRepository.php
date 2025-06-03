@@ -216,15 +216,8 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     }
 
     /**
-     * @param _HostCategoryResultSet $data
-     *
-     * @return Tag
+     * @inheritDoc
      */
-    private function createFromRecord(array $data): Tag
-    {
-        return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
-    }
-
     public function existByName(array $names): array
     {
         try {
@@ -242,7 +235,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                     WHERE
                         type = 3
                         AND `name` IN ({$bindQuery})
-                SQL
+                    SQL
             );
 
             $statement = $this->db->prepare($query);
@@ -260,6 +253,9 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function existByNameAndAccessGroups(array $names, array $accessGroups): array
     {
         try {
@@ -292,7 +288,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                         type = 3
                         AND `name` IN ({$bindQueryNames})
                         AND ag.acl_group_id IN ({$bindQueryAccessGroups})
-                SQL
+                    SQL
             );
 
             $statement = $this->db->prepare($query);
@@ -312,6 +308,16 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                 previous: $exception
             );
         }
+    }
+
+    /**
+     * @param _HostCategoryResultSet $data
+     *
+     * @return Tag
+     */
+    private function createFromRecord(array $data): Tag
+    {
+        return new Tag(id: $data['id'], name: $data['name'], type: $data['type']);
     }
 }
 

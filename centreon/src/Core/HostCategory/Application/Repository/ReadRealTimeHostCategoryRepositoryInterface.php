@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
 interface ReadRealTimeHostCategoryRepositoryInterface
@@ -44,7 +45,7 @@ interface ReadRealTimeHostCategoryRepositoryInterface
     public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): array;
 
     /**
-     * @param string $names
+     * @param string[] $names
      * @return string[]
      */
     public function existByName(array $names): array;

@@ -30,6 +30,7 @@ interface ReadRealTimeHostGroupRepositoryInterface
     public function exists(int $hostGroupId): bool;
 
     /**
+     * @param int $hostGroupId
      * @param AccessGroup[] $accessGroups
      */
     public function existByAccessGroups(int $hostGroupId, array $accessGroups): bool;
