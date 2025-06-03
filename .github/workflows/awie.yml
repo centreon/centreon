@@ -43,7 +43,8 @@ jobs:
   changes:
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     outputs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
