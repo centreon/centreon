@@ -105,10 +105,14 @@ if (! $centreon->user->admin) {
 
     $accessGroupsAsString = implode(',', array_keys($bindAccessGroups));
     $aclFrom = ", `$dbmon`.centreon_acl acl ";
-    $aclCond[LIST_BY_HOSTS] = " AND ehr.host_host_id = acl.host_id AND acl.group_id IN ($accessGroupsAsString) ";
-    $aclCond[LIST_BY_SERVICES] = " AND esr.host_host_id = acl.host_id"
-        . " AND esr.service_service_id = acl.service_id"
-        . " AND acl.group_id IN ($accessGroupsAsString)";
+    $aclCond[LIST_BY_HOSTS] = ! empty($accessGroupsAsString)
+        ? " AND ehr.host_host_id = acl.host_id AND acl.group_id IN ($accessGroupsAsString) "
+        : '';
+    $aclCond[LIST_BY_SERVICES] = ! empty($accessGroupsAsString)
+        ? " AND esr.host_host_id = acl.host_id"
+            . " AND esr.service_service_id = acl.service_id"
+            . " AND acl.group_id IN ($accessGroupsAsString)"
+        : '';
     $aclCond[LIST_BY_HOSTGROUPS] = $bindHostGroups !== []
         ? $acl->queryBuilder('AND', 'hostgroup_hg_id', implode(',', array_keys($bindHostGroups)))
         : '';
