@@ -42,15 +42,14 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
         try {
             $query = $this->translateDbName(
                 <<<'SQL'
-                    SELECT
-                        1
-                    FROM `:dbstg`.tag 
+                    SELECT 1
+                    FROM `:dbstg`.tag
                     INNER JOIN `:db`.hostgroup
                         ON tag.id = hostgroup.hg_id
                     WHERE hostgroup.hg_activate = '1'
                         AND tag.id = :hostGroupId
                         AND tag.type = 1
-                SQL
+                    SQL
             );
 
             return (bool) $this->connection->fetchOne(
@@ -87,9 +86,8 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
         try {
             $query = $this->translateDbName(
                 <<<'SQL'
-                    SELECT
-                        1
-                    FROM `:dbstg`.tag 
+                    SELECT 1
+                    FROM `:dbstg`.tag
                     INNER JOIN `:db`.hostgroup
                         ON tag.id = hostgroup.hg_id
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
@@ -103,7 +101,7 @@ class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements Re
                     WHERE hostgroup.hg_activate = '1'
                         AND tag.id = :hostGroupId
                         AND tag.type = 1
-                SQL
+                    SQL
             );
 
             return (bool) $this->connection->fetchOne(
