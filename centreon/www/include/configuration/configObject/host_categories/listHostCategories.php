@@ -101,8 +101,10 @@ try {
     // Execute fetch
     $hostCategories = $pearDB->fetchAllAssociative($mainQuery, $queryParams);
     $countRow = $pearDB->fetchAssociative($countSql, $queryParams);
-    $totalRows    = (int) ($countRow['total'] ?? 0);
+    $totalRows = (int) ($countRow['total'] ?? 0);
 } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+    $totalRows = 0;
+    $hostCategories = [];
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         'Error fetching host categories list',
