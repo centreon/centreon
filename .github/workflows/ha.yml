@@ -159,21 +159,6 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-<<<<<<< HEAD
-  promote:
-    needs: [get-environment]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
-    runs-on: centreon-common
-    strategy:
-      matrix:
-        distrib: [el8, el9, bookworm, noble]
-=======
 #   promote:
 #     needs: [get-environment]
 #     if: |
@@ -185,8 +170,7 @@ jobs:
 #     runs-on: centreon-common
 #     strategy:
 #       matrix:
-#         distrib: [el8, el9, bookworm]
->>>>>>> 755fa20139 (fix(ci): restrict job execution to the strict minimum in promote conditions (#7432))
+#         distrib: [el8, el9, bookworm, noble]
 
     steps:
       - name: Checkout sources
