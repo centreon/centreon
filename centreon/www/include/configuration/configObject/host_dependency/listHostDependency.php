@@ -49,70 +49,38 @@ if ($rawSearch !== null) {
 // Fetch dependencies from DB with pagination
 try {
     $db = $pearDB;
-    $qb = $db->createQueryBuilder();
+    $mainSelect = 'SELECT DISTINCT dep.dep_id, dep.dep_name, dep.dep_description ';
+    $sql = <<<SQL
+            FROM dependency dep
+            INNER JOIN dependency_hostParent_relation dhpr ON dhpr.dependency_dep_id = dep.dep_id
+        SQL;
 
-    $qb->select('dep.dep_id', 'dep.dep_name', 'dep.dep_description')
-       ->distinct()
-       ->from('dependency', 'dep')
-       ->innerJoin('dep', 'dependency_hostParent_relation', 'dhpr', 'dhpr.dependency_dep_id = dep.dep_id');
+    $where = [];
+    $params = null;
 
     if (! $centreon->user->admin) {
-        $qb->innerJoin(
-            'dep',
-            "$dbmon.centreon_acl",
-            'acl',
-            'dhpr.host_host_id = acl.host_id'
-        )
-        ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
+        $sql .= " INNER JOIN {$dbmon}.centreon_acl acl ON dhpr.host_host_id = acl.host_id";
+        $where[] = "acl.group_id IN ({$acl->getAccessGroupsString()})";
     }
 
-    $params = null;
     // Search filter
     if ($search !== null && $search !== '') {
-        $qb->andWhere(
-            $qb->expr()->or(
-                $qb->expr()->like('dep.dep_name', ':search'),
-                $qb->expr()->like('dep.dep_description', ':search')
-            )
-        );
+        $where[] = "(dep.dep_name LIKE :search OR dep.dep_description LIKE :search)";
         $params = QueryParameters::create([QueryParameter::string('search', "%$search%")]);
-
     }
 
-    // Ordering and pagination
-    $qb->orderBy('dep.dep_name')
-        ->addOrderBy('dep.dep_description')
-        ->limit($limit)
-        ->offset($num * $limit);
+    if (count($where)) {
+        $sql .= " WHERE " . implode(' AND ', $where);
+    }
 
-    $sql = $qb->getQuery();
+    $countSql = 'SELECT COUNT(DISTINCT dep.dep_id) AS total ' . $sql;
+
+    $sql .= " ORDER BY dep.dep_name, dep.dep_description";
+    $offset = $num * $limit;
+    $sql .= " LIMIT $limit OFFSET $offset";
+    $sql = $mainSelect . $sql;
     $dependencies = $db->fetchAllAssociative($sql, $params);
 
-    // Count total for pagination
-    $countQueryBuilder = $db->createQueryBuilder()
-        ->select('COUNT(DISTINCT dep.dep_id) AS total')
-        ->from('dependency', 'dep')
-        ->innerJoin('dep', 'dependency_hostParent_relation', 'dhpr', 'dhpr.dependency_dep_id = dep.dep_id');
-
-    if (! $centreon->user->admin) {
-        $countQueryBuilder->innerJoin(
-            'dep',
-            "$dbmon.centreon_acl",
-            'acl',
-            'dhpr.host_host_id = acl.host_id'
-        )
-        ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
-    }
-    if ($search !== null && $search !== '') {
-        $countQueryBuilder->andWhere(
-            $countQueryBuilder->expr()->or(
-                $countQueryBuilder->expr()->like('dep.dep_name', ':search'),
-                $countQueryBuilder->expr()->like('dep.dep_description', ':search')
-            )
-        );
-    }
-
-    $countSql = $countQueryBuilder->getQuery();
     $countResult = $pearDB->fetchAssociative($countSql, $params);
     $rows = (int) ($countResult['total'] ?? 0);
 } catch (ValueObjectException | CollectionException | ConnectionException $exception) {

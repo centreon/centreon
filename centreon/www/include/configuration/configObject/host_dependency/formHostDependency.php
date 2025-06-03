@@ -38,13 +38,7 @@ $initialValues = [];
 // Fetch existing dependency for modify or view
 if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
     try {
-        $queryBuilder = $pearDB->createQueryBuilder();
-        $queryBuilder->select('*')
-           ->from('dependency', 'dep')
-           ->where('dep.dep_id = :depId')
-           ->limit(1);
-
-        $sql = $queryBuilder->getQuery();
+        $sql = "SELECT * FROM dependency WHERE dep_id = :depId LIMIT 1";
 
         $result = $pearDB->fetchAssociative($sql, QueryParameters::create([QueryParameter::int('depId', $dep_id)]));
         if ($result === false) {

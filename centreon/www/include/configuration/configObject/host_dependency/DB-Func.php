@@ -35,12 +35,7 @@ function testHostDependencyExistence(?string $name): bool
     try {
         CentreonDependency::purgeObsoleteDependencies($pearDB);
 
-        $queryBuilder  = $pearDB->createQueryBuilder();
-        $sql = $queryBuilder
-            ->select('dep_id')
-            ->from('dependency')
-            ->where('dep_name = :name')
-            ->getQuery();
+        $sql = 'SELECT dep_id FROM dependency WHERE dep_name = :name';
 
         $params = QueryParameters::create([
             QueryParameter::string('name', (string) $name)
@@ -91,12 +86,7 @@ function deleteHostDependencyInDB(array $dependencies = []): void
     foreach ($dependencies as $depId => $_) {
         try {
             // fetch name
-            $sqlSel = $pearDB->createQueryBuilder()
-                ->select('dep_name')
-                ->from('dependency')
-                ->where('dep_id = :id')
-                ->limit(1)
-                ->getQuery();
+            $sqlSel = 'SELECT dep_name FROM dependency WHERE dep_id = :id LIMIT 1';
             $params = QueryParameters::create([
                 QueryParameter::int('id', (int) $depId),
             ]);
@@ -106,10 +96,7 @@ function deleteHostDependencyInDB(array $dependencies = []): void
                 continue;
             }
             // delete record
-            $sqlDel = $pearDB->createQueryBuilder()
-                ->delete('dependency')
-                ->where('dep_id = :id')
-                ->getQuery();
+            $sqlDel = 'DELETE FROM dependency WHERE dep_id = :id';
             $pearDB->delete($sqlDel, $params);
 
             // log deletion
@@ -137,12 +124,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
         try {
             $pearDB->beginTransaction();
             // fetch original dependency row
-            $sqlSel = $pearDB->createQueryBuilder()
-                ->select('*')
-                ->from('dependency')
-                ->where('dep_id = :id')
-                ->limit(1)
-                ->getQuery();
+            $sqlSel = 'SELECT * FROM dependency WHERE dep_id = :id LIMIT 1';
             $params = QueryParameters::create([
                 QueryParameter::int('id', (int) $depId),
             ]);
@@ -168,13 +150,11 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
 
                 // insert duplicated dependency
                 $cols   = array_keys($dup);
-                $sqlIns = $pearDB->createQueryBuilder()
-                    ->insert('dependency')
-                    ->values(array_combine(
-                        $cols,
-                        array_map(fn($c) => ':' . $c, $cols)
-                    ))
-                    ->getQuery();
+                $sqlIns = sprintf(
+                    'INSERT INTO dependency (%s) VALUES (%s)',
+                    implode(', ', $cols),
+                    implode(', ', array_map(fn($c) => ':' . $c, $cols))
+                );
                 $insParams = QueryParameters::create(
                     array_map(fn($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
                 );
@@ -188,22 +168,17 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     'dependency_serviceChild_relation'
                 ] as $table) {
                     // No need of Distinct here, as we are sure that the relation is unique
-                    $sqlRelSel = $pearDB->createQueryBuilder()
-                        ->select('*')
-                        ->from($table)
-                        ->where('dependency_dep_id = :id')
-                        ->getQuery();
+                    $sqlRelSel = "SELECT * FROM $table WHERE dependency_dep_id = :id";
                     $rels = $pearDB->fetchAllAssociative($sqlRelSel, $params);
 
                     foreach ($rels as $rowRel) {
                         $fields   = array_keys($rowRel);
-                        $sqlRelIns = $pearDB->createQueryBuilder()
-                            ->insert($table)
-                            ->values(array_combine(
-                                $fields,
-                                array_map(fn($c) => ':' . $c, $fields)
-                            ))
-                            ->getQuery();
+                        $sqlRelIns = sprintf(
+                            'INSERT INTO %s (%s) VALUES (%s)',
+                            $table,
+                            implode(', ', $fields),
+                            implode(', ', array_map(fn($c) => ':' . $c, $fields))
+                        );
                         $relParams = QueryParameters::create(
                             array_map(fn($c) =>
                                 QueryParameter::int(
@@ -250,18 +225,23 @@ function insertHostDependency(array $data = []): int
     try {
         $values = sanitizeResourceParameters($data ?: $form->getSubmitValues());
 
-        $queryBuilderIns = $pearDB->createQueryBuilder();
-        $ins = $queryBuilderIns
-            ->insert('dependency')
-            ->values([
-                'dep_name' => ':depName',
-                'dep_description' => ':depDesc',
-                'inherits_parent' => ':inherits',
-                'execution_failure_criteria' => ':exeFail',
-                'notification_failure_criteria' => ':notFail',
-                'dep_comment'  => ':comment',
-            ])
-            ->getQuery();
+        $ins = <<<SQL
+                INSERT INTO dependency (
+                    dep_name,
+                    dep_description,
+                    inherits_parent,
+                    execution_failure_criteria,
+                    notification_failure_criteria,
+                    dep_comment
+                ) VALUES (
+                    :depName,
+                    :depDesc,
+                    :inherits,
+                    :exeFail,
+                    :notFail,
+                    :comment
+                )
+            SQL;
 
         $params = QueryParameters::create([
             QueryParameter::string('depName', $values['dep_name']),
@@ -305,17 +285,16 @@ function updateHostDependency(int $depId): void
     try {
         $values = sanitizeResourceParameters($form->getSubmitValues());
 
-        $queryBuilderUpdate = $pearDB->createQueryBuilder();
-        $update = $queryBuilderUpdate
-            ->update('dependency')
-            ->set('dep_name', ':depName')
-            ->set('dep_description', ':depDesc')
-            ->set('inherits_parent', ':inherits')
-            ->set('execution_failure_criteria', ':exeFail')
-            ->set('notification_failure_criteria', ':notFail')
-            ->set('dep_comment', ':comment')
-            ->where('dep_id = :depId')
-            ->getQuery();
+        $update = <<<SQL
+                UPDATE dependency SET
+                dep_name = :depName,
+                dep_description = :depDesc,
+                inherits_parent = :inherits,
+                execution_failure_criteria = :exeFail,
+                notification_failure_criteria = :notFail,
+                dep_comment = :comment
+                WHERE dep_id = :depId
+            SQL;
 
         $params = QueryParameters::create([
             QueryParameter::string('depName', $values['dep_name']),
@@ -392,21 +371,16 @@ function updateHostDependencyHostParents(int $depId, array $list = []): void
     global $pearDB, $form;
 
     try {
-        $del  = $pearDB->createQueryBuilder()
-            ->delete('dependency_hostParent_relation')
-            ->where('dependency_dep_id = :id')
-            ->getQuery();
+        $del = 'DELETE FROM dependency_hostParent_relation WHERE dependency_dep_id = :id';
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
 
         $items = isset($list["dep_hostParents"]) ? $list["dep_hostParents"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
         foreach ($items as $host) {
-            $ins = $pearDB->createQueryBuilder()
-                ->insert('dependency_hostParent_relation')
-                ->values([
-                    'dependency_dep_id' => ':id',
-                    'host_host_id' => ':host'
-                ])
-                ->getQuery();
+            $ins = <<<SQL
+                    INSERT INTO dependency_hostParent_relation
+                    (dependency_dep_id, host_host_id)
+                    VALUES (:id, :host)
+                SQL;
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
                 QueryParameter::int('host', (int) $host)
@@ -426,21 +400,15 @@ function updateHostDependencyHostChilds(int $depId, array $list = []): void
     global $form, $pearDB;
 
     try {
-        $del = $pearDB->createQueryBuilder()
-            ->delete('dependency_hostChild_relation')
-            ->where('dependency_dep_id = :id')
-            ->getQuery();
+        $del = 'DELETE FROM dependency_hostChild_relation WHERE dependency_dep_id = :id';
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
 
         $items = isset($list["dep_hostChilds"]) ? $list["dep_hostChilds"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
         foreach ($items as $host) {
-            $ins = $pearDB->createQueryBuilder()
-                ->insert('dependency_hostChild_relation')
-                ->values([
-                    'dependency_dep_id' => ':id',
-                    'host_host_id'      => ':host'
-                ])
-                ->getQuery();
+            $ins = <<<SQL
+                    INSERT INTO dependency_hostChild_relation
+                    (dependency_dep_id, host_host_id) VALUES (:id, :host)
+                SQL;
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
                 QueryParameter::int('host', (int) $host)
@@ -460,24 +428,18 @@ function updateHostDependencyServiceChildren(int $dep_id, array $list = []): voi
     global $form, $pearDB;
 
     try {
-        $del = $pearDB->createQueryBuilder()
-            ->delete('dependency_serviceChild_relation')
-            ->where('dependency_dep_id = :id')
-            ->getQuery();
+        $del = 'DELETE FROM dependency_serviceChild_relation WHERE dependency_dep_id = :id';
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $dep_id) ]));
 
         $items = isset($list["dep_hSvChi"]) ? $list["dep_hSvChi"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
         foreach ($items as $item) {
             [$host, $service] = explode('-', $item) + [null, null];
             if ($host !== null && $service !== null) {
-                $ins = $pearDB->createQueryBuilder()
-                    ->insert('dependency_serviceChild_relation')
-                    ->values([
-                        'dependency_dep_id'  => ':id',
-                        'service_service_id' => ':service',
-                        'host_host_id'       => ':host'
-                    ])
-                    ->getQuery();
+                $ins = <<<SQL
+                        INSERT INTO dependency_serviceChild_relation
+                        (dependency_dep_id, service_service_id, host_host_id)
+                        VALUES (:id, :service, :host)
+                    SQL;
                 $pearDB->insert($ins, QueryParameters::create([
                     QueryParameter::int('id', $dep_id),
                     QueryParameter::int('service', (int) $service),
