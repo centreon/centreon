@@ -57,11 +57,8 @@ function testExistence($name = null)
 {
     global $pearDB, $form;
     $metaIdFromForm = $form ? $form->getSubmitValue('meta_id') : null;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select("meta_id")
-        ->from("meta_service")
-        ->where("meta_name = :meta_name")
-        ->getQuery();
+    // No query builder needed; use raw SQL string
+    $query = "SELECT meta_id FROM meta_service WHERE meta_name = :meta_name";
     try {
         $meta = $pearDB->fetchAssociative($query, QueryParameters::create([
             QueryParameter::string('meta_name', getParamValue($name, sanitize: true))
@@ -96,11 +93,7 @@ function enableMetaServiceInDB($metaId = null)
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update("meta_service")
-        ->set("meta_activate", "'1'")
-        ->where("meta_id = :meta_id")
-        ->getQuery();
+    $query = "UPDATE meta_service SET meta_activate = '1' WHERE meta_id = :meta_id";
     try {
         $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
@@ -129,11 +122,7 @@ function disableMetaServiceInDB($metaId = null)
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update("meta_service")
-        ->set("meta_activate", "'0'")
-        ->where("meta_id = :meta_id")
-        ->getQuery();
+    $query = "UPDATE meta_service SET meta_activate = '0' WHERE meta_id = :meta_id";
     try {
         $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
@@ -159,18 +148,11 @@ function disableMetaServiceInDB($metaId = null)
 function removeRelationLastMetaServiceDependency(int $serviceId): void
 {
     global $pearDB;
-    $subQb = $pearDB->createQueryBuilder();
-    $subQuery = $subQb->select("dependency_dep_id")
-                    ->from("dependency_metaserviceParent_relation")
-                    ->where("meta_service_meta_id = :serviceId")
-                    ->getQuery();
-
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select("COUNT(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id")
-                ->from("dependency_metaserviceParent_relation")
-                ->where("dependency_dep_id = (" . $subQuery . ")")
-                ->groupBy("dependency_dep_id")
-                ->getQuery();
+    $subQuery = "SELECT dependency_dep_id FROM dependency_metaserviceParent_relation WHERE meta_service_meta_id = :serviceId";
+    $query = "SELECT COUNT(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+              FROM dependency_metaserviceParent_relation
+              WHERE dependency_dep_id IN ($subQuery)
+              GROUP BY dependency_dep_id";
     try {
         $result = $pearDB->fetchAssociative($query, QueryParameters::create([
             QueryParameter::int('serviceId', $serviceId)
@@ -187,10 +169,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
         return;
     }
     if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $qbDel = $pearDB->createQueryBuilder();
-        $queryDel = $qbDel->delete("dependency")
-                  ->where("dep_id = :dep_id")
-                  ->getQuery();
+        $queryDel = "DELETE FROM dependency WHERE dep_id = :dep_id";
         try {
             $pearDB->delete($queryDel, QueryParameters::create([
                 QueryParameter::int('dep_id', (int) $result['id'])
@@ -219,10 +198,7 @@ function deleteMetaServiceInDB($metas = [])
     global $pearDB;
     foreach ($metas as $metaId => $value) {
         removeRelationLastMetaServiceDependency((int)$metaId);
-        $qb = $pearDB->createQueryBuilder();
-        $query = $qb->delete("meta_service")
-                    ->where("meta_id = :meta_id")
-                    ->getQuery();
+        $query = "DELETE FROM meta_service WHERE meta_id = :meta_id";
         try {
             $pearDB->delete($query, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId)
@@ -237,11 +213,7 @@ function deleteMetaServiceInDB($metas = [])
                 $exception
             );
         }
-        $qb2 = $pearDB->createQueryBuilder();
-        $query2 = $qb2->delete("service")
-                     ->where("service_description = :service_description")
-                     ->andWhere("service_register = '2'")
-                     ->getQuery();
+        $query2 = "DELETE FROM service WHERE service_description = :service_description AND service_register = '2'";
         try {
             $pearDB->delete($query2, QueryParameters::create([
                 QueryParameter::string('service_description', 'meta_' . $metaId)
@@ -271,11 +243,7 @@ function enableMetricInDB($msrId = null)
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update("meta_service_relation")
-                ->set("activate", "'1'")
-                ->where("msr_id = :msr_id")
-                ->getQuery();
+    $query = "UPDATE meta_service_relation SET activate = '1' WHERE msr_id = :msr_id";
     try {
         $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('msr_id', (int) $msrId)
@@ -304,11 +272,7 @@ function disableMetricInDB($msrId = null)
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update("meta_service_relation")
-                ->set("activate", "'0'")
-                ->where("msr_id = :msr_id")
-                ->getQuery();
+    $query = "UPDATE meta_service_relation SET activate = '0' WHERE msr_id = :msr_id";
     try {
         $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('msr_id', (int) $msrId)
@@ -335,10 +299,7 @@ function deleteMetricInDB($metrics = [])
 {
     global $pearDB;
     foreach ($metrics as $msrId => $value) {
-        $qb = $pearDB->createQueryBuilder();
-        $query = $qb->delete("meta_service_relation")
-                    ->where("msr_id = :msr_id")
-                    ->getQuery();
+        $query = "DELETE FROM meta_service_relation WHERE msr_id = :msr_id";
         try {
             $pearDB->delete($query, QueryParameters::create([
                 QueryParameter::int('msr_id', (int) $msrId)
@@ -367,12 +328,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
 {
     global $pearDB;
     foreach ($metas as $metaId => $value) {
-        $qbSelect = $pearDB->createQueryBuilder();
-        $query = $qbSelect->select("*")
-                          ->from("meta_service")
-                          ->where("meta_id = :meta_id")
-                          ->limit(1)
-                          ->getQuery();
+        $query = "SELECT * FROM meta_service WHERE meta_id = :meta_id LIMIT 1";
         try {
             $row = $pearDB->fetchAssociative($query, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId)
@@ -396,10 +352,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             $metaName = $row["meta_name"] . "_" . $i;
             $row["meta_name"] = $metaName;
             $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert("meta_service")
-                ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)))
-                ->getQuery();
+            $insertQuery = "INSERT INTO meta_service (" . implode(", ", $columns) . ")
+                VALUES (" . implode(", ", array_map(fn($col) => ':' . $col, $columns)) . ")";
 
             try {
                 if (! testExistence($metaName)) {
@@ -416,22 +370,13 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
 
                     // Duplicate contacts
-                    $qbContacts = $pearDB->createQueryBuilder();
-                    $queryContacts = $qbContacts->select("DISTINCT contact_id")
-                        ->from("meta_contact")
-                        ->where("meta_id = :meta_id")
-                        ->getQuery();
+                    $queryContacts = "SELECT DISTINCT contact_id FROM meta_contact WHERE meta_id = :meta_id";
                     $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
                     foreach ($contacts as $contact) {
-                        $qbInsertContact = $pearDB->createQueryBuilder();
-                        $queryInsertContact = $qbInsertContact->insert("meta_contact")
-                            ->values([
-                                'meta_id'    => ':meta_id',
-                                'contact_id' => ':contact_id'
-                            ])
-                            ->getQuery();
+                        $queryInsertContact = "INSERT INTO meta_contact (meta_id, contact_id)
+                            VALUES (:meta_id, :contact_id)";
                         $pearDB->insert($queryInsertContact, QueryParameters::create([
                             QueryParameter::int('meta_id', (int) $newMetaId),
                             QueryParameter::int('contact_id', (int) $contact["contact_id"])
@@ -439,22 +384,12 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     }
 
                     // Duplicate contactgroups
-                    $qbCG = $pearDB->createQueryBuilder();
-                    $queryCG = $qbCG->select("DISTINCT cg_cg_id")
-                        ->from("meta_contactgroup_relation")
-                        ->where("meta_id = :meta_id")
-                        ->getQuery();
+                    $queryCG = "SELECT DISTINCT cg_cg_id FROM meta_contactgroup_relation WHERE meta_id = :meta_id";
                     $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
                     foreach ($cgroups as $cg) {
-                        $qbInsertCG = $pearDB->createQueryBuilder();
-                        $queryInsertCG = $qbInsertCG->insert("meta_contactgroup_relation")
-                            ->values([
-                                'meta_id'   => ':meta_id',
-                                'cg_cg_id'  => ':cg_cg_id'
-                            ])
-                            ->getQuery();
+                        $queryInsertCG = "INSERT INTO meta_contactgroup_relation (meta_id, cg_cg_id) VALUES (:meta_id, :cg_cg_id)";
                         $pearDB->insert($queryInsertCG, QueryParameters::create([
                             QueryParameter::int('meta_id', (int) $newMetaId),
                             QueryParameter::int('cg_cg_id', (int) $cg["cg_cg_id"])
@@ -462,11 +397,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     }
 
                     // Duplicate metrics
-                    $qbMetric = $pearDB->createQueryBuilder();
-                    $queryMetric = $qbMetric->select("*")
-                        ->from("meta_service_relation")
-                        ->where("meta_id = :meta_id")
-                        ->getQuery();
+                    $queryMetric = "SELECT * FROM meta_service_relation WHERE meta_id = :meta_id";
                     $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
@@ -474,10 +405,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         $metric["msr_id"] = null;
                         $metric["meta_id"] = $newMetaId;
                         $columns = array_keys($metric);
-                        $qbInsertMetric = $pearDB->createQueryBuilder();
-                        $insertMetricQuery = $qbInsertMetric->insert("meta_service_relation")
-                            ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)))
-                            ->getQuery();
+                        $insertMetricQuery = "INSERT INTO meta_service_relation (" . implode(", ", $columns) . ")
+                            VALUES (" . implode(", ", array_map(fn($col) => ':' . $col, $columns)) . ")";
                         // Build parameters for the metric row.
                         $paramsMetric = [];
                         foreach ($metric as $column => $value) {
@@ -541,12 +470,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
 {
     global $pearDB;
     foreach ($metrics as $msrId => $value) {
-        $qbSelect = $pearDB->createQueryBuilder();
-        $query = $qbSelect->select("*")
-                          ->from("meta_service_relation")
-                          ->where("msr_id = :msr_id")
-                          ->limit(1)
-                          ->getQuery();
+        $query = "SELECT * FROM meta_service_relation WHERE msr_id = :msr_id LIMIT 1";
         try {
             $row = $pearDB->fetchAssociative($query, QueryParameters::create([
                 QueryParameter::int('msr_id', (int) $msrId)
@@ -568,10 +492,8 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
         $row["msr_id"] = null;
         for ($i = 1; $i <= $nbrDup[$msrId]; $i++) {
             $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert("meta_service_relation")
-                                    ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)))
-                                    ->getQuery();
+            $insertQuery = "INSERT INTO meta_service_relation (" . implode(", ", $columns) . ")
+                VALUES (" . implode(", ", array_map(fn($col) => ':' . $col, $columns)) . ")";
             try {
                 $params = [];
                 foreach ($row as $column => $val) {
@@ -601,12 +523,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
 function checkMetaHost()
 {
     global $pearDB;
-    $qbSelect = $pearDB->createQueryBuilder();
-    $query = $qbSelect->select("host_id")
-                      ->from("host")
-                      ->where("host_register = '2'")
-                      ->andWhere("host_name = '_Module_Meta'")
-                      ->getQuery();
+    $query = "SELECT host_id FROM host WHERE host_register = '2' AND host_name = '_Module_Meta'";
     try {
         $host = $pearDB->fetchAssociative($query);
     } catch (ConnectionException $exception) {
@@ -620,13 +537,7 @@ function checkMetaHost()
         $host = false;
     }
     if (!$host) {
-        $qbInsert = $pearDB->createQueryBuilder();
-        $queryInsert = $qbInsert->insert("host")
-                                ->values([
-                                    'host_name' => "'_Module_Meta'",
-                                    'host_register' => "'2'"
-                                ])
-                                ->getQuery();
+        $queryInsert = "INSERT INTO host (host_name, host_register) VALUES ('_Module_Meta', '2')";
         try {
             $pearDB->insert($queryInsert);
         } catch (ConnectionException $exception) {
@@ -675,32 +586,51 @@ function insertMetaService($ret = [])
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $qbInsert = $pearDB->createQueryBuilder();
-    $query = $qbInsert->insert("meta_service")
-        ->values([
-            'meta_name' => ':meta_name',
-            'meta_display' => ':meta_display',
-            'check_period' => ':check_period',
-            'max_check_attempts' => ':max_check_attempts',
-            'normal_check_interval' => ':normal_check_interval',
-            'retry_check_interval' => ':retry_check_interval',
-            'notification_interval' => ':notification_interval',
-            'notification_period' => ':notification_period',
-            'notification_options' => ':notification_options',
-            'notifications_enabled' => ':notifications_enabled',
-            'calcul_type' => ':calcul_type',
-            'data_source_type' => ':data_source_type',
-            'meta_select_mode' => ':meta_select_mode',
-            'regexp_str' => ':regexp_str',
-            'metric' => ':metric',
-            'warning' => ':warning',
-            'critical' => ':critical',
-            'graph_id' => ':graph_id',
-            'meta_comment' => ':meta_comment',
-            'geo_coords' => ':geo_coords',
-            'meta_activate' => ':meta_activate'
-        ])
-        ->getQuery();
+    $query = "INSERT INTO meta_service (
+        meta_name,
+        meta_display,
+        check_period,
+        max_check_attempts,
+        normal_check_interval,
+        retry_check_interval,
+        notification_interval,
+        notification_period,
+        notification_options,
+        notifications_enabled,
+        calcul_type,
+        data_source_type,
+        meta_select_mode,
+        regexp_str,
+        metric,
+        warning,
+        critical,
+        graph_id,
+        meta_comment,
+        geo_coords,
+        meta_activate
+    ) VALUES (
+        :meta_name,
+        :meta_display,
+        :check_period,
+        :max_check_attempts,
+        :normal_check_interval,
+        :retry_check_interval,
+        :notification_interval,
+        :notification_period,
+        :notification_options,
+        :notifications_enabled,
+        :calcul_type,
+        :data_source_type,
+        :meta_select_mode,
+        :regexp_str,
+        :metric,
+        :warning,
+        :critical,
+        :graph_id,
+        :meta_comment,
+        :geo_coords,
+        :meta_activate
+    )";
 
     try {
         $params = [
@@ -763,31 +693,29 @@ function updateMetaService($metaId = null)
     global $form, $pearDB, $centreon;
     checkMetaHost();
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $qb->update("meta_service")
-       ->set("meta_name", ":meta_name")
-       ->set("meta_display", ":meta_display")
-       ->set("check_period", ":check_period")
-       ->set("max_check_attempts", ":max_check_attempts")
-       ->set("normal_check_interval", ":normal_check_interval")
-       ->set("retry_check_interval", ":retry_check_interval")
-       ->set("notification_interval", ":notification_interval")
-       ->set("notification_period", ":notification_period")
-       ->set("notification_options", ":notification_options")
-       ->set("notifications_enabled", ":notifications_enabled")
-       ->set("calcul_type", ":calcul_type")
-       ->set("data_source_type", ":data_source_type")
-       ->set("meta_select_mode", ":meta_select_mode")
-       ->set("regexp_str", ":regexp_str")
-       ->set("metric", ":metric")
-       ->set("warning", ":warning")
-       ->set("critical", ":critical")
-       ->set("graph_id", ":graph_id")
-       ->set("meta_comment", ":meta_comment")
-       ->set("geo_coords", ":geo_coords")
-       ->set("meta_activate", ":meta_activate")
-       ->where("meta_id = :meta_id");
-    $query = $qb->getQuery();
+    $query = "UPDATE meta_service SET
+        meta_name = :meta_name,
+        meta_display = :meta_display,
+        check_period = :check_period,
+        max_check_attempts = :max_check_attempts,
+        normal_check_interval = :normal_check_interval,
+        retry_check_interval = :retry_check_interval,
+        notification_interval = :notification_interval,
+        notification_period = :notification_period,
+        notification_options = :notification_options,
+        notifications_enabled = :notifications_enabled,
+        calcul_type = :calcul_type,
+        data_source_type = :data_source_type,
+        meta_select_mode = :meta_select_mode,
+        regexp_str = :regexp_str,
+        metric = :metric,
+        warning = :warning,
+        critical = :critical,
+        graph_id = :graph_id,
+        meta_comment = :meta_comment,
+        geo_coords = :geo_coords,
+        meta_activate = :meta_activate
+     WHERE meta_id = :meta_id";
     try {
         $params = [
             QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
@@ -843,10 +771,7 @@ function updateMetaServiceContact($metaId)
         return;
     }
     global $form, $pearDB;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryPurge = $qbDelete->delete("meta_contact")
-                           ->where("meta_id = :meta_id")
-                           ->getQuery();
+    $queryPurge = "DELETE FROM meta_contact WHERE meta_id = :meta_id";
     try {
         $pearDB->delete($queryPurge, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
@@ -872,7 +797,8 @@ function updateMetaServiceContact($metaId)
                 $params["metaId_$key"] = QueryParameter::int("metaId_$key", (int) $metaId);
                 $params["contactId_$key"] = QueryParameter::int("contactId_$key", (int) $contactId);
             }
-            $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES " . implode(", ", $values);
+            $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id)
+                VALUES " . implode(", ", $values);
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
@@ -899,10 +825,7 @@ function updateMetaServiceContactGroup($metaId = null)
         return;
     }
     global $form, $pearDB;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryDelete = $qbDelete->delete("meta_contactgroup_relation")
-                            ->where("meta_id = :meta_id")
-                            ->getQuery();
+    $queryDelete = "DELETE FROM meta_contactgroup_relation WHERE meta_id = :meta_id";
     try {
         $pearDB->delete($queryDelete, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
@@ -929,13 +852,8 @@ function updateMetaServiceContactGroup($metaId = null)
                 continue;
             }
         }
-        $qbInsert = $pearDB->createQueryBuilder();
-        $queryInsert = $qbInsert->insert("meta_contactgroup_relation")
-                                ->values([
-                                    'meta_id' => ':meta_id',
-                                    'cg_cg_id' => ':cg_cg_id'
-                                ])
-                                ->getQuery();
+    $queryInsert = "INSERT INTO meta_contactgroup_relation (meta_id, cg_cg_id)
+            VALUES (:meta_id, :cg_cg_id)";
         try {
             $pearDB->insert($queryInsert, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId),
@@ -992,16 +910,8 @@ function insertMetric($ret = [])
 {
     global $form, $pearDB, $centreon;
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->insert("meta_service_relation")
-        ->values([
-            'meta_id' => ':meta_id',
-            'host_id' => ':host_id',
-            'metric_id' => ':metric_id',
-            'msr_comment' => ':msr_comment',
-            'activate' => ':activate'
-        ])
-        ->getQuery();
+    $query = "INSERT INTO meta_service_relation (meta_id, host_id, metric_id, msr_comment, activate)
+        VALUES (:meta_id, :host_id, :metric_id, :msr_comment, :activate)";
     try {
         $params = [
             QueryParameter::int('meta_id', (int) getParamValue($ret, "meta_id")),
@@ -1038,15 +948,13 @@ function updateMetric($msrId = null)
     }
     global $form, $pearDB;
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update("meta_service_relation")
-                ->set("meta_id", ":meta_id")
-                ->set("host_id", ":host_id")
-                ->set("metric_id", ":metric_id")
-                ->set("msr_comment", ":msr_comment")
-                ->set("activate", ":activate")
-                ->where("msr_id = :msr_id")
-                ->getQuery();
+    $query = "UPDATE meta_service_relation SET
+                meta_id = :meta_id,
+                host_id = :host_id,
+                metric_id = :metric_id,
+                msr_comment = :msr_comment,
+                activate = :activate
+              WHERE msr_id = :msr_id";
     try {
         $params = [
             QueryParameter::int('meta_id', (int) getParamValue($ret, "meta_id")),
