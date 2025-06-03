@@ -11,7 +11,7 @@ import {
   labelSelectPollers,
   labelSelectType,
   labelSettings,
-  labelcCenterESX
+  labelvCenterESX
 } from '../translatedLabels';
 import ConnectorType from './ConnectorType/ConnectorType';
 import { useFormStyles } from './Form.styles';
@@ -114,7 +114,7 @@ const useFormInputs = (): FormInputsState => {
       grid: {
         columns: [
           {
-            additionalLabel: t(labelcCenterESX),
+            additionalLabel: t(labelvCenterESX),
             custom: {
               Component: Parameters
             },

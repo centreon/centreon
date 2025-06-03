@@ -44,10 +44,7 @@ export const labelDescriptionMustBeMost =
 export const labelNameMustBeAtLeast =
   'The name should be at least 3 characters long';
 export const labelRequired = 'Required';
-export const labelCreateConnectorConfiguration =
-  'Create additional configuration';
-export const labelUpdateConnectorConfiguration =
-  'Update additional configuration';
+
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
 export const labelSelectType = 'Select type';
@@ -77,10 +74,15 @@ export const labelParameters = 'Parameters';
 export const labelParametersTooltip = 'Parameters tooltip';
 export const labelGeneralInformation = 'General information';
 export const labelSettings = 'Settings';
-export const labelcCenterESX = 'vCenter/ESX';
+export const labelvCenterESX = 'vCenter/ESX';
 
 export const labelWelcomeToAdditionalConfigurations =
   'Welcome to the additional configurations page';
 export const labelPageDescription =
   'For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here.';
 export const labelAddAdditionalConfigurations = 'Add additional configurations';
+
+export const labelAddAnAdditionalConfigurations =
+  'Add an additional configuration';
+export const labelModifyConnectorConfiguration =
+  'Modify an additional configuration';
