@@ -95,7 +95,7 @@ try {
 
     $countSql = 'SELECT COUNT(*) AS total ' . $mainQuery;
 
-    $mainQuery = $mainSelect . $mainQuery . " ORDER BY hc.hc_name LIMIT :limit OFFSET :offset";
+    $mainQuery = $mainSelect . $mainQuery . " ORDER BY hc.hc_name LIMIT $limit OFFSET $offset";
     $queryParams = QueryParameters::create($parameters);
 
     // Execute fetch
