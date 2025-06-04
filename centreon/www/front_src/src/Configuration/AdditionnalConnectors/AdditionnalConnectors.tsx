@@ -6,13 +6,15 @@ import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
+
+import useAdditionnalConnectors from './useAdditionnalConnectors';
+
 import {
   labelAddAdditionalConfigurations,
   labelAdditionalConnectorConfiguration,
   labelPageDescription,
   labelWelcomeToAdditionalConfigurations
 } from './translatedLabels';
-import useAdditionnalConnectors from './useAdditionnalConnectors';
 
 const AdditionnalConnectors = () => {
   const { t } = useTranslation();
