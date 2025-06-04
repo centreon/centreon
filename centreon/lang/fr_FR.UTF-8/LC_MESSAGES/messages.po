@@ -873,10 +873,6 @@ msgstr "Ajouter une plage de maintenance"
 msgid "Add filter"
 msgstr "Ajouter un filtre"
 
-#: centreon/www/install/front_translate.php
-msgid "Add host"
-msgstr "Ajouter un hôte"
-
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
@@ -8182,6 +8178,11 @@ msgstr "Nom du groupe d'hôte"
 msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, fuzzy, php-format
+msgid "Host ID #%d is invalid"
+msgstr "Hôte #%d introuvable"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Host Information"
 msgstr "Informations sur l'hôte"
@@ -14381,6 +14382,10 @@ msgstr "Sélectionner les critères"
 msgid "Select field"
 msgstr "Sélectionné"
 
+#: centreon/www/install/front_translate.php
+msgid "Select host"
+msgstr "Sélectionner un hôte"
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Select host severities"
 msgstr "Sélectionner les sévérités des hôtes"
@@ -19758,6 +19763,9 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 msgid "{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
 
+#~ msgid "Add host"
+#~ msgstr "Ajouter un hôte"
+
 #~ msgid "Add a Host Group"
 #~ msgstr "Ajouter un groupe d'hôtes"
 
@@ -22865,8 +22873,12 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Host group updated"
 #~ msgstr "Groupe d'hôtes mis à jour"
 
-msgid "The selected inherited service template does not contain any check command. You must select one here."
-msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
+#~ msgid ""
+#~ "The selected inherited service template does not contain any check "
+#~ "command. You must select one here."
+#~ msgstr ""
+#~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
+#~ "vérification. Vous devez en sélectionner une ici."
 
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
@@ -22876,6 +22888,3 @@ msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
-
-msgid "Select host"
-msgstr "Sélectionner un hôte"
