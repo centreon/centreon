@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { TabContext, TabList, TabListProps } from '@mui/lab';
-import { Tab } from '@mui/material';
+import { Tab, Tabs as MuiTabs } from '@mui/material';
 
 import { useTabsStyles } from './Tab.styles';
 
@@ -31,12 +31,13 @@ export const Tabs = ({
 
   return (
     <TabContext value={selectedTab}>
-      <TabList
+      <MuiTabs
         classes={{
           indicator: classes.indicator,
           root: classes.tabs
         }}
         onChange={changeTab}
+        value={selectedTab}
         {...tabList}
       >
         {tabs.map(({ value, label }) => (
@@ -48,7 +49,7 @@ export const Tabs = ({
             value={value}
           />
         ))}
-      </TabList>
+      </MuiTabs>
       {children}
     </TabContext>
   );
