@@ -97,7 +97,7 @@ export const CrudPageRoot = <
             {isDataEmpty && !isLoading ? (
               <DataTable.EmptyState
                 aria-label="create"
-                data-testid="create-agent-configuration"
+                buttonCreateTestId="create-crudpage"
                 labels={{
                   title: labels.welcome.title,
                   description: labels.welcome.description,
