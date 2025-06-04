@@ -233,7 +233,7 @@ When(
 	() => {
 		cy.get('*[class^="react-grid-layout"]').children().should("have.length", 0);
 		cy.getByTestId({ testId: "edit_dashboard" }).click();
-		cy.getByTestId({ testId: "AddIcon" }).should("have.length", 1).click();
+		cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
 	},
 );
 
@@ -248,7 +248,6 @@ When(
 Then(
 	"configuration properties for the status chart widget are displayed",
 	() => {
-		cy.getByTestId({ testId: "CheckCircleIcon" }).should("exist");
 		cy.getByLabel({ label: "Donut chart" }).should("exist");
 		cy.getByLabel({ label: "Pie chart" }).should("exist");
 		cy.getByLabel({ label: "Vertical bar chart" }).should("exist");
@@ -392,10 +391,9 @@ Given("a dashboard featuring two Status Chart widgets", () => {
 });
 
 When("the dashboard administrator user deletes one of the widgets", () => {
-	cy.getByTestId({ testId: "DeleteIcon" }).click();
 	cy.getByLabel({
-		label: "Delete",
-		tag: "button",
+		label: "Delete widget",
+		tag: "li",
 	}).realClick();
 });
 
@@ -427,8 +425,8 @@ When(
 	"the dashboard administrator user duplicates the Status Chart widget",
 	() => {
 		cy.editDashboard(dashboards.default.name);
-		cy.getByTestId({ testId: "MoreHorizIcon" }).click();
-		cy.getByTestId({ testId: "ContentCopyIcon" }).click({ force: true });
+		cy.getByTestId({ testId: "More actions" }).click();
+		cy.getByTestId({ testId: "Duplicate" }).click({ force: true });
 	},
 );
 
@@ -535,7 +533,7 @@ Given("the dashboard administrator adds more than 20 hosts", () => {
 				.invoke("text")
 				.then((text) => {
 					if (text !== "23") {
-						cy.getByTestId({ testId: "RefreshIcon" }).click();
+						cy.getByTestId({ testId: "refresh" }).click();
 						cy.getByLabel({ label: "Select all" }).click();
 						cy.getByLabel({ label: "Forced check" }).click();
 						cy.getByLabel({ label: "Select all" }).click();

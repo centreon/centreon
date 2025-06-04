@@ -2,7 +2,8 @@ import { Suspense, lazy } from 'react';
 
 import { equals } from 'ramda';
 
-import { Grid, useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
 import { Props } from './Refresh';
@@ -31,10 +32,10 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
   return (
     <Grid container className={classes.container}>
       <Grid
-        item
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
+        size={7}
       >
-        <Grid item>
+        <Grid>
           <Suspense fallback={<ResourceActionsSkeleton />}>
             <WrapperResourceActions
               displayCondensed={displayCondensed}
@@ -49,7 +50,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
           </Suspense>
         </Grid>
         {!smallSize && (
-          <Grid item>
+          <Grid>
             <Suspense fallback={<GlobalActionsSkeleton />}>
               <GlobalActions onRefresh={onRefresh} />
             </Suspense>
@@ -57,12 +58,12 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         )}
       </Grid>
       <Grid
-        item
         wrap="nowrap"
         className={cx({
           [classes.large]: !smallSize,
           [classes.small]: smallSize
         })}
+        size={5}
       >
         <VisualizationActions displayCondensed={displayCondensed} />
         <ExportCsv />
