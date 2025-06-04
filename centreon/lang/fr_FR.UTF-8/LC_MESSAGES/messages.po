@@ -22898,3 +22898,6 @@ msgstr "Modifier une configuration additionnelle"
 
 msgid "You are about to delete the <strong>{{ name }}</strong> additional configuration. This action cannot be undone. Do you want to delete it?"
 msgstr "Vous êtes sur le point de supprimer la configuration additionnelle <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est un logiciel que vous installez sur l’hôte que vous souhaitez superviser, et qui exécute les vérifications."
