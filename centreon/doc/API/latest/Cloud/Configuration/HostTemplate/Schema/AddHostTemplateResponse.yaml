@@ -35,6 +35,17 @@ properties:
     description: "Severity ID"
     example: 1
     nullable: true
+  check_command_id:
+    type: integer
+    description: "Check command ID"
+    example: 1
+    nullable: true
+  check_command_args:
+    type: array
+    description: "Check command arguments"
+    items:
+      type: string
+    example: ["0", "OK"]
   check_timeperiod_id:
     type: integer
     description: "Check command timeperiod ID"

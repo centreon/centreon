@@ -283,7 +283,6 @@ function setSessionVariables($conf_centreon)
     $_SESSION['MONITORING_VAR_LOG'] = $conf_centreon['monitoring_varlog'];
     $_SESSION['CENTREON_ENGINE_CONNECTORS'] = $conf_centreon['centreon_engine_connectors'];
     $_SESSION['CENTREON_ENGINE_LIB'] = $conf_centreon['centreon_engine_lib'];
-    $_SESSION['CENTREONBROKER_CBMOD'] = $conf_centreon['centreonbroker_cbmod'];
     $_SESSION['CENTREONPLUGINS'] = $conf_centreon['centreon_plugins'];
 }
 
