@@ -43,7 +43,6 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.wait('@getNavigationList');
     cy.visit('/centreon/configuration/additional-connector-configurations');
     cy.wait('@getConnectorPage');
   }
