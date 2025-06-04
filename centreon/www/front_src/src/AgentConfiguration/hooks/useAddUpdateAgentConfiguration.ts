@@ -93,6 +93,7 @@ const adaptCMAConfigurationToAPI = (
         configuration.otelPrivateKey
       ),
       hosts: configuration.hosts.map((host) => ({
+        id: host.id,
         address: host.address,
         port: host.port,
         poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),

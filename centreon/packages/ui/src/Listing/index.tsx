@@ -1,5 +1,3 @@
-/* eslint-disable react/no-array-index-key */
-
 import { useAtomValue } from 'jotai';
 import {
   concat,
@@ -49,7 +47,6 @@ import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { ListingHeader } from './Header';
-import { useListingStyles } from './Listing.styles';
 import ListingRow from './Row/Row';
 import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import {
@@ -290,14 +287,6 @@ const Listing = <
     },
     [allSubItemIds]
   );
-
-  const { classes } = useListingStyles({
-    dataStyle,
-    gridTemplateColumn,
-    isResponsive,
-    rows: rowsToDisplay
-  });
-
   const { isShiftKeyDown } = useKeyObserver();
 
   const haveSameId = (row: TRow, rowToCompare: TRow): boolean =>
@@ -519,20 +508,20 @@ const Listing = <
   const areColumnsEditable = not(isNil(onSelectColumns));
 
   return (
-    <div className={classes.listingContainer}>
+    <div className="h-full w-full overflow-hidden">
       {loading && rows.length > 0 && (
-        <LinearProgress className={classes.loadingIndicator} />
+        <LinearProgress className="w-full h-[3px]" />
       )}
       {(!loading || (loading && rows.length < 1)) && (
-        <div className={classes.loadingIndicator} />
+        <div className="w-full h-[3px]" />
       )}
       <div
-        className={classes.container}
+        className="bg-[none] flex-column h-full w-full"
         ref={containerRef as RefObject<HTMLDivElement>}
       >
         {isActionBarVisible && (
           <div
-            className={classes.actionBar}
+            className="flex items-center"
             ref={actionBarRef as RefObject<HTMLDivElement>}
           >
             <ListingActionBar
@@ -566,7 +555,7 @@ const Listing = <
         >
           {({ height }) => (
             <Box
-              className={classes.tableWrapper}
+              className="border-b-[none] overflow-auto"
               component="div"
               style={{
                 height: innerScrollDisabled ? '100%' : `calc(${height}px - 4px)`
@@ -577,7 +566,13 @@ const Listing = <
               ) : (
                 <Table
                   stickyHeader
-                  className={classes.table}
+                  className="grid items-center relative"
+                  style={{
+                    gridTemplateColumns: gridTemplateColumn,
+                    gridTemplateRows: `${dataStyle.header.height}px repeat(${
+                      rowsToDisplay.length || 1
+                    }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
+                  }}
                   component="div"
                   size="small"
                 >
@@ -600,7 +595,7 @@ const Listing = <
                   />
 
                   <TableBody
-                    className={classes.tableBody}
+                    className="contents relative"
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
@@ -651,7 +646,7 @@ const Listing = <
                             (!isSubItem || subItems.canCheckSubItems ? (
                               <Cell
                                 align="left"
-                                className={classes.checkbox}
+                                className="justify-start"
                                 disableRowCondition={disableRowCondition}
                                 isRowHovered={isRowHovered}
                                 row={row}
@@ -664,9 +659,12 @@ const Listing = <
                                     disableRowCheckCondition(row) ||
                                     disableRowCondition(row)
                                   }
-                                  inputProps={{
-                                    'aria-label': `Select row ${getId(row)}`
+                                  slotProps={{
+                                    input: {
+                                      'aria-label': `Select row ${getId(row)}`
+                                    }
                                   }}
+                                  className="pl-1"
                                 />
                               </Cell>
                             ) : (

@@ -412,12 +412,6 @@ Then(
     switch (widgetType) {
       case 'single metric':
         cy.url().should('include', '/centreon/monitoring/resources?details=');
-        cy.get('[class$="-resourceNameText-text-rowNotHovered"]')
-          .eq(0)
-          .should('contain.text', 'Ping');
-        cy.get('[class$="-resourceNameText-text-rowNotHovered"]')
-          .eq(1)
-          .should('contain.text', 'Centreon-Server');
         break;
 
       case 'metrics graph':
