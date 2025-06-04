@@ -7,7 +7,6 @@ import {
   equals,
   includes,
   isEmpty,
-  isNil,
   pluck,
   split
 } from 'ramda';
@@ -29,7 +28,6 @@ import {
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
-  labelMinMustLowerThanMax,
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
   labelRequired
