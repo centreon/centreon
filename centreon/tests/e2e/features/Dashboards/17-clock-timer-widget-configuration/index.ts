@@ -76,7 +76,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -98,7 +98,7 @@ Then(
     cy.getByLabel({ label: 'Select time format' }).should('exist');
     cy.getByLabel({ label: '12 hours' }).should('exist');
     cy.getByLabel({ label: '24 hours' }).should('exist');
-    cy.getByTestId({ testId: 'KeyboardArrowDownIcon' }).click();
+    cy.getByTestId({ testId: 'color selector' }).click();
     cy.get('div[class$="clockInformation"]').should('exist');
     cy.get('div[class$="clockLabel"]').should('exist');
   }
@@ -211,7 +211,7 @@ Then('the countdown input should be displayed', () => {
 
 When('the dashboard administrator updates the countdown input', () => {
   cy.getByLabel({ label: 'Timer' }).click();
-  cy.getByTestId({ testId: 'CalendarIcon' }).click();
+  cy.get('button[aria-label^="Choose date"]').click();
   cy.getByLabel({ label: '11 hours' }).click({ force: true });
   cy.getByLabel({ label: '55 minutes' }).click({ force: true });
   cy.contains('OK').click({ force: true });
@@ -241,8 +241,8 @@ When(
     cy.editDashboard(dashboards.default.name);
     cy.get('p[class$="timezone"]').should('be.visible');
     cy.get('div[class$="clockLabel"] p').should('be.visible');
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click({ force: true });
   }
 );
 

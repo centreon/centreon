@@ -7,8 +7,7 @@ import {
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import { DataTestAttributes } from '../../@types/data-attributes';
-
-import { useStyles } from './Button.styles';
+import { button } from './Button.module.css';
 
 const muiVariantMap: Record<
   Required<ButtonProps>['variant'],
@@ -48,8 +47,6 @@ const Button = ({
   className = '',
   ...attr
 }: ButtonProps): ReactElement => {
-  const { classes, cx } = useStyles();
-
   const MuiOverrideProps = useMemo(
     () => ({
       color: 'primary' as const,
@@ -61,7 +58,7 @@ const Button = ({
 
   return (
     <MuiButton
-      className={cx(classes.button, className)}
+      className={`${button} ${className}`}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}
