@@ -269,14 +269,14 @@ export const inputs: Array<InputProps> = [
   },
   {
     custom: {
-      Component: RequestedAuthnContextField,
+      Component: RequestedAuthnContextField
     },
     dataTestId: 'saml_requestedAuthnContext',
     fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
     label: labelRequestedAuthnContext,
     required: true,
-    type: InputType.Custom,
+    type: InputType.Custom
   },
   {
     dataTestId: 'saml_logoutFrom',

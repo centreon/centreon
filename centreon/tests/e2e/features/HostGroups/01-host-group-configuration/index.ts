@@ -158,7 +158,7 @@ When('the user changes some properties of the configured host group', () => {
     .clear()
     .type(hostGroups.forTest.geo_coords);
   // Update icon
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).eq(2).click();
+  cy.getByLabel({ label: 'Open' }).eq(1).click();
   cy.wait('@getIcons');
   cy.contains('p', 'centreon').click();
   // Update Comment field
@@ -204,7 +204,7 @@ When('the user duplicates the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]').click();
   cy.wait('@getGroups');
 });
@@ -238,7 +238,7 @@ When('the user deletes the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Delete' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Delete"]').click();
   cy.wait('@getGroups');
   cy.exportConfig();
