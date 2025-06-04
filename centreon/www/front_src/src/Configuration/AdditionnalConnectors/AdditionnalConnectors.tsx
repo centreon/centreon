@@ -1,13 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 import ConfigurationBase from '../ConfigurationBase';
 import useColumns from './Columns/useColumns';
+import useAdditionnalConnectors from './useAdditionnalConnectors';
 
+import { ResourceType } from '../models';
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
-
-import { useTranslation } from 'react-i18next';
-import { ResourceType } from '../models';
-
-import useAdditionnalConnectors from './useAdditionnalConnectors';
 
 import {
   labelAddAdditionalConfigurations,
