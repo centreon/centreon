@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
 
-import { TabContext, TabList, TabListProps } from '@mui/lab';
-import { Tab, Tabs as MuiTabs } from '@mui/material';
+import { TabContext } from '@mui/lab';
+import { Tab, Tabs as MuiTabs, TabsProps } from '@mui/material';
 
 import { useTabsStyles } from './Tab.styles';
 
 type Props = {
   children: Array<JSX.Element>;
   defaultTab: string;
-  tabList?: TabListProps;
+  tabList?: TabsProps;
   tabs: Array<{
     label: string;
     value: string;
