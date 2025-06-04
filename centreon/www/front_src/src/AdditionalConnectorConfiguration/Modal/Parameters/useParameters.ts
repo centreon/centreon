@@ -17,7 +17,7 @@ const useParameters = (): UseParameterStates => {
   const addParameterGroup = (index: number) => (): void => {
     setFieldValue('parameters.vcenters', [
       ...values.parameters.vcenters,
-      getDefaultParameters({ index })
+      getDefaultParameters(index)
     ]);
   };
 

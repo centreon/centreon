@@ -14,7 +14,7 @@ interface InitialValuesState {
 const defaultInitialValues = {
   description: null,
   name: '',
-  parameters: { port: 5700, vcenters: [getDefaultParameters({ index: 0 })] },
+  parameters: { port: 5700, vcenters: [getDefaultParameters(0)] },
   pollers: [],
   type: 1
 };
