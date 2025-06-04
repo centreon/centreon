@@ -22340,3 +22340,6 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 
 #~ msgid "In 1 year"
 #~ msgstr "Dans 1 an"
+
+msgid "Select host"
+msgstr "Sélectionner un hôte"
