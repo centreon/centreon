@@ -274,6 +274,8 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      retry_check_interval?: null|int,
          *      timezone_id?: null|int,
          *      severity_id?: null|int,
+         *      check_command_id?: null|int,
+         *      check_command_args?: string[],
          *      check_timeperiod_id?: null|int,
          *      note_url?: null|string,
          *      note?: null|string,
@@ -320,6 +322,12 @@ final class PartialUpdateHostTemplateController extends AbstractController
         }
         if (\array_key_exists('severity_id', $data)) {
             $dto->severityId = $data['severity_id'];
+        }
+        if (\array_key_exists('check_command_id', $data)) {
+            $dto->checkCommandId = $data['check_command_id'];
+        }
+        if (\array_key_exists('check_command_args', $data)) {
+            $dto->checkCommandArgs = $data['check_command_args'];
         }
         if (\array_key_exists('check_timeperiod_id', $data)) {
             $dto->checkTimeperiodId = $data['check_timeperiod_id'];

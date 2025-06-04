@@ -391,8 +391,8 @@ Given("a dashboard featuring two resource table widgets", () => {
 	);
 	cy.editDashboard(dashboards.default.name);
 	cy.wait("@resourceRequest");
-	cy.getByTestId({ testId: "MoreHorizIcon" }).click();
-	cy.getByTestId({ testId: "ContentCopyIcon" }).click();
+	cy.getByTestId({ testId: "More actions" }).click();
+	cy.getByTestId({ testId: "Duplicate" }).click();
 });
 
 When("the dashboard administrator user deletes one of the widgets", () => {
@@ -435,8 +435,8 @@ Given("a dashboard having a configured resource table widget", () => {
 When(
 	"the dashboard administrator user duplicates the resource table widget",
 	() => {
-		cy.getByTestId({ testId: "MoreHorizIcon" }).click();
-		cy.getByTestId({ testId: "ContentCopyIcon" }).click();
+		cy.getByTestId({ testId: "More actions" }).click();
+		cy.getByTestId({ testId: "Duplicate" }).click();
 	},
 );
 
@@ -478,7 +478,7 @@ When(
 	"the dashboard administrator user selects the option to add a new widget",
 	() => {
 		cy.getByTestId({ testId: "edit_dashboard" }).click();
-		cy.getByTestId({ testId: "AddIcon" }).click();
+		cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
 	},
 );
 
