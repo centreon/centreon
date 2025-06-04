@@ -116,9 +116,9 @@ const Resources = ({
           displayItemsAsLinked
           IconAdd={<AddIcon />}
           addButtonHidden={isAddButtonHidden}
+          onAddItem={addResource}
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
-          onAddItem={addResource}
         >
           {value.map((resource, index) => {
             const forceSingleAutocomplete = checkForceSingleAutocomplete({
@@ -149,7 +149,10 @@ const Resources = ({
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    getResourceStatic(resource.resourceType)
+                    getResourceStatic(resource.resourceType)||
+                    getDefaultRequiredSelectType(
+                      resource.resourceType
+                    )
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
