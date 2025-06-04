@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { isEmpty, isNil, path, prop } from 'ramda';
+import { equals, isEmpty, isNil, path, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -79,23 +79,15 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       return undefined;
     }
 
-    return {
-      conditions: [
-        {
-          field: 'date',
-          values: {
-            $gt: start,
-            $lt: end
-          }
-        }
-      ],
-      lists: [
-        {
-          field: 'type',
-          values: selectedTypes.map(prop('id'))
-        }
-      ]
-    };
+    const conditions = [
+      { field: 'type', values: { $in: selectedTypes.map(prop('id')) } },
+      {
+        field: '$and',
+        value: [{ date: { $gt: start } }, { date: { $lt: end } }]
+      }
+    ];
+
+    return { conditions };
   };
 
   const timelineEndpoint = path(['links', 'endpoints', 'timeline'], details);

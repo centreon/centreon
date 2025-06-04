@@ -18903,3 +18903,6 @@ msgstr "Exporter en tant que"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+msgid "The selected inherited service template does not contain any check command. You must select one here."
+msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
