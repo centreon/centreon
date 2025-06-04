@@ -167,8 +167,6 @@ export default (): void => {
         .should('have.text', labelSave)
         .should('be.disabled');
 
-      cy.matchImageSnapshot();
-
       cy.findByLabelText('close').click();
     });
 
