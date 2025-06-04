@@ -6,7 +6,7 @@ import { ParameterKeys } from '../models';
 import initialize from './initialize';
 
 import {
-  labelAddAnAdditionalConfigurations,
+  labelAddAnAdditionalConfiguration,
   labelAdditionalConnectorCreated,
   labelAdditionalConnectorUpdated,
   labelAddvCenterESX,
@@ -53,7 +53,7 @@ export default (): void => {
 
       cy.get(`[data-testid="add-resource"]`).click();
 
-      cy.findByText(labelAddAnAdditionalConfigurations).should('be.visible');
+      cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
 
       cy.findAllByTestId(labelName)
         .eq(1)
@@ -220,7 +220,7 @@ export default (): void => {
 
       cy.get(`[data-testid="add-resource"]`).click();
 
-      cy.findByText(labelAddAnAdditionalConfigurations).should('be.visible');
+      cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
 
       cy.get(`button[data-testid="submit"`)
         .should('have.text', labelSave)
@@ -573,7 +573,7 @@ export default (): void => {
         cy.waitForRequest('@getConnectors');
         cy.get(`[data-testid="add-resource"]`).click();
 
-        cy.findByText(labelAddAnAdditionalConfigurations).should('be.visible');
+        cy.findByText(labelAddAnAdditionalConfiguration).should('be.visible');
 
         cy.get(`button[data-testid="submit"`)
           .should('have.text', labelSave)

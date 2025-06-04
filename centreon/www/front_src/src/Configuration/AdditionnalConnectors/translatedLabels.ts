@@ -82,7 +82,7 @@ export const labelPageDescription =
   'For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here.';
 export const labelAddAdditionalConfigurations = 'Add additional configurations';
 
-export const labelAddAnAdditionalConfigurations =
+export const labelAddAnAdditionalConfiguration =
   'Add an additional configuration';
 export const labelModifyConnectorConfiguration =
   'Modify an additional configuration';

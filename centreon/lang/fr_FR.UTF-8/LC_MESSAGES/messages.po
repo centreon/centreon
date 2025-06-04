@@ -22871,18 +22871,6 @@ msgid "Host groups deleted"
 msgstr "Groupes d'hôtes supprimés"
 
 
-msgid "Additional configurations"
-msgstr "Configurations additionnelles"
-
-msgid "Add an additional configuration"
-msgstr "Ajouter une configuration additionnelle"
-
-msgid "View an additional configuration"
-msgstr "Visualiser une configuration additionnelle"
-
-msgid "Modify an additional configuration"
-msgstr "Modifier une configuration additionnelle"
-
 msgid "Failed to delete the additional configuration"
 msgstr "Échec de la suppression de configuration additionnelle"
 
@@ -22890,7 +22878,23 @@ msgid "You are about to delete the <strong>{{ name }}</strong> additional config
 msgstr "Vous êtes sur le point de supprimer la configuration additionnelle <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
 
 
+msgid "Additional configurations"
+msgstr "Configurations additionnelles"
 
+msgid "Welcome to the additional configurations page"
+msgstr "Bienvenue sur la page des configurations additionnelles"
 
+msgid "For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here."
+msgstr "Pour certains connecteurs, vous devez définir sur le collecteur les identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le faire facilement depuis cette page."
 
+msgid "Add additional configurations"
+msgstr "Ajouter des configurations additionnelles"
 
+msgid "Add an additional configuration"
+msgstr "Ajouter une configuration additionnelle"
+
+msgid "Modify an additional configuration"
+msgstr "Modifier une configuration additionnelle"
+
+msgid "You are about to delete the <strong>{{ name }}</strong> additional configuration. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer la configuration additionnelle <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
