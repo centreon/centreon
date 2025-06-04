@@ -22865,12 +22865,8 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ msgid "Host group updated"
 #~ msgstr "Groupe d'hôtes mis à jour"
 
-#~ msgid ""
-#~ "The selected inherited service template does not contain any check "
-#~ "command. You must select one here."
-#~ msgstr ""
-#~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
-#~ "vérification. Vous devez en sélectionner une ici."
+msgid "The selected inherited service template does not contain any check command. You must select one here."
+msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
 
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
@@ -22880,3 +22876,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+msgid "Select host"
+msgstr "Sélectionner un hôte"
