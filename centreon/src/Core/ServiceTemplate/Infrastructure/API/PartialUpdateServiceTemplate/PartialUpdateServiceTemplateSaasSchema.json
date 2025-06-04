@@ -22,6 +22,18 @@
                 "integer"
             ]
         },
+        "check_command_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_command_args": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "max_check_attempts": {
             "type": [
                 "null",
