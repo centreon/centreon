@@ -34,7 +34,8 @@ final class RouteChecker
         if (preg_match('#/api/(latest|v[\d\.]+)/([^/]+)/#', $path, $matches)) {
             $modulePath = $matches[2]; // contient "bam"
         } else {
-            throw new \Exception("unable to retrieve module from URI");
+            /* throw new \Exception("unable to retrieve module from URI"); */
+            return false;
         }
         // This Logic should be deported in each modules with a common Interface and services
         if ($modulePath === "bam") {
@@ -42,7 +43,8 @@ final class RouteChecker
         }
         $moduleInformation = $this->moduleInformationRepository->findByName($moduleName);
         if ($moduleInformation === null) {
-            throw new \Exception("no module found");
+            /* throw new \Exception("no module found"); */
+            return false;
         }
         $process = Process::fromShellCommandline("rpm -qa | grep " . escapeshellarg($moduleName));
         $process->run();
@@ -50,8 +52,10 @@ final class RouteChecker
         if (preg_match('/\b(\d+\.\d+\.\d+)\b/', $version, $matches)) {
             $version = $matches[1];
         } else {
-            echo "Version non trouvée.\n";
+            /* echo "Version non trouvée.\n"; */
+            return false;
         }
+
         /**
          * If a new version is available we return false as we want the Checker to fail
          * If no new version are available so we return true so the route will be available
