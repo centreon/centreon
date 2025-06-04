@@ -49,8 +49,8 @@ final class AddHostGroupController extends AbstractController
      * @throws AccessDeniedException
      *
      * @return Response
-	 */
-	#[Route(path: '/configuration/hosts/groups', name: 'AddHostGroupAttribute', methods: 'POST')]
+     */
+    #[Route(path: '/configuration/hosts/groups', name: 'AddHostGroupAttribute', methods: 'POST')]
     public function __invoke(
         Request $request,
         AddHostGroup $useCase,
