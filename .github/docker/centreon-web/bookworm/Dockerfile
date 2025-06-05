@@ -107,3 +107,5 @@ ENV CENTREON_DATASET="1"
 ENV CENTREON_LANG="en_US"
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+CMD ["php-fpm"]
