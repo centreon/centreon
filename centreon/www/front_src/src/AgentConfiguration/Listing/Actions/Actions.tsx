@@ -1,15 +1,22 @@
-import { Box } from '@mui/material';
+import { JSX } from 'react';
+import { useActionsStyles } from './Actions.styles';
+
 import AddButton from './AddButton';
+
 import Search from './Search';
 
 const Actions = (): JSX.Element => {
+  const { classes } = useActionsStyles();
+
   return (
-    <Box
-      sx={{ display: 'grid', gridTemplateColumns: 'min-content auto', gap: 2 }}
-    >
-      <AddButton />
-      <Search />
-    </Box>
+    <div className={classes.bar}>
+      <div className={classes.actions}>
+        <AddButton />
+      </div>
+      <div className={classes.searchBar}>
+        <Search />
+      </div>
+    </div>
   );
 };
 

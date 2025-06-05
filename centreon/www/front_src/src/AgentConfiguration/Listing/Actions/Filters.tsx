@@ -1,61 +1,97 @@
+import { JSX } from 'react';
+
 import {
   MultiAutocompleteField,
   MultiConnectedAutocompleteField,
-  PopoverMenu
+  TextField
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { Tune } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { getPollersEndpoint } from '../../api/endpoints';
+
+import { useActionsStyles } from './Actions.styles';
+import { agentTypeOptions, useFilters } from './useFilters';
+
+import { useGetAgentConfigurations } from '../../hooks/useGetAgentConfigurations';
+
 import {
   labelAgentTypes,
   labelClear,
-  labelFilters,
-  labelPollers
+  labelName,
+  labelPollers,
+  labelSearch
 } from '../../translatedLabels';
-import { useActionsStyles } from './Actions.styles';
-import { agentTypeOptions, useFilters } from './useFilters';
 
 const Filters = (): JSX.Element => {
   const { classes } = useActionsStyles();
   const { t } = useTranslation();
 
-  const { agentTypes, pollers, changeEntries, deleteEntry, clearFilters } =
-    useFilters();
+  const { isLoading } = useGetAgentConfigurations();
+
+  const {
+    filters,
+    changeName,
+    changeTypes,
+    changePollers,
+    deleteItem,
+    reset,
+    reload,
+    isClearDisabled
+  } = useFilters();
 
   return (
-    <PopoverMenu title={t(labelFilters)} icon={<Tune />}>
-      <div className={classes.filtersContainer}>
-        <MultiAutocompleteField
-          options={agentTypeOptions}
-          value={agentTypes}
-          onChange={changeEntries('agentTypes')}
-          label={t(labelAgentTypes)}
-          chipProps={{
-            onDelete: deleteEntry('agentTypes')
-          }}
-        />
-        <MultiConnectedAutocompleteField
-          chipProps={{
-            onDelete: deleteEntry('pollers')
-          }}
-          dataTestId={labelPollers}
-          getEndpoint={getPollersEndpoint}
-          label={t(labelPollers)}
-          value={pollers}
-          field="name"
-          onChange={changeEntries('pollers')}
-        />
+    <div className={classes.additionalFilters}>
+      <TextField
+        fullWidth
+        dataTestId={labelName}
+        label={t(labelName)}
+        value={filters.name}
+        onChange={changeName}
+      />
+
+      <MultiAutocompleteField
+        options={agentTypeOptions}
+        value={filters.types}
+        onChange={changeTypes}
+        label={t(labelAgentTypes)}
+        chipProps={{
+          onDelete: deleteItem('types'),
+          color: 'primary'
+        }}
+      />
+      <MultiConnectedAutocompleteField
+        chipProps={{
+          onDelete: deleteItem('pollers'),
+          color: 'primary'
+        }}
+        dataTestId={labelPollers}
+        getEndpoint={getPollersEndpoint}
+        label={t(labelPollers)}
+        value={filters.pollers}
+        field="name"
+        onChange={changePollers}
+      />
+
+      <div className={classes.additionalFiltersButtons}>
         <Button
-          onClick={clearFilters}
-          variant="ghost"
-          className={classes.clearButton}
+          data-testid={labelClear}
+          disabled={isClearDisabled}
           size="small"
+          variant="ghost"
+          onClick={reset}
         >
           {t(labelClear)}
         </Button>
+        <Button
+          data-testid={labelSearch}
+          disabled={isLoading}
+          size="small"
+          onClick={reload}
+        >
+          {t(labelSearch)}
+        </Button>
       </div>
-    </PopoverMenu>
+    </div>
   );
 };
 
