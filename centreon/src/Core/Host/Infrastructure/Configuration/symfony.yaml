@@ -17,6 +17,7 @@ services:
 
     Core\Host\Application\Repository\ReadHostRepositoryInterface:
         class: Core\Host\Infrastructure\Repository\DbReadHostRepository
+        public: true
 
     Core\Host\Application\Repository\WriteHostRepositoryInterface:
         class: Core\Host\Infrastructure\Repository\DbWriteHostRepository

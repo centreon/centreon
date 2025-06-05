@@ -15,6 +15,7 @@ import Panel from '../Panel';
 import Filter from './Filter';
 
 import ListingPage, { ListingPageProps } from '.';
+import '../ThemeProvider/tailwindcss.css';
 
 export default { title: 'Listing Page' };
 

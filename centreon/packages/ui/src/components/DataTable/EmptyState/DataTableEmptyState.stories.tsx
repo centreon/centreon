@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { DataTableEmptyState } from './DataTableEmptyState';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof DataTableEmptyState> = {
   component: DataTableEmptyState
