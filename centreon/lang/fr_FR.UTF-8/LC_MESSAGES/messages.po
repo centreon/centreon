@@ -22752,7 +22752,7 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "command. You must select one here."
 #~ msgstr ""
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
-#~ "vérification. Vous devez en sélectionner une ici."
+#~ "contrôle. Vous devez en sélectionner une ici."
 
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
