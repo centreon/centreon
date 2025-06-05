@@ -51,14 +51,7 @@ beforeEach(function (): void {
         'otel_private_key' => '/etc/pki/test.key',
         'otel_ca_certificate' => '/etc/pki/test.cer',
         'tokens' => [],
-        'hosts' => [
-            [
-                'address' => '',
-                'port' => 0,
-                'poller_ca_certificate' => '/etc/pki/test.cer',
-                'poller_ca_name' => 'poller-name',
-            ],
-        ],
+        'hosts' => [],
     ];
 
     $this->poller = new Poller(1, 'poller-name');
