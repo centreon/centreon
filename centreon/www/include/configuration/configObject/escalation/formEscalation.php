@@ -46,10 +46,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
  */
 $esc = array();
 if (($o == "c" || $o == "w") && $esc_id) {
-    $DBRESULT = $pearDB->query("SELECT * FROM escalation WHERE esc_id = '" . $esc_id . "' LIMIT 1");
-
+    $statement = $pearDB->prepare("SELECT * FROM escalation WHERE esc_id = :escId LIMIT 1");
+    $statement->bindValue(':escId', $esc_id, \PDO::PARAM_INT);
+    $statement->execute();
     # Set base value
-    $esc = array_map("myEncode", $DBRESULT->fetchRow());
+    $esc = array_map("myEncode", $statement->fetchRow());
 
     # Set Host Options
     $esc["escalation_options1"] = explode(',', $esc["escalation_options1"]);
