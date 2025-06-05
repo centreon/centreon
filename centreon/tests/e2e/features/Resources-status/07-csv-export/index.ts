@@ -301,8 +301,8 @@ Then("the CSV file should contain the correct headers and the expected data", ()
 });
 
 When("the admin user unchecks some columns in the table settings", () => {
-  cy.getByTestId({ testId: "ViewColumnIcon" }).click();
-  cy.waitForElementToBeVisible('[data-testid="RotateLeftIcon"]');
+  cy.getByLabel({ label: "Add columns", tag: "button" }).click()
+  cy.waitForElementToBeVisible('li[value="Status"]');
   const valuesToClick = [
 	'Notes (N)',
 	'Action (A)',
