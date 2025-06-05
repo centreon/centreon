@@ -22868,7 +22868,7 @@ msgstr "Groupes d'hôtes supprimés"
 
 
 msgid "Failed to delete the additional configuration"
-msgstr "Échec de la suppression de configuration additionnelle"
+msgstr "Échec de la suppression de la configuration additionnelle"
 
 msgid "Additional configurations"
 msgstr "Configurations additionnelles"
