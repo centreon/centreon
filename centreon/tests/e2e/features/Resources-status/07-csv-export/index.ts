@@ -235,7 +235,7 @@ When("the admin user clicks the Export button", () => {
     cy.log("Downloads folder cleared");
   });
   cy.wait("@monitoringEndpoint");
-  cy.getByTestId({ testId: "SaveAltIcon" }).click();
+  cy.getByLabel({ label: "exportCsvButton", tag: "button" }).click()
   cy.wait("@getResourceCount");
   cy.getByLabel({ label: "Export", tag: "button" }).click();
   cy.get(".MuiAlert-message").then(($snackbar) => {
@@ -326,7 +326,7 @@ When("the admin user unchecks some columns in the table settings", () => {
     cy.log("Downloads folder cleared");
   });
   cy.wait("@monitoringEndpoint");
-  cy.getByTestId({ testId: "SaveAltIcon" }).click();
+  cy.getByLabel({ label: "exportCsvButton", tag: "button" }).click();
   cy.wait("@getResourceCount");
   cy.getByTestId({ testId: "Visible columns only" }).click();
   cy.getByTestId({ testId: "Current page only" }).click();

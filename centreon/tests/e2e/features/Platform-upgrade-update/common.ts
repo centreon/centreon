@@ -633,12 +633,7 @@ When('administrator exports Poller configuration', () => {
     name: 'host2'
   });
 
-  cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
-
-  cy.get('button[data-testid="Export configuration"]').click();
-
-  cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
-
+  cy.exportConfig();
   cy.wait('@generateAndReloadPollers').then(() => {
     cy.contains('Configuration exported and reloaded').should('have.length', 1);
   });
