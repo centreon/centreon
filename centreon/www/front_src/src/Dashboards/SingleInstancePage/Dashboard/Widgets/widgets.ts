@@ -56,7 +56,14 @@ const internalWidgets: Array<
   { name: 'statuschart', panelMinWidth: 2, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
-  { name: 'webpage' }
+  { name: 'webpage' },
+  {
+    name: 'batimeline',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 12,
+    panelMinWidth: 3,
+    panelMinHeight: 3
+  }
 ];
 
 export const internalWidgetComponents: Array<FederatedModule> =
