@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89685a9df17de7b34f36bd857a1e5ef6",
+    "content-hash": "c3bedd9eabba4b0a040af59bdf0449f2",
     "packages": [
         {
             "name": "amphp/amp",
@@ -6754,6 +6754,85 @@
                 }
             ],
             "time": "2025-01-09T08:51:02+00:00"
+        },
+        {
+            "name": "symfony/runtime",
+            "version": "v6.4.22",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/runtime.git",
+                "reference": "832c3ce3b810509815050434ccb7ead68d06395b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/runtime/zipball/832c3ce3b810509815050434ccb7ead68d06395b",
+                "reference": "832c3ce3b810509815050434ccb7ead68d06395b",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0|^2.0",
+                "php": ">=8.1"
+            },
+            "conflict": {
+                "symfony/dotenv": "<5.4"
+            },
+            "require-dev": {
+                "composer/composer": "^1.0.2|^2.0",
+                "symfony/console": "^5.4.9|^6.0.9|^7.0",
+                "symfony/dotenv": "^5.4|^6.0|^7.0",
+                "symfony/http-foundation": "^5.4|^6.0|^7.0",
+                "symfony/http-kernel": "^5.4|^6.0|^7.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Symfony\\Component\\Runtime\\Internal\\ComposerPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Runtime\\": "",
+                    "Symfony\\Runtime\\Symfony\\Component\\": "Internal/"
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Enables decoupling PHP applications from global state",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "runtime"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/runtime/tree/v6.4.22"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-05-07T21:15:03+00:00"
         },
         {
             "name": "symfony/security-bundle",
