@@ -9,7 +9,7 @@ Cypress.Commands.add('FillCMAMandatoryFields', (body: Cma) => {
     body.privateKFileName
   );
   cy.getByLabel({ label: 'CA', tag: 'input' }).eq(0).type(body.caFileName);
-  cy.get('#SelectanexistingCMAtokens').click();
+  cy.getByTestId({ testId: 'Select existing CMA token(s)' }).click();
   cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
 });
