@@ -39,11 +39,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Application\Repository\RepositoryManagerInterface;
-<<<<<<< HEAD
-=======
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
->>>>>>> 24cec6eb30 (enh(PAC): save selected hosts (#7304))
 
 final class AddAgentConfiguration
 {
@@ -52,11 +48,7 @@ final class AddAgentConfiguration
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
         private readonly WriteAgentConfigurationRepositoryInterface $writeAcRepository,
-<<<<<<< HEAD
-=======
         private readonly ReadHostRepositoryInterface $readHostRepository,
-        private readonly ReadMonitoringServerRepositoryInterface $readMsRepository,
->>>>>>> 24cec6eb30 (enh(PAC): save selected hosts (#7304))
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,

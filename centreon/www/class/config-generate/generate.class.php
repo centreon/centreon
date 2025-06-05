@@ -319,14 +319,9 @@ class Generate
             $this->readAdditionalConnectorRepository
         ))->reset();
         (new AgentConfiguration(
-<<<<<<< HEAD
-            Backend::getInstance($this->dependencyInjector),
-            $this->readAgentConfigurationRepository
-=======
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
             $this->readHostRepository
->>>>>>> 24cec6eb30 (enh(PAC): save selected hosts (#7304))
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -352,14 +347,9 @@ class Generate
         )
             ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AgentConfiguration(
-<<<<<<< HEAD
-            Backend::getInstance($this->dependencyInjector),
-            $readAgentConfigurationRepository
-=======
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
             $this->readHostRepository
->>>>>>> 24cec6eb30 (enh(PAC): save selected hosts (#7304))
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

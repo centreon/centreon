@@ -75,13 +75,7 @@ class Validator
         $this->validateNameOrFail($request, $agentConfiguration);
         $this->validatePollersOrFail($request, $agentConfiguration);
         $this->validateTypeOrFail($request, $agentConfiguration);
-<<<<<<< HEAD
-        if ($request->connectionMode === ConnectionModeEnum::SECURE) {
-            $this->validateParametersOrFail($request);
-        }
-=======
         $this->validateParametersOrFail($request);
->>>>>>> 24cec6eb30 (enh(PAC): save selected hosts (#7304))
     }
 
     /**
