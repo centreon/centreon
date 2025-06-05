@@ -28,15 +28,17 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\Validation\CmaValidator;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->cmaValidator = new CmaValidator();
+    $this->cmaValidator = new CmaValidator(
+        $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+    );
 
     $this->request = new AddAgentConfigurationRequest();
     $this->request->name = 'cmatest';
     $this->request->type = 'centeron-agent';
     $this->request->pollerIds = [1];
-    $this->request->configuration = [];
 
     $this->poller = new Poller(1, 'poller-name');
 });
@@ -77,9 +79,16 @@ foreach (
     ] as $filename
 ) {
     it("should not throw an exception when the filename for certificate {$filename} is valid", function () use ($filename): void {
-        $this->request->configuration['hosts'][0]['poller_ca_certificate'] = $filename;
+        $this->request->configuration['hosts'][] = [
+            'poller_ca_certificate' => $filename,
+            'id' => 9999,
+        ] ;
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('exists')
+            ->willReturn(true);
         $this->cmaValidator->validateParametersOrFail($this->request);
-    })->expectNotToPerformAssertions();
+    });
 }
 
 foreach (
@@ -110,3 +119,18 @@ foreach (
         $this->cmaValidator->validateParametersOrFail($this->request);
     })->expectNotToPerformAssertions();
 }
+
+it('should throw an exception when the host id is invalid', function (): void {
+    $this->request->configuration['hosts'] = [
+        [
+            'id' => 9999,
+            'poller_ca_certificate' => null,
+        ]
+    ];
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(false);
+
+    $this->cmaValidator->validateParametersOrFail($this->request);
+})->throws((AgentConfigurationException::invalidHostId(9999)->getMessage()));
