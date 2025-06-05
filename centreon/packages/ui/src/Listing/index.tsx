@@ -516,7 +516,7 @@ const Listing = <
         <div className="w-full h-[3px]" />
       )}
       <div
-        className="bg-[none] flex-colomn h-full w-full"
+        className="bg-[none] flex-column h-full w-full"
         ref={containerRef as RefObject<HTMLDivElement>}
       >
         {isActionBarVisible && (
