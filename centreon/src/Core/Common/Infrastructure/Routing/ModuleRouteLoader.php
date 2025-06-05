@@ -41,3 +41,4 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         return $routes;
     }
 }
+

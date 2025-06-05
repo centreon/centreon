@@ -28,3 +28,4 @@ final readonly class ModuleVersionChecker
         return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), ">");
     }
 }
+

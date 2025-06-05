@@ -46,3 +46,4 @@ class DbReadModuleinformationRepository extends DatabaseRepository implements Mo
         return null;
     }
 }
+

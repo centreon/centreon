@@ -40,3 +40,4 @@ final readonly class ModuleInformation
         return $this->version;
     }
 }
+
