@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
 import {
-  ContentCopyOutlined as ContentCopyIcon,
-  DeleteOutline as DeleteIcon
+  ContentCopyOutlined as ContentCopyIcon
+  // DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 
 import { Box } from '@mui/material';
 
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
+import { ComponentColumnProps, DeleteIcon, IconButton } from '@centreon/ui';
 
 import { labelDelete, labelDuplicate } from '../../../translatedLabels';
 import { useColumnStyles } from '../Columns.styles';
@@ -37,7 +37,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         onClick={openDeleteModal}
         className={classes.removeButton}
       >
-        <DeleteIcon className={classes.removeIcon} />
+        {/* <DeleteIcon className={classes.removeIcon} /> */}
+        <DeleteIcon />
       </IconButton>
     </Box>
   );

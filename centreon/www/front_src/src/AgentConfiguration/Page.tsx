@@ -1,13 +1,15 @@
 import { PageSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useSetAtom } from 'jotai';
+import { JSX, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import ACListing from './Listing/Listing';
-import { openFormModalAtom, searchAtom } from './atoms';
+import { openFormModalAtom } from './atoms';
+import useCoutChangedFilters from './hooks/useCoutChangedFilters';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
+
 import {
   labelAddAgentConfiguration,
   labelAgentsConfigurations,
@@ -18,8 +20,6 @@ import {
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const search = useAtomValue(searchAtom);
-
   const { isDataEmpty, isLoading, hasData, total, data } =
     useGetAgentConfigurations();
 
@@ -27,11 +27,13 @@ const AgentConfigurationPage = (): JSX.Element => {
 
   const add = useCallback(() => setOpenFormModal('add'), []);
 
+  const { isClear } = useCoutChangedFilters();
+
   if (isLoading && !hasData) {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
   }
 
-  const isEmpty = isDataEmpty && !isLoading && !search;
+  const isEmpty = isDataEmpty && !isLoading && isClear;
 
   return (
     <PageLayout>

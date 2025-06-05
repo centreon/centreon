@@ -12,7 +12,6 @@ import {
   filtersAtom,
   limitAtom,
   pageAtom,
-  searchAtom,
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
@@ -32,24 +31,38 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
-  const search = useAtomValue(searchAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const filters = useAtomValue(filtersAtom);
 
-  const agentTypesConditions = useMemo(
+  const nameConditions = useMemo(
     () =>
-      !isEmpty(filters.agentTypes)
+      filters.name
         ? [
             {
-              field: 'type',
+              field: 'name',
               values: {
-                $in: pluck('id', filters.agentTypes)
+                $rg: filters.name
               }
             }
           ]
         : [],
-    [filters.agentTypes]
+    [filters.name]
+  );
+
+  const agentTypesConditions = useMemo(
+    () =>
+      !isEmpty(filters.types)
+        ? [
+            {
+              field: 'type',
+              values: {
+                $in: pluck('id', filters.types)
+              }
+            }
+          ]
+        : [],
+    [filters.types]
   );
 
   const pollersConditions = useMemo(
@@ -67,9 +80,13 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     [filters.pollers]
   );
 
-  const conditions = [...agentTypesConditions, ...pollersConditions];
+  const conditions = [
+    ...nameConditions,
+    ...agentTypesConditions,
+    ...pollersConditions
+  ];
 
-  const { data, isLoading } = useFetchQuery<
+  const { data, isFetching } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
     decoder: agentConfigurationsListingDecoder,
@@ -84,10 +101,6 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
             [sortField]: sortOrder
           },
           search: {
-            regex: {
-              fields: ['name'],
-              value: search
-            },
             conditions: isEmpty(conditions) ? undefined : conditions
           }
         }
@@ -104,7 +117,7 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     data: agentConfigurations,
     isDataEmpty: isEmpty(agentConfigurations),
     hasData,
-    isLoading,
+    isLoading: isFetching,
     total: data?.meta.total || 0
   };
 };
