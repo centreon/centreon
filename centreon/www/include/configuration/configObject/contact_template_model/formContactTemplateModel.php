@@ -50,9 +50,11 @@ if (($o == "c" || $o == "w") && $contact_id) {
     $cct["contact_svNotifCmds"] = [];
     $cct["contact_cgNotif"] = [];
 
-    $DBRESULT = $pearDB->query("SELECT * FROM contact WHERE contact_id = '" . $contact_id . "' LIMIT 1");
-    $cct = array_map("myDecode", $DBRESULT->fetchRow());
-    $DBRESULT->closeCursor();
+    $statement = $pearDB->prepare("SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1");
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    $cct = array_map("myDecode", $statement->fetchRow());
+    $statement->closeCursor();
 
     /**
      * Set Host Notification Options
@@ -69,29 +71,36 @@ if (($o == "c" || $o == "w") && $contact_id) {
     foreach ($tmp as $key => $value) {
         $cct["contact_svNotifOpts"][trim($value)] = 1;
     }
-    $DBRESULT->closeCursor();
 
     /**
      * Set Host Notification Commands
      */
-    $query = "SELECT DISTINCT command_command_id FROM contact_hostcommands_relation " .
-        "WHERE contact_contact_id = '" . $contact_id . "'";
-    $DBRESULT = $pearDB->query($query);
-    for ($i = 0; $notifCmd = $DBRESULT->fetchRow(); $i++) {
+    $statement = $pearDB->prepare(<<<SQL
+        SELECT DISTINCT command_command_id FROM contact_hostcommands_relation
+        WHERE contact_contact_id = :contactId
+        SQL
+    );
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    for ($i = 0; $notifCmd = $statement->fetchRow(); $i++) {
         $cct["contact_hostNotifCmds"][$i] = $notifCmd["command_command_id"];
     }
-    $DBRESULT->closeCursor();
+    $statement->closeCursor();
 
     /**
      * Set Service Notification Commands
      */
-    $query = "SELECT DISTINCT command_command_id FROM contact_servicecommands_relation " .
-        "WHERE contact_contact_id = '" . $contact_id . "'";
-    $DBRESULT = $pearDB->query($query);
-    for ($i = 0; $notifCmd = $DBRESULT->fetchRow(); $i++) {
+    $statement = $pearDB->prepare(<<<SQL
+        SELECT DISTINCT command_command_id FROM contact_servicecommands_relation
+        WHERE contact_contact_id = :contactId
+        SQL
+    );
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+    $statement->execute();
+    for ($i = 0; $notifCmd = $statement->fetchRow(); $i++) {
         $cct["contact_svNotifCmds"][$i] = $notifCmd["command_command_id"];
     }
-    $DBRESULT->closeCursor();
+    $statement->closeCursor();
 }
 
 /**
@@ -128,16 +137,23 @@ $DBRESULT->closeCursor();
 /**
  * Contacts Templates
  */
-$strRestrinction = isset($contact_id) ? " AND contact_id != '" . $contact_id . "'" : "";
+$strRestrinction = isset($contact_id) ? " AND contact_id != :contactId " : "";
 
 $contactTpl = [null => ""];
-$query = "SELECT contact_id, contact_name FROM contact " .
-    "WHERE contact_register = '0' $strRestrinction ORDER BY contact_name";
-$DBRESULT = $pearDB->query($query);
-while ($contacts = $DBRESULT->fetchRow()) {
+$statement = $pearDB->prepare(<<<SQL
+    SELECT contact_id, contact_name FROM contact
+    WHERE contact_register = '0' $strRestrinction ORDER BY contact_name
+    SQL
+);
+if (! empty($strRestrinction)) {
+    $statement->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
+}
+$statement->execute();
+
+while ($contacts = $statement->fetchRow()) {
     $contactTpl[$contacts["contact_id"]] = $contacts["contact_name"];
 }
-$DBRESULT->closeCursor();
+$statement->closeCursor();
 
 /**
  * Template / Style for Quickform input
