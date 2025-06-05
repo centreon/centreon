@@ -24701,7 +24701,7 @@ msgstr "item (s) encontrado (s)"
 # msgid "CMA authentication token(s)"
 # msgstr ""
 
-# msgid "Select an existing CMA token(s)"
+# msgid "Select existing CMA token(s)"
 # msgstr ""
 
 # msgid "Create new CMA token"
