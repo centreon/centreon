@@ -83,9 +83,9 @@ apt-get update
 apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
 
-mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/ /usr/lib/centreon/plugins /usr/lib64/centreon-connector /usr/share/centreon/lib/centreon-broker
-touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log
-chown  -R www-data:www-data /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /var/cache/centreon /etc/centreon
+mkdir -p /etc/centreon-broker /var/log/centreon-broker /usr/lib64/centreon-engine /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/ /usr/lib/centreon/plugins /usr/lib64/centreon-connector /usr/share/centreon/lib/centreon-broker
+touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /usr/sbin/centenginestats
+chown  -R www-data:www-data /usr/lib64/centreon-engine /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /var/cache/centreon /etc/centreon
 chmod 1230 /var/log/centreon/centreon-web.log
 
 EOF
