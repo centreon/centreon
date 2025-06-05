@@ -880,11 +880,6 @@ msgstr "Adicionar manutenção"
 msgid "Add filter"
 msgstr "Filtro de usuário"
 
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Add host"
-msgstr "Adicionar um Host"
-
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
@@ -10470,6 +10465,11 @@ msgstr "Nome dos Grupos de Host"
 msgid "Host Groups Shared"
 msgstr "Grupos de Hosts compartilhados"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, fuzzy, php-format
+msgid "Host ID #%d is invalid"
+msgstr "Host %d não encontrado"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Host Information"
 msgstr "Informações de Host"
@@ -17060,6 +17060,11 @@ msgstr "Selecionar tudo"
 msgid "Select field"
 msgstr "Selecionado"
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Select host"
+msgstr "Selecione IP"
+
 #: centreon/www/install/dashboard_widgets.php
 #, fuzzy
 msgid "Select host severities"
@@ -22503,6 +22508,10 @@ msgstr ""
 #, fuzzy
 msgid "{{total}} element(s) found"
 msgstr "item (s) encontrado (s)"
+
+#, fuzzy
+#~ msgid "Add host"
+#~ msgstr "Adicionar um Host"
 
 #~ msgid "Add a Host Group"
 #~ msgstr "Adicionar Grupo de Host"
