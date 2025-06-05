@@ -30,26 +30,20 @@ use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateA
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
-<<<<<<< HEAD
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
-=======
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
-<<<<<<< HEAD
     public function __construct(
+        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadTokenRepositoryInterface $tokenRepository,
         private readonly ContactInterface $user,
     )
-=======
-    public function __construct(private readonly ReadHostRepositoryInterface $readHostRepository)
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
     {
     }
 
@@ -69,23 +63,6 @@ class CmaValidator implements TypeValidatorInterface
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
-<<<<<<< HEAD
-            if (
-                $request->connectionMode === ConnectionModeEnum::SECURE
-                && str_ends_with($key, '_certificate')
-                && (is_string($value) || is_null($value))
-            ) {
-                if ($key === 'otel_ca_certificate' && is_null($value)) {
-                    continue;
-                }
-                $this->validateFilename("configuration.{$key}", $value, true);
-            } elseif (
-                $request->connectionMode === ConnectionModeEnum::SECURE
-                && str_ends_with($key, '_key')
-                && (is_string($value) || is_null($value))
-            ) {
-                $this->validateFilename("configuration.{$key}", $value, false);
-=======
             if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
                 if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
                     if ($key === 'otel_ca_certificate' && is_null($value)) {
@@ -95,7 +72,6 @@ class CmaValidator implements TypeValidatorInterface
                 } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
                     $this->validateFilename("configuration.{$key}", $value, false);
                 }
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
             }
 
             if ($key === 'tokens' && $configuration['is_reverse'] === false) {
@@ -107,8 +83,6 @@ class CmaValidator implements TypeValidatorInterface
 
             if ($key === 'hosts') {
                 foreach ($value as $host) {
-<<<<<<< HEAD
-=======
                     /** @var array{
                      *		id: int,
                      *		address: string,
@@ -117,11 +91,10 @@ class CmaValidator implements TypeValidatorInterface
                      *		poller_ca_name: ?string
                      *	} $host
                      */
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
-                    if (! $this->readHostRepository->exists($host['id'])) {
+                    if (! $this->readHostRepository->exists(hostId: $host['id'])) {
                         throw AgentConfigurationException::invalidHostId($host['id']);
                     }
                 }

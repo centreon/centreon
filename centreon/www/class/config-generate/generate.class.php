@@ -39,11 +39,8 @@
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-<<<<<<< HEAD
-use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
-=======
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -130,17 +127,13 @@ class Generate
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         $this->readAgentConfigurationRepository = $kernel->getContainer()
             ->get(ReadAgentConfigurationRepositoryInterface::class)
-<<<<<<< HEAD
-            ?? throw new \Exception('ReadAcRepositoryInterface not found');
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         $this->readTokenRepository = $kernel->getContainer()
             ->get(ReadTokenRepositoryInterface::class)
             ?? throw new \Exception('ReadTokenRepositoryInterface not found');
-=======
-            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         $this->readHostRepository = $kernel->getContainer()
             ->get(ReadHostRepositoryInterface::class)
             ?? throw new \Exception('ReadHostRepositoryInterface not found');
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
     }
 
     /**
@@ -334,11 +327,8 @@ class Generate
         (new AgentConfiguration(
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
-<<<<<<< HEAD
-            $this->readTokenRepository
-=======
+            $this->readTokenRepository,
             $this->readHostRepository
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -361,11 +351,8 @@ class Generate
         (new AgentConfiguration(
             $this->backend_instance,
             $this->readAgentConfigurationRepository,
-<<<<<<< HEAD
-            $this->readTokenRepository
-=======
+            $this->readTokenRepository,
             $this->readHostRepository
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

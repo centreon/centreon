@@ -27,13 +27,10 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
-<<<<<<< HEAD
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
-=======
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -44,11 +41,8 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
-<<<<<<< HEAD
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
-=======
         private readonly ReadHostRepositoryInterface $readHostRepository,
->>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
     ) {
         $this->generate_filename = 'otl_server.json';
     }
