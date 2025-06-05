@@ -141,3 +141,7 @@ export const labelLast2Months = 'Last 2 months';
 export const labelGenericWidgets = 'Generic widgets';
 export const labelRealTimeWidgets = 'Real time widgets';
 export const labelMBIReportingWidgets = 'MBI reporting widgets';
+export const labelMinValue = 'Min value';
+export const labelMaxValue = 'Max value';
+export const labelMinMustLowerThanMax =
+  'The min value must be lower than the max value.';

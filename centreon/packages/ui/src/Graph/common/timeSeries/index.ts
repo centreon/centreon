@@ -20,7 +20,6 @@ import {
   includes,
   isEmpty,
   isNil,
-  isNotNil,
   keys,
   last,
   lt,
@@ -353,6 +352,19 @@ const getScaleType = (
 const hasOnlyZeroesHasValue = (graphValues: Array<number>): boolean =>
   graphValues.every((value) => equals(value, 0) || equals(value, null));
 
+const getSanitizedValues = reject(
+  (
+    value:
+      | number
+      | boolean
+      | typeof Number.POSITIVE_INFINITY
+      | typeof Number.NEGATIVE_INFINITY
+  ) =>
+    equals(value, false) ||
+    equals(value, Number.POSITIVE_INFINITY) ||
+    equals(value, Number.NEGATIVE_INFINITY)
+);
+
 const getScale = ({
   graphValues,
   height,
@@ -363,23 +375,39 @@ const getScale = ({
   scaleLogarithmicBase,
   isHorizontal,
   invert,
-  hasDisplayAsBar
+  hasDisplayAsBar,
+  hasLineFilled,
+  min,
+  max
 }): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
-  const minValue = Math.min(
-    hasDisplayAsBar && 0,
-    invert && graphValues.every(lt(0))
-      ? negate(getMax(graphValues))
-      : getMin(graphValues),
-    getMin(stackedValues),
-    Math.min(...thresholds)
-  );
-  const maxValue = Math.max(
-    getMax(graphValues),
-    getMax(stackedValues),
-    hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
-    Math.max(...thresholds)
-  );
+  const sanitizedValuesForMinimum = min
+    ? [min]
+    : getSanitizedValues([
+        invert && graphValues.every(lt(0))
+          ? negate(getMax(graphValues))
+          : getMin(graphValues),
+        !isEmpty(stackedValues) &&
+          !equals(stackedValues, [0]) &&
+          getMin(stackedValues),
+        Math.min(...thresholds)
+      ]);
+  const minValue = Math.min(...sanitizedValuesForMinimum);
+  const minValueWithMargin =
+    (hasDisplayAsBar || hasLineFilled) && minValue > 0 && !min
+      ? 0
+      : minValue - Math.abs(minValue) * 0.05;
+
+  const sanitizedValuesForMaximum = max
+    ? [max]
+    : getSanitizedValues([
+        getMax(graphValues),
+        getMax(stackedValues),
+        hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
+        Math.max(...thresholds)
+      ]);
+  const maxValue = Math.max(...sanitizedValuesForMaximum);
+  const maxValueWithMargin = maxValue + Math.abs(maxValue) * 0.05;
 
   const scaleType = getScaleType(scale);
 
@@ -387,21 +415,26 @@ const getScale = ({
   const range = [height, upperRangeValue];
 
   if (isCenteredZero) {
-    const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
+    const greatestValue = Math.max(
+      Math.abs(maxValueWithMargin),
+      Math.abs(minValueWithMargin)
+    );
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
       domain: [-greatestValue, greatestValue],
-      range: isHorizontal ? range : range.reverse()
+      range: isHorizontal ? range : range.reverse(),
+      clamp: min || max
     });
   }
 
-  const domain = [isLogScale ? 0.001 : minValue, maxValue];
+  const domain = [isLogScale ? 0.001 : minValueWithMargin, maxValueWithMargin];
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
     domain,
-    range: isHorizontal ? range : range.reverse()
+    range: isHorizontal ? range : range.reverse(),
+    clamp: min || max
   });
 };
 
@@ -437,11 +470,19 @@ const getYScaleUnit = ({
   scaleLogarithmicBase,
   isHorizontal = true,
   unit,
-  invert
-}: AxeScale & { invert?: boolean | string | null; unit: string }): ScaleLinear<
-  number,
-  number
-> => {
+  invert,
+  min,
+  max,
+  isBarChart,
+  boundariesUnit
+}: AxeScale & {
+  invert?: boolean | string | null;
+  unit: string;
+  max?: number;
+  min?: number;
+  boundariesUnit?: string;
+  isBarChart?: boolean;
+}): ScaleLinear<number, number> => {
   const [firstUnit] = getUnits(dataLines);
   const shouldApplyThresholds =
     equals(unit, thresholdUnit) || (!thresholdUnit && equals(firstUnit, unit));
@@ -468,11 +509,14 @@ const getYScaleUnit = ({
 
   return getScale({
     graphValues,
-    hasDisplayAsBar: dataLines.some(
-      ({ displayAs, unit: lineUnit, stackOrder }) =>
-        equals(unit, lineUnit) &&
-        equals(displayAs, 'bar') &&
-        isNotNil(stackOrder)
+    hasDisplayAsBar:
+      isBarChart ||
+      dataLines.some(
+        ({ displayAs, unit: lineUnit }) =>
+          equals(unit, lineUnit) && equals(displayAs, 'bar')
+      ),
+    hasLineFilled: dataLines.some(
+      ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
     ),
     height: valueGraphHeight,
     invert,
@@ -481,8 +525,22 @@ const getYScaleUnit = ({
     scale,
     scaleLogarithmicBase,
     stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : []
+    thresholds: shouldApplyThresholds ? thresholds : [],
+    min: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: min }),
+    max: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: max })
   });
+};
+
+const boundaryToApplyToUnit = ({
+  boundary,
+  boundariesUnit,
+  unit
+}): number | undefined => {
+  if (!boundariesUnit) {
+    return boundary;
+  }
+
+  return equals(boundariesUnit, unit) ? boundary : undefined;
 };
 
 const getYScalePerUnit = ({
@@ -494,8 +552,17 @@ const getYScalePerUnit = ({
   isCenteredZero,
   scale,
   scaleLogarithmicBase,
-  isHorizontal = true
-}: AxeScale): Record<string, ScaleLinear<number, number>> => {
+  isHorizontal = true,
+  isBarChart,
+  min,
+  max,
+  boundariesUnit
+}: AxeScale & {
+  min?: number;
+  max?: number;
+  isBarChart?: boolean;
+  boundariesUnit?: string;
+}): Record<string, ScaleLinear<number, number>> => {
   const units = getUnits(dataLines);
 
   const scalePerUnit = units.reduce((acc, unit) => {
@@ -514,7 +581,11 @@ const getYScalePerUnit = ({
         thresholdUnit,
         thresholds,
         unit,
-        valueGraphHeight
+        valueGraphHeight,
+        min,
+        max,
+        isBarChart,
+        boundariesUnit
       })
     };
   }, {});
