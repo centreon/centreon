@@ -184,9 +184,9 @@ $stats_activate[] = $form->createElement('radio', 'stats_activate', null, _("No"
 $form->addGroup($stats_activate, 'stats_activate', _("Statistics"), '&nbsp;');
 
 $bbdo_versions = [
-    '2.0.0' => 'v.2.0.0 (old protocol)',
     '3.0.0' => 'v.3.0.0 (with protobuf)',
-    '3.0.1' => 'v.3.0.1 (full protobuf)'
+    '3.0.1' => 'v.3.0.1 (full protobuf)',
+    '3.1.0' => 'v.3.1.0',
 ];
 
 $form->addElement('select', 'bbdo_version', _("BBDO version"), $bbdo_versions);
@@ -203,7 +203,7 @@ foreach ($tags as $tagId => $tag) {
  */
 if (isset($_GET["o"]) && $_GET["o"] == ADD_BROKER_CONFIGURATION) {
     $result = array_merge(
-        ["name" => '', "cache_directory" => '/var/lib/centreon-broker/', "log_directory" => '/var/log/centreon-broker/', "write_timestamp" => '1', "write_thread_id" => '1', "stats_activate" => '1', "activate" => '1', "activate_watchdog" => '1', "bbdo_version" => '3.0.1'],
+        ["name" => '', "cache_directory" => '/var/lib/centreon-broker/', "log_directory" => '/var/log/centreon-broker/', "write_timestamp" => '1', "write_thread_id" => '1', "stats_activate" => '1', "activate" => '1', "activate_watchdog" => '1', "bbdo_version" => '3.1.0'],
         $defaultLog
     );
     $form->setDefaults($result);
