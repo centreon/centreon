@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace Core\Module\Infrastructure;
 
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
