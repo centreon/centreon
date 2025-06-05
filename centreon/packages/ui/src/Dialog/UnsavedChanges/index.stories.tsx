@@ -4,6 +4,7 @@ import { useSnackbar } from '../..';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 
 import UnsavedChangesDialog from '.';
+import '../../ThemeProvider/tailwindcss.css';
 
 export default {
   argTypes: {

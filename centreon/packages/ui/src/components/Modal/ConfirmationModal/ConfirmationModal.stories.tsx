@@ -4,6 +4,7 @@ import { Provider, atom, createStore, useSetAtom } from 'jotai';
 import { Button } from '../../Button';
 
 import { ConfirmationModal } from './ConfirmationModal';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof ConfirmationModal> = {
   component: ConfirmationModal

@@ -199,7 +199,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -334,10 +334,9 @@ Given('a dashboard featuring two group monitoring widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
@@ -365,14 +364,14 @@ Given('a dashboard having a configured group monitoring widget', () => {
 When(
   'the dashboard administrator user duplicates the group monitoring widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click({ force: true });
   }
 );
 
@@ -407,7 +406,6 @@ Given('a dashboard configuring group monitoring widget', () => {
 When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
-    cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
     cy.get('input[name="host"].PrivateSwitchBase-input').click();
   }
 );

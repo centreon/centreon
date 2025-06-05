@@ -7,6 +7,7 @@ import { ChangeEvent, useEffect } from 'react';
 import { CrudPage } from '.';
 import { SnackbarProvider } from '../../';
 import { Column, ColumnType } from '../../Listing/models';
+import '../../ThemeProvider/tailwindcss.css';
 
 interface Item {
   id: number;

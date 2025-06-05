@@ -21,6 +21,18 @@
                 "integer"
             ]
         },
+        "check_command_id": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "check_command_args": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "check_timeperiod_id": {
             "type": [
                 "null",
