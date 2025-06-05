@@ -28,9 +28,7 @@ interface FormInputsState {
   groups: Array<Group>;
 }
 
-const useFormInputs = ({
-  hasWriteAccess
-}: { hasWriteAccess: boolean }): FormInputsState => {
+const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
   const { t } = useTranslation();
   const { classes } = useFormStyles();
 
@@ -79,16 +77,16 @@ const useFormInputs = ({
             fieldName: 'name',
             group: t(labelGeneralInformation),
             label: t(labelName),
-            required: hasWriteAccess,
+            required: canEdit,
             type: InputType.Text,
-            getDisabled: () => !hasWriteAccess
+            getDisabled: () => !canEdit
           },
           {
             fieldName: 'alias',
             group: t(labelGeneralInformation),
             label: t(labelAlias),
             type: InputType.Text,
-            getDisabled: () => !hasWriteAccess
+            getDisabled: () => !canEdit
           }
         ]
       }
@@ -105,7 +103,7 @@ const useFormInputs = ({
       fieldName: 'hosts',
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
-      getDisabled: () => !hasWriteAccess,
+      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
@@ -120,7 +118,7 @@ const useFormInputs = ({
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
-      getDisabled: () => !hasWriteAccess,
+      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
@@ -131,13 +129,13 @@ const useFormInputs = ({
           {
             fieldName: 'geoCoords',
             label: t(labelGeographicCoordinates),
-            getDisabled: () => !hasWriteAccess,
+            getDisabled: () => !canEdit,
             type: InputType.Text
           },
           {
             custom: { Component: IconFiled },
             type: InputType.Custom,
-            disabled: !hasWriteAccess
+            disabled: !canEdit
           }
         ]
       }
@@ -146,7 +144,7 @@ const useFormInputs = ({
       fieldName: 'comment',
       group: t(labelExtendedInformation),
       label: t(labelComments),
-      getDisabled: () => !hasWriteAccess,
+      getDisabled: () => !canEdit,
       text: {
         multilineRows: 3
       },
