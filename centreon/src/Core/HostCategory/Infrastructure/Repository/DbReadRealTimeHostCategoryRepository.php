@@ -227,7 +227,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByName(array $names): array
+    public function existByNames(array $names): array
     {
         try {
             if ([] === $names) {
@@ -265,7 +265,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByNameAndAccessGroups(array $names, array $accessGroups): array
+    public function existByNamesAndAccessGroups(array $names, array $accessGroups): array
     {
         try {
             if ([] === $names || [] === $accessGroups) {

@@ -23,15 +23,27 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadRealTimeHostGroupRepositoryInterface
 {
+    /**
+     * @param int $hostGroupId
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
+     */
     public function exists(int $hostGroupId): bool;
 
     /**
      * @param int $hostGroupId
      * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
      */
-    public function existByAccessGroups(int $hostGroupId, array $accessGroups): bool;
+    public function existsByAccessGroups(int $hostGroupId, array $accessGroups): bool;
 }

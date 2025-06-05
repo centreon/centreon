@@ -70,7 +70,7 @@ final class DbReadRealTimeHostGroupRepository extends DatabaseRepository impleme
     /**
      * @inheritDoc
      */
-    public function existByAccessGroups(int $hostGroupId, array $accessGroups): bool
+    public function existsByAccessGroups(int $hostGroupId, array $accessGroups): bool
     {
         if ([] === $accessGroups) {
             return false;
