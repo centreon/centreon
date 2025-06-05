@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
-export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+export MYSQL_PWD="centreon"
+export MYSQL_HOST="db"
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
 
