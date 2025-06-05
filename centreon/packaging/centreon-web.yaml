@@ -501,7 +501,6 @@ overrides:
       - locales
       - gettext
       - centreon-common
-      - centreon-perl-libs
     provides:
       - centreon-web-common
       - centreon-widget-engine-status
