@@ -36,6 +36,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
  *		hosts: array<array{
+ *			id: int,
  *			address: string,
  *			port: int,
  *			poller_ca_certificate: ?string,

@@ -150,10 +150,17 @@ When('the user fills in the centreon agent parameters', () => {
     'my-otel-private-key-name-003.key'
   );
   cy.getByLabel({ label: 'CA', tag: 'input' }).eq(0).type('my-ca-file-003.crt');
-  cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).click();
+  // Click to add the first host
+  cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
-  cy.getByLabel({ label: 'DNS/IP', tag: 'input' }).eq(1).type('10.0.0.0');
-  cy.getByTestId({ testId: 'Port' }).eq(1).type('4317');
+  // Click to add the second host
+  cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(1).click();
+  cy.contains('Centreon-Server').click();
+  cy.getByLabel({ label: 'DNS/IP', tag: 'input' })
+    .eq(1)
+    .clear()
+    .type('10.0.0.0');
+  cy.getByTestId({ testId: 'Port' }).eq(1).clear().type('4317');
   cy.getByLabel({ label: 'CA', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');

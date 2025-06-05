@@ -150,6 +150,7 @@ class AgentConfigurationException extends \Exception
         );
     }
 
+<<<<<<< HEAD
     public static function invalidToken(string $name, int $creatorId): self
     {
         return new self(
@@ -161,5 +162,10 @@ class AgentConfigurationException extends \Exception
     public static function tokensAreMandatory(): self
     {
         return new self(_('Tokens are mandatory'), self::CODE_CONFLICT);
+=======
+    public static function invalidHostId(int $hostId): self
+    {
+        return new self(sprintf(_('Host ID #%d is invalid'), $hostId));
+>>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
     }
 }

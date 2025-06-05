@@ -6,7 +6,6 @@ import {
   labelAdd,
   labelAddAHost,
   labelAddAgentConfiguration,
-  labelAddHost,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
@@ -38,6 +37,7 @@ import {
   labelRequired,
   labelSave,
   labelSelectExistingCMAToken,
+  labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
@@ -572,7 +572,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
 
     cy.waitForRequest('@getHosts');
 
@@ -644,7 +644,7 @@ describe('Agent configurations modal', () => {
     cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
     cy.findAllByLabelText(labelCaCertificate).eq(1).type('test.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
 
@@ -666,6 +666,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: 'private.key',
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: 'test.crt',
@@ -778,7 +779,7 @@ describe('Agent configurations modal', () => {
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelPrivateKey).should('not.exist');
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
     cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
@@ -801,6 +802,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: null,
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: null,

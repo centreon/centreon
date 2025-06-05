@@ -27,9 +27,13 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+<<<<<<< HEAD
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
+=======
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+>>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -40,7 +44,11 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+<<<<<<< HEAD
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
+=======
+        private readonly ReadHostRepositoryInterface $readHostRepository,
+>>>>>>> e634ba3eb746c7a274668b1644f1a859e0926700
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -143,6 +151,9 @@ class AgentConfiguration extends AbstractObjectJSON
         ];
 
         if ($data['is_reverse']) {
+            $hostIds = array_map(static fn(array $host): int => $host['id'], $data['hosts']);
+            $hosts = $this->readHostRepository->findByIds($hostIds);
+
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
@@ -158,7 +169,10 @@ class AgentConfiguration extends AbstractObjectJSON
                         : '',
                     'ca_name' => $host['poller_ca_name'],
                 ],
-                $data['hosts']
+                array_filter(
+                    $data['hosts'],
+                    static fn(array $host): bool => $hosts[$host['id']] ? true : false
+                )
             );
         }
 
