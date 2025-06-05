@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
-export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+export MYSQL_PWD="centreon"
+export MYSQL_HOST="db"
 
 if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
     "SELECT count(*) from information_schema.tables WHERE \
