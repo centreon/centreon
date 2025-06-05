@@ -18,25 +18,25 @@ namespace Core\Module\Domain;
 
 final readonly class ModuleInformation
 {
-	public function __construct(
-		private string $packageName,
-		private string $displayName,
-		private string $version,
-	) {
-	}
+    public function __construct(
+        private string $packageName,
+        private string $displayName,
+        private string $version,
+    ) {
+    }
 
-	public function getPackageName(): string
-	{
-		return $this->packageName;
-	}
+    public function getPackageName(): string
+    {
+        return $this->packageName;
+    }
 
-	public function getDisplayName(): string
-	{
-		return $this->displayName;
-	}
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
 
-	public function getVersion(): string
-	{
-		return $this->version;
-	}
+    public function getVersion(): string
+    {
+        return $this->version;
+    }
 }

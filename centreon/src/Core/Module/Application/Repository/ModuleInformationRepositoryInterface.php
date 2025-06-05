@@ -20,5 +20,5 @@ use Core\Module\Domain\ModuleInformation;
 
 interface ModuleInformationRepositoryInterface
 {
-	public function findByName(string $name): ?ModuleInformation;
+    public function findByName(string $name): ?ModuleInformation;
 }
