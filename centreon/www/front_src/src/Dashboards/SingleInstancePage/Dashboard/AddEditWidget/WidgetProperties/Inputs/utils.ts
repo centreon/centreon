@@ -64,15 +64,17 @@ interface GetYupValidatorTypeProps {
 
 export const boundariesValidationSchema = object()
   .shape({
-    min: number().required(),
-    max: number()
-      .test('isMinAboveMax', labelMinMustLowerThanMax, (value, context) => {
+    min: number(),
+    max: number().test(
+      'isMinAboveMax',
+      labelMinMustLowerThanMax,
+      (value, context) => {
         if (isNil(value) || isNil(context.parent.min)) {
           return true;
         }
         return Number(value || 0) > context.parent.min;
-      })
-      .required()
+      }
+    )
   })
   .optional();
 
