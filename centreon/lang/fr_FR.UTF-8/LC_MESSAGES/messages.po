@@ -2182,6 +2182,10 @@ msgstr "CA"
 msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
 
+#: centreon/www/install/front_translate.php
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "CRITICAL"
@@ -3699,6 +3703,10 @@ msgstr "Créer un jeton d'authentification"
 #: centreon/www/install/front_translate.php
 msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
+
+#: centreon/www/install/front_translate.php
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -14377,6 +14385,10 @@ msgstr "Sélectionner les colonnes"
 msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
+#: centreon/www/install/front_translate.php
+msgid "Select existing CMA token(s)"
+msgstr "Sélectionner des jetons CMA existants"
+
 #: centreon/www/install/dashboard_widgets.php
 #, fuzzy
 msgid "Select field"
@@ -17069,6 +17081,15 @@ msgstr "Point d'entrée de jeton"
 #: centreon/www/install/front_translate.php
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Tokens are mandatory"
+msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
@@ -22888,12 +22909,3 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
-
-msgid "CMA authentication token(s)"
-msgstr "Jeton(s) d'authentification CMA"
-
-msgid "Select existing CMA token(s)"
-msgstr "Sélectionner des jetons CMA existants"
-
-msgid "Create new CMA token"
-msgstr "Créer un nouveau jeton CMA"
