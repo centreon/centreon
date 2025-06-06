@@ -48,8 +48,8 @@ useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreo
 groupadd -g 6003 centreon-gorgone
 useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone
 usermod -aG centreon www-data
-#usermod -aG centreon-engine www-data
-#usermod -aG centreon-broker www-data
+usermod -aG centreon-engine www-data
+usermod -aG centreon-broker www-data
 
 echo 'Acquire::Retries "10"; \
 Acquire::https::Timeout "300"; \
