@@ -454,8 +454,8 @@ msgstr ""
 "Wählen Sie ein Servicetemplate aus der Liste. Dieses Servicetemplate muss "
 "vorher erstellt worden sein."
 
-#: centreon/www/include/configuration/configObject/traps/help.php
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
+#: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
 "Choose a vendor from the list. The vendor must have been created beforehand."
 msgstr ""
@@ -485,10 +485,10 @@ msgstr ""
 "werden, wenn jede Trap genau einem Monitoring Engine Status zugeordnet "
 "werden kann."
 
-#: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
@@ -721,8 +721,8 @@ msgstr ""
 "dazu genutzt, die Servicegruppe in der Überwachung, in Ansichten und im "
 "Reporting anzuzeigen."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Define a short name for this category. It will be displayed with this name "
 "in the ACL configuration."
@@ -813,9 +813,9 @@ msgstr ""
 msgid "Define an optional string of notes pertaining to the host group."
 msgstr "Optionale Notizen zur Hostgruppe."
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
 "icon image."
@@ -1909,8 +1909,8 @@ msgstr ""
 "IP bzw. DNS-Adresse von vertrauenswürdigen Clients. Wenn mehrere Clients "
 "angegeben werden, müssen diese durch Kommata getrennt sein."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Icon for this severity."
 msgstr "Icon für diesen Schweregrad."
 
@@ -2064,9 +2064,9 @@ msgstr ""
 msgid "Images."
 msgstr "Bilder."
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-#: centreon/www/include/options/accessLists/actionsACL/help.php
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr "Implizite Zugriffssteuerungslistengruppen (ACL Gruppen)."
 
@@ -2978,8 +2978,8 @@ msgstr ""
 msgid "Severities are defined in the service category object."
 msgstr "Schweregrade werden im Servicekategorieobjekt angegeben."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Severity level, must be a number. The items displayed will be sorted in "
 "ascending order. Thus the lowest severity is considered than the highest "
@@ -3339,8 +3339,8 @@ msgstr ""
 "LDAP-Suchfilter für die Benutzersuche<br/>In Filtern kann %s genutzt werden. "
 "%s wird beim Autologin durch Login ersetzt bzw. beim LDAP-Import durch *"
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
 "command by using the $_HOSTSNMPCOMMUNITY$ and $_HOSTSNMPVERSION$ macros."
@@ -5761,8 +5761,8 @@ msgstr ""
 "Legen Sie einen längeren Name bzw. eine Beschreibung für diesen Zeitraum "
 "fest."
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Use this field for a longer description of this category."
 msgstr ""
 "In diesem Feld kann eine längere Beschreibung für diese Kategorie angegeben "
@@ -5964,8 +5964,8 @@ msgstr "Legt fest, ob der Konnektor aktiviert ist."
 msgid "Whether or not the password should be stored in database"
 msgstr "Legt fest, ob Passwörter in der Datenbank gespeichert werden sollen"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid "Whether or not this category is enabled."
 msgstr "Legt fest, ob diese Kategorie aktiviert ist."
 
@@ -5980,8 +5980,8 @@ msgstr ""
 msgid "Whether the poller is local"
 msgstr "Diese Option legt fest, ob es sich um einen lokalen Poller handelt"
 
-#: centreon/www/include/configuration/configObject/service_categories/help.php
 #: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."

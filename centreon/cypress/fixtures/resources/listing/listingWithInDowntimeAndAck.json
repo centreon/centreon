@@ -236,11 +236,7 @@
 				"name": "Centreon-Server",
 				"type": "host",
 				"short_type": "h",
-				"status": {
-					"code": 0,
-					"name": "UP",
-					"severity_code": 5
-				},
+				"status": null,
 				"alias": "Monitoring Server",
 				"fqdn": "127.0.0.1",
 				"monitoring_server_name": null,

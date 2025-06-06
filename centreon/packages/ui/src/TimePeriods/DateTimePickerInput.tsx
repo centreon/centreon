@@ -13,6 +13,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
+import { useLocale } from '../utils';
+
 import { CustomTimePeriodProperty } from './models';
 
 interface ChangeDateProps {
@@ -46,6 +48,7 @@ const DateTimePickerInput = ({
     '@media (min-width: 1024px) or (pointer: fine)';
 
   const { timezone, locale } = useAtomValue(userAtom);
+  const localeToUse = useLocale();
 
   const isUTC = equals(timezone, 'UTC');
 
@@ -62,7 +65,7 @@ const DateTimePickerInput = ({
 
   return (
     <LocalizationProvider
-      adapterLocale={locale.substring(0, 2)}
+      adapterLocale={(locale ?? localeToUse).substring(0, 2)}
       dateAdapter={AdapterDayjs}
       dateLibInstance={dayjs}
     >
