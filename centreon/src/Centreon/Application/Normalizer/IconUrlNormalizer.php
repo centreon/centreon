@@ -47,10 +47,18 @@ class IconUrlNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array<string, mixed> $context
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
         return $data instanceof ConfigurationIcon || $data instanceof MonitoringIcon;
+    }
+
+    /**
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [];
     }
 }
