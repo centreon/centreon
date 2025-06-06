@@ -48,6 +48,7 @@ import {
   TimeValueProps,
   Xscale
 } from './models';
+import { number } from 'yup';
 
 interface TimeTickWithMetrics {
   metrics: Array<Metric>;
@@ -353,6 +354,19 @@ const getScaleType = (
 const hasOnlyZeroesHasValue = (graphValues: Array<number>): boolean =>
   graphValues.every((value) => equals(value, 0) || equals(value, null));
 
+const getSanitizedValues = reject(
+  (
+    value:
+      | number
+      | false
+      | typeof Number.POSITIVE_INFINITY
+      | typeof Number.NEGATIVE_INFINITY
+  ) =>
+    equals(value, false) ||
+    equals(value, Number.POSITIVE_INFINITY) ||
+    equals(value, Number.NEGATIVE_INFINITY)
+);
+
 const getScale = ({
   graphValues,
   height,
@@ -363,23 +377,33 @@ const getScale = ({
   scaleLogarithmicBase,
   isHorizontal,
   invert,
-  hasDisplayAsBar
+  hasDisplayAsBar,
+  hasLineFilled
 }): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
-  const minValue = Math.min(
-    hasDisplayAsBar && 0,
+  const sanitizedValuesFormMinimum = getSanitizedValues([
     invert && graphValues.every(lt(0))
       ? negate(getMax(graphValues))
       : getMin(graphValues),
-    getMin(stackedValues),
+    !isEmpty(stackedValues) &&
+      !equals(stackedValues, [0]) &&
+      getMin(stackedValues),
     Math.min(...thresholds)
-  );
-  const maxValue = Math.max(
+  ]);
+  const minValue = Math.min(...sanitizedValuesFormMinimum);
+  const minValueWithMargin =
+    (hasDisplayAsBar || hasLineFilled) && minValue > 0
+      ? 0
+      : minValue - Math.abs(minValue) * 0.05;
+
+  const sanitizedValuesForMaximum = getSanitizedValues([
     getMax(graphValues),
     getMax(stackedValues),
     hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
     Math.max(...thresholds)
-  );
+  ]);
+  const maxValue = Math.max(...sanitizedValuesForMaximum);
+  const maxValueWithMargin = maxValue + Math.abs(maxValue) * 0.05;
 
   const scaleType = getScaleType(scale);
 
@@ -387,7 +411,10 @@ const getScale = ({
   const range = [height, upperRangeValue];
 
   if (isCenteredZero) {
-    const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
+    const greatestValue = Math.max(
+      Math.abs(maxValueWithMargin),
+      Math.abs(minValueWithMargin)
+    );
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
@@ -396,7 +423,7 @@ const getScale = ({
     });
   }
 
-  const domain = [isLogScale ? 0.001 : minValue, maxValue];
+  const domain = [isLogScale ? 0.001 : minValueWithMargin, maxValueWithMargin];
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
@@ -469,10 +496,11 @@ const getYScaleUnit = ({
   return getScale({
     graphValues,
     hasDisplayAsBar: dataLines.some(
-      ({ displayAs, unit: lineUnit, stackOrder }) =>
-        equals(unit, lineUnit) &&
-        equals(displayAs, 'bar') &&
-        isNotNil(stackOrder)
+      ({ displayAs, unit: lineUnit }) =>
+        equals(unit, lineUnit) && equals(displayAs, 'bar')
+    ),
+    hasLineFilled: dataLines.some(
+      ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
     ),
     height: valueGraphHeight,
     invert,

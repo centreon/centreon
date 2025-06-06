@@ -167,9 +167,13 @@ describe('Vault configuration', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@putVaultConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"address":"example.com","port":1024,"root_path":"/path","role_id":"role","secret_id":"Secret"}'
-      );
+      expect(request.body).deep.equal({
+        address: 'example.com',
+        port: 1024,
+        root_path: '/path',
+        role_id: 'role',
+        secret_id: 'Secret'
+      });
     });
 
     cy.contains(labelVaultConfigurationUpdate).should('be.visible');

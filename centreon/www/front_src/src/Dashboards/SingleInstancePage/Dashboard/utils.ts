@@ -16,6 +16,7 @@ import { getIsMetaServiceSelected } from './AddEditWidget/WidgetProperties/Input
 import { WidgetResourceType } from './AddEditWidget/models';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
+
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
   const state = JSON.parse(editorState);
 
@@ -75,8 +76,12 @@ export const getResourcesUrlForMetricsWidgets = ({
       };
     }
 
+    const field = equals(resourceType, 'hostgroup')
+      ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+      : resourcesCriteriasMapping[resourceType];
+
     return {
-      name: resourcesCriteriasMapping[resourceType],
+      name: field,
       value: uniq(
         resources.map(({ name, id }) => ({
           id,

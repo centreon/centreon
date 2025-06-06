@@ -1,7 +1,6 @@
 import { equals, flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
-
 import { Resource } from '../../../../models';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 import { ResourceStatus } from '../../StatusGridStandard/models';
@@ -11,6 +10,7 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
+import { getFormattedResources } from '../../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -47,7 +47,7 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
-  const formattedResources = resources.map((resource) => {
+  const resourcesToApplyToSearch = resources.map((resource) => {
     if (!equals(resourceType, resource.resourceType)) {
       return {
         ...resource,
@@ -60,12 +60,12 @@ export const useLoadResources = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const resourcesSearchConditions = formattedResources.map(
+  const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }

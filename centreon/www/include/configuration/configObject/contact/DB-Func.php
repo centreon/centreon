@@ -34,6 +34,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 
@@ -826,12 +828,10 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
     }
 
     try {
-        $query = "DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id";
-        $successDelete = $pearDB->executePreparedQuery($pearDB->prepare($query), ['contact_id' => $contactId]);
-
-        if (!$successDelete) {
-            return false;
-        }
+        $pearDB->delete(
+            'DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id',
+            QueryParameters::create([QueryParameter::int('contact_id', $contactId)])
+        );
 
         $hostCommandIdsFromForm = $fields["contact_hostNotifCmds"] ?? $form->getSubmitValue("contact_hostNotifCmds");
 
@@ -840,15 +840,17 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
         }
 
         $query = "INSERT INTO contact_hostcommands_relation(contact_contact_id, command_command_id) VALUES(:contact_id, :command_id)";
-        $pdoSth = $pearDB->prepareQuery($query);
         foreach ($hostCommandIdsFromForm as $hostCommandIdFromForm) {
-            $pearDB->executePreparedQuery(
-                $pdoSth,
-                ['contact_id' => $contactId, 'command_id' => (int)$hostCommandIdFromForm]
+            $pearDB->insert(
+                $query,
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', $contactId),
+                    QueryParameter::int('command_id', (int)$hostCommandIdFromForm)
+                ])
             );
         }
         return true;
-    } catch (CentreonDbException $e) {
+    } catch (\Throwable $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and host commands",
@@ -1703,7 +1705,7 @@ function filterNonAdminFields(array $ret): array
         'contact_lang', 'default_page', 'contact_location', 'contact_autologin_key', 'contact_auth_type',
         'contact_acl_groups', 'contact_address1', 'contact_address2', 'contact_address3', 'contact_address4',
         'contact_address5', 'contact_address6', 'contact_comment', 'contact_register', 'contact_activate',
-        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg'
+        'contact_id', 'initialValues', 'centreon_token', 'contact_template_id', 'contact_type_msg','contact_ldap_dn'
     ];
 
     foreach ($ret as $field => $value) {

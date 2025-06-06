@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\Repository;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Security\Token\Domain\Model\Token;
 
@@ -56,24 +55,21 @@ interface ReadTokenRepositoryInterface
      * Determine if a token exists by its name and user ID.
      *
      * @param int $userId
-     * @param RequestParametersInterface $requestParameters
      *
      * @throws RequestParametersTranslatorException
      * @throws \Throwable
      *
      * @return list<Token>
      */
-    public function findByIdAndRequestParameters(int $userId, RequestParametersInterface $requestParameters): array;
+    public function findByUserIdAndRequestParameters(int $userId): array;
 
     /**
-     * @param RequestParametersInterface $requestParameters
-     *
      * @throws RequestParametersTranslatorException
      * @throws \Throwable
      *
      * @return list<Token>
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameters(): array;
 
     /**
      * Determine if a token exists by its name.
@@ -88,7 +84,7 @@ interface ReadTokenRepositoryInterface
     public function existsByNameAndUserId(string $tokenName, int $userId): bool;
 
     /**
-     * Check if the token type is manual.
+     * Check if the token type is auto.
      *
      * @param string $token
      *
@@ -96,5 +92,5 @@ interface ReadTokenRepositoryInterface
      *
      * @return bool
      */
-    public function isTokenTypeManual(string $token): bool;
+    public function isTokenTypeAuto(string $token): bool;
 }

@@ -43,14 +43,14 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
 
     if (hasOnlyBA) {
-      return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
+      return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
     }
 
     if (data?.resources && isNil(data?.metrics)) {
       const { statuses } = options;
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: data.resources,
+        resources: resources,
         states: options?.states || [],
         statuses,
         type:
