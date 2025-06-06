@@ -114,10 +114,7 @@ foreach (
     ] as $filename
 ) {
     it("should not throw an exception when the filename for certificate {$filename} is valid", function () use ($filename): void {
-        $this->request->configuration['hosts'][0] = [
-            'poller_ca_certificate' => $filename,
-            'id' => 9999,
-        ] ;
+        $this->request->configuration['hosts'][0]['poller_ca_certificate'] = $filename;
         $this->user
             ->method('isAdmin')
             ->willReturn(true);
@@ -125,6 +122,10 @@ foreach (
             ->expects($this->once())
             ->method('exists')
             ->willReturn(true);
+        $this->readTokenRepository
+            ->expects($this->once())
+            ->method('findByNameAndUserId')
+            ->willReturn($this->token);
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }
@@ -156,6 +157,9 @@ foreach (
         $this->user
             ->method('isAdmin')
             ->willReturn(true);
+        $this->readHostRepository
+            ->method('exists')
+            ->willReturn(true);
         $this->readTokenRepository
             ->method('findByNameAndUserId')
             ->willReturn($this->token);
@@ -185,15 +189,11 @@ it("should throw an exception when a token is provided but invalid and connectio
 });
 
 it('should throw an exception when the host id is invalid', function (): void {
-    $this->request->configuration['hosts'][0] = [
-        'id' => 9999,
-        'poller_ca_certificate' => null,
-    ];
+    $this->request->configuration['hosts'][0]['id'] = 9999;
     $this->readHostRepository
         ->expects($this->once())
         ->method('exists')
         ->willReturn(false);
-
     $this->cmaValidator->validateParametersOrFail($this->request);
 })->throws((AgentConfigurationException::invalidHostId(9999)->getMessage()));
 
@@ -207,6 +207,10 @@ it("should throw an exception when a token is provided for an host but invalid a
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('exists')
         ->willReturn(true);
     $this->readTokenRepository
         ->expects($this->once())
