@@ -29,14 +29,14 @@ $errorMessage = '';
 
 // TODO add your functions here
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate= function () use ($pearDB) {
+$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage) {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
         $pearDB->query('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
     }
 };
 
-$bbdoCfgUpdate = function () use ($pearDB) {
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
     $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
