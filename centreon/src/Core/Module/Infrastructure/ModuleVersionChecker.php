@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
@@ -38,15 +38,15 @@ final readonly class ModuleVersionChecker
     {
         $moduleInformation = $this->repository->findByName($moduleName);
         if (! $moduleInformation) {
-            throw new \RuntimeException($moduleName . " is not installed");
+            throw new \RuntimeException($moduleName . ' is not installed');
         }
-        $getConfigFileVersion = function() use ($moduleName): string {
-            require $this->projectDir . "/www/modules/$moduleName/conf.php";
+        $getConfigFileVersion = function () use ($moduleName): string {
+            require $this->projectDir . "/www/modules/{$moduleName}/conf.php";
 
-            return $module_conf[$moduleName]["mod_release"];
+            return $module_conf[$moduleName]['mod_release'];
         };
 
-        return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), ">");
+        return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), '>');
     }
 }
 

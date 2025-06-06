@@ -38,13 +38,9 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
     ) {
     }
 
-    abstract protected function getModuleName(): string;
-
-    abstract protected function getModuleDirectory(): string;
-
     final public function __invoke(): RouteCollection
     {
-        if($this->versionChecker->hasANewVersionAvailable($this->getModuleName())) {
+        if ($this->versionChecker->hasANewVersionAvailable($this->getModuleName())) {
             return new RouteCollection();
         }
 
@@ -59,5 +55,9 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
         return $routes;
     }
+
+    abstract protected function getModuleName(): string;
+
+    abstract protected function getModuleDirectory(): string;
 }
 

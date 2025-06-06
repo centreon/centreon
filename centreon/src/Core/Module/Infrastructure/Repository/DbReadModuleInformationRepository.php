@@ -29,7 +29,7 @@ use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Core\Module\Domain\ModuleInformation;
 
-class DbReadModuleinformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
+class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
     public function findByName(string $name): ?ModuleInformation
     {
