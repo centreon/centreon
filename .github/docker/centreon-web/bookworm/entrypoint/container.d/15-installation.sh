@@ -26,7 +26,8 @@ else
   sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
   mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
-  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "CREATE USER IF NOT EXISTS 'centreon'@'%' IDENTIFIED BY 'centreon'"
+  mysql -h${MYSQL_HOST} -uroot -p${MYSQL_PWD} -e "GRANT ALL ON *.* TO 'centreon'@'%'"
 
   if [ $CENTREON_DATASET = "1" ]; then
     echo "CENTREON_DATASET environment variable is set, dump will be inserted."
