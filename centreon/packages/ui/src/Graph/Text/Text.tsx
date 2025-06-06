@@ -11,7 +11,8 @@ import {
 import { getColorFromDataAndTresholds } from '../common/utils';
 
 import { useTextStyles } from './Text.styles';
-import type { ReactElement } from 'react';
+import { useRef, type ReactElement } from 'react';
+import useResizeObserver from 'use-resize-observer';
 
 export interface Props {
   baseColor?: string;
@@ -37,6 +38,7 @@ export const Text = ({
 }: Props): ReactElement | null => {
   const theme = useTheme();
   const { classes, cx } = useTextStyles();
+  const { ref, width = 0 } = useResizeObserver();
 
   if (isNil(data)) {
     return null;
@@ -67,8 +69,12 @@ export const Text = ({
     })
   );
 
+  const canDisplayThresholdLabel = width > 150;
+  const warningLabel = canDisplayThresholdLabel ? `${labels.warning}: ` : '';
+  const criticalLabel = canDisplayThresholdLabel ? `${labels.critical}: ` : '';
+
   return (
-    <div className={classes.graphText}>
+    <div className={classes.graphText} ref={ref}>
       <FluidTypography
         max="40px"
         pref={14}
@@ -88,7 +94,7 @@ export const Text = ({
             containerClassName={cx(classes.thresholdLabel, classes.warning)}
             max="30px"
             pref={prefThresholds}
-            text={`${labels.warning}: ${warningThresholdLabels.join(' - ')}`}
+            text={`${warningLabel}${warningThresholdLabels.join(' - ')}`}
             variant="h5"
             min={minThresholds}
           />
@@ -96,7 +102,7 @@ export const Text = ({
             containerClassName={cx(classes.thresholdLabel, classes.critical)}
             max="30px"
             pref={prefThresholds}
-            text={`${labels.critical}: ${criticalThresholdLabels.join(' - ')}`}
+            text={`${criticalLabel}${criticalThresholdLabels.join(' - ')}`}
             variant="h5"
             min={minThresholds}
           />
