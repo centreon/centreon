@@ -75,12 +75,12 @@ const PanelsLayout = ({
                       }
                       displayMoreActions={displayMoreActions}
                       displayShrinkRefresh={
-                        lte(w, 3) &&
+                        lte(w, 6) &&
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
                       forceDisplayShrinkRefresh={
-                        lte(w, 2) &&
+                        lte(w, 4) &&
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
