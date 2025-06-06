@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { TabContext } from '@mui/lab';
-import { Tab, Tabs as MuiTabs, TabsProps } from '@mui/material';
+import { Tabs as MuiTabs, Tab, TabsProps } from '@mui/material';
 
 import { useTabsStyles } from './Tab.styles';
 
