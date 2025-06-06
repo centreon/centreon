@@ -23,7 +23,7 @@ on:
 
 jobs:
   check-qa-validation:
-    if: ${{ ! github.event.pull_request.draft }}
+    # if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
 
     steps:
