@@ -348,8 +348,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         $row["meta_id"] = null;
+        $originalMetaName = $row["meta_name"];
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row["meta_name"] . "_" . $i;
+            $metaName = $originalMetaName . "_" . $i;
             $row["meta_name"] = $metaName;
             $columns = array_keys($row);
             $insertQuery = "INSERT INTO meta_service (" . implode(", ", $columns) . ")
@@ -645,6 +646,9 @@ function insertMetaService($ret = [])
             QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
             QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", default: '2')),
             QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
+            QueryParameter::int('data_source_type', (int) getParamValue($ret, "data_source_type", default: 0)),
+            QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
+            QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
             QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
             QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
             QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
