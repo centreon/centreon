@@ -25,17 +25,23 @@ namespace Core\Dashboard\Infrastructure\Serializer;
 
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
 use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class DashboardContactGroupsResponseNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, $context = []): bool
     {
         return $data instanceof ContactGroupsResponseDto;
     }
@@ -64,6 +70,17 @@ final class DashboardContactGroupsResponseNormalizer implements NormalizerInterf
             : DashboardGlobalRoleConverter::toString($object->mostPermissiveRole);
 
         return $data;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ContactGroupsResponseDto::class => true,
+        ];
     }
 }
 

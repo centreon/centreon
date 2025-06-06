@@ -27,9 +27,9 @@ use ArrayObject;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 use Core\TimePeriod\Domain\Rules\TimePeriodRuleStrategyInterface;
 use DateTimeImmutable;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Traversable;
 
 class TimePeriodNormalizer implements NormalizerInterface
@@ -38,12 +38,13 @@ class TimePeriodNormalizer implements NormalizerInterface
     private array $strategies;
 
     /**
-     * @param ObjectNormalizer $normalizer
      * @param Traversable<TimePeriodRuleStrategyInterface> $strategies
+     * @param NormalizerInterface $normalizer
      */
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-        Traversable $strategies
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
+        Traversable $strategies,
     ) {
         $this->strategies = iterator_to_array($strategies);
     }
@@ -70,8 +71,24 @@ class TimePeriodNormalizer implements NormalizerInterface
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof TimePeriod;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            TimePeriod::class => true,
+        ];
     }
 }

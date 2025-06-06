@@ -25,17 +25,23 @@ namespace Core\Dashboard\Infrastructure\Serializer;
 
 use Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response\DashboardResponseDto;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class DashboardResponseDtoNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null)
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof DashboardResponseDto;
     }
@@ -80,5 +86,16 @@ final class DashboardResponseDtoNormalizer implements NormalizerInterface
         }
 
         return $data;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            DashboardResponseDto::class => true,
+        ];
     }
 }

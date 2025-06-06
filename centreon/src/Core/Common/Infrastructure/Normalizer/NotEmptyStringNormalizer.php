@@ -24,14 +24,16 @@ declare(strict_types = 1);
 namespace Core\Common\Infrastructure\Normalizer;
 
 use Core\Common\Domain\NotEmptyString;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final readonly class NotEmptyStringNormalizer implements NormalizerInterface
 {
-    public function __construct(private ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer
+    ) {
     }
 
     /**
@@ -54,8 +56,24 @@ final readonly class NotEmptyStringNormalizer implements NormalizerInterface
         return $data['value'];
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof NotEmptyString;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            NotEmptyString::class => true,
+        ];
     }
 }

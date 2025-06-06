@@ -48,8 +48,24 @@ final readonly class GeoCoordsNormalizer implements NormalizerInterface
         return $object->__toString();
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof GeoCoords;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            GeoCoords::class => true,
+        ];
     }
 }

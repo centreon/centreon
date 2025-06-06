@@ -25,13 +25,14 @@ namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class AgentConfigurationNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
@@ -60,8 +61,24 @@ class AgentConfigurationNormalizer implements NormalizerInterface
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof AgentConfiguration;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            AgentConfiguration::class => true,
+        ];
     }
 }
