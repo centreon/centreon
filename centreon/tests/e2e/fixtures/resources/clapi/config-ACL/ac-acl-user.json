@@ -35,6 +35,11 @@
         "values": "user-ACLMENU;1;Configuration"
     },
     {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU;1;Administration"
+    },
+    {
         "action": "ADDMENU",
         "object": "ACLGROUP",
         "values": "user-ACLGROUP;user-ACLMENU"

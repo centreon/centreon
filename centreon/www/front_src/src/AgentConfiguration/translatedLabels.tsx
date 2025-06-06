@@ -70,3 +70,7 @@ export const labelWarningEncryptionLevelCMA =
 
 export const labelTLS = 'TLS';
 export const labelNoTLS = 'No TLS';
+
+export const labelCMAauthenticationToken = 'CMA authentication token(s)';
+export const labelSelectExistingCMAToken = 'Select existing CMA token(s)';
+export const labelCreateNewCMAToken = 'Create new CMA token';

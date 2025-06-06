@@ -134,6 +134,7 @@ const ConnectedAutocomplete = ({
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
+        decoder={connectedAutocomplete?.decoder}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
@@ -143,6 +144,8 @@ const ConnectedAutocomplete = ({
         value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
+        limitTags={connectedAutocomplete?.limitTags}
+        searchConditions={connectedAutocomplete?.additionalConditionParameters}
       />
     ),
     memoProps: [

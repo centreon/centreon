@@ -59,6 +59,7 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    decoder?;
   };
   file?: {
     multiple?: boolean;
