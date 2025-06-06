@@ -54,7 +54,6 @@ jobs:
               'owners-php',
               'owners-react',
               'owners-cpp',
-              'owners-pipelines'
             ];
 
             let needsQaApproval = false;
@@ -78,7 +77,7 @@ jobs:
             }
 
             if (needsQaApproval) {
-              throw new Error('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+              core.setFailed('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+            } else {
+              core.notice('This PR does not need approval by the QA team');
             }
-
-            core.notice('This PR does not need approval by the QA team');
