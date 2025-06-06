@@ -189,53 +189,56 @@ $form->addElement('text', 'max_check_attempts', _("Max Check Attempts"), $attrsT
 $form->addElement('text', 'normal_check_interval', _("Normal Check Interval"), $attrsText2);
 $form->addElement('text', 'retry_check_interval', _("Retry Check Interval"), $attrsText2);
 
-/*
- * Notification informations
- */
-$form->addElement('header', 'notification', _("Notification"));
-$tab = array();
-$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Yes"), '1');
-$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("No"), '0');
-$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Default"), '2');
-$form->addGroup($tab, 'notifications_enabled', _("Notification Enabled"), '&nbsp;');
-$form->setDefaults(array('notifications_enabled' => '2'));
+$isCloudPlatform = isCloudPlatform();
+if (! $isCloudPlatform) {
+    /*
+     * Notification informations
+     */
+    $form->addElement('header', 'notification', _("Notification"));
+    $tab = [];
+    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Yes"), '1');
+    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("No"), '0');
+    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Default"), '2');
+    $form->addGroup($tab, 'notifications_enabled', _("Notification Enabled"), '&nbsp;');
+    $form->setDefaults(['notifications_enabled' => '2']);
 
-/*
- *  Contacts
- */
-$contactDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact'
-    . '&action=defaultValues&target=meta&field=ms_cs&id=' . $meta_id;
-$attrContact1 = array_merge(
-    $attrContacts,
-    array('defaultDatasetRoute' => $contactDeRoute)
-);
-$form->addElement('select2', 'ms_cs', _("Implied Contacts"), array(), $attrContact1);
+    /*
+     *  Contacts
+     */
+    $contactDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact'
+        . '&action=defaultValues&target=meta&field=ms_cs&id=' . $meta_id;
+    $attrContact1 = array_merge(
+        $attrContacts,
+        ['defaultDatasetRoute' => $contactDeRoute]
+    );
+    $form->addElement('select2', 'ms_cs', _("Implied Contacts"), [], $attrContact1);
 
-$contactGrDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
-    . '&action=defaultValues&target=meta&field=ms_cgs&id=' . $meta_id;
-$attrContactgroup1 = array_merge(
-    $attrContactgroups,
-    array('defaultDatasetRoute' => $contactGrDeRoute)
-);
-$form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), array(), $attrContactgroup1);
+    $contactGrDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
+        . '&action=defaultValues&target=meta&field=ms_cgs&id=' . $meta_id;
+    $attrContactgroup1 = array_merge(
+        $attrContactgroups,
+        ['defaultDatasetRoute' => $contactGrDeRoute]
+    );
+    $form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), [], $attrContactgroup1);
 
-$form->addElement('text', 'notification_interval', _("Notification Interval"), $attrsText2);
+    $form->addElement('text', 'notification_interval', _("Notification Interval"), $attrsText2);
 
-$timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod'
-    . '&action=defaultValues&target=meta&field=notification_period&id=' . $meta_id;
-$attrTimeperiod2 = array_merge(
-    $attrTimeperiods,
-    array('defaultDatasetRoute' => $timeDeRoute)
-);
-$form->addElement('select2', 'notification_period', _("Notification Period"), array(), $attrTimeperiod2);
+    $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod'
+        . '&action=defaultValues&target=meta&field=notification_period&id=' . $meta_id;
+    $attrTimeperiod2 = array_merge(
+        $attrTimeperiods,
+        ['defaultDatasetRoute' => $timeDeRoute]
+    );
+    $form->addElement('select2', 'notification_period', _("Notification Period"), [], $attrTimeperiod2);
 
-$msNotifOpt[] = $form->createElement('checkbox', 'w', '&nbsp;', _("Warning"));
-$msNotifOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
-$msNotifOpt[] = $form->createElement('checkbox', 'c', '&nbsp;', _("Critical"));
-$msNotifOpt[] = $form->createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
-$msNotifOpt[] = $form->createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
+    $msNotifOpt[] = $form->createElement('checkbox', 'w', '&nbsp;', _("Warning"));
+    $msNotifOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
+    $msNotifOpt[] = $form->createElement('checkbox', 'c', '&nbsp;', _("Critical"));
+    $msNotifOpt[] = $form->createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
+    $msNotifOpt[] = $form->createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
 
-$form->addGroup($msNotifOpt, 'ms_notifOpts', _("Notification Type"), '&nbsp;&nbsp;');
+    $form->addGroup($msNotifOpt, 'ms_notifOpts', _("Notification Type"), '&nbsp;&nbsp;');
+}
 
 /*
  * Further informations
@@ -298,6 +301,42 @@ foreach ($help as $key => $text) {
 }
 $tpl->assign("helptext", $helptext);
 
+// Prepare toggle fields based on the selection mode
+$toggleScript = <<<JS
+<script type="text/javascript" defer>
+document.addEventListener("DOMContentLoaded", function() {
+    function toggleFields() {
+        var selectedRadio = document.querySelector('input[name="meta_select_mode[meta_select_mode]"]:checked');
+        console.log(selectedRadio);
+        if (!selectedRadio) {
+            // No radio button is selected, so exit or set a default behavior.
+            return;
+        }
+        var selected = selectedRadio.value;
+        if(selected === "1") { // Service List selected
+            document.getElementById("row_regexp_str").style.display = "none";
+            document.getElementById("row_metric").style.display = "none";
+        } else { // SQL matching
+            document.getElementById("row_regexp_str").style.display = "";
+            document.getElementById("row_metric").style.display = "";
+        }
+    }
+
+    var radios = document.getElementsByName("meta_select_mode[meta_select_mode]");
+    console.log(radios);
+    if (radios.length > 0) {
+        for (var i = 0; i < radios.length; i++){
+            radios[i].addEventListener("change", toggleFields);
+        }
+    }
+    toggleFields(); // initial toggle on page load
+});
+</script>
+JS;
+
+$tpl->assign('toggleScript', $toggleScript);
+
+
 if ($o == "w") {
     /*
 	 * Just watch a host information
@@ -329,6 +368,7 @@ if ($o == "w") {
 
 $tpl->assign('msg', array("nagios" => $oreon->user->get_version()));
 $tpl->assign('time_unit', " * " . $oreon->optGen["interval_length"] . " " . _("seconds"));
+$tpl->assign('isCloudPlatform', $isCloudPlatform);
 
 $valid = false;
 if ($form->validate()) {
