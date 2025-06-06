@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
-use Core\Module\Domain\ModuleInformation;
+use Core\Module\Domain\Model\ModuleInformation;
 
 class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {

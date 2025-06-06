@@ -26,27 +26,29 @@ namespace Core\Module\Infrastructure;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class ModuleVersionChecker
+final readonly class ModuleInstallationVerifier
 {
     public function __construct(
-        #[Autowire(param: 'kernel.project_dir')] private string $projectDir,
+        #[Autowire(param: 'kernel.project_dir')]
+        private string $projectDir,
         private ModuleInformationRepositoryInterface $repository
     ) {
     }
 
-    public function hasANewVersionAvailable(string $moduleName): bool
+    public function isInstallComplete(string $moduleName): bool
     {
         $moduleInformation = $this->repository->findByName($moduleName);
         if (! $moduleInformation) {
             throw new \RuntimeException($moduleName . ' is not installed');
         }
+        // @TODO Find a way to inject configuration through the container instead of requiring the file.
         $getConfigFileVersion = function () use ($moduleName): string {
             require $this->projectDir . "/www/modules/{$moduleName}/conf.php";
 
             return $module_conf[$moduleName]['mod_release'];
         };
 
-        return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), '>');
+        return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), '=');
     }
 }
 

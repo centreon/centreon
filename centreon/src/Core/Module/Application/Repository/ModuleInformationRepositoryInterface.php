@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Module\Application\Repository;
 
-use Core\Module\Domain\ModuleInformation;
+use Core\Module\Domain\Model\ModuleInformation;
 
 interface ModuleInformationRepositoryInterface
 {

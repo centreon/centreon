@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Module\Domain;
+namespace Core\Module\Domain\Model;
 
 final readonly class ModuleInformation
 {
