@@ -51,5 +51,6 @@ class DbReadModuleInformationRepository extends DatabaseRepository implements Mo
             displayName: $result['rname'],
             version: $result['mod_release']
         );
+    }
 }
 
