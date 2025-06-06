@@ -1,0 +1,73 @@
+services:
+  php-fpm:
+    image: docker.centreon.com/centreon/centreon-web-bookworm:fth-docker-centreon-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - app-data:/var/www/html:rw,z
+      - app-engine:/etc/centreon-engine:rw,z
+      - app-broker:/etc/centreon-broker:rw,z
+      - app-status:/var/lib/centreon/status:rw,z
+      - app-metrics:/var/lib/centreon/metrics:rw,z
+    networks:
+      - app-network
+
+  apache:
+    image: httpd:2.4
+    restart: always
+    depends_on:
+      - php-fpm
+    ports:
+      - "8080:80"
+    volumes:
+      - app-data:/var/www/html:rw,z
+      - ./apache-config.conf:/usr/local/apache2/conf/httpd.conf
+    # command: ["sleep", "infinity"]  # Keep the container running
+    networks:
+      - app-network
+  cbd:
+    image: broker:latest
+    container_name: cbd
+    hostname: cbd
+    restart: always
+    ports:
+      - 5669:5669
+    networks:
+      - app-network
+    volumes:
+      - app-broker:/etc/centreon-broker:rw,z
+      - app-status:/var/lib/centreon/status:rw,z
+      - app-metrics:/var/lib/centreon/metrics:rw,z
+  centengine:
+    image: centengine:latest
+    container_name: centengine
+    hostname: centengine
+    restart: always
+    networks:
+      - app-network
+    volumes:
+      - app-engine:/etc/centreon-engine:rw,z
+      - app-broker:/etc/centreon-broker:rw,z
+  
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: centreon
+    networks:
+      - app-network
+    volumes:
+      - app-db:/var/lib/mysql:rw
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  app-data:
+  app-engine:
+  app-broker:
+  app-db:
+  app-metrics:
+  app-status:
