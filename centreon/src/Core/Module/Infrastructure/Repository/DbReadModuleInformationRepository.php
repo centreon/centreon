@@ -42,15 +42,14 @@ class DbReadModuleInformationRepository extends DatabaseRepository implements Mo
         $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
         $result = $this->connection->fetchAssociative($query, $queryParameters);
 
-        if ($result !== []) {
-            return new ModuleInformation(
-                packageName: $result['name'],
-                displayName: $result['rname'],
-                version: $result['mod_release']
-            );
+        if ($result === []) {
+            return null;
         }
 
-        return null;
-    }
+        return new ModuleInformation(
+            packageName: $result['name'],
+            displayName: $result['rname'],
+            version: $result['mod_release']
+        );
 }
 
