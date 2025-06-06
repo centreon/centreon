@@ -62,13 +62,17 @@ describe('Authentication tokens', () => {
   it('applies filters and verifies the API request', () => {
     cy.waitForRequest('@listToken');
 
-    cy.get(`[data-testid="${labelFilters}"]`).click();
+    cy.findByTestId(labelFilters).click();
 
-    cy.get(`[data-testid="${labelName}"]`).eq(1).clear().type('token 1');
+    cy.findAllByTestId(labelName).eq(1).clear().type('token 1');
 
     cy.findByTestId(labelDisabled).click();
 
     cy.findByTestId(labelSearch).click();
+
+    cy.findByTestId(labelFilters).click();
+
+    cy.findByTestId(labelSearch).should('not.exist');
 
     cy.waitForRequest('@listToken').then(({ request }) => {
       expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
