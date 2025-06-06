@@ -50,6 +50,7 @@ useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centr
 usermod -aG centreon www-data
 usermod -aG centreon-engine www-data
 usermod -aG centreon-broker www-data
+usermod -aG www-data centreon centreon-engine centreon-broker
 
 echo 'Acquire::Retries "10"; \
 Acquire::https::Timeout "300"; \
