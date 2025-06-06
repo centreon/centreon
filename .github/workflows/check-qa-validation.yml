@@ -66,6 +66,9 @@ jobs:
                 page: 1,
               });
               for (const event of timeline.data) {
+                if (event.event === 'review_requested') {
+                  console.log(event);
+                }
                 if (event.event === 'review_requested' && teamsWithQaApproval.includes(event?.requested_team?.name ?? '')) {
                   console.log(`This PR needs approval by the QA team because team ${event.requested_team.name} is impacted.`);
                   needsQaApproval = true;
