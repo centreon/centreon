@@ -348,8 +348,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         $row["meta_id"] = null;
+        $originalMetaName = $row["meta_name"];
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row["meta_name"] . "_" . $i;
+            $metaName = $originalMetaName . "_" . $i;
             $row["meta_name"] = $metaName;
             $columns = array_keys($row);
             $insertQuery = "INSERT INTO meta_service (" . implode(", ", $columns) . ")
