@@ -73,7 +73,7 @@ const internalWidgets: Array<
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },
-  { name: 'singlemetric' },
+  { name: 'singlemetric', panelMinWidth: 4, panelDefaultWidth: 4 },
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
