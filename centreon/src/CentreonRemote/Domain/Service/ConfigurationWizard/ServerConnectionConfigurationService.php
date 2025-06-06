@@ -178,7 +178,6 @@ abstract class ServerConnectionConfigurationService
         $configBroker = CfgNagiosBrokerModule::getConfiguration($configID, $this->name);
 
         $this->insertWithAdapter('cfg_nagios_broker_module', $configBroker[0]);
-        $this->insertWithAdapter('cfg_nagios_broker_module', $configBroker[1]);
 
         return $configID;
     }

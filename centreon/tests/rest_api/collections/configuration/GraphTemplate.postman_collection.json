@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e81c172b-3e70-4ecf-b66a-bd94646e9692",
+		"_postman_id": "8f757f05-9635-4aed-b722-8d1c205783e6",
 		"name": "GraphTemplate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-e81c172b-3e70-4ecf-b66a-bd94646e9692?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -1464,7 +1463,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1615,9 +1615,59 @@
 									"            \"is_default_centreon_template\": false\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the graph template response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"vertical_axis_label\": { \"type\": \"string\" },\r",
+									"                        \"width\": { \"type\": \"integer\" },\r",
+									"                        \"height\": { \"type\": \"integer\" },\r",
+									"                        \"grid\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"lower_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"upper_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"is_upper_limit_sized_to_max\": {\"type\": \"boolean\"},\r",
+									"                            },\r",
+									"                            \"required\": [\"lower_limit\", \"upper_limit\", \"is_upper_limit_sized_to_max\"]\r",
+									"                        },\r",
+									"                        \"base\": { \"type\": \"integer\" },\r",
+									"                        \"is_graph_scaled\": { \"type\": \"boolean\" },\r",
+									"                        \"is_default_centreon_template\": { \"type\": \"boolean\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"vertical_axis_label\", \"width\",  \"height\", \"grid\", \"base\", \"is_graph_scaled\", \"is_default_centreon_template\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1791,7 +1841,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1942,9 +1993,59 @@
 									"            \"is_default_centreon_template\": false\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the graph template response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"vertical_axis_label\": { \"type\": \"string\" },\r",
+									"                        \"width\": { \"type\": \"integer\" },\r",
+									"                        \"height\": { \"type\": \"integer\" },\r",
+									"                        \"grid\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"lower_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"upper_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"is_upper_limit_sized_to_max\": {\"type\": \"boolean\"},\r",
+									"                            },\r",
+									"                            \"required\": [\"lower_limit\", \"upper_limit\", \"is_upper_limit_sized_to_max\"]\r",
+									"                        },\r",
+									"                        \"base\": { \"type\": \"integer\" },\r",
+									"                        \"is_graph_scaled\": { \"type\": \"boolean\" },\r",
+									"                        \"is_default_centreon_template\": { \"type\": \"boolean\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"vertical_axis_label\", \"width\",  \"height\", \"grid\", \"base\", \"is_graph_scaled\", \"is_default_centreon_template\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2118,7 +2219,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2269,9 +2371,59 @@
 									"            \"is_default_centreon_template\": false\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the graph template response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"vertical_axis_label\": { \"type\": \"string\" },\r",
+									"                        \"width\": { \"type\": \"integer\" },\r",
+									"                        \"height\": { \"type\": \"integer\" },\r",
+									"                        \"grid\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"lower_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"upper_limit\": {\"type\": [\"integer\", \"null\"] },\r",
+									"                                \"is_upper_limit_sized_to_max\": {\"type\": \"boolean\"},\r",
+									"                            },\r",
+									"                            \"required\": [\"lower_limit\", \"upper_limit\", \"is_upper_limit_sized_to_max\"]\r",
+									"                        },\r",
+									"                        \"base\": { \"type\": \"integer\" },\r",
+									"                        \"is_graph_scaled\": { \"type\": \"boolean\" },\r",
+									"                        \"is_default_centreon_template\": { \"type\": \"boolean\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"vertical_axis_label\", \"width\",  \"height\", \"grid\", \"base\", \"is_graph_scaled\", \"is_default_centreon_template\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2445,7 +2597,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2460,9 +2613,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access graph templates\");\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the graph template response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

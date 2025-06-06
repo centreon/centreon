@@ -117,9 +117,10 @@ When('the user changes the properties of a meta service', () => {
   cy.getIframeBody().find('select[name="calcul_type"]').select('Max');
   cy.getIframeBody().find('select[name="data_source_type"]').select('COUNTER');
   cy.getIframeBody()
-    .find('input[name*="meta_select_mode"][value="1"]')
+    .find('input[name*="meta_select_mode"][value="2"]')
     .parent()
     .click();
+  cy.waitForElementInIframe('#main-content', 'input[name="regexp_str"]');
   cy.getIframeBody()
     .find('input[name="regexp_str"]')
     .clear()
@@ -194,7 +195,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .should('have.value', '1');
   cy.getIframeBody()
-    .find('input[name*="meta_select_mode"][value="1"]')
+    .find('input[name*="meta_select_mode"][value="2"]')
     .should('be.checked');
   cy.getIframeBody()
     .find('input[name="regexp_str"]')

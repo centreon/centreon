@@ -9,5 +9,8 @@ export const useDashboardStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2)
+  },
+  body: {
+    marginTop: theme.spacing(1.5)
   }
 }));

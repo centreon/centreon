@@ -46,7 +46,7 @@ const Axes = ({
 
   const [, secondUnit] = getUnits(lines);
 
-  const xTickCount = Math.min(Math.ceil(width / 82), 12);
+  const xTickCount = Math.floor(Math.min(width / 100, 12));
 
   const domain = xScale.domain();
 

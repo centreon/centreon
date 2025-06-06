@@ -212,10 +212,8 @@ When(
       .eq(0)
       .contains('Password security policy');
 
-    cy.get('#PasswordexpiresafterpasswordExpirationexpirationDelayMonth')
-      .parent()
-      .click();
-    cy.get('ul li[data-value="2"]').click();
+    cy.get('[data-testid="local_passwordExpirationMonths"]').parent().click();
+    cy.get('ul li[data-value="0"]').click();
     cy.get('#Save').should('be.enabled').click();
 
     cy.get('@user1Id').then((idUser) => {
@@ -272,7 +270,7 @@ When(
       .eq(0)
       .contains('Password security policy');
 
-    cy.get('#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordHour')
+    cy.get('[data-testid="local_timeBetweenPasswordChangesHours"]')
       .parent()
       .click();
     cy.get('ul li[data-value="2"]').click();

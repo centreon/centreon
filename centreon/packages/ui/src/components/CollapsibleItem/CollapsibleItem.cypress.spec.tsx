@@ -16,7 +16,7 @@ describe('CollapsibleItem', () => {
 
     cy.contains(title).should('be.visible');
     cy.contains('Content').should('not.be.visible');
-    cy.get('div[aria-expanded="false"]').should('exist');
+    cy.get('button[aria-expanded="false"]').should('exist');
 
     cy.makeSnapshot();
   });
@@ -26,7 +26,7 @@ describe('CollapsibleItem', () => {
 
     cy.contains(title).should('be.visible');
     cy.contains('Content').should('be.visible');
-    cy.get('div[aria-expanded="true"]').should('exist');
+    cy.get('button[aria-expanded="true"]').should('exist');
 
     cy.makeSnapshot();
   });
@@ -35,7 +35,7 @@ describe('CollapsibleItem', () => {
     initialize({ title: customizedTitle });
 
     cy.contains('Customized title').should('be.visible');
-    cy.get('div[aria-expanded="false"]').should('exist');
+    cy.get('button[aria-expanded="false"]').should('exist');
 
     cy.makeSnapshot();
   });
@@ -44,7 +44,7 @@ describe('CollapsibleItem', () => {
     initialize({ compact: true, title });
 
     cy.contains(title).should('be.visible');
-    cy.get('div[aria-expanded="false"]').should('exist');
+    cy.get('button[aria-expanded="false"]').should('exist');
     cy.get('div[data-compact="true"]').should('exist');
 
     cy.makeSnapshot();
@@ -54,11 +54,11 @@ describe('CollapsibleItem', () => {
     initialize({ compact: true, title });
 
     cy.contains(title).should('be.visible');
-    cy.get('div[aria-expanded="false"]').should('exist');
+    cy.get('button[aria-expanded="false"]').should('exist');
 
-    cy.get('div[aria-expanded="false"]').click();
+    cy.get('button[aria-expanded="false"]').click();
 
-    cy.get('div[aria-expanded="true"]').should('exist');
+    cy.get('button[aria-expanded="true"]').should('exist');
     cy.contains('Content').should('be.visible');
 
     cy.makeSnapshot();
@@ -68,7 +68,7 @@ describe('CollapsibleItem', () => {
     initialize({ compact: true, title: customizedTitle });
 
     cy.contains('Customized title').should('be.visible');
-    cy.get('div[aria-expanded="false"]').should('exist');
+    cy.get('button[aria-expanded="false"]').should('exist');
     cy.get('div[data-compact="true"]').should('exist');
 
     cy.makeSnapshot();

@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { useActionsStyles } from './Actions.styles';
 import AddButton from './AddButton';
 import Search from './Search';
 
@@ -11,12 +12,14 @@ interface Props {
 }
 
 const Actions = ({ labels, filters }: Props): JSX.Element => {
+  const { classes } = useActionsStyles();
+
   return (
-    <Box
-      sx={{ display: 'grid', gridTemplateColumns: 'min-content auto', gap: 2 }}
-    >
+    <Box className={classes.actions}>
       <AddButton label={labels.add} />
-      <Search label={labels.search} filters={filters} />
+      <div className={classes.filters}>
+        <Search label={labels.search} filters={filters} />
+      </div>
     </Box>
   );
 };

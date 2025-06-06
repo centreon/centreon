@@ -32,6 +32,8 @@ class GeneralInformation
         private readonly string $alias,
         private readonly string $unit,
         private readonly bool $isHidden,
+        private readonly ?string $hostName,
+        private readonly ?string $serviceName,
         private readonly string $legend,
         private readonly bool $isVirtual,
         private readonly bool $isStacked,
@@ -67,6 +69,16 @@ class GeneralInformation
     public function isHidden(): bool
     {
         return $this->isHidden;
+    }
+
+    public function getHostName(): ?string
+    {
+        return $this->hostName;
+    }
+
+    public function getServiceName(): ?string
+    {
+        return $this->serviceName;
     }
 
     public function getLegend(): string

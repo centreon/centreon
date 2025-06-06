@@ -16,3 +16,10 @@ export interface Thresholds {
   enabled: boolean;
   warning: Array<Threshold>;
 }
+
+export interface AdditionalLineProps {
+  yValue: number;
+  text?: string;
+  color: string;
+  unit: string;
+}

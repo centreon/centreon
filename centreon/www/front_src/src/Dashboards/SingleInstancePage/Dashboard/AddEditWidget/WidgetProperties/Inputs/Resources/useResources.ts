@@ -237,9 +237,12 @@ const useResources = ({
     resourceType: WidgetResourceType
   ): boolean | undefined => {
     return (
-      widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection &&
-      equals(resourceType, WidgetResourceType.service)
+      (widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection &&
+        equals(resourceType, WidgetResourceType.service)) ||
+      (widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection &&
+        equals(restrictedResourceTypes?.length, 1))
     );
   };
 
@@ -670,7 +673,7 @@ const useResources = ({
       widgetProperties?.singleResourceSelection &&
       hasSelectedHost
     );
-  }, [value]);
+  }, [value, widgetProperties]);
 
   return {
     addResource,

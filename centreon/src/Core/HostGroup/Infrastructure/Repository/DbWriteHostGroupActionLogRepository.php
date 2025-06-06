@@ -42,12 +42,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     private const HOSTGROUP_PROPERTIES_MAP = [
         'name' => 'hg_name',
         'alias' => 'hg_alias',
-        'notes' => 'hg_notes',
-        'notesUrl' => 'hg_notes_url',
-        'actionUrl' => 'hg_action_url',
         'iconId' => 'hg_icon_image',
-        'iconMapId' => 'hg_map_icon_image',
-        'rrdRetention' => 'hg_rrd_retention',
         'geoCoords' => 'geo_coords',
         'comment' => 'hg_comment',
         'isActivated' => 'hg_activate',
@@ -227,6 +222,11 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         $this->writeHostGroupRepository->unlinkFromHost($hostId, $groupIds);
     }
 
+    public function addHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->addHostLinks($hostGroupId, $hostIds);
+    }
+
     /**
      * @inheritDoc
      */
@@ -292,6 +292,11 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
             throw $ex;
         }
+    }
+
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->deleteHostLinks($hostGroupId, $hostIds);
     }
 
     /**
