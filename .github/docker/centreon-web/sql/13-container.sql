@@ -1,0 +1,1 @@
+UPDATE `cfg_centreonbroker_info` SET `config_value`='cbd' WHERE `config_id` IN (select `config_id` FROM `cfg_centreonbroker_info` WHERE `config_value` = 'central-module-master-output') AND `config_key` = 'host'
