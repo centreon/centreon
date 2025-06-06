@@ -10,9 +10,9 @@ import {
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
 
-import { useTextStyles } from './Text.styles';
-import { useRef, type ReactElement } from 'react';
+import { type ReactElement } from 'react';
 import useResizeObserver from 'use-resize-observer';
+import { useTextStyles } from './Text.styles';
 
 export interface Props {
   baseColor?: string;
