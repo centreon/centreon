@@ -102,7 +102,8 @@ try {
 include "./include/common/checkPagination.php";
 
 // Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate($path);
+$tpl = new Smarty();
+$tpl = initSmartyTpl($path, $tpl);
 $lvlAccess = ($centreon->user->access->page($p) === 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvlAccess);
 $tpl->assign('headerMenu_name', _('Name'));
