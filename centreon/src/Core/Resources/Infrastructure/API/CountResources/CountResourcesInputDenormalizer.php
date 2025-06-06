@@ -89,12 +89,23 @@ class CountResourcesInputDenormalizer implements DenormalizerInterface, Denormal
         mixed $data,
         string $type,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): bool {
         if ($context[self::ALREADY_CALL] ?? false) {
             return false;
         }
 
         return $type === CountResourcesInput::class && is_array($data);
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            '*' => false,
+        ];
     }
 }
