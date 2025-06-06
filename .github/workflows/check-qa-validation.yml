@@ -67,7 +67,6 @@ jobs:
                 page: 1,
               });
               for (const event of timeline.data) {
-                console.log(event);
                 if (event.event === 'review_requested' && teamsWithQaApproval.includes(event?.requested_team?.name ?? '')) {
                   console.log(`This PR needs approval by the QA team because team ${event.requested_team.name} is impacted.`);
                   needsQaApproval = true;
@@ -79,7 +78,7 @@ jobs:
             }
 
             if (needsQaApproval) {
-              core.setFailed('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+              throw new Error('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
             }
 
             core.notice('This PR does not need approval by the QA team');
