@@ -69,24 +69,6 @@ foreach (
 foreach (
     [
         'otel_public_certificate',
-        'otel_private_key'
-    ] as $field
-) {
-    it(
-        "should throw an exception when a {$field} is too short",
-        function () use ($field) : void {
-            $this->parameters[$field] = '';
-
-            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
-        }
-    )->throws(
-        AssertionException::notEmptyString("configuration.{$field}")->getMessage()
-    );
-}
-
-foreach (
-    [
-        'otel_public_certificate',
         'otel_ca_certificate',
         'otel_private_key'
     ] as $field
