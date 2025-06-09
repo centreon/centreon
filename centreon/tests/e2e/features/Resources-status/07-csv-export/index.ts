@@ -255,7 +255,7 @@ Then("a CSV file should be downloaded", () => {
   }
   ).then(() => {
     cy.waitForRequestCount('getServicesStatus', 1, 10, 5000).then(() => {
-      cy.log('Condition met: Request passed at least twice');
+      cy.log('Condition met: Request passed at least once');
     });
   });
 });
