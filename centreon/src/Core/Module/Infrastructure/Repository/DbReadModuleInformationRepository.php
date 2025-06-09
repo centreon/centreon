@@ -24,19 +24,29 @@ declare(strict_types=1);
 namespace Core\Module\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Core\Module\Domain\Model\ModuleInformation;
 
 class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ValueObjectException
+     * @throws CollectionException
+     * @throws ConnectionException
+     */
     public function findByName(string $name): ?ModuleInformation
     {
         $query = $this->queryBuilder
             ->select('name', 'rname', 'mod_release')
             ->from('modules_informations')
-            ->where($this->queryBuilder->expr()->equal('name', ':name'))
+            ->where('name = :name')
             ->getQuery();
 
         $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);

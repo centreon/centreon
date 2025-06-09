@@ -27,6 +27,11 @@ use Core\Module\Domain\Model\ModuleInformation;
 
 interface ModuleInformationRepositoryInterface
 {
+    /**
+     * Find module information by its name.
+     *
+     * @return null|ModuleInformation
+     */
     public function findByName(string $name): ?ModuleInformation;
 }
 

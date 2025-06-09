@@ -43,6 +43,7 @@ final readonly class ModuleInstallationVerifier
         }
         // @TODO Find a way to inject configuration through the container instead of requiring the file.
         $getConfigFileVersion = function () use ($moduleName): string {
+            $module_conf = [];
             require $this->projectDir . "/www/modules/{$moduleName}/conf.php";
 
             return $module_conf[$moduleName]['mod_release'];
