@@ -164,6 +164,9 @@ before(() => {
       status: 'ok'
     }
   ]);
+  ['Disk-/', 'Load', 'Memory', 'Ping','TCP-connections'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
 
   cy.logoutViaAPI();
   cy.applyAcl();
