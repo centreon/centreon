@@ -48,7 +48,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user deletes the agent configuration', () => {
-  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).click();
+  cy.getByTestId({ testId: 'Delete' }).click();
 });
 
 When('the user confirms on the pop-up', () => {

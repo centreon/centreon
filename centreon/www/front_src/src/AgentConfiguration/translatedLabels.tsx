@@ -37,7 +37,7 @@ export const labelHostConfigurations = 'Host configurations';
 export const labelAddAHost = 'Add a host';
 export const labelParameters = 'Parameters';
 export const labelDNSIP = 'DNS/IP';
-export const labelAddHost = 'Add host';
+export const labelSelectHost = 'Select host';
 export const labelConnectionInitiatedByPoller =
   'Connection initiated by poller';
 export const labelAgent = 'Agent';
@@ -77,3 +77,7 @@ export const labelWarningEncryptionLevelCMA =
 export const labelTLS = 'TLS';
 export const labelNoTLS = 'No TLS';
 export const labelInsecure = 'Insecure TLS';
+
+export const labelCMAauthenticationToken = 'CMA authentication token(s)';
+export const labelSelectExistingCMAToken = 'Select existing CMA token(s)';
+export const labelCreateNewCMAToken = 'Create new CMA token';

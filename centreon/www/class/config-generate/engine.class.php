@@ -309,6 +309,7 @@ class Engine extends AbstractObject
      */
     private function getBrokerModules(): void
     {
+        $pollerId = $this->engine['nagios_id'];
         if (is_null($this->stmt_broker)) {
             $this->stmt_broker = $this->backend_instance->db->prepare(
                 "SELECT broker_module FROM cfg_nagios_broker_module " .
@@ -316,9 +317,19 @@ class Engine extends AbstractObject
                 "ORDER BY bk_mod_id ASC"
             );
         }
-        $this->stmt_broker->bindParam(':id', $this->engine['nagios_id'], PDO::PARAM_INT);
+        $this->stmt_broker->bindParam(':id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
         $this->engine['broker_module'] = $this->stmt_broker->fetchAll(PDO::FETCH_COLUMN);
+
+        $pollerStmt = $this->backend_instance->db_cs->prepare("SELECT `version` FROM instances WHERE instance_id = :id ");
+        $pollerStmt->bindParam(':id', $pollerId, PDO::PARAM_INT);
+        $pollerStmt->execute();
+        $pollerVersion = $pollerStmt->fetchColumn();
+
+        if ($pollerVersion !== false && version_compare($pollerVersion, '25.05.0', '<')) {
+            $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
+            unset($this->engine['broker_module_cfg_file']);
+        }
     }
 
     /**

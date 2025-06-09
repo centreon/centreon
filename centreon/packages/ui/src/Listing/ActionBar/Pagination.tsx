@@ -1,32 +1,19 @@
 import { memo } from 'react';
 
 import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import TablePagination from '@mui/material/TablePagination';
 
-const useStyles = makeStyles()((theme) => ({
-  toolbar: {
-    height: theme.spacing(4),
-    overflow: 'hidden',
-    paddingLeft: 5
-  }
-}));
-
-const Pagination = (props): JSX.Element => {
-  const { classes } = useStyles();
-
-  return (
-    <TablePagination
-      classes={{
-        toolbar: classes.toolbar
-      }}
-      component="div"
-      data-testid="Listing Pagination"
-      {...props}
-    />
-  );
-};
+const Pagination = (props): JSX.Element => (
+  <TablePagination
+    classes={{
+      toolbar: 'pl-1 overflow-hidden h-8'
+    }}
+    component="div"
+    data-testid="Listing Pagination"
+    {...props}
+  />
+);
 
 const MemoizedPagination = memo(
   Pagination,

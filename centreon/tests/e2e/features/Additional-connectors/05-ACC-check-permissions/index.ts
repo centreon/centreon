@@ -152,7 +152,7 @@ When('the user modifies the configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.getByTestId({ testId: 'CancelIcon' }).click();
+  cy.get('svg[class*="deleteIcon"]').click();
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
   cy.contains('Poller-1').click();
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
@@ -344,7 +344,7 @@ When(
 Then('the user can update the additional connector configuration', () => {
   cy.contains('Update additional configuration').should('be.visible');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.getByTestId({ testId: 'CancelIcon' }).eq(0).click();
+  cy.get('svg[class*="deleteIcon"]').eq(0).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@updateConnectorDetail');
   cy.get('Update additional configuration').should('not.exist');
