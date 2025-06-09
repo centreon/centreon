@@ -50,6 +50,24 @@ jobs:
               }
             }
 
+            const getRequestedTeamsFromTimeline = (page) => {
+              const timeline = await github.rest.issues.listEventsForTimeline({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                per_page: 100,
+                page: page,
+              });
+
+              for (const event of timeline.data) {
+                if (event.event === 'review_requested' && event?.requested_team?.name) {
+                  requestedTeams.push(event.requested_team.name);
+                }
+              }
+
+              return requestedTeams;
+            }
+
             const teamsWithQaApproval = [
               'owners-php',
               'owners-react',
@@ -58,14 +76,17 @@ jobs:
 
             let needsQaApproval = false;
             try {
-              const timeline = await github.rest.issues.listEventsForTimeline({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                per_page: 100,
-                page: 1,
-              });
-              for (const event of timeline.data) {
+              let requestedTeams = getRequestedTeamsFromTimeline(1);
+              if (requestedTeams.length === 0) {
+                requestedTeams = getRequestedTeamsFromTimeline(2);
+              }
+
+              if (requestedTeams.length === 0) {
+                core.warning('Cannot find any requested teams in the PR timeline (200 last events). Assuming that this PR needs approval by the QA team.');
+                needsQaApproval = true;
+              }
+
+              for (const requestedTeam of requestedTeams) {
                 if (event.event === 'review_requested' && teamsWithQaApproval.includes(event?.requested_team?.name ?? '')) {
                   console.log(`This PR needs approval by the QA team because team ${event.requested_team.name} is impacted.`);
                   needsQaApproval = true;
