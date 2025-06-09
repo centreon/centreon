@@ -41,12 +41,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
           PR_LABELS: ${{ steps.get-labels.outputs.labels }}
+          EVENT_ACTION: ${{ github.event.action }}
         with:
           script: |
+            const qaApprovedLabel = 'qa-approved';
             for (const label of JSON.parse(process.env.PR_LABELS)) {
-              if (label === 'qa-approved') {
-                console.log('This PR has been approved by the QA team');
-                return;
+              if (label === qaApprovedLabel) {
+                if (process.env.EVENT_ACTION === 'synchronize') {
+                  try {
+                    await github.rest.issues.removeLabel({
+                      name: qaApprovedLabel,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: context.issue.number
+                    });
+                    core.notice(`label ${qaApprovedLabel} removed because changes have been pushed.`);
+                  } catch (e) {
+                    core.warning(`failed to remove label ${qaApprovedLabel}: ${e}`);
+                  }
+                } else {
+                  console.log('This PR has been approved by the QA team');
+                  return;
+                }
               }
             }
 
