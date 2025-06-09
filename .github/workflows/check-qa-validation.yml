@@ -88,8 +88,8 @@ jobs:
               }
 
               for (const requestedTeam of requestedTeams) {
-                if (event.event === 'review_requested' && teamsWithQaApproval.includes(event?.requested_team?.name ?? '')) {
-                  console.log(`This PR needs approval by the QA team because team ${event.requested_team.name} is impacted.`);
+                if (teamsWithQaApproval.includes(requestedTeam)) {
+                  console.log(`This PR needs approval by the QA team because team ${requestedTeam} is impacted.`);
                   needsQaApproval = true;
                 }
               }
