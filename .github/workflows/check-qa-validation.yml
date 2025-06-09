@@ -89,6 +89,7 @@ jobs:
                 needsQaApproval = true;
               }
 
+              console.log(`Requested teams found: ${requestedTeams.join(', ')}`);
               for (const requestedTeam of requestedTeams) {
                 if (teamsWithQaApproval.includes(requestedTeam)) {
                   console.log(`This PR needs approval by the QA team because team ${requestedTeam} is impacted.`);
