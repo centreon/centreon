@@ -65,6 +65,7 @@ jobs:
                   requestedTeams.push(event.requested_team.name);
                 }
               }
+              console.log(`Found ${requestedTeams.length} requested teams in the PR timeline (page ${page}).`);
 
               return requestedTeams;
             }
