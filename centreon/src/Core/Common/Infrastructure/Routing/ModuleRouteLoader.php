@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Routing;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Module\Infrastructure\ModuleInstallationVerifier;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -31,6 +32,8 @@ use Symfony\Component\Routing\RouteCollection;
 
 abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 {
+    use LoggerTrait;
+
     public function __construct(
         #[Autowire(service: 'routing.loader.attribute.file')]
         private AttributeFileLoader $loader,
@@ -42,8 +45,18 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
     final public function __invoke(): RouteCollection
     {
-        if (! $this->installationVerifier->isInstallComplete($this->getModuleName())) {
-            return new RouteCollection();
+        try {
+            if (! $this->installationVerifier->isInstallComplete($this->getModuleName())) {
+                return new RouteCollection();
+            }
+        } catch(\Throwable $ex) {
+            $this->error(
+                'Unable to check module installation',
+                [
+                    'module_name' => $this->getModuleName(),
+                    'exception' => $ex,
+                ]
+            );
         }
 
         $controllerFilePattern = $this->projectDir . '/src/' . $this->getModuleDirectory() . '/**/*Controller.php';

@@ -26,7 +26,9 @@ namespace Core\Module\Infrastructure\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
@@ -41,34 +43,51 @@ use Core\Module\Domain\Model\ModuleInformation;
  */
 class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
+    use LoggerTrait;
+
     /**
      * {@inheritDoc}
      *
-     * @throws ValueObjectException
-     * @throws CollectionException
-     * @throws ConnectionException
+     * @throws RepositoryException
      */
     public function findByName(string $name): ?ModuleInformation
     {
-        $query = $this->queryBuilder
-            ->select('name', 'rname', 'mod_release')
-            ->from('modules_informations')
-            ->where('name = :name')
-            ->getQuery();
+        try {
+            $query = $this->queryBuilder
+                ->select('name', 'rname', 'mod_release')
+                ->from('modules_informations')
+                ->where('name = :name')
+                ->getQuery();
 
-        $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
-        $result = $this->connection->fetchAssociative($query, $queryParameters);
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
+            $result = $this->connection->fetchAssociative($query, $queryParameters);
 
-        if ($result === [] || $result === false) {
-            return null;
+            if ($result === [] || $result === false) {
+                return null;
+            }
+
+            /** @var _ModuleInformation $result */
+            return new ModuleInformation(
+                packageName: $result['name'],
+                displayName: $result['rname'],
+                version: $result['mod_release']
+            );
+
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Find module name failed : {$exception->getMessage()}",
+                [
+                    'module_name' => $name,
+                    'exception' => $exception->getContext(),
+                ]
+            );
+
+            throw new RepositoryException(
+                "Find module name failed : {$exception->getMessage()}",
+                ['module_name' => $name],
+                $exception
+            );
         }
-
-        /** @var _ModuleInformation $result */
-        return new ModuleInformation(
-            packageName: $result['name'],
-            displayName: $result['rname'],
-            version: $result['mod_release']
-        );
     }
 }
 

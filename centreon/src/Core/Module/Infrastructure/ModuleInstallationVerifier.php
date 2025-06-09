@@ -35,6 +35,13 @@ final readonly class ModuleInstallationVerifier
     ) {
     }
 
+    /**
+     * @param string $moduleName
+     *
+     * @return bool
+     *
+     * @throws \RuntimeException|\Throwable
+     */
     public function isInstallComplete(string $moduleName): bool
     {
         $moduleInformation = $this->repository->findByName($moduleName);
