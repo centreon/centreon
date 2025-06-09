@@ -115,7 +115,24 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             .required(t(labelRequired)),
           port: portValidation,
           pollerCaCertificate: certificateNullableValidation,
-          pollerCaName: string().nullable()
+          pollerCaName: string().nullable(),
+          token: object().when(['$type', '$connectionMode', '$configuration'], {
+            is: (type, connectionMode, configuration) =>
+              configuration?.isReverse &&
+              equals(type?.id, AgentType.CMA) &&
+              (equals(connectionMode?.id, ConnectionMode.secure) ||
+                equals(connectionMode?.id, ConnectionMode.insecure)),
+            then: (schema) =>
+              schema
+                .shape({
+                  id: string(),
+                  name: string(),
+                  creatorId: number(),
+                  token_name: string()
+                })
+                .required(t(labelRequired)),
+            otherwise: (schema) => schema.nullable()
+          })
         })
       )
       .when('isReverse', {
