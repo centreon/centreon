@@ -118,7 +118,7 @@ jobs:
             }
 
             if (needsQaApproval) {
-              core.setFailed('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+              core.setFailed(`This PR is not yet approved by the QA team. If label "${qaApprovedLabel}" has been added, please re-run this workflow.`);
             } else {
               core.notice('This PR does not need approval by the QA team');
             }
