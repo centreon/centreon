@@ -32,6 +32,13 @@ use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Core\Module\Domain\Model\ModuleInformation;
 
+/**
+ * @phpstan-type _ModuleInformation array{
+ *     name: string,
+ *     rname: string,
+ *     mod_release: string,
+ * }
+ */
 class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
     /**
@@ -52,10 +59,11 @@ class DbReadModuleInformationRepository extends DatabaseRepository implements Mo
         $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
         $result = $this->connection->fetchAssociative($query, $queryParameters);
 
-        if ($result === []) {
+        if ($result === [] || $result === false) {
             return null;
         }
 
+        /** @var _ModuleInformation $result */
         return new ModuleInformation(
             packageName: $result['name'],
             displayName: $result['rname'],
