@@ -2178,6 +2178,10 @@ msgstr ""
 msgid "CA Common Name (CN)"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "CMA authentication token(s)"
+msgstr ""
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "CRITICAL"
@@ -3668,6 +3672,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Create dashboard"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Create new CMA token"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -15185,6 +15193,10 @@ msgstr ""
 msgid "Select criterias"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Select existing CMA token(s)"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Select field"
 msgstr ""
@@ -17896,6 +17908,15 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Token has been created"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Tokens are mandatory"
 msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
