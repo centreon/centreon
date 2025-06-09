@@ -50,7 +50,7 @@ jobs:
               }
             }
 
-            const getRequestedTeamsFromTimeline = (page) => {
+            const getRequestedTeamsFromTimeline = async (page) => {
               const timeline = await github.rest.issues.listEventsForTimeline({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -76,9 +76,9 @@ jobs:
 
             let needsQaApproval = false;
             try {
-              let requestedTeams = getRequestedTeamsFromTimeline(1);
+              let requestedTeams = await getRequestedTeamsFromTimeline(1);
               if (requestedTeams.length === 0) {
-                requestedTeams = getRequestedTeamsFromTimeline(2);
+                requestedTeams = await getRequestedTeamsFromTimeline(2);
               }
 
               if (requestedTeams.length === 0) {
