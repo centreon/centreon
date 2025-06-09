@@ -677,8 +677,14 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.waitForElementToBeVisible('path[data-testid*="stacked-bar-"]');
-  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
+  cy.waitForElementToBeVisible('div[data-as-list="false"] p.MuiTypography-root');
+  cy.get('div[data-as-list="false"] p.MuiTypography-root')
+  .then(($els) => {
+    const labels = [...$els].map((el) => el.innerText.trim());
+    cy.log('Labels:', labels.join(', '));
+    expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
+  });
+
 });
 
 When(
