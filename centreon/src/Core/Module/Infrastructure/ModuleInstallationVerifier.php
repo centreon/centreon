@@ -38,9 +38,8 @@ final readonly class ModuleInstallationVerifier
     /**
      * @param string $moduleName
      *
-     * @return bool
-     *
      * @throws \RuntimeException|\Throwable
+     * @return bool
      */
     public function isInstallComplete(string $moduleName): bool
     {

@@ -35,7 +35,6 @@ interface ModuleInformationRepositoryInterface
      * @throws \Throwable
      *
      * @return null|ModuleInformation
-     *
      */
     public function findByName(string $name): ?ModuleInformation;
 }
