@@ -55,7 +55,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                per_page: 4,
+                per_page: 2,
                 page: page,
               });
 
