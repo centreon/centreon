@@ -684,7 +684,6 @@ Then('the graph should be displayed as a bar chart', () => {
     cy.log('Labels:', labels.join(', '));
     expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
   });
-
 });
 
 When(
