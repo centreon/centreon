@@ -12,6 +12,7 @@ import {
   labelAgentTypes,
   labelAgentsConfigurations,
   labelCACommonName,
+  labelCMAauthenticationToken,
   labelCaCertificate,
   labelCancel,
   labelClear,
@@ -648,7 +649,13 @@ describe('Agent configurations modal', () => {
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
 
-    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+    cy.findByTestId('submit').should('be.disabled');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByLabelText(labelCMAauthenticationToken).should('not.exist');
 
     cy.findByTestId('submit').click();
 
@@ -670,7 +677,8 @@ describe('Agent configurations modal', () => {
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: 'test.crt',
-              poller_ca_certificate: 'test.crt'
+              poller_ca_certificate: 'test.crt',
+              token: { name: 'token 1', creator_id: 1 }
             }
           ]
         }
@@ -806,7 +814,8 @@ describe('Agent configurations modal', () => {
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: null,
-              poller_ca_certificate: null
+              poller_ca_certificate: null,
+              token: {}
             }
           ]
         }
