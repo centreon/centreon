@@ -59,6 +59,7 @@ jobs:
                 page: page,
               });
 
+              let requestedTeams = [];
               for (const event of timeline.data) {
                 if (event.event === 'review_requested' && event?.requested_team?.name) {
                   requestedTeams.push(event.requested_team.name);
