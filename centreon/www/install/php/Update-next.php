@@ -27,21 +27,41 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// TODO add your functions here
+// -------------------------------------------- Services as contacts -------------------------------------------- //
+$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            ALTER TABLE `contact`
+                ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
+            SQL
+    );
+};
+
+$flagContactAsServiceAccount = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `contact`
+            SET `is_service_account` = 1
+            WHERE `contact_name` IN ('centreon-gorgone', 'CBIS')
+            SQL
+    );
+};
 
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addServiceFlagToContacts();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $flagContactAsServiceAccount();
 
     $pearDB->commit();
 
