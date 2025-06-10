@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { equals, flatten, isNil, pluck, reject, isEmpty } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
