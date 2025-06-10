@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Routing;
 
-use Centreon\Domain\Log\Logger;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Module\Infrastructure\ModuleInstallationVerifier;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
