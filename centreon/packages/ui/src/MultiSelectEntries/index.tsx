@@ -63,7 +63,7 @@ const EntryChip = ({
   const { classes } = useStyles();
 
   return (
-    <Grid item xs={gridWidth}>
+    <Grid item size={gridWidth}>
       <Chip
         className={classes.chip}
         label={<div className={classes.labelChip}>{label}</div>}

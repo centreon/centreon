@@ -12,6 +12,7 @@ import {
   labels,
   roles
 } from './storiesData';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof AccessRights> = {
   component: AccessRights,

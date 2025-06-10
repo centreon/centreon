@@ -36,6 +36,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/agent-configurations/**'
   }).as('getAgentsDetails');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/tokens?*'
+  }).as('getTokens');
 });
 
 after(() => {
@@ -63,6 +67,10 @@ Then('the user sees the Agents Configuration page', () => {
     'be.visible'
   );
 });
+
+Given('a CMA Token is configured', () => {
+  cy.addCMAToken();
+})
 
 Given('a non-admin user is in the Agents Configuration page', () => {
   cy.loginByTypeOfUser({
@@ -194,7 +202,7 @@ Then(
   () => {
     cy.contains('p', agentsConfiguration.CMA1.name).should('be.visible');
     cy.get('div[role="table"]')
-      .find('div[class*="-tableBody"]')
+      .find('div.MuiTableBody-root')
       .find('div[role="row"]')
       .should('have.length', 1);
   }

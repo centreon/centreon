@@ -38,9 +38,12 @@ export const useHostConfiguration = ({
   } = useFormikContext<AgentConfigurationForm>();
 
   const selectHost = useCallback(
-    (_, { address }) => {
+    (_, { id, name, address }) => {
       setFieldTouched(`configuration.hosts.${index}.address`, true, false);
       setFieldTouched(`configuration.hosts.${index}.port`, true, false);
+
+      setFieldValue(`configuration.hosts.${index}.name`, name, false);
+      setFieldValue(`configuration.hosts.${index}.id`, id, false);
       setFieldValue(`configuration.hosts.${index}.address`, address, false);
       setFieldValue(`configuration.hosts.${index}.port`, 4317, false);
       setFieldError(`configuration.hosts.${index}.address`, undefined);
