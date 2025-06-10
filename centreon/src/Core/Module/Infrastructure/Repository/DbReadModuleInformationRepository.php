@@ -47,8 +47,6 @@ class DbReadModuleInformationRepository extends DatabaseRepository implements Mo
 
     /**
      * {@inheritDoc}
-     *
-     * @throws RepositoryException
      */
     public function findByName(string $name): ?ModuleInformation
     {

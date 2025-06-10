@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Module\Infrastructure;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Module\Application\Repository\ModuleInformationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -38,7 +39,7 @@ final readonly class ModuleInstallationVerifier
     /**
      * @param string $moduleName
      *
-     * @throws \RuntimeException|\Throwable
+     * @throws \RuntimeException|RepositoryException
      * @return bool
      */
     public function isInstallComplete(string $moduleName): bool

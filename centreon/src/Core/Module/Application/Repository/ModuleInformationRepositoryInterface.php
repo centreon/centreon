@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Module\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Module\Domain\Model\ModuleInformation;
 
 interface ModuleInformationRepositoryInterface
@@ -32,7 +33,7 @@ interface ModuleInformationRepositoryInterface
      *
      * @param string $name
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return null|ModuleInformation
      */
