@@ -256,7 +256,7 @@ jobs:
           script: |
             const getStability = (branchName) => {
               switch (true) {
-                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(branchName):
+                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)|(^MON-172275-delivery-add-sync-delete-for-testing-repositories-when-delivering-testing-packages)/.test(branchName):
                   return 'unstable';
                 case /(^release.+)|(^hotfix.+)/.test(branchName):
                   return 'testing';
