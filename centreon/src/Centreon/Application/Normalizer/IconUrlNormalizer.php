@@ -22,46 +22,21 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Normalizer;
 
-use Centreon\Domain\Configuration\Icon\Icon as ConfigurationIcon;
-use Centreon\Domain\Monitoring\Icon as MonitoringIcon;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Centreon\Domain\Monitoring\Icon;
 
 /**
  * Normalize icon url to build full url
  */
-class IconUrlNormalizer implements NormalizerInterface
+class IconUrlNormalizer
 {
     private const IMG_DIR = '/img/media';
 
-    /**
-     * Concat base url with icon path to get full url
-     * {@inheritDoc}
-     */
-    public function normalize($icon, $format = null, array $context = [])
+    public function normalize(?Icon $icon): ?Icon
     {
         if (isset($_SERVER['REQUEST_URI']) && preg_match('/^(.+)\/api\/.+/', $_SERVER['REQUEST_URI'], $matches)) {
             $icon->setUrl($matches[1] . self::IMG_DIR . '/' . $icon->getUrl());
         }
 
         return $icon;
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
-    public function supportsNormalization($data, $format = null, array $context = []): bool
-    {
-        return $data instanceof ConfigurationIcon || $data instanceof MonitoringIcon;
-    }
-
-    /**
-     * @return array<class-string|'*'|'object'|string, bool|null>
-     */
-    public function getSupportedTypes(?string $format): array
-    {
-        return [
-            ConfigurationIcon::class => true,
-            MonitoringIcon::class => true,
-        ];
     }
 }
