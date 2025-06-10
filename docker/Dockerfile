@@ -55,6 +55,8 @@ RUN apt update && \
     curl \
     libmariadb3 \
     monitoring-plugins-basic \
+    python3 \
+    python3-venv \
     iputils-ping && \
     echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list &&\
     wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1 && \
@@ -72,6 +74,8 @@ COPY --from=builder --chmod=775 /etc/centreon-engine/ /etc/centreon-engine/
 COPY --from=builder --chmod=755 /centreon-collect/build/broker/neb/cbmod.so /usr/lib/cbmod.so
 COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon/lib/centreon-broker/
 
+COPY centreon-engine/entrypoint.sh /entrypoint.sh
+
 RUN groupadd -g 6000 centreon && \
     useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon && \
     groupadd -g 6001 centreon-engine && \
@@ -86,15 +90,19 @@ RUN groupadd -g 6000 centreon && \
     touch /var/log/centreon-engine/retention.dat && \
     chown -R centreon-engine:centreon-engine /etc/centreon-engine && \
     chmod 775 /etc/centreon-engine /etc/centreon-broker && \
-    chmod +x /usr/share/centreon/lib/centreon-broker/*
+    chmod +x /usr/share/centreon/lib/centreon-broker/* && \
+    chmod +x /entrypoint.sh
+
+COPY centreon-engine/api_control.py /var/lib/centreon-engine/api_control.py
 
 # # Set the working directory
-WORKDIR /etc/centreon-engine
+WORKDIR /var/lib/centreon-engine
 
 #USER centreon-engine
 
 # # Set the entrypoint (adjust as needed)
-CMD ["/usr/sbin/centengine", "/etc/centreon-engine/centengine.cfg"]
+ENTRYPOINT ["/entrypoint.sh"]
+#CMD ["/usr/sbin/centengine", "/etc/centreon-engine/centengine.cfg"]
 
 FROM debian:12-slim AS broker
 
@@ -108,6 +116,9 @@ RUN apt update && \
     gnupg2 \
     curl \
     librrd8 \
+    python3 \
+    python3-venv \
+    procps \
     libmariadb3 && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
@@ -122,6 +133,7 @@ COPY --from=builder --chmod=755 /usr/sbin/cbwd /usr/sbin/cbwd
 COPY --from=builder --chmod=775 /etc/centreon-broker/ /etc/centreon-broker/
 COPY --from=builder /usr/share/centreon/lib/centreon-broker/ /usr/share/centreon/lib/centreon-broker/
 
+COPY centreon-broker/entrypoint.sh /entrypoint.sh
 COPY centreon-broker/watchdog.json /etc/centreon-broker/watchdog.json
 
 RUN groupadd -g 6000 centreon && \
@@ -134,15 +146,19 @@ RUN groupadd -g 6000 centreon && \
     useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone &&\
     mkdir -p /etc/centreon-broker/ /var/log/centreon-broker/ /var/lib/centreon/status/ /var/lib/centreon/metrics/ && \
     chown -R centreon-broker:centreon-broker /etc/centreon-broker/ /var/log/centreon-broker/ && \
-    chmod +x /usr/share/centreon/lib/centreon-broker/*
+    chmod +x /usr/share/centreon/lib/centreon-broker/* &&\
+    chmod +x /entrypoint.sh
+
+COPY centreon-broker/api_control.py /var/lib/centreon-broker/api_control.py
 
 # # Set the working directory
-WORKDIR /etc/centreon-broker
+WORKDIR /var/lib/centreon-broker
 
 #USER centreon-broker
 
 # # Set the entrypoint (adjust as needed)
-CMD ["/usr/sbin/cbwd", "/etc/centreon-broker/watchdog.json"]
+ENTRYPOINT ["/entrypoint.sh"]
+#CMD ["/usr/sbin/cbwd", "/etc/centreon-broker/watchdog.json"]
 
 # Use the same builder stage from the original Dockerfile
 FROM debian:12-slim AS gorgone
