@@ -175,7 +175,7 @@ describe('Line chart', () => {
       cy.get('[data-metric="querytime"]').should(
         'have.attr',
         'data-highlight',
-        'false'
+        'true'
       );
       cy.get('[data-metric="connTime"]').should(
         'have.attr',
@@ -224,12 +224,12 @@ describe('Line chart', () => {
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
 
-      cy.get('[data-metric="hitratio"]').should(
+      cy.get('[data-metric="querytime"]').should(
         'have.attr',
         'data-highlight',
         'true'
       );
-      cy.get('[data-metric="querytime"]').should('not.exist');
+      cy.get('[data-metric="hitratio"]').should('not.exist');
 
       cy.makeSnapshot();
     });
