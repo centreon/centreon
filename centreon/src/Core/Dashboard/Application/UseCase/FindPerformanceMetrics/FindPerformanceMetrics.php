@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -36,9 +35,8 @@ use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-final class FindPerformanceMetrics
+final readonly class FindPerformanceMetrics
 {
-    use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
@@ -50,12 +48,12 @@ final class FindPerformanceMetrics
      * @param bool $isCloudPlatform
      */
     public function __construct(
-        private readonly ContactInterface $user,
-        private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
-        private readonly DashboardRights $rights,
-        private readonly bool $isCloudPlatform
+        private ContactInterface $user,
+        private RequestParametersInterface $requestParameters,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
+        private DashboardRights $rights,
+        private bool $isCloudPlatform
     ) {
     }
 
