@@ -155,26 +155,30 @@ class TopologyRepository extends ServiceEntityRepository
      */
     public function getTopologyList(CentreonUser $user)
     {
-        $topologies = [];
-
-        //base query
         $query = 'SELECT topology_id, topology_name, topology_page, topology_url, topology_url_opt, '
             . 'topology_feature_flag, '
             . 'topology_group, topology_order, topology_parent, is_react, readonly, topology_show, is_deprecated '
             . 'FROM ' . Topology::TABLE;
 
-        $whereClause = false;
+        $where = [];
+
         if (!$user->access->admin) {
-            $query .= ' WHERE topology_page IN (' . $user->access->getTopologyString() . ')  OR topology_page IS NULL';
-            $whereClause = true;
+            $where[] = '(topology_page IN (' . $user->access->getTopologyString() . ') OR topology_page IS NULL)';
         }
 
         if ($user->doesShowDeprecatedPages() === false) {
-            $query .= ($whereClause === true ? ' AND ' : ' WHERE ')
-                . 'is_deprecated = "0"';
+            $where[] = '((topology_name IN ("Hosts", "Services") AND is_deprecated = "0") OR topology_name NOT IN ("Hosts", "Services"))';
         }
 
+        if ($user->doesShowDeprecatedCustomViews() === false) {
+            $where[] = '(topology_name != "Custom Views" OR is_deprecated = "0")';
+        }
+
+        if (!empty($where)) {
+            $query .= ' WHERE ' . implode(' AND ', $where);
+        }
         $query .= ' ORDER BY topology_parent, topology_group, topology_order, topology_page';
+
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 

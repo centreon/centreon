@@ -56,7 +56,8 @@
             </tr>
             <tr class="list_two"><td class="FormRowField">{$form.default_page.label}</td><td class="FormRowValue">{$form.default_page.html}</td></tr>
             <tr class="list_one"><td class="FormRowField">{if $form.show_deprecated_pages.label}<img class="helpTooltip" name="show_deprecated_pages">{$form.show_deprecated_pages.label}</td><td class="FormRowValue">{$form.show_deprecated_pages.html}</td>{/if}</tr>
-            {if $cct.contact_auth_type === 'local'}
+            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="show_deprecated_custom_views">{$form.show_deprecated_custom_views.label}</td><td class="FormRowValue">{$form.show_deprecated_custom_views.html}</td></tr>
+        {if $cct.contact_auth_type === 'local'}
             <tr class="list_lvl_1">
                 <td class="ListColLvl1_name" colspan="2">
                     <h4>{t}Authentication{/t}</h4>
