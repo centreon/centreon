@@ -19,42 +19,53 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindPerformanceMetrics;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDto;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use PHPMailer\PHPMailer\Exception;
 
 class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindPerformanceMetricsPresenterInterface
 {
-    public function __construct(private RequestParametersInterface $requestParameters, protected PresenterFormatterInterface $presenterFormatter)
-    {
+    public function __construct(
+        private RequestParametersInterface $requestParameters,
+        protected PresenterFormatterInterface $presenterFormatter
+    ) {
         parent::__construct($presenterFormatter);
     }
 
     public function presentResponse(FindPerformanceMetricsResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            }
             $this->setResponseStatus($response);
-        } else {
-            $this->present([
-                'result' => array_map(function (ResourceMetricDto $resourceMetric){
-                    return [
-                        'id' => $resourceMetric->serviceId,
-                        'name' => $resourceMetric->resourceName,
-                        'parent_name' => $resourceMetric->parentName,
-                        'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
-                        'metrics' => $resourceMetric->metrics,
-                    ];
-                },$response->resourceMetrics),
-                'meta' => $this->requestParameters->toArray(),
-            ]);
+
+            return;
         }
+
+        $this->present([
+            'result' => array_map(function (ResourceMetricDto $resourceMetric) {
+                return [
+                    'id' => $resourceMetric->serviceId,
+                    'name' => $resourceMetric->resourceName,
+                    'parent_name' => $resourceMetric->parentName,
+                    'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
+                    'metrics' => $resourceMetric->metrics,
+                ];
+            }, $response->resourceMetrics),
+            'meta' => $this->requestParameters->toArray(),
+        ]);
     }
+
 }

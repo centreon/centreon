@@ -66,12 +66,8 @@ final class FindPerformanceMetrics
     {
         try {
             if ($this->isUserAdmin()) {
-                $this->info('find metrics for admin user');
-
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParameters($this->requestParameters);
             } elseif ($this->rights->canAccess()) {
-                $this->info('find metrics for non-admin user');
-
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersAndAccessGroups(
                     $this->requestParameters,
@@ -86,9 +82,19 @@ final class FindPerformanceMetrics
             }
 
             $presenter->presentResponse($this->createResponse($resourceMetrics));
-        } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving metrics', ['trace' => (string) $ex]);
-            $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics'));
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: 'An error occured while retrieving metrics',
+                    context: [
+                        'request_parameters' => $this->requestParameters->toArray(),
+                        'user_id' => $this->user->getId(),
+                        'is_admin' => $this->user->isAdmin(),
+                        'access_groups' => $accessGroups ?? null
+                    ],
+                    exception: $e
+                )
+            );
 
             return;
         }

@@ -68,15 +68,11 @@ final class FindMetricsTop
     {
         try {
             if ($this->isUserAdmin()) {
-                $this->info('find top/bottom metrics for admin user');
-
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersAndMetricName(
                     $this->requestParameters,
                     $request->metricName
                 );
             } elseif ($this->rights->canAccess()) {
-                $this->info('find top/bottom metrics for non-admin user');
-
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $resourceMetrics = $this->dashboardMetricRepository
                     ->findByRequestParametersAndAccessGroupsAndMetricName(
@@ -98,9 +94,13 @@ final class FindMetricsTop
             }
 
             $presenter->presentResponse($this->createResponse($resourceMetrics));
-        } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving metrics', ['trace' => (string) $ex]);
-            $presenter->presentResponse(new ErrorResponse('An error occured while retrieving top metrics'));
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: 'An error occured while retrieving top metrics',
+                    exception: $e,
+                )
+            );
 
             return;
         }

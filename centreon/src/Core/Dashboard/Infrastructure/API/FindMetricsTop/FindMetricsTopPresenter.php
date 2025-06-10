@@ -19,12 +19,14 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopResponse;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
@@ -43,16 +45,21 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
     public function presentResponse(FindMetricsTopResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            }
             $this->setResponseStatus($response);
-        } else {
-            $this->present(
-                [
-                    'name' => $response->metricName,
-                    'unit' => $response->metricUnit,
-                    'resources' => self::formatResource($response->resourceMetrics),
-                ]
-            );
+
+            return;
         }
+
+        $this->present(
+            [
+                'name' => $response->metricName,
+                'unit' => $response->metricUnit,
+                'resources' => self::formatResource($response->resourceMetrics),
+            ]
+        );
     }
 
     /**
@@ -60,7 +67,8 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
      *
      * @return array<array<string,int|string|float|null>>
      */
-    private static function formatResource(array $resourceMetrics): array {
+    private static function formatResource(array $resourceMetrics): array
+    {
         return array_map(function (MetricInformationDto $metricInformation) {
             return [
                 'id' => $metricInformation->serviceId,
