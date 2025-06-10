@@ -359,7 +359,12 @@ if (isset($_SESSION['customview_edit_mode'])) {
     $modeEdit = ($_SESSION['customview_edit_mode'] === 'true') ? 'true' : 'false';
 }
 
+$deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
+$resourcesStatusLabel = _('Dashboards');
+$redirectionUrl = "/centreon/home/dashboards/library";
 ?>
+
+
 <script type="text/javascript">
     var defaultShow = <?php echo $modeEdit; ?>;
     var deleteWdgtMessage =
@@ -370,6 +375,19 @@ if (isset($_SESSION['customview_edit_mode'])) {
     var setDefaultMessage = "<?php echo _("Set this view as your default view?");?>";
     var wrenchSpan = '<span class="ui-icon ui-icon-wrench"></span>';
     var trashSpan = '<span class="ui-icon ui-icon-trash"></span>';
+
+
+    function display_deprecated_banner() {
+        const url = "<?php echo $redirectionUrl; ?>";
+        const message = "<?php echo $deprecationMessage; ?>";
+        const label = "<?php echo $resourcesStatusLabel; ?>";
+        jQuery('.pathway').append(
+            '<span style="color:#FF4500;padding-left:10px;font-weight:bold">' + message +
+            '<a style="position:relative" href="' + url + '" isreact="isreact">' + label + '</a></span>'
+        );
+    }
+
+    display_deprecated_banner();
 
     /**
      * Resize widget iframe

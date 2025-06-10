@@ -499,24 +499,9 @@ $tpl->assign("helptext", $helptext);
 
 $tpl->display("formMyAccount.ihtml");
 
-$deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
-$resourcesStatusLabel = _('Dashboards');
-$redirectionUrl = "/dashboards";
 ?>
 <script type='text/javascript' src='./include/common/javascript/keygen.js'></script>
 <script type="text/javascript">
-
-    function display_deprecated_banner() {
-        const url = "<?php echo $redirectionUrl; ?>";
-        const message = "<?php echo $deprecationMessage; ?>";
-        const label = "<?php echo $resourcesStatusLabel; ?>";
-        jQuery('.pathway').append(
-            '<span style="color:#FF4500;padding-left:10px;font-weight:bold">' + message +
-            '<a style="position:relative" href="' + url + '" isreact="isreact">' + label + '</a></span>'
-        );
-    }
-
-    display_deprecated_banner();
     jQuery(function () {
         jQuery("select[name*='_notification_']").change(function () {
             if (jQuery(this).val()) {
