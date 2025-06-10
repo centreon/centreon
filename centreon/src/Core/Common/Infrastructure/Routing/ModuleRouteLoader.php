@@ -49,13 +49,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
                 return $routes;
             }
         } catch (\Throwable $ex) {
-            Logger::create()->error(
-                'Unable to check module installation',
-                [
-                    'module_name' => $this->getModuleName(),
-                    'exception' => $ex,
-                ]
-            );
+            ExceptionLogger::create()->log($ex, ['module_name' => $this->getModuleName()]);
 
             return $routes;
         }
