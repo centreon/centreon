@@ -66,35 +66,20 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 
-        // For secure and insecure modes
-        if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
-            $this->validateCertificate(
-                $parameters['otel_public_certificate'],
-                'configuration.otel_public_certificate'
-            );
-            $this->validateCertificate(
-                $parameters['otel_private_key'],
-                'configuration.otel_private_key'
-            );
-            $this->validateOptionalCertificate(
-                $parameters['otel_ca_certificate'],
-                'configuration.otel_ca_certificate'
-            );
-        // For NO-TLS mode
-        } else {
-            $this->validateOptionalCertificate(
-                $parameters['otel_public_certificate'],
-                'configuration.otel_public_certificate'
-            );
-            $this->validateOptionalCertificate(
-                $parameters['otel_private_key'],
-                'configuration.otel_private_key'
-            );
-            $this->validateOptionalCertificate(
-                $parameters['otel_ca_certificate'],
-                'configuration.otel_ca_certificate'
-            );
-        }
+        $this->validateOptionalCertificate(
+            $parameters['otel_public_certificate'],
+            'configuration.otel_public_certificate'
+        );
+
+        $this->validateOptionalCertificate(
+            $parameters['otel_private_key'],
+            'configuration.otel_private_key'
+        );
+
+        $this->validateOptionalCertificate(
+            $parameters['otel_ca_certificate'],
+            'configuration.otel_ca_certificate'
+        );
 
         if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
             $parameters['hosts'] = [];
@@ -194,20 +179,6 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
             ? $path
             : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
-    }
-
-    /**
-     * Validates a certificate.
-     *
-     * @param ?string $certificate
-     * @param string $field Used for error reporting
-     *
-     * @throws AssertionFailedException
-     */
-    private function validateCertificate(?string $certificate, string $field): void
-    {
-        Assertion::notEmptyString($certificate, $field);
-        Assertion::maxLength($certificate ?? '', self::MAX_LENGTH, $field);
     }
 
     /**

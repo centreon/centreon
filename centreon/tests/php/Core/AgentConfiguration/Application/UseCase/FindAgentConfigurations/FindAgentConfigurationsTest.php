@@ -141,8 +141,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
                 'conf_private_key' => 'conf-key'
-            ],
-            ConnectionModeEnum::SECURE
+            ]
         )
     );
 
@@ -161,8 +160,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
                 'conf_private_key' => 'conf-key'
-            ],
-            ConnectionModeEnum::SECURE
+            ]
         )
     );
 
