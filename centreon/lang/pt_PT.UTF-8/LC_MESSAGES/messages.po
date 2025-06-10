@@ -24586,3 +24586,28 @@ msgstr "item (s) encontrado (s)"
 # msgstr ""
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
+
+# msgid "Activate Regex"
+# msgstr ""
+
+# msgid "Deactivate Regex"
+# msgstr ""
+
+# msgid "Enter Regex"
+# msgstr ""
+
+# msgid "Do you want to leave the Regex mode?"
+# msgstr ""
+
+# msgid "Do you want to leave the classic mode?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you switch to classic mode."
+# msgstr ""
+
+# msgid "Your changes will not be saved if you switch to Regex mode."
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""
+

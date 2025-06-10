@@ -146,6 +146,7 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).blur();
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
@@ -361,15 +362,15 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find("div")
-                .invoke("attr", "style")
+                .find('div')
+                .invoke('attr', 'style')
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
               cy.wrap(aTag)
-                .next("p")
-                .invoke("text")
+                .next('p')
+                .invoke('text')
                 .then((text) => {
                   const possibleValues = [expectedValues[i]];
 
@@ -377,7 +378,9 @@ Cypress.Commands.add(
                     possibleValues.push(alternativeValues[i]);
                   }
 
-                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
+                  expect(text.trim()).to.match(
+                    new RegExp(possibleValues.join('|'))
+                  );
                 });
             });
           });
@@ -709,3 +712,4 @@ declare global {
 }
 
 export {};
+
