@@ -33,6 +33,9 @@
  *
  */
 
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
+use Symfony\Component\HttpFoundation\Request;
+
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
 require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonContactgroup.class.php";
@@ -361,7 +364,8 @@ if (isset($_SESSION['customview_edit_mode'])) {
 
 $deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
 $resourcesStatusLabel = _('Dashboards');
-$redirectionUrl = "/centreon/home/dashboards/library";
+$basePath = (Request::createFromGlobals())->getBasePath();
+$redirectionUrl = $basePath . "/home/dashboards/library";
 ?>
 
 

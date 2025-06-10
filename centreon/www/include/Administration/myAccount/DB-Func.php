@@ -180,7 +180,7 @@ function updateContact($contactId = null)
     $stmt->bindValue(
         ':showDeprecatedCustomViews',
         isset($ret['show_deprecated_custom_views']) ? '1' : '0',
-        \PDO::PARAM_INT
+        \PDO::PARAM_STR
     );
     $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
     $stmt->execute();
@@ -295,7 +295,7 @@ function updateNonLocalContactInDB($contact_id = null): void
 
     $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
     $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
-    $stmt->bindValue(':showDeprecatedCustomViews', isset($ret['show_deprecated_custom_views']) ? 1 : 0, \PDO::PARAM_STR);
+    $stmt->bindValue(':showDeprecatedCustomViews', isset($ret['show_deprecated_custom_views']) ? '1' : '0', \PDO::PARAM_STR);
     $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
     $stmt->execute();
     $stmt->closeCursor();

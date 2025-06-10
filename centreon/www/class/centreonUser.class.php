@@ -106,7 +106,7 @@ class CentreonUser
     /** @var string */
     public $authType;
 
-    public bool $showDeprecatedCustomViews;
+    private bool $showDeprecatedCustomViews;
 
     /**
      * CentreonUser constructor
@@ -320,6 +320,11 @@ class CentreonUser
     public function doesShowDeprecatedPages()
     {
         return $this->showDeprecatedPages;
+    }
+
+    public function doesShowDeprecatedCustomViews()
+    {
+        return $this->showDeprecatedCustomViews;
     }
 
     /**

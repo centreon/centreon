@@ -27,6 +27,9 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
+/**
+ * Add column `show_deprecated_custom_views` to contact table.
+ */
 $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
     $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
     if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
@@ -38,11 +41,14 @@ $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
     }
 };
 
+/**
+ * Switch Topology Order between Dashboards and Custom Views.
+ */
 $updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
     $errorMessage = 'Unable to update topology of Custom Views';
     $pearDB->executeQuery(
         <<<SQL
-        UPDATE topology SET topology_order = 2 WHERE topology_name = "Custom Views"
+        UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
         SQL
     );
     $errorMessage = 'Unable to update topology of Dashboards';
@@ -51,6 +57,26 @@ $updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB
         UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
         SQL
     );
+};
+
+/**
+ * Set Show Deprecated Custom Views to true by default is there is existing custom views.
+ */
+$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to retrieve custom views';
+    $statement = $pearDB->executeQuery(
+        <<<SQL
+        SELECT 1 FROM custom_views
+        SQL
+    );
+
+    if (! empty($statement->fetchAll())) {
+        $pearDB->executeQuery(
+            <<<SQL
+            UPDATE contact SET show_deprecated_custom_views = '1'
+            SQL
+        );
+    }
 };
 
 
@@ -68,6 +94,7 @@ try {
     }
 
     $updateDashboardAndCustomViewsTopology();
+    $updateContactsShowDeprecatedCustomViews();
 
     $pearDB->commit();
 
