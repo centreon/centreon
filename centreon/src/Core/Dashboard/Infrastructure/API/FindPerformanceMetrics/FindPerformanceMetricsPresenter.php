@@ -32,7 +32,6 @@ use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMet
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDto;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use PHPMailer\PHPMailer\Exception;
 
 class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindPerformanceMetricsPresenterInterface
 {

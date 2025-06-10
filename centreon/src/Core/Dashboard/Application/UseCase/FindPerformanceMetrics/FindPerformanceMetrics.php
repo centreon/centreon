@@ -90,7 +90,7 @@ final class FindPerformanceMetrics
                         'request_parameters' => $this->requestParameters->toArray(),
                         'user_id' => $this->user->getId(),
                         'is_admin' => $this->user->isAdmin(),
-                        'access_groups' => $accessGroups ?? null
+                        'access_groups' => $accessGroups ?? null,
                     ],
                     exception: $e
                 )
