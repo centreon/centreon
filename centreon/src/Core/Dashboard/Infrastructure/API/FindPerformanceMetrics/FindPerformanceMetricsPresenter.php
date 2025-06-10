@@ -67,5 +67,4 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
             'meta' => $this->requestParameters->toArray(),
         ]);
     }
-
 }
