@@ -28,7 +28,7 @@ services:
     networks:
       - app-network
   cbd:
-    image: broker:latest
+    image: broker-api:latest
     container_name: cbd
     hostname: cbd
     restart: always
@@ -41,7 +41,7 @@ services:
       - app-status:/var/lib/centreon/status:rw,z
       - app-metrics:/var/lib/centreon/metrics:rw,z
   centengine:
-    image: centengine:latest
+    image: centengine-api:latest
     container_name: centengine
     hostname: centengine
     restart: always
