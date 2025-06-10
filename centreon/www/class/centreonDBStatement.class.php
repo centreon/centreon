@@ -144,7 +144,7 @@ class CentreonDBStatement extends \PDOStatement
         } catch (\PDOException $e) {
             $string = str_replace("`", "", $this->queryString);
             $string = str_replace('*', "\*", $string);
-            $this->log->insertLog(2, (string) $e . " QUERY : " . $string . ", " . json_encode($parameters));
+            $this->log->insertLog(2, $e->getMessage() . " QUERY : " . $string . ", " . json_encode($parameters));
 
             throw $e;
         }

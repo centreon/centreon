@@ -33,7 +33,6 @@
  *
  */
 
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
@@ -379,7 +378,6 @@ $redirectionUrl = $basePath . "/home/dashboards/library";
     var setDefaultMessage = "<?php echo _("Set this view as your default view?");?>";
     var wrenchSpan = '<span class="ui-icon ui-icon-wrench"></span>';
     var trashSpan = '<span class="ui-icon ui-icon-trash"></span>';
-
 
     function display_deprecated_banner() {
         const url = "<?php echo $redirectionUrl; ?>";
