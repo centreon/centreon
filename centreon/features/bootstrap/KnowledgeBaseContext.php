@@ -31,15 +31,23 @@ class KnowledgeBaseContext extends CentreonContext
         );
         $this->iAmLoggedIn();
 
-        $page = new KBParametersPage($this);
-        $page->setProperties(
-            array(
-                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
-                'kb_wiki_account' => 'WikiSysop',
-                'kb_wiki_password' => 'centreon'
-            )
-        );
-        $page->save();
+        $this->spin(
+        function ($context) {
+            $page = new KBParametersPage($context);
+            $page->setProperties(
+                array(
+                    'kb_wiki_url' => 'http://' . $context->container->getContainerIpAddress('mediawiki'),
+                    'kb_wiki_account' => 'WikiSysop',
+                    'kb_wiki_password' => 'centreon'
+                )
+            );
+            $page->save();
+
+            return true;
+        },
+        'Could not set MediaWiki configuration parameters.',
+        60
+    );
     }
 
     /**
@@ -111,6 +119,7 @@ class KnowledgeBaseContext extends CentreonContext
             'Wiki procedure window is not opened.',
             60
         );
+
         $windowNames = $this->getSession()->getWindowNames();
         $this->getSession()->switchToWindow($windowNames[1]);
 
@@ -215,7 +224,16 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* Go to the page to options page */
         $this->visit('/main.php?p=61001');
-        $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(4)')->click();
+        $this->spin(
+            function ($context) {
+                $link = $context->assertFind('css', '.list_two td:nth-child(5) a:nth-child(4)');
+                $link->click();
+
+                return true;
+            },
+            'Could not click wiki procedure link.',
+            60
+        );
     }
 
     /**
@@ -227,8 +245,28 @@ class KnowledgeBaseContext extends CentreonContext
         $this->visit('/main.php?p=60101');
         $this->spin(
             function ($context) {
-                $context->assertFind('css', '.list_two td:nth-child(2) a:nth-child(1)')->click();
-                $context->assertFind('css', '#c5 a:nth-child(1)')->click();
+                $link = $context->assertFind('css', '.list_two td:nth-child(2) a:nth-child(1)');
+                $link->click();
+
+                return true;
+            },
+            'Could not find host procedure link.',
+            60
+        );
+
+        $this->spin(
+            function ($context) {
+                $link = $context->assertFind('css', '#c5 a:nth-child(1)');
+                $link->click();
+
+                return true;
+            },
+            'Could not find host procedure link.',
+            60
+        );
+
+        $this->spin(
+            function ($context) {
                 $fieldValue = $context->assertFind('css', 'input[name="ehi_notes_url"]');
                 $originalValue = $fieldValue->getValue();
 
@@ -239,8 +277,11 @@ class KnowledgeBaseContext extends CentreonContext
                 ) {
                     throw new Exception('Bad url');
                 }
+
+                return true;
             },
-            'Link to host procedure is not available',
+            'Bad url in host procedure configuration',
+            60
         );
     }
 
@@ -253,8 +294,28 @@ class KnowledgeBaseContext extends CentreonContext
         $this->visit('/main.php?p=60201');
         $this->spin(
             function ($context) {
-                $context->assertFind('css', '.list_one td:nth-child(8) a:nth-child(3)')->click();
-                $context->assertFind('css', '#c5 a:nth-child(1)')->click();
+                $link = $context->assertFind('css', '.list_one:nth-child(8) td:nth-child(3) a');
+                $link->click();
+
+                return true;
+            },
+            'Could not find service procedure link.',
+            60
+        );
+
+        $this->spin(
+            function ($context) {
+                $link = $context->assertFind('css', '#c5 a:nth-child(1)');
+                $link->click();
+
+                return true;
+            },
+            'Could not find service procedure link.',
+            60
+        );
+
+        $this->spin(
+            function ($context) {
                 $fieldValue = $context->assertFind('css', 'input[name="esi_notes_url"]');
                 $originalValue = $fieldValue->getValue();
 
@@ -266,8 +327,11 @@ class KnowledgeBaseContext extends CentreonContext
                 ) {
                     throw new Exception('Bad url');
                 }
+
+                return true;
             },
-            'Link to service procedure is not available',
+            'Bad url in service procedure configuration',
+            60
         );
     }
 
@@ -278,15 +342,14 @@ class KnowledgeBaseContext extends CentreonContext
     {
         $this->spin(
             function ($context) {
-                if (
-                    ' No wiki page defined ' == $context->assertFind('css', '.list_two td:nth-child(4) font')->getHtml()
-                ) {
+                if (' No wiki page defined ' == $context->assertFind('css', '.list_two td:nth-child(4) font')->getHtml()) {
                     return true;
                 } else {
                     return false;
                 }
             },
-            'Delete option id display'
+            'Delete option id display',
+            60
         );
     }
 }
