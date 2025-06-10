@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
@@ -54,56 +55,110 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $request = $this->buildQuery($requestParameters);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement);
+        try {
+            $request = $this->buildQuery($requestParameters);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters.',
+                context: ['requestParameters' => $requestParameters->toArray()],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
-        $request = $this->buildQuery($requestParameters, $accessGroups);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement);
+        try {
+            $request = $this->buildQuery($requestParameters, $accessGroups);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters and access groups.',
+                context: ['requestParameters' => $requestParameters->toArray()],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param string $metricName
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
-    public function findByRequestParametersAndMetricName(RequestParametersInterface $requestParameters, string $metricName): array
-    {
-        $request = $this->buildQuery($requestParameters, [], true);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement, $metricName);
+    public function findByRequestParametersAndMetricName(
+        RequestParametersInterface $requestParameters,
+        string $metricName
+    ): array {
+        try {
+            $request = $this->buildQuery($requestParameters, [], true);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters and metric name.',
+                context: ['requestParameters' => $requestParameters->toArray()],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     * @param string $metricName
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
         string $metricName
     ): array {
-        $request = $this->buildQuery($requestParameters, $accessGroups, true);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement, $metricName);
+        try {
+            $request = $this->buildQuery($requestParameters, $accessGroups, true);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters, access groups and metric name.',
+                context: ['requestParameters' => $requestParameters->toArray()],
+                previous: $e
+            );
+        }
     }
 
     /**
@@ -118,6 +173,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
+        $bindServiceNames = [];
         foreach ($serviceNames as $key => $serviceName) {
             $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
         }
@@ -144,6 +200,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
+        $bindMetaserviceIds = [];
         foreach ($metaserviceIds as $key => $metaserviceId) {
             $bindMetaserviceIds[':metaservice_' . $key] = [$metaserviceId => \PDO::PARAM_INT];
         }
@@ -170,6 +227,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForHostFilter(array $hostIds): array
     {
+        $bindHostIds = [];
         foreach ($hostIds as $hostId) {
             $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
         }
@@ -518,7 +576,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param \PDOStatement $statement
      * @param string $metricName
      *
-     * @throws \Throwable
+     * @throws \PDOException
      *
      * @return \PDOStatement
      */
@@ -560,6 +618,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *
      * @param RequestParametersInterface $requestParameters
      * @param \PDOStatement $statement
+     *
+     * @throws \PDOException
      *
      * @return ResourceMetric[]
      */
