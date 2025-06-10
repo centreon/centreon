@@ -106,6 +106,8 @@ class CentreonUser
     /** @var string */
     public $authType;
 
+    public bool $showDeprecatedCustomViews;
+
     /**
      * CentreonUser constructor
      *
@@ -116,7 +118,6 @@ class CentreonUser
     public function __construct($user = [])
     {
         global $pearDB;
-
         $this->user_id = $user["contact_id"] ?? null;
         $this->name = isset($user["contact_name"]) ?
             html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8") : null;
@@ -131,6 +132,7 @@ class CentreonUser
         $this->default_page = $user["default_page"] ?? CentreonAuth::DEFAULT_PAGE;
         $this->gmt = $user["contact_location"] ?? null;
         $this->showDeprecatedPages = (bool) $user["show_deprecated_pages"];
+        $this->showDeprecatedCustomViews = (bool) $user["show_deprecated_custom_views"];
         $this->theme = $user["contact_theme"] ?? 'light';
         /*
          * Initiate ACL

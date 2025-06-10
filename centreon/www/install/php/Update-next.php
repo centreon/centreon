@@ -27,11 +27,37 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// TODO add your functions here
+$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
+    if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
+        $pearDB->executeQuery(
+            <<<SQL
+            ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
+            SQL
+        );
+    }
+};
+
+$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to update topology of Custom Views';
+    $pearDB->executeQuery(
+        <<<SQL
+        UPDATE topology SET topology_order = 2 WHERE topology_name = "Custom Views"
+        SQL
+    );
+    $errorMessage = 'Unable to update topology of Dashboards';
+    $pearDB->executeQuery(
+        <<<SQL
+        UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
+        SQL
+    );
+};
+
 
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
+    $addDeprecateCustomViewsToContact();
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
@@ -41,7 +67,7 @@ try {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $updateDashboardAndCustomViewsTopology();
 
     $pearDB->commit();
 

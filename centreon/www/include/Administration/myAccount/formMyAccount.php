@@ -70,7 +70,7 @@ $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
 $cct = [];
 if ($o == "c") {
     $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
-        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type
+        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type, show_deprecated_custom_views
         FROM contact WHERE contact_id = :id";
     $DBRESULT = $pearDB->prepare($query);
     $DBRESULT->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
@@ -171,8 +171,9 @@ $form->addElement(
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
 if (!isCloudPlatform()) {
-    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated monitoring pages"), null, $attrsText);
 }
+$form->addElement('checkbox', 'show_deprecated_custom_views', _("Use deprecated custom views"), null, $attrsText);
 
 
 /* ------------------------ Topoogy ---------------------------- */
@@ -425,7 +426,6 @@ if ($form->validate()) {
     }
     $o = null;
     $features = $form->getSubmitValue('features');
-
     if ($features === null) {
         $features = [];
     }
@@ -440,9 +440,11 @@ if ($form->validate()) {
     $form->freeze();
 
     $showDeprecatedPages = $form->getSubmitValue("show_deprecated_pages") ? '1' : '0';
+    $showDeprecatedCustomViews = $form->getSubmitValue("show_deprecated_custom_views") ?: '0';
     if (
         $form->getSubmitValue("contact_lang") !== $cct['contact_lang']
-        || $showDeprecatedPages !== $cct['show_deprecated_pages']
+            || $showDeprecatedPages !== $cct['show_deprecated_pages']
+            || $showDeprecatedCustomViews !== $cct['show_deprecated_custom_views']
     ) {
         $contactStatement = $pearDB->prepare(
             'SELECT * FROM contact WHERE contact_id = :contact_id'
@@ -496,9 +498,25 @@ foreach ($help as $key => $text) {
 $tpl->assign("helptext", $helptext);
 
 $tpl->display("formMyAccount.ihtml");
+
+$deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
+$resourcesStatusLabel = _('Dashboards');
+$redirectionUrl = "/dashboards";
 ?>
 <script type='text/javascript' src='./include/common/javascript/keygen.js'></script>
 <script type="text/javascript">
+
+    function display_deprecated_banner() {
+        const url = "<?php echo $redirectionUrl; ?>";
+        const message = "<?php echo $deprecationMessage; ?>";
+        const label = "<?php echo $resourcesStatusLabel; ?>";
+        jQuery('.pathway').append(
+            '<span style="color:#FF4500;padding-left:10px;font-weight:bold">' + message +
+            '<a style="position:relative" href="' + url + '" isreact="isreact">' + label + '</a></span>'
+        );
+    }
+
+    display_deprecated_banner();
     jQuery(function () {
         jQuery("select[name*='_notification_']").change(function () {
             if (jQuery(this).val()) {

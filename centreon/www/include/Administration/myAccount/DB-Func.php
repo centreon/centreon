@@ -147,7 +147,8 @@ function updateContact($contactId = null)
           'contact_pager = :contactPager, ' .
           'default_page = :defaultPage, ' .
           'show_deprecated_pages = :showDeprecatedPages, ' .
-          'contact_autologin_key = :contactAutologinKey';
+          'contact_autologin_key = :contactAutologinKey, ' .
+          'show_deprecated_custom_views = :showDeprecatedCustomViews';
     $rq .= ' WHERE contact_id = :contactId';
 
     $stmt = $pearDB->prepare($rq);
@@ -176,6 +177,11 @@ function updateContact($contactId = null)
     );
     $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
     $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
+    $stmt->bindValue(
+        ':showDeprecatedCustomViews',
+        isset($ret['show_deprecated_custom_views']) ? '1' : '0',
+        \PDO::PARAM_INT
+    );
     $stmt->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
     $stmt->execute();
 
@@ -270,8 +276,8 @@ function updateNonLocalContactInDB($contact_id = null): void
         'contact_lang = :contactLang, ' .
         'contact_pager = :contactPager, ' .
         'default_page = :defaultPage, ' .
-        'show_deprecated_pages = :showDeprecatedPages';
-
+        'show_deprecated_pages = :showDeprecatedPages, ' .
+        'show_deprecated_custom_views = :showDeprecatedCustomViews';
     $rq .= ' WHERE contact_id = :contactId';
 
     $stmt = $pearDB->prepare($rq);
@@ -289,6 +295,7 @@ function updateNonLocalContactInDB($contact_id = null): void
 
     $stmt->bindValue(':defaultPage', !empty($ret['default_page']) ? $ret['default_page'] : null, \PDO::PARAM_INT);
     $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, \PDO::PARAM_STR);
+    $stmt->bindValue(':showDeprecatedCustomViews', isset($ret['show_deprecated_custom_views']) ? 1 : 0, \PDO::PARAM_STR);
     $stmt->bindValue(':contactId', $contact_id, \PDO::PARAM_INT);
     $stmt->execute();
     $stmt->closeCursor();
