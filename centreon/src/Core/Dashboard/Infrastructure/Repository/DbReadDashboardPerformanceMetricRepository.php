@@ -34,6 +34,9 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
+    /** @var SqlRequestParametersTranslator */
+    private SqlRequestParametersTranslator $sqlRequestParametersTranslator;
+
     /**
      * @param DatabaseConnection $db
      * @param array<
@@ -453,8 +456,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         array $accessGroups = [],
         bool $hasMetricName = false
     ): string {
-        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
+        $this->sqlRequestParametersTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $this->sqlRequestParametersTranslator->setConcordanceArray(
+            ['current_value' => 'm.current_value', 'name' => 'r.name']
+        );
 
         $request
             = <<<'SQL_WRAP'
@@ -484,9 +489,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
 
-        $request .= <<<'SQL'
-                WHERE r.enabled = 1
-            SQL;
+        $searchRequest = $this->sqlRequestParametersTranslator->translateSearchParameterToSql();
+        $request .= ! is_null($searchRequest) ? " {$searchRequest} AND r.enabled = 1" : " WHERE r.enabled = 1";
 
         if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
@@ -496,14 +500,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         if ($hasMetricName) {
             $request .= <<<'SQL'
-                    AND m.metric_name = :metricName
+                AND m.metric_name = :metricName
                 SQL;
         }
 
-        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
+        $sortRequest = $this->sqlRequestParametersTranslator->translateSortParameterToSql();
 
         $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
-        $request .= $sqlRequestTranslator->translatePaginationToSql();
+        $request .= $this->sqlRequestParametersTranslator->translatePaginationToSql();
 
         return $request;
     }
@@ -537,6 +541,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $statement->bindValue($bindToken, $bindValue, $paramType);
             }
         }
+
+        foreach ($this->sqlRequestParametersTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if (! is_null($type)) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+
         $statement->execute();
 
         return $statement;
