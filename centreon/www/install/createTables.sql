@@ -734,7 +734,7 @@ CREATE TABLE `contact` (
   `contact_autologin_key` varchar(255) DEFAULT NULL,
   `default_page` int(11) DEFAULT NULL,
   `show_deprecated_pages` enum('0','1') DEFAULT '0',
-  `show_deprecated_custom_views` enum(0,1) DEFAULT 0,
+  `show_deprecated_custom_views` enum('0','1') DEFAULT '0',
   `contact_charset` varchar(255) DEFAULT NULL,
   `contact_register` tinyint(6) NOT NULL DEFAULT '1',
   `contact_ldap_last_sync` int(11) NOT NULL DEFAULT 0,
