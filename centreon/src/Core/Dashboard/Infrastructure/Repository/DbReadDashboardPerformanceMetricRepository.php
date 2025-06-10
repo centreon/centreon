@@ -99,7 +99,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         } catch (\Throwable $e) {
             throw new RepositoryException(
                 message: 'An error occurred while trying to find performance metrics by request parameters and access groups.',
-                context: ['requestParameters' => $requestParameters->toArray()],
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                ],
                 previous: $e
             );
         }
@@ -126,7 +129,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         } catch (\Throwable $e) {
             throw new RepositoryException(
                 message: 'An error occurred while trying to find performance metrics by request parameters and metric name.',
-                context: ['requestParameters' => $requestParameters->toArray()],
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'metricName' => $metricName,
+                ],
                 previous: $e
             );
         }
@@ -155,7 +161,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         } catch (\Throwable $e) {
             throw new RepositoryException(
                 message: 'An error occurred while trying to find performance metrics by request parameters, access groups and metric name.',
-                context: ['requestParameters' => $requestParameters->toArray()],
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                    'metricName' => $metricName,
+                ],
                 previous: $e
             );
         }
