@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
+      - app-etc:/etc/centreon/:rw
       - app-data:/var/www/html:rw,z
       - app-engine:/etc/centreon-engine:rw,z
       - app-broker:/etc/centreon-broker:rw,z
@@ -65,6 +66,7 @@ networks:
     driver: bridge
 
 volumes:
+  app-etc:
   app-data:
   app-engine:
   app-broker:
