@@ -490,7 +490,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         $searchRequest = $this->sqlRequestParametersTranslator->translateSearchParameterToSql();
-        $request .= ! is_null($searchRequest) ? " {$searchRequest} AND r.enabled = 1" : " WHERE r.enabled = 1";
+        $request .= ! is_null($searchRequest) ? " {$searchRequest} AND r.enabled = 1" : ' WHERE r.enabled = 1';
 
         if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
