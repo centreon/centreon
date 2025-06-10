@@ -41,7 +41,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *			port: int,
  *			poller_ca_certificate: ?string,
  *			poller_ca_name: ?string,
- *          token: null|array{name:string,creator_id:int}
+ *			token: null|array{name:string,creator_id:int}
  *		}>
  *  }
  */

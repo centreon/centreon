@@ -89,7 +89,7 @@ class CmaValidator implements TypeValidatorInterface
                      *		port: int,
                      *		poller_ca_certificate: ?string,
                      *		poller_ca_name: ?string,
-                     *      token: ?array{name:string,creator_id:int}
+                     *		token: ?array{name:string,creator_id:int}
                      *	} $host
                      */
                     if ($host['poller_ca_certificate'] !== null) {
