@@ -92,7 +92,7 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
     public function getSupportedTypes(?string $format): array
     {
         return [
-            '*' => false,
+            Token::class => false,
         ];
     }
 
