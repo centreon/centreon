@@ -41,7 +41,7 @@ final class DashboardContactGroupsResponseNormalizer implements NormalizerInterf
      * @param mixed $data
      * @param ?string $format
      */
-    public function supportsNormalization(mixed $data, ?string $format = null, $context = []): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof ContactGroupsResponseDto;
     }
