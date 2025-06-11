@@ -19,7 +19,7 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   "base_url": "http://${OPENID_IP_ADDRESS}:8080/realms/Centreon_SSO/protocol/openid-connect",
   "authorization_endpoint": "/auth",
   "token_endpoint": "/token",
-  "end_session_endpoint": "/logout",
+  "endsession_endpoint": "/logout",
   "client_id": "centreon-oidc-frontend",
   "client_secret": "IKbUBottl5eoyhf0I5Io2nuDsTA85D50",
   "introspection_token_endpoint": "/token/introspect",
