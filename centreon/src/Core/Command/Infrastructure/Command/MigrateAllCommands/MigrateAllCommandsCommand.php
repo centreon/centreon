@@ -28,17 +28,18 @@ use Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommands;
 use Core\Command\Infrastructure\Repository\ApiWriteCommandRepository;
 use Core\Common\Infrastructure\Command\AbstractMigrationCommand;
 use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'command:all',
+    description: 'Migrate all commands from the current platform to the defined target platform')
+]
 class MigrateAllCommandsCommand extends AbstractMigrationCommand
 {
     use LoggerTrait;
-
-    protected static $defaultName = 'command:all';
-
-    protected static $defaultDescription = 'Migrate all commands from the current platform to the defined target platform';
 
     public function __construct(
         ReadProxyRepositoryInterface $readProxyRepository,
