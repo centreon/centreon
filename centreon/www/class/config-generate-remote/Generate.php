@@ -299,7 +299,7 @@ class Generate
             if (file_exists($generateFile)) {
                 require_once $generateFile;
                 $module = $this->ucFirst(['-', '_', ' '], $module);
-                $class = '\\' . $module . \ConfigGenerateRemote\Generate::class;
+                $class = sprintf('\\%s\%s', $module, \ConfigGenerateRemote\Generate::class);
                 if (class_exists($class)) {
                     $this->moduleObjects[] = $class;
                 }
