@@ -5726,7 +5726,6 @@ msgstr ""
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -9386,6 +9385,11 @@ msgstr "Error al guardar la configuración."
 #, fuzzy
 msgid "Error while retrieving an additional configuration"
 msgstr "Error al insertar la configuración del módulo RRD de Centreon Broker"
+
+#: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
+#, fuzzy
+msgid "Error while retrieving host dependencies"
+msgstr "Se ha producido un error al recuperar los categorías de hosts"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 #, fuzzy
@@ -17168,7 +17172,6 @@ msgstr "No hay páginas definidas"
 msgid "No {{type}} found with this status"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -17601,7 +17604,6 @@ msgstr "De acuerdo"
 msgid "Ok services"
 msgstr "Servicio"
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 msgid "Ok/Up"
 msgstr "Ok/Disponible"
@@ -18095,7 +18097,6 @@ msgstr "Pares"
 
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -22847,7 +22848,6 @@ msgstr "Lista de usuarios"
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -22888,7 +22888,6 @@ msgstr ""
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
 msgid "Up"
