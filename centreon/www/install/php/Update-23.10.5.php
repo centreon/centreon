@@ -25,6 +25,34 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.10.5: ';
 $errorMessage = '';
 
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
+$populateDashboardTables = function(CentreonDb $pearDB): void {
+  $statement = $pearDB->query(
+      <<<'SQL'
+          SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+          SQL
+  );
+  if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+      $pearDB->query(
+          <<<'SQL'
+              INSERT INTO `dashboard_widgets` (`name`)
+              VALUES
+                  ('centreon-widget-statusgrid')
+              SQL
+      );
+  }
+};
+
 // ------------ INSERT / UPDATE / DELETE
 $updateTopologyForCloudNotifications = function(CentreonDB $pearDB): void {
     $statement = $pearDB->query(
@@ -52,6 +80,10 @@ try {
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
+    
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
+    $populateDashboardTables($pearDB);
+
     $errorMessage = 'Unable to update topology for Cloud Notifications';
     $updateTopologyForCloudNotifications($pearDB);
 

@@ -36,6 +36,23 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
     }
 };
 
+$populateDashboardTables = function(CentreonDb $pearDB): void {
+  $statement = $pearDB->query(
+      <<<'SQL'
+          SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+          SQL
+  );
+  if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+      $pearDB->query(
+          <<<'SQL'
+              INSERT INTO `dashboard_widgets` (`name`)
+              VALUES
+                  ('centreon-widget-statusgrid')
+              SQL
+      );
+  }
+};
+
 $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
@@ -52,6 +69,7 @@ $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): 
 try {
     $errorMessage = '';
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
+    $populateDashboardTables($pearDB);
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
