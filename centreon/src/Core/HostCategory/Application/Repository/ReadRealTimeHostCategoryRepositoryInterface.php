@@ -50,9 +50,9 @@ interface ReadRealTimeHostCategoryRepositoryInterface
      *
      * @throws RepositoryException
      *
-     * @return string[]
+     * @return Tag[]
      */
-    public function existByNames(array $names): array;
+    public function findByNames(array $names): array;
 
     /**
      * @param string[] $names
@@ -60,8 +60,8 @@ interface ReadRealTimeHostCategoryRepositoryInterface
      *
      * @throws RepositoryException
      *
-     * @return string[]
+     * @return Tag[]
      */
-    public function existByNamesAndAccessGroups(array $names, array $accessGroups): array;
+    public function findByNamesAndAccessGroups(array $names, array $accessGroups): array;
 }
 

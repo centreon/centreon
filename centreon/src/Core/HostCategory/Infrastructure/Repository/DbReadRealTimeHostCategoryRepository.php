@@ -227,7 +227,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByNames(array $names): array
+    public function findByNames(array $names): array
     {
         try {
             if ([] === $names) {
@@ -239,11 +239,17 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             $query = $this->translateDbName(
                 <<<SQL
                     SELECT
-                        `id`
-                    FROM `:dbstg`.tags
-                    WHERE
-                        type = 3
-                        AND `name` IN ({$bindQuery})
+                        1 AS REALTIME,
+                        host_categories.id AS id,
+                        host_categories.name AS name,
+                        host_categories.type AS `type`
+                    FROM `:dbstg`.resources
+                    INNER JOIN `:dbstg`.resources_tags rtags
+                        ON rtags.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.tags AS host_categories
+                        ON host_categories.tag_id  = rtags.tag_id
+                    WHERE host_categories.`type` = 3
+                        AND host_categories.`name` IN ({$bindQuery})
                     SQL
             );
 
@@ -252,8 +258,15 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             foreach ($bindValues as $key => $value) {
                 $statement->bindValue($key, $value, \PDO::PARAM_STR);
             }
+            $statement->execute();
 
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+            $hostCategories = [];
+            foreach ($statement as $record) {
+                /** @var _HostCategoryResultSet $record */
+                $hostCategories[] = $this->createFromRecord($record);
+            }
+
+            return $hostCategories;
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occured while retrieving host categories',
@@ -265,7 +278,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByNamesAndAccessGroups(array $names, array $accessGroups): array
+    public function findByNamesAndAccessGroups(array $names, array $accessGroups): array
     {
         try {
             if ([] === $names || [] === $accessGroups) {
@@ -283,10 +296,18 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
             $query = $this->translateDbName(
                 <<<SQL
                     SELECT
-                        `name`
-                    FROM `:dbstg`.tags
+                        1 AS REALTIME,
+                        host_categories.id AS id,
+                        host_categories.name AS name,
+                        host_categories.type AS `type`
+                    FROM `:dbstg`.resources
+                    INNER JOIN `:dbstg`.resources_tags rtags
+                        ON rtags.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.tags AS host_categories
+                        ON host_categories.tag_id  = rtags.tag_id
+                        AND host_categories.`type` = 3
                     INNER JOIN `:db`.acl_resources_hc_relations arhr
-                        ON tags.id = arhr.hc_id
+                        ON host_categories.id = arhr.hc_id
                     INNER JOIN `:db`.acl_resources res
                         ON arhr.acl_res_id = res.acl_res_id
                     INNER JOIN `:db`.acl_res_group_relations argr
@@ -294,8 +315,8 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
                     WHERE
-                        type = 3
-                        AND `name` IN ({$bindQueryNames})
+                        host_categories.`type` = 3
+                        AND host_categories.`name` IN ({$bindQueryNames})
                         AND ag.acl_group_id IN ({$bindQueryAccessGroups})
                     SQL
             );
@@ -310,7 +331,15 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                 $statement->bindValue($accessGroupKey, $accessGroupId, \PDO::PARAM_INT);
             }
 
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+            $statement->execute();
+
+            $hostCategories = [];
+            foreach ($statement as $record) {
+                /** @var _HostCategoryResultSet $record */
+                $hostCategories[] = $this->createFromRecord($record);
+            }
+
+            return $hostCategories;
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occured while retrieving host categories by access groups',

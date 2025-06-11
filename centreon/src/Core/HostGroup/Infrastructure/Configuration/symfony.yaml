@@ -15,6 +15,9 @@ services:
   Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface:
     class: Core\HostGroup\Infrastructure\Repository\DbWriteHostGroupRepository
 
+  Core\HostGroup\Application\Repository\ReadRealTimeHostGroupRepository:
+    class: Core\HostGroup\Infrastructure\Repository\DbReadRealTimeHostGroupRepository
+
   Core\HostGroup\Infrastructure\Repository\ApiReadHostGroupRepository:
     arguments:
       $logger: '@Centreon\Domain\Log\Logger'

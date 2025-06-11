@@ -45,12 +45,12 @@ final class DbReadRealTimeHostGroupRepository extends DatabaseRepository impleme
             $query = $this->translateDbName(
                 <<<'SQL'
                     SELECT 1
-                    FROM `:dbstg`.tag
+                    FROM `:dbstg`.tags
                     INNER JOIN `:db`.hostgroup
-                        ON tag.id = hostgroup.hg_id
+                        ON tags.id = hostgroup.hg_id
                     WHERE hostgroup.hg_activate = '1'
-                        AND tag.id = :hostGroupId
-                        AND tag.type = 1
+                        AND tags.id = :id
+                        AND tags.type = 1
                     SQL
             );
 
@@ -89,9 +89,9 @@ final class DbReadRealTimeHostGroupRepository extends DatabaseRepository impleme
             $query = $this->translateDbName(
                 <<<'SQL'
                     SELECT 1
-                    FROM `:dbstg`.tag
+                    FROM `:dbstg`.tags
                     INNER JOIN `:db`.hostgroup
-                        ON tag.id = hostgroup.hg_id
+                        ON tags.id = hostgroup.hg_id
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
                         ON hg.hg_id = arhr.hg_hg_id
                     INNER JOIN `:db`.acl_resources res
@@ -101,8 +101,8 @@ final class DbReadRealTimeHostGroupRepository extends DatabaseRepository impleme
                     INNER JOIN `:db`.acl_groups ag
                         ON argr.acl_group_id = ag.acl_group_id
                     WHERE hostgroup.hg_activate = '1'
-                        AND tag.id = :hostGroupId
-                        AND tag.type = 1
+                        AND tags.id = :id
+                        AND tags.type = 1
                     SQL
             );
 
