@@ -170,7 +170,7 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'CA', tag: 'input' })
     .eq(2)
     .type('my-certificate-name-003.crt');
-  cy.getByTestId({ testId: 'Select existing CMA token(s)' }).eq(0).click();
+  cy.getByTestId({ testId: 'Select existing CMA token(s)' }).eq(1).click();
   cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
 });
