@@ -105,10 +105,6 @@ jobs:
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
-      - name: Clean up code coverage results
-        shell: bash
-        run: node centreon/packages/js-config/cypress/component/excludeNodeModulesFromCoverage.js ${{ inputs.module_name }}/.nyc_output/out.json
-
       - name: Archive test results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         if: ${{ failure() }}
@@ -129,14 +125,14 @@ jobs:
           retention-days: 1
 
       - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/.nyc_output/out.json ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+        run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
         shell: bash
 
       - name: Archive test coverage
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
-          path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+          path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
           retention-days: 1
 
   cypress-component-coverage-report:
@@ -155,7 +151,7 @@ jobs:
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
           pattern: ${{ inputs.name }}-component-test-coverage-*
-          path: .nyc_output/
+          path: coverage/
           merge-multiple: true
 
       - uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
@@ -173,8 +169,8 @@ jobs:
 
       - name: Merge coverage reports
         run: |
-          pnpx nyc merge .nyc_output
-          mv coverage.json .nyc_output/out.json
+          pnpx nyc merge coverage
+          mv coverage.json coverage/out.json
         shell: bash
 
       - name: Generate lcov coverage report
