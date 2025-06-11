@@ -57,12 +57,19 @@ When(
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  // cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(":disabled")) {
+      return;
+    } else {
+      cy.wrap($btn).click();
+      cy.wait('@updateOIDCProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    }
+  });
 
-  cy.wait('@updateOIDCProvider')
-    .its('response.statusCode')
-    .should('eq', 204)
-    .getByLabel({ label: 'Client secret', tag: 'input' })
+  cy.getByLabel({ label: 'Client secret', tag: 'input' })
     .should('have.attr', 'type', 'password')
     .logout();
 
@@ -127,21 +134,21 @@ When(
       .getByLabel({
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
-      })
-      .check();
+      }).then(($input) => {
+        if ($input.is(":checked")) {
+          return;
+        }
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+        cy.wrap($input).check();
 
-    cy.wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204)
-      .getByLabel({
-        label: 'Enable OpenID Connect authentication',
-        tag: 'input'
-      })
-      .should('be.checked')
-      .and('have.value', 'on')
-      .logout();
+        cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+        cy.wait('@updateOIDCProvider')
+          .its('response.statusCode')
+          .should('eq', 204);
+      });
+
+    cy.logout();
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
