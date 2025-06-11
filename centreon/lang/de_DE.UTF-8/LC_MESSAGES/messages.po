@@ -19,7 +19,6 @@ msgstr ""
 msgid " + Add a new entry"
 msgstr " + Neuen Eintrag hinzufügen"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid " Required fields"
 msgstr " Benötigte Felder"
@@ -13249,6 +13248,7 @@ msgstr "Erforderliches Feld"
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/configuration/configResources/formResources.php
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
