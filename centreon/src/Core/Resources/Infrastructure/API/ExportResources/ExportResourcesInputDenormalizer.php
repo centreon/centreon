@@ -110,7 +110,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
     public function getSupportedTypes(?string $format): array
     {
         return [
-            '*' => false,
+            ExportResourcesInput::class => false,
         ];
     }
 }
