@@ -170,7 +170,7 @@ jobs:
       - name: Merge coverage reports
         run: |
           pnpx nyc merge coverage
-          mv coverage.json coverage/out.json
+          mv coverage.json .nyc-output/out.json
         shell: bash
 
       - name: Generate lcov coverage report
