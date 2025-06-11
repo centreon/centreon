@@ -77,4 +77,7 @@ docker-compose.yml
 checkstyle.core.xml
 .swc
 junit.xml
+.php-cs-fixer.new.cache
 
+# castor
+.castor.stub.php
