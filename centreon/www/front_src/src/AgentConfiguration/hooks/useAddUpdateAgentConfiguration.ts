@@ -111,7 +111,7 @@ const adaptCMAConfigurationToAPI = (
         token:
           equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
           !configuration.isReverse
-            ? {}
+            ? null
             : {
                 name: host?.token?.name,
                 creator_id: host?.token?.creatorId

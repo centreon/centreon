@@ -815,7 +815,7 @@ describe('Agent configurations modal', () => {
               port: 4317,
               poller_ca_name: null,
               poller_ca_certificate: null,
-              token: {}
+              token: null
             }
           ]
         }
