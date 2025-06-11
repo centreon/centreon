@@ -11,6 +11,9 @@ services:
       MYSQL_HOST: db
       GLPI_HOST: glpi
       VAULT_HOST: vault
+      OPENID_HOST: openid
+      SAML_HOST: saml
+      LDAP_HOST: openldap
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
     healthcheck:
