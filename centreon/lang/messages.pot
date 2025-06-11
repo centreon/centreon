@@ -5065,8 +5065,6 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -6378,6 +6376,10 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "Error while retrieving an additional configuration"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
+msgid "Error while retrieving host dependencies"
 msgstr ""
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
@@ -11663,8 +11665,6 @@ msgstr ""
 msgid "No {{type}} found with this status"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
@@ -12109,7 +12109,6 @@ msgstr ""
 msgid "Ok services"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 msgid "Ok/Up"
@@ -12598,8 +12597,6 @@ msgstr ""
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Services/service.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
@@ -17577,8 +17574,6 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -17626,7 +17621,6 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
-#: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
