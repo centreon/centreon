@@ -105,7 +105,7 @@ class CountResourcesInputDenormalizer implements DenormalizerInterface, Denormal
     public function getSupportedTypes(?string $format): array
     {
         return [
-            '*' => false,
+            CountResourcesInput::class => false,
         ];
     }
 }
