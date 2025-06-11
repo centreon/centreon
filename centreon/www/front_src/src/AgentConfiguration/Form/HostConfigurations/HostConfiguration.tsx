@@ -8,6 +8,12 @@ import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
+
+import RedirectToTokensPage from '../RedirectToTokensPage';
+import { useHostConfiguration } from './useHostConfiguration';
+
+import CMATokens from './CMATokenField';
+
 import {
   labelCACommonName,
   labelCaCertificate,
@@ -15,7 +21,6 @@ import {
   labelPort,
   labelSelectHost
 } from '../../translatedLabels';
-import { useHostConfiguration } from './useHostConfiguration';
 
 interface Props {
   index: number;
@@ -31,7 +36,9 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostTouched,
     changePort,
     areCertificateFieldsVisible,
-    changeStringInput
+    changeStringInput,
+    changeCMAToken,
+    token
   } = useHostConfiguration({
     index
   });
@@ -57,7 +64,6 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         }
         value={{ id: host.id, name: host.name }}
       />
-      <div />
       <TextField
         required
         value={host.address}
@@ -90,46 +96,52 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           }
         }}
       />
-      {areCertificateFieldsVisible && (
-        <TextField
-          value={host?.pollerCaCertificate || ''}
-          onChange={changeStringInput('pollerCaCertificate')}
-          label={t(labelCaCertificate)}
-          dataTestId={labelCaCertificate}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCaCertificate
-              }
-            }
-          }}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaCertificate &&
-              hostErrors?.pollerCaCertificate) ||
-            undefined
-          }
-        />
-      )}
 
       {areCertificateFieldsVisible && (
-        <TextField
-          value={host?.pollerCaName || ''}
-          onChange={changeStringInput('pollerCaName')}
-          label={t(labelCACommonName)}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCACommonName
+        <>
+          <TextField
+            value={host?.pollerCaCertificate || ''}
+            onChange={changeStringInput('pollerCaCertificate')}
+            label={t(labelCaCertificate)}
+            dataTestId={labelCaCertificate}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCaCertificate
+                }
               }
+            }}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaCertificate &&
+                hostErrors?.pollerCaCertificate) ||
+              undefined
             }
-          }}
-          dataTestId={labelCACommonName}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-          }
-        />
+          />
+
+          <TextField
+            value={host?.pollerCaName || ''}
+            onChange={changeStringInput('pollerCaName')}
+            label={t(labelCACommonName)}
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'aria-label': labelCACommonName
+                }
+              }
+            }}
+            dataTestId={labelCACommonName}
+            fullWidth
+            error={
+              (hostTouched?.pollerCaName && hostErrors?.pollerCaName) ||
+              undefined
+            }
+          />
+
+          <CMATokens changeCMAToken={changeCMAToken} value={token} />
+          <div />
+          <RedirectToTokensPage />
+        </>
       )}
     </Box>
   );
