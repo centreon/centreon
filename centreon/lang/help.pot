@@ -406,10 +406,10 @@ msgid ""
 "to exactly 1 monitoring engine status."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
@@ -427,8 +427,8 @@ msgid ""
 "after submission of this trap."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Clickable URL displayed in the Notes column of the Resources Status page."
 msgstr ""
@@ -676,9 +676,9 @@ msgstr ""
 msgid "Define an optional string of notes pertaining to the host group."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
 "icon image."
@@ -1135,8 +1135,8 @@ msgid ""
 "this service here. By default active service checks are enabled."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Enable or disable passive checks here. When disabled submitted states will "
 "be not accepted."
@@ -1377,8 +1377,8 @@ msgid ""
 "are 48.51,2.20"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Geographic coordinates to allow Centreon MAP to plot the resource on a "
 "geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
@@ -1606,8 +1606,8 @@ msgid "Images."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
-#: centreon/www/include/options/accessLists/menusACL/help.php
 #: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/menusACL/help.php
 msgid "Implied ACL groups."
 msgstr ""
 
@@ -1619,8 +1619,8 @@ msgstr ""
 msgid "Implied users."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Information note displayed as a tooltip in the Notes column of the Resources "
 "Status page."
@@ -2497,8 +2497,8 @@ msgid ""
 "not covered by the time period, no notifications will be sent out."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/meta_service/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
+#: centreon/www/include/configuration/configObject/meta_service/help.php
 msgid ""
 "Specify the time period during which notifications of events for this "
 "service can be sent out to contacts. If a state change occurs during a time "
@@ -2612,8 +2612,8 @@ msgid ""
 "by login in autologin or * in LDAP import"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
 "command by using the $_HOSTSNMPCOMMUNITY$ and $_HOSTSNMPVERSION$ macros."
@@ -2803,8 +2803,8 @@ msgstr ""
 msgid "The number elements loaded in async select."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/meta_service/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
+#: centreon/www/include/configuration/configObject/meta_service/help.php
 msgid ""
 "The optional definition of a graph template will be used as default graph "
 "template for this service."
@@ -3313,8 +3313,8 @@ msgid ""
 "contact or contact group in each service definition."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This is a list of contacts that should be notified whenever there are "
 "problems (or recoveries) with this host. Useful if you want notifications to "
@@ -4078,8 +4078,8 @@ msgid ""
 "enabling this option, please do not enable it."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "This parameters are passed to the event handler commands in the same way "
 "check command parameters are handled. The format is: !ARG1!ARG2!...ARGn"
@@ -4304,8 +4304,8 @@ msgid ""
 "the monitoring consoles."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contact definition will not override the definitions on "
 "template levels, it will be appended instead."
@@ -4317,8 +4317,8 @@ msgid ""
 "on template levels, it will be appended instead."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "When enabled, the contactgroup definition will not override the definitions "
 "on template levels, it will be appended instead."
