@@ -4,10 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
 
-import {
-  labelPollers,
-  labelSelectExistingCMAToken
-} from '../../translatedLabels';
+import { labelSelectExistingCMAToken } from '../../translatedLabels';
 
 const CMATokens = ({ value, changeCMAToken }): JSX.Element => {
   const { t } = useTranslation();
@@ -15,7 +12,7 @@ const CMATokens = ({ value, changeCMAToken }): JSX.Element => {
   return (
     <SingleConnectedAutocompleteField
       disableClearable={false}
-      dataTestId={labelPollers}
+      dataTestId={labelSelectExistingCMAToken}
       field="token_name"
       getEndpoint={getTokensEndpoint}
       label={t(labelSelectExistingCMAToken)}
