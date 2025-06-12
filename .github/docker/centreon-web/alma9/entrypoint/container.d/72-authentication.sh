@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ ! -z ${LDAP_HOST} ] && getent hosts ${LDAP_HOST}; then
+  MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE auth_ressource SET ar_enable = '1' WHERE ar_name = 'openldap'"
+fi
+
 if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   CONTACT_TEMPLATE_NAME="openid_contact_template"
   sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "saml_contact_template;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"

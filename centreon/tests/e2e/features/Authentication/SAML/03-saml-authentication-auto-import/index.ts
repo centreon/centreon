@@ -74,7 +74,7 @@ When('the administrator activates the auto-import option for SAML', () => {
     label: 'Contact template',
     tag: 'input'
   })
-    .type('{selectall}{backspace}contact_template')
+    .type('{selectall}{backspace}saml_contact_template')
     .wait('@getListContactTemplates')
     .get('div[role="presentation"] ul li')
     .eq(-1)
@@ -83,7 +83,7 @@ When('the administrator activates the auto-import option for SAML', () => {
       label: 'Contact template',
       tag: 'input'
     })
-    .should('have.value', 'contact_template');
+    .should('have.value', 'saml_contact_template');
 
   cy.getByLabel({
     label: 'Email attribute',
@@ -168,7 +168,7 @@ Then(
           );
           cy.getByTestId({ tag: 'select', testId: 'contact_template_id' })
             .find(':selected')
-            .contains('contact_template');
+            .contains('saml_contact_template');
         });
     });
   }

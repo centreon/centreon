@@ -83,7 +83,7 @@ services:
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]
-    profiles: ["openldap"]
+    profiles: ["openldap", "ldap"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest
