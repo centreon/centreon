@@ -1,6 +1,10 @@
 #!/bin/sh
 
 if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
+  CONTACT_TEMPLATE_NAME="openid_contact_template"
+  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "saml_contact_template;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
+  CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
+
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
 
@@ -30,29 +34,23 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
     "openid"
   ],
   "email_bind_attribute": "email",
-  "fullname_bind_attribute": "name"
-}
-PAYLOAD
-
-  if [ $CENTREON_DATASET = "1" ]; then
-    curl -X PATCH \
-      --fail-with-body \
-      -H "Content-Type: application/json" \
-      -H "X-AUTH-TOKEN: $TOKEN" \
-      -L "http://localhost:80/centreon/api/latest/administration/authentication/providers/openid" \
-      --data @- <<- PAYLOAD
-{
-  "auto_import": true,
-  "contact_template": {
-    "id": 19,
-    "name": "contact_template"
+  "fullname_bind_attribute": "name",
+  {
+    "auto_import": true,
+    "contact_template": {
+      "id": $CONTACT_TEMPLATE_ID,
+      "name": "$CONTACT_TEMPLATE_NAME"
+    }
   }
 }
 PAYLOAD
-  fi
 fi
 
 if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
+  CONTACT_TEMPLATE_NAME="saml_contact_template"
+  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "saml_contact_template;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
+  CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
+
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
 
@@ -79,8 +77,8 @@ if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
   "logout_from_url": "http://${SAML_IP_ADDRESS}:8080/realms/Centreon_SSO/protocol/saml",
   "auto_import": true,
   "contact_template": {
-    "id": 19,
-    "name": "contact_template"
+    "id": $CONTACT_TEMPLATE_ID,
+    "name": "$CONTACT_TEMPLATE_NAME"
   },
   "email_bind_attribute": "urn:oid:1.2.840.113549.1.9.1",
   "fullname_bind_attribute": "urn:oid:2.5.4.42",

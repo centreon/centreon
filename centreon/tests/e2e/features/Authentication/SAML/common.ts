@@ -33,25 +33,25 @@ const configureSAML = (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.remoteLoginURL);
+    .type(`{selectall}{backspace}${samlConfigValues.remoteLoginURL}`);
 
   cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.entityID);
+    .type(`{selectall}{backspace}${samlConfigValues.entityID}`);
 
   cy.getByLabel({
     label: 'Copy/paste x.509 certificate',
     tag: 'textarea'
   })
     .should('be.visible')
-    .type(samlConfigValues.x509Certificate);
+    .type(`{selectall}{backspace}${samlConfigValues.x509Certificate}`);
 
   cy.getByLabel({
     label: 'User ID (login) attribute for Centreon user',
     tag: 'input'
   })
     .should('be.visible')
-    .type(samlConfigValues.loginAttribute);
+    .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
 
   cy.getByLabel({ label: 'Requested authentication context' })
     .should('be.visible');
@@ -64,7 +64,7 @@ const configureSAML = (): Cypress.Chainable => {
   return cy
     .getByLabel({ label: 'Logout URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.logoutURL);
+    .type(`{selectall}{backspace}${samlConfigValues.logoutURL}`);
 };
 
 const navigateToSAMLConfigPage = (): Cypress.Chainable => {
