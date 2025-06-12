@@ -25,6 +25,7 @@ namespace App\Shared\Infrastructure\Legacy;
 use App\Kernel as LegacyKernel;
 use App\Shared\Infrastructure\Symfony\Kernel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -46,8 +47,7 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
         $newContainer = $this->kernel->getContainer();
         global $newContainer;
 
-        // bootstrap the legacy app
-        require_once $this->projectDir.'/config/bootstrap.php';
+        $this->bootstrapLegacy();
         $legacyKernel = new LegacyKernel($this->kernel->getEnvironment(), $this->kernel->isDebug());
 
         // handle the request by the legacy
@@ -55,5 +55,20 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
         $legacyKernel->terminate($request, $legacyResponse);
 
         return $legacyResponse;
+    }
+
+    private function bootstrapLegacy(): void
+    {
+        global $constants, $conf_centreon, $centreon_path, $classdir;
+
+        $constants = $conf_centreon = [];
+
+        require $this->projectDir.'/config/centreon.config.php';
+
+        (new Dotenv())->bootEnv($this->projectDir.'/.env');
+        (new Dotenv())->populate($constants);
+        (new Dotenv())->populate($conf_centreon);
+
+        require_once $this->projectDir.'/container.php';
     }
 }
