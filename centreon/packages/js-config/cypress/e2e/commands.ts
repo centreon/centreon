@@ -166,6 +166,12 @@ Cypress.Commands.add('getContainersLogs', () => {
   return cy.task('getContainersLogs');
 });
 
+Cypress.Commands.add('getContainerMappedPort', (containerName: string, containerPort: number) => {
+  cy.log(`Getting mapped port ${containerPort} of container ${containerName}`);
+
+  return cy.task('getContainerMappedPort', { containerName, containerPort });
+});
+
 interface CopyFromContainerProps {
   destination: string;
   name?: string;
@@ -916,6 +922,7 @@ declare global {
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
+      getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
