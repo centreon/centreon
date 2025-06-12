@@ -21,7 +21,7 @@
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = 'xx.xx.x';
+$version = '24.10.8';
 $errorMessage = '';
 
 // -------------------------------------------- Agent Configuration -------------------------------------------- //
