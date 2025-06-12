@@ -35,8 +35,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'command:all',
-    description: 'Migrate all commands from the current platform to the defined target platform')
-]
+    description: 'Migrate all commands from the current platform to the defined target platform'
+)]
 class MigrateAllCommandsCommand extends AbstractMigrationCommand
 {
     use LoggerTrait;
