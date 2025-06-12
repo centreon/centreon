@@ -29,17 +29,18 @@ use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMedias;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMediasRequest;
 use Core\Media\Infrastructure\Repository\ApiWriteMediaRepository;
 use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'media:all',
+    description: 'Migrate all media from the current platform to the defined target platform'
+)]
 class MigrateAllMediasCommand extends AbstractMigrationCommand
 {
     use LoggerTrait;
-
-    protected static $defaultName = 'media:all';
-
-    protected static $defaultDescription = 'Migrate all media from the current platform to the defined target platform';
 
     private int $maxFilesize;
 
