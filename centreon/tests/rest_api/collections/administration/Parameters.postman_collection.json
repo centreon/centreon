@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "2711f95d-beea-46bd-a40d-6420f03bd43d",
+		"_postman_id": "a4424f35-cd4f-49d6-a4a3-a357295d1e69",
 		"name": "Parameters",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-a4424f35-cd4f-49d6-a4a3-a357295d1e69?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -405,8 +406,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"The parameters are listed, because the user have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									""
 								],
