@@ -41,13 +41,49 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
           PR_LABELS: ${{ steps.get-labels.outputs.labels }}
+          EVENT_ACTION: ${{ github.event.action }}
         with:
           script: |
+            const qaApprovedLabel = 'qa-approved';
             for (const label of JSON.parse(process.env.PR_LABELS)) {
-              if (label === 'qa-approved') {
-                console.log('This PR has been approved by the QA team');
-                return;
+              if (label === qaApprovedLabel) {
+                if (process.env.EVENT_ACTION === 'synchronize') {
+                  try {
+                    await github.rest.issues.removeLabel({
+                      name: qaApprovedLabel,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: context.issue.number
+                    });
+                    core.notice(`label ${qaApprovedLabel} removed because changes have been pushed.`);
+                  } catch (e) {
+                    core.warning(`failed to remove label ${qaApprovedLabel}: ${e}`);
+                  }
+                } else {
+                  console.log('This PR has been approved by the QA team');
+                  return;
+                }
               }
+            }
+
+            const getRequestedTeamsFromTimeline = async (page) => {
+              const timeline = await github.rest.issues.listEventsForTimeline({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                per_page: 100,
+                page: page,
+              });
+
+              let requestedTeams = [];
+              for (const event of timeline.data) {
+                if (event.event === 'review_requested' && event?.requested_team?.name) {
+                  requestedTeams.push(event.requested_team.name);
+                }
+              }
+              console.log(`Found ${requestedTeams.length} requested teams in the PR timeline (page ${page}).`);
+
+              return requestedTeams;
             }
 
             const teamsWithQaApproval = [
@@ -58,13 +94,20 @@ jobs:
 
             let needsQaApproval = false;
             try {
-              const fetchedReviewers = await github.rest.pulls.listRequestedReviewers({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number
-              });
-              for (const team of fetchedReviewers.data.teams) {
-                if (teamsWithQaApproval.includes(team.slug)) {
+              let requestedTeams = await getRequestedTeamsFromTimeline(1);
+              if (requestedTeams.length === 0) {
+                requestedTeams = await getRequestedTeamsFromTimeline(2);
+              }
+
+              if (requestedTeams.length === 0) {
+                core.warning('Cannot find any requested teams in the PR timeline (200 last events). Assuming that this PR needs approval by the QA team.');
+                needsQaApproval = true;
+              }
+
+              console.log(`Requested teams found: ${requestedTeams.join(', ')}`);
+              for (const requestedTeam of requestedTeams) {
+                if (teamsWithQaApproval.includes(requestedTeam)) {
+                  console.log(`This PR needs approval by the QA team because team ${requestedTeam} is impacted.`);
                   needsQaApproval = true;
                 }
               }
@@ -74,7 +117,7 @@ jobs:
             }
 
             if (needsQaApproval) {
-              throw new Error('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+              core.setFailed(`This PR is not yet approved by the QA team. If label "${qaApprovedLabel}" has been added, please re-run this workflow.`);
+            } else {
+              core.notice('This PR does not need approval by the QA team');
             }
-
-            core.notice('This PR does not need approval by the QA team');
