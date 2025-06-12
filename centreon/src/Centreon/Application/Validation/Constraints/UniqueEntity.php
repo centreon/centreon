@@ -44,7 +44,7 @@ class UniqueEntity extends Constraint
     public const NOT_UNIQUE_ERROR = '23bd9dbf-6b9b-41cd-a99e-4844bcf3077c';
 
     /**
-     * @var mixed
+     * @var string
      */
     public $validatorClass = UniqueEntityValidator::class;
 
@@ -89,16 +89,16 @@ class UniqueEntity extends Constraint
     public $ignoreNull = true;
 
     /**
-     * @var string[]
+     * @var array<string, string>
      */
-    protected static $errorNames = [
+    protected const ERROR_NAMES = [
         self::NOT_UNIQUE_ERROR => 'NOT_UNIQUE_ERROR',
     ];
 
     /**
      * {@inheritdoc}
      */
-    public function getTargets()
+    public function getTargets(): string|array
     {
         return self::CLASS_CONSTRAINT;
     }
@@ -106,7 +106,7 @@ class UniqueEntity extends Constraint
     /**
      * @return string
      */
-    public function getDefaultOption()
+    public function getDefaultOption(): string
     {
         return 'fields';
     }
@@ -116,7 +116,7 @@ class UniqueEntity extends Constraint
      *
      * @return string
      */
-    public function validatedBy()
+    public function validatedBy(): string
     {
         return $this->validatorClass;
     }

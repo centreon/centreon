@@ -21,30 +21,30 @@
 
 namespace Centreon;
 
-use Pimple\Container;
-use Pimple\Psr11\ServiceLocator;
-use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use Centreon\Application\Validation;
 use Centreon\Application\Webservice;
+use Centreon\Domain\Repository\CfgCentreonBrokerInfoRepository;
+use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
+use Centreon\Domain\Service\BrokerConfigurationService;
+use Centreon\Domain\Service\FrontendComponentService;
+use Centreon\Domain\Service\I18nService;
+use Centreon\Infrastructure\Event;
 use Centreon\Infrastructure\Provider\AutoloadServiceProviderInterface;
 use Centreon\Infrastructure\Service;
-use Centreon\Infrastructure\Event;
-use Centreon\Infrastructure\Service\CentreonWebserviceService;
-use Centreon\Infrastructure\Service\CentreonClapiService;
 use Centreon\Infrastructure\Service\CentcoreConfigService;
+use Centreon\Infrastructure\Service\CentreonClapiService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\Domain\Service\I18nService;
-use Centreon\Domain\Service\FrontendComponentService;
-use Centreon\Domain\Service\BrokerConfigurationService;
-use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
-use Centreon\Domain\Repository\CfgCentreonBrokerInfoRepository;
+use Centreon\Infrastructure\Service\CentreonWebserviceService;
+use CentreonACL as CACL;
 use CentreonClapi\CentreonACL;
-use Centreon\Application\Validation;
+use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Pimple\Container;
+use Pimple\Psr11\ServiceLocator;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Serializer;
 use Symfony\Component\Validator;
 use Symfony\Component\Validator\Constraints;
-use CentreonACL as CACL;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Symfony\Component\Serializer;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 
 class ServiceProvider implements AutoloadServiceProviderInterface
 {
@@ -241,7 +241,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::SERIALIZER_OBJECT_NORMALIZER] = function (): Serializer\Normalizer\ObjectNormalizer {
             $classMetadataFactory = new Serializer\Mapping\Factory\ClassMetadataFactory(
-                new Serializer\Mapping\Loader\AnnotationLoader(new AnnotationReader())
+                new Serializer\Mapping\Loader\AttributeLoader(new AnnotationReader())
             );
 
             return new Serializer\Normalizer\ObjectNormalizer(
