@@ -497,6 +497,21 @@ jobs:
           echo "::endgroup::"
         shell: bash
 
+      - name: Gather deprecation logs
+        id: deprecation-logs
+        if: ${{ ! cancelled() }}
+        run: |
+          feature="${{ matrix.feature }}"
+          feature="${feature##*/}"
+          feature="${feature%%.postman*}"
+          deprecation_file_for_archive="$feature-deprecation.log"
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecation.*\" || echo 'deprecation file not found'")
+          docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
+          echo "Deprecation log file name generated: $deprecation_file_for_archive"
+          echo "Feature"
+          echo "deprecation_file_for_archive=$deprecation_file_for_archive" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Replace / with - in the feature path
         id: feature-path
         if: always()
@@ -519,6 +534,14 @@ jobs:
         with:
           name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
+          retention-days: 1
+
+      - name: Upload deprecation logs
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: newman-${{ inputs.os }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
+          path: ".*-deprecation.log"
           retention-days: 1
 
   synchronize-with-xray:
