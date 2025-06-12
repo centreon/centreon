@@ -52,40 +52,40 @@ runs:
 
     - name: Write NPM package version
       if: ${{ steps.get-latest-npm-branch-version.outputs.package_version != '' && steps.get-latest-npm-branch-version.outputs.package_version != steps.currentVersion.outputs.current_package_version }}
-      run: npm version ${{ steps.get-latest-npm-branch-version.outputs.package_version }} --legacy-peer-deps
+      run: echo ${{ steps.get-latest-npm-branch-version.outputs.package_version }}
       working-directory: ${{ env.directory }}
       shell: bash
-
-    - name: Configure tag
-      run: |
-        echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Bump NPM package version for develop
-      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && github.ref_name == 'develop' }}
-      run: |
-        npm version patch --legacy-peer-deps
-        VERSION=$(node -p "require('./package.json').version")
-        rm ../../package-lock.json
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-      working-directory: ${{ env.directory }}
-      shell: bash
-
-    - name: Bump NPM package version for legacy versions
-      if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && startsWith(github.ref_name, 'dev-') }}
-      run: |
-        PREID=$(echo "${{ github.ref_name }}" | sed "s/\./-/g")
-        npm version prerelease --preid $PREID --legacy-peer-deps
-        VERSION=$(node -p "require('./package.json').version")
-        rm ../../package-lock.json
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-      working-directory: ${{ env.directory }}
-      shell: bash
-
-    - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
-      with:
-        access: public
-        package: ${{ env.directory }}/package.json
-        tag: ${{ env.TAG }}
-        token: ${{ inputs.npm_token }}
+    #
+    # - name: Configure tag
+    #   run: |
+    #     echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
+    #   shell: bash
+    #
+    # - name: Bump NPM package version for develop
+    #   if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && github.ref_name == 'develop' }}
+    #   run: |
+    #     npm version patch --legacy-peer-deps
+    #     VERSION=$(node -p "require('./package.json').version")
+    #     rm ../../package-lock.json
+    #     echo "VERSION=$VERSION" >> $GITHUB_ENV
+    #   working-directory: ${{ env.directory }}
+    #   shell: bash
+    #
+    # - name: Bump NPM package version for legacy versions
+    #   if: ${{ steps.get-latest-npm-branch-version.outputs.skip-bump-version != 1 && startsWith(github.ref_name, 'dev-') }}
+    #   run: |
+    #     PREID=$(echo "${{ github.ref_name }}" | sed "s/\./-/g")
+    #     npm version prerelease --preid $PREID --legacy-peer-deps
+    #     VERSION=$(node -p "require('./package.json').version")
+    #     rm ../../package-lock.json
+    #     echo "VERSION=$VERSION" >> $GITHUB_ENV
+    #   working-directory: ${{ env.directory }}
+    #   shell: bash
+    #
+    # - name: Publish package to NPM (${{ env.TAG }})
+    #   uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
+    #   with:
+    #     access: public
+    #     package: ${{ env.directory }}/package.json
+    #     tag: ${{ env.TAG }}
+    #     token: ${{ inputs.npm_token }}
