@@ -159,6 +159,15 @@ describe('Threshold', () => {
 
     cy.makeSnapshot();
   });
+
+  it('does not display none when metrics are not defined', () => {
+    initializeComponent({ enabled: true, metrics: undefined });
+
+    cy.contains('Default').should('be.visible');
+    cy.contains('(none)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
 });
 
 describe('Disabled threshold', () => {
