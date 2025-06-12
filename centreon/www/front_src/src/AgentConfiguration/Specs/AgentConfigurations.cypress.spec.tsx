@@ -488,7 +488,6 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).blur();
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.abc').blur();
 
-    cy.contains(labelRequired).should('be.visible');
     cy.contains(labelInvalidExtension).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();

@@ -51,13 +51,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const certificateValidation = string().when('$connectionMode.id', {
     is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
     // biome-ignore lint/suspicious/noThenProperty: <explanation>
-    then: () => certificateFileValidation.required(t(labelRequired)),
-    otherwise: () => string().nullable()
-  });
-
-  const certificateNullableValidation = string().when('$connectionMode.id', {
-    is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
-    // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.nullable(),
     otherwise: () => string().nullable()
   });
@@ -70,7 +63,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateNullableValidation,
+    otelCaCertificate: certificateValidation,
     otelPrivateKey: certificateValidation,
     confCertificate: certificateValidation,
     confPrivateKey: certificateValidation
@@ -99,7 +92,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       otherwise: (schema) => schema.nullable()
     }),
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateNullableValidation,
+    otelCaCertificate: certificateValidation,
     otelPrivateKey: certificateValidation,
     hosts: array()
       .of(
@@ -114,7 +107,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             })
             .required(t(labelRequired)),
           port: portValidation,
-          pollerCaCertificate: certificateNullableValidation,
+          pollerCaCertificate: certificateValidation,
           pollerCaName: string().nullable()
         })
       )

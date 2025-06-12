@@ -416,7 +416,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             type: $type,
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
                 Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
             }
         );
