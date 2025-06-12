@@ -6,7 +6,7 @@ fi
 
 if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   CONTACT_TEMPLATE_NAME="openid_contact_template"
-  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "saml_contact_template;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
+  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
 
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
@@ -52,7 +52,7 @@ fi
 
 if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
   CONTACT_TEMPLATE_NAME="saml_contact_template"
-  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "saml_contact_template;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
+  sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
 
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
