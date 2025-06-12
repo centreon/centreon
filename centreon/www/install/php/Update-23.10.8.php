@@ -25,6 +25,33 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.10.8: ';
 $errorMessage = '';
 
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
+$insertStatusGridWidget = function(CentreonDb $pearDB): void {
+  $statement = $pearDB->query(
+      <<<'SQL'
+          SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+          SQL
+  );
+  if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+      $pearDB->query(
+          <<<'SQL'
+              INSERT INTO `dashboard_widgets` (`name`)
+              VALUES
+                  ('centreon-widget-statusgrid')
+              SQL
+      );
+  }
+};
 
 $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
@@ -41,11 +68,13 @@ $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): 
 
 try {
     $errorMessage = '';
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    $insertStatusGridWidget($pearDB);
     $insertResourcesTableWidget($pearDB);
     $pearDB->commit();
 } catch (\Exception $ex) {
