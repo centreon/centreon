@@ -162,7 +162,7 @@ class AgentConfiguration extends AbstractObjectJSON
                 $tokens,
                 static fn(Token $token): bool =>  !(
                     $token->isRevoked()
-                    || ($token->getExpirationDate() !== null && $token->getExpirationdate() < new \DateTimeImmutable())
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new \DateTimeImmutable())
                 )
             );
 
