@@ -1,141 +1,155 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
+
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 if (!isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
+include './include/common/autoNumLimit.php';
 
-include "./include/common/autoNumLimit.php";
+// Preserve and sanitize search term
+$rawSearch = $_POST['searchHD'] ?? $_GET['searchHD'] ?? null;
 
-$list = $_GET["list"] ?? null;
-
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchHD'] ?? $_GET['searchHD'] ?? null
-);
-
-if (isset($_POST['searchHD']) || isset($_GET['searchHD'])) {
+if ($rawSearch !== null) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $search = HtmlSanitizer::createFromString((string) $rawSearch)
+        ->removeTags()
+        ->sanitize()
+        ->getString();
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-$aclFrom = "";
-$aclCond = "";
-if (!$centreon->user->admin) {
-    $aclFrom = ", `$dbmon`.centreon_acl acl ";
-    $aclCond = " AND dhpr.host_host_id = acl.host_id 
-                     AND acl.group_id IN (" . $acl->getAccessGroupsString() . ") ";
+// Fetch dependencies from DB with pagination
+try {
+    $db = $pearDB;
+    $mainSelect = 'SELECT DISTINCT dep.dep_id, dep.dep_name, dep.dep_description ';
+    $sql = <<<SQL
+            FROM dependency dep
+            INNER JOIN dependency_hostParent_relation dhpr ON dhpr.dependency_dep_id = dep.dep_id
+        SQL;
+
+    $where = [];
+    $params = null;
+
+    if (! $centreon->user->admin) {
+        $sql .= " INNER JOIN {$dbmon}.centreon_acl acl ON dhpr.host_host_id = acl.host_id";
+        $where[] = "acl.group_id IN ({$acl->getAccessGroupsString()})";
+    }
+
+    // Search filter
+    if ($search !== null && $search !== '') {
+        $where[] = "(dep.dep_name LIKE :search OR dep.dep_description LIKE :search)";
+        $params = QueryParameters::create([QueryParameter::string('search', "%$search%")]);
+    }
+
+    if (count($where)) {
+        $sql .= " WHERE " . implode(' AND ', $where);
+    }
+
+    $countSql = 'SELECT COUNT(DISTINCT dep.dep_id) AS total ' . $sql;
+
+    $sql .= " ORDER BY dep.dep_name, dep.dep_description";
+    $offset = $num * $limit;
+    $sql .= " LIMIT $limit OFFSET $offset";
+    $sql = $mainSelect . $sql;
+    $dependencies = $db->fetchAllAssociative($sql, $params);
+
+    $countResult = $pearDB->fetchAssociative($countSql, $params);
+    $rows = (int) ($countResult['total'] ?? 0);
+} catch (ValueObjectException | CollectionException | ConnectionException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while fetching host dependencies',
+        ['search' => $search],
+        $exception
+    );
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText(_('Error while retrieving host dependencies'));
+    $dependencies = [];
+    $rows = 0;
 }
 
-// Dependency list
-$rq = "SELECT SQL_CALC_FOUND_ROWS DISTINCT dep_id, dep_name, dep_description "
-    . "FROM dependency dep, dependency_hostParent_relation dhpr " . $aclFrom . " "
-    . "WHERE dhpr.dependency_dep_id = dep.dep_id " . $aclCond . " ";
-
-if ($search) {
-    $rq .= " AND (dep_name LIKE '%" . CentreonDB::escape($search) .
-        "%' OR dep_description LIKE '%" . CentreonDB::escape($search) . "%')";
-}
-$rq .= " ORDER BY dep_name, dep_description LIMIT " . $num * $limit . ", " . $limit;
-$dbResult = $pearDB->query($rq);
-
-// Manage pagination
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+// Pagination setup
 include "./include/common/checkPagination.php";
 
-// Smarty template Init
+// Smarty template initialization
 $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
+$lvlAccess = ($centreon->user->access->page($p) === 1) ? 'w' : 'r';
+$tpl->assign('mode_access', $lvlAccess);
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_description', _('Description'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-// Access level
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
-$tpl->assign('mode_access', $lvl_access);
-
-// Start header menu
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_description", _("Description"));
-$tpl->assign("headerMenu_options", _("Options"));
-
-$search = tidySearchKey($search, $advanced_search);
-
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
-
-// Different style between each lines
-$style = "one";
-
-$attrBtnSuccess = array(
-    "class" => "btc bt_success",
-    "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"
+// Build search form & results
+$searchKey = tidySearchKey($search, $advanced_search);
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=$p");
+$form->addElement(
+    'submit','Search',_('Search'),
+    [
+        'class' => 'btc bt_success',
+        'onClick' => "window.history.replaceState('', '', '?p=$p');"
+    ]
 );
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $dep['dep_id'] . "]");
-    $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-        "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-        $dep['dep_id'] . "]' />";
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure(myDecode($dep["dep_name"])),
-        "RowMenu_description" => CentreonUtils::escapeSecure(myDecode($dep["dep_description"])),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&dep_id=" . $dep['dep_id'],
-        "RowMenu_options" => $moptions
+$elemArr = [];
+$style = 'one';
+foreach ($dependencies as $dep) {
+    $depId = (int) $dep['dep_id'];
+    $checkbox = $form->addElement('checkbox', "select[$depId]");
+    $dupInput = sprintf(
+        '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" style="margin-bottom:0;" name="dupNbr[%d]"/>',
+        $depId
     );
-    $style != "two" ? $style = "two" : $style = "one";
+
+    $elemArr[] = [
+        'MenuClass' => "list_{$style}",
+        'RowMenu_select' => $checkbox->toHtml(),
+        'RowMenu_name' => CentreonUtils::escapeSecure(myDecode((string) $dep['dep_name'])),
+        'RowMenu_description' => CentreonUtils::escapeSecure(myDecode((string) $dep['dep_description'])),
+        'RowMenu_link' => "main.php?p=$p&o=c&dep_id=$depId",
+        'RowMenu_options' => $dupInput,
+    ];
+    $style = ($style === 'one') ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
-$tpl->assign(
-    'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
-);
+$tpl->assign('msg', [
+    'addL' => "main.php?p=$p&o=a",
+    'addT' => _('Add'),
+    'delConfirm' => _('Do you confirm the deletion ?'),
+]);
 
 
 // Toolbar select
@@ -203,11 +217,10 @@ $o2->setValue(null);
 $o2->setSelected(null);
 
 $tpl->assign('limit', $limit);
-$tpl->assign('searchHD', $search);
+$tpl->assign('searchHD', $searchKey);
 
 // Apply a template definition
-
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listHostDependency.ihtml");
+$tpl->display('listHostDependency.ihtml');
