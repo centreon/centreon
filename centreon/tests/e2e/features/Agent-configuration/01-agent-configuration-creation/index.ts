@@ -35,10 +35,18 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/tokens?*'
+  }).as('getTokens');
 });
 
 after(() => {
   cy.stopContainers();
+});
+
+Given('a CMA Token is configured', () => {
+  cy.addCMAToken();
 });
 
 Given('a non-admin user is in the Agents Configuration page', () => {

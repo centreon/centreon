@@ -19,6 +19,7 @@ Feature: Access an Agent Configuration
 
   @TEST_MON-153922
   Scenario: Searching for a name of a PAC that doesn't exist
+    Given a CMA Token is configured
     Given a non-admin user is in the Agents Configuration page
     And some poller agent configurations are created
     When the user enters a non-existent name into the search bar
