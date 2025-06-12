@@ -114,7 +114,9 @@ class CentreonTimePeriod extends CentreonObject
         );
         foreach ($elements as $tab) {
             $tab = array_map('html_entity_decode', $tab);
-            $tab = array_map('utf8_encode', $tab);
+            $tab = array_map(function ($s) {
+                return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');
+            }, $tab);
             echo implode($this->delim, $tab) . "\n";
         }
     }
