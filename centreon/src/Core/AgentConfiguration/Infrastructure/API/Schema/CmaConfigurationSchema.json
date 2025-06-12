@@ -15,7 +15,8 @@
                 "otel_public_certificate",
                 "otel_ca_certificate",
                 "otel_private_key",
-                "hosts"
+                "hosts",
+                "tokens"
             ],
             "properties": {
                 "is_reverse": {
@@ -64,7 +65,8 @@
                             "id",
                             "port",
                             "poller_ca_certificate",
-                            "poller_ca_name"
+                            "poller_ca_name",
+                            "token"
                         ],
                         "properties": {
                             "id": {
@@ -87,6 +89,20 @@
                                     "null",
                                     "string"
                                 ]
+                            },
+                            "token": {
+                                "type": [
+                                    "null",
+                                    "object"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "creator_id": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     }

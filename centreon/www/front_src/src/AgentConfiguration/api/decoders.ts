@@ -81,7 +81,17 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
           pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
           pollerCaName: JsonDecoder.nullable(JsonDecoder.string),
           name: JsonDecoder.optional(JsonDecoder.string),
-          id: JsonDecoder.optional(JsonDecoder.number)
+          id: JsonDecoder.optional(JsonDecoder.number),
+          token: JsonDecoder.optional(
+            JsonDecoder.object(
+              {
+                creatorId: JsonDecoder.number,
+                name: JsonDecoder.string
+              },
+              'token',
+              { creatorId: 'creator_id' }
+            )
+          )
         },
         'Host configuration',
         {

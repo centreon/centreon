@@ -23,6 +23,8 @@ interface UseHostConfigurationState {
   hostErrors: Partial<HostConfiguration> | undefined;
   hostTouched: Partial<HostConfiguration> | undefined;
   areCertificateFieldsVisible: boolean;
+  changeCMAToken: (_, tokens: Array<SelectEntry>) => void;
+  token: { id: string; name: string };
 }
 
 export const useHostConfiguration = ({
@@ -93,6 +95,15 @@ export const useHostConfiguration = ({
     []
   );
 
+  const token = useMemo(
+    () => values.configuration?.hosts[index].token,
+    [values.configuration]
+  );
+
+  const changeCMAToken = (_, token: Array<SelectEntry>): void => {
+    setFieldValue(`configuration.hosts.${index}.token`, token);
+  };
+
   const hostErrors = useMemo(
     () => errors.configuration?.hosts?.[index],
     [errors, index]
@@ -114,6 +125,8 @@ export const useHostConfiguration = ({
     selectHost,
     hostErrors,
     hostTouched,
-    areCertificateFieldsVisible
+    areCertificateFieldsVisible,
+    changeCMAToken,
+    token
   };
 };
