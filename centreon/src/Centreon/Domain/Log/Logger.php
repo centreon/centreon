@@ -44,6 +44,19 @@ class Logger implements LoggerInterface
         log as traitLog;
     }
 
+    /**
+     * Factory
+     *
+     * @return LoggerInterface
+     */
+    public static function create(): LoggerInterface
+    {
+        return new self();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function emergency(string|\Stringable $message, array $context = []): void
     {
         $this->traitEmergency($message, $context);

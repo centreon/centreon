@@ -29,6 +29,8 @@ use Centreon\Infrastructure\DatabaseConnection;
  * This class is designed to perform specific operations on the database
  *
  * @package Centreon\Infrastructure\Repository
+ *
+ * @deprecated instead use {@see DatabaseRepositoryManager}
  */
 class DataStorageEngineRdb implements DataStorageEngineInterface
 {

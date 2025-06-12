@@ -38,6 +38,8 @@ if (!isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -3684,4 +3686,31 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+/**
+ * Will check if the service template inherited by the service has a command.
+ *
+ * @param array<string, mixed> $fields The fields of the service
+ *
+ * @return array<string, string>|bool
+ */
+function checkServiceTemplateHasCommand(array $fields): array|bool
+{
+    global $pearDB;
+    $errors = [];
+    if (isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        $serviceTemplateId = $fields["service_template_model_stm_id"];
+        $serviceTemplateCommand = $pearDB->fetchOne(
+           "SELECT command_command_id FROM service WHERE service_id = :stm_id",
+            QueryParameters::create([QueryParameter::int('stm_id', $serviceTemplateId)])
+        );
+        if ($serviceTemplateCommand === null) {
+            $errors['command_command_id'] = _("The selected inherited service template does not contain any "
+                . "check command. You must select one here."
+            );
+        }
+    }
+
+    return $errors !== [] ? $errors : true;
 }
