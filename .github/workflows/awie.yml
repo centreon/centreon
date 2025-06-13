@@ -119,6 +119,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-noble
+            distrib: noble
 
     runs-on: ubuntu-24.04
 
