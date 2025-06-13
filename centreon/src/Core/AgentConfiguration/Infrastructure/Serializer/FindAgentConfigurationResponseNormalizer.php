@@ -25,18 +25,14 @@ namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
+class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
-    /**
-     * @param ObjectNormalizer $normalizer
-     */
-    public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-    ) {
-    }
+    use NormalizerAwareTrait;
 
     /**
      * @param FindAgentConfigurationResponse $object
@@ -61,6 +57,18 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
                 fn (Poller $poller) => $this->normalizer->normalize($poller, $format, $context),
                 $object->pollers
             );
+            /** @var array{
+             *      configuration: array{
+             *          hosts: array<int, array{
+             *              id: int
+             *          }>
+             *      }
+             * } $data */
+            if ($object->agentConfiguration->getType() === Type::CMA && $object->hostNamesById !== null) {
+                foreach ($data['configuration']['hosts'] as $index => $host) {
+                    $data['configuration']['hosts'][$index]['name'] = $object->hostNamesById->getName($host['id']);
+                }
+            }
         }
 
         return $data;

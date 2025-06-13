@@ -366,8 +366,6 @@ describe('Graph Widget', () => {
     cy.contains('cpu AVG (%)').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
-
-    cy.makeSnapshot();
   });
 
   it('displays the customised bar chart when corresponding props are set', () => {
@@ -383,8 +381,6 @@ describe('Graph Widget', () => {
     cy.contains('cpu AVG (%)').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
-
-    cy.makeSnapshot();
   });
 
   it('displays the stacked bar chart when the corresponding prop is set', () => {
@@ -398,8 +394,6 @@ describe('Graph Widget', () => {
     cy.contains('cpu AVG (%)').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
-
-    cy.makeSnapshot();
   });
 
   it('displays custom stacked bar chart when corresponding props are set', () => {
@@ -414,8 +408,6 @@ describe('Graph Widget', () => {
     cy.contains('cpu AVG (%)').should('be.visible');
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
-
-    cy.makeSnapshot();
   });
 
   legendProperties.forEach(({ mode, positions }) => {

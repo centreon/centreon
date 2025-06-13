@@ -301,6 +301,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
+        $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -336,7 +338,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $accessGroupIds = array_map(
             static fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
-        );
+	);
+
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+
         $this->info('Searching for service templates');
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -349,9 +354,14 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
 
         $serviceTemplates = [];
-        $request = $this->findServiceTemplatesRequest($accessGroupIds);
+        $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
+        if (! empty($subRequest)) {
+            $sqlConcatenator->appendWhere('scr.sc_id IN ('.$subRequest.')');
+        }
+        $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -662,14 +672,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     private function findServiceTemplatesRequest(array $accessGroupIds = []): string
     {
-        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
-        $categoryAcls = empty($subRequest)
-             ? ''
-             : <<<SQL
-                 AND scr.sc_id IN ({$subRequest})
-                 SQL;
-
-        return <<<SQL
+        return <<<'SQL'
             SELECT service_id,
                    service.cg_additive_inheritance,
                    service.contact_additive_inheritance,
@@ -723,15 +726,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             LEFT JOIN `:db`.host
                 ON host.host_id = hsr.host_host_id
                 AND host.host_register = '0'
-            WHERE service_register = '0'
-                {$categoryAcls}
-            GROUP BY service.service_id,
-                esi.esi_action_url,
-                esi.esi_icon_image,
-                esi.esi_icon_image_alt,
-                esi.esi_notes,
-                esi.esi_notes_url,
-                esi.graph_id
             SQL;
     }
 }
