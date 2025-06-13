@@ -72,14 +72,14 @@ class RepositoryCallback extends Constraint
     /**
      * @var array<string,string>
      */
-    protected static $errorNames = [
+    protected const ERROR_NAMES = [
         self::NOT_VALID_REPO_CALLBACK => 'NOT_VALID_REPO_CALLBACK',
     ];
 
     /**
      * {@inheritdoc}
      */
-    public function validatedBy()
+    public function validatedBy(): string
     {
         return RepositoryCallbackValidator::class;
     }
@@ -87,7 +87,7 @@ class RepositoryCallback extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function getTargets()
+    public function getTargets(): string|array
     {
         return self::CLASS_CONSTRAINT;
     }
