@@ -52,7 +52,8 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   return cy.getContainerIpAddress('openid').then((containerIpAddress) => {
     return cy.getContainerMappedPort('openid', 8080).then((containerPort) => {
       const oidcConfigValues = getOidcConfigValues({
-        providerAddress: containerIpAddress
+        providerAddress: containerIpAddress,
+        providerPort: containerPort
       });
 
       // Identity provider section
@@ -95,8 +96,23 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   });
 };
 
+const saveOpenIdFormIfEnabled = () => {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(":disabled")) {
+      return;
+    } else {
+      cy.wrap($btn).click();
+
+      return cy.wait('@updateOIDCProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    }
+  });
+};
+
 export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect
+  configureOpenIDConnect,
+  saveOpenIdFormIfEnabled
 };
