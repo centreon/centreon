@@ -60,6 +60,7 @@ export interface InputProps {
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
     decoder?;
+    limitTags: number;
   };
   file?: {
     multiple?: boolean;
