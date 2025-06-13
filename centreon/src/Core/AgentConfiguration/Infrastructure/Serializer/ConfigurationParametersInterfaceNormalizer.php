@@ -58,9 +58,9 @@ class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
     }
 
     /**
-     * @param array<string, mixed> $context
      * @param mixed $data
      * @param ?string $format
+     * @param array<string, mixed> $context
      */
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {

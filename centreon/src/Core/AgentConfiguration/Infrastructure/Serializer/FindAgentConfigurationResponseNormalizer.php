@@ -75,9 +75,9 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
     }
 
     /**
-     * @param array<string, mixed> $context
      * @param mixed $data
      * @param ?string $format
+     * @param array<string, mixed> $context
      */
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
