@@ -4,6 +4,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
+    "php": "8.2",
     "ext-json": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",

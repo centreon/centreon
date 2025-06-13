@@ -9,6 +9,7 @@
   ],
   "license": "GPL-2.0-only",
   "require-dev": {
+    "php": "8.2",
     "ext-json": "*",
     "ext-openssl": "*",
     "beberlei/assert": "3.3.*",
