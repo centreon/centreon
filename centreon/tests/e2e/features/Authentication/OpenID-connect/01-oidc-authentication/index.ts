@@ -144,6 +144,7 @@ When(
 Then(
   'any user can authenticate using the authentication provider that is configured',
   () => {
+    cy.wait(99999999);
     cy.visit('/');
 
     cy.contains('Login with openid').should('be.visible').click();
