@@ -68,4 +68,15 @@ interface ReadUserRepositoryInterface
      * @throws \Throwable
      */
     public function find(int $userId): ?User;
+
+    /**
+     * Checks if a user is a service user.
+     *
+     * @param int $userId
+     *
+     * throws \Throwable
+     *
+     * @return bool
+     */
+    public function isServiceUser(int $userId): bool;
 }

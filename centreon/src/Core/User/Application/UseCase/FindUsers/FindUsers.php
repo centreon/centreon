@@ -88,6 +88,14 @@ final class FindUsers
                 );
             }
 
+            if ($this->isCloudPlatform) {
+                // Filter out service users in cloud platform
+                $users = array_filter(
+                    $users,
+                    fn(): bool => ! $this->readUserRepository->isServiceUser($this->user->getId())
+                );
+            }
+
             $presenter->presentResponse($this->createResponse($users));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
