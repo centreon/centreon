@@ -874,11 +874,6 @@ msgstr "Ajouter une plage de maintenance"
 msgid "Add filter"
 msgstr "Ajouter un filtre"
 
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Add host"
-msgstr "Ajouter un hôte"
-
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
@@ -7777,6 +7772,11 @@ msgstr "Nom du groupe d'hôte"
 msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, fuzzy, php-format
+msgid "Host ID #%d is invalid"
+msgstr "Hôte #%d introuvable"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Host Information"
 msgstr "Informations sur l'hôte"
@@ -13837,6 +13837,10 @@ msgstr "Sélectionner les colonnes"
 msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
+#: centreon/www/install/front_translate.php
+msgid "Select host"
+msgstr "Sélectionner un hôte"
+
 #: centreon/www/install/react_translation.php
 msgid "Select linked Remote Server"
 msgstr "Selectionez le serveur distant lié"
@@ -18946,6 +18950,10 @@ msgid "{{label}} should be at least {{min}} characters long"
 msgstr "Le nom doit comporter au moins 3 caractères"
 
 #, fuzzy
+#~ msgid "Add host"
+#~ msgstr "Ajouter un hôte"
+
+#, fuzzy
 #~ msgid "API Tokens"
 #~ msgstr "Jeton d'API"
 
@@ -22339,6 +22347,3 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 
 #~ msgid "In 1 year"
 #~ msgstr "Dans 1 an"
-
-msgid "Select host"
-msgstr "Sélectionner un hôte"

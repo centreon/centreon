@@ -887,11 +887,6 @@ msgstr "Añadir un tiempo de inactividad"
 msgid "Add filter"
 msgstr "El filtro de búsqueda para usuarios."
 
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Add host"
-msgstr "Agregar un host"
-
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
@@ -13503,6 +13498,11 @@ msgstr "Nombre del grupo anfitrión"
 msgid "Host Groups Shared"
 msgstr "Grupos compartidos de hosts"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, fuzzy, php-format
+msgid "Host ID #%d is invalid"
+msgstr "Archivo no encontrado"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Host Information"
 msgstr "Información sobre el anfitrión"
@@ -19956,6 +19956,11 @@ msgstr "Centrarse en el arbol"
 msgid "Select criterias"
 msgstr "Seleccionar todo"
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Select host"
+msgstr "Tipo de criticidad"
+
 #: centreon/www/install/react_translation.php
 #, fuzzy
 msgid "Select linked Remote Server"
@@ -25117,6 +25122,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "{{label}} should be at least {{min}} characters long"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Add host"
+#~ msgstr "Agregar un host"
 
 #, fuzzy
 #~ msgid "Active tokens"

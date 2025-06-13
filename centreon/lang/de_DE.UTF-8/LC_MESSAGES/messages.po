@@ -879,11 +879,6 @@ msgstr "Ausfallszeit hinzufügen"
 msgid "Add filter"
 msgstr "Benutzerfilter"
 
-#: centreon/www/install/front_translate.php
-#, fuzzy
-msgid "Add host"
-msgstr "Host hinzufügen"
-
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
@@ -7981,6 +7976,11 @@ msgstr "Hostgruppenname"
 msgid "Host Groups Shared"
 msgstr "Geteilte Hostgruppen"
 
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, fuzzy, php-format
+msgid "Host ID #%d is invalid"
+msgstr "Der angegebene Status %d ist ungültig"
+
 #: centreon/www/install/smarty_translate.php
 msgid "Host Information"
 msgstr "Host Informationen"
@@ -14132,6 +14132,11 @@ msgstr "2 Zeilen"
 msgid "Select criterias"
 msgstr "Zeitraum auswählen..."
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Select host"
+msgstr "Schweregradtyp"
+
 #: centreon/www/install/react_translation.php
 msgid "Select linked Remote Server"
 msgstr "Wählen Sie den verknüpften Remote-Server aus"
@@ -19331,6 +19336,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "{{label}} should be at least {{min}} characters long"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Add host"
+#~ msgstr "Host hinzufügen"
 
 #, fuzzy
 #~ msgid "API Tokens"
