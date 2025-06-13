@@ -2,7 +2,7 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter as Router } from 'react-router';
+import { BrowserRouter as Router } from 'react-router-dom';
 import AgentConfigurationPage from '../Page';
 import {
   agentConfigurationPollersEndpoint,
