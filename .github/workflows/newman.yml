@@ -537,11 +537,11 @@ jobs:
           retention-days: 1
 
       - name: Upload deprecation logs
-        if: always()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: newman-${{ inputs.os }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
-          path: ".*-deprecation.log"
+          path: "centreon/tests/rest_api/*-deprecation.log"
           retention-days: 1
 
   synchronize-with-xray:
@@ -825,6 +825,19 @@ jobs:
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: newman-${{ inputs.os }}-html-reports-*
+          failOnError: false
+
+      - name: Merge deprecation logs
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        with:
+          name: newman-${{ inputs.os }}-deprecation-logs
+          pattern: newman-${{ inputs.os }}-*-deprecation-logs
+          retention-days: 1
+
+      - name: Delete merged artifacts
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
+        with:
+          name: newman-${{ inputs.os }}-*-deprecation-logs
           failOnError: false
 
   create-jira-nightly-ticket:
