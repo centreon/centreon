@@ -266,6 +266,26 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     }
 
     /**
+     * @inheritDoc
+     */
+    public function isServiceUser(int $userId): bool
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT is_service_account
+                FROM `:db`.contact
+                WHERE contact_id = :userId
+                SQL
+        ));
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetchColumn();
+
+        return $result === 1;
+    }
+
+    /**
      * @param _UserRecord $user
      *
      * @throws \Assert\AssertionFailedException
