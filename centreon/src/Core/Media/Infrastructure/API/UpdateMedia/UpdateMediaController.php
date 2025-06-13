@@ -31,11 +31,11 @@ use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
 use Core\Media\Infrastructure\API\AddMedia\AddMediaValidator;
 use Core\Media\Infrastructure\API\Exception\MediaException;
 use enshrined\svgSanitize\Sanitizer;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UpdateMediaController extends AbstractController
 {
@@ -117,4 +117,3 @@ final class UpdateMediaController extends AbstractController
         return $file->getContent();
     }
 }
-
