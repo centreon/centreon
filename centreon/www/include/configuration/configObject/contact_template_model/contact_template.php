@@ -50,25 +50,31 @@ $cP = array_key_exists("contact_id", $_POST) && $_POST["contact_id"] !== null
     : null;
 $contact_id = $cG ?: $cP;
 $cG = array_key_exists("select", $_GET) && $_GET["select"] !== null
-    ? validateArrayInput($_GET["select"])
+    ? validateInput($_GET["select"])
     : null;
 $cP = array_key_exists("select", $_POST) && $_POST["select"] !== null
-    ? validateArrayInput($_POST["select"])
+    ? validateInput($_POST["select"])
     : null;
 $select = $cG ?: $cP;
 
 $cG = array_key_exists("dupNbr", $_GET) && $_GET["dupNbr"] !== null
-    ? validateArrayInput($_GET["dupNbr"])
+    ? validateInput($_GET["dupNbr"])
     : null;
 $cP = array_key_exists("dupNbr", $_POST) && $_POST["dupNbr"] !== null
-    ? validateArrayInput($_POST["dupNbr"])
+    ? validateInput($_POST["dupNbr"])
     : null;
 $dupNbr = $cG ?: $cP;
 
-function validateArrayInput(array $inputs): array
+function validateInput(array|string $inputs): array
 {
+    if (is_string($inputs)) {
+        $inputs = explode(',', trim($inputs, ','));
+    }
     foreach($inputs as $contactTemplateId => $value) {
-        if(filter_var($contactTemplateId, FILTER_VALIDATE_INT) && filter_var($value, FILTER_VALIDATE_INT)) {
+        if(
+            filter_var($contactTemplateId, FILTER_VALIDATE_INT) !== false
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+        ) {
             continue;
         } else {
             throw new \Exception('Invalid value supplied');

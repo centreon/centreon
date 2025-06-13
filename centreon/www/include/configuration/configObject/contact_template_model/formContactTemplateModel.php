@@ -565,10 +565,9 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 if (is_array($select)) {
-    $select_str = null;
-    foreach ($select as $key => $value) {
-        $select_str .= $key . ",";
-    }
+    $select_str = ! empty($select)
+        ? implode(",", array_keys($select))
+        : null;
     $select_pear = $form->addElement('hidden', 'select');
     $select_pear->setValue($select_str);
 }
@@ -677,10 +676,11 @@ if ($form->validate() && $from_list_menu == false) {
 
         $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_UPDATE, $eventData);
     } elseif ($form->getSubmitValue("submitMC")) {
-        $select = explode(",", $select);
-
+        if (! is_array($select)) {
+            $select = explode(",", $select);
+        }
         foreach ($select as $key => $value) {
-            if (!$value) {
+            if ($value) {
                 updateContactInDB($value, true);
 
                 $eventDispatcher->notify($eventContext, EventDispatcher::EVENT_UPDATE, $eventData);
