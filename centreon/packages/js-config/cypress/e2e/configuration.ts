@@ -39,6 +39,9 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
+    experimentalModifyObstructiveThirdPartyCode: true,
+    // experimentalMemoryManagement: true,
+    // experimentalSourceRewriting: true,
     defaultCommandTimeout: 20000,
     downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
@@ -77,7 +80,7 @@ export default ({
     requestTimeout: 20000,
     retries: {
       openMode: 0,
-      runMode: 2
+      runMode: 0
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,

@@ -109,14 +109,23 @@ When('the administrator activates SAML authentication on the platform', () => {
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 
-  cy.getByLabel({
-    label: 'Enable SAMLv2 authentication',
-    tag: 'input'
-  }).check();
+  cy.wait('@getSAMLProvider')
+    .getByLabel({
+      label: 'Enable SAMLv2 authentication',
+      tag: 'input'
+    }).then(($input) => {
+      if ($input.is(":checked")) {
+        return;
+      }
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+      cy.wrap($input).check();
 
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+      cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+      cy.wait('@updateSAMLProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    });
 });
 
 Then(
