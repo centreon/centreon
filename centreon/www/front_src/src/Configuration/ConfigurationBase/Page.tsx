@@ -1,7 +1,7 @@
-import { JSX } from 'react';
+import { JSX, useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { isEmpty, or } from 'ramda';
+import { useAtom, useSetAtom } from 'jotai';
+import { isNotEmpty, or } from 'ramda';
 
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { Listing } from './Listing';
@@ -12,10 +12,31 @@ import { useSearchParams } from 'react-router';
 import { ConfigurationBase } from '../models';
 
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
-
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import useLoadData from './Listing/useLoadData';
-import { modalStateAtom } from './atoms';
+import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
+
+const WelcomePage = ({ label, dataTestId, onCreate }) => {
+  const { isLoading, data } = useLoadData();
+
+  const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
+  const { isClear } = useCoutChangedFilters();
+
+  useEffect(() => {
+    if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
+      setIsWelcomePageDisplayed(false);
+    }
+  }, [isLoading]);
+
+  return (
+    <DataTable.EmptyState
+      aria-label="create"
+      data-testid={dataTestId}
+      labels={label}
+      onCreate={onCreate}
+    />
+  );
+};
 
 const Page = ({
   columns,
@@ -30,6 +51,9 @@ const Page = ({
   const [, setSearchParams] = useSearchParams();
 
   const setModalState = useSetAtom(modalStateAtom);
+  const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
+    isWelcomePageDisplayedAtom
+  );
 
   const { isLoading, data } = useLoadData();
 
@@ -37,11 +61,9 @@ const Page = ({
     setSearchParams({ mode: 'add' });
 
     setModalState({ id: null, isOpen: true, mode: 'add' });
+
+    setIsWelcomePageDisplayed(false);
   };
-
-  const { isClear } = useCoutChangedFilters();
-
-  const isWelcomePageDisplayed = isEmpty(data?.result) && isClear;
 
   return (
     <PageLayout>
@@ -58,10 +80,9 @@ const Page = ({
           variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
         >
           {isWelcomePageDisplayed ? (
-            <DataTable.EmptyState
-              aria-label="create"
-              data-testid={`create-${resourceType}`}
-              labels={labels.welcomePage}
+            <WelcomePage
+              dataTestId={`create-${resourceType}`}
+              label={labels.welcomePage}
               onCreate={openCreatetModal}
             />
           ) : (
