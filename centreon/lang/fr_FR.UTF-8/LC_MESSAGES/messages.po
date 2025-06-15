@@ -22347,3 +22347,12 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 
 #~ msgid "In 1 year"
 #~ msgstr "Dans 1 an"
+
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
+
+msgid "Select existing CMA token(s)"
+msgstr "Sélectionner des jetons CMA existants"
+
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"

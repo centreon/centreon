@@ -23846,3 +23846,12 @@ msgstr ""
 
 #~ msgid "Error during token creation"
 #~ msgstr "Erro durante a criação do token"
+
+# msgid "CMA authentication token(s)"
+# msgstr ""
+
+# msgid "Select existing CMA token(s)"
+# msgstr ""
+
+# msgid "Create new CMA token"
+# msgstr ""

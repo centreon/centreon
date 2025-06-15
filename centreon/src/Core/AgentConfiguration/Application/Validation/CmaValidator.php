@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
@@ -30,13 +31,19 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
-    public function __construct(private readonly ReadHostRepositoryInterface $readHostRepository)
+    public function __construct(
+        private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly ReadTokenRepositoryInterface $tokenRepository,
+        private readonly ContactInterface $user,
+    )
     {
     }
 
@@ -67,6 +74,13 @@ class CmaValidator implements TypeValidatorInterface
                 }
             }
 
+            if ($key === 'tokens' && $configuration['is_reverse'] === false) {
+                if ($request->connectionMode !== ConnectionModeEnum::NO_TLS && $value === []) {
+                    throw AgentConfigurationException::tokensAreMandatory();
+                }
+                $this->validateTokens($value);
+            }
+
             if ($key === 'hosts') {
                 foreach ($value as $host) {
                     /** @var array{
@@ -80,18 +94,25 @@ class CmaValidator implements TypeValidatorInterface
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
-                    if (! $this->readHostRepository->exists($host['id'])) {
+                    if (! $this->readHostRepository->exists(hostId: $host['id'])) {
                         throw AgentConfigurationException::invalidHostId($host['id']);
                     }
                 }
             }
+        }
+
+        if (
+            $request->connectionMode !== ConnectionModeEnum::NO_TLS
+            && $value === []
+        ) {
+            AgentConfigurationException::tokensAreMandatory();
         }
     }
 
     /**
      * @param string $name
      * @param ?string $value
-     * @param bool $isCertificate
+     * @param bool $isCertificate (default true)
      *
      * @throws AgentConfigurationException
      */
@@ -103,6 +124,29 @@ class CmaValidator implements TypeValidatorInterface
 
         if ($value === null || preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
+        }
+    }
+
+    /**
+     * @param array<array{name:string,creator_id:int}> $tokens
+     *
+     * @throws AgentConfigurationException
+     */
+    private function validateTokens(array $tokens): void
+    {
+        foreach ($tokens as $token) {
+            if (! $this->user->isAdmin() && $token['creator_id'] !== $this->user->getId() && ! $this->user->hasRole('ROLE_MANAGE_TOKENS')) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
+            }
+            $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
+            if (
+                $tokenObj === null
+                || ! $tokenObj instanceOf JwtToken
+                || $tokenObj->isRevoked()
+                || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
+            ) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
+            }
         }
     }
 }
