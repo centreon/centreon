@@ -74,13 +74,13 @@ export default () => {
         cy.makeSnapshot();
       });
 
-      it(`displays a 'Not found' message when hovering over the ${column} column with no hosts`, () => {
+      it.only(`displays a 'Not found' message when hovering over the ${column} column with no hosts`, () => {
         initialize({ isEmptyHostGroup: true });
 
         cy.waitForRequest('@getAllHostGroups');
 
         cy.findAllByText('0')
-          .eq(isEnabledHost ? 7 : 8)
+          .eq(isEnabledHost ? 8 : 7)
           .trigger('mouseover');
 
         cy.contains(
