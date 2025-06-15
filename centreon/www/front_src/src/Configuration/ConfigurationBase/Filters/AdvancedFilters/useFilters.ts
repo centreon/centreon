@@ -1,19 +1,15 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
-
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useAtomValue } from 'jotai';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { equals } from 'ramda';
+import { useEffect, useState } from 'react';
 import { FilterConfiguration, Filters } from '../../../models';
 import { configurationAtom, filtersAtom } from '../../atoms';
 
 interface UseFilters {
   reset: () => void;
   isClearDisabled: boolean;
-  change: (key) => (event) => void;
-  changeCheckbox: (key) => (event) => void;
   reload: () => void;
-  filters: Filters;
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
@@ -29,18 +25,6 @@ const useFilters = (): UseFilters => {
     configuration?.filtersConfiguration as FilterConfiguration[];
 
   const initialValues = configuration?.filtersInitialValues as Filters;
-
-  const change =
-    (key: string) =>
-    (event: ChangeEvent<HTMLInputElement>): void => {
-      setFilters({ ...filters, [key]: event.target.value });
-    };
-
-  const changeCheckbox =
-    (key: string) =>
-    (event: ChangeEvent<HTMLInputElement>): void => {
-      setFilters({ ...filters, [key]: event.target.checked });
-    };
 
   const isClearDisabled = equals(filters, initialValues);
 
@@ -63,10 +47,7 @@ const useFilters = (): UseFilters => {
   return {
     reset,
     isClearDisabled,
-    change,
-    changeCheckbox,
     reload,
-    filters,
     filtersConfiguration
   };
 };

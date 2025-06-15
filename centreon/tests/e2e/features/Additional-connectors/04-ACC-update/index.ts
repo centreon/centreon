@@ -54,34 +54,21 @@ Given(
 );
 
 Given('an additional connector configuration is already created', () => {
-  cy.getByLabel({ label: 'Add', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.get('#Usernamevalue').type('admin');
-  cy.get('#Passwordvalue').type('Abcde!2021');
-  cy.get('#vCenternamevalue').clear().type('vCenter-001');
-  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
-  cy.get('#Portvalue').should('have.value', '5700');
-  cy.getByLabel({ label: 'Create', tag: 'button' }).click();
-  cy.wait('@addAdditionalConnector');
+  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.createAccWithMandatoryFields();
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 
 When(
   'the user clicks on the Edit properties button of an additional connector configuration',
   () => {
-    cy.getByLabel({
-      label: 'Edit connector configuration',
-      tag: 'button'
-    }).click();
+    cy.contains('Connector-001').click();
   }
 );
 
 Then('a pop-up menu with the form is displayed', () => {
   cy.wait('@getConnectorDetail');
-  cy.contains('Update additional configuration').should('be.visible');
+  cy.contains('Modify an additional configuration').should('be.visible');
 });
 
 Then(
@@ -91,7 +78,7 @@ Then(
       'have.value',
       'Connector-001'
     );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
+    cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
     cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
     cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
       'contain',
@@ -120,25 +107,22 @@ When('the user updates some information', () => {
 });
 
 When('the user clicks on Update', () => {
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.saveAcc();
 });
 
 Then('the form is closed', () => {
   cy.wait('@updateConnectorDetail');
-  cy.contains('Update additional configuration').should('not.exist');
+  cy.contains('Modify an additional configuration').should('not.exist');
 });
 
 Then('the informations are successfully saved', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-002');
-  cy.getByLabel({
-    label: 'Edit connector configuration',
-    tag: 'button'
-  }).click();
+  cy.contains('Connector-002').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
     'Connector-002'
   );
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
+  cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'contain',

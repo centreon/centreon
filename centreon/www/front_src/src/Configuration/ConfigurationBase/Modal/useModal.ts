@@ -21,11 +21,9 @@ import {
 } from '../api';
 
 import {
-  labelAddResource,
+  labelModalTitle,
   labelResourceCreated,
-  labelResourceUpdated,
-  labelUpdateResource,
-  labelViewResource
+  labelResourceUpdated
 } from '../translatedLabels';
 
 interface UseModalState {
@@ -137,11 +135,12 @@ const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
       });
   };
 
-  const labelHeader = !hasWriteAccess
-    ? t(labelViewResource(resourceType))
-    : isAddMode
-      ? t(labelAddResource(resourceType))
-      : t(labelUpdateResource(resourceType));
+  const labelHeader = t(
+    labelModalTitle({
+      action: !hasWriteAccess ? 'View' : isAddMode ? 'Add' : 'Modify',
+      type: resourceType
+    })
+  );
 
   return {
     labelHeader,

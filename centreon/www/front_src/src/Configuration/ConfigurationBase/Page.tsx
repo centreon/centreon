@@ -1,48 +1,106 @@
-import { usePluralizedTranslation } from '@centreon/ui';
-import { Box, capitalize } from '@mui/material';
-import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import { JSX, useEffect } from 'react';
 
-import { PageHeader, PageLayout } from '@centreon/ui/components';
+import { useAtom, useSetAtom } from 'jotai';
+import { isNotEmpty, or } from 'ramda';
+
+import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { Listing } from './Listing';
 import { Modal } from './Modal';
 
+import { useSearchParams } from 'react-router';
+
 import { ConfigurationBase } from '../models';
-import { useStyles } from './Page.styles';
+
+import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
+import useLoadData from './Listing/useLoadData';
+import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
+
+const WelcomePage = ({ label, dataTestId, onCreate }) => {
+  const { isLoading, data } = useLoadData();
+
+  const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
+  const { isClear } = useCoutChangedFilters();
+
+  useEffect(() => {
+    if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
+      setIsWelcomePageDisplayed(false);
+    }
+  }, [isLoading]);
+
+  return (
+    <DataTable.EmptyState
+      aria-label="create"
+      data-testid={dataTestId}
+      labels={label}
+      onCreate={onCreate}
+    />
+  );
+};
 
 const Page = ({
   columns,
   resourceType,
   form,
-  hasWriteAccess
+  actions,
+  labels
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'hasWriteAccess'
+  'columns' | 'form' | 'resourceType' | 'actions' | 'labels'
 >): JSX.Element => {
-  const { classes } = useStyles();
-  const { pluralizedT } = usePluralizedTranslation();
+  const [, setSearchParams] = useSearchParams();
 
-  const labelTitle = pluralizedT({
-    label: capitalize(resourceType),
-    count: 10
-  });
+  const setModalState = useSetAtom(modalStateAtom);
+  const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
+    isWelcomePageDisplayedAtom
+  );
+
+  const { isLoading, data } = useLoadData();
+
+  const openCreatetModal = (): void => {
+    setSearchParams({ mode: 'add' });
+
+    setModalState({ id: null, isOpen: true, mode: 'add' });
+
+    setIsWelcomePageDisplayed(false);
+  };
 
   return (
     <PageLayout>
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={labelTitle} />
+            <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <Box className={classes.pageBody}>
-          <Listing columns={columns} hasWriteAccess={hasWriteAccess} />
-        </Box>
+        <DataTable
+          isEmpty={isWelcomePageDisplayed}
+          variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
+        >
+          {isWelcomePageDisplayed ? (
+            <WelcomePage
+              dataTestId={`create-${resourceType}`}
+              label={labels.welcomePage}
+              onCreate={openCreatetModal}
+            />
+          ) : (
+            <Listing
+              columns={columns}
+              hasWriteAccess={!!actions?.edit}
+              actions={actions}
+              isLoading={isLoading}
+              data={data}
+            />
+          )}
+        </DataTable>
       </PageLayout.Body>
-      <Modal form={form} hasWriteAccess={hasWriteAccess} />
-      <DeleteDialog />
-      <DuplicateDialog />
+      {or(!!actions?.edit, !!actions?.viewDetails) && (
+        <Modal form={form} hasWriteAccess={!!actions?.edit} />
+      )}
+      {actions?.delete && <DeleteDialog />}
+      {actions?.duplicate && <DuplicateDialog />}
     </PageLayout>
   );
 };

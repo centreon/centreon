@@ -36,6 +36,7 @@ const useListing = (): UseListing => {
 
   const configuration = useAtomValue(configurationAtom);
   const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
+  const actions = configuration?.actions;
 
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
@@ -80,7 +81,8 @@ const useListing = (): UseListing => {
     });
   };
 
-  const disableRowCondition = ({ isActivated }): boolean => !isActivated;
+  const disableRowCondition = ({ isActivated }): boolean =>
+    actions?.enableDisable && !isActivated;
 
   return {
     changePage,
