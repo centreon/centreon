@@ -634,9 +634,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         if (! $this->queryParameters->isEmpty()){
             foreach ($this->queryParameters->getIterator() as $queryParameter) {
                 $statement->bindValue(
-                    $queryParameter->getName(),
-                    $queryParameter->getValue(),
-                    PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
+                    param: $queryParameter->getName(),
+                    value: $queryParameter->getValue(),
+                    type: ! is_null($queryParameter->getType())
+                        ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
+                        : \PDO::PARAM_STR // Default type if not specified
                 );
             }
         }
