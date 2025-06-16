@@ -740,5 +740,4 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         return null;
     }
-
 }
