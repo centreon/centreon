@@ -71,12 +71,12 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    cy.loginKeycloak('saml', 'admin');
+    cy.loginKeycloak('admin');
     cy.get('#input-error')
       .should('be.visible')
       .and('include.text', 'Invalid username or password.');
 
-    cy.loginKeycloak('saml', username);
+    cy.loginKeycloak(username);
 
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');

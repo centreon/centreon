@@ -37,19 +37,15 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('loginKeycloak', (containerName, jsonName): Cypress.Chainable => {
+Cypress.Commands.add('loginKeycloak', (jsonName): Cypress.Chainable => {
   cy.url().should('include', '/realms/Centreon_SSO');
 
-  return cy.getContainerIpAddress(containerName).then((containerIpAddress) => {
-    return cy.origin(`http://${containerIpAddress}:8080`, { args: { jsonName } }, ({ jsonName }) => {
-      cy.fixture(`users/${jsonName}.json`).then((credential) => {
-        cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
-        cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
-      });
-
-      return cy.get('#kc-login').click();
-    });
+  cy.fixture(`users/${jsonName}.json`).then((credential) => {
+    cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
+    cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
   });
+
+  return cy.get('#kc-login').click();
 });
 
 Cypress.Commands.add(
@@ -139,7 +135,7 @@ declare global {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginKeycloak: (containerName: string, jsonName: string) => Cypress.Chainable;
+      loginKeycloak: (containerName: string) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;

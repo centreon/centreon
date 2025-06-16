@@ -150,7 +150,7 @@ Then(
 
     cy.contains('Login with openid').should('be.visible').click();
 
-    cy.loginKeycloak('openid', username);
+    cy.loginKeycloak(username);
 
     cy.url().should('include', '/monitoring/resources');
     cy.wait('@getFilters').its('response.statusCode').should('eq', 200);
