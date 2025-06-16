@@ -709,8 +709,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * To add a regex join clause for service name if it exists in the search parameters.
      * To patch a bug from top/bottom widget
      *
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws CollectionException
      * @throws ValueObjectException
+     * @return string|null
      */
     private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string {
         $search = $requestParameters->getSearch();
@@ -725,6 +728,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                                         'serviceRegex',
                                         QueryParameter::string(':serviceRegex', $orCondition['name']['$rg'])
                                     );
+
                                     return ' AND r.name REGEXP :serviceRegex';
                                 }
                             }
@@ -733,6 +737,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 }
             }
         }
+
         return null;
     }
 
