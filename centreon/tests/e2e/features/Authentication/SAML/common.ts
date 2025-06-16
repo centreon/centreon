@@ -77,7 +77,7 @@ const saveSamlFormIfEnabled = () => {
     } else {
       cy.wrap($btn).click();
 
-      return cy.wait('@updateOIDCProvider')
+      return cy.wait('@updateSAMLProvider')
         .its('response.statusCode')
         .should('eq', 204);
     }
