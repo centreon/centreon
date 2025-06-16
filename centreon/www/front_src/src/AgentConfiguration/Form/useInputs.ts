@@ -30,7 +30,7 @@ import {
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
-  labelSelectExistingCMAToken,
+  labelSelectExistingCMATokens,
   labelTLS
 } from '../translatedLabels';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
@@ -349,7 +349,7 @@ export const useInputs = (): {
               type: InputType.MultiConnectedAutocomplete,
               fieldName: 'configuration.tokens',
               required: true,
-              label: t(labelSelectExistingCMAToken),
+              label: t(labelSelectExistingCMATokens),
               connectedAutocomplete: {
                 additionalConditionParameters: tokensSearchConditions,
                 endpoint: listTokensEndpoint,

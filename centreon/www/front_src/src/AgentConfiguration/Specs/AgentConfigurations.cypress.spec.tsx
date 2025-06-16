@@ -38,6 +38,7 @@ import {
   labelRequired,
   labelSave,
   labelSelectExistingCMAToken,
+  labelSelectExistingCMATokens,
   labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
@@ -540,7 +541,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('privateKey.key');
 
-    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
     cy.waitForRequest('@getTokens');
     cy.contains('token 1').click();
 
@@ -790,7 +791,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
-    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMATokens).should('not.exist');
 
     cy.makeSnapshot();
 

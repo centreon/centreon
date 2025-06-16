@@ -79,5 +79,6 @@ export const labelNoTLS = 'No TLS';
 export const labelInsecure = 'Insecure TLS';
 
 export const labelCMAauthenticationToken = 'CMA authentication token(s)';
-export const labelSelectExistingCMAToken = 'Select existing CMA token(s)';
+export const labelSelectExistingCMATokens = 'Select existing CMA token(s)';
+export const labelSelectExistingCMAToken = 'Select existing CMA token';
 export const labelCreateNewCMAToken = 'Create new CMA token';
