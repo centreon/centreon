@@ -144,25 +144,13 @@ When(
 Then(
   'any user can authenticate using the authentication provider that is configured',
   () => {
-    cy.wait(99999999);
+    const username = 'user-non-admin-for-OIDC-authentication';
+
     cy.visit('/');
 
     cy.contains('Login with openid').should('be.visible').click();
 
-    cy.getContainerIpAddress('openid').then((containerIpAddress) => {
-      cy.getContainerMappedPort('openid', 8080).then((containerPort) => {
-        cy.origin(`http://${containerIpAddress}:${containerPort}`, () => {
-          const username = 'user-non-admin-for-OIDC-authentication';
-          // cy.loginKeycloak(username);
-          cy.fixture(`users/${username}.json`).then((credential) => {
-            cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
-            cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
-          });
-
-          return cy.get('#kc-login').click();
-        });
-      });
-    });
+    cy.loginKeycloak('openid', username);
 
     cy.url().should('include', '/monitoring/resources');
     cy.wait('@getFilters').its('response.statusCode').should('eq', 200);

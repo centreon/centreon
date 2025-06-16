@@ -78,13 +78,13 @@ Then(
 
     cy.visit('/');
 
-    cy.loginKeycloak('admin');
+    cy.loginKeycloak('openid', 'admin');
 
     cy.get('#input-error')
       .should('be.visible')
       .and('include.text', 'Invalid username or password.');
 
-    cy.loginKeycloak(username);
+    cy.loginKeycloak('openid', username);
     cy.url().should('include', '/monitoring/resources');
   }
 );

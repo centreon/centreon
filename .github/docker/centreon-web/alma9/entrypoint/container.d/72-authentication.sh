@@ -17,7 +17,7 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
     exit 1
   }
 
-  OPENID_BASE_URL="http://${OPENID_IP_ADDRESS}:8085"
+  OPENID_BASE_URL="http://${OPENID_IP_ADDRESS}:8080"
 
   curl -X PATCH \
       --fail-with-body \
@@ -65,7 +65,7 @@ if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
     exit 1
   }
 
-  SAML_BASE_URL="http://${SAML_IP_ADDRESS}:8086"
+  SAML_BASE_URL="http://${SAML_IP_ADDRESS}:8080"
 
   curl -X PUT \
       --fail-with-body \

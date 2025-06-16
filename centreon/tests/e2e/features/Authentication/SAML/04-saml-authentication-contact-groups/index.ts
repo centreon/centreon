@@ -110,7 +110,7 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    cy.loginKeycloak(username);
+    cy.loginKeycloak('saml', username);
 
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');

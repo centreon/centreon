@@ -37,13 +37,17 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
-  cy.fixture(`users/${jsonName}.json`).then((credential) => {
-    cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
-    cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
-  });
+Cypress.Commands.add('loginKeycloak', (containerName, jsonName): Cypress.Chainable => {
+  return cy.getContainerIpAddress(containerName).then((containerIpAddress) => {
+    return cy.origin(`http://${containerIpAddress}:8080`, { args: { jsonName } }, ({ jsonName }) => {
+      cy.fixture(`users/${jsonName}.json`).then((credential) => {
+        cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
+        cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
+      });
 
-  return cy.get('#kc-login').click();
+      return cy.get('#kc-login').click();
+    });
+  });
 });
 
 Cypress.Commands.add(
@@ -133,7 +137,7 @@ declare global {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginKeycloak: (jsonName: string) => Cypress.Chainable;
+      loginKeycloak: (containerName: string, jsonName: string) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
@@ -144,7 +148,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
-      enterIframe: () => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;

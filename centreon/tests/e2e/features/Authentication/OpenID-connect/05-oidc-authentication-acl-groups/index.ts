@@ -120,7 +120,7 @@ Then(
 
     cy.contains('Login with openid').should('be.visible').click();
 
-    cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+    cy.loginKeycloak('openid', 'user-non-admin-for-OIDC-authentication');
 
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');
