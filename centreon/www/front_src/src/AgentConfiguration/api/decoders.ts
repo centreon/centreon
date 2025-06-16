@@ -56,6 +56,19 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    tokens: JsonDecoder.optional(
+      JsonDecoder.array(
+        JsonDecoder.object(
+          {
+            creatorId: JsonDecoder.number,
+            name: JsonDecoder.string
+          },
+          'token',
+          { creatorId: 'creator_id' }
+        ),
+        'tokens'
+      )
+    ),
     isReverse: JsonDecoder.boolean,
     otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
@@ -113,3 +126,30 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
     connectionMode: 'connection_mode'
   }
 );
+
+export const tokenDecoder = JsonDecoder.object(
+  {
+    name: JsonDecoder.string,
+    creator: JsonDecoder.object(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string
+      },
+      'Creator'
+    )
+  },
+  'ListedToken'
+).map(({ name, creator }) => {
+  return {
+    name,
+    creatorId: creator.id,
+    id: `${name}_${creator?.id}`,
+    token_name: name
+  };
+});
+
+export const listTokensDecoder = buildListingDecoder({
+  entityDecoder: tokenDecoder,
+  entityDecoderName: 'Tokens',
+  listingDecoderName: 'listTokens'
+});
