@@ -41,12 +41,10 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   ],
   "email_bind_attribute": "email",
   "fullname_bind_attribute": "name",
-  {
-    "auto_import": true,
-    "contact_template": {
-      "id": $CONTACT_TEMPLATE_ID,
-      "name": "$CONTACT_TEMPLATE_NAME"
-    }
+  "auto_import": true,
+  "contact_template": {
+    "id": $CONTACT_TEMPLATE_ID,
+    "name": "$CONTACT_TEMPLATE_NAME"
   }
 }
 PAYLOAD
