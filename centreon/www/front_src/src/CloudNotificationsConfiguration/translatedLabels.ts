@@ -86,3 +86,5 @@ export const labelTimePeridoTooltip =
 export const labelBusinessViews = 'Business Views';
 export const labelSearchBusinessViews = 'Search Business Views';
 export const labelBusinessViewsEvents = 'Business Views events';
+
+export const labelTest = 'This is a label for test';

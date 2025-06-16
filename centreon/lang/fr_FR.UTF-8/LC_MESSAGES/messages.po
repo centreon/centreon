@@ -22909,3 +22909,6 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+msgid "This is a label for test"
+msgstr "Ceci est une étiquette de test"
