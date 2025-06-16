@@ -2,7 +2,9 @@
   "federatedComponentsConfiguration": [
     {
       "path": "/widgets/batimeline",
-      "federatedComponents": ["./batimeline"]
+      "federatedComponents": ["./batimeline"],
+      "panelMinHeight": 3,
+      "panelMinWidth": 3
     }
   ],
   "moduleFederationName": "widgetbatimeline",
