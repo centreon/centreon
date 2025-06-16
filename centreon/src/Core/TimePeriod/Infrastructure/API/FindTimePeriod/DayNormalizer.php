@@ -24,14 +24,16 @@ declare(strict_types = 1);
 namespace Core\TimePeriod\Infrastructure\API\FindTimePeriod;
 
 use Core\TimePeriod\Domain\Model\Day;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DayNormalizer implements NormalizerInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
+    ) {
     }
 
     /**
@@ -41,10 +43,11 @@ class DayNormalizer implements NormalizerInterface
      *
      * @throws ExceptionInterface
      *
-     * @return array<string, mixed>|\ArrayObject<int, mixed>|bool|float|int|string|null
+     * @return array<string, mixed>
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = []): float|int|\ArrayObject|bool|array|string|null
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
     {
+        /** @var array<string, mixed> $data */
         $data = $this->normalizer->normalize($object, $format, $context);
         if (is_array($data) && array_key_exists('time_range', $data)) {
             $data['time_range'] = (string) $object->getTimeRange();
@@ -53,8 +56,24 @@ class DayNormalizer implements NormalizerInterface
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Day;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Day::class => true,
+        ];
     }
 }
