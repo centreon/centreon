@@ -2666,6 +2666,11 @@ msgstr "C"
 msgid "CA Common Name (CN)"
 msgstr "Nombre del pedido"
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "CMA authentication token(s)"
+msgstr "Fuente de autentificación"
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "CRITICAL"
@@ -4482,6 +4487,11 @@ msgstr "Autenticación de Centreon"
 #, fuzzy
 msgid "Create dashboard"
 msgstr "crear o cargar"
+
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Create new CMA token"
+msgstr "Crear una nueva vista"
 
 #: centreon/www/install/front_translate.php
 #, fuzzy
@@ -20520,6 +20530,11 @@ msgstr "Centrarse en el arbol"
 msgid "Select criterias"
 msgstr "Seleccionar todo"
 
+#: centreon/www/install/front_translate.php
+#, fuzzy
+msgid "Select existing CMA token(s)"
+msgstr "Reemplazar archivos existentes"
+
 #: centreon/www/install/dashboard_widgets.php
 #, fuzzy
 msgid "Select field"
@@ -23310,6 +23325,15 @@ msgstr "Punto final de token"
 #, fuzzy
 msgid "Token has been created"
 msgstr "El problema ha sido reconocido."
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Tokens are mandatory"
+msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
@@ -27415,9 +27439,6 @@ msgstr "artículo (s) encontrado (s)"
 
 #~ msgid "Create new object with prefix"
 #~ msgstr "Crear un nuevo objeto con un prefijo"
-
-#~ msgid "Replace existing ones"
-#~ msgstr "Reemplazar archivos existentes"
 
 #~ msgid "Prefix"
 #~ msgstr "Prefijo de tablas"

@@ -235,7 +235,7 @@ When("the admin user clicks the Export button", () => {
     cy.log("Downloads folder cleared");
   });
   cy.wait("@monitoringEndpoint");
-  cy.getByTestId({ testId: "SaveAltIcon" }).click();
+  cy.getByLabel({ label: "exportCsvButton", tag: "button" }).click()
   cy.wait("@getResourceCount");
   cy.getByLabel({ label: "Export", tag: "button" }).click();
   cy.get(".MuiAlert-message").then(($snackbar) => {
@@ -247,14 +247,19 @@ When("the admin user clicks the Export button", () => {
 
 Then("a CSV file should be downloaded", () => {
   cy.waitUntil(
-    () => cy.task("isDownloadComplete", { downloadsFolder }),
-    {
-      timeout: 20000,
-      interval: 1000,
-      errorMsg: "File not downloaded within the allotted time",
-    }
-  );
+  () => cy.task("isDownloadComplete", { downloadsFolder }),
+  {
+    timeout: 20000,
+    interval: 1000,
+    errorMsg: "File not downloaded within the allotted time",
+  }
+  ).then(() => {
+    cy.waitForRequestCount('getServicesStatus', 1, 10, 5000).then(() => {
+      cy.log('Condition met: Request passed at least once');
+    });
+  });
 });
+
 
 Then("the CSV file should contain the correct headers and the expected data", () => {
   cy.task("getExportedFile", { downloadsFolder }).then((filePath) => {
@@ -301,8 +306,8 @@ Then("the CSV file should contain the correct headers and the expected data", ()
 });
 
 When("the admin user unchecks some columns in the table settings", () => {
-  cy.getByTestId({ testId: "ViewColumnIcon" }).click();
-  cy.waitForElementToBeVisible('[data-testid="RotateLeftIcon"]');
+  cy.getByLabel({ label: "Add columns", tag: "button" }).click()
+  cy.waitForElementToBeVisible('li[value="Status"]');
   const valuesToClick = [
 	'Notes (N)',
 	'Action (A)',
@@ -326,7 +331,7 @@ When("the admin user unchecks some columns in the table settings", () => {
     cy.log("Downloads folder cleared");
   });
   cy.wait("@monitoringEndpoint");
-  cy.getByTestId({ testId: "SaveAltIcon" }).click();
+  cy.getByLabel({ label: "exportCsvButton", tag: "button" }).click();
   cy.wait("@getResourceCount");
   cy.getByTestId({ testId: "Visible columns only" }).click();
   cy.getByTestId({ testId: "Current page only" }).click();
