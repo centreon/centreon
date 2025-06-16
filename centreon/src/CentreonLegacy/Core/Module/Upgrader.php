@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\Finder;
 
 class Upgrader extends Module
