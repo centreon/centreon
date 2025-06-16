@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : contact@centreon.com
+ * For more information : contact@centreon.com !!! TRIGGER !!!
  *
  */
 
