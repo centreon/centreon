@@ -1,10 +1,4 @@
-import {
-  type MutableRefObject,
-  RefCallback,
-  memo,
-  useEffect,
-  useRef
-} from 'react';
+import { RefCallback, memo, useEffect } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -14,17 +8,15 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-
-import { ParentSize } from '../..';
 import Loading from '../../LoadingSkeleton';
 import type { LineChartData, Thresholds } from '../common/models';
 
+import useResizeObserver from 'use-resize-observer';
 import Chart from './Chart';
 import { useChartStyles } from './Chart.styles';
 import LoadingSkeleton from './LoadingSkeleton';
 import type { GlobalAreaLines, LineChartProps } from './models';
 import useChartData from './useChartData';
-import useResizeObserver from 'use-resize-observer';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);

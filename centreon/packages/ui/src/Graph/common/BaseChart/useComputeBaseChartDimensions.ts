@@ -2,9 +2,9 @@ import { RefCallback } from 'react';
 
 import { equals, isNil } from 'ramda';
 
+import useResizeObserver from 'use-resize-observer';
 import { margin } from '../../Chart/common';
 import { margins } from '../margins';
-import useResizeObserver from 'use-resize-observer';
 
 export const extraMargin = 10;
 

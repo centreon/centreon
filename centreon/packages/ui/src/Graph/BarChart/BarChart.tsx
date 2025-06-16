@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -17,9 +15,9 @@ import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
 
+import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
-import useResizeObserver from 'use-resize-observer';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);

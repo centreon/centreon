@@ -4,7 +4,7 @@ import { animated, useSpring } from '@react-spring/web';
 import { scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { Group, Tooltip } from '@visx/visx';
-import { clamp, equals, flatten, head, lt, pluck } from 'ramda';
+import { clamp, equals, flatten, head, pluck } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
 
@@ -40,8 +40,6 @@ const ResponsiveSingleBar = ({
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
   const theme = useTheme();
-
-  const isSmallHeight = lt(height, 150);
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
