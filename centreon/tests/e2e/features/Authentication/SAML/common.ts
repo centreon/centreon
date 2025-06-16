@@ -70,6 +70,20 @@ const configureSAML = (): Cypress.Chainable => {
   });
 };
 
+const saveSamlFormIfEnabled = () => {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(":disabled")) {
+      return;
+    } else {
+      cy.wrap($btn).click();
+
+      return cy.wait('@updateOIDCProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    }
+  });
+};
+
 const navigateToSAMLConfigPage = (): Cypress.Chainable => {
   cy.navigateTo({
     page: 'Authentication',
@@ -107,5 +121,6 @@ export {
   initializeSAMLUser,
   removeContact,
   configureSAML,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 };

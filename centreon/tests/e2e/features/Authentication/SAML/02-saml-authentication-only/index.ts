@@ -3,7 +3,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureSAML,
   initializeSAMLUser,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 } from '../common';
 import { configureProviderAcls } from '../../../../commons';
 
@@ -52,7 +53,7 @@ When('the administrator sets authentication mode to SAML only', () => {
 
   configureSAML();
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  saveSamlFormIfEnabled();
 
   cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
 

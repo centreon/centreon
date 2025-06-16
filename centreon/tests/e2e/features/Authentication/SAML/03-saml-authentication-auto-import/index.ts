@@ -1,7 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureSAML, navigateToSAMLConfigPage } from '../common';
+import { configureSAML, navigateToSAMLConfigPage, saveSamlFormIfEnabled } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
@@ -97,7 +97,7 @@ When('the administrator activates the auto-import option for SAML', () => {
 
   configureACLGroups('Role');
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  saveSamlFormIfEnabled();
 
   cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
 

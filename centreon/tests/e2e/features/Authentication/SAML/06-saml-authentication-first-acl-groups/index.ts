@@ -3,7 +3,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureSAML,
   initializeSAMLUser,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 } from '../common';
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
@@ -122,7 +123,7 @@ When(
       .eq(1)
       .should('have.value', 'ACL Group test');
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    saveSamlFormIfEnabled();
 
     cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
 
