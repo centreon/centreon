@@ -38,6 +38,8 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('loginKeycloak', (containerName, jsonName): Cypress.Chainable => {
+  cy.url().should('include', '/realms/Centreon_SSO');
+
   return cy.getContainerIpAddress(containerName).then((containerIpAddress) => {
     return cy.origin(`http://${containerIpAddress}:8080`, { args: { jsonName } }, ({ jsonName }) => {
       cy.fixture(`users/${jsonName}.json`).then((credential) => {
