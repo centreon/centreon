@@ -729,7 +729,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $nameParameter = $searchParameters['name'];
 
             if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
-                return null; //
+                return null;
             }
 
             $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
