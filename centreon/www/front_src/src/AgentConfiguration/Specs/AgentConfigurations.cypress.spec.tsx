@@ -23,9 +23,9 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelEncryptionLevel,
-  labelInvalidExtensionon,
-  labelInvalidPath
-  labelMonitoredHostssts,
+  labelInvalidExtension,
+  labelInvalidPath,
+  labelMonitoredHosts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
