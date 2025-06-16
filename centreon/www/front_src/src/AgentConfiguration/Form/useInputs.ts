@@ -20,7 +20,7 @@ import {
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
-  labelHostConfigurations,
+  labelMonitoredHosts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -318,8 +318,8 @@ export const useInputs = (): {
                   {
                     type: InputType.Custom,
                     fieldName: 'host_configurations',
-                    label: labelHostConfigurations,
-                    additionalLabel: t(labelHostConfigurations),
+                    label: labelMonitoredHosts,
+                    additionalLabel: t(labelMonitoredHosts),
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf) ||
                       !values?.configuration?.isReverse,

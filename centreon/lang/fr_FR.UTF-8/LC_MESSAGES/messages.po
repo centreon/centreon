@@ -22909,3 +22909,9 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+msgid "Monitored hosts"
+msgstr "Hôtes surveillés"
+
+msgid "Select existing CMA token"
+msgstr "Sélectionner un jeton CMA existant"

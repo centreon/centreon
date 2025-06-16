@@ -23,9 +23,9 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelEncryptionLevel,
-  labelHostConfigurations,
-  labelInvalidExtension,
-  labelInvalidPath,
+  labelInvalidExtensionon,
+  labelInvalidPath
+  labelMonitoredHostssts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -496,7 +496,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="0"]').click();
 
-    cy.contains(labelHostConfigurations).should('not.exist');
+    cy.contains(labelMonitoredHosts).should('not.exist');
     cy.contains(labelRequired).should('not.exist');
     cy.contains(labelInvalidExtension).should('not.exist');
     cy.findByLabelText(labelName).should('have.value', 'My agent');
