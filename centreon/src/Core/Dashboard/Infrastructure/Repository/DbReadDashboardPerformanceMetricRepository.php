@@ -23,20 +23,34 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class DbReadDashboardPerformanceMetricRepository
+ * @package Core\Dashboard\Infrastructure\Repository
+ */
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestParametersTranslator;
+
+    /** @var QueryParameters */
+    private QueryParameters $queryParameters;
 
     /**
      * @param DatabaseConnection $db
@@ -52,6 +66,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         private array $subRequestsInformation = []
     ) {
         $this->db = $db;
+        $this->queryParameters = new QueryParameters();
     }
 
     /**
@@ -517,6 +532,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param AccessGroup[] $accessGroups
      * @param bool $hasMetricName
      *
+     * @throws CollectionException
+     * @throws ValueObjectException
      * @return string
      */
     private function buildQuery(
@@ -526,7 +543,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     ): string {
         $this->sqlRequestParametersTranslator = new SqlRequestParametersTranslator($requestParameters);
         $this->sqlRequestParametersTranslator->setConcordanceArray(
-            ['current_value' => 'm.current_value', 'name' => 'r.name']
+            ['current_value' => 'm.current_value']
         );
 
         $request
@@ -557,8 +574,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
 
-        $searchRequest = $this->sqlRequestParametersTranslator->translateSearchParameterToSql();
-        $request .= ! is_null($searchRequest) ? " {$searchRequest} AND r.enabled = 1" : ' WHERE r.enabled = 1';
+        $serviceRegexWhereClause = $this->addServiceRegexJoinClause($requestParameters);
+        $request .= ! is_null(
+            $serviceRegexWhereClause
+        ) ? " {$serviceRegexWhereClause} AND r.enabled = 1" : ' AND r.enabled = 1';
 
         if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
@@ -568,7 +587,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         if ($hasMetricName) {
             $request .= <<<'SQL'
-                AND m.metric_name = :metricName
+                WHERE m.metric_name = :metricName
                 SQL;
         }
 
@@ -610,11 +629,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             }
         }
 
-        foreach ($this->sqlRequestParametersTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            if (! is_null($type)) {
-                $value = $data[$type];
-                $statement->bindValue($key, $value, $type);
+        // To add a regex join clause for service name if it exists in the search parameters.
+        // To patch a bug from top/bottom widget
+        if (! $this->queryParameters->isEmpty()){
+            foreach ($this->queryParameters->getIterator() as $queryParameter) {
+                $statement->bindValue(
+                    $queryParameter->getName(),
+                    $queryParameter->getValue(),
+                    PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
+                );
             }
         }
 
@@ -681,4 +704,36 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         return $resourceMetrics;
     }
+
+    /**
+     * To add a regex join clause for service name if it exists in the search parameters.
+     * To patch a bug from top/bottom widget
+     *
+     * @throws CollectionException
+     * @throws ValueObjectException
+     */
+    private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string {
+        $search = $requestParameters->getSearch();
+        if ($search !== [] && isset($search['$and'])) {
+            foreach ($search['$and'] as $searchParameter) {
+                if (isset($searchParameter['$and'])) {
+                    foreach ($searchParameter['$and'] as $subSearchParameter) {
+                        if (isset($subSearchParameter['$or'])) {
+                            foreach ($subSearchParameter['$or'] as $orCondition) {
+                                if (isset($orCondition['name']['$rg'])) {
+                                    $this->queryParameters->add(
+                                        'serviceRegex',
+                                        QueryParameter::string(':serviceRegex', $orCondition['name']['$rg'])
+                                    );
+                                    return ' AND r.name REGEXP :serviceRegex';
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }
