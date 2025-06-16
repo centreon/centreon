@@ -63,7 +63,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
             $routes->addCollection($routeCollection);
         }
         $routes->addPrefix('/{base_uri}api/{version}');
-        $routes->addDefaults(['base_uri' => 'centreon/']);
+        $routes->addDefaults(['base_uri' => 'centreon/', 'version' => 'latest']);
         $routes->addRequirements(['base_uri' => '(.+/)|.{0}']);
 
         return $routes;
