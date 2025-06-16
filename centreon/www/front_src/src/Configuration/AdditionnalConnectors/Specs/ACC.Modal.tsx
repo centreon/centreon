@@ -1,6 +1,6 @@
 import { keys } from 'ramda';
 
-import { defaultParameters } from '../utils';
+import { getDefaultParameters } from '../utils';
 
 import { ParameterKeys } from '../models';
 import initialize from './initialize';
@@ -76,10 +76,10 @@ export default (): void => {
       cy.findByText(labelvCenterESX).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
-      keys(defaultParameters).forEach((parameter) => {
+      keys(getDefaultParameters(0)).forEach((parameter) => {
         cy.get(`input[data-testid="${parameter}_value"`)
           .should('be.visible')
-          .should('have.value', defaultParameters[parameter])
+          .should('have.value', getDefaultParameters(0)[parameter])
           .should('not.be.disabled');
       });
 
