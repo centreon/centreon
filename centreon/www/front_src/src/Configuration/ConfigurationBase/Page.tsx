@@ -1,7 +1,7 @@
+import { isNotEmpty, or } from 'ramda';
 import { JSX, useEffect } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { isNotEmpty, or } from 'ramda';
 
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 import { Listing } from './Listing';

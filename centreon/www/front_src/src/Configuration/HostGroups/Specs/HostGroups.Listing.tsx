@@ -74,7 +74,7 @@ export default () => {
         cy.makeSnapshot();
       });
 
-      it.only(`displays a 'Not found' message when hovering over the ${column} column with no hosts`, () => {
+      it(`displays a 'Not found' message when hovering over the ${column} column with no hosts`, () => {
         initialize({ isEmptyHostGroup: true });
 
         cy.waitForRequest('@getAllHostGroups');
