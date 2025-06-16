@@ -12,7 +12,6 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
-import { ParentSize } from '../../ParentSize';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
@@ -20,6 +19,7 @@ import { LineChartData, Thresholds } from '../common/models';
 
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
+import useResizeObserver from 'use-resize-observer';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -62,7 +62,7 @@ const BarChart = ({
   skipIntersectionObserver
 }: BarChartProps): JSX.Element => {
   const { adjustedData } = useChartData({ data, end, start });
-  const lineChartRef = useRef<HTMLDivElement | null>(null);
+  const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
     return (
@@ -75,30 +75,23 @@ const BarChart = ({
 
   return (
     <Provider>
-      <Box
-        ref={lineChartRef}
-        sx={{ height: '100%', overflow: 'hidden', width: '100%' }}
-      >
-        <ParentSize>
-          {({ height: responsiveHeight, width }) => (
-            <ResponsiveBarChart
-              axis={axis}
-              barStyle={barStyle}
-              graphData={adjustedData}
-              graphRef={lineChartRef}
-              header={header}
-              height={height || responsiveHeight}
-              legend={legend}
-              limitLegend={limitLegend}
-              orientation={orientation}
-              thresholdUnit={thresholdUnit}
-              thresholds={thresholds}
-              tooltip={tooltip}
-              width={width}
-              skipIntersectionObserver={skipIntersectionObserver}
-            />
-          )}
-        </ParentSize>
+      <Box ref={ref} sx={{ height: '100%', overflow: 'hidden', width: '100%' }}>
+        <ResponsiveBarChart
+          axis={axis}
+          barStyle={barStyle}
+          graphData={adjustedData}
+          graphRef={ref}
+          header={header}
+          height={height || responsiveHeight || 0}
+          legend={legend}
+          limitLegend={limitLegend}
+          orientation={orientation}
+          thresholdUnit={thresholdUnit}
+          thresholds={thresholds}
+          tooltip={tooltip}
+          width={width || 0}
+          skipIntersectionObserver={skipIntersectionObserver}
+        />
       </Box>
     </Provider>
   );

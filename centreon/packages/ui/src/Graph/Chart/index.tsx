@@ -1,4 +1,10 @@
-import { type MutableRefObject, memo, useEffect, useRef } from 'react';
+import {
+  type MutableRefObject,
+  RefCallback,
+  memo,
+  useEffect,
+  useRef
+} from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -18,6 +24,7 @@ import { useChartStyles } from './Chart.styles';
 import LoadingSkeleton from './LoadingSkeleton';
 import type { GlobalAreaLines, LineChartProps } from './models';
 import useChartData from './useChartData';
+import useResizeObserver from 'use-resize-observer';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -32,7 +39,7 @@ interface Props extends Partial<LineChartProps> {
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  getRef?: (ref: MutableRefObject<HTMLDivElement | null>) => void;
+  getRef?: (ref: RefCallback<Element>) => void;
   containerStyle?: string;
   transformMatrix?: {
     fx?: (pointX: number) => number;
@@ -76,11 +83,15 @@ const WrapperChart = ({
   const { classes, cx } = useChartStyles();
 
   const { adjustedData } = useChartData({ data, end, start });
-  const lineChartRef = useRef<HTMLDivElement | null>(null);
+  const {
+    ref,
+    width: responsiveWidth,
+    height: responsiveHeight
+  } = useResizeObserver();
 
   useEffect(() => {
-    getRef?.(lineChartRef);
-  }, [lineChartRef?.current]);
+    getRef?.(ref);
+  }, [ref?.current]);
 
   if (loading && !adjustedData) {
     return (
@@ -92,47 +103,38 @@ const WrapperChart = ({
   }
 
   if (!adjustedData) {
-    return <Loading height={height} width={width} />;
+    return <Loading height={height || 0} width={width} />;
   }
 
   return (
     <div
-      ref={lineChartRef as MutableRefObject<HTMLDivElement>}
+      ref={ref}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
-      <ParentSize>
-        {({
-          height: responsiveHeight,
-          width: responsiveWidth
-        }): JSX.Element => {
-          return (
-            <Chart
-              annotationEvent={annotationEvent}
-              axis={axis}
-              barStyle={barStyle}
-              displayAnchor={displayAnchor}
-              graphData={adjustedData}
-              graphInterval={{ end, start }}
-              graphRef={lineChartRef}
-              header={header}
-              height={height || responsiveHeight}
-              legend={legend}
-              limitLegend={limitLegend}
-              lineStyle={lineStyle}
-              shapeLines={shapeLines}
-              thresholdUnit={thresholdUnit}
-              thresholds={thresholds}
-              timeShiftZones={timeShiftZones}
-              tooltip={tooltip}
-              width={width ?? responsiveWidth}
-              zoomPreview={zoomPreview}
-              skipIntersectionObserver={rest.skipIntersectionObserver}
-              additionalLines={additionalLines}
-              transformMatrix={transformMatrix}
-            />
-          );
-        }}
-      </ParentSize>
+      <Chart
+        annotationEvent={annotationEvent}
+        axis={axis}
+        barStyle={barStyle}
+        displayAnchor={displayAnchor}
+        graphData={adjustedData}
+        graphInterval={{ end, start }}
+        graphRef={ref}
+        header={header}
+        height={height || responsiveHeight || 0}
+        legend={legend}
+        limitLegend={limitLegend}
+        lineStyle={lineStyle}
+        shapeLines={shapeLines}
+        thresholdUnit={thresholdUnit}
+        thresholds={thresholds}
+        timeShiftZones={timeShiftZones}
+        tooltip={tooltip}
+        width={width || responsiveWidth || 0}
+        zoomPreview={zoomPreview}
+        skipIntersectionObserver={rest.skipIntersectionObserver}
+        additionalLines={additionalLines}
+        transformMatrix={transformMatrix}
+      />
     </div>
   );
 };
