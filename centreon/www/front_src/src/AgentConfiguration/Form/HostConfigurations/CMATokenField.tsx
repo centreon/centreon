@@ -19,6 +19,7 @@ const CMATokens = ({ value, changeCMAToken }): JSX.Element => {
       value={value || null}
       onChange={changeCMAToken}
       decoder={listTokensDecoder}
+      required
     />
   );
 };
