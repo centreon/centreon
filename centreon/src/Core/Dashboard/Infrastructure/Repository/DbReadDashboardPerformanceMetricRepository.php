@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTrans
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -718,26 +719,26 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @return string|null
      */
     private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string {
-        $search = $requestParameters->getSearch();
-        if ($search !== [] && isset($search['$and'])) {
-            foreach ($search['$and'] as $searchParameter) {
-                if (isset($searchParameter['$and'])) {
-                    foreach ($searchParameter['$and'] as $subSearchParameter) {
-                        if (isset($subSearchParameter['$or'])) {
-                            foreach ($subSearchParameter['$or'] as $orCondition) {
-                                if (isset($orCondition['name']['$rg'])) {
-                                    $this->queryParameters->add(
-                                        'serviceRegex',
-                                        QueryParameter::string(':serviceRegex', $orCondition['name']['$rg'])
-                                    );
+        if (! $requestParameters->hasSearchParameter('name')) {
+            return null;
+        }
 
-                                    return ' AND r.name REGEXP :serviceRegex';
-                                }
-                            }
-                        }
-                    }
-                }
+        $searchParameters = $requestParameters->extractSearchNames(true);
+
+        if (isset($searchParameters['name']) && $searchParameters['name'] !== [] && count($searchParameters['name']) === 1) {
+            $nameParameter = $searchParameters['name'];
+
+            if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
+                return null; //
             }
+
+            $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
+            $this->queryParameters->add(
+                'serviceRegex',
+                QueryParameter::string(':serviceRegex', $value)
+            );
+
+            return ' AND r.name REGEXP :serviceRegex';
         }
 
         return null;

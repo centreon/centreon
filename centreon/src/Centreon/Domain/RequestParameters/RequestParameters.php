@@ -55,6 +55,20 @@ class RequestParameters implements RequestParametersInterface
     public const OPERATOR_IN = '$in';
     public const OPERATOR_NOT_IN = '$ni';
 
+    public const LIST_SEARCH_OPERATORS = [
+        self::OPERATOR_EQUAL,
+        self::OPERATOR_NOT_EQUAL,
+        self::OPERATOR_LESS_THAN,
+        self::OPERATOR_LESS_THAN_OR_EQUAL,
+        self::OPERATOR_GREATER_THAN,
+        self::OPERATOR_GREATER_THAN_OR_EQUAL,
+        self::OPERATOR_LIKE,
+        self::OPERATOR_NOT_LIKE,
+        self::OPERATOR_REGEXP,
+        self::OPERATOR_IN,
+        self::OPERATOR_NOT_IN
+    ];
+
     public const AGGREGATE_OPERATOR_OR = '$or';
     public const AGGREGATE_OPERATOR_AND = '$and';
 
@@ -181,8 +195,11 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @inheritDoc
+     *
+     * Return an array of search names.
+     * If $withValueAndOperator is true, the array will contain associative arrays as: [<operator> => <value>]
      */
-    public function extractSearchNames(): array
+    public function extractSearchNames(bool $withValueAndOperator = false): array
     {
         $notAllowedKeys = [
             self::AGGREGATE_OPERATOR_AND,
@@ -200,10 +217,14 @@ class RequestParameters implements RequestParametersInterface
             self::OPERATOR_NOT_IN
         ];
         $names = [];
-        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys): void {
+        $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys, $withValueAndOperator): void {
             foreach ($data as $key => $value) {
                 if (!in_array($key, $names) && !in_array($key, $notAllowedKeys) && !is_int($key)) {
-                    $names[] = $key;
+                    if ($withValueAndOperator) {
+                        $names[$key] = $value;
+                    } else {
+                        $names[] = $key;
+                    }
                 }
                 if (is_object($value) || is_array($value)) {
                     $searchIn((array) $value);
