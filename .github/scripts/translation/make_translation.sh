@@ -103,9 +103,6 @@ if [ "$PROJECT" = "centreon" ]; then
     $PHP $BASE_DIR/extractTranslationFromSmartyTemplate.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/smarty_translate.php
     echo "Extracting strings to translate from ReactJS pages"
     $PHP $BASE_DIR/extractTranslationFromTypescript.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/front_translate.php
-    echo "Extracting strings to translate from Dashboard widgets"
-    # $PHP $BASE_DIR/extractTranslationFromDashboardProperties.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
-    $PHP $BASE_DIR/extractTranslationFromDashboardProperties.php $BASE_DIR_PROJECT
 
     echo "List all PHP files excluding help.php files"
     find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
