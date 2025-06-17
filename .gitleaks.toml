@@ -20,5 +20,6 @@ paths = [
 
 regexTarget = "match"
 regexes = [
-  '''ABCDEFG1234567890'''
+  '''ABCDEFG1234567890''',
+  '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''', # client_secret of keycloak docker image: used only for testing
 ]
