@@ -41,13 +41,13 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array<string, mixed>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): float|int|bool|array|string|null {
+    ): array {
         /** @var array<string, bool|float|int|string> $data */
         $data = $this->normalizer->normalize($object->agentConfiguration, $format, $context);
 
@@ -74,8 +74,24 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param mixed $data
+     * @param ?string $format
+     * @param array<string, mixed> $context
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof FindAgentConfigurationResponse;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            FindAgentConfigurationResponse::class => true,
+        ];
     }
 }

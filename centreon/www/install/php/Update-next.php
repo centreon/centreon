@@ -79,14 +79,29 @@ $updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pear
     }
 };
 
+$updateCfgParameters = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update cfg_nagios table';
+
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE cfg_nagios
+            SET enable_flap_detection = '1',
+                host_down_disable_service_checks = '1'
+            WHERE enable_flap_detection != '1'
+               OR host_down_disable_service_checks != '1'
+        SQL
+    );
+};
+
 
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
-    $addDeprecateCustomViewsToContact();
+    
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
+    $addDeprecateCustomViewsToContact();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -95,6 +110,7 @@ try {
 
     $updateDashboardAndCustomViewsTopology();
     $updateContactsShowDeprecatedCustomViews();
+    $updateCfgParameters();
 
     $pearDB->commit();
 

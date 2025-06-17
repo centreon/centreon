@@ -31,7 +31,7 @@
     "@4tw/cypress-drag-drop": "^2.3.0",
     "@biomejs/biome": "^1.9.4",
     "@centreon/js-config": "workspace:*",
-    "@cypress/code-coverage": "3.13.3",
+    "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.0",
     "@cypress/webpack-dev-server": "^4.0.1",
     "@cypress/webpack-preprocessor": "^6.0.2",
@@ -169,5 +169,11 @@
   ],
   "msw": {
     "workerDirectory": "www/front_src/public"
+  },
+  "nyc": {
+    "report-dir": "coverage",
+    "reporter": [
+      "json"
+    ]
   }
 }
