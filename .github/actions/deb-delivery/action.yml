@@ -59,22 +59,63 @@ runs:
           exit 1
         fi
 
-        # Handle either standard debian or ubuntu repository path
-        if [[ "${{ inputs.distrib }}" == "jammy" ]] || [[ "${{ inputs.distrib }}" == "noble" ]]; then
+        # Set ROOT_REPO_PATH based on inputs
+        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+          ROOT_REPO_PATH="apt-standard-internal-${{ inputs.stability }}"
+        elif [[ "${{ inputs.distrib }}" == "jammy" ]] || [[ "${{ inputs.distrib }}" == "noble" ]]; then
           ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
         else
           ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
         fi
 
-        for FILE in $FILES; do
-          echo "[DEBUG] - File: $FILE"
+        # Cleanup (equivalent to --sync-deletes done with RPMs)
+        # This is a workaround the fact that jfrog cli does not allow upload
+        # of multiple artifacts at once to an APT repository
+
+        # Get list of remote artifacts
+        ARTIFACTS_REMOTE_LIST=$(jf rt search "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/*_${{ inputs.version }}*.deb" --recursive --sort-by=path |jq -r .[].path)
+
+        # Get list of local artifacts
+        ARTIFACTS_LOCAL_LIST=$(dir -1 |grep -E '.*${{ inputs.version }}.*.deb')
+
+        # Build list of diff between local and remote artifacts
+        for local_artifact in "${ARTIFACTS_LOCAL_LIST[@]}"; do
+          found=false
+          # Iterate over elements of ARTIFACTS_REMOTE_LIST
+          for remote_artifact in "${ARTIFACTS_REMOTE_LIST[@]}"; do
+            # Compare elements
+            if [ "$local_artifact" == "$remote_artifact" ]; then
+              found=true
+              break
+            fi
+          done
+          # If element not found in ARTIFACTS_REMOTE_LIST, add it to ARTIFACTS_DIFF_LIST
+          if ! $found; then
+            ARTIFACTS_DIFF_LIST+=("$local_artifact")
+          fi
+        done
+
+        # Delete all remote artifacts
+        jf rt delete "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/*.deb"
+
+        # Upload local artifacts
+        for ARTIFACT in ${ARTIFACTS_LOCAL_LIST[@]}; do
+          echo "[DEBUG] - File: $ARTIFACT"
 
           VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
-          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
+          DISTRIB=$(echo $ARTIFACT | cut -d '_' -f2 | cut -d '-' -f2)
+          ARCH=$(echo $ARTIFACT | cut -d '_' -f3 | cut -d '.' -f1)
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH" --flat
+          if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+            ROOT_REPO_PATH="apt-standard-internal-${{ inputs.stability }}"
+          elif [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+            ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
+          else
+            ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
+          fi
+
+          jf rt upload "$ARTIFACT" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash
