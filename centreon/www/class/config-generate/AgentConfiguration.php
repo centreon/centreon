@@ -113,7 +113,7 @@ class AgentConfiguration extends AbstractObjectJSON
         $tokens = $this->readTokenRepository->findByNames(
             array_map(
                 static fn(array $token): string => $token['name'],
-                $data['tokens']
+                $data['tokens'] ?? []
             )
         );
 
