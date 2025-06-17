@@ -17966,8 +17966,11 @@ msgid "Use basic authentication for token endpoint authentication"
 msgstr "Basic-Authentifizierung für Token-Endpunkt Authentifizierung verwenden"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
-msgstr "Veraltete Ansichtsseiten verwenden"
+msgid "Use deprecated monitoring pages"
+msgstr "Veraltete Überwachungsseiten verwenden"
+
+msgid "Use deprecated custom views"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"
