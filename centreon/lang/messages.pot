@@ -15239,7 +15239,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Server IP address"
+msgid "Server address"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php

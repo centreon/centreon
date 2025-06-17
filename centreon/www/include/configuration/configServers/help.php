@@ -1,7 +1,7 @@
 <?php
 $help = [];
 $help['name'] = dgettext("help", "Used for identifying the poller");
-$help['ns_ip_address'] = dgettext("help", "IP address of the poller");
+$help['ns_ip_address'] = dgettext("help", "Address of the poller");
 $help['localhost'] = dgettext("help", "Whether the poller is local");
 $help['is_default'] = dgettext("help", "Main poller");
 $help['remote_id'] = dgettext("help", "Master Remote Server to which this server will be attached");
