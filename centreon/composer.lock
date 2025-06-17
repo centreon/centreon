@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89685a9df17de7b34f36bd857a1e5ef6",
+    "content-hash": "ec4430f76fadd3d0ce49644a0814677f",
     "packages": [
         {
             "name": "amphp/amp",
@@ -2565,6 +2565,128 @@
                 }
             ],
             "time": "2024-06-28T09:40:51+00:00"
+        },
+        {
+            "name": "nelmio/api-doc-bundle",
+            "version": "v4.34.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nelmio/NelmioApiDocBundle.git",
+                "reference": "ff9139576376695d2c3febc23a5e7eab91866d83"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nelmio/NelmioApiDocBundle/zipball/ff9139576376695d2c3febc23a5e7eab91866d83",
+                "reference": "ff9139576376695d2c3febc23a5e7eab91866d83",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.4",
+                "phpdocumentor/reflection-docblock": "^4.3.4 || ^5.0",
+                "phpdocumentor/type-resolver": "^1.8.2",
+                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "symfony/config": "^5.4 || ^6.4 || ^7.1",
+                "symfony/console": "^5.4 || ^6.4 || ^7.1",
+                "symfony/dependency-injection": "^5.4 || ^6.4 || ^7.1",
+                "symfony/deprecation-contracts": "^2.1 || ^3",
+                "symfony/framework-bundle": "^5.4.24 || ^6.4 || ^7.1",
+                "symfony/http-foundation": "^5.4 || ^6.4 || ^7.1",
+                "symfony/http-kernel": "^5.4 || ^6.4 || ^7.1",
+                "symfony/options-resolver": "^5.4 || ^6.4 || ^7.1",
+                "symfony/property-info": "^5.4.10 || ^6.4 || ^7.1",
+                "symfony/routing": "^5.4 || ^6.4 || ^7.1",
+                "zircote/swagger-php": "^4.6.1"
+            },
+            "conflict": {
+                "zircote/swagger-php": "4.8.7"
+            },
+            "require-dev": {
+                "api-platform/core": "^2.7.0 || ^3",
+                "composer/package-versions-deprecated": "1.11.99.1",
+                "doctrine/annotations": "^2.0",
+                "friendsofphp/php-cs-fixer": "^3.52",
+                "friendsofsymfony/rest-bundle": "^2.8 || ^3.0",
+                "jms/serializer": "^1.14 || ^3.0",
+                "jms/serializer-bundle": "^2.3 || ^3.0 || ^4.0 || ^5.0",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpstan/phpstan-strict-rules": "^1.5",
+                "phpstan/phpstan-symfony": "^1.3",
+                "phpunit/phpunit": "^9.6 || ^10.5",
+                "symfony/asset": "^5.4 || ^6.4 || ^7.1",
+                "symfony/browser-kit": "^5.4 || ^6.4 || ^7.1",
+                "symfony/cache": "^5.4 || ^6.4 || ^7.1",
+                "symfony/dom-crawler": "^5.4 || ^6.4 || ^7.1",
+                "symfony/expression-language": "^5.4 || ^6.4 || ^7.1",
+                "symfony/form": "^5.4 || ^6.4 || ^7.1",
+                "symfony/phpunit-bridge": "^6.4",
+                "symfony/property-access": "^5.4 || ^6.4 || ^7.1",
+                "symfony/security-csrf": "^5.4 || ^6.4 || ^7.1",
+                "symfony/serializer": "^5.4 || ^6.4 || ^7.1",
+                "symfony/stopwatch": "^5.4 || ^6.4 || ^7.1",
+                "symfony/templating": "^5.4 || ^6.4 || ^7.1",
+                "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.1",
+                "symfony/uid": "^5.4 || ^6.4 || ^7.1",
+                "symfony/validator": "^5.4 || ^6.4 || ^7.1",
+                "willdurand/hateoas-bundle": "^1.0 || ^2.0"
+            },
+            "suggest": {
+                "api-platform/core": "For using an API oriented framework.",
+                "doctrine/annotations": "For using doctrine annotations",
+                "friendsofsymfony/rest-bundle": "For using the parameters annotations.",
+                "jms/serializer-bundle": "For describing your models.",
+                "symfony/asset": "For using the Swagger UI.",
+                "symfony/cache": "For using a PSR-6 compatible cache implementation with the API doc generator.",
+                "symfony/form": "For describing your form type models.",
+                "symfony/monolog-bundle": "For using a PSR-3 compatible logger implementation with the API PHP describer.",
+                "symfony/security-csrf": "For using csrf protection tokens in forms.",
+                "symfony/serializer": "For describing your models.",
+                "symfony/twig-bundle": "For using the Swagger UI.",
+                "symfony/validator": "For describing the validation constraints in your models.",
+                "willdurand/hateoas-bundle": "For extracting HATEOAS metadata."
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nelmio\\ApiDocBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://github.com/nelmio/NelmioApiDocBundle/contributors"
+                }
+            ],
+            "description": "Generates documentation for your REST API from annotations and attributes",
+            "keywords": [
+                "api",
+                "doc",
+                "documentation",
+                "rest"
+            ],
+            "support": {
+                "issues": "https://github.com/nelmio/NelmioApiDocBundle/issues",
+                "source": "https://github.com/nelmio/NelmioApiDocBundle/tree/v4.34.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/DjordyKoert",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-01-08T11:43:02+00:00"
         },
         {
             "name": "nelmio/cors-bundle",
@@ -8111,6 +8233,87 @@
                 "source": "https://github.com/willdurand/Negotiation/tree/3.1.0"
             },
             "time": "2022-01-30T20:08:53+00:00"
+        },
+        {
+            "name": "zircote/swagger-php",
+            "version": "4.10.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zircote/swagger-php.git",
+                "reference": "589821f0f1e2c083443749b52a31f077c524dbe6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/589821f0f1e2c083443749b52a31f077c524dbe6",
+                "reference": "589821f0f1e2c083443749b52a31f077c524dbe6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.2",
+                "psr/log": "^1.1 || ^2.0 || ^3.0",
+                "symfony/deprecation-contracts": "^2 || ^3",
+                "symfony/finder": ">=2.2",
+                "symfony/yaml": ">=3.3"
+            },
+            "require-dev": {
+                "composer/package-versions-deprecated": "^1.11",
+                "doctrine/annotations": "^1.7 || ^2.0",
+                "friendsofphp/php-cs-fixer": "^2.17 || 3.62.0",
+                "phpstan/phpstan": "^1.6",
+                "phpunit/phpunit": ">=8",
+                "vimeo/psalm": "^4.23"
+            },
+            "suggest": {
+                "doctrine/annotations": "^1.7 || ^2.0"
+            },
+            "bin": [
+                "bin/openapi"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenApi\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Robert Allen",
+                    "email": "zircote@gmail.com"
+                },
+                {
+                    "name": "Bob Fanger",
+                    "email": "bfanger@gmail.com",
+                    "homepage": "https://bfanger.nl"
+                },
+                {
+                    "name": "Martin Rademacher",
+                    "email": "mano@radebatz.net",
+                    "homepage": "https://radebatz.net"
+                }
+            ],
+            "description": "swagger-php - Generate interactive documentation for your RESTful API using phpdoc annotations",
+            "homepage": "https://github.com/zircote/swagger-php/",
+            "keywords": [
+                "api",
+                "json",
+                "rest",
+                "service discovery"
+            ],
+            "support": {
+                "issues": "https://github.com/zircote/swagger-php/issues",
+                "source": "https://github.com/zircote/swagger-php/tree/4.10.7"
+            },
+            "time": "2024-10-02T01:43:50+00:00"
         }
     ],
     "packages-dev": [
@@ -14362,87 +14565,6 @@
                 }
             ],
             "time": "2024-11-07T12:36:22+00:00"
-        },
-        {
-            "name": "zircote/swagger-php",
-            "version": "4.10.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "589821f0f1e2c083443749b52a31f077c524dbe6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/589821f0f1e2c083443749b52a31f077c524dbe6",
-                "reference": "589821f0f1e2c083443749b52a31f077c524dbe6",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.2",
-                "psr/log": "^1.1 || ^2.0 || ^3.0",
-                "symfony/deprecation-contracts": "^2 || ^3",
-                "symfony/finder": ">=2.2",
-                "symfony/yaml": ">=3.3"
-            },
-            "require-dev": {
-                "composer/package-versions-deprecated": "^1.11",
-                "doctrine/annotations": "^1.7 || ^2.0",
-                "friendsofphp/php-cs-fixer": "^2.17 || 3.62.0",
-                "phpstan/phpstan": "^1.6",
-                "phpunit/phpunit": ">=8",
-                "vimeo/psalm": "^4.23"
-            },
-            "suggest": {
-                "doctrine/annotations": "^1.7 || ^2.0"
-            },
-            "bin": [
-                "bin/openapi"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "OpenApi\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Robert Allen",
-                    "email": "zircote@gmail.com"
-                },
-                {
-                    "name": "Bob Fanger",
-                    "email": "bfanger@gmail.com",
-                    "homepage": "https://bfanger.nl"
-                },
-                {
-                    "name": "Martin Rademacher",
-                    "email": "mano@radebatz.net",
-                    "homepage": "https://radebatz.net"
-                }
-            ],
-            "description": "swagger-php - Generate interactive documentation for your RESTful API using phpdoc annotations",
-            "homepage": "https://github.com/zircote/swagger-php/",
-            "keywords": [
-                "api",
-                "json",
-                "rest",
-                "service discovery"
-            ],
-            "support": {
-                "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/4.10.7"
-            },
-            "time": "2024-10-02T01:43:50+00:00"
         }
     ],
     "aliases": [],
@@ -14467,7 +14589,7 @@
         "ext-simplexml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.2"
     },

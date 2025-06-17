@@ -30,6 +30,7 @@
     "jms/serializer-bundle": "^5.4",
     "justinrainbow/json-schema": "^5.2",
     "monolog/monolog": "3.7.*",
+    "nelmio/api-doc-bundle": "^4.34",
     "nelmio/cors-bundle": "2.5.*",
     "onelogin/php-saml": "4.2.*",
     "openpsa/quickform": "3.3.*",

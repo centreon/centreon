@@ -17,3 +17,7 @@ core:
         version: "latest"
     requirements:
         base_uri: ".*"
+app.redocly:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.redocly}
