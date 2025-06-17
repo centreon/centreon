@@ -110,11 +110,11 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
     echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
-    $XGETTEXT --no-location --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
-    #sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
+    sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
-    #sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
+    sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
 
     rm -f $BASE_DIR_PROJECT/www/install/menu_translation.php
     rm -f $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
@@ -123,7 +123,7 @@ if [ "$PROJECT" = "centreon" ]; then
     rm -f $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-location -s -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
+    $MSGMERGE --previous -s -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
@@ -135,14 +135,14 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
     echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
-    $XGETTEXT --no-location --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
-    #sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
+    sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
-    #sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
+    sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-location -s -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
+    $MSGMERGE --previous -s -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
