@@ -760,10 +760,6 @@ msgstr "Trapdefinition hinzufügen"
 msgid "Add a User"
 msgstr "Benutzer hinzufügen"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Add a User Template"
-msgstr "Benutzertemplate hinzufügen"
-
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Add a Virtual Metric"
 msgstr "Virtuelle Metrik hinzufügen"
@@ -977,7 +973,6 @@ msgstr "Kommentar für einen Service hinzufügen/löschen"
 msgid "Added"
 msgstr "Hinzugefügt"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Additional Addresses"
 msgstr "Zusätzliche Adressen"
@@ -989,7 +984,6 @@ msgid "Additional Configurations"
 msgstr "Weitere Informationen"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -1034,30 +1028,6 @@ msgstr "Zusätzlich Aktualitätslatenz"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Address"
 msgstr "Adresse"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address1"
-msgstr "Adresse1"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address2"
-msgstr "Adresse2"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address3"
-msgstr "Adresse3"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address4"
-msgstr "Adresse4"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address5"
-msgstr "Adresse5"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Address6"
-msgstr "Adresse6"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -1193,14 +1163,12 @@ msgid "Alias"
 msgstr "Alias"
 
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Alias / Login"
 msgstr "Alias / Login"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Alias already exists"
 msgstr "Alias existiert bereits"
@@ -2449,7 +2417,6 @@ msgstr "Antwort des zentralen Servers => Code: "
 msgid "Centreon"
 msgstr "Centreon"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Centreon Authentication"
 msgstr "Centreon Authentifizierung"
@@ -3105,7 +3072,6 @@ msgstr "Kommentartyp"
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -3170,7 +3136,6 @@ msgid "Compulsory Address"
 msgstr "Erforderliche Adresse"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
@@ -3182,7 +3147,6 @@ msgstr "Erforderliche Adresse"
 msgid "Compulsory Alias"
 msgstr "Erforderlicher Alias"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Compulsory Command"
@@ -3215,7 +3179,6 @@ msgstr "Erforderliche Instanz"
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps-mibs/formMibs.php
@@ -3244,12 +3207,10 @@ msgstr "Erforderliche Instanz"
 msgid "Compulsory Name"
 msgstr "Erforderlicher Name"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Compulsory Option"
 msgstr "Erforderliche Option"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Compulsory Period"
 msgstr "Erforderlicher Zeitraum"
@@ -3489,7 +3450,6 @@ msgstr "Kontaktname"
 msgid "Contact additive inheritance"
 msgstr "Additive Kontaktvererbung"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact already exists"
 msgstr "Kontakt existiert bereits"
@@ -3531,7 +3491,6 @@ msgstr "Host konnte nicht gefunden werden"
 msgid "Contact template"
 msgstr "Kontakt-Template"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact template used"
 msgstr "Verwendetes Kontakttemplate"
@@ -3799,7 +3758,6 @@ msgstr "Kritisch"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -4228,7 +4186,6 @@ msgid "Debug messages"
 msgstr "Debugnachrichten"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -4268,7 +4225,6 @@ msgstr "Standard Kontaktgruppe"
 msgid "Default downtime settings"
 msgstr "Standardeinstellungen für Ausfallszeiten"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Default page"
@@ -4742,7 +4698,6 @@ msgstr "SSL Peerverifizierung deaktivieren"
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -5231,7 +5186,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -5268,7 +5222,6 @@ msgstr "Ausfallszeit"
 msgid "Downtime Configuration"
 msgstr "Ausfallszeitkonfiguration"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5608,7 +5561,6 @@ msgstr "LDAP-Authentifizierung aktivieren"
 msgid "Enable LDAP synchronization on login"
 msgstr "LDAP-Synchronisierung bei Login aktivieren"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Enable Notifications"
 msgstr "Benachrichtigungen aktivieren"
@@ -5832,7 +5784,6 @@ msgstr "Leistungsdaten (de)aktivieren"
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -7609,7 +7560,6 @@ msgstr "Flackernerkennungsoption"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/dashboard_widgets.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -7753,7 +7703,6 @@ msgid "From"
 msgstr "Ab"
 
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Full Name"
@@ -7808,7 +7757,6 @@ msgstr "Allgemein"
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
@@ -8152,7 +8100,6 @@ msgstr "Höhe"
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps-mibs/formMibs.php
@@ -8258,7 +8205,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/dashboard_widgets.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
 #: centreon/www/include/configuration/configObject/meta_service/metric.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -8430,18 +8376,15 @@ msgstr "Hostname"
 msgid "Host Names"
 msgstr "Hostnamen"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Host Notification Commands"
 msgstr "Hostbenachrichtigungsbefehl"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Host Notification Options"
 msgstr "Hostbenachrichtigungsoption"
 
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Host Notification Period"
@@ -9186,7 +9129,6 @@ msgstr "Falscher Ressourcentyp"
 msgid "Incorrect Resource type: %s"
 msgstr "Falscher Ressourcentyp: %s"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -10493,7 +10435,6 @@ msgid "MariaDB version %s required (%s installed)"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
@@ -10912,7 +10853,6 @@ msgstr "Modifikationstyp"
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -11086,10 +11026,6 @@ msgstr "Trapdefinition bearbeiten"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Modify a User"
 msgstr "Benutzer bearbeiten"
-
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "Modify a User Template"
-msgstr "Benutzertemplate bearbeiten"
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Modify a Virtual Metric"
@@ -11602,7 +11538,6 @@ msgstr "Nächste Seite"
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -11838,7 +11773,6 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -11923,7 +11857,6 @@ msgid "Notif"
 msgstr "Benachrichtigen"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -13488,7 +13421,6 @@ msgstr "Echtzeit"
 msgid "Rebuild check interval in seconds"
 msgstr "Neuaufbau Überprüfungsintervall in Sekunden"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -13673,7 +13605,6 @@ msgstr "Entfernen"
 msgid "Rename"
 msgstr "Benutzername"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -13792,7 +13723,6 @@ msgstr "Erforderliches Feld"
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/traps-mibs/formMibs.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -13839,7 +13769,6 @@ msgstr "In Verbindung stehende Services neu ansetzen"
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -14325,7 +14254,6 @@ msgstr "Samstag"
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
@@ -14866,7 +14794,6 @@ msgstr "Servertyp"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/dashboard_widgets.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/meta_service/metric.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
@@ -15007,17 +14934,14 @@ msgstr "Serviceverschachtelungsfaktor"
 msgid "Service List"
 msgstr "Serviceliste"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Service Notification Commands"
 msgstr "Servicebenachrichtigungsbefehl"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Service Notification Options"
 msgstr "Servicebenachrichtigungsoption"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Service Notification Period"
 msgstr "Servicebenachrichtigungszeitraum"
@@ -15983,7 +15907,6 @@ msgstr "Statistiken"
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/traps-mibs/formMibs.php
@@ -17762,7 +17685,6 @@ msgstr "Einheit"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -17816,7 +17738,6 @@ msgstr "Serviceliste"
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -17908,7 +17829,6 @@ msgstr "Aktualisierungsmodus"
 msgid "Update filter"
 msgstr "Benutzerfilter"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -18365,10 +18285,6 @@ msgstr "Trapdefinition anzeigen"
 msgid "View a User"
 msgstr "Benutzer anzeigen"
 
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
-msgid "View a User Template"
-msgstr "Benutzertemplate anzeigen"
-
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "View a Virtual Metric"
 msgstr "Virtuelle Metrik anzeigen"
@@ -18549,7 +18465,6 @@ msgstr "WARNUNG"
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/include/eventLogs/viewLog.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -18783,7 +18698,6 @@ msgstr "a/m/d h:min:s"
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
-#: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
@@ -20208,6 +20122,33 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
 msgstr ""
+
+#~ msgid "Add a User Template"
+#~ msgstr "Benutzertemplate hinzufügen"
+
+#~ msgid "Address1"
+#~ msgstr "Adresse1"
+
+#~ msgid "Address2"
+#~ msgstr "Adresse2"
+
+#~ msgid "Address3"
+#~ msgstr "Adresse3"
+
+#~ msgid "Address4"
+#~ msgstr "Adresse4"
+
+#~ msgid "Address5"
+#~ msgstr "Adresse5"
+
+#~ msgid "Address6"
+#~ msgstr "Adresse6"
+
+#~ msgid "Modify a User Template"
+#~ msgstr "Benutzertemplate bearbeiten"
+
+#~ msgid "View a User Template"
+#~ msgstr "Benutzertemplate anzeigen"
 
 #, fuzzy
 #~ msgid "Add host"
