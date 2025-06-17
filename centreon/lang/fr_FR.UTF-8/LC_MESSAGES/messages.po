@@ -19698,3155 +19698,3155 @@ msgstr "Le nom doit comporter au moins 3 caractères"
 msgid "{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
 
-#~ msgid "Add a User Template"
-#~ msgstr "Ajouter un modèle utilisateur"
+ msgid " element(s) found"
+ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Address1"
-#~ msgstr "Adresse n°1"
+ msgid " elements to selection ?"
+ msgstr "éléments à sélectioner?"
 
-#~ msgid "Address2"
-#~ msgstr "Adresse n°2"
+ msgid "$HOSTADDRESS$"
+ msgstr "$HOSTADDRESS$"
 
-#~ msgid "Address3"
-#~ msgstr "Adresse n°3"
+ msgid "%s is downloaded."
+ msgstr "%s est téléchargé."
 
-#~ msgid "Address4"
-#~ msgstr "Adresse n°4"
+ msgid "%s patch is installed."
+ msgstr "le correctif %s a été installé."
 
-#~ msgid "Address5"
-#~ msgstr "Adresse n°5"
+ msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
+ msgstr ""
+ "* Cross-Site Request Forgery : des requêtes non autorisées ont été "
+ "transmises"
 
-#~ msgid "Address6"
-#~ msgstr "Adresse n°6"
+ msgid "2d Coords"
+ msgstr "Coordonnées 2D"
 
-#~ msgid "Modify a User Template"
-#~ msgstr "Modifier un modèle utilisateur"
+ msgid "3d Coords"
+ msgstr "Coordonnées 3D"
 
-#~ msgid "View a User Template"
-#~ msgstr "Visualiser un modèle utilisateur"
+ msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
+ msgstr ""
+ "<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
+ "vers"
 
-#~ msgid "Add host"
-#~ msgstr "Ajouter un hôte"
+ msgid "<br><b>Centreon : </b>All configuration will be send to "
+ msgstr "<br><b>Centreon : </b>Toute la configuration sera envoyée vers "
 
-#~ msgid "Add a Host Group"
-#~ msgstr "Ajouter un groupe d'hôtes"
+ msgid "<br><b>Centreon : </b>Cannot send signal to "
+ msgstr "<br><b>Centreon : </b>Impossible d'envoyer le signal vers "
 
-#~ msgid "Extended Information"
-#~ msgstr "Informations additionnelles"
+ msgid "ACL Definition"
+ msgstr "Nom de l'ACL"
 
-#~ msgid "Map Icon"
-#~ msgstr "Icône pour la carte"
+ msgid "ACL reloaded"
+ msgstr "ACL rechargées"
 
-#~ msgid "Members"
-#~ msgstr "Membres"
+ msgid "ACL rules"
+ msgstr "Règles d'accès"
 
-#~ msgid "Modify a Host Group"
-#~ msgstr "Modifier un groupe d'hôtes"
+ msgid "ALL"
+ msgstr "Tous"
 
-#~ msgid "Notes URL"
-#~ msgstr "URL"
+ msgid "API token"
+ msgstr "Jeton d'API"
 
-#~ msgid "RRD retention"
-#~ msgstr "Rétention des fichiers RRD"
+ msgid "Access not allowed"
+ msgstr " Accès non autorisé"
 
-#~ msgid "View a Host Group"
-#~ msgstr "Visualiser un groupe d'hôtes"
+ msgid "Accessible Pages"
+ msgstr "Pages disponibles"
 
-#~ msgid "You are not allowed to access this host group"
-#~ msgstr "Vous n'êtes pas autorisé à accéder à ce groupe d'hôte"
+ msgid "Acknowledge host or service Color"
+ msgstr "Couleur des hôtes ou des services acquittés"
 
-#~ msgid ""
-#~ "You can't edit this hostgroup because you don't have access to all its "
-#~ "resources"
-#~ msgstr ""
-#~ "Vous ne pouvez pas éditer groupe d'hote car vous n'êtes pas autorisé à "
-#~ "accéder à toutes les ressources liées"
+ msgid "Acknowledge/Disacknowledge a service"
+ msgstr "Acquitter/Désacquitter un service"
 
-#~ msgid "Correlation file"
-#~ msgstr "Fichier de corrélation"
+ msgid "Acknowledge/Disaknowledge a host"
+ msgstr "Acquitter/Désacquitter un hôte"
 
-#~ msgid "Correlation passive"
-#~ msgstr "Correlation passive"
+ msgid "Active Check"
+ msgstr "Contrôle actif"
 
-#~ msgid "Replication enabled"
-#~ msgstr "Activer la réplication"
+ msgid "Active Color"
+ msgstr "Couleur active"
 
-#~ msgid "Retention file"
-#~ msgstr "Fichier de rétention"
+ msgid "Active/Revoked"
+ msgstr "Actif/Révoqué"
 
-#~ msgid "TCP port"
-#~ msgstr "Port TCP"
+ msgid "Add "
+ msgstr "Ajouter"
 
-#~ msgid "Unix socket"
-#~ msgstr "Socket Unix"
+ msgid "Add a Host Group"
+ msgstr "Ajouter un groupe d'hôtes"
 
-#~ msgid ""
-#~ "Connection to Wiki database failed, please contact your administrator or "
-#~ "read the Centreon online documentation to configure wiki access"
-#~ msgstr ""
-#~ "Echec de connexion à la base de connaissance, veuillez contacter votre "
-#~ "administrateur ou consulter la documentation en ligne Centreon pour "
-#~ "configurer les accès."
+ msgid "Add a Host downtime"
+ msgstr "Ajouter une plage de maintenance pour un hôte"
 
-#~ msgid "it's required"
-#~ msgstr "Requis"
+ msgid "Add a LDAP server"
+ msgstr "Ajouter un serveur LDAP"
 
-#~ msgid "Store performance data in data_bin"
-#~ msgstr "Enregistrement des données de performance dans la table 'data_bin'"
+ msgid "Add a Service comment"
+ msgstr "Ajouter pour un service"
 
-#~ msgid "Centcore properties"
-#~ msgstr "Propriétés de Centcore"
+ msgid "Add a Service downtime"
+ msgstr "Planifier pour un service"
 
-#~ msgid "Centcore Options"
-#~ msgstr "Options du processus Centcore"
+ msgid "Add a User Template"
+ msgstr "Ajouter un modèle utilisateur"
 
-#~ msgid "Skin Menu Selection"
-#~ msgstr "Sélection de l'apparence des menus"
+ msgid "Add a host downtime"
+ msgstr "Planifier pour un hôte"
 
-#~ msgid "CSS configuration"
-#~ msgstr "Configuration CSS"
+ msgid "Add a host group"
+ msgstr "Ajouter un groupe d'hôtes"
 
-#~ msgid "Objets"
-#~ msgstr "Objets"
+ msgid "Add a service downtime"
+ msgstr "Planifier pour service"
 
-#~ msgid "Viewers"
-#~ msgstr "Personnes ayant accès en visualisation"
+ msgid "Add host"
+ msgstr "Ajouter un hôte"
 
-#~ msgid "Viewers group"
-#~ msgstr "Groupes ayant accès en visualisation"
+ msgid ""
+ "Add open_files_limit=32000 in my.cnf file under the [mysqld] section and "
+ "restart MySQL Server."
+ msgstr ""
+ "Ajouter la propriété open_files_limit=32000 dans le fichier my.cnf dans "
+ "l'encart [mysql] et redémarrez le serveur MySQL."
 
-#~ msgid "Add viewer / viewer group"
-#~ msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
+ msgid "Add resource"
+ msgstr "Ajouter une ressource"
 
-#~ msgid "Real Name"
-#~ msgstr "Nom réel"
+ msgid "Add viewer / viewer group"
+ msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
 
-#~ msgid "Upgrade"
-#~ msgstr "Mise à jour"
+ msgid "Additional daemon"
+ msgstr "Démon supplémentaire"
 
-#~ msgid "Do you confirm the deletion?"
-#~ msgstr "Confirmez-vous la suppression ?"
+ msgid "Additional properties are not allowed"
+ msgstr "Les propriétés additionnelles ne sont pas autorisées"
 
-#~ msgid "Uninstall Module"
-#~ msgstr "Désinstaller le module"
+ msgid "Additionnal Information"
+ msgstr "Informations complémentaires"
 
-#~ msgid "looks like a CLAPI action"
-#~ msgstr "Probablement une action réalisée par CLAPI"
+ msgid "Address1"
+ msgstr "Adresse n°1"
 
-#~ msgid "Default contact group"
-#~ msgstr "Groupe de contacts par défaut"
+ msgid "Address2"
+ msgstr "Adresse n°2"
 
-#~ msgid "Finish"
-#~ msgstr "Terminer"
+ msgid "Address3"
+ msgstr "Adresse n°3"
 
-#~ msgid "Back to Centreon Broker configuration menu"
-#~ msgstr "Revenir au menu de Centreon Broker"
+ msgid "Address4"
+ msgstr "Adresse n°4"
 
-#~ msgid "Poller States"
-#~ msgstr "État des collecteurs"
+ msgid "Address5"
+ msgstr "Adresse n°5"
 
-#~ msgid "Welcome"
-#~ msgstr "Bienvenue"
+ msgid "Address6"
+ msgstr "Adresse n°6"
 
-#~ msgid "Monitoring Connectors"
-#~ msgstr "Connecteurs de supervision"
+ msgid "Advanced mode"
+ msgstr "Mode avancé"
 
-#~ msgid "Subscription"
-#~ msgstr "Abonnement"
+ msgid "Agent configuration"
+ msgstr "Configuration d'agent"
 
-#~ msgid "This server is already registered"
-#~ msgstr "Ce serveur est déjà enregistré"
+ msgid "Aggressive Host Checks"
+ msgstr "Contrôle agressif des hôtes"
 
-#~ msgid ""
-#~ "No Central in topology,please edit it from Configuration > Pollers menu"
-#~ msgstr ""
-#~ "Pas de Central dans la topologie,Editez le depuis le menu Configurations "
-#~ "> Collecteurs"
+ msgid "All Graphs"
+ msgstr "Tous les graphiques"
 
-#~ msgid "Could not find storage database. Session probably expired."
-#~ msgstr ""
-#~ "Base de données de stockage non trouvée. La session a probablement "
-#~ "expirée."
+ msgid "All Logs"
+ msgstr "Tous les logs"
 
-#~ msgid "Could not find configuration database. Session probably expired."
-#~ msgstr ""
-#~ "Impossible de trouver la base de données de configuration. La session a "
-#~ "probablement expirée"
+ msgid "Allow self signed certificate."
+ msgstr "Autoriser le certificat auto-signé."
 
-#~ msgid ""
-#~ "Add open_files_limit=32000 in my.cnf file under the [mysqld] section and "
-#~ "restart MySQL Server."
-#~ msgstr ""
-#~ "Ajouter la propriété open_files_limit=32000 dans le fichier my.cnf dans "
-#~ "l'encart [mysql] et redémarrez le serveur MySQL."
+ msgid "An error occured while converting your platform"
+ msgstr "Une erreur est survenue lors de la conversion de la plateforme"
 
-#~ msgid "Could not find database user. Session probably expired."
-#~ msgstr ""
-#~ "Impossible de trouver l'utilisateur ayant accès aux bases de données. La "
-#~ "session a probablement expirée"
+ msgid "An error occured while retrieving metrics data"
+ msgstr ""
+ "Une erreur est survenue lors de la récupération des données de métriques"
 
-#~ msgid "Could not find CENTREON_ETC. Session probably expired."
-#~ msgstr ""
-#~ "Variable CENTREON_ETC non trouvée. La session a probablement expirée."
+ msgid "An error occured while retrieving service categories"
+ msgstr ""
+ "Une erreur s'est produite lors de la récupération des catégories de "
+ "services"
 
-#~ msgid "Use a vault to store sensitive data"
-#~ msgstr "Utiliser un coffre fort pour stocker les données sensibles"
+ msgid "An error occured while your platform update"
+ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 
-#~ msgid "Congratulations, you have successfully installed Centreon!"
-#~ msgstr ""
-#~ "Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
-#~ "b>."
+ msgid "An error occurred while filtering columns"
+ msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
-#~ msgid "Utils database"
-#~ msgstr "Base de données du broker"
+ msgid "Animation effects"
+ msgstr "Effets d'animation"
 
-#~ msgid "Auto Discovery"
-#~ msgstr "Découverte automatisée"
+ msgid ""
+ "Anyone with the link can view your playlist. Be cautious when you share "
+ "it."
+ msgstr ""
+ "Toute personne disposant du lien peut consulter votre liste de diffusion. "
+ "Soyez vigilant lorsque vous le partagez."
 
-#~ msgid "Boolean Rules"
-#~ msgstr "Règles booléennes"
+ msgid "Append"
+ msgstr "Ajout"
 
-#~ msgid "CentCore"
-#~ msgstr "Centcore"
+ msgid "Apply configuration"
+ msgstr "Appliquer la configuration"
 
-#~ msgid "Centreon Map"
-#~ msgstr "Centreon Map"
+ msgid "Archive logs of monitoring engine"
+ msgstr "Journaux d'archive du moteur de supervision"
 
-#~ msgid "Centreon Map Client (admin)"
-#~ msgstr "Client Centreon Map (admin)"
+ msgid ""
+ "Are you sure you want to change this parameter? Please read the help "
+ "before."
+ msgstr ""
+ "Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide "
+ "avant."
 
-#~ msgid "Centreon Map Client (user)"
-#~ msgstr "Client Centreon Map (utilisateur)"
+ msgid "Are you sure you want to uninstall this widget?"
+ msgstr "Êtes-vous sûr de vouloir désinstaller ce widget?"
 
-#~ msgid "Contact Templates"
-#~ msgstr "Modèles de contact"
+ msgid "Arrow color"
+ msgstr "Couleur de la flèche des axes"
 
-#~ msgid "Default Settings"
-#~ msgstr "Paramètres par défaut"
+ msgid "As displayed"
+ msgstr "Image affichée"
 
-#~ msgid "Edit"
-#~ msgstr "Éditer"
+ msgid "Authorization Endpoint"
+ msgstr "Point de terminaison d'autorisation"
 
-#~ msgid "General Access"
-#~ msgstr "Gestion des accès globaux"
+ msgid "Authorization key: The key"
+ msgstr "Clé d'autorisation : La clé"
 
-#~ msgid "Geolocation"
-#~ msgstr "Géolocalisation"
+ msgid "Auto Discovery"
+ msgstr "Découverte automatisée"
 
-#~ msgid "Indicators"
-#~ msgstr "Indicateurs (KPI)"
+ msgid "Availability: %s%%"
+ msgstr "Disponibilité : %s%%"
 
-#~ msgid "Management"
-#~ msgstr "Administration"
+ msgid "Axis Properties"
+ msgstr "Propriétés des axes"
 
-#~ msgid "Map"
-#~ msgstr "Map"
+ msgid "B.Activities"
+ msgstr "A.Métier"
 
-#~ msgid "Modules Options"
-#~ msgstr "Option des modules"
+ msgid "Back to Centreon Broker configuration menu"
+ msgstr "Revenir au menu de Centreon Broker"
 
-#~ msgid "Overview"
-#~ msgstr "Vue d'ensemble"
+ msgid "Bad JSON schema format"
+ msgstr "Mauvais format de JSON schema"
 
-#~ msgid "Monitoring connectors"
-#~ msgstr "Connecteurs de supervision"
+ msgid "Bad JSON schema path"
+ msgstr "Mauvais chemin de JSON Schema"
 
-#~ msgid "Poller Statistics"
-#~ msgstr "Statistiques des collecteurs"
+ msgid "Bad SQL request"
+ msgstr "Mauvaise requête SQL"
 
-#~ msgid "Rules"
-#~ msgstr "Règles"
+ msgid "Bad arguments for wizard."
+ msgstr "Mauvais arguments pour l'assistant."
 
-#~ msgid "Scan"
-#~ msgstr "Manuelle"
+ msgid "Bad configuration type"
+ msgstr "Type incorrect de configuration"
 
-#~ msgid "Server Status"
-#~ msgstr "État du serveur"
+ msgid "Bad format for the sort request parameter"
+ msgstr "Mauvais format pour la requête de tri"
 
-#~ msgid "Setup"
-#~ msgstr "Configuration"
+ msgid "Bad regex format"
+ msgstr "Mauvaise expression régulière (RegExp)"
 
-#~ msgid "Troubleshooter"
-#~ msgstr "Dépannage"
+ msgid "Bad request"
+ msgstr "Mauvaise requête"
 
-#~ msgid "User Settings"
-#~ msgstr "Paramètres utilisateurs"
+ msgid "Base Url"
+ msgstr "URL de base"
 
-#~ msgid "Users Access"
-#~ msgstr "Gestion des accès utilisateurs"
+ msgid "Base release"
+ msgstr "Version de base"
 
-#~ msgid "Views Restrictions"
-#~ msgstr "Restrictions d'accès aux vues"
+ msgid "Behavior on duplicate names"
+ msgstr "Comportement sur les noms en doublon"
 
-#~ msgid "Virtuals"
-#~ msgstr "Métriques virtuelles"
+ msgid "Boolean Rules"
+ msgstr "Règles booléennes"
 
-#~ msgid "Visualisation"
-#~ msgstr "Visualisation"
+ msgid "Bottom color"
+ msgstr "Couleur du bas"
 
-#~ msgid "Widgets"
-#~ msgstr "Widgets"
+ msgid "Broker engine used by Centreon"
+ msgstr "Broker utilisé par Centreon"
 
-#~ msgid "Wizard"
-#~ msgstr "Assistant de configuration"
+ msgid "Broker need options to be loaded"
+ msgstr "Le broker a besoin d'options pour être lancé"
 
-#~ msgid "WizardAjax"
-#~ msgstr "Assistant de configuration"
+ msgid "Browser detected"
+ msgstr "Navigateur détecté"
 
-#~ msgid "Rebuild RRD Database"
-#~ msgstr "Regénérer les bases de données RRD"
+ msgid "Bug Tracker"
+ msgstr "Rapporter un bogue"
 
-#~ msgid "Stop rebuilding RRD Databases"
-#~ msgstr "Arrêter la regénération des bases de données RRD"
+ msgid "Business Intelligence"
+ msgstr "Business Intelligence"
 
-#~ msgid "Rebuild Waiting"
-#~ msgstr "En attente de reconstruction"
+ msgid ""
+ "By turning off this option, all links included in the widget will be "
+ "opened in the same tab."
+ msgstr ""
+ "En désactivant cette option, tous les liens inclus dans le widget seront "
+ "ouverts dans le même onglet."
 
-#~ msgid "Storage Type"
-#~ msgstr "Type de sauvegarde"
+ msgid ""
+ "By turning off this option, all the links included in the widget will be "
+ "opened in the same tab."
+ msgstr ""
+ "En désactivant cette option, tous les liens inclus dans le widget seront "
+ "ouverts dans le même onglet."
 
-#~ msgid "Project Leaders"
-#~ msgstr "Chefs de projet"
+ msgid "C"
+ msgstr "C"
 
-#~ msgid "You can see the full list by visiting the Centreon's Github"
-#~ msgstr ""
-#~ "Vous pouvez visualiser la liste complète à partir de du projet "
-#~ "Centreonsur Github"
+ msgid "CRITICAL Alerts"
+ msgstr "Alertes CRITICAL"
 
-#~ msgid "Animation effects"
-#~ msgstr "Effets d'animation"
+ msgid "CRITICAL Mean Time"
+ msgstr "CRITICAL (Temps connu)"
 
-#~ msgid "Use SSL connection"
-#~ msgstr "Utiliser une connexion SSL"
+ msgid "CRITICAL Time"
+ msgstr "Temps état CRITICAL"
 
-#~ msgid "Use TLS connection"
-#~ msgstr "Utiliser une connexion TLS"
+ msgid "CSS File"
+ msgstr "Fichier CSS"
 
-#~ msgid "Add a LDAP server"
-#~ msgstr "Ajouter un serveur LDAP"
+ msgid "CSS configuration"
+ msgstr "Configuration CSS"
 
-#~ msgid "Hostname"
-#~ msgstr "Nom d'hôte"
+ msgid "Can't get file'"
+ msgstr "Impossible d'obtenir le fichier"
 
-#~ msgid "Do you really wish to remove this entry?"
-#~ msgstr "Voulez-vous réellement supprimer cette entrée ?"
+ msgid "Can't get list of files."
+ msgstr "Impossible d'obtenir la liste des fichiers."
 
-#~ msgid "Knowledge base database name"
-#~ msgstr "Nom de la base de données de connaissance"
+ msgid "Can't open configuration file : /etc/oreon.conf"
+ msgstr "Impossible d'ouvrir le fichier de configuration : /etc/oreon.conf"
 
-#~ msgid "Knowledge base database user"
-#~ msgstr "Compte d'accès à la base de données"
+ msgid "Can't open patch"
+ msgstr "Impossible d'ouvrir le correctif"
 
-#~ msgid "Knowledge base Database password"
-#~ msgstr "Mot de passe de l'utilisateur ayant accès à la base de données"
+ msgid "Can't read in directory"
+ msgstr "Impossible de lire dans le répertoire"
 
-#~ msgid "Knowledge base Database host"
-#~ msgstr "Adresse de la base de données"
+ msgid "Censtorage Core Options"
+ msgstr "Options du processus Censtorage"
 
-#~ msgid "Test DB connection"
-#~ msgstr "Tester la connexion à la base de données"
+ msgid "CentCore"
+ msgstr "Centcore"
 
-#~ msgid "Knowledge base Database prefix"
-#~ msgstr "Préfix des tables de la base de données"
+ msgid "CentStorage"
+ msgstr "CentStorage"
 
-#~ msgid "RRDTool database size"
-#~ msgstr "Durée de rétention des données dans les bases RRD"
+ msgid "Centcore Options"
+ msgstr "Options du processus Centcore"
 
-#~ msgid "Logs retention duration"
-#~ msgstr "Durée de rétention des journaux"
+ msgid "Centcore properties"
+ msgstr "Propriétés de Centcore"
 
-#~ msgid "Reporting retention duration (dashboard)"
-#~ msgstr ""
-#~ "Durée de rétention des information de génération de rapports (Tableau de "
-#~ "bord)"
+ msgid "Central address"
+ msgstr "Adresse du Central"
 
-#~ msgid "Menu"
-#~ msgstr "Menu"
+ msgid "Central configuration"
+ msgstr "Configuration du serveur central"
 
-#~ msgid "CSS File"
-#~ msgstr "Fichier CSS"
+ msgid ""
+ "Central platform's data are not consistent. Please check the 'Remote "
+ "Access' form"
+ msgstr ""
+ "Des données de la plateforme ne sont pas cohérentes. Veuillez vérifier le "
+ "formulaire 'Accès du Remote'."
 
-#~ msgid "Display Template"
-#~ msgstr "Utiliser le modèle"
+ msgid "Centreon Broker information"
+ msgstr "Information sur Centreon Broker"
 
-#~ msgid "TCP"
-#~ msgstr "TCP"
+ msgid "Centreon Broker socket path"
+ msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#~ msgid "HTTP"
-#~ msgstr "HTTP"
+ msgid "Centreon Map"
+ msgstr "Centreon Map"
 
-#~ msgid "HTTPS"
-#~ msgstr "HTTPS"
+ msgid "Centreon Map Client (admin)"
+ msgstr "Client Centreon Map (admin)"
 
-#~ msgid "Proxy protocol"
-#~ msgstr "Protocole du proxy Internet"
+ msgid "Centreon Map Client (user)"
+ msgstr "Client Centreon Map (utilisateur)"
 
-#~ msgid ""
-#~ "Are you sure you want to change this parameter? Please read the help "
-#~ "before."
-#~ msgstr ""
-#~ "Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide "
-#~ "avant."
+ msgid "Centreon Map WS"
+ msgstr "Centreon Map WS"
 
-#~ msgid "Base Url"
-#~ msgstr "URL de base"
+ msgid "Centreon Users"
+ msgstr "Utilisateurs Centreon"
 
-#~ msgid "Authorization Endpoint"
-#~ msgstr "Point de terminaison d'autorisation"
+ msgid "Centreon is updated."
+ msgstr "Centreon a été mis à jour."
 
-#~ msgid "Token Endpoint"
-#~ msgstr "Point de terminaison de jeton"
+ msgid "Centreon-Broker"
+ msgstr "Centreon Broker"
 
-#~ msgid "Introspection Token Endpoint"
-#~ msgstr "Point de terminaison d'introspection du jeton"
+ msgid "Centreon-Broker Correlation"
+ msgstr "Corrélation Centreon Broker"
 
-#~ msgid "User Information Endpoint"
-#~ msgstr "Point de terminaison des informations utilisateur"
+ msgid "Centreon-Broker Input"
+ msgstr "Entrées Centreon Broker"
 
-#~ msgid "Scope"
-#~ msgstr "Portée"
+ msgid "Centreon-Broker Logger"
+ msgstr "Journalisation Centreon Broker"
 
-#~ msgid "Redirect Url"
-#~ msgstr "Adresse de redirection vers Centreon"
+ msgid "Centreon-Broker Output"
+ msgstr "Sorties Centreon Broker"
 
-#~ msgid "Client Secret"
-#~ msgstr "Secret client"
+ msgid "Centreon-Broker Stats"
+ msgstr "Statistiques Centreon Broker"
 
-#~ msgid "Enable SSO authentication"
-#~ msgstr "Activer l'authentification SSO"
+ msgid "Centreon-Broker Temporary"
+ msgstr "Buffer Centreon Broker"
 
-#~ msgid "SSO only"
-#~ msgstr "Seulement SSO"
+ msgid "Centstorage Configuration"
+ msgstr "Configuration de Centstorage"
 
-#~ msgid "SSO mode"
-#~ msgstr "Mode SSO"
+ msgid "Centstorage debug"
+ msgstr "Débogage Centstorage"
 
-#~ msgid "SSO trusted client addresses"
-#~ msgstr "Adresses des clients de confiance"
+ msgid "Change update options"
+ msgstr "Modifier les options de mise à jour"
 
-#~ msgid "SSO blacklist client addresses"
-#~ msgstr "Adresses des clients sur liste noire"
+ msgid "Check Beta"
+ msgstr "Vérifier les mises à jour de version beta"
 
-#~ msgid "SSO pattern matching login"
-#~ msgstr "Chaine de recherche (pattern) pour l'authentification (login)"
+ msgid "Check Release candidate"
+ msgstr "Vérifier les mises à jour de version candidate"
 
-#~ msgid "SSO pattern replace login"
-#~ msgstr "Chaine de remplacement (pattern) pour l'authentification (login)"
+ msgid "Check User View"
+ msgstr "Vérifier la vue de l'utilisateur"
 
-#~ msgid "SSO login header"
-#~ msgstr "Entête HTTP SSO"
+ msgid "Check command"
+ msgstr "Commande de contrôle"
 
-#~ msgid "Images Directory"
-#~ msgstr "Répertoire des images"
+ msgid "Check patches"
+ msgstr "Vérifier les mises à jour de correctifs"
 
-#~ msgid "Start script for broker daemon"
-#~ msgstr "Script de démarrage du broker"
+ msgid "Check secu-patches"
+ msgstr "Vérifier les mises à jour de correctifs de sécurité"
 
-#~ msgid "Unit Properties"
-#~ msgstr "Propriétés de l'unité"
+ msgid "Check stable versions"
+ msgstr "Vérifier les mises à jour de version stable"
 
-#~ msgid "Font"
-#~ msgstr "Police"
+ msgid "Child processes fork twice"
+ msgstr "Création de deux processus enfants pour chaque contrôle"
 
-#~ msgid "Font size"
-#~ msgstr "Taille de police"
+ msgid "Choose a configuration template:"
+ msgstr "Choisissez le modèle de configuration"
 
-#~ msgid "Title Properties"
-#~ msgstr "Propriétés du titre"
+ msgid "Choose a duration between 1 hour and 12 months"
+ msgstr "Veuillez choisir une durée entre 1 heure et 12 mois"
 
-#~ msgid "Axis Properties"
-#~ msgstr "Propriétés des axes"
+ msgid "Choose a host, then its associated service."
+ msgstr "Choisir un hôte, puis son service associé."
 
-#~ msgid "Legend Properties"
-#~ msgstr "Propriétés de la légende"
+ msgid "Choose at least 1 user"
+ msgstr "Veuillez sélectionner au moins 1 utilisateur"
 
-#~ msgid "Watermark Properties"
-#~ msgstr "Propriété du filigrane"
+ msgid "Client Secret"
+ msgstr "Secret client"
 
-#~ msgid "Rrdcached configuration : work only with Centreon Broker"
-#~ msgstr ""
-#~ "Configuration du module RRDCached : fonctionne seulement avec Centreon "
-#~ "Broker"
+ msgid "Cmd"
+ msgstr "Commande"
 
-#~ msgid "UNIX Socket path"
-#~ msgstr "CHemin d'accès au socket Unix"
+ msgid "Color for host Down (Service view)"
+ msgstr ""
+ "Couleur pour les hôtes en statut problèmatique (page de supervision des "
+ "services)"
 
-#~ msgid "The rrdcached configuration must have a option."
-#~ msgstr "La configuration du module RRDCached doit avoir une option"
+ msgid "Color for host Unreachable (Service view)"
+ msgstr ""
+ "Couleur pour les hôtes non joignable (page de supervision des services)"
 
-#~ msgid "Only one option must be set."
-#~ msgstr "Une seule option peut être renseignée"
+ msgid "Commands containing a request body are not allowed at the moment"
+ msgstr ""
+ "Les commandes contenant un corp ne sont pas autorisées pour le moment"
 
-#~ msgid "The port must be numeric"
-#~ msgstr "La port doit être numérique"
+ msgid "Communication port"
+ msgstr "Port de communication"
 
-#~ msgid "No LDAP configuration enabled !"
-#~ msgstr "Aucune configuration LDAP active !"
+ msgid "Compulsory Contact"
+ msgstr "Contact obligatoire"
 
-#~ msgid "Resync data requested."
-#~ msgstr "Mise à jour des données demandée."
+ msgid "Compulsory Contact Group"
+ msgstr "Groupe de contacts obligatoire"
 
-#~ msgid "Error : unable to read or update the contact data in the DB"
-#~ msgstr "Erreur : impossible de lire ou de mettre à jour les données en DB"
+ msgid "Configuration UI behavior"
+ msgstr "Configuration du comportement de l'interface"
 
-#~ msgid "Object Type"
-#~ msgstr "Type d'objet"
+ msgid "Configuration saved."
+ msgstr "Configuration sauvegardée."
 
-#~ msgid "Event Type"
-#~ msgstr "Type d'évènement"
+ msgid "Congratulations, you have successfully installed Centreon!"
+ msgstr ""
+ "Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
+ "b>."
 
-#~ msgid "Shared views list"
-#~ msgstr "Liste des vues partagées"
+ msgid "Connected Users"
+ msgstr "Utilisateurs connectés"
 
-#~ msgid "Locked?"
-#~ msgstr "Verrouillée?"
+ msgid "Connection Error to NDO DataBase ! \n"
+ msgstr "Erreur de connexion à la base de données NDO ! \n"
 
-#~ msgid "User Group List"
-#~ msgstr "Liste des groupes utilisateurs"
+ msgid ""
+ "Connection to Wiki database failed, please contact your administrator or "
+ "read the Centreon online documentation to configure wiki access"
+ msgstr ""
+ "Echec de connexion à la base de connaissance, veuillez contacter votre "
+ "administrateur ou consulter la documentation en ligne Centreon pour "
+ "configurer les accès."
 
-#~ msgid "Widget Information"
-#~ msgstr "Informations sur le Widget"
+ msgid "Contact Details"
+ msgstr "Détails du Contact"
 
-#~ msgid "Active Color"
-#~ msgstr "Couleur active"
+ msgid "Contact Templates"
+ msgstr "Modèles de contact"
 
-#~ msgid "New Color"
-#~ msgstr "Nouvelle couleur"
+ msgid "Contact disabled."
+ msgstr "Contact désactivé."
 
-#~ msgid "Detection by browser"
-#~ msgstr "Détection via le navigateur"
-
-#~ msgid "Service Description Search Key"
-#~ msgstr "Entrez le nom d'un service"
-
-#~ msgid "Quick Search"
-#~ msgstr "Recherche Rapide"
-
-#~ msgid "Go"
-#~ msgstr "Go"
-
-#~ msgid "host"
-#~ msgstr "hôte"
-
-#~ msgid "service"
-#~ msgstr "service"
-
-#~ msgid "Reset filters"
-#~ msgstr "Remise à zéro des filtres"
-
-#~ msgid "Check User View"
-#~ msgstr "Vérifier la vue de l'utilisateur"
-
-#~ msgid "Centreon Users"
-#~ msgstr "Utilisateurs Centreon"
-
-#~ msgid "The selected user didn't see any resources"
-#~ msgstr "L'utilisateur sélectionné ne voit aucune ressource"
-
-#~ msgid "Please select an user in order to display resources"
-#~ msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
-
-#~ msgid "The selected user is not enable."
-#~ msgstr "L'utilisateur sélectionné n'est pas activé."
-
-#~ msgid "Do you confirm  the duplication ?"
-#~ msgstr "Confirmez-vous la duplication ?"
-
-#~ msgid "ACL Definition"
-#~ msgstr "Nom de l'ACL"
-
-#~ msgid "Implied Resources"
-#~ msgstr "Ressources impliquées"
-
-#~ msgid "Include Host Groups -> Hosts"
-#~ msgstr "Inclus groupes d'hôtes -> hôtes"
-
-#~ msgid "Implied page"
-#~ msgstr "Pages Impliquées"
-
-#~ msgid "topology_name"
-#~ msgstr "Nom de la topologie"
-
-#~ msgid "Visible page"
-#~ msgstr "Pages visibles"
-
-#~ msgid "More Actions"
-#~ msgstr "Plus d'actions"
-
-#~ msgid "Topology"
-#~ msgstr "Topologie"
-
-#~ msgid "ACL reloaded"
-#~ msgstr "ACL rechargées"
-
-#~ msgid "Accessible Pages"
-#~ msgstr "Pages disponibles"
-
-#~ msgid "Main Menu"
-#~ msgstr "Menu principal"
-
-#~ msgid "No access"
-#~ msgstr "Pas d'accès"
-
-#~ msgid "Read/Write"
-#~ msgstr "Lecture/Ecriture"
-
-#~ msgid "Read Only"
-#~ msgstr "Lecture seulement"
-
-#~ msgid "Would you like to install this widget?"
-#~ msgstr "Souhaitez-vous installer ce widget?"
-
-#~ msgid "Are you sure you want to uninstall this widget?"
-#~ msgstr "Êtes-vous sûr de vouloir désinstaller ce widget?"
-
-#~ msgid "Would you like to upgrade this widget?"
-#~ msgstr "Souhaitez-vous monter en version ce widget?"
-
-#~ msgid "Upgrade Information"
-#~ msgstr "Information sur la mise à juour"
-
-#~ msgid "Real name"
-#~ msgstr "Nom réel"
-
-#~ msgid "Release"
-#~ msgstr "Version"
-
-#~ msgid "Base release"
-#~ msgstr "Version de base"
-
-#~ msgid "Final release"
-#~ msgstr "Version finale"
-
-#~ msgid "Valid for an upgrade"
-#~ msgstr "Valide pour une mise à jour"
-
-#~ msgid "Module installed and registered"
-#~ msgstr "Module installé et enregistré"
-
-#~ msgid "SQL file included"
-#~ msgstr "Fichier SQL inclus"
-
-#~ msgid "PHP file included"
-#~ msgstr "Fichier PHP inclus"
-
-#~ msgid "Unable to install module"
-#~ msgstr "Impossible d'installer le module"
-
-#~ msgid "NA"
-#~ msgstr "NA"
-
-#~ msgid "Impossible"
-#~ msgstr "Impossible"
-
-#~ msgid "Images already uploaded."
-#~ msgstr "Images déjà uploadés."
-
-#~ msgid "Service list"
-#~ msgstr "Liste des services"
-
-#~ msgid "List of known metrics"
-#~ msgstr "Liste des métriques connues"
-
-#~ msgid "Pick a color"
-#~ msgstr "Choisissez une couleur"
-
-#~ msgid "d/m/Y H:i"
-#~ msgstr "d/m/Y H:i"
-
-#~ msgid "OK Time"
-#~ msgstr "Temps état OK"
-
-#~ msgid "OK Mean Time"
-#~ msgstr "OK (Temps connu)"
-
-#~ msgid "OK Alerts"
-#~ msgstr "Alertes OK"
-
-#~ msgid "WARNING Time"
-#~ msgstr "Temps état WARNING"
-
-#~ msgid "WARNING Mean Time"
-#~ msgstr "WARNING (Temps connu)"
-
-#~ msgid "WARNING Alerts"
-#~ msgstr "Alertes WARNING"
-
-#~ msgid "CRITICAL Time"
-#~ msgstr "Temps état CRITICAL"
-
-#~ msgid "CRITICAL Mean Time"
-#~ msgstr "CRITICAL (Temps connu)"
-
-#~ msgid "CRITICAL Alerts"
-#~ msgstr "Alertes CRITICAL"
-
-#~ msgid "UNKNOWN Time"
-#~ msgstr "Temps état UNKNOWN"
-
-#~ msgid "UNKNOWN Mean Time"
-#~ msgstr "UNKNOWN (Temps connu)"
-
-#~ msgid "UNKNOWN Alerts"
-#~ msgstr "Alertes UNKNOWN"
-
-#~ msgid "UNDETERMINED Time"
-#~ msgstr "Temps état INDÉTERMINÉ"
-
-#~ msgid "UNDETERMINED Mean Time"
-#~ msgstr "INDÉTERMINÉ (Temps connu)"
-
-#~ msgid "UNDETERMINED Alerts"
-#~ msgstr "Alertes UNDETERMINED"
-
-#~ msgid "OK Alert"
-#~ msgstr "Alerte OK"
-
-#~ msgid "Warning Mean Time"
-#~ msgstr "WARNING (Temps connu)"
-
-#~ msgid "Warning Alert"
-#~ msgstr "Alerte Warning"
-
-#~ msgid "Unknown Mean Time"
-#~ msgstr "INCONNU (Temps connu)"
-
-#~ msgid "Unknown Alert"
-#~ msgstr "Alerte Inconnu"
-
-#~ msgid "Critical Mean Time"
-#~ msgstr "Critique (Temps connu)"
-
-#~ msgid "Critical Alert"
-#~ msgstr "Alerte Critique"
-
-#~ msgid "Hosts Group"
-#~ msgstr "Groupe d'hôtes"
-
-#~ msgid "Up Time"
-#~ msgstr "Temps état disponible"
-
-#~ msgid "Up Alerts"
-#~ msgstr "Alertes Disponible"
-
-#~ msgid "Down Time"
-#~ msgstr "Temps état indisponible"
-
-#~ msgid "Down Alerts"
-#~ msgstr "Alertes Indisponible"
-
-#~ msgid "Unreachable Time"
-#~ msgstr "Temps état Injoignable"
-
-#~ msgid "Unreachable Alerts"
-#~ msgstr "Alertes Injoignable"
-
-#~ msgid "Undetermined Time"
-#~ msgstr "Temps état Indterminé"
-
-#~ msgid "Temp File"
-#~ msgstr "Fichier temporaire"
-
-#~ msgid "Monitoring system User"
-#~ msgstr "Utilisateur system de supervision"
-
-#~ msgid "Monitoring system Group"
-#~ msgstr "Groupe system de supervision"
-
-#~ msgid "Hourly"
-#~ msgstr "Toutes les heures"
-
-#~ msgid "Daily"
-#~ msgstr "Quotidienne"
-
-#~ msgid "Weekly"
-#~ msgstr "Hebdomadaire"
-
-#~ msgid "Monthly"
-#~ msgstr "Mensuelle"
-
-#~ msgid "Log Rotation Method"
-#~ msgstr "Méthode de rotation des logs"
-
-#~ msgid "Log Archive Path"
-#~ msgstr "Chemin d'archivage des logs"
-
-#~ msgid "Lock File"
-#~ msgstr "Fichier de verrou"
-
-#~ msgid "Retained Contact Host Attribute Mask"
-#~ msgstr "Masque de rétention des attributs des contacts d'hôtes"
-
-#~ msgid "Retained Contact Service Attribute Mask"
-#~ msgstr "Masque de rétention des attributs des contacts de services"
-
-#~ msgid "Retained Process Host Attribute Mask"
-#~ msgstr "Masque de rétention des attributs des processus d'hôtes"
-
-#~ msgid "Retained Process Service Attribute Mask"
-#~ msgstr "Masque de rétention des attributs des processus de services"
-
-#~ msgid "Retained Host Attribute Mask"
-#~ msgstr "Masque de rétention des attributs des hôtes"
-
-#~ msgid "Retained Service Attribute Mask"
-#~ msgstr "Masque de rétention des attributs du service"
-
-#~ msgid "Initial State Logging Option"
-#~ msgstr "Journalisation des états initaux"
-
-#~ msgid "Maximum Check Result Reaper Time"
-#~ msgstr "Temp du contrôle des résultats maximal"
-
-#~ msgid "Translate Passive Host Checks Option"
-#~ msgstr "Option de traduction des contrôles d'hôte passif"
-
-#~ msgid "Passive Host Checks Are SOFT Option"
-#~ msgstr "Les contrôles d'hôte passifs sont de type SOFT"
-
-#~ msgid "Aggressive Host Checks"
-#~ msgstr "Contrôle agressif des hôtes"
-
-#~ msgid "Obsessive Compulsive Service Processor Timeout"
-#~ msgstr "Temps maximum d'exécution d'une commande post contrôle de service"
-
-#~ msgid "Obsessive Compulsive Host Processor Timeout"
-#~ msgstr "Temps maximum d'exécution d'une commande post contrôle d'hôte"
-
-#~ msgid "Performance Data Processor Command Timeout"
-#~ msgstr ""
-#~ "Temps maximum d'exécution d'une commande de gestion des données de "
-#~ "performances"
-
-#~ msgid "Obsess Over Services Option"
-#~ msgstr "Activation de l'exécution des commandes post contrôle de service"
-
-#~ msgid "Obsessive Compulsive Service Processor Command"
-#~ msgstr "Commande post contrôle de service"
-
-#~ msgid "Obsess Over Hosts Option"
-#~ msgstr "Activation de l'exécution des commandes post contrôle d'hôte"
-
-#~ msgid "Obsessive Compulsive Host Processor Command"
-#~ msgstr "Commande post contrôle d'hôte"
-
-#~ msgid "Performance Data Processing Option"
-#~ msgstr "Traitement des données de performance"
-
-#~ msgid "Host Performance Data Processing Command"
-#~ msgstr "Commande de traitement des données de performance d'hôte"
-
-#~ msgid "Service Performance Data Processing Command"
-#~ msgstr "Commande de traitement des données de performance du service"
-
-#~ msgid "Host Performance Data File"
-#~ msgstr "Fichier de données de performance d'hôte"
-
-#~ msgid "Service Performance Data File"
-#~ msgstr "Fichier de données de performance de service"
-
-#~ msgid "Host Performance Data File Template"
-#~ msgstr "Modèle de fichier de données de performance d'hôte"
-
-#~ msgid "Service Performance Data File Template"
-#~ msgstr "Modèle de fichier de données de performance de service"
-
-#~ msgid "Append"
-#~ msgstr "Ajout"
-
-#~ msgid "Write"
-#~ msgstr "Écriture"
-
-#~ msgid "Host Performance Data File Mode"
-#~ msgstr "Mode du fichier de données de performance d'hôte"
-
-#~ msgid "Service Performance Data File Mode"
-#~ msgstr "Mode du fichier de données de performance de service"
-
-#~ msgid "Host Performance Data File Processing Interval"
-#~ msgstr "Intervalle de traitement des données de performance d'hôte"
-
-#~ msgid "Service Performance Data File Processing Interval"
-#~ msgstr "Intervalle de traitement des données de performance de service"
-
-#~ msgid "Host Performance Data File Processing Command"
-#~ msgstr "Commande de traitement du fichier des données de performance d'hôte"
-
-#~ msgid "Service Performance Data File Processing Command"
-#~ msgstr ""
-#~ "Commande de traitement du fichier des données de performance du service"
-
-#~ msgid "Use large installation tweaks"
-#~ msgstr ""
-#~ "Activation des optimisations pour les installations de forte volumétrie"
-
-#~ msgid "Use setpgid"
-#~ msgstr "Utiliser setpgid"
-
-#~ msgid "Daemon core dumps"
-#~ msgstr ""
-#~ "Activer la possibilité de réaliser un 'core dump' (non compatible avec "
-#~ "Centreon Engine)"
-
-#~ msgid "Broker need options to be loaded"
-#~ msgstr "Le broker a besoin d'options pour être lancé"
-
-#~ msgid "Post Check"
-#~ msgstr "Actions après contrôle"
-
-#~ msgid "Passive host checking Options"
-#~ msgstr "Options de contrôle passive des hôtes"
-
-#~ msgid "Perfdata"
-#~ msgstr "Données de performances"
-
-#~ msgid "IP Address / DNS"
-#~ msgstr "Adresse IP / DNS"
-
-#~ msgid "Monitored from"
-#~ msgstr "Surveillé depuis le collecteur"
-
-#~ msgid "Here is a self-explanatory image."
-#~ msgstr "Ici, une image d'explication."
-
-#~ msgid "Parent Host Groups"
-#~ msgstr "Groupes d'hôtes parents"
-
-#~ msgid "Parent Host Categories"
-#~ msgstr "Catégorie d'hôtes parents"
-
-#~ msgid "VRML Image"
-#~ msgstr "Image VRML"
-
-#~ msgid "2d Coords"
-#~ msgstr "Coordonnées 2D"
-
-#~ msgid "3d Coords"
-#~ msgstr "Coordonnées 3D"
-
-#~ msgid "Severity level"
-#~ msgstr "Niveau de criticité"
-
-#~ msgid "Deploy Service"
-#~ msgstr "Déployer les services"
-
-#~ msgid "Display all Services for this host"
-#~ msgstr "Afficher tous les services de cet hôte"
-
-#~ msgid "Linked with Servicegroups"
-#~ msgstr "Lié avec les groupes de services"
-
-#~ msgid "Error: Cannot Execute this command due to a path security problem."
-#~ msgstr ""
-#~ "Erreur: Impossible d'exécuter cette commande en raison d'un problème de "
-#~ "sécurité sur le chemin."
-
-#~ msgid "View command definition"
-#~ msgstr "Voir la définition de la commande"
-
-#~ msgid "Notification command"
-#~ msgstr "Commande de notification"
-
-#~ msgid "Check command"
-#~ msgstr "Commande de contrôle"
-
-#~ msgid "Information command"
-#~ msgstr "Information sur la commande"
-
-#~ msgid "No command selected"
-#~ msgstr "Aucune commande sélectionnée"
-
-#~ msgid "$HOSTADDRESS$"
-#~ msgstr "$HOSTADDRESS$"
-
-#~ msgid "Test the plugin"
-#~ msgstr "Tester la sonde"
-
-#~ msgid "Could not find macro "
-#~ msgstr "Ne peut pas trouver la macro "
-
-#~ msgid "ERROR"
-#~ msgstr "ERREUR"
-
-#~ msgid "Directory traversal detected"
-#~ msgstr "Détection d'un changement de répertoire non autorisé"
-
-#~ msgid "Plugin has to be in : "
-#~ msgstr "La sonde doit être dans :"
-
-#~ msgid "Plugin Test"
-#~ msgstr "Test de la sonde"
-
-#~ msgid "Plugin test"
-#~ msgstr "Test de la sonde"
-
-#~ msgid "View a Meta Service indicator"
-#~ msgstr "Visualiser un indicateur de Méta-Service"
-
-#~ msgid "Linked to host templates"
-#~ msgstr "Liés aux modèles d'hôtes"
-
-#~ msgid "Enabled HostGroups"
-#~ msgstr "Activer le groupe d'hôtes"
-
-#~ msgid "Disabled HostGroups"
-#~ msgstr "Désactiver le groupe d'hôtes"
-
-#~ msgid "Host Group Name"
-#~ msgstr "Nom du groupe d'hôtes"
-
-#~ msgid "Linked Host Groups"
-#~ msgstr "Groupes d'hôtes liés"
-
-#~ msgid "Reach API"
-#~ msgstr "Accès à l'API"
-
-#~ msgid "Escalations View"
-#~ msgstr "Visualisation des escalades"
-
-#~ msgid "Hostgroups Escalation"
-#~ msgstr "Escalades des groupes d'hôtes"
-
-#~ msgid "Hosts Escalation"
-#~ msgstr "Escalades des hôtes"
-
-#~ msgid "Services Escalation"
-#~ msgstr "Escalades des services"
-
-#~ msgid "ALL"
-#~ msgstr "Tous"
-
-#~ msgid "Retention path"
-#~ msgstr "Chemin des fichiers de rétention"
-
-#~ msgid "Mandatory retention path"
-#~ msgstr "Chemin d'accès du fichier de rétention obligatoire"
-
-#~ msgid "Central configuration"
-#~ msgstr "Configuration du serveur central"
-
-#~ msgid "Additional daemon"
-#~ msgstr "Démon supplémentaire"
-
-#~ msgid "Error while getting the local requester."
-#~ msgstr "Erreur durant la récupération du poller central"
-
-#~ msgid "No active poller is defined in Centreon."
-#~ msgstr "Aucun satellite actif est défini dans Centreon."
-
-#~ msgid "Central address"
-#~ msgstr "Adresse du Central"
-
-#~ msgid "Communication port"
-#~ msgstr "Port de communication"
-
-#~ msgid "Bad configuration type"
-#~ msgstr "Type incorrect de configuration"
-
-#~ msgid "The config name already exists"
-#~ msgstr "Le nom utilisé existe déjà"
-
-#~ msgid "Error while inserting central-module configuration"
-#~ msgstr "Erreur durant l'insertion des configurations de central-module"
-
-#~ msgid "Error while inserting central-broker configuration"
-#~ msgstr ""
-#~ "Erreur durant l'insertion de la configuration du module Centreon Broker "
-#~ "Master"
-
-#~ msgid "Error while inserting central-rrd configuration"
-#~ msgstr ""
-#~ "Erreur durant l'insertion de la configuration du module Centreon Broker "
-#~ "RRD"
-
-#~ msgid "Error while inserting poller-module configuration"
-#~ msgstr ""
-#~ "Erreur durant l'insertion de la configuration du module Centreon Broker "
-#~ "du collecteur"
-
-#~ msgid "Loggers"
-#~ msgstr "Traceurs"
-
-#~ msgid "Bad arguments for wizard."
-#~ msgstr "Mauvais arguments pour l'assistant."
-
-#~ msgid "The wizard is not correctly initialized."
-#~ msgstr "L'assistant n'est pas initialisé correctement."
-
-#~ msgid "The wizard is corrupted."
-#~ msgstr "L'assistant est endommagé."
-
-#~ msgid "Error while saving configuration."
-#~ msgstr "Erreur durant l'enregistrement de la configuration."
-
-#~ msgid "Configuration saved."
-#~ msgstr "Configuration sauvegardée."
-
-#~ msgid "Welcome to Centreon Broker configuration"
-#~ msgstr "Bienvenu dans la configuration de Centreon Broker"
-
-#~ msgid "Choose a configuration template:"
-#~ msgstr "Choisissez le modèle de configuration"
-
-#~ msgid "Simple poller"
-#~ msgstr "Collecteur uniquement"
-
-#~ msgid "Monitoring Engine Init Script"
-#~ msgstr "Script d'initialisation du moteur de supervision"
-
-#~ msgid "Init System"
-#~ msgstr "Système d'initialisation"
-
-#~ msgid "Localhost"
-#~ msgstr "Hôte local"
-
-#~ msgid "Update informations"
-#~ msgstr "Mettre à jour les informations"
-
-#~ msgid "<br><b>Centreon : </b>Cannot send signal to "
-#~ msgstr "<br><b>Centreon : </b>Impossible d'envoyer le signal vers "
-
-#~ msgid "<br><b>Centreon : </b>All configuration will be send to "
-#~ msgstr "<br><b>Centreon : </b>Toute la configuration sera envoyée vers "
-
-#~ msgid "Y/m/d"
-#~ msgstr "d/m/Y"
-
-#~ msgid "H:i:s"
-#~ msgstr "H:i:s"
-
-#~ msgid "Object name"
-#~ msgstr "Nom de l'objet :"
-
-#~ msgid "Retry"
-#~ msgstr "Relancer"
-
-#~ msgid "m/d/Y (H:i:s)"
-#~ msgstr "d/m/Y - H:i:s"
-
-#~ msgid "Cmd"
-#~ msgstr "Commande"
-
-#~ msgid "Y/m/d G:i"
-#~ msgstr "d/m/Y G:i"
-
-#~ msgid "Login:"
-#~ msgstr "Pseudo:"
-
-#~ msgid "You must specify a username"
-#~ msgstr "Vou devez spécifier un nom d'utilisateur"
-
-#~ msgid "You must specify a password"
-#~ msgstr "Vou devez spécifier un mot de passe"
-
-#~ msgid "Generated in "
-#~ msgstr "Généré en "
-
-#~ msgid "Help Desk"
-#~ msgstr "Centre des services"
-
-#~ msgid "Right Click here to add an autologin link directly to your bookmarks"
-#~ msgstr ""
-#~ "Clic droit ici afin d'ajouter un lien de connexion automatique "
-#~ "directement dans vos marques-pages"
-
-#~ msgid "Please define autologin authentication key in your profile."
-#~ msgstr ""
-#~ "Merci de définir une clé d’autorisation de connexion automatique dans "
-#~ "votre profil."
-
-#~ msgid "Connected Users"
-#~ msgstr "Utilisateurs connectés"
-
-#~ msgid "Top Priority Hosts"
-#~ msgstr "Hôtes prioritaires"
-
-#~ msgid "Secondary Priority Hosts"
-#~ msgstr "Hôtes secondaires"
-
-#~ msgid "HTTP Action Link"
-#~ msgstr "Lien HTTP externe"
-
-#~ msgid "HTTP Link"
-#~ msgstr "Lien HTTP"
-
-#~ msgid "Host is currently on downtime"
-#~ msgstr "L'hôte est actuellement en période d'arrêt"
-
-#~ msgid "Problem has been acknowledged"
-#~ msgstr "Le problème a été acquitté"
-
-#~ msgid "This host is only checked in passive mode"
-#~ msgstr "L'hôte est contrôlé uniquement en mode passif"
-
-#~ msgid "This host is never checked"
-#~ msgstr "Cet hôte n'est jamais vérifié"
-
-#~ msgid "Service is currently on Downtime"
-#~ msgstr "Le service est actuellement en période d'arrêt"
-
-#~ msgid "This service is only checked in passive mode"
-#~ msgstr "Le service est contrôlé uniquement en mode passif"
-
-#~ msgid "This service is neither active nor passive"
-#~ msgstr "Ce service n'est ni actif ni passif"
-
-#~ msgid "This Service is flapping"
-#~ msgstr "Le statut du service bagote"
-
-#~ msgid "OK: all pollers are running"
-#~ msgstr "OK: tous les collecteurs sont en cours d'exécution"
-
-#, php-format
-#~ msgid "Latency detected on %s; check configuration for better optimisation"
-#~ msgstr ""
-#~ "Latence détecté pour %s, contrôler la configuration pour améliorer les "
-#~ "performances"
-
-#~ msgid ""
-#~ "Some database poller updates are not active; check your Monitoring "
-#~ "platform"
-#~ msgstr ""
-#~ "Certains collecteurs ne mettent pas à jour la base de données; contrôler "
-#~ "votre plate-forme de supervision"
-
-#~ msgid "Ping"
-#~ msgstr "Ping"
-
-#~ msgid "Y/m/d H:i"
-#~ msgstr "d/m/Y H:i"
-
-#~ msgid "Never Started"
-#~ msgstr "Jamais démarré"
-
-#~ msgid "Do you confirm the cancellation ?"
-#~ msgstr "Confirmez-vous l'annulation ?"
-
-#~ msgid "s"
-#~ msgstr "s"
-
-#~ msgid "View downtimes of hosts"
-#~ msgstr "Visualiser les plages de maintenance des hôtes"
-
-#~ msgid "Display Finished Downtimes"
-#~ msgstr "Afficher les plages de maintenance terminés"
-
-#~ msgid "Display Recurring Downtimes"
-#~ msgstr "Afficher les plages de maintenance cycliques"
-
-#~ msgid " element(s) found"
-#~ msgstr "élément(s) trouvé(s)"
-
-#~ msgid "Add "
-#~ msgstr "Ajouter"
-
-#~ msgid " elements to selection ?"
-#~ msgstr "éléments à sélectioner?"
-
-#~ msgid "Could not find utils database. Session probably expired."
-#~ msgstr ""
-#~ "Impossible de trouver la base de données du broker. La session a "
-#~ "probablement expirée"
-
-#~ msgid ""
-#~ "The installation is now finished. To get further information regarding "
-#~ "Centreon please visit the following links"
-#~ msgstr ""
-#~ "L'installation est maintenant terminée. Pour plus d'informations "
-#~ "concernant Centreon utiliser les liens suivants"
-
-#~ msgid "Official website"
-#~ msgstr "Site web officiel"
-
-#~ msgid "Forum"
-#~ msgstr "Forum"
-
-#~ msgid "Bug Tracker"
-#~ msgstr "Rapporter un bogue"
-
-#~ msgid ""
-#~ "For professional support subscription please contact the <a href=\"http://"
-#~ "support.centreon.com\">Centreon Support Center</a>."
-#~ msgstr ""
-#~ "Pour la souscription à un support professionnel, contacter le <a "
-#~ "href=\"http://support.centreon.com\">Centre de Support Centreon</a>."
-
-#~ msgid "Utils database name"
-#~ msgstr "Nom de la base de données temps réel"
-
-#~ msgid "Service Statuses"
-#~ msgstr "Statuts de services"
-
-#~ msgid "No downtime scheduled for services"
-#~ msgstr "Aucune plage de maintenance planifiée pour les services"
-
-#~ msgid "Inclusion"
-#~ msgstr "Inclusion"
-
-#~ msgid "Failover"
-#~ msgstr "Failover"
-
-#~ msgid "File read path"
-#~ msgstr "Chemin du fichier en cours de lecture"
-
-#~ msgid "File read offset"
-#~ msgstr "Indice de lecture du fichier"
-
-#~ msgid "File write path"
-#~ msgstr "Chemin du fichier en cours d'écriture"
-
-#~ msgid "File write offset"
-#~ msgstr "Indice d'écriture du fichier"
-
-#~ msgid "File max size"
-#~ msgstr "Taille maximale du fichier"
-
-#~ msgid "Temporary recovery mode"
-#~ msgstr "Activation du fichier temporaire"
-
-#~ msgid "Performance broker page work only with Centreon Broker."
-#~ msgstr "La page de performance fonctionne uniquement avec Centreon Broker."
-
-#~ msgid "Widget Title"
-#~ msgstr "Titre du Widget"
-
-#~ msgid "Metaservices"
-#~ msgstr "Méta-Service"
-
-#~ msgid "Split"
-#~ msgstr "Séparer"
-
-#~ msgid "SNMP information"
-#~ msgstr "Informations SNMP"
-
-#~ msgid "Global Community"
-#~ msgstr "Communauté globale"
-
-#~ msgid "Directory of traps configuration files"
-#~ msgstr "Répertoire des fichiers de configuration des traps"
-
-#~ msgid "snmpttconvertmib Directory + Binary"
-#~ msgstr "Chemin complet de l'exécutable snmpttconvertmib"
-
-#~ msgid "SNMPTT log file"
-#~ msgstr "Nom du Fichier de journalisation de SNMPTT"
-
-#~ msgid "Perl library directory"
-#~ msgstr "Répertoire des librairies Perl"
-
-#~ msgid "Can't read in directory"
-#~ msgstr "Impossible de lire dans le répertoire"
-
-#~ msgid "Reporting time period"
-#~ msgstr "Période de génération des rapports"
-
-#~ msgid "Start Hour"
-#~ msgstr "Heure de début"
-
-#~ msgid "Start Minute"
-#~ msgstr "Minute de début"
-
-#~ msgid "End Hour"
-#~ msgstr "Heure de fin"
-
-#~ msgid "End Minute"
-#~ msgstr "Minute de fin"
-
-#~ msgid "Centreon Broker socket path"
-#~ msgstr "Chemin d'accès au socket Unix de Centreon Broker"
-
-#~ msgid "Add a Service comment"
-#~ msgstr "Ajouter pour un service"
-
-#~ msgid "Add a Service downtime"
-#~ msgstr "Planifier pour un service"
-
-#~ msgid "Add a service downtime"
-#~ msgstr "Planifier pour service"
-
-#~ msgid "Add a host downtime"
-#~ msgstr "Planifier pour un hôte"
-
-#~ msgid "Add a Host downtime"
-#~ msgstr "Ajouter une plage de maintenance pour un hôte"
-
-#~ msgid "Select a downtime type"
-#~ msgstr "Sélectionner un type de plage de maintenance"
-
-#~ msgid "Connection Error to NDO DataBase ! \n"
-#~ msgstr "Erreur de connexion à la base de données NDO ! \n"
-
-#~ msgid "Active Check"
-#~ msgstr "Contrôle actif"
-
-#~ msgid "Last time up"
-#~ msgstr "Dernière fois dans un état up"
-
-#~ msgid "Last time unreachable"
-#~ msgstr "Dernière fois dans un état injoignable"
-
-#~ msgid "Last ok time"
-#~ msgstr "Dernière fois dans un état ok"
-
-#~ msgid "Last warning time"
-#~ msgstr "Derniere fois dans un état warning"
-
-#~ msgid "Last unknown time"
-#~ msgstr "Dernière fois dans un état inconnu"
-
-#~ msgid "Last critical time"
-#~ msgstr "Dernière fois dans un état critique"
-
-#~ msgid "Enable Notification"
-#~ msgstr "Activer la Notification"
-
-#~ msgid "Disable Notification"
-#~ msgstr "Désactiver la Notification"
-
-#~ msgid "Sort by Name"
-#~ msgstr "Trier par nom"
-
-#~ msgid "Host Category Name"
-#~ msgstr "Nom de la catégorie d'hôte"
-
-#~ msgid "Parent Template"
-#~ msgstr "Modèles parent"
-
-#~ msgid "Service Template Name"
-#~ msgstr "Nom du modèle de service"
-
-#~ msgid "Service Templates names"
-#~ msgstr "Noms des modèles de service"
-
-#~ msgid "Parent Templates"
-#~ msgstr "Modèles parent"
-
-#~ msgid "Host Templates name"
-#~ msgstr "Nom des modèles d'hôtes"
-
-#~ msgid "Host Template Name"
-#~ msgstr "Nom du modèle d'hôte"
-
-#~ msgid "Host Parallel Templates"
-#~ msgstr "Modèles d'hôte parallèles"
-
-#~ msgid "Include Timeperiods"
-#~ msgstr "Inclure les périodes"
-
-#~ msgid "Meta Service Name"
-#~ msgstr "Nom du Méta-Service"
-
-#~ msgid "Compulsory Contact Group"
-#~ msgstr "Groupe de contacts obligatoire"
-
-#~ msgid "Service Group Name"
-#~ msgstr "Nom du groupe de services"
-
-#~ msgid "Include Comments"
-#~ msgstr "Inclure les commentaires"
-
-#~ msgid "Monitoring Engine Configuration Files Export"
-#~ msgstr "Export des fichiers de configuration du moteur de supervision"
-
-#~ msgid "Generate Files"
-#~ msgstr "Générer les fichiers"
-
-#~ msgid "Dependencies Management"
-#~ msgstr "Gestion des dépendances"
-
-#~ msgid "Current Activation"
-#~ msgstr "Activation actuelle"
-
-#~ msgid "Relations between Elements"
-#~ msgstr "Relations entre les éléments"
-
-#~ msgid "Export in XML too"
-#~ msgstr "Exporter également en XML"
-
-#~ msgid "Run debug (-v)"
-#~ msgstr "Lancer le débogage (-v)"
-
-#~ msgid "Run Optimisation test (-s)"
-#~ msgstr "Lancer un test d'Optimisation (-s)"
-
-#~ msgid "External Command"
-#~ msgstr "Commande externe"
-
-#~ msgid "Correlation"
-#~ msgstr "Activer la corrélation"
-
-#~ msgid "Apply configuration"
-#~ msgstr "Appliquer la configuration"
-
-#~ msgid "SSH Private key"
-#~ msgstr "Clé privée SSH"
-
-#~ msgid "Object Cache File"
-#~ msgstr "Fichier de cache des objets"
-
-#~ msgid "Precached Object File"
-#~ msgstr "Fichier de pre-cache des objets"
-
-#~ msgid "Free child process memory"
-#~ msgstr "Libérer la mémoire des processus enfants"
-
-#~ msgid "Child processes fork twice"
-#~ msgstr "Création de deux processus enfants pour chaque contrôle"
-
-#~ msgid "Enable embedded Perl"
-#~ msgstr "Utilisation de l'interpréteur Perl intégré"
-
-#~ msgid "Use embedded Perl implicitly"
-#~ msgstr "Utilisation implicite de l'interpréteur Perl intégré"
-
-#~ msgid "Embedded Perl initialisation file"
-#~ msgstr "Interpréteur Perl intégré"
-
-#~ msgid "Perl"
-#~ msgstr "Perl"
-
-#~ msgid "Export XML"
-#~ msgstr "Exporter au format XML"
-
-#~ msgid "You must set a poller for generate configuration."
-#~ msgstr "Sélectionner un collecteur pour générer la configuration."
-
-#~ msgid "Centstorage debug"
-#~ msgstr "Débogage Centstorage"
-
-#~ msgid "Mminutes"
-#~ msgstr "Minutes"
-
-#~ msgid "Disable submit result if no matched rules"
-#~ msgstr "Désactiver la mise à jour du service si aucune règle n'est valide"
-
-#~ msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
-#~ msgstr ""
-#~ "La liste des collecteur est disponible <a href=\"./main.php?"
-#~ "p=60901\">ici</a>."
-
-#~ msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
-#~ msgstr ""
-#~ "<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
-#~ "vers"
-
-#~ msgid "ACL rules"
-#~ msgstr "Règles d'accès"
-
-#~ msgid "All Graphs"
-#~ msgstr "Tous les graphiques"
-
-#~ msgid "Business Intelligence"
-#~ msgstr "Business Intelligence"
-
-#~ msgid "Centreon Map WS"
-#~ msgstr "Centreon Map WS"
-
-#~ msgid "Centreon-Broker"
-#~ msgstr "Centreon Broker"
-
-#~ msgid "CentStorage"
-#~ msgstr "CentStorage"
-
-#~ msgid "Donate"
-#~ msgstr "Donation"
-
-#~ msgid "Host comments"
-#~ msgstr "Commentaires associés à l'hôte"
-
-#~ msgid "Interactive View"
-#~ msgstr "Vue interactive"
-
-#~ msgid "Interactive view access"
-#~ msgstr "Vue interactive"
-
-#~ msgid "Job groups"
-#~ msgstr "Groupes de tâches"
-
-#~ msgid "Jobs"
-#~ msgstr "Tâches"
-
-#~ msgid "Logos"
-#~ msgstr "Logos"
-
-#~ msgid "Manage"
-#~ msgstr "Gérer"
-
-#~ msgid "Monitoring Engine Statistics"
-#~ msgstr "Statistiques de l'ordonnanceur"
-
-#~ msgid "Pre-Update"
-#~ msgstr "Pré-mise à jour"
-
-#~ msgid "Publication rules"
-#~ msgstr "Règles de publication"
-
-#~ msgid "Report design groups"
-#~ msgstr "Groupes de modèles de rapport"
-
-#~ msgid "Report designs"
-#~ msgstr "Modèles de rapport"
-
-#~ msgid "Report view"
-#~ msgstr "Visualisation des rapports"
-
-#~ msgid "Service comments"
-#~ msgstr "Commentaires pour ce service"
-
-#~ msgid "Support"
-#~ msgstr "Support"
-
-#~ msgid "Trash"
-#~ msgstr "Poubelle"
-
-#~ msgid "Web Site"
-#~ msgstr "Site web"
-
-#~ msgid "The CSRF * token is invalid, please click"
-#~ msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
-
-#~ msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
-#~ msgstr ""
-#~ "* Cross-Site Request Forgery : des requêtes non autorisées ont été "
-#~ "transmises"
-
-#~ msgid "Traceroute"
-#~ msgstr "Traceroute"
-
-#~ msgid "Please wait..."
-#~ msgstr "Merci de patienter..."
-
-#~ msgid "Exclude Timeperiods"
-#~ msgstr "Exclure les périodes"
-
-#~ msgid "Monitoring Engine configuration upload"
-#~ msgstr "Envoi de la configuration du moteur de supervision"
-
-#~ msgid "Poller/Centreon Server"
-#~ msgstr "Collecteur"
-
-#~ msgid "Upload Options"
-#~ msgstr "Options d'envoi"
-
-#~ msgid "Delete all configuration for the chosen type of files"
-#~ msgstr "Supprimer toute la configuration des types de fichiers choisis"
-
-#~ msgid "Update definition in case of double definition"
-#~ msgstr "Mettre à jour la définition en cas de définition en double"
-
-#~ msgid "Include comments"
-#~ msgstr "Inclure les commentaires"
-
-#~ msgid "File Type"
-#~ msgstr "Type de fichier"
-
-#~ msgid ""
-#~ "For archive upload, be sure that the first line of each file has no "
-#~ "importance because it is not handled.<br />Avoid to begin with a "
-#~ "definition."
-#~ msgstr ""
-#~ "Pour un envoi de fichier, assurez vous que la première ligne de chaque "
-#~ "fichier n'ait pas d'importance car elle n'est pas prise en compte.<br /"
-#~ ">Evitez de commencer avec une définition."
-
-#~ msgid "main.cfg"
-#~ msgstr "main.cfg"
-
-#~ msgid "ndo2db.cfg"
-#~ msgstr "ndo2db.cfg"
-
-#~ msgid "ndomod.cfg"
-#~ msgstr "ndomod.cfg"
-
-#~ msgid "cgi.cfg"
-#~ msgstr "cgi.cfg"
-
-#~ msgid "resource.cfg"
-#~ msgstr "resource.cfg"
-
-#~ msgid "Template based method file"
-#~ msgstr "Fichier de méthode basé sur le modèle"
-
-#~ msgid "Notification Command"
-#~ msgstr "Commande de notification"
-
-#~ msgid ""
-#~ "It is recommended to upload all the Command definitions first by "
-#~ "specifying their types."
-#~ msgstr ""
-#~ "Il est recommandé d'envoyer d'abord les définitions de commandes en "
-#~ "spécifiant leur type."
-
-#~ msgid ""
-#~ "Indeed, it's the only way to make a difference between Check and "
-#~ "Notification Commands."
-#~ msgstr ""
-#~ "En effet, c'est le seul moyen de différencier les commandes de "
-#~ "notification et de vérification."
-
-#~ msgid "File (zip, tar or cfg)"
-#~ msgstr "Fichier (zip, tar ou cfg)"
-
-#~ msgid "Manual Filling"
-#~ msgstr "Remplissage manuel"
-
-#~ msgid "Increment"
-#~ msgstr "Incrément"
-
-#~ msgid "Replace"
-#~ msgstr "Remplacement"
-
-#~ msgid "Group member update behavior"
-#~ msgstr "Comportement de mise à jour des membres du groupe"
-
-#~ msgid "Create new object with prefix"
-#~ msgstr "Créer un nouvel objet avec un prefix"
-
-#~ msgid "Replace existing ones"
-#~ msgstr "Remplacer les fichiers existants"
-
-#~ msgid "Behavior on duplicate names"
-#~ msgstr "Comportement sur les noms en doublon"
-
-#~ msgid "Prefix"
-#~ msgstr "Préfixe des tables"
-
-#~ msgid "Load"
-#~ msgstr "Charger"
-
-#~ msgid "Not supported extension"
-#~ msgstr "Extension non prise en charge"
-
-#~ msgid "File loading OK"
-#~ msgstr "Chargement du fichier OK"
-
-#~ msgid "Manual filling OK"
-#~ msgstr "Remplissage manuel OK"
-
-#~ msgid "File loading KO"
-#~ msgstr "Chargement du fichier KO"
-
-#~ msgid "Data recovery OK"
-#~ msgstr "Récupération des données OK"
-
-#~ msgid "Data recovery KO"
-#~ msgstr "Récupération des données KO"
-
-#~ msgid "Entries are registered"
-#~ msgstr "Les entrées sont enregistrées"
-
-#~ msgid "Could not import ndo2db"
-#~ msgstr "Impossible d'importer ndo2db"
-
-#~ msgid "Could not import ndomod"
-#~ msgstr "Impossible d'importer ndomod"
-
-#~ msgid "Import behavior"
-#~ msgstr "Résultat de l'import"
-
-#~ msgid "Display Options"
-#~ msgstr "Options d'affichage"
-
-#~ msgid "Archive logs of monitoring engine"
-#~ msgstr "Journaux d'archive du moteur de supervision"
-
-#~ msgid "Centstorage Configuration"
-#~ msgstr "Configuration de Centstorage"
-
-#~ msgid "in seconds - Must be higher than 10"
-#~ msgstr "en secondes - Doit être supérieur à 10"
-
-#~ msgid "in seconds - Must be higher than 2"
-#~ msgstr "en secondes - Doit etre supérieur à 2"
-
-#~ msgid "Retain Satus Information"
-#~ msgstr "Rétention des informations de statut"
-
-#~ msgid "Additionnal Information"
-#~ msgstr "Informations complémentaires"
-
-#~ msgid "Choose a host, then its associated service."
-#~ msgstr "Choisir un hôte, puis son service associé."
-
-#~ msgid "Required Fields 'Host' and 'Service' list"
-#~ msgstr "Champs requis dans la liste des 'Hôtes' et des 'Services'"
-
-#~ msgid "Required Field 'Service' list"
-#~ msgstr "Champ requis dans la liste 'Service'"
-
-#~ msgid "Grid background color"
-#~ msgstr "Couleur d'arrière plan de la grille"
-
-#~ msgid "Main grid color"
-#~ msgstr "Couleur principale de la grille"
-
-#~ msgid "Secondary grid color"
-#~ msgstr "Couleur secondaire de la grille"
-
-#~ msgid "Outline color"
-#~ msgstr "Schéma de couleurs"
-
-#~ msgid "Text color"
-#~ msgstr "Couleur du texte"
-
-#~ msgid "Arrow color"
-#~ msgstr "Couleur de la flèche des axes"
-
-#~ msgid "Top color"
-#~ msgstr "Couleur du haut"
-
-#~ msgid "Bottom color"
-#~ msgstr "Couleur du bas"
-
-#~ msgid "Data Source Choice"
-#~ msgstr "Choix de la source de données"
-
-#~ msgid "Data Source List"
-#~ msgstr "List des sources de données"
-
-#~ msgid "Hosts list"
-#~ msgstr "Hôtes"
-
-#~ msgid "Graph List"
-#~ msgstr "Liste des graphiques"
-
-#~ msgid "Force Reload"
-#~ msgstr "Forcer le rechargement"
-
-#~ msgid "Low Flap threshold"
-#~ msgstr "Seuil bas de détection de bagotage des statuts"
-
-#~ msgid "Implied Hosts"
-#~ msgstr "Hôtes liés"
-
-#~ msgid "Implied Services"
-#~ msgstr "Services liés"
-
-#~ msgid "Implied Host Groups"
-#~ msgstr "Groupes d'hôtes liés"
-
-#~ msgid "Implied Meta Services"
-#~ msgstr "Méta-Services liés"
-
-#~ msgid "Implied Service Groups"
-#~ msgstr "Groupes de services liés"
-
-#~ msgid "Meta Services Escalation"
-#~ msgstr "Escalades des Méta-Services"
-
-#~ msgid "Servicegroups Escalation"
-#~ msgstr "Escalades des groupes de services"
-
-#~ msgid "Default Engine"
-#~ msgstr "Moteur par défaut"
-
-#~ msgid "Enable strict mode for host parentship management"
-#~ msgstr "Activer le mode strict de gestion des relations de parentés"
-
-#~ msgid "Configuration UI behavior"
-#~ msgstr "Configuration du comportement de l'interface"
-
-#~ msgid "Censtorage Core Options"
-#~ msgstr "Options du processus Censtorage"
-
-#~ msgid "Drop possibility after parsing performance data"
-#~ msgstr "Actions après traitement des données de performances"
-
-#~ msgid "Logs Integration Properties"
-#~ msgstr "Propriétés des logs de Nagios"
-
-#~ msgid "Enable Centstorage Engine (require restart of centstorage)"
-#~ msgstr ""
-#~ "Active le Moteur de Centstorage (requiert le redémarrage de centstorage)"
-
-#~ msgid "RRDTool auto delete"
-#~ msgstr "Auto suppression des fichiers RRD non utilisés"
-
-#~ msgid "Purge check interval"
-#~ msgstr "Intervalle de contrôle de la purge"
-
-#~ msgid "Drop Data in another file"
-#~ msgstr "Copier les données dans un autre fichier"
-
-#~ msgid "RRDTool & MySQL"
-#~ msgstr "RRDTool & MySQL"
-
-#~ msgid "Hosts status colors"
-#~ msgstr "Couleurs pour le statut des hôtes"
-
-#~ msgid "Services status colors"
-#~ msgstr "Couleurs pour le statut des services"
-
-#~ msgid "Specifics for hosts"
-#~ msgstr "Spécificités des hôtes"
-
-#~ msgid "Host UP Color"
-#~ msgstr "Couleur d'hôte DISPONIBLE"
-
-#~ msgid "Host DOWN Color"
-#~ msgstr "Couleur d'hôte INDISPONIBLE"
-
-#~ msgid "Host UNREACHABLE Color"
-#~ msgstr "Couleur d'hôte INJOIGNABLE"
-
-#~ msgid "Service OK Color"
-#~ msgstr "Couleur de service OK"
-
-#~ msgid "Service WARNING Color"
-#~ msgstr "Couleur de service WARNING"
-
-#~ msgid "Service CRITICAL Color"
-#~ msgstr "Couleur de service CRITIQUE"
-
-#~ msgid "Row Color for Service CRITICAL"
-#~ msgstr "Couleur de la ligne pour un service CRITIQUE"
-
-#~ msgid "Service PENDING Color"
-#~ msgstr "Couleur de service en ATTENTE"
-
-#~ msgid "Service UNKNOWN Color"
-#~ msgstr "Couleur de service INCONNU"
-
-#~ msgid "Acknowledge host or service Color"
-#~ msgstr "Couleur des hôtes ou des services acquittés"
-
-#~ msgid "Downtime host or service Color"
-#~ msgstr "Couleur des hôtes ou des services en maintenance"
-
-#~ msgid "Color for host Down (Service view)"
-#~ msgstr ""
-#~ "Couleur pour les hôtes en statut problèmatique (page de supervision des "
-#~ "services)"
-
-#~ msgid "Color for host Unreachable (Service view)"
-#~ msgstr ""
-#~ "Couleur pour les hôtes non joignable (page de supervision des services)"
-
-#~ msgid "Status Color Properties"
-#~ msgstr "Définition des couleurs"
-
-#~ msgid "Browser detected"
-#~ msgstr "Navigateur détecté"
-
-#~ msgid "Status summarized by Hostgroups"
-#~ msgstr "Résumé des états par groupes d'hôtes"
-
-#~ msgid "Scheduling Queue"
-#~ msgstr "File d'attente"
-
-#~ msgid "All Logs"
-#~ msgstr "Tous les logs"
-
-#~ msgid "Warnings"
-#~ msgstr "Alertes"
-
-#~ msgid "nagios.cfg"
-#~ msgstr "nagios.cfg"
-
-#~ msgid "resources"
-#~ msgstr "ressources"
-
-#~ msgid "cgi"
-#~ msgstr "cgi"
-
-#~ msgid "Wiki"
-#~ msgstr "Wiki"
-
-#~ msgid "SNMP"
-#~ msgstr "SNMP"
-
-#~ msgid "Global Health"
-#~ msgstr "Santé globale"
-
-#~ msgid "Directories"
-#~ msgstr "Répertoires"
-
-#~ msgid "Process Info"
-#~ msgstr "Informations sur le processus"
-
-#~ msgid "Process Control"
-#~ msgstr "Informations sur le processus"
-
-#~ msgid "System Information"
-#~ msgstr "Information sur le système"
-
-#~ msgid "Monitoring Engines"
-#~ msgstr "Moteurs de supervision"
-
-#~ msgid "Extra"
-#~ msgstr "Extra"
-
-#~ msgid "command"
-#~ msgstr "commande"
-
-#~ msgid "timeperiod"
-#~ msgstr "période de temps"
-
-#~ msgid "contact"
-#~ msgstr "contact"
-
-#~ msgid "contactgroup"
-#~ msgstr "groupe de contacts"
-
-#~ msgid "hostgroup"
-#~ msgstr "groupe d'hôtes"
-
-#~ msgid "servicegroup"
-#~ msgstr "groupe de services"
-
-#~ msgid "snmp traps"
-#~ msgstr "traps snmp"
-
-#~ msgid "escalation"
-#~ msgstr "escalade"
-
-#~ msgid "host dependency"
-#~ msgstr "dépendance d'hôte"
-
-#~ msgid "hostgroup dependency"
-#~ msgstr "dépendance de groupe d'hôtes"
-
-#~ msgid "service dependency"
-#~ msgstr "dépendance de service"
-
-#~ msgid "servicegroup dependency"
-#~ msgstr "dépendance de groupe de services"
-
-#~ msgid "Yearly"
-#~ msgstr "Annuel"
-
-#~ msgid "Private key file. "
-#~ msgstr "Clé privée SSH"
-
-#~ msgid "Informational messages "
-#~ msgstr "Événements de type information"
-
-#~ msgid "Centreon Broker information"
-#~ msgstr "Information sur Centreon Broker"
-
-#~ msgid "Centreon-Broker Correlation"
-#~ msgstr "Corrélation Centreon Broker"
-
-#~ msgid "Centreon-Broker Input"
-#~ msgstr "Entrées Centreon Broker"
-
-#~ msgid "Centreon-Broker Logger"
-#~ msgstr "Journalisation Centreon Broker"
-
-#~ msgid "Centreon-Broker Output"
-#~ msgstr "Sorties Centreon Broker"
-
-#~ msgid "Centreon-Broker Stats"
-#~ msgstr "Statistiques Centreon Broker"
-
-#~ msgid "Centreon-Broker Temporary"
-#~ msgstr "Buffer Centreon Broker"
-
-#~ msgid "No Comment for hosts."
-#~ msgstr "Pas de commentaires pour les hôtes."
-
-#~ msgid "View comments of services"
-#~ msgstr "Visualiser les commentaires des services"
-
-#~ msgid "Useres"
-#~ msgstr "Utilisateurs"
-
-#~ msgid "Compulsory Contact"
-#~ msgstr "Contact obligatoire"
+ msgid "Contact group: Define a contact group for the imported user."
+ msgstr ""
+ "Groupe de contact : Définir un groupe de contact pour l'utilisateur "
+ "importé."
 
 #, fuzzy
-#~ msgid "Contact templace"
-#~ msgstr "Modèle de contact"
+ msgid "Contact templace"
+ msgstr "Modèle de contact"
 
-#~ msgid "You are"
-#~ msgstr "Vous êtes"
+ msgid "Correlation"
+ msgstr "Activer la corrélation"
 
-#~ msgid "Orphan hosts"
-#~ msgstr "Hôtes orphelins"
+ msgid "Correlation file"
+ msgstr "Fichier de corrélation"
 
-#~ msgid "ServiceGroups"
-#~ msgstr "Groupes de services"
+ msgid "Correlation passive"
+ msgstr "Correlation passive"
 
-#~ msgid "Orphan Hosts"
-#~ msgstr "Hôtes seuls"
+ msgid "Could not find CENTREON_ETC. Session probably expired."
+ msgstr ""
+ "Variable CENTREON_ETC non trouvée. La session a probablement expirée."
 
-#~ msgid "Acknowledge/Disacknowledge a service"
-#~ msgstr "Acquitter/Désacquitter un service"
+ msgid "Could not find configuration database. Session probably expired."
+ msgstr ""
+ "Impossible de trouver la base de données de configuration. La session a "
+ "probablement expirée"
 
-#~ msgid "Acknowledge/Disaknowledge a host"
-#~ msgstr "Acquitter/Désacquitter un hôte"
+ msgid "Could not find database user. Session probably expired."
+ msgstr ""
+ "Impossible de trouver l'utilisateur ayant accès aux bases de données. La "
+ "session a probablement expirée"
 
-#~ msgid "Security patch available"
-#~ msgstr "Correctif de sécurité disponible"
+ msgid "Could not find macro "
+ msgstr "Ne peut pas trouver la macro "
 
-#~ msgid "Update patch available"
-#~ msgstr "Correctif de mise à jour disponible"
+ msgid "Could not find storage database. Session probably expired."
+ msgstr ""
+ "Base de données de stockage non trouvée. La session a probablement "
+ "expirée."
 
-#~ msgid "Centreon is updated."
-#~ msgstr "Centreon a été mis à jour."
+ msgid "Could not find utils database. Session probably expired."
+ msgstr ""
+ "Impossible de trouver la base de données du broker. La session a "
+ "probablement expirée"
 
-#~ msgid "Execution start"
-#~ msgstr "Début de l'exécution"
+ msgid "Could not import ndo2db"
+ msgstr "Impossible d'importer ndo2db"
 
-#~ msgid "Error when installing patch : %s."
-#~ msgstr "Erreur lors de l'installation du correctif : %s."
+ msgid "Could not import ndomod"
+ msgstr "Impossible d'importer ndomod"
 
-#~ msgid "%s patch is installed."
-#~ msgstr "le correctif %s a été installé."
+ msgid "Create new object with prefix"
+ msgstr "Créer un nouvel objet avec un prefix"
 
-#~ msgid "Can't get list of files."
-#~ msgstr "Impossible d'obtenir la liste des fichiers."
+ msgid "Critical Alert"
+ msgstr "Alerte Critique"
 
-#~ msgid "Can't open configuration file : /etc/oreon.conf"
-#~ msgstr "Impossible d'ouvrir le fichier de configuration : /etc/oreon.conf"
+ msgid "Critical Mean Time"
+ msgstr "Critique (Temps connu)"
 
-#~ msgid "Can't get file'"
-#~ msgstr "Impossible d'obtenir le fichier"
+ msgid "Current Activation"
+ msgstr "Activation actuelle"
 
-#~ msgid "%s is downloaded."
-#~ msgstr "%s est téléchargé."
+ msgid "Currently running?"
+ msgstr "En cours d'exécution ?"
 
-#~ msgid ""
-#~ "In order to complete your upgrade (%s), unzip the downloaded file, and "
-#~ "follow the instructions in README\n"
-#~ msgstr ""
-#~ "Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, "
-#~ "et suivez les instructions du fichier README\n"
+ msgid "Daemon core dumps"
+ msgstr ""
+ "Activer la possibilité de réaliser un 'core dump' (non compatible avec "
+ "Centreon Engine)"
 
-#~ msgid "Can't open patch"
-#~ msgstr "Impossible d'ouvrir le correctif"
+ msgid "Daily"
+ msgstr "Quotidienne"
 
-#~ msgid "launch %s with root permissions.\n"
-#~ msgstr "lancer %s avec les permissions root.\n"
+ msgid "Data Source Choice"
+ msgstr "Choix de la source de données"
 
-#~ msgid "Change update options"
-#~ msgstr "Modifier les options de mise à jour"
+ msgid "Data Source List"
+ msgstr "List des sources de données"
 
-#~ msgid "Check stable versions"
-#~ msgstr "Vérifier les mises à jour de version stable"
+ msgid "Data recovery KO"
+ msgstr "Récupération des données KO"
 
-#~ msgid "Check patches"
-#~ msgstr "Vérifier les mises à jour de correctifs"
+ msgid "Data recovery OK"
+ msgstr "Récupération des données OK"
 
-#~ msgid "Check secu-patches"
-#~ msgstr "Vérifier les mises à jour de correctifs de sécurité"
+ msgid "Default Engine"
+ msgstr "Moteur par défaut"
 
-#~ msgid "Check Release candidate"
-#~ msgstr "Vérifier les mises à jour de version candidate"
+ msgid "Default Settings"
+ msgstr "Paramètres par défaut"
 
-#~ msgid "Check Beta"
-#~ msgstr "Vérifier les mises à jour de version beta"
+ msgid "Default contact group"
+ msgstr "Groupe de contacts par défaut"
 
-#~ msgid "Patch Download path"
-#~ msgstr "Répertoire pour le téléchargement des correctifs"
+ msgid "Default host timezone"
+ msgstr "Timezone par défaut de l'hôte"
 
-#~ msgid "Broker engine used by Centreon"
-#~ msgstr "Broker utilisé par Centreon"
+ msgid ""
+ "Define the relation between authorization value and access group: You can "
+ "link an authorization value to an access group."
+ msgstr ""
+ "Définir la relation entre la valeur d'autorisation et le groupe d'accès : "
+ "Vous pouvez lier une valeur d'autorisation à un groupe d'accès."
 
-#~ msgid "Refresh Interval"
-#~ msgstr "Intervalle de rafraîchissement"
+ msgid "Delete a widget"
+ msgstr "Supprimer un widget"
 
-#~ msgid "First Refresh delay for statistics"
-#~ msgstr "Délai du premier rafraîchissement pour la page des statistiques"
+ msgid "Delete all configuration for the chosen type of files"
+ msgstr "Supprimer toute la configuration des types de fichiers choisis"
 
-#~ msgid "First Refresh delay for monitoring"
-#~ msgstr "Délai du premier rafraîchissement pour la page de supervision"
+ msgid "Delete host group"
+ msgstr "Supprimer le groupe d'hôtes"
 
-#~ msgid "Default host timezone"
-#~ msgstr "Timezone par défaut de l'hôte"
+ msgid "Delete host groups"
+ msgstr "Supprimer les groupes d'hôtes"
 
-#~ msgid "Enable resources's insertion in index_data by Centreon"
-#~ msgstr "Activer l'insertion de ressources dans index_data par Centreon"
+ msgid "Dependencies Management"
+ msgstr "Gestion des dépendances"
 
-#~ msgid "Enable Perfdata Synchronisation"
-#~ msgstr "Activer la synchronisation des données de performance"
+ msgid "Deploy Service"
+ msgstr "Déployer les services"
 
-#~ msgid "Enable Logs Synchronisation"
-#~ msgstr "Activer la synchronisation des logs"
+ msgid "Detection by browser"
+ msgstr "Détection via le navigateur"
 
-#~ msgid "Availability: %s%%"
-#~ msgstr "Disponibilité : %s%%"
+ msgid ""
+ "Different number of tokens between configuration and monitoring command "
+ "line"
+ msgstr ""
+ "Nombre différent de jetons entre la ligne de commande de configuration et "
+ "de supervision"
 
-#~ msgid "On Problem Host"
-#~ msgstr "Sur Problème de l'hôte"
+ msgid "Directories"
+ msgstr "Répertoires"
 
-#~ msgid "Unhandled Service problems (last %s)"
-#~ msgstr "Problèmes de service non traités (%s derniers)"
+ msgid "Directory of traps configuration files"
+ msgstr "Répertoire des fichiers de configuration des traps"
 
-#~ msgid "No unhandled service problem"
-#~ msgstr "Aucun problème de service non acquitté"
+ msgid "Directory traversal detected"
+ msgstr "Détection d'un changement de répertoire non autorisé"
 
-#~ msgid "Service Name"
-#~ msgstr "Nom du service"
+ msgid "Disable Notification"
+ msgstr "Désactiver la Notification"
 
-#~ msgid "C"
-#~ msgstr "C"
+ msgid "Disable event handlers"
+ msgstr "Arrêter le gestionnaire d'évènements"
 
-#~ msgid "Status Output"
-#~ msgstr "Information sur le statut"
+ msgid "Disable flap detection"
+ msgstr "Arrêter la détection de bagotage des statuts"
 
-#~ msgid "Unhandled Host problems (last %s)"
-#~ msgstr "Problèmes d'hôte non traités (%s derniers)"
+ msgid "Disable notifications"
+ msgstr "Désactiver les notifications"
 
-#~ msgid "No unhandled host problem"
-#~ msgstr "Aucun problème d'hôte non acquitté"
+ msgid "Disable performance data"
+ msgstr "Arrêter le traitement des données de performance"
 
-#~ msgid "View name"
-#~ msgstr "Nom de la Vue"
+ msgid "Disable submit result if no matched rules"
+ msgstr "Désactiver la mise à jour du service si aucune règle n'est valide"
 
-#~ msgid "Warning: "
-#~ msgstr "Warning:"
+ msgid "Disabled HostGroups"
+ msgstr "Désactiver le groupe d'hôtes"
 
-#~ msgid "Do you confirm the cancelation?"
-#~ msgstr "Confirmez-vous l'annulation?"
+ msgid "Display Finished Downtimes"
+ msgstr "Afficher les plages de maintenance terminés"
 
-#~ msgid "No downtime scheduled for hosts"
-#~ msgstr "Aucune plage de maintenance planifiée pour les hôtes"
+ msgid "Display Options"
+ msgstr "Options d'affichage"
 
-#~ msgid "View downtimes of services"
-#~ msgstr "Visualiser les plages de maintenance des services"
+ msgid "Display Recurring Downtimes"
+ msgstr "Afficher les plages de maintenance cycliques"
 
-#~ msgid "Sort by criticality"
-#~ msgstr "Trier par criticité"
+ msgid "Display Template"
+ msgstr "Utiliser le modèle"
 
-#~ msgid "Poller :"
-#~ msgstr "Collecteur :"
+ msgid "Display all Services for this host"
+ msgstr "Afficher tous les services de cet hôte"
 
-#~ msgid "Period :"
-#~ msgstr "Périodes :"
+ msgid "Display type"
+ msgstr "Type d'affichage"
 
-#~ msgid "Scheduling Process Information"
-#~ msgstr "Information du processus d'ordonnancement"
+ msgid "Do you confirm  the duplication ?"
+ msgstr "Confirmez-vous la duplication ?"
 
-#~ msgid "Program Start Time"
-#~ msgstr "Heure de démarrage du programme"
+ msgid "Do you confirm the cancelation?"
+ msgstr "Confirmez-vous l'annulation?"
 
-#~ msgid "Last Log File Rotation:"
-#~ msgstr "Dernière rotation du fichier de journalisation:"
+ msgid "Do you confirm the cancellation ?"
+ msgstr "Confirmez-vous l'annulation ?"
 
-#~ msgid "Last External Command Check:"
-#~ msgstr "Heure de la dernière commande externe:"
+ msgid "Do you confirm the deletion?"
+ msgstr "Confirmez-vous la suppression ?"
 
-#~ msgid "Monitoring Engine PID"
-#~ msgstr "ID du moteur de supervision"
+ msgid "Do you really wish to remove this entry?"
+ msgstr "Voulez-vous réellement supprimer cette entrée ?"
 
-#~ msgid "Currently running?"
-#~ msgstr "En cours d'exécution ?"
+ msgid "Do you want to delete this widget?"
+ msgstr "Voulez-vous supprimer ce widget ?"
 
-#~ msgid "Host Checks Being Executed?"
-#~ msgstr "Contrôle des hôtes activé ?"
+ msgid "Donate"
+ msgstr "Donation"
 
-#~ msgid "Passive Host Checks Being Accepted?"
-#~ msgstr "Contrôle passif des hôtes activé ?"
+ msgid "Down Alerts"
+ msgstr "Alertes Indisponible"
 
-#~ msgid "Service Checks Being Executed?"
-#~ msgstr "Contrôle des services activé ?"
+ msgid "Down Time"
+ msgstr "Temps état indisponible"
 
-#~ msgid "Passive Service Checks Being Accepted?"
-#~ msgstr "Contrôle passif des services activé ?"
+ msgid "Downtime host or service Color"
+ msgstr "Couleur des hôtes ou des services en maintenance"
 
-#~ msgid "Event Handlers Enabled?"
-#~ msgstr "Gestionnaire d'évènements activé ?"
+ msgid "Drop Data in another file"
+ msgstr "Copier les données dans un autre fichier"
 
-#~ msgid "Obsessing Over Hosts?"
-#~ msgstr "Exécution des commandes post contrôle d'hôtes?"
+ msgid "Drop possibility after parsing performance data"
+ msgstr "Actions après traitement des données de performances"
 
-#~ msgid "Obsessing Over Services?"
-#~ msgstr "Exécution des commandes post contrôle des services ?"
+ msgid "Duplicate host group"
+ msgstr "Dupliquer le groupe d'hôtes"
 
-#~ msgid "Performance Data Being Processed?"
-#~ msgstr "Traitement des données de performances activé ?"
+ msgid "Duplicate host groups"
+ msgstr "Dupliquer les groupes d'hôtes"
 
-#~ msgid "Flap detection enabled?"
-#~ msgstr "Détection de bagotage des statuts activée ?"
+ msgid "ERROR"
+ msgstr "ERREUR"
 
-#~ msgid "Shutdown the Monitoring Engine process"
-#~ msgstr "Arrêter le moteur de supervision"
+ msgid "Edit"
+ msgstr "Éditer"
 
-#~ msgid "Start the Monitoring Engine process"
-#~ msgstr "Démarrer le moteur de supervision"
+ msgid "Embedded Perl initialisation file"
+ msgstr "Interpréteur Perl intégré"
 
-#~ msgid "Restart the Monitoring Engine process"
-#~ msgstr "Redémarrer le processus de supervision"
+ msgid "Enable Centstorage Engine (require restart of centstorage)"
+ msgstr ""
+ "Active le Moteur de Centstorage (requiert le redémarrage de centstorage)"
 
-#~ msgid "Disable notifications"
-#~ msgstr "Désactiver les notifications"
+ msgid "Enable Logs Synchronisation"
+ msgstr "Activer la synchronisation des logs"
 
-#~ msgid "Start executing service checks"
-#~ msgstr "Démarrer l'exécution des contrôles de services"
+ msgid "Enable Notification"
+ msgstr "Activer la Notification"
 
-#~ msgid "Stop executing service checks"
-#~ msgstr "Arrêter l'exécution des contrôles de services"
+ msgid "Enable Perfdata Synchronisation"
+ msgstr "Activer la synchronisation des données de performance"
 
-#~ msgid "Start accepting passive service checks"
-#~ msgstr "Démarrer le contrôle passif des services"
+ msgid "Enable SSO authentication"
+ msgstr "Activer l'authentification SSO"
 
-#~ msgid "Stop accepting passive service checks"
-#~ msgstr "Arrêter le contrôle passif des services"
+ msgid "Enable embedded Perl"
+ msgstr "Utilisation de l'interpréteur Perl intégré"
 
-#~ msgid "Start executing host checks"
-#~ msgstr "Démarrer le contrôle des hôtes"
+ msgid "Enable event handlers"
+ msgstr "Activer le gestionnaire d'évènements"
 
-#~ msgid "Stop executing host checks"
-#~ msgstr "Arrêter le contrôle des hôtes"
+ msgid "Enable flap detection"
+ msgstr "Démarrer la détection de bagotage des statuts"
 
-#~ msgid "Start accepting passive host checks"
-#~ msgstr "Démarrer le contrôle passif des hôtes"
+ msgid "Enable performance data"
+ msgstr "Activer le traitement des données de performance"
 
-#~ msgid "Stop accepting passive host checks"
-#~ msgstr "Arrêter le contrôle passif des hôtes"
+ msgid "Enable resources's insertion in index_data by Centreon"
+ msgstr "Activer l'insertion de ressources dans index_data par Centreon"
 
-#~ msgid "Enable event handlers"
-#~ msgstr "Activer le gestionnaire d'évènements"
+ msgid "Enable strict mode for host parentship management"
+ msgstr "Activer le mode strict de gestion des relations de parentés"
 
-#~ msgid "Disable event handlers"
-#~ msgstr "Arrêter le gestionnaire d'évènements"
+ msgid "Enable the one-click export button for poller configuration"
+ msgstr ""
+ "Activer le bouton d’export de la configuration des collecteurs en un seul "
+ "clic"
 
-#~ msgid "Start obsessing over hosts"
-#~ msgstr "Démarrer le suivi précis des hôtes"
+ msgid "Enabled HostGroups"
+ msgstr "Activer le groupe d'hôtes"
 
-#~ msgid "Stop obsessing over hosts"
-#~ msgstr "Arrêter le suivi précis des hôtes"
+ msgid "End Hour"
+ msgstr "Heure de fin"
 
-#~ msgid "Start obsessing over services"
-#~ msgstr "Démarrer l'exécution des commandes post contrôle"
+ msgid "End Minute"
+ msgstr "Minute de fin"
 
-#~ msgid "Stop obsessing over services"
-#~ msgstr "Arrêter l'exécution des commandes post contrôle"
+ msgid "End date must be greater than start date"
+ msgstr "La date de fin doit être supérieure à la date de début"
 
-#~ msgid "Enable flap detection"
-#~ msgstr "Démarrer la détection de bagotage des statuts"
+ msgid "End date must be greater than start date."
+ msgstr "La date de fin doit être supérieure à la date de début."
 
-#~ msgid "Disable flap detection"
-#~ msgstr "Arrêter la détection de bagotage des statuts"
+ msgid "Entries are registered"
+ msgstr "Les entrées sont enregistrées"
 
-#~ msgid "Enable performance data"
-#~ msgstr "Activer le traitement des données de performance"
+ msgid "Error : unable to read or update the contact data in the DB"
+ msgstr "Erreur : impossible de lire ou de mettre à jour les données en DB"
 
-#~ msgid "Disable performance data"
-#~ msgstr "Arrêter le traitement des données de performance"
+ msgid "Error during deleting expired session"
+ msgstr "Erreur lors de l'expiration de la session"
 
-#~ msgid "Process Commands"
-#~ msgstr "Commandes du processus"
+ msgid "Error during token creation"
+ msgstr "Erreur lors de la création du token"
 
-#~ msgid "Invalid date given for parameter \"%s\"."
-#~ msgstr "Date invalide pour le paramètre \"%s\"."
+ msgid "Error on reading host templates (Reason: %s)"
+ msgstr "Erreur lors de la lecture des modèles d'hôtes (Raison : %s)"
 
-#~ msgid "End date must be greater than start date."
-#~ msgstr "La date de fin doit être supérieure à la date de début."
+ msgid "Error when adding a host"
+ msgstr "Erreur lors de l'ajout d'un hôte"
 
-#~ msgid "Incorrect resource type for disacknowledgement"
-#~ msgstr "Type de ressource incorrect pour le désacquittement"
+ msgid "Error when deleting a monitoring server"
+ msgstr "Erreur lors de la supression d'un serveur de supervision"
 
-#~ msgid "Incorrect resource type for acknowledgement"
-#~ msgstr "Type de ressource incorrect pour l'acquittement"
+ msgid "Error when deleting tokens for one contact"
+ msgstr "Erreur lors de la suppression des tokens pour un contact"
 
-#~ msgid "Unrecognized Command"
-#~ msgstr "Commande non reconnue"
+ msgid "Error when installing patch : %s."
+ msgstr "Erreur lors de l'installation du correctif : %s."
 
-#~ msgid "Commands containing a request body are not allowed at the moment"
-#~ msgstr ""
-#~ "Les commandes contenant un corp ne sont pas autorisées pour le moment"
+ msgid "Error when recovering the number of tokens"
+ msgstr "Erreur lors de la récupération du nombre de token"
 
-#~ msgid "Loop detected in file %s"
-#~ msgstr "Boucle détectée dans le fichier %s"
+ msgid "Error when searching for a resource of monitoring server"
+ msgstr ""
+ "Erreur lors de la recherche de la ressource attachée au serveur de "
+ "supervision"
 
-#~ msgid "The configuration file %s does not exists"
-#~ msgstr "Le fichier de configuration %s n'existe pas"
+ msgid "Error when searching for the local monitoring servers"
+ msgstr "Erreur lors de la recherche du serveur de supervision local"
 
-#~ msgid "The host of service is not defined"
-#~ msgstr "L'hôte du service n'est pas défini"
+ msgid "Error when searching monitoring server name"
+ msgstr "Erreur lors de la recherche du nom du serveur de supervision"
 
-#~ msgid "Host of downtime not found"
-#~ msgstr "L'hôte associé à la plage de maintenance n'a pas été trouvé"
+ msgid "Error when updating the user\\'s theme"
+ msgstr "Erreur lors de la mise à jour du thème de l'utilisateur"
 
-#~ msgid "Token expired."
-#~ msgstr "Token expiré."
+ msgid "Error while adding the dashboard share"
+ msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
 
-#~ msgid "Contact disabled."
-#~ msgstr "Contact désactivé."
+ msgid "Error while creating a playlist."
+ msgstr "Erreur lors de la création d'une liste de diffusion."
 
-#~ msgid "Token can not empty, null or not defined"
-#~ msgstr "Le token ne peut être ni null, ni vide ou non défini"
+ msgid "Error while creating export request"
+ msgstr "Erreur lors de la création de la demande d'export"
 
-#~ msgid "Error while creation of host"
-#~ msgstr "Erreur lors de la creation de l'hôte"
+ msgid "Error while creation of host"
+ msgstr "Erreur lors de la creation de l'hôte"
 
-#~ msgid "Template with id %d not found"
-#~ msgstr "Le modèle avec l'id %d n'a pas été trouvé"
+ msgid "Error while deleting a playlist"
+ msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
-#~ msgid "Host or id can not be null"
-#~ msgstr "L'hôte ou l'id de l'hôte ne peuvent pas être null"
+ msgid "Error while getting the local requester."
+ msgstr "Erreur durant la récupération du poller central"
 
-#~ msgid ""
-#~ "The command line in the configuration is empty while in the monitoring it "
-#~ "is not"
-#~ msgstr ""
-#~ "La ligne de commande dans la configuration est vide alors que celle de la "
-#~ "supervision ne l'est pas."
+ msgid "Error while inserting central-broker configuration"
+ msgstr ""
+ "Erreur durant l'insertion de la configuration du module Centreon Broker "
+ "Master"
 
-#~ msgid ""
-#~ "Different number of tokens between configuration and monitoring command "
-#~ "line"
-#~ msgstr ""
-#~ "Nombre différent de jetons entre la ligne de commande de configuration et "
-#~ "de supervision"
+ msgid "Error while inserting central-module configuration"
+ msgstr "Erreur durant l'insertion des configurations de central-module"
 
-#~ msgid "Error when deleting a monitoring server"
-#~ msgstr "Erreur lors de la supression d'un serveur de supervision"
+ msgid "Error while inserting central-rrd configuration"
+ msgstr ""
+ "Erreur durant l'insertion de la configuration du module Centreon Broker "
+ "RRD"
 
-#~ msgid "Error when searching for a resource of monitoring server"
-#~ msgstr ""
-#~ "Erreur lors de la recherche de la ressource attachée au serveur de "
-#~ "supervision"
+ msgid "Error while inserting poller-module configuration"
+ msgstr ""
+ "Erreur durant l'insertion de la configuration du module Centreon Broker "
+ "du collecteur"
 
-#~ msgid "Error when searching for the local monitoring servers"
-#~ msgstr "Erreur lors de la recherche du serveur de supervision local"
+ msgid "Error while linking template %s to host (id: %d)"
+ msgstr "Erreur lors de la liaison du modèle %s à l'hôte (id: %d)"
 
-#~ msgid "Error while searching for the web version of the Centreon platform"
-#~ msgstr ""
-#~ "Erreur lors de la récupération de la version de la plate-forme Centreon"
+ msgid "Error while linking template (id: %d) to host (id: %d)"
+ msgstr "Erreur lors de la liaison du modèle (id: %d) à l'hôte (id: %d)"
 
-#~ msgid ""
-#~ "Error while searching for the modules version of the Centreon platform"
-#~ msgstr "Erreur lors de la recherche de la version des extensions"
+ msgid "Error while listing the playlist shares"
+ msgstr "Erreur lors du listing des partages de la liste de diffusion"
 
-#~ msgid ""
-#~ "Error while searching for the widgets version of the Centreon platform"
-#~ msgstr "Erreur lors de la recherche de la version des widgets"
+ msgid "Error while retrieving a playlist."
+ msgstr "Erreur lors de la récupération d'une liste de diffusion."
 
-#~ msgid "Bad format for the sort request parameter"
-#~ msgstr "Mauvais format pour la requête de tri"
+ msgid "Error while retrieving contact groups"
+ msgstr "Erreur lors de la récupération des groupes de contacts"
 
-#~ msgid "Token not found"
-#~ msgstr "Token non trouvé"
+ msgid "Error while retrieving the new dashboard share"
+ msgstr ""
+ "Erreur durant la récupération d'un nouveau partage de tableau de bord"
 
-#~ msgid "Bad request"
-#~ msgstr "Mauvaise requête"
+ msgid "Error while saving configuration."
+ msgstr "Erreur durant l'enregistrement de la configuration."
 
-#~ msgid "Request error"
-#~ msgstr "Erreur de requête"
+ msgid "Error while searching for authentication tokens"
+ msgstr "Erreur lors de la recherche de jetons d'authentification"
 
-#~ msgid "Monitoring server %1 not found"
-#~ msgstr "Serveur de supervision %1 non trouvé"
+ msgid "Error while searching for available pollers for type '%s'"
+ msgstr ""
+ "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
 
-#~ msgid "Template with id %1 not found"
-#~ msgstr "Le modèle possédant l'id %1 n'a pas été trouvé"
+ msgid "Error while searching for the dashboard shares"
+ msgstr "Erreur durant la recherche de partages de tableau de bord"
 
-#~ msgid "Template %1 not found"
-#~ msgstr "Le modèle %1 n'a pas été trouvé"
+ msgid ""
+ "Error while searching for the modules version of the Centreon platform"
+ msgstr "Erreur lors de la recherche de la version des extensions"
 
-#~ msgid "Bad SQL request"
-#~ msgstr "Mauvaise requête SQL"
+ msgid "Error while searching for the web version of the Centreon platform"
+ msgstr ""
+ "Erreur lors de la récupération de la version de la plate-forme Centreon"
 
-#~ msgid "Incorrect Event Type"
-#~ msgstr "Mauvais type d'évènement"
+ msgid ""
+ "Error while searching for the widgets version of the Centreon platform"
+ msgstr "Erreur lors de la recherche de la version des widgets"
 
-#~ msgid "Provider %1 is loaded"
-#~ msgstr "Le fournisseur %1 est chargé"
+ msgid "Error while searching identity providers configurations"
+ msgstr ""
+ "Erreur lors de la recherche des configurations de fournisseurs "
+ "d'identification"
 
-#~ msgid "The value %1 is only supported by the operators %2 and %3"
-#~ msgstr "La valeur %1 est uniquement supportée par les opéreateurs %2 et %3"
+ msgid "Error while updating playlist shares"
+ msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
 
-#~ msgid "Bad regex format"
-#~ msgstr "Mauvaise expression régulière (RegExp)"
+ msgid "Error: Cannot Execute this command due to a path security problem."
+ msgstr ""
+ "Erreur: Impossible d'exécuter cette commande en raison d'un problème de "
+ "sécurité sur le chemin."
 
-#~ msgid "Error during token creation"
-#~ msgstr "Erreur lors de la création du token"
+ msgid "Escalations View"
+ msgstr "Visualisation des escalades"
 
-#~ msgid "Error during deleting expired session"
-#~ msgstr "Erreur lors de l'expiration de la session"
+ msgid "Event Handlers Enabled?"
+ msgstr "Gestionnaire d'évènements activé ?"
 
-#~ msgid "Error when recovering the number of tokens"
-#~ msgstr "Erreur lors de la récupération du nombre de token"
+ msgid "Event Type"
+ msgstr "Type d'évènement"
 
-#~ msgid "Error when deleting tokens for one contact"
-#~ msgstr "Erreur lors de la suppression des tokens pour un contact"
+ msgid "Exclude Timeperiods"
+ msgstr "Exclure les périodes"
 
-#~ msgid "End date must be greater than start date"
-#~ msgstr "La date de fin doit être supérieure à la date de début"
+ msgid "Execution start"
+ msgstr "Début de l'exécution"
 
-#~ msgid "Choose at least 1 user"
-#~ msgstr "Veuillez sélectionner au moins 1 utilisateur"
+ msgid "Export XML"
+ msgstr "Exporter au format XML"
 
-#~ msgid "Search contact groups"
-#~ msgstr "Rechercher des groupes de contacts"
+ msgid "Export format not supported"
+ msgstr "Format d'export non supporté"
 
-#~ msgid "Select contacts and contact groups"
-#~ msgstr "Sélectionner les contacts et les groupes de contacts"
+ msgid "Export in XML too"
+ msgstr "Exporter également en XML"
 
-#~ msgid "Failed to delete notifications"
-#~ msgstr "Échec de la suppression des notifications"
+ msgid "Extended Information"
+ msgstr "Informations additionnelles"
 
-#~ msgid "Unable to convert in remote server, no Central to link provided"
-#~ msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
+ msgid "External Command"
+ msgstr "Commande externe"
 
-#~ msgid "Unable to update the platform information"
-#~ msgstr "Impossible de mettre à jour les informations de la plateforme"
+ msgid "Extra"
+ msgstr "Extra"
 
-#~ msgid "An error occured while converting your platform"
-#~ msgstr "Une erreur est survenue lors de la conversion de la plateforme"
+ msgid "Failed to delete notifications"
+ msgstr "Échec de la suppression des notifications"
 
-#~ msgid "An error occured while your platform update"
-#~ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
+ msgid "Failed to delete the host group"
+ msgstr "Échec de la suppression du groupe d'hôtes"
 
-#~ msgid "Additional properties are not allowed"
-#~ msgstr "Les propriétés additionnelles ne sont pas autorisées"
+ msgid "Failed to disable the host group"
+ msgstr "Échec de la désactivation du groupe d'hôtes"
 
-#~ msgid "Nullable property is not allowed"
-#~ msgstr "Les propriétés nullable ne sont pas autorisées"
+ msgid "Failed to duplicate the host group"
+ msgstr "Échec de la duplication du groupe d'hôtes"
 
-#~ msgid "Missing required property: %s"
-#~ msgstr "propriété requise manquante: %s"
+ msgid "Failed to enable the host group"
+ msgstr "Échec de l'activation du groupe d'hôtes"
 
-#~ msgid "Invalid property type %s for %s, type %s expected"
-#~ msgstr "Type de propriétés invalide %s pour %s, type %s attendu"
+ msgid "Failover"
+ msgstr "Failover"
 
-#~ msgid "Bad JSON schema format"
-#~ msgstr "Mauvais format de JSON schema"
+ msgid "File (zip, tar or cfg)"
+ msgstr "Fichier (zip, tar ou cfg)"
 
-#~ msgid "Bad JSON schema path"
-#~ msgstr "Mauvais chemin de JSON Schema"
+ msgid "File Type"
+ msgstr "Type de fichier"
 
-#~ msgid "The address of the parent platform '%s'@'%s' is not consistent"
-#~ msgstr "L'adresse de la plateforme parente '%s'@'%s' n'est pas cohérente"
+ msgid "File loading KO"
+ msgstr "Chargement du fichier KO"
 
-#~ msgid ""
-#~ "Central platform's data are not consistent. Please check the 'Remote "
-#~ "Access' form"
-#~ msgstr ""
-#~ "Des données de la plateforme ne sont pas cohérentes. Veuillez vérifier le "
-#~ "formulaire 'Accès du Remote'."
+ msgid "File loading OK"
+ msgstr "Chargement du fichier OK"
 
-#~ msgid "Error when searching monitoring server name"
-#~ msgstr "Erreur lors de la recherche du nom du serveur de supervision"
+ msgid "File max size"
+ msgstr "Taille maximale du fichier"
 
-#~ msgid "Please check the 'Centreon UI' and 'Remote access' forms"
-#~ msgstr ""
-#~ "Veuillez vérifier les formulaires 'Centreon Web' et 'Accès du Remote'"
+ msgid "File read offset"
+ msgstr "Indice de lecture du fichier"
 
-#~ msgid ""
-#~ "Unable to find the encryption key. Please check the '.env.local.php' file."
-#~ msgstr ""
-#~ "Impossible de trouver la clef de déchiffrement. Veuillez vérifer le "
-#~ "fichier '.env.local.php'."
+ msgid "File read path"
+ msgstr "Chemin du fichier en cours de lecture"
 
-#~ msgid "deprecated"
-#~ msgstr "déprécié"
+ msgid "File write offset"
+ msgstr "Indice d'écriture du fichier"
 
-#~ msgid "Allow self signed certificate."
-#~ msgstr "Autoriser le certificat auto-signé."
+ msgid "File write path"
+ msgstr "Chemin du fichier en cours d'écriture"
 
-#~ msgid "PENDING"
-#~ msgstr "EN ATTENTE"
+ msgid "Final release"
+ msgstr "Version finale"
 
-#~ msgid "Parent of service resource type cannot be null"
-#~ msgstr "Le parent de la resource de type service ne peut être null"
+ msgid "Finish"
+ msgstr "Terminer"
 
-#~ msgid "Error when adding a host"
-#~ msgstr "Erreur lors de l'ajout d'un hôte"
+ msgid "First Refresh delay for monitoring"
+ msgstr "Délai du premier rafraîchissement pour la page de supervision"
 
-#~ msgid "Error while searching identity providers configurations"
-#~ msgstr ""
-#~ "Erreur lors de la recherche des configurations de fournisseurs "
-#~ "d'identification"
+ msgid "First Refresh delay for statistics"
+ msgstr "Délai du premier rafraîchissement pour la page des statistiques"
 
-#~ msgid "Unable to start Centreon legacy session"
-#~ msgstr "Impossible de démarrer la session Centreon legacy"
+ msgid "Flap detection enabled?"
+ msgstr "Détection de bagotage des statuts activée ?"
 
-#~ msgid "Year must be less than %d (%s)"
-#~ msgstr "L'année doit être inférieure à %d (%s)"
+ msgid "Font"
+ msgstr "Police"
 
-#~ msgid "Contact Details"
-#~ msgstr "Détails du Contact"
+ msgid "Font size"
+ msgstr "Taille de police"
 
-#~ msgid "Enable the one-click export button for poller configuration"
-#~ msgstr ""
-#~ "Activer le bouton d’export de la configuration des collecteurs en un seul "
-#~ "clic"
+ msgid ""
+ "For a host, the status displayed in the tile is the worst among its own "
+ "status and the statuses of its services."
+ msgstr ""
+ "Pour un hôte, le statut affiché dans la tuile est le pire parmi son "
+ "propre statut et les statuts de ses services."
 
-#~ msgid "Successful logout"
-#~ msgstr "Déconnexion réussie"
+ msgid "For a service, the service status is displayed."
+ msgstr "Pour un service, le statut du service est affiché."
 
-#~ msgid "Password cases"
-#~ msgstr "Casses du mot de passe"
+ msgid ""
+ "For archive upload, be sure that the first line of each file has no "
+ "importance because it is not handled.<br />Avoid to begin with a "
+ "definition."
+ msgstr ""
+ "Pour un envoi de fichier, assurez vous que la première ligne de chaque "
+ "fichier n'ait pas d'importance car elle n'est pas prise en compte.<br /"
+ ">Evitez de commencer avec une définition."
 
-#~ msgid "Choose a duration between 1 hour and 12 months"
-#~ msgstr "Veuillez choisir une durée entre 1 heure et 12 mois"
+ msgid ""
+ "For professional support subscription please contact the <a href=\"http://"
+ "support.centreon.com\">Centreon Support Center</a>."
+ msgstr ""
+ "Pour la souscription à un support professionnel, contacter le <a "
+ "href=\"http://support.centreon.com\">Centre de Support Centreon</a>."
 
-#~ msgid ""
-#~ "Security policy not found. Please verify that your installation is valid"
-#~ msgstr ""
-#~ "Politique de sécurité non trouvée. Veuillez vérifier que votre "
-#~ "installation est valide"
+ msgid ""
+ "For security reasons, the token can only be displayed once. Store it "
+ "carefully."
+ msgstr ""
+ "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
+ "fois. Stockez-le soigneusement."
 
-#~ msgid "Role Relations"
-#~ msgstr "Relations de rôle"
+ msgid "Force Reload"
+ msgstr "Forcer le rechargement"
 
-#~ msgid "Linked to Roles"
-#~ msgstr "Lié aux rôles"
+ msgid "Forum"
+ msgstr "Forum"
 
-#~ msgid "User information not found"
-#~ msgstr "Informations utilisateur non trouvées"
+ msgid "Free child process memory"
+ msgstr "Libérer la mémoire des processus enfants"
 
-#~ msgid "User is blocked"
-#~ msgstr "L'utilisateur est bloqué"
+ msgid "Fullname attribute"
+ msgstr "Attribut de nom complet"
 
-#~ msgid "Error on reading host templates (Reason: %s)"
-#~ msgstr "Erreur lors de la lecture des modèles d'hôtes (Raison : %s)"
+ msgid "General Access"
+ msgstr "Gestion des accès globaux"
 
-#~ msgid "Error while linking template (id: %d) to host (id: %d)"
-#~ msgstr "Erreur lors de la liaison du modèle (id: %d) à l'hôte (id: %d)"
+ msgid "Generate Files"
+ msgstr "Générer les fichiers"
 
-#~ msgid "Error while linking template %s to host (id: %d)"
-#~ msgstr "Erreur lors de la liaison du modèle %s à l'hôte (id: %d)"
+ msgid "Generate new token"
+ msgstr "Générer un nouveau jeton"
 
-#~ msgid "Login claim value"
-#~ msgstr "Valeur de la déclaration de connexion"
+ msgid "Generated in "
+ msgstr "Généré en "
 
-#~ msgid "No provider presenters could be found"
-#~ msgstr "Aucun présenteur de fournisseur n'a pu être trouvé"
+ msgid "Geolocation"
+ msgstr "Géolocalisation"
 
-#~ msgid "No provider repositories could be found"
-#~ msgstr "Aucun dépôt de fournisseur n'a pu être trouvé"
+ msgid "Global Community"
+ msgstr "Communauté globale"
 
-#~ msgid "No provider responses could be found"
-#~ msgstr "Aucune réponse de fournisseur n'a pu être trouvée"
+ msgid "Global Health"
+ msgstr "Santé globale"
 
-#~ msgid "Fullname attribute"
-#~ msgstr "Attribut de nom complet"
+ msgid "Go"
+ msgstr "Go"
 
-#~ msgid "Error when updating the user\\'s theme"
-#~ msgstr "Erreur lors de la mise à jour du thème de l'utilisateur"
+ msgid "Graph List"
+ msgstr "Liste des graphiques"
 
-#~ msgid ""
-#~ "There are errors in the form. Do you want to quit the form without "
-#~ "resolving the errors?"
-#~ msgstr ""
-#~ "Il y a des erreurs dans le formulaire. Voulez-vous quitter le formulaire "
-#~ "sans résoudre les erreurs ?"
+ msgid "Graph settings"
+ msgstr "Paramètres de graphe"
 
-#~ msgid "Missing auto import mandatory parameters: %s"
-#~ msgstr ""
-#~ "Paramètres obligatoires manquants pour l'importation automatique : %s"
+ msgid "Graph type"
+ msgstr "Type de graphique"
 
-#~ msgid "The contact template '%s' doesn't exist"
-#~ msgstr "Le modèle de contact '%s' n'existe pas"
+ msgid "Grid background color"
+ msgstr "Couleur d'arrière plan de la grille"
 
-#~ msgid "Contact group: Define a contact group for the imported user."
-#~ msgstr ""
-#~ "Groupe de contact : Définir un groupe de contact pour l'utilisateur "
-#~ "importé."
+ msgid "Group member update behavior"
+ msgstr "Comportement de mise à jour des membres du groupe"
 
-#~ msgid "Authorization key: The key"
-#~ msgstr "Clé d'autorisation : La clé"
+ msgid "H:i:s"
+ msgstr "H:i:s"
 
-#~ msgid ""
-#~ "Define the relation between authorization value and access group: You can "
-#~ "link an authorization value to an access group."
-#~ msgstr ""
-#~ "Définir la relation entre la valeur d'autorisation et le groupe d'accès : "
-#~ "Vous pouvez lier une valeur d'autorisation à un groupe d'accès."
+ msgid "HTTP"
+ msgstr "HTTP"
 
-#~ msgid "An error occured while retrieving service categories"
-#~ msgstr ""
-#~ "Une erreur s'est produite lors de la récupération des catégories de "
-#~ "services"
+ msgid "HTTP Action Link"
+ msgstr "Lien HTTP externe"
 
-#~ msgid "Updates not found"
-#~ msgstr "Les mises à jour n'ont pas été trouvées"
+ msgid "HTTP Link"
+ msgstr "Lien HTTP"
 
-#~ msgid "Resource type \"%s\" is not supported"
-#~ msgstr "Type de ressource \"%s\" non supporté"
+ msgid "HTTPS"
+ msgstr "HTTPS"
 
-#~ msgid "As displayed"
-#~ msgstr "Image affichée"
+ msgid "Help Desk"
+ msgstr "Centre des services"
 
-#~ msgid "Medium size"
-#~ msgstr "Taille moyenne"
+ msgid "Here is a self-explanatory image."
+ msgstr "Ici, une image d'explication."
 
-#~ msgid "Small size"
-#~ msgstr "Petite taille"
+ msgid "Host Category Name"
+ msgstr "Nom de la catégorie d'hôte"
 
-#~ msgid "Invalid endpoint URL specified"
-#~ msgstr "URL d'endpoint spécifiée invalide"
+ msgid "Host Checks Being Executed?"
+ msgstr "Contrôle des hôtes activé ?"
 
-#~ msgid "Hosts (simplified)"
-#~ msgstr "Hôtes (simplifiés)"
+ msgid "Host DOWN Color"
+ msgstr "Couleur d'hôte INDISPONIBLE"
 
-#~ msgid "Templates (simplified)"
-#~ msgstr "Modèles (simplifiés)"
+ msgid "Host Group Name"
+ msgstr "Nom du groupe d'hôtes"
 
-#~ msgid "Host Groups (simplified)"
-#~ msgstr "Groupes d'hôtes (simplifiés)"
+ msgid "Host Groups (simplified)"
+ msgstr "Groupes d'hôtes (simplifiés)"
 
-#~ msgid "Services (simplified)"
-#~ msgstr "Services (simplifiés)"
+ msgid "Host Parallel Templates"
+ msgstr "Modèles d'hôte parallèles"
 
-#~ msgid "You have unsaved changes, do you want to proceed?"
-#~ msgstr ""
-#~ "Vous avez des modifications non enregistrées, voulez-vous continuer?"
+ msgid "Host Performance Data File"
+ msgstr "Fichier de données de performance d'hôte"
+
+ msgid "Host Performance Data File Mode"
+ msgstr "Mode du fichier de données de performance d'hôte"
+
+ msgid "Host Performance Data File Processing Command"
+ msgstr "Commande de traitement du fichier des données de performance d'hôte"
+
+ msgid "Host Performance Data File Processing Interval"
+ msgstr "Intervalle de traitement des données de performance d'hôte"
+
+ msgid "Host Performance Data File Template"
+ msgstr "Modèle de fichier de données de performance d'hôte"
+
+ msgid "Host Performance Data Processing Command"
+ msgstr "Commande de traitement des données de performance d'hôte"
+
+ msgid "Host Template Name"
+ msgstr "Nom du modèle d'hôte"
+
+ msgid "Host Templates name"
+ msgstr "Nom des modèles d'hôtes"
+
+ msgid "Host UNREACHABLE Color"
+ msgstr "Couleur d'hôte INJOIGNABLE"
+
+ msgid "Host UP Color"
+ msgstr "Couleur d'hôte DISPONIBLE"
+
+ msgid "Host category not found"
+ msgstr "Catégorie d'hôtes introuvable"
+
+ msgid "Host comments"
+ msgstr "Commentaires associés à l'hôte"
+
+ msgid "Host group created"
+ msgstr "Groupe d'hôtes créé"
+
+ msgid "Host group deleted"
+ msgstr "Groupe d'hôtes supprimé"
+
+ msgid "Host group disabled"
+ msgstr "Groupe d'hôtes désactivé"
+
+ msgid "Host group duplicated"
+ msgstr "Groupe d'hôtes dupliqué"
+
+ msgid "Host group enabled"
+ msgstr "Groupe d'hôtes activé"
+
+ msgid "Host group not found"
+ msgstr "Groupe d'hôtes non trouvé"
+
+ msgid "Host group updated"
+ msgstr "Groupe d'hôtes mis à jour"
+
+ msgid "Host groups deleted"
+ msgstr "Groupes d'hôtes supprimés"
+
+ msgid "Host groups disabled"
+ msgstr "Groupes d'hôtes désactivés"
+
+ msgid "Host groups duplicated"
+ msgstr "Groupes d'hôtes dupliqués"
+
+ msgid "Host groups enabled"
+ msgstr "Groupes d'hôtes activés"
+
+ msgid "Host is currently on downtime"
+ msgstr "L'hôte est actuellement en période d'arrêt"
+
+ msgid "Host of downtime not found"
+ msgstr "L'hôte associé à la plage de maintenance n'a pas été trouvé"
+
+ msgid "Host or id can not be null"
+ msgstr "L'hôte ou l'id de l'hôte ne peuvent pas être null"
+
+ msgid "Hostgroups Escalation"
+ msgstr "Escalades des groupes d'hôtes"
+
+ msgid "Hostname"
+ msgstr "Nom d'hôte"
+
+ msgid "Hosts (simplified)"
+ msgstr "Hôtes (simplifiés)"
+
+ msgid "Hosts Escalation"
+ msgstr "Escalades des hôtes"
+
+ msgid "Hosts Group"
+ msgstr "Groupe d'hôtes"
+
+ msgid "Hosts list"
+ msgstr "Hôtes"
+
+ msgid "Hosts status colors"
+ msgstr "Couleurs pour le statut des hôtes"
+
+ msgid "Hourly"
+ msgstr "Toutes les heures"
+
+ msgid "Huge"
+ msgstr "Très grande"
+
+ msgid "IP Address / DNS"
+ msgstr "Adresse IP / DNS"
+
+ msgid "Images Directory"
+ msgstr "Répertoire des images"
+
+ msgid "Images already uploaded."
+ msgstr "Images déjà uploadés."
+
+ msgid "Implied Host Groups"
+ msgstr "Groupes d'hôtes liés"
+
+ msgid "Implied Hosts"
+ msgstr "Hôtes liés"
+
+ msgid "Implied Meta Services"
+ msgstr "Méta-Services liés"
+
+ msgid "Implied Resources"
+ msgstr "Ressources impliquées"
+
+ msgid "Implied Service Groups"
+ msgstr "Groupes de services liés"
+
+ msgid "Implied Services"
+ msgstr "Services liés"
+
+ msgid "Implied page"
+ msgstr "Pages Impliquées"
+
+ msgid "Import behavior"
+ msgstr "Résultat de l'import"
+
+ msgid "Impossible"
+ msgstr "Impossible"
+
+ msgid "Impossible to create vault configuration"
+ msgstr "Impossible de créer la configuration du coffre-fort"
+
+ msgid "Impossible to delete vault configuration"
+ msgstr "Impossible de supprimer la configuration du coffre-fort"
+
+ msgid "Impossible to find vault configuration(s)"
+ msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
+
+ msgid "Impossible to update vault configuration"
+ msgstr "Impossible de mettre à jour la configuration du coffre-fort"
+
+ msgid "In 1 year"
+ msgstr "Dans 1 an"
+
+ msgid "In 30 days"
+ msgstr "Dans 30 jours"
+
+ msgid "In 60 days"
+ msgstr "Dans 60 jours"
+
+ msgid "In 7 days"
+ msgstr "Dans 7 jours"
+
+ msgid "In 90 days"
+ msgstr "Dans 90 jours"
+
+ msgid ""
+ "In order to complete your upgrade (%s), unzip the downloaded file, and "
+ "follow the instructions in README\n"
+ msgstr ""
+ "Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, "
+ "et suivez les instructions du fichier README\n"
+
+ msgid "Include Comments"
+ msgstr "Inclure les commentaires"
+
+ msgid "Include Host Groups -> Hosts"
+ msgstr "Inclus groupes d'hôtes -> hôtes"
+
+ msgid "Include Timeperiods"
+ msgstr "Inclure les périodes"
+
+ msgid "Include comments"
+ msgstr "Inclure les commentaires"
+
+ msgid "Inclusion"
+ msgstr "Inclusion"
+
+ msgid "Incorrect Event Type"
+ msgstr "Mauvais type d'évènement"
+
+ msgid "Incorrect resource type for acknowledgement"
+ msgstr "Type de ressource incorrect pour l'acquittement"
+
+ msgid "Incorrect resource type for disacknowledgement"
+ msgstr "Type de ressource incorrect pour le désacquittement"
+
+ msgid "Increment"
+ msgstr "Incrément"
+
+ msgid ""
+ "Indeed, it's the only way to make a difference between Check and "
+ "Notification Commands."
+ msgstr ""
+ "En effet, c'est le seul moyen de différencier les commandes de "
+ "notification et de vérification."
+
+ msgid "Indicators"
+ msgstr "Indicateurs (KPI)"
+
+ msgid "Information command"
+ msgstr "Information sur la commande"
+
+ msgid "Informational messages "
+ msgstr "Événements de type information"
+
+ msgid "Init System"
+ msgstr "Système d'initialisation"
+
+ msgid "Initial State Logging Option"
+ msgstr "Journalisation des états initaux"
+
+ msgid "Interactive View"
+ msgstr "Vue interactive"
+
+ msgid "Interactive view access"
+ msgstr "Vue interactive"
+
+ msgid "Introspection Token Endpoint"
+ msgstr "Point de terminaison d'introspection du jeton"
+
+ msgid "Invalid date given for parameter \"%s\"."
+ msgstr "Date invalide pour le paramètre \"%s\"."
+
+ msgid "Invalid endpoint URL specified"
+ msgstr "URL d'endpoint spécifiée invalide"
+
+ msgid "Invalid property type %s for %s, type %s expected"
+ msgstr "Type de propriétés invalide %s pour %s, type %s attendu"
+
+ msgid ""
+ "It is recommended to upload all the Command definitions first by "
+ "specifying their types."
+ msgstr ""
+ "Il est recommandé d'envoyer d'abord les définitions de commandes en "
+ "spécifiant leur type."
+
+ msgid "Job groups"
+ msgstr "Groupes de tâches"
+
+ msgid "Jobs"
+ msgstr "Tâches"
+
+ msgid "Knowledge base Database host"
+ msgstr "Adresse de la base de données"
+
+ msgid "Knowledge base Database password"
+ msgstr "Mot de passe de l'utilisateur ayant accès à la base de données"
+
+ msgid "Knowledge base Database prefix"
+ msgstr "Préfix des tables de la base de données"
+
+ msgid "Knowledge base database name"
+ msgstr "Nom de la base de données de connaissance"
+
+ msgid "Knowledge base database user"
+ msgstr "Compte d'accès à la base de données"
+
+ msgid "Large"
+ msgstr "Grande"
+
+ msgid "Last 1 year"
+ msgstr "La dernière année"
+
+ msgid "Last 60 days"
+ msgstr "Les 60 derniers jours"
+
+ msgid "Last 90 days"
+ msgstr "Les 90 derniers jours"
+
+ msgid "Last External Command Check:"
+ msgstr "Heure de la dernière commande externe:"
+
+ msgid "Last Log File Rotation:"
+ msgstr "Dernière rotation du fichier de journalisation:"
+
+ msgid "Last critical time"
+ msgstr "Dernière fois dans un état critique"
+
+ msgid "Last ok time"
+ msgstr "Dernière fois dans un état ok"
+
+ msgid "Last time unreachable"
+ msgstr "Dernière fois dans un état injoignable"
+
+ msgid "Last time up"
+ msgstr "Dernière fois dans un état up"
+
+ msgid "Last unknown time"
+ msgstr "Dernière fois dans un état inconnu"
+
+ msgid "Last warning time"
+ msgstr "Derniere fois dans un état warning"
+
+#, php-format
+ msgid "Latency detected on %s; check configuration for better optimisation"
+ msgstr ""
+ "Latence détecté pour %s, contrôler la configuration pour améliorer les "
+ "performances"
+
+ msgid "Legend Properties"
+ msgstr "Propriétés de la légende"
+
+ msgid "Link has been copied!"
+ msgstr "Lien copié!"
+
+ msgid "Linked Host Groups"
+ msgstr "Groupes d'hôtes liés"
+
+ msgid "Linked to Roles"
+ msgstr "Lié aux rôles"
+
+ msgid "Linked to host templates"
+ msgstr "Liés aux modèles d'hôtes"
+
+ msgid "Linked with Servicegroups"
+ msgstr "Lié avec les groupes de services"
+
+ msgid "List of known metrics"
+ msgstr "Liste des métriques connues"
+
+ msgid "Listening address"
+ msgstr "Addresse d'écoute"
+
+ msgid "Load"
+ msgstr "Charger"
+
+ msgid "Localhost"
+ msgstr "Hôte local"
+
+ msgid "Lock File"
+ msgstr "Fichier de verrou"
+
+ msgid "Locked?"
+ msgstr "Verrouillée?"
+
+ msgid "Log Archive Path"
+ msgstr "Chemin d'archivage des logs"
+
+ msgid "Log Rotation Method"
+ msgstr "Méthode de rotation des logs"
+
+ msgid "Loggers"
+ msgstr "Traceurs"
+
+ msgid "Login claim value"
+ msgstr "Valeur de la déclaration de connexion"
+
+ msgid "Login:"
+ msgstr "Pseudo:"
+
+ msgid "Logos"
+ msgstr "Logos"
+
+ msgid "Logs Integration Properties"
+ msgstr "Propriétés des logs de Nagios"
+
+ msgid "Logs retention duration"
+ msgstr "Durée de rétention des journaux"
+
+ msgid "Loop detected in file %s"
+ msgstr "Boucle détectée dans le fichier %s"
+
+ msgid "Low Flap threshold"
+ msgstr "Seuil bas de détection de bagotage des statuts"
+
+ msgid "Main Menu"
+ msgstr "Menu principal"
+
+ msgid "Main grid color"
+ msgstr "Couleur principale de la grille"
+
+ msgid "Manage"
+ msgstr "Gérer"
+
+ msgid "Management"
+ msgstr "Administration"
+
+ msgid "Mandatory retention path"
+ msgstr "Chemin d'accès du fichier de rétention obligatoire"
+
+ msgid "Manual Filling"
+ msgstr "Remplissage manuel"
+
+ msgid "Manual filling OK"
+ msgstr "Remplissage manuel OK"
+
+ msgid "Map"
+ msgstr "Map"
+
+ msgid "Map Icon"
+ msgstr "Icône pour la carte"
+
+ msgid "Maximum Check Result Reaper Time"
+ msgstr "Temp du contrôle des résultats maximal"
+
+ msgid "Medium size"
+ msgstr "Taille moyenne"
+
+ msgid "Members"
+ msgstr "Membres"
+
+ msgid "Menu"
+ msgstr "Menu"
+
+ msgid "Meta Service Name"
+ msgstr "Nom du Méta-Service"
+
+ msgid "Meta Services Escalation"
+ msgstr "Escalades des Méta-Services"
+
+ msgid "Metaservices"
+ msgstr "Méta-Service"
+
+ msgid "Metrics dataset selection"
+ msgstr "Sélection du jeu de données de métriques"
+
+ msgid "Missing auto import mandatory parameters: %s"
+ msgstr ""
+ "Paramètres obligatoires manquants pour l'importation automatique : %s"
+
+ msgid "Missing required property: %s"
+ msgstr "propriété requise manquante: %s"
+
+ msgid "Mminutes"
+ msgstr "Minutes"
+
+ msgid "Modify a Host Group"
+ msgstr "Modifier un groupe d'hôtes"
+
+ msgid "Modify a User Template"
+ msgstr "Modifier un modèle utilisateur"
+
+ msgid "Modify a host group"
+ msgstr "Modifier un groupe d'hôtes"
+
+ msgid "Module installed and registered"
+ msgstr "Module installé et enregistré"
+
+ msgid "Modules Options"
+ msgstr "Option des modules"
+
+ msgid "Monitored from"
+ msgstr "Surveillé depuis le collecteur"
+
+ msgid "Monitoring Connectors"
+ msgstr "Connecteurs de supervision"
+
+ msgid "Monitoring Engine Configuration Files Export"
+ msgstr "Export des fichiers de configuration du moteur de supervision"
+
+ msgid "Monitoring Engine Init Script"
+ msgstr "Script d'initialisation du moteur de supervision"
+
+ msgid "Monitoring Engine PID"
+ msgstr "ID du moteur de supervision"
+
+ msgid "Monitoring Engine Statistics"
+ msgstr "Statistiques de l'ordonnanceur"
+
+ msgid "Monitoring Engine configuration upload"
+ msgstr "Envoi de la configuration du moteur de supervision"
+
+ msgid "Monitoring Engines"
+ msgstr "Moteurs de supervision"
+
+ msgid "Monitoring connectors"
+ msgstr "Connecteurs de supervision"
+
+ msgid "Monitoring server %1 not found"
+ msgstr "Serveur de supervision %1 non trouvé"
+
+ msgid "Monitoring system Group"
+ msgstr "Groupe system de supervision"
+
+ msgid "Monitoring system User"
+ msgstr "Utilisateur system de supervision"
+
+ msgid "Monthly"
+ msgstr "Mensuelle"
+
+ msgid "More Actions"
+ msgstr "Plus d'actions"
+
+ msgid "NA"
+ msgstr "NA"
+
+ msgid "Never Started"
+ msgstr "Jamais démarré"
+
+ msgid "New Color"
+ msgstr "Nouvelle couleur"
+
+ msgid ""
+ "No Central in topology,please edit it from Configuration > Pollers menu"
+ msgstr ""
+ "Pas de Central dans la topologie,Editez le depuis le menu Configurations "
+ "> Collecteurs"
+
+ msgid "No Comment for hosts."
+ msgstr "Pas de commentaires pour les hôtes."
+
+ msgid "No Data Available"
+ msgstr "Pas de données disponibles"
+
+ msgid "No LDAP configuration enabled !"
+ msgstr "Aucune configuration LDAP active !"
+
+ msgid "No access"
+ msgstr "Pas d'accès"
+
+ msgid "No active poller is defined in Centreon."
+ msgstr "Aucun satellite actif est défini dans Centreon."
+
+ msgid "No command selected"
+ msgstr "Aucune commande sélectionnée"
+
+ msgid "No downtime scheduled for hosts"
+ msgstr "Aucune plage de maintenance planifiée pour les hôtes"
+
+ msgid "No downtime scheduled for services"
+ msgstr "Aucune plage de maintenance planifiée pour les services"
+
+ msgid "No provider presenters could be found"
+ msgstr "Aucun présenteur de fournisseur n'a pu être trouvé"
+
+ msgid "No provider repositories could be found"
+ msgstr "Aucun dépôt de fournisseur n'a pu être trouvé"
+
+ msgid "No provider responses could be found"
+ msgstr "Aucune réponse de fournisseur n'a pu être trouvée"
+
+ msgid "No unhandled host problem"
+ msgstr "Aucun problème d'hôte non acquitté"
+
+ msgid "No unhandled service problem"
+ msgstr "Aucun problème de service non acquitté"
+
+ msgid "Normal"
+ msgstr "Normale"
+
+ msgid "Not supported extension"
+ msgstr "Extension non prise en charge"
+
+ msgid "Notes URL"
+ msgstr "URL"
+
+ msgid "Notification Command"
+ msgstr "Commande de notification"
+
+ msgid "Notification command"
+ msgstr "Commande de notification"
+
+ msgid "Nullable property is not allowed"
+ msgstr "Les propriétés nullable ne sont pas autorisées"
+
+ msgid "OK Alert"
+ msgstr "Alerte OK"
+
+ msgid "OK Alerts"
+ msgstr "Alertes OK"
+
+ msgid "OK Mean Time"
+ msgstr "OK (Temps connu)"
+
+ msgid "OK Time"
+ msgstr "Temps état OK"
+
+ msgid "OK: all pollers are running"
+ msgstr "OK: tous les collecteurs sont en cours d'exécution"
+
+ msgid "Object Cache File"
+ msgstr "Fichier de cache des objets"
+
+ msgid "Object Type"
+ msgstr "Type d'objet"
+
+ msgid "Object name"
+ msgstr "Nom de l'objet :"
+
+ msgid "Objets"
+ msgstr "Objets"
+
+ msgid "Obsess Over Hosts Option"
+ msgstr "Activation de l'exécution des commandes post contrôle d'hôte"
+
+ msgid "Obsess Over Services Option"
+ msgstr "Activation de l'exécution des commandes post contrôle de service"
+
+ msgid "Obsessing Over Hosts?"
+ msgstr "Exécution des commandes post contrôle d'hôtes?"
+
+ msgid "Obsessing Over Services?"
+ msgstr "Exécution des commandes post contrôle des services ?"
+
+ msgid "Obsessive Compulsive Host Processor Command"
+ msgstr "Commande post contrôle d'hôte"
+
+ msgid "Obsessive Compulsive Host Processor Timeout"
+ msgstr "Temps maximum d'exécution d'une commande post contrôle d'hôte"
+
+ msgid "Obsessive Compulsive Service Processor Command"
+ msgstr "Commande post contrôle de service"
+
+ msgid "Obsessive Compulsive Service Processor Timeout"
+ msgstr "Temps maximum d'exécution d'une commande post contrôle de service"
+
+ msgid "Official website"
+ msgstr "Site web officiel"
+
+ msgid "On Problem Host"
+ msgstr "Sur Problème de l'hôte"
+
+ msgid "Only one option must be set."
+ msgstr "Une seule option peut être renseignée"
+
+ msgid "Open links in new tab"
+ msgstr "Ouvrir les liens dans un nouvel onglet"
+
+ msgid "Open ticket"
+ msgstr "Ouvrir un ticket"
+
+ msgid "Orphan Hosts"
+ msgstr "Hôtes seuls"
+
+ msgid "Orphan hosts"
+ msgstr "Hôtes orphelins"
+
+ msgid "Outline color"
+ msgstr "Schéma de couleurs"
+
+ msgid "Overview"
+ msgstr "Vue d'ensemble"
+
+ msgid "PENDING"
+ msgstr "EN ATTENTE"
+
+ msgid "PHP file included"
+ msgstr "Fichier PHP inclus"
+
+ msgid "Parent Host Categories"
+ msgstr "Catégorie d'hôtes parents"
+
+ msgid "Parent Host Groups"
+ msgstr "Groupes d'hôtes parents"
+
+ msgid "Parent Template"
+ msgstr "Modèles parent"
+
+ msgid "Parent Templates"
+ msgstr "Modèles parent"
+
+ msgid "Parent of service resource type cannot be null"
+ msgstr "Le parent de la resource de type service ne peut être null"
+
+ msgid "Passive Host Checks Are SOFT Option"
+ msgstr "Les contrôles d'hôte passifs sont de type SOFT"
+
+ msgid "Passive Host Checks Being Accepted?"
+ msgstr "Contrôle passif des hôtes activé ?"
+
+ msgid "Passive Service Checks Being Accepted?"
+ msgstr "Contrôle passif des services activé ?"
+
+ msgid "Passive host checking Options"
+ msgstr "Options de contrôle passive des hôtes"
+
+ msgid "Password cases"
+ msgstr "Casses du mot de passe"
+
+ msgid "Patch Download path"
+ msgstr "Répertoire pour le téléchargement des correctifs"
+
+ msgid "Perfdata"
+ msgstr "Données de performances"
+
+ msgid "Performance Data Being Processed?"
+ msgstr "Traitement des données de performances activé ?"
+
+ msgid "Performance Data Processing Option"
+ msgstr "Traitement des données de performance"
+
+ msgid "Performance Data Processor Command Timeout"
+ msgstr ""
+ "Temps maximum d'exécution d'une commande de gestion des données de "
+ "performances"
+
+ msgid "Performance broker page work only with Centreon Broker."
+ msgstr "La page de performance fonctionne uniquement avec Centreon Broker."
+
+ msgid "Period :"
+ msgstr "Périodes :"
+
+ msgid "Perl"
+ msgstr "Perl"
+
+ msgid "Perl library directory"
+ msgstr "Répertoire des librairies Perl"
+
+ msgid "Pick a color"
+ msgstr "Choisissez une couleur"
+
+ msgid "Ping"
+ msgstr "Ping"
+
+ msgid "Please check the 'Centreon UI' and 'Remote access' forms"
+ msgstr ""
+ "Veuillez vérifier les formulaires 'Centreon Web' et 'Accès du Remote'"
+
+ msgid "Please choose a widget to activate the preview"
+ msgstr "Sélectionnez un type de widget pour activer l'aperçu"
+
+ msgid "Please define autologin authentication key in your profile."
+ msgstr ""
+ "Merci de définir une clé d’autorisation de connexion automatique dans "
+ "votre profil."
+
+ msgid "Please select an user in order to display resources"
+ msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
+
+ msgid "Please wait..."
+ msgstr "Merci de patienter..."
+
+ msgid "Plugin Test"
+ msgstr "Test de la sonde"
+
+ msgid "Plugin has to be in : "
+ msgstr "La sonde doit être dans :"
+
+ msgid "Plugin test"
+ msgstr "Test de la sonde"
+
+ msgid "Poller :"
+ msgstr "Collecteur :"
+
+ msgid "Poller States"
+ msgstr "État des collecteurs"
+
+ msgid "Poller Statistics"
+ msgstr "Statistiques des collecteurs"
+
+ msgid "Poller/Centreon Server"
+ msgstr "Collecteur"
+
+ msgid "Port expected at most 65535"
+ msgstr "Le numéro de port maximum attendu est 65535"
+
+ msgid "Post Check"
+ msgstr "Actions après contrôle"
+
+ msgid "Post must start from 1"
+ msgstr "Le numéro de port doit être au moins 1"
+
+ msgid "Pre-Update"
+ msgstr "Pré-mise à jour"
+
+ msgid "Precached Object File"
+ msgstr "Fichier de pre-cache des objets"
+
+ msgid "Prefix"
+ msgstr "Préfixe des tables"
+
+ msgid "Private key file. "
+ msgstr "Clé privée SSH"
+
+ msgid "Private/Public"
+ msgstr "Privé/Public"
+
+ msgid "Problem has been acknowledged"
+ msgstr "Le problème a été acquitté"
+
+ msgid "Process Commands"
+ msgstr "Commandes du processus"
+
+ msgid "Process Control"
+ msgstr "Informations sur le processus"
+
+ msgid "Process Info"
+ msgstr "Informations sur le processus"
+
+ msgid "Program Start Time"
+ msgstr "Heure de démarrage du programme"
+
+ msgid "Project Leaders"
+ msgstr "Chefs de projet"
+
+ msgid "Provider %1 is loaded"
+ msgstr "Le fournisseur %1 est chargé"
+
+ msgid "Proxy protocol"
+ msgstr "Protocole du proxy Internet"
+
+ msgid "Public link"
+ msgstr "Lien public"
+
+ msgid "Publication rules"
+ msgstr "Règles de publication"
+
+ msgid "Purge check interval"
+ msgstr "Intervalle de contrôle de la purge"
+
+ msgid "Quick Search"
+ msgstr "Recherche Rapide"
+
+ msgid "RRD retention"
+ msgstr "Rétention des fichiers RRD"
+
+ msgid "RRDTool & MySQL"
+ msgstr "RRDTool & MySQL"
+
+ msgid "RRDTool auto delete"
+ msgstr "Auto suppression des fichiers RRD non utilisés"
+
+ msgid "RRDTool database size"
+ msgstr "Durée de rétention des données dans les bases RRD"
+
+ msgid "Reach API"
+ msgstr "Accès à l'API"
+
+ msgid "Read Only"
+ msgstr "Lecture seulement"
+
+ msgid "Read/Write"
+ msgstr "Lecture/Ecriture"
+
+ msgid "Real Name"
+ msgstr "Nom réel"
+
+ msgid "Real name"
+ msgstr "Nom réel"
+
+ msgid "Rebuild RRD Database"
+ msgstr "Regénérer les bases de données RRD"
+
+ msgid "Rebuild Waiting"
+ msgstr "En attente de reconstruction"
+
+ msgid "Redirect Url"
+ msgstr "Adresse de redirection vers Centreon"
+
+ msgid "Refine filter"
+ msgstr "Affiner le filtre"
+
+ msgid "Refine your filter on a single metric by adding more resources."
+ msgstr ""
+ "Affinez votre filtre sur une seule métrique en ajoutant d'autres "
+ "ressources."
+
+ msgid "Refresh Interval"
+ msgstr "Intervalle de rafraîchissement"
+
+ msgid "Relations between Elements"
+ msgstr "Relations entre les éléments"
+
+ msgid "Release"
+ msgstr "Version"
+
+ msgid "Replace"
+ msgstr "Remplacement"
+
+ msgid "Replace existing ones"
+ msgstr "Remplacer les fichiers existants"
+
+ msgid "Replication enabled"
+ msgstr "Activer la réplication"
+
+ msgid "Report design groups"
+ msgstr "Groupes de modèles de rapport"
+
+ msgid "Report designs"
+ msgstr "Modèles de rapport"
+
+ msgid "Report view"
+ msgstr "Visualisation des rapports"
+
+ msgid "Reporting retention duration (dashboard)"
+ msgstr ""
+ "Durée de rétention des information de génération de rapports (Tableau de "
+ "bord)"
+
+ msgid "Reporting time period"
+ msgstr "Période de génération des rapports"
+
+ msgid "Request error"
+ msgstr "Erreur de requête"
+
+ msgid "Required Field 'Service' list"
+ msgstr "Champ requis dans la liste 'Service'"
+
+ msgid "Required Fields 'Host' and 'Service' list"
+ msgstr "Champs requis dans la liste des 'Hôtes' et des 'Services'"
+
+ msgid "Reset filters"
+ msgstr "Remise à zéro des filtres"
+
+ msgid "Resource selection"
+ msgstr "Sélection des ressources"
+
+ msgid "Resource type \"%s\" is not supported"
+ msgstr "Type de ressource \"%s\" non supporté"
+
+ msgid "Restart the Monitoring Engine process"
+ msgstr "Redémarrer le processus de supervision"
+
+ msgid "Resync data requested."
+ msgstr "Mise à jour des données demandée."
+
+ msgid "Retain Satus Information"
+ msgstr "Rétention des informations de statut"
+
+ msgid "Retained Contact Host Attribute Mask"
+ msgstr "Masque de rétention des attributs des contacts d'hôtes"
+
+ msgid "Retained Contact Service Attribute Mask"
+ msgstr "Masque de rétention des attributs des contacts de services"
+
+ msgid "Retained Host Attribute Mask"
+ msgstr "Masque de rétention des attributs des hôtes"
+
+ msgid "Retained Process Host Attribute Mask"
+ msgstr "Masque de rétention des attributs des processus d'hôtes"
+
+ msgid "Retained Process Service Attribute Mask"
+ msgstr "Masque de rétention des attributs des processus de services"
+
+ msgid "Retained Service Attribute Mask"
+ msgstr "Masque de rétention des attributs du service"
+
+ msgid "Retention file"
+ msgstr "Fichier de rétention"
+
+ msgid "Retention path"
+ msgstr "Chemin des fichiers de rétention"
+
+ msgid "Retry"
+ msgstr "Relancer"
+
+ msgid "Right Click here to add an autologin link directly to your bookmarks"
+ msgstr ""
+ "Clic droit ici afin d'ajouter un lien de connexion automatique "
+ "directement dans vos marques-pages"
+
+ msgid "Role Relations"
+ msgstr "Relations de rôle"
+
+ msgid "Rotation time cannot exceed 60 seconds."
+ msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+ msgid "Rotation time must be at least 10 seconds."
+ msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+ msgid "Row Color for Service CRITICAL"
+ msgstr "Couleur de la ligne pour un service CRITIQUE"
+
+ msgid "Rrdcached configuration : work only with Centreon Broker"
+ msgstr ""
+ "Configuration du module RRDCached : fonctionne seulement avec Centreon "
+ "Broker"
+
+ msgid "Rules"
+ msgstr "Règles"
+
+ msgid "Run Optimisation test (-s)"
+ msgstr "Lancer un test d'Optimisation (-s)"
+
+ msgid "Run debug (-v)"
+ msgstr "Lancer le débogage (-v)"
+
+ msgid "SNMP"
+ msgstr "SNMP"
+
+ msgid "SNMP information"
+ msgstr "Informations SNMP"
+
+ msgid "SNMPTT log file"
+ msgstr "Nom du Fichier de journalisation de SNMPTT"
+
+ msgid "SQL file included"
+ msgstr "Fichier SQL inclus"
+
+ msgid "SSH Private key"
+ msgstr "Clé privée SSH"
+
+ msgid "SSO blacklist client addresses"
+ msgstr "Adresses des clients sur liste noire"
+
+ msgid "SSO login header"
+ msgstr "Entête HTTP SSO"
+
+ msgid "SSO mode"
+ msgstr "Mode SSO"
+
+ msgid "SSO only"
+ msgstr "Seulement SSO"
+
+ msgid "SSO pattern matching login"
+ msgstr "Chaine de recherche (pattern) pour l'authentification (login)"
+
+ msgid "SSO pattern replace login"
+ msgstr "Chaine de remplacement (pattern) pour l'authentification (login)"
+
+ msgid "SSO trusted client addresses"
+ msgstr "Adresses des clients de confiance"
+
+ msgid "Scan"
+ msgstr "Manuelle"
+
+ msgid "Scheduling Process Information"
+ msgstr "Information du processus d'ordonnancement"
+
+ msgid "Scheduling Queue"
+ msgstr "File d'attente"
+
+ msgid "Scope"
+ msgstr "Portée"
+
+ msgid "Search contact groups"
+ msgstr "Rechercher des groupes de contacts"
+
+ msgid "Secondary Priority Hosts"
+ msgstr "Hôtes secondaires"
+
+ msgid "Secondary grid color"
+ msgstr "Couleur secondaire de la grille"
+
+ msgid "Security patch available"
+ msgstr "Correctif de sécurité disponible"
+
+ msgid ""
+ "Security policy not found. Please verify that your installation is valid"
+ msgstr ""
+ "Politique de sécurité non trouvée. Veuillez vérifier que votre "
+ "installation est valide"
+
+ msgid "Select a downtime type"
+ msgstr "Sélectionner un type de plage de maintenance"
+
+ msgid "Select a provider"
+ msgstr "Sélectionner un fournisseur"
+
+ msgid "Select a resource"
+ msgstr "Sélectionner une ressource"
+
+ msgid "Select contacts and contact groups"
+ msgstr "Sélectionner les contacts et les groupes de contacts"
+
+ msgid "Server Status"
+ msgstr "État du serveur"
+
+ msgid "Service CRITICAL Color"
+ msgstr "Couleur de service CRITIQUE"
+
+ msgid "Service Checks Being Executed?"
+ msgstr "Contrôle des services activé ?"
+
+ msgid "Service Description Search Key"
+ msgstr "Entrez le nom d'un service"
+
+ msgid "Service Group Name"
+ msgstr "Nom du groupe de services"
+
+ msgid "Service Name"
+ msgstr "Nom du service"
+
+ msgid "Service OK Color"
+ msgstr "Couleur de service OK"
+
+ msgid "Service PENDING Color"
+ msgstr "Couleur de service en ATTENTE"
+
+ msgid "Service Performance Data File"
+ msgstr "Fichier de données de performance de service"
+
+ msgid "Service Performance Data File Mode"
+ msgstr "Mode du fichier de données de performance de service"
+
+ msgid "Service Performance Data File Processing Command"
+ msgstr ""
+ "Commande de traitement du fichier des données de performance du service"
+
+ msgid "Service Performance Data File Processing Interval"
+ msgstr "Intervalle de traitement des données de performance de service"
+
+ msgid "Service Performance Data File Template"
+ msgstr "Modèle de fichier de données de performance de service"
+
+ msgid "Service Performance Data Processing Command"
+ msgstr "Commande de traitement des données de performance du service"
+
+ msgid "Service Statuses"
+ msgstr "Statuts de services"
+
+ msgid "Service Template Name"
+ msgstr "Nom du modèle de service"
+
+ msgid "Service Templates names"
+ msgstr "Noms des modèles de service"
+
+ msgid "Service UNKNOWN Color"
+ msgstr "Couleur de service INCONNU"
+
+ msgid "Service WARNING Color"
+ msgstr "Couleur de service WARNING"
+
+ msgid "Service comments"
+ msgstr "Commentaires pour ce service"
+
+ msgid "Service is currently on Downtime"
+ msgstr "Le service est actuellement en période d'arrêt"
+
+ msgid "Service list"
+ msgstr "Liste des services"
+
+ msgid "ServiceGroups"
+ msgstr "Groupes de services"
+
+ msgid "Servicegroups Escalation"
+ msgstr "Escalades des groupes de services"
+
+ msgid "Services (simplified)"
+ msgstr "Services (simplifiés)"
+
+ msgid "Services Escalation"
+ msgstr "Escalades des services"
+
+ msgid "Services status colors"
+ msgstr "Couleurs pour le statut des services"
+
+ msgid "Setup"
+ msgstr "Configuration"
+
+ msgid "Severity level"
+ msgstr "Niveau de criticité"
+
+ msgid "Shared views list"
+ msgstr "Liste des vues partagées"
+
+ msgid "Shutdown the Monitoring Engine process"
+ msgstr "Arrêter le moteur de supervision"
+
+ msgid "Simple poller"
+ msgstr "Collecteur uniquement"
+
+ msgid "Skin Menu Selection"
+ msgstr "Sélection de l'apparence des menus"
+
+ msgid "Small"
+ msgstr "Petite"
+
+ msgid "Small size"
+ msgstr "Petite taille"
+
+ msgid ""
+ "Some database poller updates are not active; check your Monitoring "
+ "platform"
+ msgstr ""
+ "Certains collecteurs ne mettent pas à jour la base de données; contrôler "
+ "votre plate-forme de supervision"
+
+ msgid "Sort by Name"
+ msgstr "Trier par nom"
+
+ msgid "Sort by criticality"
+ msgstr "Trier par criticité"
+
+ msgid "Specifics for hosts"
+ msgstr "Spécificités des hôtes"
+
+ msgid "Split"
+ msgstr "Séparer"
+
+ msgid "Start Hour"
+ msgstr "Heure de début"
+
+ msgid "Start Minute"
+ msgstr "Minute de début"
+
+ msgid "Start accepting passive host checks"
+ msgstr "Démarrer le contrôle passif des hôtes"
+
+ msgid "Start accepting passive service checks"
+ msgstr "Démarrer le contrôle passif des services"
+
+ msgid "Start executing host checks"
+ msgstr "Démarrer le contrôle des hôtes"
+
+ msgid "Start executing service checks"
+ msgstr "Démarrer l'exécution des contrôles de services"
+
+ msgid "Start obsessing over hosts"
+ msgstr "Démarrer le suivi précis des hôtes"
+
+ msgid "Start obsessing over services"
+ msgstr "Démarrer l'exécution des commandes post contrôle"
+
+ msgid "Start script for broker daemon"
+ msgstr "Script de démarrage du broker"
+
+ msgid "Start the Monitoring Engine process"
+ msgstr "Démarrer le moteur de supervision"
+
+ msgid "Status Color Properties"
+ msgstr "Définition des couleurs"
+
+ msgid "Status Output"
+ msgstr "Information sur le statut"
+
+ msgid "Status summarized by Hostgroups"
+ msgstr "Résumé des états par groupes d'hôtes"
+
+ msgid "Stop accepting passive host checks"
+ msgstr "Arrêter le contrôle passif des hôtes"
+
+ msgid "Stop accepting passive service checks"
+ msgstr "Arrêter le contrôle passif des services"
+
+ msgid "Stop executing host checks"
+ msgstr "Arrêter le contrôle des hôtes"
+
+ msgid "Stop executing service checks"
+ msgstr "Arrêter l'exécution des contrôles de services"
+
+ msgid "Stop obsessing over hosts"
+ msgstr "Arrêter le suivi précis des hôtes"
+
+ msgid "Stop obsessing over services"
+ msgstr "Arrêter l'exécution des commandes post contrôle"
+
+ msgid "Stop rebuilding RRD Databases"
+ msgstr "Arrêter la regénération des bases de données RRD"
+
+ msgid "Storage Type"
+ msgstr "Type de sauvegarde"
+
+ msgid "Store performance data in data_bin"
+ msgstr "Enregistrement des données de performance dans la table 'data_bin'"
+
+ msgid "Subscription"
+ msgstr "Abonnement"
+
+ msgid "Successful logout"
+ msgstr "Déconnexion réussie"
+
+ msgid "Support"
+ msgstr "Support"
+
+ msgid "System Information"
+ msgstr "Information sur le système"
+
+ msgid "TCP"
+ msgstr "TCP"
+
+ msgid "TCP port"
+ msgstr "Port TCP"
+
+ msgid "Temp File"
+ msgstr "Fichier temporaire"
+
+ msgid "Template %1 not found"
+ msgstr "Le modèle %1 n'a pas été trouvé"
+
+ msgid "Template based method file"
+ msgstr "Fichier de méthode basé sur le modèle"
+
+ msgid "Template with id %1 not found"
+ msgstr "Le modèle possédant l'id %1 n'a pas été trouvé"
+
+ msgid "Template with id %d not found"
+ msgstr "Le modèle avec l'id %d n'a pas été trouvé"
+
+ msgid "Templates (simplified)"
+ msgstr "Modèles (simplifiés)"
+
+ msgid "Temporary recovery mode"
+ msgstr "Activation du fichier temporaire"
+
+ msgid "Test DB connection"
+ msgstr "Tester la connexion à la base de données"
+
+ msgid "Test the plugin"
+ msgstr "Tester la sonde"
+
+ msgid "Text color"
+ msgstr "Couleur du texte"
+
+ msgid "The CSRF * token is invalid, please click"
+ msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
+
+ msgid "The address of the parent platform '%s'@'%s' is not consistent"
+ msgstr "L'adresse de la plateforme parente '%s'@'%s' n'est pas cohérente"
+
+ msgid ""
+ "The command line in the configuration is empty while in the monitoring it "
+ "is not"
+ msgstr ""
+ "La ligne de commande dans la configuration est vide alors que celle de la "
+ "supervision ne l'est pas."
+
+ msgid "The config name already exists"
+ msgstr "Le nom utilisé existe déjà"
+
+ msgid "The configuration file %s does not exists"
+ msgstr "Le fichier de configuration %s n'existe pas"
+
+ msgid "The contact template '%s' doesn't exist"
+ msgstr "Le modèle de contact '%s' n'existe pas"
+
+ msgid "The following contact does not exist: [%s]"
+ msgstr "Le contact suivant n'existe pas : [%s]"
+
+ msgid "The following contact group does not exist: [%s]"
+ msgstr "Le groupe de contact suivant n'existe pas : [%s]"
+
+ msgid "The following dashboard does not exist: [%s]."
+ msgstr "Le tableau de bord suivant n'existe pas : [%s]."
+
+ msgid "The following dashboard is not shared with you: [%d]."
+ msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
+
+ msgid "The following playlist already exists: %s."
+ msgstr "La liste de diffusion suivante existe déjà : %s."
+
+ msgid "The following playlist does not exist: [%d]"
+ msgstr "La liste de diffusion suivante n'existe  : [%d]"
+
+ msgid "The following playlist is not shared with you: [%d]"
+ msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+
+ msgid "The host of service is not defined"
+ msgstr "L'hôte du service n'est pas défini"
+
+ msgid ""
+ "The installation is now finished. To get further information regarding "
+ "Centreon please visit the following links"
+ msgstr ""
+ "L'installation est maintenant terminée. Pour plus d'informations "
+ "concernant Centreon utiliser les liens suivants"
+
+ msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
+ msgstr ""
+ "La liste des collecteur est disponible <a href=\"./main.php?"
+ "p=60901\">ici</a>."
+
+ msgid "The order in which dashboards are displayed must be unique."
+ msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
+
+ msgid "The port must be numeric"
+ msgstr "La port doit être numérique"
+
+ msgid "The resource access rule was successfully deleted"
+ msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+
+ msgid "The rrdcached configuration must have a option."
+ msgstr "La configuration du module RRDCached doit avoir une option"
+
+ msgid ""
+ "The selected inherited service template does not contain any check "
+ "command. You must select one here."
+ msgstr ""
+ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
+ "vérification. Vous devez en sélectionner une ici."
+
+ msgid "The selected user didn't see any resources"
+ msgstr "L'utilisateur sélectionné ne voit aucune ressource"
+
+ msgid "The selected user is not enable."
+ msgstr "L'utilisateur sélectionné n'est pas activé."
+
+ msgid "The ticket will be closed for the selected ticket provider"
+ msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
+ msgid "The value %1 is only supported by the operators %2 and %3"
+ msgstr "La valeur %1 est uniquement supportée par les opéreateurs %2 et %3"
+
+ msgid "The wizard is corrupted."
+ msgstr "L'assistant est endommagé."
+
+ msgid "The wizard is not correctly initialized."
+ msgstr "L'assistant n'est pas initialisé correctement."
+
+ msgid "The {{module}} license will expire in {{expirationDate}} days"
+ msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
+
+ msgid "There are errors in the form."
+ msgstr "Il y a des erreurs dans le formulaire."
+
+ msgid ""
+ "There are errors in the form. Do you want to quit the form without "
+ "resolving the errors?"
+ msgstr ""
+ "Il y a des erreurs dans le formulaire. Voulez-vous quitter le formulaire "
+ "sans résoudre les erreurs ?"
+
+ msgid "This Service is flapping"
+ msgstr "Le statut du service bagote"
+
+ msgid "This field is required"
+ msgstr "Ce champ est obligatoire"
+
+ msgid "This host is never checked"
+ msgstr "Cet hôte n'est jamais vérifié"
+
+ msgid "This host is only checked in passive mode"
+ msgstr "L'hôte est contrôlé uniquement en mode passif"
+
+ msgid "This server is already registered"
+ msgstr "Ce serveur est déjà enregistré"
+
+ msgid "This service is neither active nor passive"
+ msgstr "Ce service n'est ni actif ni passif"
+
+ msgid "This service is only checked in passive mode"
+ msgstr "Le service est contrôlé uniquement en mode passif"
+
+ msgid "Ticket management"
+ msgstr "Gestion des tickets"
+
+ msgid "Ticket provider"
+ msgstr "Fournisseur de tickets"
+
+ msgid "Time range"
+ msgstr "Plage temporelle"
+
+ msgid "Title Properties"
+ msgstr "Propriétés du titre"
+
+ msgid "Token Endpoint"
+ msgstr "Point de terminaison de jeton"
+
+ msgid "Token can not empty, null or not defined"
+ msgstr "Le token ne peut être ni null, ni vide ou non défini"
+
+ msgid "Token expired."
+ msgstr "Token expiré."
+
+ msgid "Token not found"
+ msgstr "Token non trouvé"
+
+ msgid "Top Priority Hosts"
+ msgstr "Hôtes prioritaires"
+
+ msgid "Top color"
+ msgstr "Couleur du haut"
+
+ msgid "Topology"
+ msgstr "Topologie"
+
+ msgid "Traceroute"
+ msgstr "Traceroute"
+
+ msgid "Translate Passive Host Checks Option"
+ msgstr "Option de traduction des contrôles d'hôte passif"
+
+ msgid "Trash"
+ msgstr "Poubelle"
+
+ msgid "Troubleshooter"
+ msgstr "Dépannage"
+
+ msgid "UNDETERMINED Alerts"
+ msgstr "Alertes UNDETERMINED"
+
+ msgid "UNDETERMINED Mean Time"
+ msgstr "INDÉTERMINÉ (Temps connu)"
+
+ msgid "UNDETERMINED Time"
+ msgstr "Temps état INDÉTERMINÉ"
+
+ msgid "UNIX Socket path"
+ msgstr "CHemin d'accès au socket Unix"
+
+ msgid "UNKNOWN Alerts"
+ msgstr "Alertes UNKNOWN"
+
+ msgid "UNKNOWN Mean Time"
+ msgstr "UNKNOWN (Temps connu)"
+
+ msgid "UNKNOWN Time"
+ msgstr "Temps état UNKNOWN"
+
+ msgid "Unable to convert in remote server, no Central to link provided"
+ msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
+
+ msgid ""
+ "Unable to find the encryption key. Please check the '.env.local.php' file."
+ msgstr ""
+ "Impossible de trouver la clef de déchiffrement. Veuillez vérifer le "
+ "fichier '.env.local.php'."
+
+ msgid "Unable to install module"
+ msgstr "Impossible d'installer le module"
+
+ msgid "Unable to retrieve credentials ['%s'] from vault"
+ msgstr ""
+ "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+
+ msgid "Unable to start Centreon legacy session"
+ msgstr "Impossible de démarrer la session Centreon legacy"
+
+ msgid "Unable to update the platform information"
+ msgstr "Impossible de mettre à jour les informations de la plateforme"
+
+ msgid "Undetermined Time"
+ msgstr "Temps état Indterminé"
+
+ msgid "Unhandled Host problems (last %s)"
+ msgstr "Problèmes d'hôte non traités (%s derniers)"
+
+ msgid "Unhandled Service problems (last %s)"
+ msgstr "Problèmes de service non traités (%s derniers)"
+
+ msgid "Uninstall Module"
+ msgstr "Désinstaller le module"
+
+ msgid "Unit Properties"
+ msgstr "Propriétés de l'unité"
+
+ msgid "Unix socket"
+ msgstr "Socket Unix"
+
+ msgid "Unknown Alert"
+ msgstr "Alerte Inconnu"
+
+ msgid "Unknown Mean Time"
+ msgstr "INCONNU (Temps connu)"
+
+ msgid "Unknown provider type: %s"
+ msgstr "Type de fournisseur inconnu : %s"
+
+ msgid "Unreachable Alerts"
+ msgstr "Alertes Injoignable"
+
+ msgid "Unreachable Time"
+ msgstr "Temps état Injoignable"
+
+ msgid "Unrecognized Command"
+ msgstr "Commande non reconnue"
+
+ msgid "Up Alerts"
+ msgstr "Alertes Disponible"
+
+ msgid "Up Time"
+ msgstr "Temps état disponible"
+
+ msgid "Update definition in case of double definition"
+ msgstr "Mettre à jour la définition en cas de définition en double"
+
+ msgid "Update informations"
+ msgstr "Mettre à jour les informations"
+
+ msgid "Update patch available"
+ msgstr "Correctif de mise à jour disponible"
+
+ msgid "Updates not found"
+ msgstr "Les mises à jour n'ont pas été trouvées"
+
+ msgid "Upgrade"
+ msgstr "Mise à jour"
+
+ msgid "Upgrade Information"
+ msgstr "Information sur la mise à juour"
+
+ msgid "Upload Options"
+ msgstr "Options d'envoi"
+
+ msgid "Use SSL connection"
+ msgstr "Utiliser une connexion SSL"
+
+ msgid "Use TLS connection"
+ msgstr "Utiliser une connexion TLS"
+
+ msgid "Use a vault to store sensitive data"
+ msgstr "Utiliser un coffre fort pour stocker les données sensibles"
+
+ msgid "Use embedded Perl implicitly"
+ msgstr "Utilisation implicite de l'interpréteur Perl intégré"
+
+ msgid "Use large installation tweaks"
+ msgstr ""
+ "Activation des optimisations pour les installations de forte volumétrie"
+
+ msgid "Use setpgid"
+ msgstr "Utiliser setpgid"
+
+ msgid "User Group List"
+ msgstr "Liste des groupes utilisateurs"
+
+ msgid "User Information Endpoint"
+ msgstr "Point de terminaison des informations utilisateur"
+
+ msgid "User Settings"
+ msgstr "Paramètres utilisateurs"
+
+ msgid "User information not found"
+ msgstr "Informations utilisateur non trouvées"
+
+ msgid "User is blocked"
+ msgstr "L'utilisateur est bloqué"
+
+ msgid "Useres"
+ msgstr "Utilisateurs"
+
+ msgid "Users Access"
+ msgstr "Gestion des accès utilisateurs"
+
+ msgid "Utils database"
+ msgstr "Base de données du broker"
+
+ msgid "Utils database name"
+ msgstr "Nom de la base de données temps réel"
+
+ msgid "VRML Image"
+ msgstr "Image VRML"
+
+ msgid "Valid for an upgrade"
+ msgstr "Valide pour une mise à jour"
 
 #  msgid "Confirm"
 #  msgstr "Confirmer"
-#~ msgid "Vault configuration with these properties already exists"
-#~ msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
+ msgid "Vault configuration with these properties already exists"
+ msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
 
-#~ msgid "Impossible to create vault configuration"
-#~ msgstr "Impossible de créer la configuration du coffre-fort"
+ msgid "Vault provider does not exist"
+ msgstr "Le fournisseur de coffre-fort n'existe pas"
 
-#~ msgid "Impossible to delete vault configuration"
-#~ msgstr "Impossible de supprimer la configuration du coffre-fort"
+ msgid "View a Host Group"
+ msgstr "Visualiser un groupe d'hôtes"
 
-#~ msgid "Impossible to update vault configuration"
-#~ msgstr "Impossible de mettre à jour la configuration du coffre-fort"
+ msgid "View a Meta Service indicator"
+ msgstr "Visualiser un indicateur de Méta-Service"
 
-#~ msgid "Impossible to find vault configuration(s)"
-#~ msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
+ msgid "View a User Template"
+ msgstr "Visualiser un modèle utilisateur"
 
-#~ msgid "Vault provider does not exist"
-#~ msgstr "Le fournisseur de coffre-fort n'existe pas"
+ msgid "View a host group"
+ msgstr "Voir un groupe d'hôtes"
 
-#~ msgid "Host category not found"
-#~ msgstr "Catégorie d'hôtes introuvable"
+ msgid "View command definition"
+ msgstr "Voir la définition de la commande"
 
-#~ msgid "Host group not found"
-#~ msgstr "Groupe d'hôtes non trouvé"
+ msgid "View comments of services"
+ msgstr "Visualiser les commentaires des services"
 
-#~ msgid "B.Activities"
-#~ msgstr "A.Métier"
+ msgid "View downtimes of hosts"
+ msgstr "Visualiser les plages de maintenance des hôtes"
 
-#~ msgid "Error while retrieving the new dashboard share"
-#~ msgstr ""
-#~ "Erreur durant la récupération d'un nouveau partage de tableau de bord"
+ msgid "View downtimes of services"
+ msgstr "Visualiser les plages de maintenance des services"
 
-#~ msgid "Error while adding the dashboard share"
-#~ msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
+ msgid "View name"
+ msgstr "Nom de la Vue"
 
-#~ msgid "Error while searching for the dashboard shares"
-#~ msgstr "Erreur durant la recherche de partages de tableau de bord"
+ msgid "Viewers"
+ msgstr "Personnes ayant accès en visualisation"
 
-#~ msgid "Delete a widget"
-#~ msgstr "Supprimer un widget"
+ msgid "Viewers group"
+ msgstr "Groupes ayant accès en visualisation"
 
-#~ msgid "Do you want to delete this widget?"
-#~ msgstr "Voulez-vous supprimer ce widget ?"
+ msgid "Views Restrictions"
+ msgstr "Restrictions d'accès aux vues"
 
-#~ msgid "Widget library"
-#~ msgstr "Bibliothèque de widgets"
+ msgid "Virtuals"
+ msgstr "Métriques virtuelles"
 
-#~ msgid "Please choose a widget to activate the preview"
-#~ msgstr "Sélectionnez un type de widget pour activer l'aperçu"
+ msgid "Visible page"
+ msgstr "Pages visibles"
 
-#~ msgid "Metrics dataset selection"
-#~ msgstr "Sélection du jeu de données de métriques"
+ msgid "Visualisation"
+ msgstr "Visualisation"
 
-#~ msgid "Select a resource"
-#~ msgstr "Sélectionner une ressource"
+ msgid "WARNING Alerts"
+ msgstr "Alertes WARNING"
 
-#~ msgid "An error occured while retrieving metrics data"
-#~ msgstr ""
-#~ "Une erreur est survenue lors de la récupération des données de métriques"
+ msgid "WARNING Mean Time"
+ msgstr "WARNING (Temps connu)"
 
-#~ msgid "Open links in new tab"
-#~ msgstr "Ouvrir les liens dans un nouvel onglet"
+ msgid "WARNING Time"
+ msgstr "Temps état WARNING"
 
-#~ msgid ""
-#~ "By turning off this option, all links included in the widget will be "
-#~ "opened in the same tab."
-#~ msgstr ""
-#~ "En désactivant cette option, tous les liens inclus dans le widget seront "
-#~ "ouverts dans le même onglet."
+ msgid "Warning Alert"
+ msgstr "Alerte Warning"
 
-#~ msgid "You can select a maximum of two metric units"
-#~ msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
+ msgid "Warning Mean Time"
+ msgstr "WARNING (Temps connu)"
 
-#~ msgid "Add resource"
-#~ msgstr "Ajouter une ressource"
+ msgid "Warning: "
+ msgstr "Warning:"
 
-#~ msgid ""
-#~ "By turning off this option, all the links included in the widget will be "
-#~ "opened in the same tab."
-#~ msgstr ""
-#~ "En désactivant cette option, tous les liens inclus dans le widget seront "
-#~ "ouverts dans le même onglet."
+ msgid "Warnings"
+ msgstr "Alertes"
 
-#~ msgid "Graph type"
-#~ msgstr "Type de graphique"
+ msgid "Watermark Properties"
+ msgstr "Propriété du filigrane"
 
-#~ msgid "The {{module}} license will expire in {{expirationDate}} days"
-#~ msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
+ msgid "Web Site"
+ msgstr "Site web"
 
-#~ msgid "Advanced mode"
-#~ msgstr "Mode avancé"
+ msgid "Weekly"
+ msgstr "Hebdomadaire"
 
-#~ msgid "Error while searching for authentication tokens"
-#~ msgstr "Erreur lors de la recherche de jetons d'authentification"
+ msgid "Welcome"
+ msgstr "Bienvenue"
 
-#~ msgid "You are not allowed to list authentication tokens"
-#~ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
+ msgid "Welcome to Centreon Broker configuration"
+ msgstr "Bienvenu dans la configuration de Centreon Broker"
 
-#~ msgid "Time range"
-#~ msgstr "Plage temporelle"
+ msgid "Widget Information"
+ msgstr "Informations sur le Widget"
 
-#~ msgid "You can select a maximum of 2 metric units."
-#~ msgstr "Vous pouvez sélectionner 2 unités métriques au maximum."
+ msgid "Widget Title"
+ msgstr "Titre du Widget"
 
-#~ msgid "Error while retrieving contact groups"
-#~ msgstr "Erreur lors de la récupération des groupes de contacts"
+ msgid "Widget library"
+ msgstr "Bibliothèque de widgets"
 
-#~ msgid "Refine filter"
-#~ msgstr "Affiner le filtre"
+ msgid "Widgets"
+ msgstr "Widgets"
 
-#~ msgid "Refine your filter on a single metric by adding more resources."
-#~ msgstr ""
-#~ "Affinez votre filtre sur une seule métrique en ajoutant d'autres "
-#~ "ressources."
+ msgid "Wiki"
+ msgstr "Wiki"
+
+ msgid "Wizard"
+ msgstr "Assistant de configuration"
+
+ msgid "WizardAjax"
+ msgstr "Assistant de configuration"
+
+ msgid "Would you like to install this widget?"
+ msgstr "Souhaitez-vous installer ce widget?"
+
+ msgid "Would you like to upgrade this widget?"
+ msgstr "Souhaitez-vous monter en version ce widget?"
+
+ msgid "Write"
+ msgstr "Écriture"
+
+ msgid "Y/m/d"
+ msgstr "d/m/Y"
+
+ msgid "Y/m/d G:i"
+ msgstr "d/m/Y G:i"
+
+ msgid "Y/m/d H:i"
+ msgstr "d/m/Y H:i"
+
+ msgid "Year must be less than %d (%s)"
+ msgstr "L'année doit être inférieure à %d (%s)"
+
+ msgid "Yearly"
+ msgstr "Annuel"
+
+ msgid "You are"
+ msgstr "Vous êtes"
+
+ msgid ""
+ "You are about to delete <strong>{{ count }} host groups.</strong> This "
+ "action cannot be undone. Do you want to delete them?"
+ msgstr ""
+ "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</"
+ "strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
-#~ msgid "You must fill in more resources."
-#~ msgstr "Vous devez indiquer plus de ressources."
+ msgid ""
+ "You are about to delete the <strong>{{ name }}</strong> host group. This "
+ "action cannot be undone. Do you want to delete it?"
+ msgstr ""
+ "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</"
+ "strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
 
-#~ msgid ""
-#~ "For a host, the status displayed in the tile is the worst among its own "
-#~ "status and the statuses of its services."
-#~ msgstr ""
-#~ "Pour un hôte, le statut affiché dans la tuile est le pire parmi son "
-#~ "propre statut et les statuts de ses services."
+ msgid ""
+ "You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
+ "cannot be undone. If you proceed, all requests made using this token will "
+ "be <br> rejected. Do you want to delete the token?"
+ msgstr ""
+ "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette "
+ "action est <br> irréversible. Si vous le supprimez, toutes les requêtes "
+ "effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le "
+ "jeton ?"
 
-#~ msgid "For a service, the service status is displayed."
-#~ msgstr "Pour un service, le statut du service est affiché."
+ msgid ""
+ "You are about to duplicate <strong>{{ count }} host groups.</strong> How "
+ "many duplications would you like to make?"
+ msgstr ""
+ "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</"
+ "strong>. Combien de duplications souhaitez-vous effectuer?"
 
-#~ msgid "The order in which dashboards are displayed must be unique."
-#~ msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
+ msgid ""
+ "You are about to duplicate the <strong>{{ name }}</strong> host group. "
+ "How many duplications would you like to make?"
+ msgstr ""
+ "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</"
+ "strong>. Combien de duplications souhaitez-vous effectuer?"
 
-#~ msgid "The following dashboard does not exist: [%s]."
-#~ msgstr "Le tableau de bord suivant n'existe pas : [%s]."
+ msgid "You are not allowed to access this host group"
+ msgstr "Vous n'êtes pas autorisé à accéder à ce groupe d'hôte"
 
-#~ msgid "The following playlist already exists: %s."
-#~ msgstr "La liste de diffusion suivante existe déjà : %s."
+ msgid "You are not allowed to list authentication tokens"
+ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 
-#~ msgid "Error while retrieving a playlist."
-#~ msgstr "Erreur lors de la récupération d'une liste de diffusion."
+ msgid "You are not in the following contact group: [%s]"
+ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 
-#~ msgid "Error while creating a playlist."
-#~ msgstr "Erreur lors de la création d'une liste de diffusion."
+ msgid "You can see the full list by visiting the Centreon's Github"
+ msgstr ""
+ "Vous pouvez visualiser la liste complète à partir de du projet "
+ "Centreonsur Github"
 
-#~ msgid "You cannot add the same dashboard to a playlist several times."
-#~ msgstr ""
-#~ "Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans "
-#~ "une liste de diffusion."
+ msgid "You can select a maximum of 2 metric units."
+ msgstr "Vous pouvez sélectionner 2 unités métriques au maximum."
 
-#~ msgid "Access not allowed"
-#~ msgstr " Accès non autorisé"
+ msgid "You can select a maximum of two metric units"
+ msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
 
-#~ msgid "The following dashboard is not shared with you: [%d]."
-#~ msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
+ msgid ""
+ "You can't edit this hostgroup because you don't have access to all its "
+ "resources"
+ msgstr ""
+ "Vous ne pouvez pas éditer groupe d'hote car vous n'êtes pas autorisé à "
+ "accéder à toutes les ressources liées"
 
-#~ msgid "Huge"
-#~ msgstr "Très grande"
+ msgid "You cannot add the same dashboard to a playlist several times."
+ msgstr ""
+ "Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans "
+ "une liste de diffusion."
 
-#~ msgid "Large"
-#~ msgstr "Grande"
+ msgid "You do not have editing rights on the following playlist: [%d]"
+ msgstr ""
+ "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : "
+ "[%d]"
 
-#~ msgid "Normal"
-#~ msgstr "Normale"
+ msgid "You have unsaved changes, do you want to proceed?"
+ msgstr ""
+ "Vous avez des modifications non enregistrées, voulez-vous continuer?"
 
-#~ msgid "Small"
-#~ msgstr "Petite"
+ msgid "You must fill in more resources."
+ msgstr "Vous devez indiquer plus de ressources."
 
-#~ msgid "API token"
-#~ msgstr "Jeton d'API"
+ msgid "You must set a poller for generate configuration."
+ msgstr "Sélectionner un collecteur pour générer la configuration."
 
-#~ msgid "Error while updating playlist shares"
-#~ msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
+ msgid "You must specify a password"
+ msgstr "Vou devez spécifier un mot de passe"
 
-#~ msgid "The following playlist does not exist: [%d]"
-#~ msgstr "La liste de diffusion suivante n'existe  : [%d]"
+ msgid "You must specify a username"
+ msgstr "Vou devez spécifier un nom d'utilisateur"
 
-#~ msgid "You do not have editing rights on the following playlist: [%d]"
-#~ msgstr ""
-#~ "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : "
-#~ "[%d]"
+ msgid "cgi"
+ msgstr "cgi"
 
-#~ msgid "The following contact does not exist: [%s]"
-#~ msgstr "Le contact suivant n'existe pas : [%s]"
+ msgid "cgi.cfg"
+ msgstr "cgi.cfg"
 
-#~ msgid "The following contact group does not exist: [%s]"
-#~ msgstr "Le groupe de contact suivant n'existe pas : [%s]"
+ msgid "command"
+ msgstr "commande"
 
-#~ msgid "You are not in the following contact group: [%s]"
-#~ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+ msgid "contact"
+ msgstr "contact"
 
-#~ msgid "Error while deleting a playlist"
-#~ msgstr "Erreur lors de la suppression d'une liste de diffusion"
+ msgid "contactgroup"
+ msgstr "groupe de contacts"
 
-#~ msgid "Error while listing the playlist shares"
-#~ msgstr "Erreur lors du listing des partages de la liste de diffusion"
+ msgid "critical"
+ msgstr "critique"
 
-#~ msgid "The following playlist is not shared with you: [%d]"
-#~ msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+ msgid "d/m/Y H:i"
+ msgstr "d/m/Y H:i"
 
-#~ msgid "Rotation time must be at least 10 seconds."
-#~ msgstr "Le temps de rotation doit être au moins de 10 secondes."
+ msgid "deprecated"
+ msgstr "déprécié"
 
-#~ msgid "Rotation time cannot exceed 60 seconds."
-#~ msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+ msgid "down"
+ msgstr "indisponible"
 
-#~ msgid "Public link"
-#~ msgstr "Lien public"
+ msgid "escalation"
+ msgstr "escalade"
 
-#~ msgid "Private/Public"
-#~ msgstr "Privé/Public"
+ msgid "false"
+ msgstr "faux"
 
-#~ msgid ""
-#~ "Anyone with the link can view your playlist. Be cautious when you share "
-#~ "it."
-#~ msgstr ""
-#~ "Toute personne disposant du lien peut consulter votre liste de diffusion. "
-#~ "Soyez vigilant lorsque vous le partagez."
+ msgid "host"
+ msgstr "hôte"
 
-#~ msgid "Link has been copied!"
-#~ msgstr "Lien copié!"
+ msgid "host dependency"
+ msgstr "dépendance d'hôte"
 
-#~ msgid ""
-#~ "For security reasons, the token can only be displayed once. Store it "
-#~ "carefully."
-#~ msgstr ""
-#~ "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
-#~ "fois. Stockez-le soigneusement."
+ msgid "hostgroup"
+ msgstr "groupe d'hôtes"
 
-#~ msgid "Generate new token"
-#~ msgstr "Générer un nouveau jeton"
+ msgid "hostgroup dependency"
+ msgstr "dépendance de groupe d'hôtes"
 
-#~ msgid "This field is required"
-#~ msgstr "Ce champ est obligatoire"
+ msgid "in seconds - Must be higher than 10"
+ msgstr "en secondes - Doit être supérieur à 10"
 
-#~ msgid ""
-#~ "You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
-#~ "cannot be undone. If you proceed, all requests made using this token will "
-#~ "be <br> rejected. Do you want to delete the token?"
-#~ msgstr ""
-#~ "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette "
-#~ "action est <br> irréversible. Si vous le supprimez, toutes les requêtes "
-#~ "effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le "
-#~ "jeton ?"
+ msgid "in seconds - Must be higher than 2"
+ msgstr "en secondes - Doit etre supérieur à 2"
 
-#~ msgid "Resource selection"
-#~ msgstr "Sélection des ressources"
+ msgid "it's required"
+ msgstr "Requis"
 
-#~ msgid "down"
-#~ msgstr "indisponible"
+ msgid "launch %s with root permissions.\n"
+ msgstr "lancer %s avec les permissions root.\n"
 
-#~ msgid "pending"
-#~ msgstr "en attente"
+ msgid "looks like a CLAPI action"
+ msgstr "Probablement une action réalisée par CLAPI"
 
-#~ msgid "warning"
-#~ msgstr "alerte"
+ msgid "m/d/Y (H:i:s)"
+ msgstr "d/m/Y - H:i:s"
 
-#~ msgid "critical"
-#~ msgstr "critique"
+ msgid "main.cfg"
+ msgstr "main.cfg"
 
-#~ msgid "unknown"
-#~ msgstr "inconnu"
+ msgid "nagios.cfg"
+ msgstr "nagios.cfg"
 
-#~ msgid "up"
-#~ msgstr "disponible"
+ msgid "ndo2db.cfg"
+ msgstr "ndo2db.cfg"
 
-#~ msgid "unreachable"
-#~ msgstr "injoignable"
+ msgid "ndomod.cfg"
+ msgstr "ndomod.cfg"
 
-#~ msgid "No Data Available"
-#~ msgstr "Pas de données disponibles"
+ msgid "pending"
+ msgstr "en attente"
 
-#~ msgid "The resource access rule was successfully deleted"
-#~ msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+ msgid "resource.cfg"
+ msgstr "resource.cfg"
 
-#~ msgid "Active/Revoked"
-#~ msgstr "Actif/Révoqué"
+ msgid "resources"
+ msgstr "ressources"
 
-#~ msgid "Display type"
-#~ msgstr "Type d'affichage"
+ msgid "s"
+ msgstr "s"
 
-#~ msgid "Graph settings"
-#~ msgstr "Paramètres de graphe"
+ msgid "service"
+ msgstr "service"
 
-#~ msgid "Unable to retrieve credentials ['%s'] from vault"
-#~ msgstr ""
-#~ "Impossible de récupérer les informations d'identification ['%s'] du coffre"
+ msgid "service dependency"
+ msgstr "dépendance de service"
 
-#~ msgid "Unknown provider type: %s"
-#~ msgstr "Type de fournisseur inconnu : %s"
+ msgid "servicegroup"
+ msgstr "groupe de services"
 
-#~ msgid "Open ticket"
-#~ msgstr "Ouvrir un ticket"
+ msgid "servicegroup dependency"
+ msgstr "dépendance de groupe de services"
 
-#~ msgid "Ticket provider"
-#~ msgstr "Fournisseur de tickets"
+ msgid "snmp traps"
+ msgstr "traps snmp"
 
-#~ msgid "Select a provider"
-#~ msgstr "Sélectionner un fournisseur"
+ msgid "snmpttconvertmib Directory + Binary"
+ msgstr "Chemin complet de l'exécutable snmpttconvertmib"
 
-#~ msgid "true"
-#~ msgstr "vrai"
+ msgid "timeperiod"
+ msgstr "période de temps"
 
-#~ msgid "false"
-#~ msgstr "faux"
+ msgid "topology_name"
+ msgstr "Nom de la topologie"
 
-#~ msgid "vCenter name"
-#~ msgstr "Nom du vCenter"
+ msgid "true"
+ msgstr "vrai"
 
-#~ msgid "Error while searching for available pollers for type '%s'"
-#~ msgstr ""
-#~ "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+ msgid "unknown"
+ msgstr "inconnu"
 
-#~ msgid "The ticket will be closed for the selected ticket provider"
-#~ msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+ msgid "unreachable"
+ msgstr "injoignable"
 
-#~ msgid "Port expected at most 65535"
-#~ msgstr "Le numéro de port maximum attendu est 65535"
+ msgid "up"
+ msgstr "disponible"
 
-#~ msgid "Post must start from 1"
-#~ msgstr "Le numéro de port doit être au moins 1"
+ msgid "vCenter name"
+ msgstr "Nom du vCenter"
 
-#~ msgid "Ticket management"
-#~ msgstr "Gestion des tickets"
-
-#~ msgid "Listening address"
-#~ msgstr "Addresse d'écoute"
-
-#~ msgid "There are errors in the form."
-#~ msgstr "Il y a des erreurs dans le formulaire."
-
-#~ msgid "Agent configuration"
-#~ msgstr "Configuration d'agent"
-
-#~ msgid "Delete host group"
-#~ msgstr "Supprimer le groupe d'hôtes"
-
-#~ msgid "Delete host groups"
-#~ msgstr "Supprimer les groupes d'hôtes"
-
-#~ msgid "Host group deleted"
-#~ msgstr "Groupe d'hôtes supprimé"
-
-#~ msgid "Duplicate host group"
-#~ msgstr "Dupliquer le groupe d'hôtes"
-
-#~ msgid "Duplicate host groups"
-#~ msgstr "Dupliquer les groupes d'hôtes"
-
-#~ msgid "Host group duplicated"
-#~ msgstr "Groupe d'hôtes dupliqué"
-
-#~ msgid "Host group disabled"
-#~ msgstr "Groupe d'hôtes désactivé"
-
-#~ msgid "Host group enabled"
-#~ msgstr "Groupe d'hôtes activé"
-
-#~ msgid "Host groups disabled"
-#~ msgstr "Groupes d'hôtes désactivés"
-
-#~ msgid "Host groups enabled"
-#~ msgstr "Groupes d'hôtes activés"
-
-#~ msgid ""
-#~ "You are about to delete the <strong>{{ name }}</strong> host group. This "
-#~ "action cannot be undone. Do you want to delete it?"
-#~ msgstr ""
-#~ "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</"
-#~ "strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
-
-#~ msgid ""
-#~ "You are about to delete <strong>{{ count }} host groups.</strong> This "
-#~ "action cannot be undone. Do you want to delete them?"
-#~ msgstr ""
-#~ "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</"
-#~ "strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
-
-#~ msgid ""
-#~ "You are about to duplicate the <strong>{{ name }}</strong> host group. "
-#~ "How many duplications would you like to make?"
-#~ msgstr ""
-#~ "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</"
-#~ "strong>. Combien de duplications souhaitez-vous effectuer?"
-
-#~ msgid ""
-#~ "You are about to duplicate <strong>{{ count }} host groups.</strong> How "
-#~ "many duplications would you like to make?"
-#~ msgstr ""
-#~ "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</"
-#~ "strong>. Combien de duplications souhaitez-vous effectuer?"
-
-#~ msgid "Add a host group"
-#~ msgstr "Ajouter un groupe d'hôtes"
-
-#~ msgid "Modify a host group"
-#~ msgstr "Modifier un groupe d'hôtes"
-
-#~ msgid "View a host group"
-#~ msgstr "Voir un groupe d'hôtes"
-
-#~ msgid "Host groups duplicated"
-#~ msgstr "Groupes d'hôtes dupliqués"
-
-#~ msgid "Host groups deleted"
-#~ msgstr "Groupes d'hôtes supprimés"
-
-#~ msgid "Failed to delete the host group"
-#~ msgstr "Échec de la suppression du groupe d'hôtes"
-
-#~ msgid "Failed to duplicate the host group"
-#~ msgstr "Échec de la duplication du groupe d'hôtes"
-
-#~ msgid "Failed to enable the host group"
-#~ msgstr "Échec de l'activation du groupe d'hôtes"
-
-#~ msgid "Failed to disable the host group"
-#~ msgstr "Échec de la désactivation du groupe d'hôtes"
-
-#~ msgid "Last 60 days"
-#~ msgstr "Les 60 derniers jours"
-
-#~ msgid "Last 90 days"
-#~ msgstr "Les 90 derniers jours"
-
-#~ msgid "Last 1 year"
-#~ msgstr "La dernière année"
-
-#~ msgid "In 7 days"
-#~ msgstr "Dans 7 jours"
-
-#~ msgid "In 30 days"
-#~ msgstr "Dans 30 jours"
-
-#~ msgid "In 60 days"
-#~ msgstr "Dans 60 jours"
-
-#~ msgid "In 90 days"
-#~ msgstr "Dans 90 jours"
-
-#~ msgid "In 1 year"
-#~ msgstr "Dans 1 an"
-
-#~ msgid "Host group created"
-#~ msgstr "Groupe d'hôtes créé"
-
-#~ msgid "Host group updated"
-#~ msgstr "Groupe d'hôtes mis à jour"
-
-#~ msgid ""
-#~ "The selected inherited service template does not contain any check "
-#~ "command. You must select one here."
-#~ msgstr ""
-#~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
-#~ "vérification. Vous devez en sélectionner une ici."
-
-#~ msgid "An error occurred while filtering columns"
-#~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
-
-#~ msgid "Error while creating export request"
-#~ msgstr "Erreur lors de la création de la demande d'export"
-
-#~ msgid "Export format not supported"
-#~ msgstr "Format d'export non supporté"
+ msgid "warning"
+ msgstr "alerte"
