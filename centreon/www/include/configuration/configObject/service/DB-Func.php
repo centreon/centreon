@@ -34,6 +34,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\ActionLog\Domain\Model\ActionLog;
 
 if (!isset($centreon)) {
