@@ -286,6 +286,13 @@ jobs:
           echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Upload translations
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: translations
+          path: ${{ env.base_directory }}/www/locale
+          retention-days: 1
+
       - name: Upload translations patch
         if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
