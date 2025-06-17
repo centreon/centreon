@@ -235,8 +235,6 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
         run: |
-          apt-get update
-          apt-get install -y jq
           TRANSLATIONS_PATCH_FILE=""
 
           git config --global --add safe.directory $GITHUB_WORKSPACE
@@ -252,7 +250,7 @@ jobs:
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
             php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
-            cat www/locale/$localefull/LC_MESSAGES/messages.ser | jq "." | grep "Welcome to the host groups page"
+            cat www/locale/$localefull/LC_MESSAGES/messages.ser | grep "Welcome to the host groups page"
           done
 
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
