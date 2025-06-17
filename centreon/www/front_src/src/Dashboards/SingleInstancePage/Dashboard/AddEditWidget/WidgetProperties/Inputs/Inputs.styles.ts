@@ -1,4 +1,3 @@
-import { alpha } from '@mui/system';
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
@@ -102,4 +101,3 @@ export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
     }
   })
 );
-

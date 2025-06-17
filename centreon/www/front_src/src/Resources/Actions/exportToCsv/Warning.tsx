@@ -6,7 +6,10 @@ import { labelWarningExportToCsv } from '../../translatedLabels';
 const Warning = () => {
   const { t } = useTranslation();
   return (
-    <Typography className="w-full bg-warning-light/50 p-2 rounded-sm" variant="body2">
+    <Typography
+      className="w-full bg-warning-light/50 p-2 rounded-sm"
+      variant="body2"
+    >
       {t(labelWarningExportToCsv)}
     </Typography>
   );
