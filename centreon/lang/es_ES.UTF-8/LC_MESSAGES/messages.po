@@ -13193,7 +13193,7 @@ msgstr "Categoria de servicio"
 #~ msgstr "Seleccione un tipo de tiempo de parada"
 
 #~ msgid "Connection Error to NDO DataBase ! \n"
-#~ msgstr "¡Error al conectar con la base de datos NDO!"
+#~ msgstr "¡Error al conectar con la base de datos NDO! \n"
 
 #~ msgid "Active Check"
 #~ msgstr "Control activo"
@@ -13898,18 +13898,6 @@ msgstr "Categoria de servicio"
 #~ msgid "Execution start"
 #~ msgstr "Inicio de ejecución"
 
-#~ msgid "Error when installing patch : %s."
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`Erreur lors de l`installation du correctif : %s.'\n"
-#~ "\t                                              ^ ran out for this one"
-
-#~ msgid "%s patch is installed."
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`le correctif %s a été installé.'\n"
-#~ "\t              ^ ran out for this one"
-
 #~ msgid "Can't get list of files."
 #~ msgstr "No se puede obtener la lista de archivos."
 
@@ -13919,27 +13907,8 @@ msgstr "Categoria de servicio"
 #~ msgid "Can't get file'"
 #~ msgstr "No se puede obtener el archivo"
 
-#~ msgid "%s is downloaded."
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`%s est téléchargé.'\n"
-#~ "\t ^ ran out for this one"
-
-#~ msgid "In order to complete your upgrade (%s), unzip the downloaded file, and follow the instructions in README\n"
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, et suivez les instructions du fichier "
-#~ "README'\n"
-#~ "\t                                   ^ ran out for this one"
-
 #~ msgid "Can't open patch"
 #~ msgstr "No se puede abrir el hotfix"
-
-#~ msgid "launch %s with root permissions.\n"
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`lancer %s avec les permissions root.'\n"
-#~ "\t        ^ ran out for this one"
 
 #~ msgid "Change update options"
 #~ msgstr "Cambiar opciones de actualización"
@@ -14012,12 +13981,6 @@ msgstr "Categoria de servicio"
 
 #~ msgid "Status Output"
 #~ msgstr "Información de estado"
-
-#~ msgid "Unhandled Host problems (last %s)"
-#~ msgstr ""
-#~ "awk: cmd. line:1: (FILENAME=- FNR=1) fatal: not enough arguments to satisfy format string\n"
-#~ "\t`Problèmes d`hôte non traités (%s derniers)'\n"
-#~ "\t                                  ^ ran out for this one"
 
 #~ msgid "No unhandled host problem"
 #~ msgstr "No hay problema de host sin pagar"
