@@ -254,6 +254,7 @@ jobs:
             php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
             # cat www/locale/$localefull/LC_MESSAGES/messages.ser | grep "Welcome to the host groups page"
             php -r 'echo json_encode(unserialize(file_get_contents("www/locale/'"$localefull"'/LC_MESSAGES/messages.ser")));' | jq "." | grep "Welcome to the host groups page"
+          done
 
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
