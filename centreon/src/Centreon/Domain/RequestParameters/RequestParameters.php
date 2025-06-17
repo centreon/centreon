@@ -54,7 +54,6 @@ class RequestParameters implements RequestParametersInterface
     public const OPERATOR_REGEXP = '$rg';
     public const OPERATOR_IN = '$in';
     public const OPERATOR_NOT_IN = '$ni';
-
     public const LIST_SEARCH_OPERATORS = [
         self::OPERATOR_EQUAL,
         self::OPERATOR_NOT_EQUAL,
@@ -71,6 +70,10 @@ class RequestParameters implements RequestParametersInterface
 
     public const AGGREGATE_OPERATOR_OR = '$or';
     public const AGGREGATE_OPERATOR_AND = '$and';
+    public const LIST_AGGREGATE_OPERATORS = [
+        self::AGGREGATE_OPERATOR_AND,
+        self::AGGREGATE_OPERATOR_OR
+    ];
 
     public const CONCORDANCE_MODE_NO_STRICT = 0;
     public const CONCORDANCE_MODE_STRICT = 1;
@@ -201,21 +204,7 @@ class RequestParameters implements RequestParametersInterface
      */
     public function extractSearchNames(bool $withValueAndOperator = false): array
     {
-        $notAllowedKeys = [
-            self::AGGREGATE_OPERATOR_AND,
-            self::AGGREGATE_OPERATOR_OR,
-            self::OPERATOR_EQUAL,
-            self::OPERATOR_NOT_EQUAL,
-            self::OPERATOR_LESS_THAN,
-            self::OPERATOR_LESS_THAN_OR_EQUAL,
-            self::OPERATOR_GREATER_THAN,
-            self::OPERATOR_GREATER_THAN_OR_EQUAL,
-            self::OPERATOR_LIKE,
-            self::OPERATOR_NOT_LIKE,
-            self::OPERATOR_REGEXP,
-            self::OPERATOR_IN,
-            self::OPERATOR_NOT_IN
-        ];
+        $notAllowedKeys = array_merge(self::LIST_SEARCH_OPERATORS, self::LIST_AGGREGATE_OPERATORS);
         $names = [];
         $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys, $withValueAndOperator): void {
             foreach ($data as $key => $value) {
