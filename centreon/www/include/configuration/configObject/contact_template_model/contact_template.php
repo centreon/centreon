@@ -54,6 +54,25 @@ isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
 isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
 $cG ? $dupNbr = $cG : $dupNbr = $cP;
 
+function validateInput(array|string $inputs): array
+{
+    if (is_string($inputs)) {
+        $inputs = explode(',', trim($inputs, ','));
+    }
+    foreach($inputs as $contactTemplateId => $value) {
+        if(
+            filter_var($contactTemplateId, FILTER_VALIDATE_INT) !== false
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+        ) {
+            continue;
+        } else {
+            throw new \Exception('Invalid value supplied');
+        }
+    }
+
+    return $inputs;
+}
+
 /*
  * Path to the configuration dir
  */
