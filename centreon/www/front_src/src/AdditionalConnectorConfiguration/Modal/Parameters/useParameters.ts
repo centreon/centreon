@@ -1,11 +1,11 @@
 import { useFormikContext } from 'formik';
 import { remove } from 'ramda';
 
-import { defaultParameters } from '../../utils';
+import { getDefaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration, Parameter } from '../models';
 
 interface UseParameterStates {
-  addParameterGroup: () => void;
+  addParameterGroup: (index: number) => () => void;
   deleteParameterGroup: (index) => void;
   parameters: Array<Parameter>;
 }
@@ -14,10 +14,10 @@ const useParameters = (): UseParameterStates => {
   const { values, setFieldValue } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
-  const addParameterGroup = (): void => {
+  const addParameterGroup = (index: number) => (): void => {
     setFieldValue('parameters.vcenters', [
       ...values.parameters.vcenters,
-      defaultParameters
+      getDefaultParameters(index)
     ]);
   };
 
