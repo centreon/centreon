@@ -587,9 +587,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         if ($hasMetricName) {
-            $request .= <<<'SQL'
-                WHERE m.metric_name = :metricName
-                SQL;
+            $request .= ' WHERE m.metric_name = :metricName';
         }
 
         $sortRequest = $this->sqlRequestParametersTranslator->translateSortParameterToSql();
