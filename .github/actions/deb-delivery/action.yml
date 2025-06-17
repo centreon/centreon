@@ -73,10 +73,10 @@ runs:
         # of multiple artifacts at once to an APT repository
 
         # Get list of remote artifacts
-        ARTIFACTS_REMOTE_LIST=$(jf rt search "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/*_${{ inputs.major_version }}*.deb" --recursive --sort-by=path |jq -r .[].path)
+        ARTIFACTS_REMOTE_LIST=$(jf rt search "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/*_${{ inputs.version }}*.deb" --recursive --sort-by=path |jq -r .[].path)
 
         # Get list of local artifacts
-        ARTIFACTS_LOCAL_LIST=$(dir -1 |grep -E '.*${{ inputs.major_version }}.*.deb')
+        ARTIFACTS_LOCAL_LIST=$(dir -1 |grep -E '.*${{ inputs.version }}.*.deb')
 
         # Build list of diff between local and remote artifacts
         for local_artifact in "${ARTIFACTS_LOCAL_LIST[@]}"; do
@@ -111,9 +111,9 @@ runs:
           if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
             ROOT_REPO_PATH="apt-standard-internal-${{ inputs.stability }}"
           elif [[ "${{ inputs.distrib }}" == "jammy" ]]; then
-            ROOT_REPO_PATH="ubuntu-standard-${{ inputs.major_version }}-${{ inputs.stability }}"
+            ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
           else
-            ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}"
+            ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
           fi
 
           jf rt upload "$ARTIFACT" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
