@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "7a4a5e81-a3a7-4855-9383-885e133c3408",
-		"name": "02 - Local Authentication",
+		"_postman_id": "a4424f35-cd4f-49d6-a4a3-a357295d1e69",
+		"name": "Parameters",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-a4424f35-cd4f-49d6-a4a3-a357295d1e69?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -213,7 +213,52 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user (successful)",
+					"name": "List administration parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The parameters are listed, because the user have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/parameters",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"parameters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user non-admin",
 					"event": [
 						{
 							"listen": "test",
