@@ -17598,7 +17598,8 @@ msgid "Use deprecated monitoring pages"
 msgstr "Utiliser les pages dépréciées de supervision"
 
 msgid "Use deprecated custom views"
-msgstr "Utiliser les vues customisées personalisées"
+msgstr "Utiliser les vues personalisées dépréciées"
+
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"
