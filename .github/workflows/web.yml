@@ -291,7 +291,7 @@ jobs:
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: translations
-          path: ${{ env.base_directory }}/lang/fr_FR.UTF-8
+          path: ${{ env.base_directory }}/lang/
           retention-days: 1
 
       - name: Upload translations patch
