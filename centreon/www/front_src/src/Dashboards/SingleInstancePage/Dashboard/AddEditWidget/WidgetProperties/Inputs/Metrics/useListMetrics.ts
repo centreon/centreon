@@ -7,12 +7,14 @@ import {
   length,
   pipe,
   pluck,
+  type,
   uniq,
   uniqBy
 } from 'ramda';
 
 import {
   ListingModel,
+  SelectEntry,
   buildListingEndpoint,
   resourceTypeQueryParameter,
   useFetchQuery
@@ -27,6 +29,7 @@ import {
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
+import { buildResourceTypeNameForSearchParameter } from '../utils';
 
 interface Props {
   resources: Array<WidgetDataResource>;
@@ -42,6 +45,9 @@ interface UseListMetricsState {
   servicesMetrics?: ListingModel<ServiceMetric>;
 }
 
+const isResourcesString = (resources: Array<SelectEntry> | string) =>
+  equals(type(resources), 'String');
+
 export const useListMetrics = ({
   resources,
   selectedMetrics = []
@@ -56,14 +62,26 @@ export const useListMetrics = ({
         parameters: {
           limit: 1000,
           search: {
-            lists: resources.map((resource) => ({
-              field: equals(resource.resourceType, 'hostgroup')
-                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                : resourceTypeQueryParameter[resource.resourceType],
-              values: equals(resource.resourceType, 'service')
-                ? pluck('name', resource.resources)
-                : pluck('id', resource.resources)
-            }))
+            conditions: resources
+              .filter((resource) => isResourcesString(resource.resources))
+              .map((resource) => ({
+                field: buildResourceTypeNameForSearchParameter(
+                  resource.resourceType
+                ),
+                values: {
+                  $rg: resource.resources
+                }
+              })),
+            lists: resources
+              .filter((resource) => !isResourcesString(resource.resources))
+              .map((resource) => ({
+                field: equals(resource.resourceType, 'hostgroup')
+                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                  : resourceTypeQueryParameter[resource.resourceType],
+                values: equals(resource.resourceType, 'service')
+                  ? pluck('name', resource.resources)
+                  : pluck('id', resource.resources)
+              }))
           }
         }
       }),

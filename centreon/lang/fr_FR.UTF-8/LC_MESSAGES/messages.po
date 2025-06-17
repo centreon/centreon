@@ -22842,6 +22842,27 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #~ "Le modèle de service hérité sélectionné ne comporte pas de commande de "
 #~ "vérification. Vous devez en sélectionner une ici."
 
+msgid "Activate Regex"
+msgstr "Activer le mode regex"
+
+msgid "Deactivate regex mode"
+msgstr "Désactiver le mode regex"
+
+msgid "Enter regex"
+msgstr "Saisir une regex"
+
+msgid "Do you want to leave the regex mode?"
+msgstr "Voulez-vous quitter le mode regex ?"
+
+msgid "Do you want to leave the classic mode?"
+msgstr "Voulez-vous quitter le mode classique ?"
+
+msgid "Your changes will not be saved if you switch to classic mode."
+msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode classique."
+
+msgid "Your changes will not be saved if you switch to regex mode."
+msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode regex."
+
 #~ msgid "An error occurred while filtering columns"
 #~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
