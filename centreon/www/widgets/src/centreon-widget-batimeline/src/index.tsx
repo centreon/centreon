@@ -7,6 +7,7 @@ import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 import { PanelOptions } from './models';
 import { labelSelectBAToDisplayPreview } from './translatedLabels';
+import { Module } from '@centreon/ui';
 
 interface Props extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
@@ -22,7 +23,8 @@ const Widget = ({
   playlistHash,
   dashboardId,
   widgetPrefixQuery,
-  queryClient
+  queryClient,
+  store
 }: Props): JSX.Element => {
   const lastSelectedResourceType = last(
     pluck('resourceType', panelData.resources)
@@ -37,6 +39,7 @@ const Widget = ({
   }
 
   return (
+    <Module seedName="centreon-widget-batimeline" store={store}>
     <FederatedComponent
       dashboardId={dashboardId}
       globalRefreshInterval={globalRefreshInterval}
@@ -48,7 +51,9 @@ const Widget = ({
       widgetPrefixQuery={widgetPrefixQuery}
       path="/bam/widget/batimeline"
       queryClient={queryClient}
+      store={store}
     />
+    </Module>
   );
 };
 
