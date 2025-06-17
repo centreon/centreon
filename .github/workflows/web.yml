@@ -283,6 +283,7 @@ jobs:
             echo "No changes in translations"
           fi
 
+
           echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
         shell: bash
 
