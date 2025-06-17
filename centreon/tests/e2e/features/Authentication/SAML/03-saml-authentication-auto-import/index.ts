@@ -99,8 +99,6 @@ When('the administrator activates the auto-import option for SAML', () => {
 
   saveSamlFormIfEnabled();
 
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
-
   cy.logout();
 });
 

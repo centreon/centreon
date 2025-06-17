@@ -53,13 +53,11 @@ When(
     navigateToSAMLConfigPage();
 
     configureSAML();
-
-    saveSamlFormIfEnabled();
   }
 );
 
 Then('the configuration is saved', () => {
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });

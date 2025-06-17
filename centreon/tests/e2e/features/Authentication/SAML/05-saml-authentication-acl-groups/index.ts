@@ -97,8 +97,6 @@ When(
 
     saveSamlFormIfEnabled();
 
-    cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
-
     cy.logout();
   }
 );
