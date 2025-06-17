@@ -39,7 +39,6 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
-    experimentalMemoryManagement: true,
     defaultCommandTimeout: 20000,
     downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
