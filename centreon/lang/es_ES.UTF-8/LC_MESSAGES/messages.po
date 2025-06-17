@@ -13193,7 +13193,7 @@ msgstr "Categoria de servicio"
 #~ msgstr "Seleccione un tipo de tiempo de parada"
 
 #~ msgid "Connection Error to NDO DataBase ! \n"
-#~ msgstr "¡Error al conectar con la base de datos NDO!"
+#~ msgstr "¡Error al conectar con la base de datos NDO! \n"
 
 #~ msgid "Active Check"
 #~ msgstr "Control activo"
