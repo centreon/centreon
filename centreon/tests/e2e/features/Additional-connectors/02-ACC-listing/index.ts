@@ -57,7 +57,7 @@ Then('the user sees the Additional Connector Configuration page', () => {
 });
 
 Then('there is no additional connector configuration listed', () => {
-  cy.contains('Welcome to the additional configurations page').should('be.visible');
+  cy.get('*[role="rowgroup"]').should('contain', 'No result found');
 });
 
 Given(
@@ -73,15 +73,28 @@ Given(
 );
 
 Given('an already existing additional connector configuration', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.getByLabel({ label: 'Add', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
+  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.contains('Central').click();
+  cy.get('#Usernamevalue').type('admin');
+  cy.get('#Passwordvalue').type('Abcde!2021');
+  cy.get('#vCenternamevalue').clear().type('vCenter-001');
+  cy.get('#URLvalue').clear().type('https://10.0.0.0/sdk');
+  cy.get('#Portvalue').should('have.value', '5700');
+  cy.getByLabel({ label: 'Create', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 
 When(
   'the user clicks on the Edit button of the additional connector configuration',
   () => {
-    cy.contains('Connector-001').click();
+    cy.getByLabel({
+      label: 'Edit connector configuration',
+      tag: 'button'
+    }).click();
   }
 );
 
@@ -89,14 +102,14 @@ Then(
   'a pop up is displayed with all of the additional connector informations',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Modify an additional configuration').should(
+    cy.contains('Update additional configuration').should(
       'be.visible'
     );
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
     );
-    cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
+    cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
     cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
     cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
       'contain',

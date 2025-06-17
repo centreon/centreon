@@ -6,7 +6,7 @@ Feature: Additional Connector Configuration
   @TEST_MON-150329
   Scenario: Create a new additional connector configuration with an admin user
     Given an admin user is in the Additional Connector Configuration page
-    When the admin user clicks on Add additional configurations
+    When the admin user clicks on Add
     Then a pop-up menu with the form is displayed
     When the admin user fills in all the informations
     And the admin user clicks on Save
