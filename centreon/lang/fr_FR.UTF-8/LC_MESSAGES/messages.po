@@ -22641,9 +22641,3 @@ msgstr ""
 
  msgid "will display resources with host name starting by'"
  msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-msgid "Monitored hosts"
-msgstr "Hôtes surveillés"
-
-msgid "Select existing CMA token"
-msgstr "Sélectionner un jeton CMA existant"
