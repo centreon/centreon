@@ -1,0 +1,8 @@
+api_platform:
+    title: Centreon
+    version: 25.10.0
+    show_webby: false
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin', 'X-Auth-Token']
