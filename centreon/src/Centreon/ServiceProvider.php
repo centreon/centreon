@@ -241,7 +241,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::SERIALIZER_OBJECT_NORMALIZER] = function (): Serializer\Normalizer\ObjectNormalizer {
             $classMetadataFactory = new Serializer\Mapping\Factory\ClassMetadataFactory(
-                new Serializer\Mapping\Loader\AttributeLoader())
+                new Serializer\Mapping\Loader\AttributeLoader()
             );
 
             return new Serializer\Normalizer\ObjectNormalizer(
