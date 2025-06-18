@@ -78,6 +78,7 @@
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
+    "deptrac/deptrac": "^3.0",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "friendsofphp/php-cs-fixer": "3.64.*",

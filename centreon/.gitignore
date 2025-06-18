@@ -81,3 +81,7 @@ junit.xml
 
 # castor
 .castor.stub.php
+
+# deptrac
+.deptrac_bc.cache
+.deptrac_hexa.cache

@@ -43,8 +43,9 @@ $header = <<<"EOF"
 
 $finder = Finder::create()
     ->in([
-        __DIR__.'/src/App',
         __DIR__.'/config.new',
+        __DIR__.'/src/App',
+        __DIR__.'/tests/php/App',
     ]);
 
 return (new Config())
