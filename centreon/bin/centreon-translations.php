@@ -100,6 +100,9 @@ function createTranslationFile(
     $englishTranslation = [];
     $isDefaultTranslation = $languageCode === 'en';
 
+    $id = null;
+    $translation = null;
+
     if ($fleHandler = fopen($translationFile, 'r')) {
         while (false !== ($line = fgets($fleHandler))) {
             $line = trim($line);
@@ -116,7 +119,7 @@ function createTranslationFile(
                 } elseif ($id !== null && $translation !== null) {
                     $translation .= $matches[2];
                 }
-            } elseif (isset($id) && $id !== null && isset($translation) && $translation !== null) {
+            } elseif ($id !== null && $translation !== null) {
                 $englishTranslation[$id] = $id;
                 if (!$isDefaultTranslation) {
                     // Only if the code of language is not 'en'
@@ -130,7 +133,7 @@ function createTranslationFile(
         fclose($fleHandler);
     }
 
-    if (isset($id) && $id !== null && isset($translation) && $translation !== null) {
+    if ($id !== null && $translation !== null) {
         $englishTranslation[$id] = $id;
         if (!$isDefaultTranslation) {
             $translations[$id] = $translation;
