@@ -23850,4 +23850,4 @@ msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 msgid "blublu"
-msgid "bloblo"
+msgstr "bloblo"
