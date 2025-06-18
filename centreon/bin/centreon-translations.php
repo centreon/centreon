@@ -96,7 +96,6 @@ function createTranslationFile(
     string $translationFile,
     string $destinationFile
 ): void {
-
     $translations = [];
     $englishTranslation = [];
     $isDefaultTranslation = $languageCode === 'en';
@@ -105,45 +104,46 @@ function createTranslationFile(
         while (false !== ($line = fgets($fleHandler))) {
             $line = trim($line);
 
-            // Retrieves the token
-            $token = trim(
-                substr($line, 0, TOKEN_LENGTH)
-            );
-            // Retrieves text after the token
-            $text = trim(
-                substr(
-                    $line,
-                    TOKEN_LENGTH,
-                    strlen($line) - TOKEN_LENGTH
-                )
-            );
             // Removes double-quotes character that surround the text
-            $text = substr($text, 1, strlen($text) - 2);
-
-            switch ($token) {
-                case 'msgid': // Token that contains the translation label
-                    $label = $text;
-                    break;
-                case 'msgstr': // Token that contains the translation
-                    if (!empty($label)) {
-                        $englishTranslation[$label] = $label;
-                        if (!$isDefaultTranslation) {
-                            // Only if the code of language is not 'en'
-                            $translations[$label] = $text;
-                        }
-                        $label = null;
-                    }
+            if (preg_match('/^(?:(msgid|msgstr)\s+)?"(.*)"\s*$/', $line, $matches)) {
+                if ($matches[1] === 'msgid') {
+                    $id = $matches[2];
+                    $translation = null;
+                } elseif ($matches[1] === 'msgstr') {
+                    $translation = $matches[2];
+                } elseif ($id !== null && $translation === null) {
+                    $id .= $matches[2];
+                } elseif ($id !== null && $translation !== null) {
+                    $translation .= $matches[2];
+                }
+            } elseif (isset($id) && $id !== null && isset($translation) && $translation !== null) {
+                $englishTranslation[$id] = $id;
+                if (!$isDefaultTranslation) {
+                    // Only if the code of language is not 'en'
+                    $translations[$id] = $translation;
+                }
+                $id = null;
+                $translation = null;
             }
         }
 
         fclose($fleHandler);
     }
+
+    if (isset($id) && $id !== null && isset($translation) && $translation !== null) {
+        $englishTranslation[$id] = $id;
+        if (!$isDefaultTranslation) {
+            $translations[$id] = $translation;
+        }
+    }
+
     $final['en'] = $englishTranslation;
     if (!$isDefaultTranslation) {
         // Only if the code of language is not 'en'
         $final[$languageCode] = $translations;
     }
-    if (0 === file_put_contents($destinationFile, serialize($final))) {
+    // if (0 === file_put_contents($destinationFile, serialize($final))) {
+    if (0 === file_put_contents($destinationFile, var_export($final, true))) {
         exit(
             sprintf("Impossible to create destination file '%s'\n", $destinationFile)
         );
