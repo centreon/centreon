@@ -23666,10 +23666,6 @@ msgid "Your session is expired."
 msgstr "Votre session a expirée"
 
 #: unknown
-msgid "blublu"
-msgstr "bloblo"
-
-#: unknown
 msgid "cgi"
 msgstr "cgi"
 
