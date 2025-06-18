@@ -18,7 +18,7 @@ import {
 } from './models';
 import { findConnectorTypeById, splitURL } from './utils';
 
-import { labelName, labelPollers, labelTypes } from './translatedLabels';
+import { labelName, labelPoller, labelType } from './translatedLabels';
 
 interface UseAdditionnalConnectorsState {
   api: APIType;
@@ -74,13 +74,13 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
         fieldType: FieldType.Text
       },
       {
-        name: t(labelTypes),
+        name: t(labelType),
         fieldType: FieldType.MultiAutocomplete,
         options: [{ id: 'vmware_v6', name: 'VMWare 6/7' }],
         fieldName: 'type'
       },
       {
-        name: t(labelPollers),
+        name: t(labelPoller),
         fieldType: FieldType.MultiConnectedAutocomplete,
         getEndpoint: getPollersEndpoint,
         fieldName: 'poller.id'

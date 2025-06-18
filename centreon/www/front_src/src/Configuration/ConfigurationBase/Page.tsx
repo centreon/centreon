@@ -16,7 +16,7 @@ import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilte
 import useLoadData from './Listing/useLoadData';
 import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
 
-const WelcomePage = ({ label, dataTestId, onCreate }) => {
+const WelcomePage = ({ labels, dataTestId, onCreate }) => {
   const { isLoading, data } = useLoadData();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -32,7 +32,7 @@ const WelcomePage = ({ label, dataTestId, onCreate }) => {
     <DataTable.EmptyState
       aria-label="create"
       data-testid={dataTestId}
-      labels={label}
+      labels={labels}
       onCreate={onCreate}
     />
   );
@@ -82,7 +82,7 @@ const Page = ({
           {isWelcomePageDisplayed ? (
             <WelcomePage
               dataTestId={`create-${resourceType}`}
-              label={labels.welcomePage}
+              labels={labels.welcomePage}
               onCreate={openCreatetModal}
             />
           ) : (

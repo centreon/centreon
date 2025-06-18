@@ -1,9 +1,9 @@
 import {
   labelClear,
   labelName,
-  labelPollers,
+  labelPoller,
   labelSearch,
-  labelTypes
+  labelType
 } from '../translatedLabels';
 
 import initialize from './initialize';
@@ -26,8 +26,8 @@ export default (): void => {
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
       cy.get(`input[data-testid="${labelName}"`).should('be.visible');
-      cy.findByTestId(labelPollers).should('be.visible');
-      cy.findByTestId(labelTypes).should('be.visible');
+      cy.findByTestId(labelPoller).should('be.visible');
+      cy.findByTestId(labelType).should('be.visible');
 
       cy.get(`button[data-testid="${labelSearch}"`).should('be.visible');
       cy.get(`button[data-testid="${labelClear}"`).should('be.visible');
@@ -80,14 +80,14 @@ export default (): void => {
 
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
-      cy.findByTestId(labelTypes).click();
+      cy.findByTestId(labelType).click();
       cy.findAllByText('VMWare 6/7').eq(10).click();
-      cy.findByTestId(labelTypes).click();
+      cy.findByTestId(labelType).click();
 
-      cy.findByTestId(labelPollers).click();
+      cy.findByTestId(labelPoller).click();
       cy.contains('poller1').click();
       cy.contains('poller2').click();
-      cy.findByTestId(labelPollers).click();
+      cy.findByTestId(labelPoller).click();
 
       cy.findByTestId(labelSearch).click();
 
@@ -113,14 +113,14 @@ export default (): void => {
 
       cy.get(`input[data-testid="${labelName}"`).type('vmware1');
 
-      cy.findByTestId(labelTypes).click();
+      cy.findByTestId(labelType).click();
       cy.findAllByText('VMWare 6/7').eq(10).click();
-      cy.findByTestId(labelTypes).click();
+      cy.findByTestId(labelType).click();
 
-      cy.findByTestId(labelPollers).click();
+      cy.findByTestId(labelPoller).click();
       cy.contains('poller1').click();
       cy.contains('poller2').click();
-      cy.findByTestId(labelPollers).click();
+      cy.findByTestId(labelPoller).click();
 
       cy.get(`button[data-testid="${labelClear}"`).click();
 
@@ -128,13 +128,13 @@ export default (): void => {
 
       cy.get(`input[data-testid="${labelName}"`).should('have.value', '');
 
-      cy.findByTestId(labelTypes)
+      cy.findByTestId(labelType)
         .parent()
         .within(() => {
           cy.findByText('VMWare_6/7').should('not.exist');
         });
 
-      cy.findByTestId(labelPollers)
+      cy.findByTestId(labelPoller)
         .parent()
         .within(() => {
           cy.findByText('poller1').should('not.exist');

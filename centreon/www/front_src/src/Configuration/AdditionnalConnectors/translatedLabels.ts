@@ -2,7 +2,6 @@ export const labelAdditionalConnectorConfiguration =
   'Additional Configurations';
 export const labelName = 'Name';
 export const labelType = 'Type';
-export const labelTypes = 'Types';
 export const labelDescription = 'Description';
 export const labelCreator = 'Creator';
 export const labelCreationDate = 'Creation date';
@@ -19,7 +18,7 @@ export const labelSearch = 'Search';
 export const labelAdd = 'Add';
 export const labelMoreFilters = 'More filters';
 export const labelClear = 'Clear';
-export const labelPollers = 'Pollers';
+export const labelPoller = 'Poller';
 export const labelCancel = 'Cancel';
 export const labelDeleteAdditionalConnectorConfiguration =
   'Delete additional configuration';
