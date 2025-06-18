@@ -6029,19 +6029,16 @@ msgstr ""
 "Anzahl der Partitionen die im Voraus erstellt werden, um Probleme zu "
 "vermeiden. Standardwert: 10 Tage."
 
-#: unknown
-msgid ""
+ msgid ""
  "Allows user to generate and export configuration, and restart poller."
  msgstr ""
  "Erlaubt dem Benutzer die Erzeugung und den Export der Konfiguration sowie "
  "den Neustart des Pollers."
 
-#: unknown
-msgid "Comments on this host group."
+ msgid "Comments on this host group."
  msgstr "Kommentare zu dieser Host-Gruppe."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define an image that should be associated with this host group in the "
  "statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
  "image. The GD2 image format is preferred, as other image formats must be "
@@ -6054,8 +6051,7 @@ msgid ""
  "müssen bei Erzeugung der Statusmap erst konvertiert werden. Das Bild "
  "sieht am besten aus, wenn es 40x40 Pixel groß ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define an optional URL that can be used to provide more actions to be "
  "performed on the host group. You will see the link to the action URL in "
  "the host group details."
@@ -6064,8 +6060,7 @@ msgid ""
  "Hostgruppe verfügbar sind. Die Link zur Aktionen-URL wird in den "
  "Hostgruppen-Details angezeigt."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host group. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the host group, emergency contact "
@@ -6076,8 +6071,7 @@ msgid ""
  "Option ist nützlich, um detaillierte Informationen zu der Hostgruppe oder "
  "Notfallkontakten für andere Supportmitarbeiter zur Verfügung zu stellen."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host. Any valid URL can be used. This can be very useful if you want "
  "to make detailed information on the host, emergency contact methods, etc. "
@@ -6088,8 +6082,7 @@ msgid ""
  "ist nützlich, um detaillierte Informationen zu dem Host oder "
  "Notfallkontakten für andere Supportmitarbeiter zur Verfügung zu stellen."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the service. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the service, emergency contact "
@@ -6100,20 +6093,16 @@ msgid ""
  "ist nützlich, um detaillierte Informationen zu dem Service oder "
  "Notfallkontakten für andere Supportmitarbeiter zur Verfügung zu stellen."
 
-#: unknown
-msgid "Define an optional string of notes pertaining to the host group."
+ msgid "Define an optional string of notes pertaining to the host group."
  msgstr "Optionale Notizen zur Hostgruppe."
 
-#: unknown
-msgid "Define an optional string of notes pertaining to the host."
+ msgid "Define an optional string of notes pertaining to the host."
  msgstr "Optionale Notizen zum Host."
 
-#: unknown
-msgid "Define an optional string of notes pertaining to the service."
+ msgid "Define an optional string of notes pertaining to the service."
  msgstr "Optionale Notizen zum Service."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define categories in which this host belongs to. You can add this later "
  "by editing the host or the category you want to add it to."
  msgstr ""
@@ -6121,8 +6110,7 @@ msgid ""
  "Kategorisierung kann auch später festgelegt werden, indem der Host bzw. "
  "die gewünschte Kategorie bearbeitet wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define the address of the host here. Normally, this should be an IP "
  "address, but a FQDN can be used to identify the host instead. If DNS "
  "services are not reachable a FQDN could cause problems."
@@ -6132,8 +6120,7 @@ msgid ""
  "werden. Wenn kein DNS-Dienst erreichbar ist, können durch die Angabe "
  "eines FQDN Probleme entstehen."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define the description of the service. It may contain spaces, dashes, and "
  "colons (semicolons, apostrophes, and quotation marks should be avoided). "
  "Services must have a unique description on a per host basis."
@@ -6143,8 +6130,7 @@ msgid ""
  "Anführungszeichen sollten vermieden werden). Servicebeschreibungen müssen "
  "auf Hostebene einzigartig sein."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define the hostgroup(s) that this host belongs to. This directive may be "
  "used as an alternative to (or in addition to) defining the members in "
  "hostgroup definitions."
@@ -6153,8 +6139,7 @@ msgid ""
  "Alternative zur Angabe von Mitgliedern über die Hostgruppendefinition zu "
  "sehen."
 
-#: unknown
-msgid ""
+ msgid ""
  "Define the image that should be associated with this host group here. "
  "This image will be displayed in the various places. The image will look "
  "best if it is 40x40 pixels in size."
@@ -6163,12 +6148,10 @@ msgid ""
  "soll. Dieses Bild wird an den verschiedenen Stellen angezeigt. Das Bild "
  "sieht am besten aus, wenn es 40x40 Pixel groß ist."
 
-#: unknown
-msgid "Define the timezone of the host's location."
+ msgid "Define the timezone of the host's location."
  msgstr "Legt die Zeitzone des Hosts fest."
 
-#: unknown
-msgid ""
+ msgid ""
  "If this option is enable, the comments will be displayed on status chart."
  "<br><b>Warning</b> : This option can slow down the display of chart."
  msgstr ""
@@ -6176,16 +6159,14 @@ msgid ""
  "angezeigt.<br><b>Achtung</b>: Diese Option kann dazu führen, dass die "
  "Anzeige von Diagrammen mehr Zeit in Anspruch nimmt."
 
-#: unknown
-msgid ""
+ msgid ""
  "In a distributed monitoring environment, the monitoring node (central or "
  "satellite) for this host can be specified here."
  msgstr ""
  "In einer verteilten Monitoringumgebung kann hiermit der Monitoring "
  "Endpunkt (Zentraler Server oder Poller) für diesen Host angegeben werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "Mode used to retrieve information displayed in Resource Status page. The "
  "optimized mode will only be available  and functional when using the BBDO "
  "3.0.0 protocol for the collect engine."
@@ -6194,8 +6175,7 @@ msgid ""
  "optimierte Modus ist nur verfügbar und funktionsfähig, wenn das Protokoll "
  "BBDO 3.0.0 für das Sammelmodul verwendet wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "Only works with Centreon Engine (>= 1.3). For better performance, set "
  "this to 'No'. But it is safer to leave it to 'Default' ('Yes'), for a few "
  "native plugins could trigger a monitoring crash."
@@ -6206,8 +6186,7 @@ msgid ""
  "durch einige native Plugins ansonsten ein Absturz der "
  "Überwachungsaktivität ausgelöst werden könnte."
 
-#: unknown
-msgid ""
+ msgid ""
  "RRD retention duration of all the services that are in this host group. "
  "If service is in multiple host groups, the highest retention value will "
  "be used."
@@ -6216,8 +6195,7 @@ msgid ""
  "befinden. Wenn sich der Service in mehreren Hostgruppen befindet, wird "
  "die höchste Aufbewahrungsdauer verwendet."
 
-#: unknown
-msgid ""
+ msgid ""
  "Select the categories this service should be linked to. Categories are "
  "used for finer control in service ACL definitions."
  msgstr ""
@@ -6225,14 +6203,12 @@ msgid ""
  "soll. Kategorien können für feinere Zugriffe in den "
  "Zugriffssteuerungslistendefinitionen für Services verwendet werden."
 
-#: unknown
-msgid "Severity level use to sort issue in Monitoring menu."
+ msgid "Severity level use to sort issue in Monitoring menu."
  msgstr ""
  "Schweregrad, der für die Sortierung von Problemen im Überwachungsmenü "
  "genutzt wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "Specify one or multiple host templates, that should be linked to this "
  "template. A service, that uses this service template, will complete the "
  "missing host relation and result in a full service definition."
@@ -6242,31 +6218,27 @@ msgid ""
  "Servicetemplate verwendet, vervollständigt die fehlende Hostbeziehung und "
  "führt somit zu einer vollständigen Servicedefinition."
 
-#: unknown
-msgid ""
+ msgid ""
  "Specify the host(s) that this service \"runs\" on or is associated with."
  msgstr ""
  "Geben Sie den/die Host(s) an, auf dem dieser Service ausgeführt wird bzw. "
  "zu dem/denen er eine Relation hat."
 
-#: unknown
-msgid ""
+ msgid ""
  "The host name defined here is used in host group and service definitions "
  "to reference this particular host."
  msgstr ""
  "Der hier angegeben Hostname wird in Hostgruppen und Servicedefinitionen "
  "verwendet, um diesen Host zu referenzieren."
 
-#: unknown
-msgid ""
+ msgid ""
  "This directive is used to define a short name used to identify the host "
  "group."
  msgstr ""
  "Diese Richtlinie legt den Kurznamen zur Identifikation der Hostgruppe "
  "fest."
 
-#: unknown
-msgid ""
+ msgid ""
  "This directive is used to define is a longer name or description used to "
  "identify the host group.It is provided in order to allow you to more "
  "easily identify a particular host group."
@@ -6275,8 +6247,7 @@ msgid ""
  "Identifikation der Hostgruppe fest. Dieser Wert kann angegeben werden, um "
  "eine bestimmte Hostgruppe einfacher identifizieren zu können."
 
-#: unknown
-msgid ""
+ msgid ""
  "This directive is used to identify the short name(s) of the "
  "servicegroup(s) that the service belongs to. This directive may be used "
  "as an alternative to using the members directive in servicegroup "
@@ -6287,8 +6258,7 @@ msgid ""
  "Richtlinie kann als Alternative zu der Angabe von Mitgliedern in der "
  "Servicegruppendefinition verwendet werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is a list of hosts that should be included in this group. This "
  "directive may be used as an alternative to (or in addition to) the "
  "hostgroups directive in host definitions."
@@ -6297,8 +6267,7 @@ msgid ""
  "Richtlinie kann als Alternative bzw. in Kombination mit der Angabe der "
  "Hostgruppen in der Hostdefinition verwendet werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is a temporary file that Monitoring Engine periodically creates and "
  "uses when updating comment data, status data, etc. The file is deleted "
  "when it is no longer needed."
@@ -6308,8 +6277,7 @@ msgid ""
  "und weitere aktualisiert werden. Diese Datei wird automatisch gelöscht, "
  "wenn sie nicht mehr benötigt wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively.  These options determine "
  "which service process attributes are NOT retained across program "
@@ -6322,8 +6290,7 @@ msgid ""
  "beibehalten werden. Standardmäßig werden alle Host- und Serviceattribute "
  "gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host attributes are NOT retained across program restarts. By default, all "
@@ -6335,8 +6302,7 @@ msgid ""
  "welche Hostattribute nach einem Programmneustart NICHT beibehalten "
  "werden. Standardmäßig werden alle Host- und Serviceattribute gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host contact attributes are NOT retained across program restarts. By "
@@ -6348,8 +6314,7 @@ msgid ""
  "welche Hostkontaktattribute nach einem Programmneustart NICHT beibehalten "
  "werden. Standardmäßig werden alle Host- und Serviceattribute gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host process attributes are NOT retained across program restarts. By "
@@ -6361,8 +6326,7 @@ msgid ""
  "welche Hostprozessattribute nach einem Programmneustart NICHT beibehalten "
  "werden. Standardmäßig werden alle Host- und Serviceattribute gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service attributes are NOT retained across program restarts. By default, "
@@ -6374,8 +6338,7 @@ msgid ""
  "welche Serviceattribute nach einem Programmneustart NICHT beibehalten "
  "werden. Standardmäßig werden alle Host- und Serviceattribute gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service contact attributes are NOT retained across program restarts. By "
@@ -6388,8 +6351,7 @@ msgid ""
  "beibehalten werden. Standardmäßig werden alle Host- und Serviceattribute "
  "gespeichert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is the directory where Monitoring Engine should place log files that "
  "have been rotated. This option is ignored if you choose to not use the "
  "log rotation functionality."
@@ -6398,8 +6360,7 @@ msgid ""
  "Monitoring Engine rotiert wurden. Diese Option wird ignoriert, wenn die "
  "Protokollrotation nicht genutzt wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow a "
  "host performance data processor command or service performance data "
  "processor command to be run. If a command exceeds this time limit it will "
@@ -6410,8 +6371,7 @@ msgid ""
  "Wenn diese Zeit überschritten wird, wird der Befehl durch die Monitoring "
  "Engine beendet und eine Warnung wird protokolliert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive host processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -6421,8 +6381,7 @@ msgid ""
  "überschritten wird, wird der Befehl durch die Monitoring Engine beendet "
  "und eine Warnung wird protokolliert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive service processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -6432,16 +6391,14 @@ msgid ""
  "überschritten wird, wird der Befehl beendet durch die Monitoring Engine "
  "und eine Warnung wird protokolliert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is the rotation method that you would like Monitoring Engine to use "
  "for your log file."
  msgstr ""
  "Rotationsmethode, die für die Protokolldatei der Monitoring Engine "
  "verwendet werden soll."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is used to set the effective group that the Monitoring Engine "
  "process should run as. After initial program startup and before starting "
  "to monitor anything, Monitoring Engine will drop its effective privileges "
@@ -6453,8 +6410,7 @@ msgid ""
  "Monitoring Engine unter der angegebenen Gruppe ausgeführt. Es kann "
  "entweder ein Gruppenname oder eine GID angegeben werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is used to set the effective user that the Monitoring Engine process "
  "should run as. After initial program startup and before starting to "
  "monitor anything, Monitoring Engine will drop its effective privileges "
@@ -6466,8 +6422,7 @@ msgid ""
  "Monitoring Engine unter dem angegebenen Benutzer ausgeführt. Es kann "
  "entweder ein Benutzername oder eine UID angegeben werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This is where you specify the template that you want to inherit "
  "properties/variables from. Inherited properties doesn't need to be "
  "specified again. \"Local\" object variables always take precedence over "
@@ -6485,8 +6440,7 @@ msgid ""
  "definiert ist, erhält das zuerst angegebene Template Priorität über den "
  "später hinzugefügten."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows dumping core in case a segmentation fault occurs. "
  "Warning: Make sure that server has sufficient disk space for these dumps "
  "(ulimit). This option is discarded when using Centreon Engine."
@@ -6497,8 +6451,7 @@ msgid ""
  "(ulimit). Diese Option wird verworfen, wenn Centreon Engine verwendet "
  "wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a command to be run after every host "
  "check to process host performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -6513,8 +6466,7 @@ msgid ""
  "verarbeiten (process_perf_data) Richtlinie in der Host-Definition "
  "aktiviert ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a command to be run after every host "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -6533,8 +6485,7 @@ msgid ""
  "überwachen (obsess_over_host) Richtlinie in der Host-Definition aktiviert "
  "ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a command to be run after every service "
  "check to process service performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -6549,8 +6500,7 @@ msgid ""
  "verabeiten (process_perf_data) Richtlinie in der Service-Definition "
  "aktiviert ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a command to be run after every service "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -6569,8 +6519,7 @@ msgid ""
  "global und die Service überwachen (obsess_over_service) Richtlinie in der "
  "Service-Definition aktiviert ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a file to which host performance data "
  "will be written after every host check. Data will be written to the "
  "performance file as specified by the host_perfdata_file_template option. "
@@ -6585,8 +6534,7 @@ msgid ""
  "Option global und die process_perf_data Richtlinie in der Host-Definition "
  "aktiviert ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify a file to which service performance "
  "data will be written after every service check. Data will be written to "
  "the performance file as specified by the service_perfdata_file_template "
@@ -6601,24 +6549,21 @@ msgid ""
  "Option global und die process_perf_data Richtlinie in der Service-"
  "Definition aktiviert ist."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the host performance data file."
  msgstr ""
  "Mit dieser Option kann ein Befehl festgelegt werden, der zur Verarbeitung "
  "der Host-Leistungsdatendatei verwendet wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the service performance data file."
  msgstr ""
  "Mit dieser Option kann ein Befehl festgelegt werden, der zur Verarbeitung "
  "der Service-Leistungsdatendatei verwendet wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "host performance data file is processed using the host performance data "
  "file processing command. A value of 0 indicates that the performance data "
@@ -6630,8 +6575,7 @@ msgid ""
  "bedeutet, dass die Leistungsdatendatei nicht in regulären Intervallen "
  "verarbeitet werden soll."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "service performance data file is processed using the service performance "
  "data file processing command. A value of 0 indicates that the performance "
@@ -6643,8 +6587,7 @@ msgid ""
  "bedeutet, dass die Leistungsdatendatei nicht in regulären Intervallen "
  "verarbeitet werden soll."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines how the host performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -6653,8 +6596,7 @@ msgid ""
  "Wenn es sich bei der Datei nicht um eine Named Pipe handelt, sollte der "
  "Standardmodus anhängen verwendet werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines how the service performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -6663,8 +6605,7 @@ msgid ""
  "wird. Wenn es sich bei der Datei nicht um eine Named Pipe handelt, sollte "
  "der Standardmodus anhängen verwendet werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines what (and how) data is written to the host "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -6677,8 +6618,7 @@ msgid ""
  "und Text enthalten. Nach jedem Schreibvorgang in die Leistungsdatendatei "
  "wird eine neue Zeile angehängt."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines what (and how) data is written to the service "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -6691,8 +6631,7 @@ msgid ""
  "und Text enthalten. Nach jedem Schreibvorgang in die Leistungsdatendatei "
  "wird eine neue Zeile angehängt."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines whether or not Monitoring Engine will fork() child "
  "processes twice when it executes host and service checks. By default, "
  "Monitoring Engine fork()s twice. However, if the "
@@ -6708,8 +6647,7 @@ msgid ""
  "Konfigurationsdatei gesetzt wird, kann diese so überschrieben werden, "
  "damit das gewünschte Verhalten erreicht wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines whether or not Monitoring Engine will free memory "
  "in child processes when they are fork()ed off from the main process. By "
  "default, Monitoring Engine frees memory. However, if the "
@@ -6725,8 +6663,7 @@ msgid ""
  "kann diese so überschrieben werden, damit das gewünschte Verhalten "
  "erreicht wird."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines whether or not Monitoring Engine will translate "
  "DOWN/UNREACHABLE passive host check results to their \"correct\" state "
  "from the viewpoint of the local Monitoring Engine instance. This can be "
@@ -6739,8 +6676,7 @@ msgid ""
  "Diese Option kann bei verteilten und Failover-Installationen sehr "
  "nützlich sein. Diese Option ist standardmäßig deaktiviert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option determines whether or not the Monitoring Engine daemon will "
  "take several shortcuts to improve performance. These shortcuts result in "
  "the loss of a few features, but larger installations will likely see a "
@@ -6752,8 +6688,7 @@ msgid ""
  "jedoch einige Vorteile davon erzielen. Diese Option ist standardmäßig "
  "deaktiviert."
 
-#: unknown
-msgid ""
+ msgid ""
  "This option specifies the location of the lock file that Monitoring "
  "Engine should create when it runs as a daemon. This file contains the "
  "process id (PID) number of the running Monitoring Engine process."
@@ -6762,16 +6697,14 @@ msgid ""
  "Daemon ausgeführt wird. Diese Datei enthält die Prozess-ID (PID) des "
  "Monitoring Engine Prozesses."
 
-#: unknown
-msgid ""
+ msgid ""
  "This optional directive can be used to include hosts from other host "
  "groups in this host group."
  msgstr ""
  "Diese optionale Richtlinie kann genutzt werden, um Hosts einer anderen "
  "Hostgruppe in dieser einzuschließen."
 
-#: unknown
-msgid ""
+ msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over host checks results and run the obsessive compulsive host processor "
  "command you define. This option is useful for performing distributed "
@@ -6785,8 +6718,7 @@ msgid ""
  "kein verteiltes Monitoring eingesetzt wird, sollte diese Option nicht "
  "aktiviert werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over service checks results and run the obsessive compulsive service "
  "processor command you define. This option is useful for performing "
@@ -6800,8 +6732,7 @@ msgid ""
  "deaktiviert. Wenn kein verteiltes Monitoring eingesetzt wird, sollte "
  "diese Option nicht aktiviert werden."
 
-#: unknown
-msgid ""
+ msgid ""
  "This value determines whether or not Monitoring Engine will process host "
  "and service check performance data. This option is disabled by default."
  msgstr ""
@@ -6809,6 +6740,5 @@ msgid ""
  "Serviceüberprüfungsleistungsdaten verarbeitet. Diese Option ist "
  "standardmäßig deaktiviert."
 
-#: unknown
-msgid "Whether this host group is enabled."
+ msgid "Whether this host group is enabled."
  msgstr "Legt fest, ob die Host-Gruppe aktiviert ist."

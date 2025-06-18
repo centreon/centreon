@@ -19244,60 +19244,47 @@ msgstr ""
 msgid "{{total}} element(s) found"
 msgstr ""
 
-#: unknown
-msgid " element(s) found"
+ msgid " element(s) found"
  msgstr "élément(s) trouvé(s)"
 
-#: unknown
-msgid " elements to selection ?"
+ msgid " elements to selection ?"
  msgstr "éléments à sélectioner?"
 
-#: unknown
-msgid "$HOSTADDRESS$"
+ msgid "$HOSTADDRESS$"
  msgstr "$HOSTADDRESS$"
 
-#: unknown
-msgid "%s is downloaded."
+ msgid "%s is downloaded."
  msgstr "%s est téléchargé."
 
-#: unknown
-msgid "%s patch is installed."
+ msgid "%s patch is installed."
  msgstr "le correctif %s a été installé."
 
-#: unknown
-msgid "'{{total}} element(s) found"
+ msgid "'{{total}} element(s) found"
  msgstr "'{{total}} élément(s) trouvé(s)"
 
-#: unknown
-msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
+ msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
  msgstr ""
  "* Cross-Site Request Forgery : des requêtes non autorisées ont été "
  "transmises"
 
-#: unknown
-msgid "2d Coords"
+ msgid "2d Coords"
  msgstr "Coordonnées 2D"
 
-#: unknown
-msgid "3d Coords"
+ msgid "3d Coords"
  msgstr "Coordonnées 3D"
 
-#: unknown
-msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
+ msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
  msgstr ""
  "<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
  "vers"
 
-#: unknown
-msgid "<br><b>Centreon : </b>All configuration will be send to "
+ msgid "<br><b>Centreon : </b>All configuration will be send to "
  msgstr "<br><b>Centreon : </b>Toute la configuration sera envoyée vers "
 
-#: unknown
-msgid "<br><b>Centreon : </b>Cannot send signal to "
+ msgid "<br><b>Centreon : </b>Cannot send signal to "
  msgstr "<br><b>Centreon : </b>Impossible d'envoyer le signal vers "
 
-#: unknown
-msgid ""
+ msgid ""
  "<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>&nbsp;&nbsp;"
  "&nbsp;- Do not mix metrics of different sources.<br>&nbsp;&nbsp;&nbsp;- "
  "Only aggregation functions work in VDEF rpn expressions."
@@ -19307,275 +19294,213 @@ msgid ""
  "&nbsp;&nbsp;- Seules les fonctions d'agrégation fonctionnent avec les "
  "expressions VDEF."
 
-#: unknown
-msgid ""
+ msgid ""
  "<p>Currently upgrading database... please do not interrupt this process.</"
  "p>"
  msgstr ""
  "<p>En cours de mise à jour de la base de données... Merci de ne pas "
  "interrompre ce processus.</p>"
 
-#: unknown
-msgid "ACL Definition"
+ msgid "ACL Definition"
  msgstr "Nom de l'ACL"
 
-#: unknown
-msgid "ACL reloaded"
+ msgid "ACL reloaded"
  msgstr "ACL rechargées"
 
-#: unknown
-msgid "ACL rules"
+ msgid "ACL rules"
  msgstr "Règles d'accès"
 
-#: unknown
-msgid "ALL"
+ msgid "ALL"
  msgstr "Tous"
 
-#: unknown
-msgid "API token"
+ msgid "API token"
  msgstr "Jeton d'API"
 
-#: unknown
-msgid "Access not allowed"
+ msgid "Access not allowed"
  msgstr " Accès non autorisé"
 
-#: unknown
-msgid "Accessible Pages"
+ msgid "Accessible Pages"
  msgstr "Pages disponibles"
 
-#: unknown
-msgid "Acknowledge host or service Color"
+ msgid "Acknowledge host or service Color"
  msgstr "Couleur des hôtes ou des services acquittés"
 
-#: unknown
-msgid "Acknowledge/Disacknowledge a service"
+ msgid "Acknowledge/Disacknowledge a service"
  msgstr "Acquitter/Désacquitter un service"
 
-#: unknown
-msgid "Acknowledge/Disaknowledge a host"
+ msgid "Acknowledge/Disaknowledge a host"
  msgstr "Acquitter/Désacquitter un hôte"
 
-#: unknown
-msgid "Acknowlegment"
+ msgid "Acknowlegment"
  msgstr "Acquittement"
 
-#: unknown
-msgid "Active Check"
+ msgid "Active Check"
  msgstr "Contrôle actif"
 
-#: unknown
-msgid "Active Color"
+ msgid "Active Color"
  msgstr "Couleur active"
 
-#: unknown
-msgid "Active/Revoked"
+ msgid "Active/Revoked"
  msgstr "Actif/Révoqué"
 
-#: unknown
-msgid "Add "
+ msgid "Add "
  msgstr "Ajouter"
 
-#: unknown
-msgid "Add a Host Group"
+ msgid "Add a Host Group"
  msgstr "Ajouter un groupe d'hôtes"
 
-#: unknown
-msgid "Add a Host downtime"
+ msgid "Add a Host downtime"
  msgstr "Ajouter une plage de maintenance pour un hôte"
 
-#: unknown
-msgid "Add a LDAP server"
+ msgid "Add a LDAP server"
  msgstr "Ajouter un serveur LDAP"
 
-#: unknown
-msgid "Add a Service comment"
+ msgid "Add a Service comment"
  msgstr "Ajouter pour un service"
 
-#: unknown
-msgid "Add a Service downtime"
+ msgid "Add a Service downtime"
  msgstr "Planifier pour un service"
 
-#: unknown
-msgid "Add a User Template"
+ msgid "Add a User Template"
  msgstr "Ajouter un modèle utilisateur"
 
-#: unknown
-msgid "Add a host downtime"
+ msgid "Add a host downtime"
  msgstr "Planifier pour un hôte"
 
-#: unknown
-msgid "Add a host group"
+ msgid "Add a host group"
  msgstr "Ajouter un groupe d'hôtes"
 
-#: unknown
-msgid "Add a service downtime"
+ msgid "Add a service downtime"
  msgstr "Planifier pour service"
 
-#: unknown
-msgid "Add host"
+ msgid "Add host"
  msgstr "Ajouter un hôte"
 
-#: unknown
-msgid ""
+ msgid ""
  "Add open_files_limit=32000 in my.cnf file under the [mysqld] section and "
  "restart MySQL Server."
  msgstr ""
  "Ajouter la propriété open_files_limit=32000 dans le fichier my.cnf dans "
  "l'encart [mysql] et redémarrez le serveur MySQL."
 
-#: unknown
-msgid "Add resource"
+ msgid "Add resource"
  msgstr "Ajouter une ressource"
 
-#: unknown
-msgid "Add resource dataset"
+ msgid "Add resource dataset"
  msgstr "Ajouter un jeu de données de ressources"
 
-#: unknown
-msgid "Add viewer / viewer group"
+ msgid "Add viewer / viewer group"
  msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
 
-#: unknown
-msgid "Additional daemon"
+ msgid "Additional daemon"
  msgstr "Démon supplémentaire"
 
-#: unknown
-msgid "Additional properties are not allowed"
+ msgid "Additional properties are not allowed"
  msgstr "Les propriétés additionnelles ne sont pas autorisées"
 
-#: unknown
-msgid "Additionnal Information"
+ msgid "Additionnal Information"
  msgstr "Informations complémentaires"
 
-#: unknown
-msgid "Address1"
+ msgid "Address1"
  msgstr "Adresse n°1"
 
-#: unknown
-msgid "Address2"
+ msgid "Address2"
  msgstr "Adresse n°2"
 
-#: unknown
-msgid "Address3"
+ msgid "Address3"
  msgstr "Adresse n°3"
 
-#: unknown
-msgid "Address4"
+ msgid "Address4"
  msgstr "Adresse n°4"
 
-#: unknown
-msgid "Address5"
+ msgid "Address5"
  msgstr "Adresse n°5"
 
-#: unknown
-msgid "Address6"
+ msgid "Address6"
  msgstr "Adresse n°6"
 
-#: unknown
-msgid "Advanced mode"
+ msgid "Advanced mode"
  msgstr "Mode avancé"
 
-#: unknown
-msgid "Agent configuration"
+ msgid "Agent configuration"
  msgstr "Configuration d'agent"
 
-#: unknown
-msgid "Aggressive Host Checks"
+ msgid "Aggressive Host Checks"
  msgstr "Contrôle agressif des hôtes"
 
-#: unknown
-msgid "All Graphs"
+ msgid "All Graphs"
  msgstr "Tous les graphiques"
 
-#: unknown
-msgid "All Logs"
+ msgid "All Logs"
  msgstr "Tous les logs"
 
-#: unknown
-msgid "Allow self signed certificate."
+ msgid "Allow self signed certificate."
  msgstr "Autoriser le certificat auto-signé."
 
-#: unknown
-msgid ""
+ msgid ""
  "An additional configuration of type %s is already associated with poller "
  "ID(s) '%s'"
  msgstr ""
  "Une configuration additionnelle de type %s est déjà associée au(x) ID(s) "
  "de collecteur(s) '%s'"
 
-#: unknown
-msgid "An error occured while converting your platform"
+ msgid "An error occured while converting your platform"
  msgstr "Une erreur est survenue lors de la conversion de la plateforme"
 
-#: unknown
-msgid "An error occured while disabling the central menus"
+ msgid "An error occured while disabling the central menus"
  msgstr ""
  "Une erreur est survenue lors de la désactivation des menus du central"
 
-#: unknown
-msgid "An error occured while enabling the central menus"
+ msgid "An error occured while enabling the central menus"
  msgstr "Une erreur est survenue lors de l'activation des menus du central"
 
-#: unknown
-msgid "An error occured while retrieving host categories"
+ msgid "An error occured while retrieving host categories"
  msgstr ""
  "Une erreur s'est produite lors de la récupération des catégories d'hôtes"
 
-#: unknown
-msgid "An error occured while retrieving metrics data"
+ msgid "An error occured while retrieving metrics data"
  msgstr ""
  "Une erreur est survenue lors de la récupération des données de métriques"
 
-#: unknown
-msgid "An error occured while retrieving service categories"
+ msgid "An error occured while retrieving service categories"
  msgstr ""
  "Une erreur s'est produite lors de la récupération des catégories de "
  "services"
 
-#: unknown
-msgid "An error occured while searching any remote children"
+ msgid "An error occured while searching any remote children"
  msgstr "Une erreur est survenue lors de la recherche de remote enfants"
 
-#: unknown
-msgid "An error occured while updating the platform topology"
+ msgid "An error occured while updating the platform topology"
  msgstr ""
  "Une erreur est survenue lors de la mise à jour de la topology de la "
  "plateforme"
 
-#: unknown
-msgid "An error occured while your platform update"
+ msgid "An error occured while your platform update"
  msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 
-#: unknown
-msgid "An error occurred while filtering columns"
+ msgid "An error occurred while filtering columns"
  msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
-#: unknown
-msgid "Animation effects"
+ msgid "Animation effects"
  msgstr "Effets d'animation"
 
-#: unknown
-msgid ""
+ msgid ""
  "Anyone with the link can view your playlist. Be cautious when you share "
  "it."
  msgstr ""
  "Toute personne disposant du lien peut consulter votre liste de diffusion. "
  "Soyez vigilant lorsque vous le partagez."
 
-#: unknown
-msgid "Append"
+ msgid "Append"
  msgstr "Ajout"
 
-#: unknown
-msgid "Apply configuration"
+ msgid "Apply configuration"
  msgstr "Appliquer la configuration"
 
-#: unknown
-msgid "Archive logs of monitoring engine"
+ msgid "Archive logs of monitoring engine"
  msgstr "Journaux d'archive du moteur de supervision"
 
-#: unknown
-msgid ""
+ msgid ""
  "Are you sure you want to change the size of the envelope? Please note "
  "that the new envelope size will only be applied from now on. The old "
  "envelope will stay the same."
@@ -19584,481 +19509,371 @@ msgid ""
  "nouvelle taille d'enveloppe s’appliquera seulement à partir de "
  "maintenant. L’ancienne enveloppe restera inchangée."
 
-#: unknown
-msgid ""
+ msgid ""
  "Are you sure you want to change this parameter? Please read the help "
  "before."
  msgstr ""
  "Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide "
  "avant."
 
-#: unknown
-msgid "Are you sure you want to uninstall this widget?"
+ msgid "Are you sure you want to uninstall this widget?"
  msgstr "Êtes-vous sûr de vouloir désinstaller ce widget?"
 
-#: unknown
-msgid "Arrow color"
+ msgid "Arrow color"
  msgstr "Couleur de la flèche des axes"
 
-#: unknown
-msgid "As displayed"
+ msgid "As displayed"
  msgstr "Image affichée"
 
-#: unknown
-msgid "Authorization Endpoint"
+ msgid "Authorization Endpoint"
  msgstr "Point de terminaison d'autorisation"
 
-#: unknown
-msgid "Authorization key: The key"
+ msgid "Authorization key: The key"
  msgstr "Clé d'autorisation : La clé"
 
-#: unknown
-msgid "Auto Discovery"
+ msgid "Auto Discovery"
  msgstr "Découverte automatisée"
 
-#: unknown
-msgid "Availability: %s%%"
+ msgid "Availability: %s%%"
  msgstr "Disponibilité : %s%%"
 
-#: unknown
-msgid "Axis Properties"
+ msgid "Axis Properties"
  msgstr "Propriétés des axes"
 
-#: unknown
-msgid "B.Activities"
+ msgid "B.Activities"
  msgstr "A.Métier"
 
-#: unknown
-msgid "Back to Centreon Broker configuration menu"
+ msgid "Back to Centreon Broker configuration menu"
  msgstr "Revenir au menu de Centreon Broker"
 
-#: unknown
-msgid "Bad JSON schema format"
+ msgid "Bad JSON schema format"
  msgstr "Mauvais format de JSON schema"
 
-#: unknown
-msgid "Bad JSON schema path"
+ msgid "Bad JSON schema path"
  msgstr "Mauvais chemin de JSON Schema"
 
-#: unknown
-msgid "Bad SQL request"
+ msgid "Bad SQL request"
  msgstr "Mauvaise requête SQL"
 
-#: unknown
-msgid "Bad arguments for wizard."
+ msgid "Bad arguments for wizard."
  msgstr "Mauvais arguments pour l'assistant."
 
-#: unknown
-msgid "Bad configuration type"
+ msgid "Bad configuration type"
  msgstr "Type incorrect de configuration"
 
-#: unknown
-msgid "Bad format for the sort request parameter"
+ msgid "Bad format for the sort request parameter"
  msgstr "Mauvais format pour la requête de tri"
 
-#: unknown
-msgid "Bad regex format"
+ msgid "Bad regex format"
  msgstr "Mauvaise expression régulière (RegExp)"
 
-#: unknown
-msgid "Bad request"
+ msgid "Bad request"
  msgstr "Mauvaise requête"
 
-#: unknown
-msgid "Base Url"
+ msgid "Base Url"
  msgstr "URL de base"
 
-#: unknown
-msgid "Base release"
+ msgid "Base release"
  msgstr "Version de base"
 
-#: unknown
-msgid "Behavior on duplicate names"
+ msgid "Behavior on duplicate names"
  msgstr "Comportement sur les noms en doublon"
 
-#: unknown
-msgid "Boolean Rules"
+ msgid "Boolean Rules"
  msgstr "Règles booléennes"
 
-#: unknown
-msgid "Bottom color"
+ msgid "Bottom color"
  msgstr "Couleur du bas"
 
-#: unknown
-msgid "Broker Module information"
+ msgid "Broker Module information"
  msgstr "Information du module broker"
 
-#: unknown
-msgid "Broker engine used by Centreon"
+ msgid "Broker engine used by Centreon"
  msgstr "Broker utilisé par Centreon"
 
-#: unknown
-msgid "Broker need options to be loaded"
+ msgid "Broker need options to be loaded"
  msgstr "Le broker a besoin d'options pour être lancé"
 
-#: unknown
-msgid "Browser detected"
+ msgid "Browser detected"
  msgstr "Navigateur détecté"
 
-#: unknown
-msgid "Bug Tracker"
+ msgid "Bug Tracker"
  msgstr "Rapporter un bogue"
 
-#: unknown
-msgid "Business Intelligence"
+ msgid "Business Intelligence"
  msgstr "Business Intelligence"
 
-#: unknown
-msgid ""
+ msgid ""
  "By turning off this option, all links included in the widget will be "
  "opened in the same tab."
  msgstr ""
  "En désactivant cette option, tous les liens inclus dans le widget seront "
  "ouverts dans le même onglet."
 
-#: unknown
-msgid ""
+ msgid ""
  "By turning off this option, all the links included in the widget will be "
  "opened in the same tab."
  msgstr ""
  "En désactivant cette option, tous les liens inclus dans le widget seront "
  "ouverts dans le même onglet."
 
-#: unknown
-msgid "C"
+ msgid "C"
  msgstr "C"
 
-#: unknown
-msgid "CRITICAL Alerts"
+ msgid "CRITICAL Alerts"
  msgstr "Alertes CRITICAL"
 
-#: unknown
-msgid "CRITICAL Mean Time"
+ msgid "CRITICAL Mean Time"
  msgstr "CRITICAL (Temps connu)"
 
-#: unknown
-msgid "CRITICAL Time"
+ msgid "CRITICAL Time"
  msgstr "Temps état CRITICAL"
 
-#: unknown
-msgid "CSS"
+ msgid "CSS"
  msgstr "CSS"
 
-#: unknown
-msgid "CSS File"
+ msgid "CSS File"
  msgstr "Fichier CSS"
 
-#: unknown
-msgid "CSS configuration"
+ msgid "CSS configuration"
  msgstr "Configuration CSS"
 
-#: unknown
-msgid "Can't get file'"
+ msgid "Can't get file'"
  msgstr "Impossible d'obtenir le fichier"
 
-#: unknown
-msgid "Can't get list of files."
+ msgid "Can't get list of files."
  msgstr "Impossible d'obtenir la liste des fichiers."
 
-#: unknown
-msgid "Can't open configuration file : /etc/oreon.conf"
+ msgid "Can't open configuration file : /etc/oreon.conf"
  msgstr "Impossible d'ouvrir le fichier de configuration : /etc/oreon.conf"
 
-#: unknown
-msgid "Can't open patch"
+ msgid "Can't open patch"
  msgstr "Impossible d'ouvrir le correctif"
 
-#: unknown
-msgid "Can't read in directory"
+ msgid "Can't read in directory"
  msgstr "Impossible de lire dans le répertoire"
 
-#: unknown
-msgid "Cannot create user"
+ msgid "Cannot create user"
  msgstr "Impossible de créer l'utilisateur"
 
-#: unknown
-msgid "Cannot get last version"
+ msgid "Cannot get last version"
  msgstr "Impossible d'obtenir la dernière version"
 
-#: unknown
-msgid "Cannot link a 'remote': '%s'@'%s' to another Remote server type"
+ msgid "Cannot link a 'remote': '%s'@'%s' to another Remote server type"
  msgstr ""
  "Il n'est pas possible de lier un 'remote': '%s'@'%s' à un autre serveur "
  "de type 'Remote'"
 
-#: unknown
-msgid "Cannot set parent id on a central server"
+ msgid "Cannot set parent id on a central server"
  msgstr "Il n'est pas possible d'assigner un id parent à un serveur central"
 
-#: unknown
-msgid "Censtorage Core Options"
+ msgid "Censtorage Core Options"
  msgstr "Options du processus Censtorage"
 
-#: unknown
-msgid "CentCore"
+ msgid "CentCore"
  msgstr "Centcore"
 
-#: unknown
-msgid "CentStorage"
+ msgid "CentStorage"
  msgstr "CentStorage"
 
-#: unknown
-msgid "Centcore Options"
+ msgid "Centcore Options"
  msgstr "Options du processus Centcore"
 
-#: unknown
-msgid "Centcore properties"
+ msgid "Centcore properties"
  msgstr "Propriétés de Centcore"
 
-#: unknown
-msgid "Central address"
+ msgid "Central address"
  msgstr "Adresse du Central"
 
-#: unknown
-msgid "Central configuration"
+ msgid "Central configuration"
  msgstr "Configuration du serveur central"
 
-#: unknown
-msgid ""
+ msgid ""
  "Central platform's API port is not consistent. Please check the 'Remote "
  "Access' form."
  msgstr ""
  "Le port de l'API vers le Central n'est pas cohérent. Veuiller vérifier le "
  "formulaire 'Accès du Remote'."
 
-#: unknown
-msgid ""
+ msgid ""
  "Central platform's data are not consistent. Please check the 'Remote "
  "Access' form"
  msgstr ""
  "Des données de la plateforme ne sont pas cohérentes. Veuillez vérifier le "
  "formulaire 'Accès du Remote'."
 
-#: unknown
-msgid "Central's API URI."
+ msgid "Central's API URI."
  msgstr "URI de l'API du central"
 
-#: unknown
-msgid ""
+ msgid ""
  "Central's path is missing on: '%s'@'%s'. Please check the Remote Access "
  "form."
  msgstr ""
  "Le chemin vers le Central, de la plateforme: '%s'@'%s est manquant. "
  "Veuillez vérifier le formulaire 'Accès du Remote'."
 
-#: unknown
-msgid "Central's response : "
+ msgid "Central's response : "
  msgstr "Réponse du Central : "
 
-#: unknown
-msgid "Centreon Broker information"
+ msgid "Centreon Broker information"
  msgstr "Information sur Centreon Broker"
 
-#: unknown
-msgid "Centreon Broker socket path"
+ msgid "Centreon Broker socket path"
  msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#: unknown
-msgid "Centreon DataBase Statistics"
+ msgid "Centreon DataBase Statistics"
  msgstr "Statistiques sur les bases de données de Centreon"
 
-#: unknown
-msgid "Centreon Map"
+ msgid "Centreon Map"
  msgstr "Centreon Map"
 
-#: unknown
-msgid "Centreon Map Client (admin)"
+ msgid "Centreon Map Client (admin)"
  msgstr "Client Centreon Map (admin)"
 
-#: unknown
-msgid "Centreon Map Client (user)"
+ msgid "Centreon Map Client (user)"
  msgstr "Client Centreon Map (utilisateur)"
 
-#: unknown
-msgid "Centreon Map WS"
+ msgid "Centreon Map WS"
  msgstr "Centreon Map WS"
 
-#: unknown
-msgid "Centreon Users"
+ msgid "Centreon Users"
  msgstr "Utilisateurs Centreon"
 
-#: unknown
-msgid "Centreon is updated."
+ msgid "Centreon is updated."
  msgstr "Centreon a été mis à jour."
 
-#: unknown
-msgid "Centreon-Broker"
+ msgid "Centreon-Broker"
  msgstr "Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Correlation"
+ msgid "Centreon-Broker Correlation"
  msgstr "Corrélation Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Input"
+ msgid "Centreon-Broker Input"
  msgstr "Entrées Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Logger"
+ msgid "Centreon-Broker Logger"
  msgstr "Journalisation Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Output"
+ msgid "Centreon-Broker Output"
  msgstr "Sorties Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Stats"
+ msgid "Centreon-Broker Stats"
  msgstr "Statistiques Centreon Broker"
 
-#: unknown
-msgid "Centreon-Broker Temporary"
+ msgid "Centreon-Broker Temporary"
  msgstr "Buffer Centreon Broker"
 
-#: unknown
-msgid "Centstorage Configuration"
+ msgid "Centstorage Configuration"
  msgstr "Configuration de Centstorage"
 
-#: unknown
-msgid "Centstorage debug"
+ msgid "Centstorage debug"
  msgstr "Débogage Centstorage"
 
-#: unknown
-msgid "Change update options"
+ msgid "Change update options"
  msgstr "Modifier les options de mise à jour"
 
-#: unknown
-msgid "Changes to the envelope size will be applied only from now on."
+ msgid "Changes to the envelope size will be applied only from now on."
  msgstr ""
  "La nouvelle taille d'enveloppe s’appliquera seulement à partir de "
  "maintenant."
 
-#: unknown
-msgid ""
+ msgid ""
  "Changing the type of an existing additional configuration is not allowed"
  msgstr ""
  "Changer le type d'une configuration additionnelle existante n'est pas "
  "autorisé"
 
-#: unknown
-msgid "Check Beta"
+ msgid "Check Beta"
  msgstr "Vérifier les mises à jour de version beta"
 
-#: unknown
-msgid "Check Release candidate"
+ msgid "Check Release candidate"
  msgstr "Vérifier les mises à jour de version candidate"
 
-#: unknown
-msgid "Check User View"
+ msgid "Check User View"
  msgstr "Vérifier la vue de l'utilisateur"
 
-#: unknown
-msgid "Check Version"
+ msgid "Check Version"
  msgstr "Vérifier la version"
 
-#: unknown
-msgid "Check command"
+ msgid "Check command"
  msgstr "Commande de contrôle"
 
-#: unknown
-msgid "Check patches"
+ msgid "Check patches"
  msgstr "Vérifier les mises à jour de correctifs"
 
-#: unknown
-msgid "Check secu-patches"
+ msgid "Check secu-patches"
  msgstr "Vérifier les mises à jour de correctifs de sécurité"
 
-#: unknown
-msgid "Check stable versions"
+ msgid "Check stable versions"
  msgstr "Vérifier les mises à jour de version stable"
 
-#: unknown
-msgid "Child processes fork twice"
+ msgid "Child processes fork twice"
  msgstr "Création de deux processus enfants pour chaque contrôle"
 
-#: unknown
-msgid "Choose a configuration template:"
+ msgid "Choose a configuration template:"
  msgstr "Choisissez le modèle de configuration"
 
-#: unknown
-msgid "Choose a duration between 1 hour and 12 months"
+ msgid "Choose a duration between 1 hour and 12 months"
  msgstr "Veuillez choisir une durée entre 1 heure et 12 mois"
 
-#: unknown
-msgid "Choose a host, then its associated service."
+ msgid "Choose a host, then its associated service."
  msgstr "Choisir un hôte, puis son service associé."
 
-#: unknown
-msgid "Choose at least 1 user"
+ msgid "Choose at least 1 user"
  msgstr "Veuillez sélectionner au moins 1 utilisateur"
 
-#: unknown
-msgid "Client Secret"
+ msgid "Client Secret"
  msgstr "Secret client"
 
-#: unknown
-msgid "Cmd"
+ msgid "Cmd"
  msgstr "Commande"
 
-#: unknown
-msgid "Color for host Down (Service view)"
+ msgid "Color for host Down (Service view)"
  msgstr ""
  "Couleur pour les hôtes en statut problèmatique (page de supervision des "
  "services)"
 
-#: unknown
-msgid "Color for host Unreachable (Service view)"
+ msgid "Color for host Unreachable (Service view)"
  msgstr ""
  "Couleur pour les hôtes non joignable (page de supervision des services)"
 
-#: unknown
-msgid "Commands containing a request body are not allowed at the moment"
+ msgid "Commands containing a request body are not allowed at the moment"
  msgstr ""
  "Les commandes contenant un corp ne sont pas autorisées pour le moment"
 
-#: unknown
-msgid "Communication port"
+ msgid "Communication port"
  msgstr "Port de communication"
 
-#: unknown
-msgid "Compulsory Contact"
+ msgid "Compulsory Contact"
  msgstr "Contact obligatoire"
 
-#: unknown
-msgid "Compulsory Contact Group"
+ msgid "Compulsory Contact Group"
  msgstr "Groupe de contacts obligatoire"
 
-#: unknown
-msgid "Configuration Actions"
+ msgid "Configuration Actions"
  msgstr "Configuration des actions"
 
-#: unknown
-msgid "Configuration UI behavior"
+ msgid "Configuration UI behavior"
  msgstr "Configuration du comportement de l'interface"
 
-#: unknown
-msgid "Configuration saved."
+ msgid "Configuration saved."
  msgstr "Configuration sauvegardée."
 
-#: unknown
-msgid "Congratulations, you have successfully installed Centreon!"
+ msgid "Congratulations, you have successfully installed Centreon!"
  msgstr ""
  "Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
  "b>."
 
-#: unknown
-msgid "Connected Users"
+ msgid "Connected Users"
  msgstr "Utilisateurs connectés"
 
-#: unknown
-msgid "Connected users"
+ msgid "Connected users"
  msgstr "Utilisateurs connectés"
 
-#: unknown
-msgid "Connection Error to NDO DataBase ! \n"
+ msgid "Connection Error to NDO DataBase ! \n"
  msgstr "Erreur de connexion à la base de données NDO ! \n"
 
-#: unknown
-msgid ""
+ msgid ""
  "Connection to Wiki database failed, please contact your administrator or "
  "read the Centreon online documentation to configure wiki access"
  msgstr ""
@@ -20066,766 +19881,587 @@ msgid ""
  "administrateur ou consulter la documentation en ligne Centreon pour "
  "configurer les accès."
 
-#: unknown
-msgid "Contact Details"
+ msgid "Contact Details"
  msgstr "Détails du Contact"
 
-#: unknown
-msgid "Contact Templates"
+ msgid "Contact Templates"
  msgstr "Modèles de contact"
 
-#: unknown
-msgid "Contact disabled."
+ msgid "Contact disabled."
  msgstr "Contact désactivé."
 
-#: unknown
-msgid "Contact group: Define a contact group for the imported user."
+ msgid "Contact group: Define a contact group for the imported user."
  msgstr ""
  "Groupe de contact : Définir un groupe de contact pour l'utilisateur "
  "importé."
 
 #, fuzzy
-#: unknown
-msgid "Contact templace"
+ msgid "Contact templace"
  msgstr "Modèle de contact"
 
-#: unknown
-msgid "Correlation"
+ msgid "Correlation"
  msgstr "Activer la corrélation"
 
-#: unknown
-msgid "Correlation file"
+ msgid "Correlation file"
  msgstr "Fichier de corrélation"
 
-#: unknown
-msgid "Correlation passive"
+ msgid "Correlation passive"
  msgstr "Correlation passive"
 
-#: unknown
-msgid "Could not find CENTREON_ETC. Session probably expired."
+ msgid "Could not find CENTREON_ETC. Session probably expired."
  msgstr ""
  "Variable CENTREON_ETC non trouvée. La session a probablement expirée."
 
-#: unknown
-msgid "Could not find configuration database. Session probably expired."
+ msgid "Could not find configuration database. Session probably expired."
  msgstr ""
  "Impossible de trouver la base de données de configuration. La session a "
  "probablement expirée"
 
-#: unknown
-msgid "Could not find database user. Session probably expired."
+ msgid "Could not find database user. Session probably expired."
  msgstr ""
  "Impossible de trouver l'utilisateur ayant accès aux bases de données. La "
  "session a probablement expirée"
 
-#: unknown
-msgid "Could not find macro "
+ msgid "Could not find macro "
  msgstr "Ne peut pas trouver la macro "
 
-#: unknown
-msgid "Could not find storage database. Session probably expired."
+ msgid "Could not find storage database. Session probably expired."
  msgstr ""
  "Base de données de stockage non trouvée. La session a probablement "
  "expirée."
 
-#: unknown
-msgid "Could not find utils database. Session probably expired."
+ msgid "Could not find utils database. Session probably expired."
  msgstr ""
  "Impossible de trouver la base de données du broker. La session a "
  "probablement expirée"
 
-#: unknown
-msgid "Could not import ndo2db"
+ msgid "Could not import ndo2db"
  msgstr "Impossible d'importer ndo2db"
 
-#: unknown
-msgid "Could not import ndomod"
+ msgid "Could not import ndomod"
  msgstr "Impossible d'importer ndomod"
 
-#: unknown
-msgid "Create new object with prefix"
+ msgid "Create new object with prefix"
  msgstr "Créer un nouvel objet avec un prefix"
 
-#: unknown
-msgid "Create new token"
+ msgid "Create new token"
  msgstr "Créer un nouveau jeton"
 
-#: unknown
-msgid "Critical Alert"
+ msgid "Critical Alert"
  msgstr "Alerte Critique"
 
-#: unknown
-msgid "Critical Mean Time"
+ msgid "Critical Mean Time"
  msgstr "Critique (Temps connu)"
 
-#: unknown
-msgid "Current Activation"
+ msgid "Current Activation"
  msgstr "Activation actuelle"
 
-#: unknown
-msgid "Currently running?"
+ msgid "Currently running?"
  msgstr "En cours d'exécution ?"
 
-#: unknown
-msgid "Daemon core dumps"
+ msgid "Daemon core dumps"
  msgstr ""
  "Activer la possibilité de réaliser un 'core dump' (non compatible avec "
  "Centreon Engine)"
 
-#: unknown
-msgid "Daily"
+ msgid "Daily"
  msgstr "Quotidienne"
 
-#: unknown
-msgid "Data Source Choice"
+ msgid "Data Source Choice"
  msgstr "Choix de la source de données"
 
-#: unknown
-msgid "Data Source List"
+ msgid "Data Source List"
  msgstr "List des sources de données"
 
-#: unknown
-msgid "Data recovery KO"
+ msgid "Data recovery KO"
  msgstr "Récupération des données KO"
 
-#: unknown
-msgid "Data recovery OK"
+ msgid "Data recovery OK"
  msgstr "Récupération des données OK"
 
-#: unknown
-msgid "Database Informations"
+ msgid "Database Informations"
  msgstr "Informations de la base de données"
 
-#: unknown
-msgid "Default Engine"
+ msgid "Default Engine"
  msgstr "Moteur par défaut"
 
-#: unknown
-msgid "Default Settings"
+ msgid "Default Settings"
  msgstr "Paramètres par défaut"
 
-#: unknown
-msgid "Default contact group"
+ msgid "Default contact group"
  msgstr "Groupe de contacts par défaut"
 
-#: unknown
-msgid "Default host timezone"
+ msgid "Default host timezone"
  msgstr "Timezone par défaut de l'hôte"
 
-#: unknown
-msgid "Define relation between roles and ACL access groups"
+ msgid "Define relation between roles and ACL access groups"
  msgstr "Définir la relation entre les rôles et les groupes d'accès ACL"
 
-#: unknown
-msgid ""
+ msgid ""
  "Define the relation between authorization value and access group: You can "
  "link an authorization value to an access group."
  msgstr ""
  "Définir la relation entre la valeur d'autorisation et le groupe d'accès : "
  "Vous pouvez lier une valeur d'autorisation à un groupe d'accès."
 
-#: unknown
-msgid "Delete a widget"
+ msgid "Delete a widget"
  msgstr "Supprimer un widget"
 
-#: unknown
-msgid "Delete all configuration for the chosen type of files"
+ msgid "Delete all configuration for the chosen type of files"
  msgstr "Supprimer toute la configuration des types de fichiers choisis"
 
-#: unknown
-msgid "Delete host group"
+ msgid "Delete host group"
  msgstr "Supprimer le groupe d'hôtes"
 
-#: unknown
-msgid "Delete host groups"
+ msgid "Delete host groups"
  msgstr "Supprimer les groupes d'hôtes"
 
-#: unknown
-msgid "Dependencies Management"
+ msgid "Dependencies Management"
  msgstr "Gestion des dépendances"
 
-#: unknown
-msgid "Deploy Service"
+ msgid "Deploy Service"
  msgstr "Déployer les services"
 
-#: unknown
-msgid "Detection by browser"
+ msgid "Detection by browser"
  msgstr "Détection via le navigateur"
 
-#: unknown
-msgid ""
+ msgid ""
  "Different number of tokens between configuration and monitoring command "
  "line"
  msgstr ""
  "Nombre différent de jetons entre la ligne de commande de configuration et "
  "de supervision"
 
-#: unknown
-msgid "Directories"
+ msgid "Directories"
  msgstr "Répertoires"
 
-#: unknown
-msgid "Directory of traps configuration files"
+ msgid "Directory of traps configuration files"
  msgstr "Répertoire des fichiers de configuration des traps"
 
-#: unknown
-msgid "Directory traversal detected"
+ msgid "Directory traversal detected"
  msgstr "Détection d'un changement de répertoire non autorisé"
 
-#: unknown
-msgid "Disable Check"
+ msgid "Disable Check"
  msgstr "Désactiver la Vérification"
 
-#: unknown
-msgid "Disable Notification"
+ msgid "Disable Notification"
  msgstr "Désactiver la Notification"
 
-#: unknown
-msgid "Disable event handlers"
+ msgid "Disable event handlers"
  msgstr "Arrêter le gestionnaire d'évènements"
 
-#: unknown
-msgid "Disable flap detection"
+ msgid "Disable flap detection"
  msgstr "Arrêter la détection de bagotage des statuts"
 
-#: unknown
-msgid "Disable notifications"
+ msgid "Disable notifications"
  msgstr "Désactiver les notifications"
 
-#: unknown
-msgid "Disable performance data"
+ msgid "Disable performance data"
  msgstr "Arrêter le traitement des données de performance"
 
-#: unknown
-msgid "Disable submit result if no matched rules"
+ msgid "Disable submit result if no matched rules"
  msgstr "Désactiver la mise à jour du service si aucune règle n'est valide"
 
-#: unknown
-msgid "Disabled HostGroups"
+ msgid "Disabled HostGroups"
  msgstr "Désactiver le groupe d'hôtes"
 
-#: unknown
-msgid "Display Finished Downtimes"
+ msgid "Display Finished Downtimes"
  msgstr "Afficher les plages de maintenance terminés"
 
-#: unknown
-msgid "Display Options"
+ msgid "Display Options"
  msgstr "Options d'affichage"
 
-#: unknown
-msgid "Display Recurring Downtimes"
+ msgid "Display Recurring Downtimes"
  msgstr "Afficher les plages de maintenance cycliques"
 
-#: unknown
-msgid "Display Template"
+ msgid "Display Template"
  msgstr "Utiliser le modèle"
 
-#: unknown
-msgid "Display all Services for this host"
+ msgid "Display all Services for this host"
  msgstr "Afficher tous les services de cet hôte"
 
-#: unknown
-msgid "Display type"
+ msgid "Display type"
  msgstr "Type d'affichage"
 
-#: unknown
-msgid "Do you confirm  the duplication ?"
+ msgid "Do you confirm  the duplication ?"
  msgstr "Confirmez-vous la duplication ?"
 
-#: unknown
-msgid "Do you confirm the cancelation?"
+ msgid "Do you confirm the cancelation?"
  msgstr "Confirmez-vous l'annulation?"
 
-#: unknown
-msgid "Do you confirm the cancellation ?"
+ msgid "Do you confirm the cancellation ?"
  msgstr "Confirmez-vous l'annulation ?"
 
-#: unknown
-msgid "Do you confirm the deletion?"
+ msgid "Do you confirm the deletion?"
  msgstr "Confirmez-vous la suppression ?"
 
-#: unknown
-msgid "Do you really wish to remove this entry?"
+ msgid "Do you really wish to remove this entry?"
  msgstr "Voulez-vous réellement supprimer cette entrée ?"
 
-#: unknown
-msgid "Do you want to delete this widget?"
+ msgid "Do you want to delete this widget?"
  msgstr "Voulez-vous supprimer ce widget ?"
 
-#: unknown
-msgid "Donate"
+ msgid "Donate"
  msgstr "Donation"
 
-#: unknown
-msgid "Down Alerts"
+ msgid "Down Alerts"
  msgstr "Alertes Indisponible"
 
-#: unknown
-msgid "Down Time"
+ msgid "Down Time"
  msgstr "Temps état indisponible"
 
-#: unknown
-msgid "Downtime host or service Color"
+ msgid "Downtime host or service Color"
  msgstr "Couleur des hôtes ou des services en maintenance"
 
-#: unknown
-msgid "Drop Data in another file"
+ msgid "Drop Data in another file"
  msgstr "Copier les données dans un autre fichier"
 
-#: unknown
-msgid "Drop file"
+ msgid "Drop file"
  msgstr "Copier dans le fichier"
 
-#: unknown
-msgid "Drop possibility after parsing performance data"
+ msgid "Drop possibility after parsing performance data"
  msgstr "Actions après traitement des données de performances"
 
-#: unknown
-msgid "Duplicate host group"
+ msgid "Duplicate host group"
  msgstr "Dupliquer le groupe d'hôtes"
 
-#: unknown
-msgid "Duplicate host groups"
+ msgid "Duplicate host groups"
  msgstr "Dupliquer les groupes d'hôtes"
 
-#: unknown
-msgid "ERROR"
+ msgid "ERROR"
  msgstr "ERREUR"
 
-#: unknown
-msgid "Edit"
+ msgid "Edit"
  msgstr "Éditer"
 
-#: unknown
-msgid "Embedded Perl initialisation file"
+ msgid "Embedded Perl initialisation file"
  msgstr "Interpréteur Perl intégré"
 
-#: unknown
-msgid "Enable Centstorage Engine (require restart of centstorage)"
+ msgid "Enable Centstorage Engine (require restart of centstorage)"
  msgstr ""
  "Active le Moteur de Centstorage (requiert le redémarrage de centstorage)"
 
-#: unknown
-msgid "Enable Check"
+ msgid "Enable Check"
  msgstr "Activer la Vérification"
 
-#: unknown
-msgid "Enable Logs Synchronisation"
+ msgid "Enable Logs Synchronisation"
  msgstr "Activer la synchronisation des logs"
 
-#: unknown
-msgid "Enable Notification"
+ msgid "Enable Notification"
  msgstr "Activer la Notification"
 
-#: unknown
-msgid "Enable Perfdata Synchronisation"
+ msgid "Enable Perfdata Synchronisation"
  msgstr "Activer la synchronisation des données de performance"
 
-#: unknown
-msgid "Enable SSO authentication"
+ msgid "Enable SSO authentication"
  msgstr "Activer l'authentification SSO"
 
-#: unknown
-msgid "Enable embedded Perl"
+ msgid "Enable embedded Perl"
  msgstr "Utilisation de l'interpréteur Perl intégré"
 
-#: unknown
-msgid "Enable event handlers"
+ msgid "Enable event handlers"
  msgstr "Activer le gestionnaire d'évènements"
 
-#: unknown
-msgid "Enable flap detection"
+ msgid "Enable flap detection"
  msgstr "Démarrer la détection de bagotage des statuts"
 
-#: unknown
-msgid "Enable performance data"
+ msgid "Enable performance data"
  msgstr "Activer le traitement des données de performance"
 
-#: unknown
-msgid "Enable resources's insertion in index_data by Centreon"
+ msgid "Enable resources's insertion in index_data by Centreon"
  msgstr "Activer l'insertion de ressources dans index_data par Centreon"
 
-#: unknown
-msgid "Enable strict mode for host parentship management"
+ msgid "Enable strict mode for host parentship management"
  msgstr "Activer le mode strict de gestion des relations de parentés"
 
-#: unknown
-msgid "Enable the one-click export button for poller configuration"
+ msgid "Enable the one-click export button for poller configuration"
  msgstr ""
  "Activer le bouton d’export de la configuration des collecteurs en un seul "
  "clic"
 
-#: unknown
-msgid "Enabled HostGroups"
+ msgid "Enabled HostGroups"
  msgstr "Activer le groupe d'hôtes"
 
-#: unknown
-msgid "End Hour"
+ msgid "End Hour"
  msgstr "Heure de fin"
 
-#: unknown
-msgid "End Minute"
+ msgid "End Minute"
  msgstr "Minute de fin"
 
-#: unknown
-msgid "End date must be greater than start date"
+ msgid "End date must be greater than start date"
  msgstr "La date de fin doit être supérieure à la date de début"
 
-#: unknown
-msgid "End date must be greater than start date."
+ msgid "End date must be greater than start date."
  msgstr "La date de fin doit être supérieure à la date de début."
 
-#: unknown
-msgid "Entries are registered"
+ msgid "Entries are registered"
  msgstr "Les entrées sont enregistrées"
 
-#: unknown
-msgid "Error : unable to read or update the contact data in the DB"
+ msgid "Error : unable to read or update the contact data in the DB"
  msgstr "Erreur : impossible de lire ou de mettre à jour les données en DB"
 
-#: unknown
-msgid "Error during deleting expired session"
+ msgid "Error during deleting expired session"
  msgstr "Erreur lors de l'expiration de la session"
 
-#: unknown
-msgid "Error during token creation"
+ msgid "Error during token creation"
  msgstr "Erreur lors de la création du token"
 
-#: unknown
-msgid "Error from Central's register API : "
+ msgid "Error from Central's register API : "
  msgstr "Erreur de l'API d'enregistrement sur le Central : "
 
-#: unknown
-msgid "Error on reading host templates (Reason: %s)"
+ msgid "Error on reading host templates (Reason: %s)"
  msgstr "Erreur lors de la lecture des modèles d'hôtes (Raison : %s)"
 
-#: unknown
-msgid "Error when adding a host"
+ msgid "Error when adding a host"
  msgstr "Erreur lors de l'ajout d'un hôte"
 
-#: unknown
-msgid "Error when adding a host group"
+ msgid "Error when adding a host group"
  msgstr "Erreur lors de l'ajout d'un groupe d'hôte"
 
-#: unknown
-msgid "Error when deleting a monitoring server"
+ msgid "Error when deleting a monitoring server"
  msgstr "Erreur lors de la supression d'un serveur de supervision"
 
-#: unknown
-msgid "Error when deleting tokens for one contact"
+ msgid "Error when deleting tokens for one contact"
  msgstr "Erreur lors de la suppression des tokens pour un contact"
 
-#: unknown
-msgid "Error when installing patch : %s."
+ msgid "Error when installing patch : %s."
  msgstr "Erreur lors de l'installation du correctif : %s."
 
-#: unknown
-msgid "Error when recovering the number of tokens"
+ msgid "Error when recovering the number of tokens"
  msgstr "Erreur lors de la récupération du nombre de token"
 
-#: unknown
-msgid "Error when searching for a resource of monitoring server"
+ msgid "Error when searching for a resource of monitoring server"
  msgstr ""
  "Erreur lors de la recherche de la ressource attachée au serveur de "
  "supervision"
 
-#: unknown
-msgid "Error when searching for monitoring servers"
+ msgid "Error when searching for monitoring servers"
  msgstr "Erreur lors de la recherche de serveurs de supervision"
 
-#: unknown
-msgid "Error when searching for the local monitoring servers"
+ msgid "Error when searching for the local monitoring servers"
  msgstr "Erreur lors de la recherche du serveur de supervision local"
 
-#: unknown
-msgid "Error when searching monitoring server name"
+ msgid "Error when searching monitoring server name"
  msgstr "Erreur lors de la recherche du nom du serveur de supervision"
 
-#: unknown
-msgid "Error when updating the user\\'s theme"
+ msgid "Error when updating the user\\'s theme"
  msgstr "Erreur lors de la mise à jour du thème de l'utilisateur"
 
-#: unknown
-msgid "Error while adding the dashboard share"
+ msgid "Error while adding the dashboard share"
  msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
 
-#: unknown
-msgid "Error while creating a playlist."
+ msgid "Error while creating a playlist."
  msgstr "Erreur lors de la création d'une liste de diffusion."
 
-#: unknown
-msgid "Error while creating export request"
+ msgid "Error while creating export request"
  msgstr "Erreur lors de la création de la demande d'export"
 
-#: unknown
-msgid "Error while creation of host"
+ msgid "Error while creation of host"
  msgstr "Erreur lors de la creation de l'hôte"
 
-#: unknown
-msgid "Error while deleting a playlist"
+ msgid "Error while deleting a playlist"
  msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
-#: unknown
-msgid "Error while deleting the dashboard share"
+ msgid "Error while deleting the dashboard share"
  msgstr "Erreur durant la suppression d'un partage de tableau de bord"
 
-#: unknown
-msgid "Error while getting the local requester."
+ msgid "Error while getting the local requester."
  msgstr "Erreur durant la récupération du poller central"
 
-#: unknown
-msgid "Error while inserting central-broker configuration"
+ msgid "Error while inserting central-broker configuration"
  msgstr ""
  "Erreur durant l'insertion de la configuration du module Centreon Broker "
  "Master"
 
-#: unknown
-msgid "Error while inserting central-module configuration"
+ msgid "Error while inserting central-module configuration"
  msgstr "Erreur durant l'insertion des configurations de central-module"
 
-#: unknown
-msgid "Error while inserting central-rrd configuration"
+ msgid "Error while inserting central-rrd configuration"
  msgstr ""
  "Erreur durant l'insertion de la configuration du module Centreon Broker "
  "RRD"
 
-#: unknown
-msgid "Error while inserting poller-module configuration"
+ msgid "Error while inserting poller-module configuration"
  msgstr ""
  "Erreur durant l'insertion de la configuration du module Centreon Broker "
  "du collecteur"
 
-#: unknown
-msgid "Error while linking template %s to host (id: %d)"
+ msgid "Error while linking template %s to host (id: %d)"
  msgstr "Erreur lors de la liaison du modèle %s à l'hôte (id: %d)"
 
-#: unknown
-msgid "Error while linking template (id: %d) to host (id: %d)"
+ msgid "Error while linking template (id: %d) to host (id: %d)"
  msgstr "Erreur lors de la liaison du modèle (id: %d) à l'hôte (id: %d)"
 
-#: unknown
-msgid "Error while listing the playlist shares"
+ msgid "Error while listing the playlist shares"
  msgstr "Erreur lors du listing des partages de la liste de diffusion"
 
-#: unknown
-msgid "Error while retrieving a playlist."
+ msgid "Error while retrieving a playlist."
  msgstr "Erreur lors de la récupération d'une liste de diffusion."
 
-#: unknown
-msgid "Error while retrieving contact groups"
+ msgid "Error while retrieving contact groups"
  msgstr "Erreur lors de la récupération des groupes de contacts"
 
-#: unknown
-msgid "Error while retrieving the new dashboard share"
+ msgid "Error while retrieving the new dashboard share"
  msgstr ""
  "Erreur durant la récupération d'un nouveau partage de tableau de bord"
 
-#: unknown
-msgid "Error while saving configuration."
+ msgid "Error while saving configuration."
  msgstr "Erreur durant l'enregistrement de la configuration."
 
-#: unknown
-msgid "Error while searching for authentication tokens"
+ msgid "Error while searching for authentication tokens"
  msgstr "Erreur lors de la recherche de jetons d'authentification"
 
-#: unknown
-msgid "Error while searching for available pollers for type '%s'"
+ msgid "Error while searching for available pollers for type '%s'"
  msgstr ""
  "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
 
-#: unknown
-msgid "Error while searching for the dashboard shares"
+ msgid "Error while searching for the dashboard shares"
  msgstr "Erreur durant la recherche de partages de tableau de bord"
 
-#: unknown
-msgid ""
+ msgid ""
  "Error while searching for the modules version of the Centreon platform"
  msgstr "Erreur lors de la recherche de la version des extensions"
 
-#: unknown
-msgid "Error while searching for the web version of the Centreon platform"
+ msgid "Error while searching for the web version of the Centreon platform"
  msgstr ""
  "Erreur lors de la récupération de la version de la plate-forme Centreon"
 
-#: unknown
-msgid ""
+ msgid ""
  "Error while searching for the widgets version of the Centreon platform"
  msgstr "Erreur lors de la recherche de la version des widgets"
 
-#: unknown
-msgid "Error while searching identity providers configurations"
+ msgid "Error while searching identity providers configurations"
  msgstr ""
  "Erreur lors de la recherche des configurations de fournisseurs "
  "d'identification"
 
-#: unknown
-msgid "Error while updating playlist shares"
+ msgid "Error while updating playlist shares"
  msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
 
-#: unknown
-msgid "Error: Cannot Execute this command due to a path security problem."
+ msgid "Error: Cannot Execute this command due to a path security problem."
  msgstr ""
  "Erreur: Impossible d'exécuter cette commande en raison d'un problème de "
  "sécurité sur le chemin."
 
-#: unknown
-msgid "Escalations View"
+ msgid "Escalations View"
  msgstr "Visualisation des escalades"
 
-#: unknown
-msgid "Event Handlers Enabled?"
+ msgid "Event Handlers Enabled?"
  msgstr "Gestionnaire d'évènements activé ?"
 
-#: unknown
-msgid "Event Type"
+ msgid "Event Type"
  msgstr "Type d'évènement"
 
-#: unknown
-msgid "Exclude Timeperiods"
+ msgid "Exclude Timeperiods"
  msgstr "Exclure les périodes"
 
-#: unknown
-msgid "Execution start"
+ msgid "Execution start"
  msgstr "Début de l'exécution"
 
-#: unknown
-msgid "Export XML"
+ msgid "Export XML"
  msgstr "Exporter au format XML"
 
-#: unknown
-msgid "Export format not supported"
+ msgid "Export format not supported"
  msgstr "Format d'export non supporté"
 
-#: unknown
-msgid "Export in XML too"
+ msgid "Export in XML too"
  msgstr "Exporter également en XML"
 
-#: unknown
-msgid "Extended Information"
+ msgid "Extended Information"
  msgstr "Informations additionnelles"
 
-#: unknown
-msgid "External Command"
+ msgid "External Command"
  msgstr "Commande externe"
 
-#: unknown
-msgid "Extra"
+ msgid "Extra"
  msgstr "Extra"
 
-#: unknown
-msgid "Failed to copy the link."
+ msgid "Failed to copy the link."
  msgstr "Échec de la copie du lien."
 
-#: unknown
-msgid "Failed to delete notifications"
+ msgid "Failed to delete notifications"
  msgstr "Échec de la suppression des notifications"
 
-#: unknown
-msgid "Failed to delete resource access rule"
+ msgid "Failed to delete resource access rule"
  msgstr "Échec de la suppression de la règle d'accès aux ressources"
 
-#: unknown
-msgid "Failed to delete the host group"
+ msgid "Failed to delete the host group"
  msgstr "Échec de la suppression du groupe d'hôtes"
 
-#: unknown
-msgid "Failed to disable the host group"
+ msgid "Failed to disable the host group"
  msgstr "Échec de la désactivation du groupe d'hôtes"
 
-#: unknown
-msgid "Failed to duplicate the host group"
+ msgid "Failed to duplicate the host group"
  msgstr "Échec de la duplication du groupe d'hôtes"
 
-#: unknown
-msgid "Failed to enable the host group"
+ msgid "Failed to enable the host group"
  msgstr "Échec de l'activation du groupe d'hôtes"
 
-#: unknown
-msgid "Failed to get the auth token from Central : '%s'"
+ msgid "Failed to get the auth token from Central : '%s'"
  msgstr "Echec d'obtention du token d'auth. sur le Central: '%s'@'%s'"
 
-#: unknown
-msgid "Failover"
+ msgid "Failover"
  msgstr "Failover"
 
-#: unknown
-msgid "File (zip, tar or cfg)"
+ msgid "File (zip, tar or cfg)"
  msgstr "Fichier (zip, tar ou cfg)"
 
-#: unknown
-msgid "File Type"
+ msgid "File Type"
  msgstr "Type de fichier"
 
-#: unknown
-msgid "File loading KO"
+ msgid "File loading KO"
  msgstr "Chargement du fichier KO"
 
-#: unknown
-msgid "File loading OK"
+ msgid "File loading OK"
  msgstr "Chargement du fichier OK"
 
-#: unknown
-msgid "File max size"
+ msgid "File max size"
  msgstr "Taille maximale du fichier"
 
-#: unknown
-msgid "File read offset"
+ msgid "File read offset"
  msgstr "Indice de lecture du fichier"
 
-#: unknown
-msgid "File read path"
+ msgid "File read path"
  msgstr "Chemin du fichier en cours de lecture"
 
-#: unknown
-msgid "File write offset"
+ msgid "File write offset"
  msgstr "Indice d'écriture du fichier"
 
-#: unknown
-msgid "File write path"
+ msgid "File write path"
  msgstr "Chemin du fichier en cours d'écriture"
 
-#: unknown
-msgid "Final release"
+ msgid "Final release"
  msgstr "Version finale"
 
-#: unknown
-msgid "Finish"
+ msgid "Finish"
  msgstr "Terminer"
 
-#: unknown
-msgid "First Refresh delay for monitoring"
+ msgid "First Refresh delay for monitoring"
  msgstr "Délai du premier rafraîchissement pour la page de supervision"
 
-#: unknown
-msgid "First Refresh delay for statistics"
+ msgid "First Refresh delay for statistics"
  msgstr "Délai du premier rafraîchissement pour la page des statistiques"
 
-#: unknown
-msgid "Flap detection enabled?"
+ msgid "Flap detection enabled?"
  msgstr "Détection de bagotage des statuts activée ?"
 
-#: unknown
-msgid "Font"
+ msgid "Font"
  msgstr "Police"
 
-#: unknown
-msgid "Font size"
+ msgid "Font size"
  msgstr "Taille de police"
 
-#: unknown
-msgid ""
+ msgid ""
  "For a host, the status displayed in the tile is the worst among its own "
  "status and the statuses of its services."
  msgstr ""
  "Pour un hôte, le statut affiché dans la tuile est le pire parmi son "
  "propre statut et les statuts de ses services."
 
-#: unknown
-msgid "For a service, the service status is displayed."
+ msgid "For a service, the service status is displayed."
  msgstr "Pour un service, le statut du service est affiché."
 
-#: unknown
-msgid ""
+ msgid ""
  "For archive upload, be sure that the first line of each file has no "
  "importance because it is not handled.<br />Avoid to begin with a "
  "definition."
@@ -20834,1043 +20470,791 @@ msgid ""
  "fichier n'ait pas d'importance car elle n'est pas prise en compte.<br /"
  ">Evitez de commencer avec une définition."
 
-#: unknown
-msgid ""
+ msgid ""
  "For professional support subscription please contact the <a href=\"http://"
  "support.centreon.com\">Centreon Support Center</a>."
  msgstr ""
  "Pour la souscription à un support professionnel, contacter le <a "
  "href=\"http://support.centreon.com\">Centre de Support Centreon</a>."
 
-#: unknown
-msgid ""
+ msgid ""
  "For security reasons, the token can only be displayed once. Store it "
  "carefully."
  msgstr ""
  "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
  "fois. Stockez-le soigneusement."
 
-#: unknown
-msgid "Force Reload"
+ msgid "Force Reload"
  msgstr "Forcer le rechargement"
 
-#: unknown
-msgid "Forum"
+ msgid "Forum"
  msgstr "Forum"
 
-#: unknown
-msgid "Free child process memory"
+ msgid "Free child process memory"
  msgstr "Libérer la mémoire des processus enfants"
 
-#: unknown
-msgid "Fullname attribute"
+ msgid "Fullname attribute"
  msgstr "Attribut de nom complet"
 
-#: unknown
-msgid "General Access"
+ msgid "General Access"
  msgstr "Gestion des accès globaux"
 
-#: unknown
-msgid "General options"
+ msgid "General options"
  msgstr "Paramètres globaux"
 
-#: unknown
-msgid "Generate Files"
+ msgid "Generate Files"
  msgstr "Générer les fichiers"
 
-#: unknown
-msgid "Generate new token"
+ msgid "Generate new token"
  msgstr "Générer un nouveau jeton"
 
-#: unknown
-msgid "Generated in "
+ msgid "Generated in "
  msgstr "Généré en "
 
-#: unknown
-msgid "Geolocation"
+ msgid "Geolocation"
  msgstr "Géolocalisation"
 
-#: unknown
-msgid "Global Community"
+ msgid "Global Community"
  msgstr "Communauté globale"
 
-#: unknown
-msgid "Global Health"
+ msgid "Global Health"
  msgstr "Santé globale"
 
-#: unknown
-msgid "Go"
+ msgid "Go"
  msgstr "Go"
 
-#: unknown
-msgid "Graph List"
+ msgid "Graph List"
  msgstr "Liste des graphiques"
 
-#: unknown
-msgid "Graph settings"
+ msgid "Graph settings"
  msgstr "Paramètres de graphe"
 
-#: unknown
-msgid "Graph type"
+ msgid "Graph type"
  msgstr "Type de graphique"
 
-#: unknown
-msgid "Grid background color"
+ msgid "Grid background color"
  msgstr "Couleur d'arrière plan de la grille"
 
-#: unknown
-msgid "Group member update behavior"
+ msgid "Group member update behavior"
  msgstr "Comportement de mise à jour des membres du groupe"
 
-#: unknown
-msgid "H:i:s"
+ msgid "H:i:s"
  msgstr "H:i:s"
 
-#: unknown
-msgid "HTTP"
+ msgid "HTTP"
  msgstr "HTTP"
 
-#: unknown
-msgid "HTTP Action Link"
+ msgid "HTTP Action Link"
  msgstr "Lien HTTP externe"
 
-#: unknown
-msgid "HTTP Link"
+ msgid "HTTP Link"
  msgstr "Lien HTTP"
 
-#: unknown
-msgid "HTTPS"
+ msgid "HTTPS"
  msgstr "HTTPS"
 
-#: unknown
-msgid "Help Desk"
+ msgid "Help Desk"
  msgstr "Centre des services"
 
-#: unknown
-msgid "Here is a self-explanatory image."
+ msgid "Here is a self-explanatory image."
  msgstr "Ici, une image d'explication."
 
-#: unknown
-msgid "Host / Service Data Source"
+ msgid "Host / Service Data Source"
  msgstr "Source de données Hôte / Service"
 
-#: unknown
-msgid "Host Category Name"
+ msgid "Host Category Name"
  msgstr "Nom de la catégorie d'hôte"
 
-#: unknown
-msgid "Host Checks Being Executed?"
+ msgid "Host Checks Being Executed?"
  msgstr "Contrôle des hôtes activé ?"
 
-#: unknown
-msgid "Host DOWN Color"
+ msgid "Host DOWN Color"
  msgstr "Couleur d'hôte INDISPONIBLE"
 
-#: unknown
-msgid "Host Group Name"
+ msgid "Host Group Name"
  msgstr "Nom du groupe d'hôtes"
 
-#: unknown
-msgid "Host Groups (simplified)"
+ msgid "Host Groups (simplified)"
  msgstr "Groupes d'hôtes (simplifiés)"
 
-#: unknown
-msgid "Host Parallel Templates"
+ msgid "Host Parallel Templates"
  msgstr "Modèles d'hôte parallèles"
 
-#: unknown
-msgid "Host Performance Data File"
+ msgid "Host Performance Data File"
  msgstr "Fichier de données de performance d'hôte"
 
-#: unknown
-msgid "Host Performance Data File Mode"
+ msgid "Host Performance Data File Mode"
  msgstr "Mode du fichier de données de performance d'hôte"
 
-#: unknown
-msgid "Host Performance Data File Processing Command"
+ msgid "Host Performance Data File Processing Command"
  msgstr "Commande de traitement du fichier des données de performance d'hôte"
 
-#: unknown
-msgid "Host Performance Data File Processing Interval"
+ msgid "Host Performance Data File Processing Interval"
  msgstr "Intervalle de traitement des données de performance d'hôte"
 
-#: unknown
-msgid "Host Performance Data File Template"
+ msgid "Host Performance Data File Template"
  msgstr "Modèle de fichier de données de performance d'hôte"
 
-#: unknown
-msgid "Host Performance Data Processing Command"
+ msgid "Host Performance Data Processing Command"
  msgstr "Commande de traitement des données de performance d'hôte"
 
-#: unknown
-msgid "Host Template Name"
+ msgid "Host Template Name"
  msgstr "Nom du modèle d'hôte"
 
-#: unknown
-msgid "Host Templates name"
+ msgid "Host Templates name"
  msgstr "Nom des modèles d'hôtes"
 
-#: unknown
-msgid "Host UNREACHABLE Color"
+ msgid "Host UNREACHABLE Color"
  msgstr "Couleur d'hôte INJOIGNABLE"
 
-#: unknown
-msgid "Host UP Color"
+ msgid "Host UP Color"
  msgstr "Couleur d'hôte DISPONIBLE"
 
-#: unknown
-msgid "Host category not found"
+ msgid "Host category not found"
  msgstr "Catégorie d'hôtes introuvable"
 
-#: unknown
-msgid "Host comments"
+ msgid "Host comments"
  msgstr "Commentaires associés à l'hôte"
 
-#: unknown
-msgid "Host group created"
+ msgid "Host group created"
  msgstr "Groupe d'hôtes créé"
 
-#: unknown
-msgid "Host group deleted"
+ msgid "Host group deleted"
  msgstr "Groupe d'hôtes supprimé"
 
-#: unknown
-msgid "Host group disabled"
+ msgid "Host group disabled"
  msgstr "Groupe d'hôtes désactivé"
 
-#: unknown
-msgid "Host group duplicated"
+ msgid "Host group duplicated"
  msgstr "Groupe d'hôtes dupliqué"
 
-#: unknown
-msgid "Host group enabled"
+ msgid "Host group enabled"
  msgstr "Groupe d'hôtes activé"
 
-#: unknown
-msgid "Host group not found"
+ msgid "Host group not found"
  msgstr "Groupe d'hôtes non trouvé"
 
-#: unknown
-msgid "Host group updated"
+ msgid "Host group updated"
  msgstr "Groupe d'hôtes mis à jour"
 
-#: unknown
-msgid "Host groups deleted"
+ msgid "Host groups deleted"
  msgstr "Groupes d'hôtes supprimés"
 
-#: unknown
-msgid "Host groups disabled"
+ msgid "Host groups disabled"
  msgstr "Groupes d'hôtes désactivés"
 
-#: unknown
-msgid "Host groups duplicated"
+ msgid "Host groups duplicated"
  msgstr "Groupes d'hôtes dupliqués"
 
-#: unknown
-msgid "Host groups enabled"
+ msgid "Host groups enabled"
  msgstr "Groupes d'hôtes activés"
 
-#: unknown
-msgid "Host is currently on downtime"
+ msgid "Host is currently on downtime"
  msgstr "L'hôte est actuellement en période d'arrêt"
 
-#: unknown
-msgid "Host of downtime not found"
+ msgid "Host of downtime not found"
  msgstr "L'hôte associé à la plage de maintenance n'a pas été trouvé"
 
-#: unknown
-msgid "Host or id can not be null"
+ msgid "Host or id can not be null"
  msgstr "L'hôte ou l'id de l'hôte ne peuvent pas être null"
 
-#: unknown
-msgid "Hostgroups Escalation"
+ msgid "Hostgroups Escalation"
  msgstr "Escalades des groupes d'hôtes"
 
-#: unknown
-msgid "Hostname"
+ msgid "Hostname"
  msgstr "Nom d'hôte"
 
-#: unknown
-msgid "Hosts (simplified)"
+ msgid "Hosts (simplified)"
  msgstr "Hôtes (simplifiés)"
 
-#: unknown
-msgid "Hosts Downtimes"
+ msgid "Hosts Downtimes"
  msgstr "Plages de maintenance des hôtes"
 
-#: unknown
-msgid "Hosts Escalation"
+ msgid "Hosts Escalation"
  msgstr "Escalades des hôtes"
 
-#: unknown
-msgid "Hosts Group"
+ msgid "Hosts Group"
  msgstr "Groupe d'hôtes"
 
-#: unknown
-msgid "Hosts list"
+ msgid "Hosts list"
  msgstr "Hôtes"
 
-#: unknown
-msgid "Hosts status colors"
+ msgid "Hosts status colors"
  msgstr "Couleurs pour le statut des hôtes"
 
-#: unknown
-msgid "Hosts: Set Downtime"
+ msgid "Hosts: Set Downtime"
  msgstr "Hôtes: Planifier une plage de maintenance"
 
-#: unknown
-msgid "Hourly"
+ msgid "Hourly"
  msgstr "Toutes les heures"
 
-#: unknown
-msgid "Huge"
+ msgid "Huge"
  msgstr "Très grande"
 
-#: unknown
-msgid "IP Address / DNS"
+ msgid "IP Address / DNS"
  msgstr "Adresse IP / DNS"
 
-#: unknown
-msgid "Images Directory"
+ msgid "Images Directory"
  msgstr "Répertoire des images"
 
-#: unknown
-msgid "Images already uploaded."
+ msgid "Images already uploaded."
  msgstr "Images déjà uploadés."
 
-#: unknown
-msgid "Implied Host Groups"
+ msgid "Implied Host Groups"
  msgstr "Groupes d'hôtes liés"
 
-#: unknown
-msgid "Implied Hosts"
+ msgid "Implied Hosts"
  msgstr "Hôtes liés"
 
-#: unknown
-msgid "Implied Meta Services"
+ msgid "Implied Meta Services"
  msgstr "Méta-Services liés"
 
-#: unknown
-msgid "Implied Resources"
+ msgid "Implied Resources"
  msgstr "Ressources impliquées"
 
-#: unknown
-msgid "Implied Service Groups"
+ msgid "Implied Service Groups"
  msgstr "Groupes de services liés"
 
-#: unknown
-msgid "Implied Services"
+ msgid "Implied Services"
  msgstr "Services liés"
 
-#: unknown
-msgid "Implied page"
+ msgid "Implied page"
  msgstr "Pages Impliquées"
 
-#: unknown
-msgid "Import behavior"
+ msgid "Import behavior"
  msgstr "Résultat de l'import"
 
-#: unknown
-msgid "Impossible"
+ msgid "Impossible"
  msgstr "Impossible"
 
-#: unknown
-msgid "Impossible to create vault configuration"
+ msgid "Impossible to create vault configuration"
  msgstr "Impossible de créer la configuration du coffre-fort"
 
-#: unknown
-msgid "Impossible to delete vault configuration"
+ msgid "Impossible to delete vault configuration"
  msgstr "Impossible de supprimer la configuration du coffre-fort"
 
-#: unknown
-msgid "Impossible to find vault configuration(s)"
+ msgid "Impossible to find vault configuration(s)"
  msgstr "Impossible de trouver la(les) configuration(s) du coffre-fort"
 
-#: unknown
-msgid "Impossible to update vault configuration"
+ msgid "Impossible to update vault configuration"
  msgstr "Impossible de mettre à jour la configuration du coffre-fort"
 
-#: unknown
-msgid "In 1 year"
+ msgid "In 1 year"
  msgstr "Dans 1 an"
 
-#: unknown
-msgid "In 30 days"
+ msgid "In 30 days"
  msgstr "Dans 30 jours"
 
-#: unknown
-msgid "In 60 days"
+ msgid "In 60 days"
  msgstr "Dans 60 jours"
 
-#: unknown
-msgid "In 7 days"
+ msgid "In 7 days"
  msgstr "Dans 7 jours"
 
-#: unknown
-msgid "In 90 days"
+ msgid "In 90 days"
  msgstr "Dans 90 jours"
 
-#: unknown
-msgid ""
+ msgid ""
  "In order to complete your upgrade (%s), unzip the downloaded file, and "
  "follow the instructions in README\n"
  msgstr ""
  "Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, "
  "et suivez les instructions du fichier README\n"
 
-#: unknown
-msgid "Include Comments"
+ msgid "Include Comments"
  msgstr "Inclure les commentaires"
 
-#: unknown
-msgid "Include Host Groups -> Hosts"
+ msgid "Include Host Groups -> Hosts"
  msgstr "Inclus groupes d'hôtes -> hôtes"
 
-#: unknown
-msgid "Include Timeperiods"
+ msgid "Include Timeperiods"
  msgstr "Inclure les périodes"
 
-#: unknown
-msgid "Include comments"
+ msgid "Include comments"
  msgstr "Inclure les commentaires"
 
-#: unknown
-msgid "Inclusion"
+ msgid "Inclusion"
  msgstr "Inclusion"
 
-#: unknown
-msgid "Incorrect Event Type"
+ msgid "Incorrect Event Type"
  msgstr "Mauvais type d'évènement"
 
-#: unknown
-msgid "Incorrect resource type for acknowledgement"
+ msgid "Incorrect resource type for acknowledgement"
  msgstr "Type de ressource incorrect pour l'acquittement"
 
-#: unknown
-msgid "Incorrect resource type for disacknowledgement"
+ msgid "Incorrect resource type for disacknowledgement"
  msgstr "Type de ressource incorrect pour le désacquittement"
 
-#: unknown
-msgid "Increment"
+ msgid "Increment"
  msgstr "Incrément"
 
-#: unknown
-msgid ""
+ msgid ""
  "Indeed, it's the only way to make a difference between Check and "
  "Notification Commands."
  msgstr ""
  "En effet, c'est le seul moyen de différencier les commandes de "
  "notification et de vérification."
 
-#: unknown
-msgid "Indicators"
+ msgid "Indicators"
  msgstr "Indicateurs (KPI)"
 
-#: unknown
-msgid "Information command"
+ msgid "Information command"
  msgstr "Information sur la commande"
 
-#: unknown
-msgid "Informational messages "
+ msgid "Informational messages "
  msgstr "Événements de type information"
 
-#: unknown
-msgid "Init System"
+ msgid "Init System"
  msgstr "Système d'initialisation"
 
-#: unknown
-msgid "Initial State Logging Option"
+ msgid "Initial State Logging Option"
  msgstr "Journalisation des états initaux"
 
-#: unknown
-msgid "Install Module"
+ msgid "Install Module"
  msgstr "Installer le module"
 
-#: unknown
-msgid "Interactive View"
+ msgid "Interactive View"
  msgstr "Vue interactive"
 
-#: unknown
-msgid "Interactive view access"
+ msgid "Interactive view access"
  msgstr "Vue interactive"
 
-#: unknown
-msgid "Introspection Token Endpoint"
+ msgid "Introspection Token Endpoint"
  msgstr "Point de terminaison d'introspection du jeton"
 
-#: unknown
-msgid "Invalid credentials"
+ msgid "Invalid credentials"
  msgstr "Identifiants invalides"
 
-#: unknown
-msgid "Invalid date given for parameter \"%s\"."
+ msgid "Invalid date given for parameter \"%s\"."
  msgstr "Date invalide pour le paramètre \"%s\"."
 
-#: unknown
-msgid "Invalid endpoint URL specified"
+ msgid "Invalid endpoint URL specified"
  msgstr "URL d'endpoint spécifiée invalide"
 
-#: unknown
-msgid "Invalid endpoint type specified"
+ msgid "Invalid endpoint type specified"
  msgstr "Type d'endpoint spécifié invalide"
 
-#: unknown
-msgid "Invalid property type %s for %s, type %s expected"
+ msgid "Invalid property type %s for %s, type %s expected"
  msgstr "Type de propriétés invalide %s pour %s, type %s attendu"
 
-#: unknown
-msgid ""
+ msgid ""
  "It is recommended to upload all the Command definitions first by "
  "specifying their types."
  msgstr ""
  "Il est recommandé d'envoyer d'abord les définitions de commandes en "
  "spécifiant leur type."
 
-#: unknown
-msgid ""
+ msgid ""
  "It will be permanently deleted and users will no longer have this "
  "permission"
  msgstr ""
  "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces "
  "accès"
 
-#: unknown
-msgid "Job groups"
+ msgid "Job groups"
  msgstr "Groupes de tâches"
 
-#: unknown
-msgid "Jobs"
+ msgid "Jobs"
  msgstr "Tâches"
 
-#: unknown
-msgid "Knowledge base Database host"
+ msgid "Knowledge base Database host"
  msgstr "Adresse de la base de données"
 
-#: unknown
-msgid "Knowledge base Database password"
+ msgid "Knowledge base Database password"
  msgstr "Mot de passe de l'utilisateur ayant accès à la base de données"
 
-#: unknown
-msgid "Knowledge base Database prefix"
+ msgid "Knowledge base Database prefix"
  msgstr "Préfix des tables de la base de données"
 
-#: unknown
-msgid "Knowledge base database name"
+ msgid "Knowledge base database name"
  msgstr "Nom de la base de données de connaissance"
 
-#: unknown
-msgid "Knowledge base database user"
+ msgid "Knowledge base database user"
  msgstr "Compte d'accès à la base de données"
 
-#: unknown
-msgid "Large"
+ msgid "Large"
  msgstr "Grande"
 
-#: unknown
-msgid "Last 1 year"
+ msgid "Last 1 year"
  msgstr "La dernière année"
 
-#: unknown
-msgid "Last 60 days"
+ msgid "Last 60 days"
  msgstr "Les 60 derniers jours"
 
-#: unknown
-msgid "Last 90 days"
+ msgid "Last 90 days"
  msgstr "Les 90 derniers jours"
 
-#: unknown
-msgid "Last External Command Check:"
+ msgid "Last External Command Check:"
  msgstr "Heure de la dernière commande externe:"
 
-#: unknown
-msgid "Last Log File Rotation:"
+ msgid "Last Log File Rotation:"
  msgstr "Dernière rotation du fichier de journalisation:"
 
-#: unknown
-msgid "Last critical time"
+ msgid "Last critical time"
  msgstr "Dernière fois dans un état critique"
 
-#: unknown
-msgid "Last ok time"
+ msgid "Last ok time"
  msgstr "Dernière fois dans un état ok"
 
-#: unknown
-msgid "Last time unreachable"
+ msgid "Last time unreachable"
  msgstr "Dernière fois dans un état injoignable"
 
-#: unknown
-msgid "Last time up"
+ msgid "Last time up"
  msgstr "Dernière fois dans un état up"
 
-#: unknown
-msgid "Last unknown time"
+ msgid "Last unknown time"
  msgstr "Dernière fois dans un état inconnu"
 
-#: unknown
-msgid "Last warning time"
+ msgid "Last warning time"
  msgstr "Derniere fois dans un état warning"
 
 #, php-format
-#: unknown
-msgid "Latency detected on %s; check configuration for better optimisation"
+ msgid "Latency detected on %s; check configuration for better optimisation"
  msgstr ""
  "Latence détecté pour %s, contrôler la configuration pour améliorer les "
  "performances"
 
-#: unknown
-msgid "Legend Properties"
+ msgid "Legend Properties"
  msgstr "Propriétés de la légende"
 
-#: unknown
-msgid "Length"
+ msgid "Length"
  msgstr "Taille"
 
-#: unknown
-msgid "License invalid or expired"
+ msgid "License invalid or expired"
  msgstr "Licence invalide ou expirée"
 
-#: unknown
-msgid "Link has been copied!"
+ msgid "Link has been copied!"
  msgstr "Lien copié!"
 
-#: unknown
-msgid "Linked Host Groups"
+ msgid "Linked Host Groups"
  msgstr "Groupes d'hôtes liés"
 
-#: unknown
-msgid "Linked to Roles"
+ msgid "Linked to Roles"
  msgstr "Lié aux rôles"
 
-#: unknown
-msgid "Linked to host templates"
+ msgid "Linked to host templates"
  msgstr "Liés aux modèles d'hôtes"
 
-#: unknown
-msgid "Linked with Servicegroups"
+ msgid "Linked with Servicegroups"
  msgstr "Lié avec les groupes de services"
 
-#: unknown
-msgid "List of known metrics"
+ msgid "List of known metrics"
  msgstr "Liste des métriques connues"
 
-#: unknown
-msgid "Listening address"
+ msgid "Listening address"
  msgstr "Addresse d'écoute"
 
-#: unknown
-msgid "Load"
+ msgid "Load"
  msgstr "Charger"
 
-#: unknown
-msgid "Localhost"
+ msgid "Localhost"
  msgstr "Hôte local"
 
-#: unknown
-msgid "Lock File"
+ msgid "Lock File"
  msgstr "Fichier de verrou"
 
-#: unknown
-msgid "Locked?"
+ msgid "Locked?"
  msgstr "Verrouillée?"
 
-#: unknown
-msgid "Log Archive Path"
+ msgid "Log Archive Path"
  msgstr "Chemin d'archivage des logs"
 
-#: unknown
-msgid "Log Rotation Method"
+ msgid "Log Rotation Method"
  msgstr "Méthode de rotation des logs"
 
-#: unknown
-msgid "Loggers"
+ msgid "Loggers"
  msgstr "Traceurs"
 
-#: unknown
-msgid "Login claim value"
+ msgid "Login claim value"
  msgstr "Valeur de la déclaration de connexion"
 
-#: unknown
-msgid "Login:"
+ msgid "Login:"
  msgstr "Pseudo:"
 
-#: unknown
-msgid "Logos"
+ msgid "Logos"
  msgstr "Logos"
 
-#: unknown
-msgid "Logs Integration Properties"
+ msgid "Logs Integration Properties"
  msgstr "Propriétés des logs de Nagios"
 
-#: unknown
-msgid "Logs retention duration"
+ msgid "Logs retention duration"
  msgstr "Durée de rétention des journaux"
 
-#: unknown
-msgid "Loop detected in file %s"
+ msgid "Loop detected in file %s"
  msgstr "Boucle détectée dans le fichier %s"
 
-#: unknown
-msgid "Low Flap threshold"
+ msgid "Low Flap threshold"
  msgstr "Seuil bas de détection de bagotage des statuts"
 
-#: unknown
-msgid "MBI Reporting widgets"
+ msgid "MBI Reporting widgets"
  msgstr "Widgets de reporting MBI"
 
-#: unknown
-msgid "Main Menu"
+ msgid "Main Menu"
  msgstr "Menu principal"
 
-#: unknown
-msgid "Main grid color"
+ msgid "Main grid color"
  msgstr "Couleur principale de la grille"
 
-#: unknown
-msgid "Manage"
+ msgid "Manage"
  msgstr "Gérer"
 
-#: unknown
-msgid "Management"
+ msgid "Management"
  msgstr "Administration"
 
-#: unknown
-msgid "Mandatory retention path"
+ msgid "Mandatory retention path"
  msgstr "Chemin d'accès du fichier de rétention obligatoire"
 
-#: unknown
-msgid "Manual Filling"
+ msgid "Manual Filling"
  msgstr "Remplissage manuel"
 
-#: unknown
-msgid "Manual filling OK"
+ msgid "Manual filling OK"
  msgstr "Remplissage manuel OK"
 
-#: unknown
-msgid "Map"
+ msgid "Map"
  msgstr "Map"
 
-#: unknown
-msgid "Map Icon"
+ msgid "Map Icon"
  msgstr "Icône pour la carte"
 
-#: unknown
-msgid "Maximum Check Result Reaper Time"
+ msgid "Maximum Check Result Reaper Time"
  msgstr "Temp du contrôle des résultats maximal"
 
-#: unknown
-msgid "Medium size"
+ msgid "Medium size"
  msgstr "Taille moyenne"
 
-#: unknown
-msgid "Members"
+ msgid "Members"
  msgstr "Membres"
 
-#: unknown
-msgid "Menu"
+ msgid "Menu"
  msgstr "Menu"
 
-#: unknown
-msgid "Meta Service Name"
+ msgid "Meta Service Name"
  msgstr "Nom du Méta-Service"
 
-#: unknown
-msgid "Meta Services Escalation"
+ msgid "Meta Services Escalation"
  msgstr "Escalades des Méta-Services"
 
-#: unknown
-msgid "Metaservices"
+ msgid "Metaservices"
  msgstr "Méta-Service"
 
-#: unknown
-msgid "Metrics dataset selection"
+ msgid "Metrics dataset selection"
  msgstr "Sélection du jeu de données de métriques"
 
-#: unknown
-msgid "Missing auto import mandatory parameters: %s"
+ msgid "Missing auto import mandatory parameters: %s"
  msgstr ""
  "Paramètres obligatoires manquants pour l'importation automatique : %s"
 
-#: unknown
-msgid "Missing required property: %s"
+ msgid "Missing required property: %s"
  msgstr "propriété requise manquante: %s"
 
-#: unknown
-msgid "Mminutes"
+ msgid "Mminutes"
  msgstr "Minutes"
 
-#: unknown
-msgid "Modify a Host Group"
+ msgid "Modify a Host Group"
  msgstr "Modifier un groupe d'hôtes"
 
-#: unknown
-msgid "Modify a User Template"
+ msgid "Modify a User Template"
  msgstr "Modifier un modèle utilisateur"
 
-#: unknown
-msgid "Modify a host group"
+ msgid "Modify a host group"
  msgstr "Modifier un groupe d'hôtes"
 
-#: unknown
-msgid "Module Information"
+ msgid "Module Information"
  msgstr "Information sur le module"
 
-#: unknown
-msgid "Module installed and registered"
+ msgid "Module installed and registered"
  msgstr "Module installé et enregistré"
 
-#: unknown
-msgid "Modules Options"
+ msgid "Modules Options"
  msgstr "Option des modules"
 
-#: unknown
-msgid "Monitored from"
+ msgid "Monitored from"
  msgstr "Surveillé depuis le collecteur"
 
-#: unknown
-msgid "Monitoring Connectors"
+ msgid "Monitoring Connectors"
  msgstr "Connecteurs de supervision"
 
-#: unknown
-msgid "Monitoring Engine Configuration Files Export"
+ msgid "Monitoring Engine Configuration Files Export"
  msgstr "Export des fichiers de configuration du moteur de supervision"
 
-#: unknown
-msgid "Monitoring Engine Init Script"
+ msgid "Monitoring Engine Init Script"
  msgstr "Script d'initialisation du moteur de supervision"
 
-#: unknown
-msgid "Monitoring Engine PID"
+ msgid "Monitoring Engine PID"
  msgstr "ID du moteur de supervision"
 
-#: unknown
-msgid "Monitoring Engine Statistics"
+ msgid "Monitoring Engine Statistics"
  msgstr "Statistiques de l'ordonnanceur"
 
-#: unknown
-msgid "Monitoring Engine configuration upload"
+ msgid "Monitoring Engine configuration upload"
  msgstr "Envoi de la configuration du moteur de supervision"
 
-#: unknown
-msgid "Monitoring Engines"
+ msgid "Monitoring Engines"
  msgstr "Moteurs de supervision"
 
-#: unknown
-msgid "Monitoring connectors"
+ msgid "Monitoring connectors"
  msgstr "Connecteurs de supervision"
 
-#: unknown
-msgid "Monitoring server %1 not found"
+ msgid "Monitoring server %1 not found"
  msgstr "Serveur de supervision %1 non trouvé"
 
-#: unknown
-msgid "Monitoring system Group"
+ msgid "Monitoring system Group"
  msgstr "Groupe system de supervision"
 
-#: unknown
-msgid "Monitoring system User"
+ msgid "Monitoring system User"
  msgstr "Utilisateur system de supervision"
 
-#: unknown
-msgid "Monthly"
+ msgid "Monthly"
  msgstr "Mensuelle"
 
-#: unknown
-msgid "More Actions"
+ msgid "More Actions"
  msgstr "Plus d'actions"
 
-#: unknown
-msgid "NA"
+ msgid "NA"
  msgstr "NA"
 
-#: unknown
-msgid "Never Started"
+ msgid "Never Started"
  msgstr "Jamais démarré"
 
-#: unknown
-msgid "New Color"
+ msgid "New Color"
  msgstr "Nouvelle couleur"
 
-#: unknown
-msgid ""
+ msgid ""
  "No Central in topology,please edit it from Configuration > Pollers menu"
  msgstr ""
  "Pas de Central dans la topologie,Editez le depuis le menu Configurations "
  "> Collecteurs"
 
-#: unknown
-msgid "No Comment for hosts."
+ msgid "No Comment for hosts."
  msgstr "Pas de commentaires pour les hôtes."
 
-#: unknown
-msgid "No Data Available"
+ msgid "No Data Available"
  msgstr "Pas de données disponibles"
 
-#: unknown
-msgid "No LDAP configuration enabled !"
+ msgid "No LDAP configuration enabled !"
  msgstr "Aucune configuration LDAP active !"
 
-#: unknown
-msgid "No access"
+ msgid "No access"
  msgstr "Pas d'accès"
 
-#: unknown
-msgid "No active poller is defined in Centreon."
+ msgid "No active poller is defined in Centreon."
  msgstr "Aucun satellite actif est défini dans Centreon."
 
-#: unknown
-msgid "No command selected"
+ msgid "No command selected"
  msgstr "Aucune commande sélectionnée"
 
-#: unknown
-msgid "No data available"
+ msgid "No data available"
  msgstr "Aucune donnée disponible"
 
-#: unknown
-msgid "No downtime scheduled for hosts"
+ msgid "No downtime scheduled for hosts"
  msgstr "Aucune plage de maintenance planifiée pour les hôtes"
 
-#: unknown
-msgid "No downtime scheduled for services"
+ msgid "No downtime scheduled for services"
  msgstr "Aucune plage de maintenance planifiée pour les services"
 
-#: unknown
-msgid "No provider presenters could be found"
+ msgid "No provider presenters could be found"
  msgstr "Aucun présenteur de fournisseur n'a pu être trouvé"
 
-#: unknown
-msgid "No provider repositories could be found"
+ msgid "No provider repositories could be found"
  msgstr "Aucun dépôt de fournisseur n'a pu être trouvé"
 
-#: unknown
-msgid "No provider responses could be found"
+ msgid "No provider responses could be found"
  msgstr "Aucune réponse de fournisseur n'a pu être trouvée"
 
-#: unknown
-msgid "No unhandled host problem"
+ msgid "No unhandled host problem"
  msgstr "Aucun problème d'hôte non acquitté"
 
-#: unknown
-msgid "No unhandled service problem"
+ msgid "No unhandled service problem"
  msgstr "Aucun problème de service non acquitté"
 
-#: unknown
-msgid "No {{resourcesType}} found with this status"
+ msgid "No {{resourcesType}} found with this status"
  msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
 
-#: unknown
-msgid "Normal"
+ msgid "Normal"
  msgstr "Normale"
 
-#: unknown
-msgid "Not supported extension"
+ msgid "Not supported extension"
  msgstr "Extension non prise en charge"
 
-#: unknown
-msgid "Notes URL"
+ msgid "Notes URL"
  msgstr "URL"
 
-#: unknown
-msgid "Notification Command"
+ msgid "Notification Command"
  msgstr "Commande de notification"
 
-#: unknown
-msgid "Notification command"
+ msgid "Notification command"
  msgstr "Commande de notification"
 
-#: unknown
-msgid "Notification is disabled"
+ msgid "Notification is disabled"
  msgstr "Notifications désactivées"
 
-#: unknown
-msgid "Nullable property is not allowed"
+ msgid "Nullable property is not allowed"
  msgstr "Les propriétés nullable ne sont pas autorisées"
 
-#: unknown
-msgid "OK Alert"
+ msgid "OK Alert"
  msgstr "Alerte OK"
 
-#: unknown
-msgid "OK Alerts"
+ msgid "OK Alerts"
  msgstr "Alertes OK"
 
-#: unknown
-msgid "OK Mean Time"
+ msgid "OK Mean Time"
  msgstr "OK (Temps connu)"
 
-#: unknown
-msgid "OK Time"
+ msgid "OK Time"
  msgstr "Temps état OK"
 
-#: unknown
-msgid "OK: all pollers are running"
+ msgid "OK: all pollers are running"
  msgstr "OK: tous les collecteurs sont en cours d'exécution"
 
-#: unknown
-msgid "Object"
+ msgid "Object"
  msgstr "Objet"
 
-#: unknown
-msgid "Object Cache File"
+ msgid "Object Cache File"
  msgstr "Fichier de cache des objets"
 
-#: unknown
-msgid "Object Type"
+ msgid "Object Type"
  msgstr "Type d'objet"
 
-#: unknown
-msgid "Object name"
+ msgid "Object name"
  msgstr "Nom de l'objet :"
 
-#: unknown
-msgid "Objets"
+ msgid "Objets"
  msgstr "Objets"
 
-#: unknown
-msgid "Obsess Over Hosts Option"
+ msgid "Obsess Over Hosts Option"
  msgstr "Activation de l'exécution des commandes post contrôle d'hôte"
 
-#: unknown
-msgid "Obsess Over Services Option"
+ msgid "Obsess Over Services Option"
  msgstr "Activation de l'exécution des commandes post contrôle de service"
 
-#: unknown
-msgid "Obsessing Over Hosts?"
+ msgid "Obsessing Over Hosts?"
  msgstr "Exécution des commandes post contrôle d'hôtes?"
 
-#: unknown
-msgid "Obsessing Over Services?"
+ msgid "Obsessing Over Services?"
  msgstr "Exécution des commandes post contrôle des services ?"
 
-#: unknown
-msgid "Obsessive Compulsive Host Processor Command"
+ msgid "Obsessive Compulsive Host Processor Command"
  msgstr "Commande post contrôle d'hôte"
 
-#: unknown
-msgid "Obsessive Compulsive Host Processor Timeout"
+ msgid "Obsessive Compulsive Host Processor Timeout"
  msgstr "Temps maximum d'exécution d'une commande post contrôle d'hôte"
 
-#: unknown
-msgid "Obsessive Compulsive Service Processor Command"
+ msgid "Obsessive Compulsive Service Processor Command"
  msgstr "Commande post contrôle de service"
 
-#: unknown
-msgid "Obsessive Compulsive Service Processor Timeout"
+ msgid "Obsessive Compulsive Service Processor Timeout"
  msgstr "Temps maximum d'exécution d'une commande post contrôle de service"
 
-#: unknown
-msgid "Official website"
+ msgid "Official website"
  msgstr "Site web officiel"
 
-#: unknown
-msgid "On Problem Host"
+ msgid "On Problem Host"
  msgstr "Sur Problème de l'hôte"
 
-#: unknown
-msgid "Only one option must be set."
+ msgid "Only one option must be set."
  msgstr "Une seule option peut être renseignée"
 
-#: unknown
-msgid ""
+ msgid ""
  "Only services and hosts are taken in account in order to calculate this "
  "status. If you modify a template, it won't tell you the configuration had "
  "changed."
@@ -21879,1647 +21263,1251 @@ msgid ""
  "prisent en compte pour calculer cet état. Si vous modifiez un modèle, "
  "aucun indicateur de modification de configuration n’apparaitra."
 
-#: unknown
-msgid "Open links in new tab"
+ msgid "Open links in new tab"
  msgstr "Ouvrir les liens dans un nouvel onglet"
 
-#: unknown
-msgid "Open ticket"
+ msgid "Open ticket"
  msgstr "Ouvrir un ticket"
 
-#: unknown
-msgid "Optimize"
+ msgid "Optimize"
  msgstr "Optimiser"
 
-#: unknown
-msgid "Orphan Hosts"
+ msgid "Orphan Hosts"
  msgstr "Hôtes seuls"
 
-#: unknown
-msgid "Orphan hosts"
+ msgid "Orphan hosts"
  msgstr "Hôtes orphelins"
 
-#: unknown
-msgid "Outline color"
+ msgid "Outline color"
  msgstr "Schéma de couleurs"
 
-#: unknown
-msgid "Overview"
+ msgid "Overview"
  msgstr "Vue d'ensemble"
 
-#: unknown
-msgid "PENDING"
+ msgid "PENDING"
  msgstr "EN ATTENTE"
 
-#: unknown
-msgid "PHP file included"
+ msgid "PHP file included"
  msgstr "Fichier PHP inclus"
 
-#: unknown
-msgid "Parent Host Categories"
+ msgid "Parent Host Categories"
  msgstr "Catégorie d'hôtes parents"
 
-#: unknown
-msgid "Parent Host Groups"
+ msgid "Parent Host Groups"
  msgstr "Groupes d'hôtes parents"
 
-#: unknown
-msgid "Parent Template"
+ msgid "Parent Template"
  msgstr "Modèles parent"
 
-#: unknown
-msgid "Parent Templates"
+ msgid "Parent Templates"
  msgstr "Modèles parent"
 
-#: unknown
-msgid "Parent of service resource type cannot be null"
+ msgid "Parent of service resource type cannot be null"
  msgstr "Le parent de la resource de type service ne peut être null"
 
-#: unknown
-msgid "Passive Host Checks Are SOFT Option"
+ msgid "Passive Host Checks Are SOFT Option"
  msgstr "Les contrôles d'hôte passifs sont de type SOFT"
 
-#: unknown
-msgid "Passive Host Checks Being Accepted?"
+ msgid "Passive Host Checks Being Accepted?"
  msgstr "Contrôle passif des hôtes activé ?"
 
-#: unknown
-msgid "Passive Service Checks Being Accepted?"
+ msgid "Passive Service Checks Being Accepted?"
  msgstr "Contrôle passif des services activé ?"
 
-#: unknown
-msgid "Passive host checking Options"
+ msgid "Passive host checking Options"
  msgstr "Options de contrôle passive des hôtes"
 
-#: unknown
-msgid "Password cases"
+ msgid "Password cases"
  msgstr "Casses du mot de passe"
 
-#: unknown
-msgid "Patch Download path"
+ msgid "Patch Download path"
  msgstr "Répertoire pour le téléchargement des correctifs"
 
-#: unknown
-msgid "Perfdata"
+ msgid "Perfdata"
  msgstr "Données de performances"
 
-#: unknown
-msgid "Performance Data Being Processed?"
+ msgid "Performance Data Being Processed?"
  msgstr "Traitement des données de performances activé ?"
 
-#: unknown
-msgid "Performance Data Processing Option"
+ msgid "Performance Data Processing Option"
  msgstr "Traitement des données de performance"
 
-#: unknown
-msgid "Performance Data Processor Command Timeout"
+ msgid "Performance Data Processor Command Timeout"
  msgstr ""
  "Temps maximum d'exécution d'une commande de gestion des données de "
  "performances"
 
-#: unknown
-msgid "Performance broker page work only with Centreon Broker."
+ msgid "Performance broker page work only with Centreon Broker."
  msgstr "La page de performance fonctionne uniquement avec Centreon Broker."
 
-#: unknown
-msgid "Period :"
+ msgid "Period :"
  msgstr "Périodes :"
 
-#: unknown
-msgid "Perl"
+ msgid "Perl"
  msgstr "Perl"
 
-#: unknown
-msgid "Perl library directory"
+ msgid "Perl library directory"
  msgstr "Répertoire des librairies Perl"
 
-#: unknown
-msgid "Pick a color"
+ msgid "Pick a color"
  msgstr "Choisissez une couleur"
 
-#: unknown
-msgid "Ping"
+ msgid "Ping"
  msgstr "Ping"
 
-#: unknown
-msgid "Please check the 'Centreon UI' and 'Remote access' forms"
+ msgid "Please check the 'Centreon UI' and 'Remote access' forms"
  msgstr ""
  "Veuillez vérifier les formulaires 'Centreon Web' et 'Accès du Remote'"
 
-#: unknown
-msgid "Please choose a widget to activate the preview"
+ msgid "Please choose a widget to activate the preview"
  msgstr "Sélectionnez un type de widget pour activer l'aperçu"
 
-#: unknown
-msgid "Please contact your administrator"
+ msgid "Please contact your administrator"
  msgstr "Veuillez contacter votre administrateur"
 
-#: unknown
-msgid "Please define autologin authentication key in your profile."
+ msgid "Please define autologin authentication key in your profile."
  msgstr ""
  "Merci de définir une clé d’autorisation de connexion automatique dans "
  "votre profil."
 
-#: unknown
-msgid "Please enter a name for the resource access rule to duplicate"
+ msgid "Please enter a name for the resource access rule to duplicate"
  msgstr ""
  "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
 
-#: unknown
-msgid "Please select an user in order to display resources"
+ msgid "Please select an user in order to display resources"
  msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
 
-#: unknown
-msgid "Please wait..."
+ msgid "Please wait..."
  msgstr "Merci de patienter..."
 
-#: unknown
-msgid "Plugin Test"
+ msgid "Plugin Test"
  msgstr "Test de la sonde"
 
-#: unknown
-msgid "Plugin has to be in : "
+ msgid "Plugin has to be in : "
  msgstr "La sonde doit être dans :"
 
-#: unknown
-msgid "Plugin test"
+ msgid "Plugin test"
  msgstr "Test de la sonde"
 
-#: unknown
-msgid "Poller :"
+ msgid "Poller :"
  msgstr "Collecteur :"
 
-#: unknown
-msgid "Poller States"
+ msgid "Poller States"
  msgstr "État des collecteurs"
 
-#: unknown
-msgid "Poller Statistics"
+ msgid "Poller Statistics"
  msgstr "Statistiques des collecteurs"
 
-#: unknown
-msgid "Poller/Centreon Server"
+ msgid "Poller/Centreon Server"
  msgstr "Collecteur"
 
-#: unknown
-msgid "Port expected at most 65535"
+ msgid "Port expected at most 65535"
  msgstr "Le numéro de port maximum attendu est 65535"
 
-#: unknown
-msgid "Port number must be a least 1"
+ msgid "Port number must be a least 1"
  msgstr "Le numéro du port doit être au minimum 1"
 
-#: unknown
-msgid "Post Check"
+ msgid "Post Check"
  msgstr "Actions après contrôle"
 
-#: unknown
-msgid "Post must start from 1"
+ msgid "Post must start from 1"
  msgstr "Le numéro de port doit être au moins 1"
 
-#: unknown
-msgid "Pre-Update"
+ msgid "Pre-Update"
  msgstr "Pré-mise à jour"
 
-#: unknown
-msgid "Precached Object File"
+ msgid "Precached Object File"
  msgstr "Fichier de pre-cache des objets"
 
-#: unknown
-msgid "Prefix"
+ msgid "Prefix"
  msgstr "Préfixe des tables"
 
-#: unknown
-msgid "Private key file. "
+ msgid "Private key file. "
  msgstr "Clé privée SSH"
 
-#: unknown
-msgid "Private/Public"
+ msgid "Private/Public"
  msgstr "Privé/Public"
 
-#: unknown
-msgid "Problem has been acknowledged"
+ msgid "Problem has been acknowledged"
  msgstr "Le problème a été acquitté"
 
-#: unknown
-msgid "Process Commands"
+ msgid "Process Commands"
  msgstr "Commandes du processus"
 
-#: unknown
-msgid "Process Control"
+ msgid "Process Control"
  msgstr "Informations sur le processus"
 
-#: unknown
-msgid "Process Info"
+ msgid "Process Info"
  msgstr "Informations sur le processus"
 
-#: unknown
-msgid "Program Start Time"
+ msgid "Program Start Time"
  msgstr "Heure de démarrage du programme"
 
-#: unknown
-msgid "Program Version"
+ msgid "Program Version"
  msgstr "Version du programme"
 
-#: unknown
-msgid "Project Leaders"
+ msgid "Project Leaders"
  msgstr "Chefs de projet"
 
-#: unknown
-msgid "Provider %1 is loaded"
+ msgid "Provider %1 is loaded"
  msgstr "Le fournisseur %1 est chargé"
 
-#: unknown
-msgid "Proxy protocol"
+ msgid "Proxy protocol"
  msgstr "Protocole du proxy Internet"
 
-#: unknown
-msgid "Public link"
+ msgid "Public link"
  msgstr "Lien public"
 
-#: unknown
-msgid "Publication rules"
+ msgid "Publication rules"
  msgstr "Règles de publication"
 
-#: unknown
-msgid "Purge check interval"
+ msgid "Purge check interval"
  msgstr "Intervalle de contrôle de la purge"
 
-#: unknown
-msgid "Quick Search"
+ msgid "Quick Search"
  msgstr "Recherche Rapide"
 
-#: unknown
-msgid "RRD retention"
+ msgid "RRD retention"
  msgstr "Rétention des fichiers RRD"
 
-#: unknown
-msgid "RRDTool & MySQL"
+ msgid "RRDTool & MySQL"
  msgstr "RRDTool & MySQL"
 
-#: unknown
-msgid "RRDTool auto delete"
+ msgid "RRDTool auto delete"
  msgstr "Auto suppression des fichiers RRD non utilisés"
 
-#: unknown
-msgid "RRDTool database size"
+ msgid "RRDTool database size"
  msgstr "Durée de rétention des données dans les bases RRD"
 
-#: unknown
-msgid "Reach API"
+ msgid "Reach API"
  msgstr "Accès à l'API"
 
-#: unknown
-msgid "Read Only"
+ msgid "Read Only"
  msgstr "Lecture seulement"
 
-#: unknown
-msgid "Read/Write"
+ msgid "Read/Write"
  msgstr "Lecture/Ecriture"
 
-#: unknown
-msgid "Real Name"
+ msgid "Real Name"
  msgstr "Nom réel"
 
-#: unknown
-msgid "Real name"
+ msgid "Real name"
  msgstr "Nom réel"
 
-#: unknown
-msgid "Rebuild RRD Database"
+ msgid "Rebuild RRD Database"
  msgstr "Regénérer les bases de données RRD"
 
-#: unknown
-msgid "Rebuild Waiting"
+ msgid "Rebuild Waiting"
  msgstr "En attente de reconstruction"
 
-#: unknown
-msgid "Redirect Url"
+ msgid "Redirect Url"
  msgstr "Adresse de redirection vers Centreon"
 
-#: unknown
-msgid "Refine filter"
+ msgid "Refine filter"
  msgstr "Affiner le filtre"
 
-#: unknown
-msgid "Refine your filter on a single metric by adding more resources."
+ msgid "Refine your filter on a single metric by adding more resources."
  msgstr ""
  "Affinez votre filtre sur une seule métrique en ajoutant d'autres "
  "ressources."
 
-#: unknown
-msgid "Refresh Interval"
+ msgid "Refresh Interval"
  msgstr "Intervalle de rafraîchissement"
 
-#: unknown
-msgid "Relations between Elements"
+ msgid "Relations between Elements"
  msgstr "Relations entre les éléments"
 
-#: unknown
-msgid "Release"
+ msgid "Release"
  msgstr "Version"
 
-#: unknown
-msgid "Replace"
+ msgid "Replace"
  msgstr "Remplacement"
 
-#: unknown
-msgid "Replace existing ones"
+ msgid "Replace existing ones"
  msgstr "Remplacer les fichiers existants"
 
-#: unknown
-msgid "Replication enabled"
+ msgid "Replication enabled"
  msgstr "Activer la réplication"
 
-#: unknown
-msgid "Report design groups"
+ msgid "Report design groups"
  msgstr "Groupes de modèles de rapport"
 
-#: unknown
-msgid "Report designs"
+ msgid "Report designs"
  msgstr "Modèles de rapport"
 
-#: unknown
-msgid "Report view"
+ msgid "Report view"
  msgstr "Visualisation des rapports"
 
-#: unknown
-msgid "Reporting retention duration (dashboard)"
+ msgid "Reporting retention duration (dashboard)"
  msgstr ""
  "Durée de rétention des information de génération de rapports (Tableau de "
  "bord)"
 
-#: unknown
-msgid "Reporting time period"
+ msgid "Reporting time period"
  msgstr "Période de génération des rapports"
 
-#: unknown
-msgid "Request error"
+ msgid "Request error"
  msgstr "Erreur de requête"
 
-#: unknown
-msgid "Required Field 'Service' list"
+ msgid "Required Field 'Service' list"
  msgstr "Champ requis dans la liste 'Service'"
 
-#: unknown
-msgid "Required Fields 'Host' and 'Service' list"
+ msgid "Required Fields 'Host' and 'Service' list"
  msgstr "Champs requis dans la liste des 'Hôtes' et des 'Services'"
 
-#: unknown
-msgid "Reset filters"
+ msgid "Reset filters"
  msgstr "Remise à zéro des filtres"
 
-#: unknown
-msgid "Resource selection"
+ msgid "Resource selection"
  msgstr "Sélection des ressources"
 
-#: unknown
-msgid "Resource type \"%s\" is not supported"
+ msgid "Resource type \"%s\" is not supported"
  msgstr "Type de ressource \"%s\" non supporté"
 
-#: unknown
-msgid "Restart the Monitoring Engine process"
+ msgid "Restart the Monitoring Engine process"
  msgstr "Redémarrer le processus de supervision"
 
-#: unknown
-msgid "Resync data requested."
+ msgid "Resync data requested."
  msgstr "Mise à jour des données demandée."
 
-#: unknown
-msgid "Retain Satus Information"
+ msgid "Retain Satus Information"
  msgstr "Rétention des informations de statut"
 
-#: unknown
-msgid "Retained Contact Host Attribute Mask"
+ msgid "Retained Contact Host Attribute Mask"
  msgstr "Masque de rétention des attributs des contacts d'hôtes"
 
-#: unknown
-msgid "Retained Contact Service Attribute Mask"
+ msgid "Retained Contact Service Attribute Mask"
  msgstr "Masque de rétention des attributs des contacts de services"
 
-#: unknown
-msgid "Retained Host Attribute Mask"
+ msgid "Retained Host Attribute Mask"
  msgstr "Masque de rétention des attributs des hôtes"
 
-#: unknown
-msgid "Retained Process Host Attribute Mask"
+ msgid "Retained Process Host Attribute Mask"
  msgstr "Masque de rétention des attributs des processus d'hôtes"
 
-#: unknown
-msgid "Retained Process Service Attribute Mask"
+ msgid "Retained Process Service Attribute Mask"
  msgstr "Masque de rétention des attributs des processus de services"
 
-#: unknown
-msgid "Retained Service Attribute Mask"
+ msgid "Retained Service Attribute Mask"
  msgstr "Masque de rétention des attributs du service"
 
-#: unknown
-msgid "Retention Duration for Comments"
+ msgid "Retention Duration for Comments"
  msgstr "Durées de rétention des commentaires"
 
-#: unknown
-msgid "Retention Duration for Data in MySQL"
+ msgid "Retention Duration for Data in MySQL"
  msgstr "Durée de rétention des données dans MySQL"
 
-#: unknown
-msgid "Retention Duration for Downtimes"
+ msgid "Retention Duration for Downtimes"
  msgstr "Durée de rétention des plages de maintenance"
 
-#: unknown
-msgid "Retention file"
+ msgid "Retention file"
  msgstr "Fichier de rétention"
 
-#: unknown
-msgid "Retention path"
+ msgid "Retention path"
  msgstr "Chemin des fichiers de rétention"
 
-#: unknown
-msgid "Retry"
+ msgid "Retry"
  msgstr "Relancer"
 
-#: unknown
-msgid "Retry interval (in seconds)"
+ msgid "Retry interval (in seconds)"
  msgstr "Intervalle entre deux tentatives (en secondes)"
 
-#: unknown
-msgid "Right Click here to add an autologin link directly to your bookmarks"
+ msgid "Right Click here to add an autologin link directly to your bookmarks"
  msgstr ""
  "Clic droit ici afin d'ajouter un lien de connexion automatique "
  "directement dans vos marques-pages"
 
-#: unknown
-msgid "Role Relations"
+ msgid "Role Relations"
  msgstr "Relations de rôle"
 
-#: unknown
-msgid "Rotation time cannot exceed 60 seconds."
+ msgid "Rotation time cannot exceed 60 seconds."
  msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
 
-#: unknown
-msgid "Rotation time must be at least 10 seconds."
+ msgid "Rotation time must be at least 10 seconds."
  msgstr "Le temps de rotation doit être au moins de 10 secondes."
 
-#: unknown
-msgid "Row Color for Service CRITICAL"
+ msgid "Row Color for Service CRITICAL"
  msgstr "Couleur de la ligne pour un service CRITIQUE"
 
-#: unknown
-msgid "Rrdcached configuration : work only with Centreon Broker"
+ msgid "Rrdcached configuration : work only with Centreon Broker"
  msgstr ""
  "Configuration du module RRDCached : fonctionne seulement avec Centreon "
  "Broker"
 
-#: unknown
-msgid "Rules"
+ msgid "Rules"
  msgstr "Règles"
 
-#: unknown
-msgid "Run Optimisation test (-s)"
+ msgid "Run Optimisation test (-s)"
  msgstr "Lancer un test d'Optimisation (-s)"
 
-#: unknown
-msgid "Run debug (-v)"
+ msgid "Run debug (-v)"
  msgstr "Lancer le débogage (-v)"
 
-#: unknown
-msgid "SNMP"
+ msgid "SNMP"
  msgstr "SNMP"
 
-#: unknown
-msgid "SNMP information"
+ msgid "SNMP information"
  msgstr "Informations SNMP"
 
-#: unknown
-msgid "SNMPTT log file"
+ msgid "SNMPTT log file"
  msgstr "Nom du Fichier de journalisation de SNMPTT"
 
-#: unknown
-msgid "SQL file included"
+ msgid "SQL file included"
  msgstr "Fichier SQL inclus"
 
-#: unknown
-msgid "SSH Private key"
+ msgid "SSH Private key"
  msgstr "Clé privée SSH"
 
-#: unknown
-msgid "SSH port"
+ msgid "SSH port"
  msgstr "Port SSH"
 
-#: unknown
-msgid "SSO blacklist client addresses"
+ msgid "SSO blacklist client addresses"
  msgstr "Adresses des clients sur liste noire"
 
-#: unknown
-msgid "SSO login header"
+ msgid "SSO login header"
  msgstr "Entête HTTP SSO"
 
-#: unknown
-msgid "SSO mode"
+ msgid "SSO mode"
  msgstr "Mode SSO"
 
-#: unknown
-msgid "SSO only"
+ msgid "SSO only"
  msgstr "Seulement SSO"
 
-#: unknown
-msgid "SSO pattern matching login"
+ msgid "SSO pattern matching login"
  msgstr "Chaine de recherche (pattern) pour l'authentification (login)"
 
-#: unknown
-msgid "SSO pattern replace login"
+ msgid "SSO pattern replace login"
  msgstr "Chaine de remplacement (pattern) pour l'authentification (login)"
 
-#: unknown
-msgid "SSO trusted client addresses"
+ msgid "SSO trusted client addresses"
  msgstr "Adresses des clients de confiance"
 
-#: unknown
-msgid "Scan"
+ msgid "Scan"
  msgstr "Manuelle"
 
-#: unknown
-msgid "Scheduling Process Information"
+ msgid "Scheduling Process Information"
  msgstr "Information du processus d'ordonnancement"
 
-#: unknown
-msgid "Scheduling Queue"
+ msgid "Scheduling Queue"
  msgstr "File d'attente"
 
-#: unknown
-msgid "Scope"
+ msgid "Scope"
  msgstr "Portée"
 
-#: unknown
-msgid "Search contact groups"
+ msgid "Search contact groups"
  msgstr "Rechercher des groupes de contacts"
 
-#: unknown
-msgid "Secondary Priority Hosts"
+ msgid "Secondary Priority Hosts"
  msgstr "Hôtes secondaires"
 
-#: unknown
-msgid "Secondary grid color"
+ msgid "Secondary grid color"
  msgstr "Couleur secondaire de la grille"
 
-#: unknown
-msgid "Security patch available"
+ msgid "Security patch available"
  msgstr "Correctif de sécurité disponible"
 
-#: unknown
-msgid ""
+ msgid ""
  "Security policy not found. Please verify that your installation is valid"
  msgstr ""
  "Politique de sécurité non trouvée. Veuillez vérifier que votre "
  "installation est valide"
 
-#: unknown
-msgid "Select a downtime type"
+ msgid "Select a downtime type"
  msgstr "Sélectionner un type de plage de maintenance"
 
-#: unknown
-msgid "Select a provider"
+ msgid "Select a provider"
  msgstr "Sélectionner un fournisseur"
 
-#: unknown
-msgid "Select a resource"
+ msgid "Select a resource"
  msgstr "Sélectionner une ressource"
 
-#: unknown
-msgid "Select contacts and contact groups"
+ msgid "Select contacts and contact groups"
  msgstr "Sélectionner les contacts et les groupes de contacts"
 
-#: unknown
-msgid "Server Status"
+ msgid "Server Status"
  msgstr "État du serveur"
 
-#: unknown
-msgid "Service CRITICAL Color"
+ msgid "Service CRITICAL Color"
  msgstr "Couleur de service CRITIQUE"
 
-#: unknown
-msgid "Service Checks Being Executed?"
+ msgid "Service Checks Being Executed?"
  msgstr "Contrôle des services activé ?"
 
-#: unknown
-msgid "Service Description Search Key"
+ msgid "Service Description Search Key"
  msgstr "Entrez le nom d'un service"
 
-#: unknown
-msgid "Service Group Name"
+ msgid "Service Group Name"
  msgstr "Nom du groupe de services"
 
-#: unknown
-msgid "Service Name"
+ msgid "Service Name"
  msgstr "Nom du service"
 
-#: unknown
-msgid "Service OK Color"
+ msgid "Service OK Color"
  msgstr "Couleur de service OK"
 
-#: unknown
-msgid "Service PENDING Color"
+ msgid "Service PENDING Color"
  msgstr "Couleur de service en ATTENTE"
 
-#: unknown
-msgid "Service Performance Data File"
+ msgid "Service Performance Data File"
  msgstr "Fichier de données de performance de service"
 
-#: unknown
-msgid "Service Performance Data File Mode"
+ msgid "Service Performance Data File Mode"
  msgstr "Mode du fichier de données de performance de service"
 
-#: unknown
-msgid "Service Performance Data File Processing Command"
+ msgid "Service Performance Data File Processing Command"
  msgstr ""
  "Commande de traitement du fichier des données de performance du service"
 
-#: unknown
-msgid "Service Performance Data File Processing Interval"
+ msgid "Service Performance Data File Processing Interval"
  msgstr "Intervalle de traitement des données de performance de service"
 
-#: unknown
-msgid "Service Performance Data File Template"
+ msgid "Service Performance Data File Template"
  msgstr "Modèle de fichier de données de performance de service"
 
-#: unknown
-msgid "Service Performance Data Processing Command"
+ msgid "Service Performance Data Processing Command"
  msgstr "Commande de traitement des données de performance du service"
 
-#: unknown
-msgid "Service Statuses"
+ msgid "Service Statuses"
  msgstr "Statuts de services"
 
-#: unknown
-msgid "Service Template Name"
+ msgid "Service Template Name"
  msgstr "Nom du modèle de service"
 
-#: unknown
-msgid "Service Templates names"
+ msgid "Service Templates names"
  msgstr "Noms des modèles de service"
 
-#: unknown
-msgid "Service UNKNOWN Color"
+ msgid "Service UNKNOWN Color"
  msgstr "Couleur de service INCONNU"
 
-#: unknown
-msgid "Service WARNING Color"
+ msgid "Service WARNING Color"
  msgstr "Couleur de service WARNING"
 
-#: unknown
-msgid "Service comments"
+ msgid "Service comments"
  msgstr "Commentaires pour ce service"
 
-#: unknown
-msgid "Service is currently on Downtime"
+ msgid "Service is currently on Downtime"
  msgstr "Le service est actuellement en période d'arrêt"
 
-#: unknown
-msgid "Service list"
+ msgid "Service list"
  msgstr "Liste des services"
 
-#: unknown
-msgid "ServiceGroups"
+ msgid "ServiceGroups"
  msgstr "Groupes de services"
 
-#: unknown
-msgid "Servicegroups Escalation"
+ msgid "Servicegroups Escalation"
  msgstr "Escalades des groupes de services"
 
-#: unknown
-msgid "Services (simplified)"
+ msgid "Services (simplified)"
  msgstr "Services (simplifiés)"
 
-#: unknown
-msgid "Services Downtimes"
+ msgid "Services Downtimes"
  msgstr "Plages de maintenance des services"
 
-#: unknown
-msgid "Services Escalation"
+ msgid "Services Escalation"
  msgstr "Escalades des services"
 
-#: unknown
-msgid "Services status colors"
+ msgid "Services status colors"
  msgstr "Couleurs pour le statut des services"
 
-#: unknown
-msgid "Services: Set Downtime"
+ msgid "Services: Set Downtime"
  msgstr "Services: Planifier une plage de maintenance"
 
-#: unknown
-msgid "Setup"
+ msgid "Setup"
  msgstr "Configuration"
 
-#: unknown
-msgid "Severity level"
+ msgid "Severity level"
  msgstr "Niveau de criticité"
 
-#: unknown
-msgid "Shared views list"
+ msgid "Shared views list"
  msgstr "Liste des vues partagées"
 
-#: unknown
-msgid "Shutdown the Monitoring Engine process"
+ msgid "Shutdown the Monitoring Engine process"
  msgstr "Arrêter le moteur de supervision"
 
-#: unknown
-msgid "Simple poller"
+ msgid "Simple poller"
  msgstr "Collecteur uniquement"
 
-#: unknown
-msgid "Skin Menu Selection"
+ msgid "Skin Menu Selection"
  msgstr "Sélection de l'apparence des menus"
 
-#: unknown
-msgid "Small"
+ msgid "Small"
  msgstr "Petite"
 
-#: unknown
-msgid "Small size"
+ msgid "Small size"
  msgstr "Petite taille"
 
-#: unknown
-msgid ""
+ msgid ""
  "Some database poller updates are not active; check your Monitoring "
  "platform"
  msgstr ""
  "Certains collecteurs ne mettent pas à jour la base de données; contrôler "
  "votre plate-forme de supervision"
 
-#: unknown
-msgid "Sort by Name"
+ msgid "Sort by Name"
  msgstr "Trier par nom"
 
-#: unknown
-msgid "Sort by criticality"
+ msgid "Sort by criticality"
  msgstr "Trier par criticité"
 
-#: unknown
-msgid "Specifics for hosts"
+ msgid "Specifics for hosts"
  msgstr "Spécificités des hôtes"
 
-#: unknown
-msgid "Split"
+ msgid "Split"
  msgstr "Séparer"
 
-#: unknown
-msgid "Start Hour"
+ msgid "Start Hour"
  msgstr "Heure de début"
 
-#: unknown
-msgid "Start Minute"
+ msgid "Start Minute"
  msgstr "Minute de début"
 
-#: unknown
-msgid "Start accepting passive host checks"
+ msgid "Start accepting passive host checks"
  msgstr "Démarrer le contrôle passif des hôtes"
 
-#: unknown
-msgid "Start accepting passive service checks"
+ msgid "Start accepting passive service checks"
  msgstr "Démarrer le contrôle passif des services"
 
-#: unknown
-msgid "Start executing host checks"
+ msgid "Start executing host checks"
  msgstr "Démarrer le contrôle des hôtes"
 
-#: unknown
-msgid "Start executing service checks"
+ msgid "Start executing service checks"
  msgstr "Démarrer l'exécution des contrôles de services"
 
-#: unknown
-msgid "Start obsessing over hosts"
+ msgid "Start obsessing over hosts"
  msgstr "Démarrer le suivi précis des hôtes"
 
-#: unknown
-msgid "Start obsessing over services"
+ msgid "Start obsessing over services"
  msgstr "Démarrer l'exécution des commandes post contrôle"
 
-#: unknown
-msgid "Start script for broker daemon"
+ msgid "Start script for broker daemon"
  msgstr "Script de démarrage du broker"
 
-#: unknown
-msgid "Start the Monitoring Engine process"
+ msgid "Start the Monitoring Engine process"
  msgstr "Démarrer le moteur de supervision"
 
-#: unknown
-msgid "Status Color Properties"
+ msgid "Status Color Properties"
  msgstr "Définition des couleurs"
 
-#: unknown
-msgid "Status Output"
+ msgid "Status Output"
  msgstr "Information sur le statut"
 
-#: unknown
-msgid "Status summarized by Hostgroups"
+ msgid "Status summarized by Hostgroups"
  msgstr "Résumé des états par groupes d'hôtes"
 
-#: unknown
-msgid "Stop accepting passive host checks"
+ msgid "Stop accepting passive host checks"
  msgstr "Arrêter le contrôle passif des hôtes"
 
-#: unknown
-msgid "Stop accepting passive service checks"
+ msgid "Stop accepting passive service checks"
  msgstr "Arrêter le contrôle passif des services"
 
-#: unknown
-msgid "Stop executing host checks"
+ msgid "Stop executing host checks"
  msgstr "Arrêter le contrôle des hôtes"
 
-#: unknown
-msgid "Stop executing service checks"
+ msgid "Stop executing service checks"
  msgstr "Arrêter l'exécution des contrôles de services"
 
-#: unknown
-msgid "Stop obsessing over hosts"
+ msgid "Stop obsessing over hosts"
  msgstr "Arrêter le suivi précis des hôtes"
 
-#: unknown
-msgid "Stop obsessing over services"
+ msgid "Stop obsessing over services"
  msgstr "Arrêter l'exécution des commandes post contrôle"
 
-#: unknown
-msgid "Stop rebuilding RRD Databases"
+ msgid "Stop rebuilding RRD Databases"
  msgstr "Arrêter la regénération des bases de données RRD"
 
-#: unknown
-msgid "Storage Type"
+ msgid "Storage Type"
  msgstr "Type de sauvegarde"
 
-#: unknown
-msgid "Store performance data in data_bin"
+ msgid "Store performance data in data_bin"
  msgstr "Enregistrement des données de performance dans la table 'data_bin'"
 
-#: unknown
-msgid "Subscription"
+ msgid "Subscription"
  msgstr "Abonnement"
 
-#: unknown
-msgid "Successful logout"
+ msgid "Successful logout"
  msgstr "Déconnexion réussie"
 
-#: unknown
-msgid "Support"
+ msgid "Support"
  msgstr "Support"
 
-#: unknown
-msgid "System Information"
+ msgid "System Information"
  msgstr "Information sur le système"
 
-#: unknown
-msgid "TCP"
+ msgid "TCP"
  msgstr "TCP"
 
-#: unknown
-msgid "TCP Port"
+ msgid "TCP Port"
  msgstr "Port TCP"
 
-#: unknown
-msgid "TCP port"
+ msgid "TCP port"
  msgstr "Port TCP"
 
-#: unknown
-msgid "Temp File"
+ msgid "Temp File"
  msgstr "Fichier temporaire"
 
-#: unknown
-msgid "Template %1 not found"
+ msgid "Template %1 not found"
  msgstr "Le modèle %1 n'a pas été trouvé"
 
-#: unknown
-msgid "Template %s not found"
+ msgid "Template %s not found"
  msgstr "Le modèle %s n'a pas été trouvé"
 
-#: unknown
-msgid "Template based method file"
+ msgid "Template based method file"
  msgstr "Fichier de méthode basé sur le modèle"
 
-#: unknown
-msgid "Template with id %1 not found"
+ msgid "Template with id %1 not found"
  msgstr "Le modèle possédant l'id %1 n'a pas été trouvé"
 
-#: unknown
-msgid "Template with id %d not found"
+ msgid "Template with id %d not found"
  msgstr "Le modèle avec l'id %d n'a pas été trouvé"
 
-#: unknown
-msgid "Templates (simplified)"
+ msgid "Templates (simplified)"
  msgstr "Modèles (simplifiés)"
 
-#: unknown
-msgid "Temporary recovery mode"
+ msgid "Temporary recovery mode"
  msgstr "Activation du fichier temporaire"
 
-#: unknown
-msgid "Test DB connection"
+ msgid "Test DB connection"
  msgstr "Tester la connexion à la base de données"
 
-#: unknown
-msgid "Test the plugin"
+ msgid "Test the plugin"
  msgstr "Tester la sonde"
 
-#: unknown
-msgid "Text color"
+ msgid "Text color"
  msgstr "Couleur du texte"
 
-#: unknown
-msgid "The CSRF * token is invalid, please click"
+ msgid "The CSRF * token is invalid, please click"
  msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
 #, php-format
-#: unknown
-msgid "The SQL files are located in %s"
+ msgid "The SQL files are located in %s"
  msgstr "Les fichiers SQL sont situés dans %s"
 
-#: unknown
-msgid "The address of the parent platform '%s'@'%s' is not consistent"
+ msgid "The address of the parent platform '%s'@'%s' is not consistent"
  msgstr "L'adresse de la plateforme parente '%s'@'%s' n'est pas cohérente"
 
-#: unknown
-msgid ""
+ msgid ""
  "The command line in the configuration is empty while in the monitoring it "
  "is not"
  msgstr ""
  "La ligne de commande dans la configuration est vide alors que celle de la "
  "supervision ne l'est pas."
 
-#: unknown
-msgid "The config name already exists"
+ msgid "The config name already exists"
  msgstr "Le nom utilisé existe déjà"
 
-#: unknown
-msgid "The configuration file %s does not exists"
+ msgid "The configuration file %s does not exists"
  msgstr "Le fichier de configuration %s n'existe pas"
 
-#: unknown
-msgid "The contact ID #%d does not exist"
+ msgid "The contact ID #%d does not exist"
  msgstr "L'ID du contact #%d n'existe pas"
 
-#: unknown
-msgid "The contact group id #%d doesn't exist"
+ msgid "The contact group id #%d doesn't exist"
  msgstr "L'id de groupe de contacts #%d n'existe pas"
 
-#: unknown
-msgid "The contact template '%s' doesn't exist"
+ msgid "The contact template '%s' doesn't exist"
  msgstr "Le modèle de contact '%s' n'existe pas"
 
-#: unknown
-msgid "The duration must be lesser than a year"
+ msgid "The duration must be lesser than a year"
  msgstr "La durée doit être inférieure à une année"
 
-#: unknown
-msgid "The following contact does not exist: [%s]"
+ msgid "The following contact does not exist: [%s]"
  msgstr "Le contact suivant n'existe pas : [%s]"
 
-#: unknown
-msgid "The following contact group does not exist: [%s]"
+ msgid "The following contact group does not exist: [%s]"
  msgstr "Le groupe de contact suivant n'existe pas : [%s]"
 
-#: unknown
-msgid "The following contact is not in your contact groups: [%s]"
+ msgid "The following contact is not in your contact groups: [%s]"
  msgstr ""
  "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
 
-#: unknown
-msgid "The following dashboard does not exist: [%s]."
+ msgid "The following dashboard does not exist: [%s]."
  msgstr "Le tableau de bord suivant n'existe pas : [%s]."
 
-#: unknown
-msgid "The following dashboard is not shared with you: [%d]."
+ msgid "The following dashboard is not shared with you: [%d]."
  msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
 
-#: unknown
-msgid "The following playlist already exists: %s."
+ msgid "The following playlist already exists: %s."
  msgstr "La liste de diffusion suivante existe déjà : %s."
 
-#: unknown
-msgid "The following playlist does not exist: [%d]"
+ msgid "The following playlist does not exist: [%d]"
  msgstr "La liste de diffusion suivante n'existe  : [%d]"
 
-#: unknown
-msgid "The following playlist is not shared with you: [%d]"
+ msgid "The following playlist is not shared with you: [%d]"
  msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
 
-#: unknown
-msgid "The host of service is not defined"
+ msgid "The host of service is not defined"
  msgstr "L'hôte du service n'est pas défini"
 
-#: unknown
-msgid ""
+ msgid ""
  "The installation is now finished. To get further information regarding "
  "Centreon please visit the following links"
  msgstr ""
  "L'installation est maintenant terminée. Pour plus d'informations "
  "concernant Centreon utiliser les liens suivants"
 
-#: unknown
-msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
+ msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
  msgstr ""
  "La liste des collecteur est disponible <a href=\"./main.php?"
  "p=60901\">ici</a>."
 
-#: unknown
-msgid "The order in which dashboards are displayed must be unique."
+ msgid "The order in which dashboards are displayed must be unique."
  msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
-#: unknown
-msgid "The port must be numeric"
+ msgid "The port must be numeric"
  msgstr "La port doit être numérique"
 
-#: unknown
-msgid "The resource access rule was successfully deleted"
+ msgid "The resource access rule was successfully deleted"
  msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
 
-#: unknown
-msgid "The rrdcached configuration must have a option."
+ msgid "The rrdcached configuration must have a option."
  msgstr "La configuration du module RRDCached doit avoir une option"
 
-#: unknown
-msgid ""
+ msgid ""
  "The selected inherited service template does not contain any check "
  "command. You must select one here."
  msgstr ""
  "Le modèle de service hérité sélectionné ne comporte pas de commande de "
  "vérification. Vous devez en sélectionner une ici."
 
-#: unknown
-msgid "The selected user didn't see any resources"
+ msgid "The selected user didn't see any resources"
  msgstr "L'utilisateur sélectionné ne voit aucune ressource"
 
-#: unknown
-msgid "The selected user is not enable."
+ msgid "The selected user is not enable."
  msgstr "L'utilisateur sélectionné n'est pas activé."
 
-#: unknown
-msgid "The service id can not be null"
+ msgid "The service id can not be null"
  msgstr "L'id du service ne peut pas être null"
 
-#: unknown
-msgid "The ticket will be closed for the selected ticket provider"
+ msgid "The ticket will be closed for the selected ticket provider"
  msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
 
-#: unknown
-msgid "The value %1 is only supported by the operators %2 and %3"
+ msgid "The value %1 is only supported by the operators %2 and %3"
  msgstr "La valeur %1 est uniquement supportée par les opéreateurs %2 et %3"
 
-#: unknown
-msgid "The value '%s' was expected to be a valid ip address"
+ msgid "The value '%s' was expected to be a valid ip address"
  msgstr "La valeur '%s' devait être une adresse ip valide"
 
-#: unknown
-msgid "The wizard is corrupted."
+ msgid "The wizard is corrupted."
  msgstr "L'assistant est endommagé."
 
-#: unknown
-msgid "The wizard is not correctly initialized."
+ msgid "The wizard is not correctly initialized."
  msgstr "L'assistant n'est pas initialisé correctement."
 
-#: unknown
-msgid "The {{module}} license will expire in {{expirationDate}} days"
+ msgid "The {{module}} license will expire in {{expirationDate}} days"
  msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
 
-#: unknown
-msgid "There are errors in the form."
+ msgid "There are errors in the form."
  msgstr "Il y a des erreurs dans le formulaire."
 
-#: unknown
-msgid ""
+ msgid ""
  "There are errors in the form. Do you want to quit the form without "
  "resolving the errors?"
  msgstr ""
  "Il y a des erreurs dans le formulaire. Voulez-vous quitter le formulaire "
  "sans résoudre les erreurs ?"
 
-#: unknown
-msgid "This Service is flapping"
+ msgid "This Service is flapping"
  msgstr "Le statut du service bagote"
 
-#: unknown
-msgid "This field is required"
+ msgid "This field is required"
  msgstr "Ce champ est obligatoire"
 
-#: unknown
-msgid "This host is never checked"
+ msgid "This host is never checked"
  msgstr "Cet hôte n'est jamais vérifié"
 
-#: unknown
-msgid "This host is only checked in passive mode"
+ msgid "This host is only checked in passive mode"
  msgstr "L'hôte est contrôlé uniquement en mode passif"
 
-#: unknown
-msgid "This server is already registered"
+ msgid "This server is already registered"
  msgstr "Ce serveur est déjà enregistré"
 
-#: unknown
-msgid "This service is neither active nor passive"
+ msgid "This service is neither active nor passive"
  msgstr "Ce service n'est ni actif ni passif"
 
-#: unknown
-msgid "This service is only checked in passive mode"
+ msgid "This service is only checked in passive mode"
  msgstr "Le service est contrôlé uniquement en mode passif"
 
-#: unknown
-msgid "Threshold"
+ msgid "Threshold"
  msgstr "Seuil"
 
-#: unknown
-msgid "Ticket management"
+ msgid "Ticket management"
  msgstr "Gestion des tickets"
 
-#: unknown
-msgid "Ticket provider"
+ msgid "Ticket provider"
  msgstr "Fournisseur de tickets"
 
-#: unknown
-msgid "Time range"
+ msgid "Time range"
  msgstr "Plage temporelle"
 
-#: unknown
-msgid "Title Properties"
+ msgid "Title Properties"
  msgstr "Propriétés du titre"
 
-#: unknown
-msgid "Token Endpoint"
+ msgid "Token Endpoint"
  msgstr "Point de terminaison de jeton"
 
-#: unknown
-msgid "Token can not empty, null or not defined"
+ msgid "Token can not empty, null or not defined"
  msgstr "Le token ne peut être ni null, ni vide ou non défini"
 
-#: unknown
-msgid "Token expired."
+ msgid "Token expired."
  msgstr "Token expiré."
 
-#: unknown
-msgid "Token not found"
+ msgid "Token not found"
  msgstr "Token non trouvé"
 
-#: unknown
-msgid "Top Priority Hosts"
+ msgid "Top Priority Hosts"
  msgstr "Hôtes prioritaires"
 
-#: unknown
-msgid "Top color"
+ msgid "Top color"
  msgstr "Couleur du haut"
 
-#: unknown
-msgid "Topology"
+ msgid "Topology"
  msgstr "Topologie"
 
-#: unknown
-msgid "Traceroute"
+ msgid "Traceroute"
  msgstr "Traceroute"
 
-#: unknown
-msgid "Tracert"
+ msgid "Tracert"
  msgstr "Tracert"
 
-#: unknown
-msgid "Translate Passive Host Checks Option"
+ msgid "Translate Passive Host Checks Option"
  msgstr "Option de traduction des contrôles d'hôte passif"
 
-#: unknown
-msgid "Trash"
+ msgid "Trash"
  msgstr "Poubelle"
 
-#: unknown
-msgid "Tree Focus"
+ msgid "Tree Focus"
  msgstr "Focus sur l'arborescence"
 
-#: unknown
-msgid "Troubleshooter"
+ msgid "Troubleshooter"
  msgstr "Dépannage"
 
-#: unknown
-msgid "Trusted CA's certificate"
+ msgid "Trusted CA's certificate"
  msgstr "Certificat CA de confiance"
 
-#: unknown
-msgid "UNDETERMINED Alerts"
+ msgid "UNDETERMINED Alerts"
  msgstr "Alertes UNDETERMINED"
 
-#: unknown
-msgid "UNDETERMINED Mean Time"
+ msgid "UNDETERMINED Mean Time"
  msgstr "INDÉTERMINÉ (Temps connu)"
 
-#: unknown
-msgid "UNDETERMINED Time"
+ msgid "UNDETERMINED Time"
  msgstr "Temps état INDÉTERMINÉ"
 
-#: unknown
-msgid "UNIX Socket path"
+ msgid "UNIX Socket path"
  msgstr "CHemin d'accès au socket Unix"
 
-#: unknown
-msgid "UNKNOWN Alerts"
+ msgid "UNKNOWN Alerts"
  msgstr "Alertes UNKNOWN"
 
-#: unknown
-msgid "UNKNOWN Mean Time"
+ msgid "UNKNOWN Mean Time"
  msgstr "UNKNOWN (Temps connu)"
 
-#: unknown
-msgid "UNKNOWN Time"
+ msgid "UNKNOWN Time"
  msgstr "Temps état UNKNOWN"
 
-#: unknown
-msgid "Unable to convert in remote server, no Central to link provided"
+ msgid "Unable to convert in remote server, no Central to link provided"
  msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
 
-#: unknown
-msgid ""
+ msgid ""
  "Unable to find the encryption key. Please check the '.env.local.php' file."
  msgstr ""
  "Impossible de trouver la clef de déchiffrement. Veuillez vérifer le "
  "fichier '.env.local.php'."
 
-#: unknown
-msgid "Unable to install module"
+ msgid "Unable to install module"
  msgstr "Impossible d'installer le module"
 
-#: unknown
-msgid "Unable to retrieve credentials ['%s'] from vault"
+ msgid "Unable to retrieve credentials ['%s'] from vault"
  msgstr ""
  "Impossible de récupérer les informations d'identification ['%s'] du coffre"
 
-#: unknown
-msgid "Unable to start Centreon legacy session"
+ msgid "Unable to start Centreon legacy session"
  msgstr "Impossible de démarrer la session Centreon legacy"
 
-#: unknown
-msgid "Unable to update the platform information"
+ msgid "Unable to update the platform information"
  msgstr "Impossible de mettre à jour les informations de la plateforme"
 
-#: unknown
-msgid "Undetermined Time"
+ msgid "Undetermined Time"
  msgstr "Temps état Indterminé"
 
-#: unknown
-msgid "Unhandled Host problems (last %s)"
+ msgid "Unhandled Host problems (last %s)"
  msgstr "Problèmes d'hôte non traités (%s derniers)"
 
-#: unknown
-msgid "Unhandled Service problems (last %s)"
+ msgid "Unhandled Service problems (last %s)"
  msgstr "Problèmes de service non traités (%s derniers)"
 
-#: unknown
-msgid "Uninstall Module"
+ msgid "Uninstall Module"
  msgstr "Désinstaller le module"
 
-#: unknown
-msgid "Unit Properties"
+ msgid "Unit Properties"
  msgstr "Propriétés de l'unité"
 
-#: unknown
-msgid "Unix socket"
+ msgid "Unix socket"
  msgstr "Socket Unix"
 
-#: unknown
-msgid "Unknown Alert"
+ msgid "Unknown Alert"
  msgstr "Alerte Inconnu"
 
-#: unknown
-msgid "Unknown Mean Time"
+ msgid "Unknown Mean Time"
  msgstr "INCONNU (Temps connu)"
 
-#: unknown
-msgid "Unknown provider type: %s"
+ msgid "Unknown provider type: %s"
  msgstr "Type de fournisseur inconnu : %s"
 
-#: unknown
-msgid "Unreachable Alerts"
+ msgid "Unreachable Alerts"
  msgstr "Alertes Injoignable"
 
-#: unknown
-msgid "Unreachable Time"
+ msgid "Unreachable Time"
  msgstr "Temps état Injoignable"
 
-#: unknown
-msgid "Unrecognized Command"
+ msgid "Unrecognized Command"
  msgstr "Commande non reconnue"
 
-#: unknown
-msgid "Up Alerts"
+ msgid "Up Alerts"
  msgstr "Alertes Disponible"
 
-#: unknown
-msgid "Up Time"
+ msgid "Up Time"
  msgstr "Temps état disponible"
 
-#: unknown
-msgid "Update definition in case of double definition"
+ msgid "Update definition in case of double definition"
  msgstr "Mettre à jour la définition en cas de définition en double"
 
-#: unknown
-msgid "Update informations"
+ msgid "Update informations"
  msgstr "Mettre à jour les informations"
 
-#: unknown
-msgid "Update patch available"
+ msgid "Update patch available"
  msgstr "Correctif de mise à jour disponible"
 
-#: unknown
-msgid "Updates not found"
+ msgid "Updates not found"
  msgstr "Les mises à jour n'ont pas été trouvées"
 
-#: unknown
-msgid "Upgrade"
+ msgid "Upgrade"
  msgstr "Mise à jour"
 
-#: unknown
-msgid "Upgrade Information"
+ msgid "Upgrade Information"
  msgstr "Information sur la mise à juour"
 
-#: unknown
-msgid "Upload Options"
+ msgid "Upload Options"
  msgstr "Options d'envoi"
 
-#: unknown
-msgid "Use SSL connection"
+ msgid "Use SSL connection"
  msgstr "Utiliser une connexion SSL"
 
-#: unknown
-msgid "Use TLS connection"
+ msgid "Use TLS connection"
  msgstr "Utiliser une connexion TLS"
 
-#: unknown
-msgid "Use a vault to store sensitive data"
+ msgid "Use a vault to store sensitive data"
  msgstr "Utiliser un coffre fort pour stocker les données sensibles"
 
-#: unknown
-msgid "Use embedded Perl implicitly"
+ msgid "Use embedded Perl implicitly"
  msgstr "Utilisation implicite de l'interpréteur Perl intégré"
 
-#: unknown
-msgid "Use large installation tweaks"
+ msgid "Use large installation tweaks"
  msgstr ""
  "Activation des optimisations pour les installations de forte volumétrie"
 
-#: unknown
-msgid "Use setpgid"
+ msgid "Use setpgid"
  msgstr "Utiliser setpgid"
 
-#: unknown
-msgid "User Group List"
+ msgid "User Group List"
  msgstr "Liste des groupes utilisateurs"
 
-#: unknown
-msgid "User Information Endpoint"
+ msgid "User Information Endpoint"
  msgstr "Point de terminaison des informations utilisateur"
 
-#: unknown
-msgid "User List"
+ msgid "User List"
  msgstr "Liste des utilisateurs"
 
-#: unknown
-msgid "User Settings"
+ msgid "User Settings"
  msgstr "Paramètres utilisateurs"
 
-#: unknown
-msgid "User cannot be retrieved from the identity provider"
+ msgid "User cannot be retrieved from the identity provider"
  msgstr ""
  "L'utilisateur ne peut pas être retrouvé depuis le fournisseur "
  "d'identification"
 
-#: unknown
-msgid "User information not found"
+ msgid "User information not found"
  msgstr "Informations utilisateur non trouvées"
 
-#: unknown
-msgid "User is blocked"
+ msgid "User is blocked"
  msgstr "L'utilisateur est bloqué"
 
-#: unknown
-msgid "Useres"
+ msgid "Useres"
  msgstr "Utilisateurs"
 
-#: unknown
-msgid "Users Access"
+ msgid "Users Access"
  msgstr "Gestion des accès utilisateurs"
 
-#: unknown
-msgid "Utils database"
+ msgid "Utils database"
  msgstr "Base de données du broker"
 
-#: unknown
-msgid "Utils database name"
+ msgid "Utils database name"
  msgstr "Nom de la base de données temps réel"
 
-#: unknown
-msgid "VRML Image"
+ msgid "VRML Image"
  msgstr "Image VRML"
 
-#: unknown
-msgid "Valid for an upgrade"
+ msgid "Valid for an upgrade"
  msgstr "Valide pour une mise à jour"
 
 #  msgid "Confirm"
 #  msgstr "Confirmer"
-#: unknown
-msgid "Vault configuration with these properties already exists"
+ msgid "Vault configuration with these properties already exists"
  msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
 
-#: unknown
-msgid "Vault provider does not exist"
+ msgid "Vault provider does not exist"
  msgstr "Le fournisseur de coffre-fort n'existe pas"
 
-#: unknown
-msgid "View a Host Group"
+ msgid "View a Host Group"
  msgstr "Visualiser un groupe d'hôtes"
 
-#: unknown
-msgid "View a Meta Service indicator"
+ msgid "View a Meta Service indicator"
  msgstr "Visualiser un indicateur de Méta-Service"
 
-#: unknown
-msgid "View a User Template"
+ msgid "View a User Template"
  msgstr "Visualiser un modèle utilisateur"
 
-#: unknown
-msgid "View a host group"
+ msgid "View a host group"
  msgstr "Voir un groupe d'hôtes"
 
-#: unknown
-msgid "View command definition"
+ msgid "View command definition"
  msgstr "Voir la définition de la commande"
 
-#: unknown
-msgid "View comments of services"
+ msgid "View comments of services"
  msgstr "Visualiser les commentaires des services"
 
-#: unknown
-msgid "View downtimes of hosts"
+ msgid "View downtimes of hosts"
  msgstr "Visualiser les plages de maintenance des hôtes"
 
-#: unknown
-msgid "View downtimes of services"
+ msgid "View downtimes of services"
  msgstr "Visualiser les plages de maintenance des services"
 
-#: unknown
-msgid "View name"
+ msgid "View name"
  msgstr "Nom de la Vue"
 
-#: unknown
-msgid "Viewers"
+ msgid "Viewers"
  msgstr "Personnes ayant accès en visualisation"
 
-#: unknown
-msgid "Viewers group"
+ msgid "Viewers group"
  msgstr "Groupes ayant accès en visualisation"
 
-#: unknown
-msgid "Views Restrictions"
+ msgid "Views Restrictions"
  msgstr "Restrictions d'accès aux vues"
 
-#: unknown
-msgid "Virtuals"
+ msgid "Virtuals"
  msgstr "Métriques virtuelles"
 
-#: unknown
-msgid "Visible page"
+ msgid "Visible page"
  msgstr "Pages visibles"
 
-#: unknown
-msgid "Visualisation"
+ msgid "Visualisation"
  msgstr "Visualisation"
 
-#: unknown
-msgid "WARNING Alerts"
+ msgid "WARNING Alerts"
  msgstr "Alertes WARNING"
 
-#: unknown
-msgid "WARNING Mean Time"
+ msgid "WARNING Mean Time"
  msgstr "WARNING (Temps connu)"
 
-#: unknown
-msgid "WARNING Time"
+ msgid "WARNING Time"
  msgstr "Temps état WARNING"
 
-#: unknown
-msgid "Warning Alert"
+ msgid "Warning Alert"
  msgstr "Alerte Warning"
 
-#: unknown
-msgid "Warning Mean Time"
+ msgid "Warning Mean Time"
  msgstr "WARNING (Temps connu)"
 
-#: unknown
-msgid "Warning: "
+ msgid "Warning: "
  msgstr "Warning:"
 
-#: unknown
-msgid "Warnings"
+ msgid "Warnings"
  msgstr "Alertes"
 
-#: unknown
-msgid "Watermark Properties"
+ msgid "Watermark Properties"
  msgstr "Propriété du filigrane"
 
-#: unknown
-msgid "Web Site"
+ msgid "Web Site"
  msgstr "Site web"
 
-#: unknown
-msgid "Weekly"
+ msgid "Weekly"
  msgstr "Hebdomadaire"
 
-#: unknown
-msgid "Welcome"
+ msgid "Welcome"
  msgstr "Bienvenue"
 
-#: unknown
-msgid "Welcome to Centreon Broker configuration"
+ msgid "Welcome to Centreon Broker configuration"
  msgstr "Bienvenu dans la configuration de Centreon Broker"
 
-#: unknown
-msgid "Widget Information"
+ msgid "Widget Information"
  msgstr "Informations sur le Widget"
 
-#: unknown
-msgid "Widget Title"
+ msgid "Widget Title"
  msgstr "Titre du Widget"
 
-#: unknown
-msgid "Widget library"
+ msgid "Widget library"
  msgstr "Bibliothèque de widgets"
 
-#: unknown
-msgid "Widgets"
+ msgid "Widgets"
  msgstr "Widgets"
 
-#: unknown
-msgid "Wiki"
+ msgid "Wiki"
  msgstr "Wiki"
 
-#: unknown
-msgid "Wizard"
+ msgid "Wizard"
  msgstr "Assistant de configuration"
 
-#: unknown
-msgid "WizardAjax"
+ msgid "WizardAjax"
  msgstr "Assistant de configuration"
 
-#: unknown
-msgid "Would you like to install this widget?"
+ msgid "Would you like to install this widget?"
  msgstr "Souhaitez-vous installer ce widget?"
 
-#: unknown
-msgid "Would you like to upgrade this widget?"
+ msgid "Would you like to upgrade this widget?"
  msgstr "Souhaitez-vous monter en version ce widget?"
 
-#: unknown
-msgid "Write"
+ msgid "Write"
  msgstr "Écriture"
 
-#: unknown
-msgid "Write thread id"
+ msgid "Write thread id"
  msgstr "Ecrite l'identifiant du processus"
 
-#: unknown
-msgid "Write timestamp"
+ msgid "Write timestamp"
  msgstr "Ecrire l'horodatage (timestamp)"
 
-#: unknown
-msgid "Y/m/d"
+ msgid "Y/m/d"
  msgstr "d/m/Y"
 
-#: unknown
-msgid "Y/m/d G:i"
+ msgid "Y/m/d G:i"
  msgstr "d/m/Y G:i"
 
-#: unknown
-msgid "Y/m/d H:i"
+ msgid "Y/m/d H:i"
  msgstr "d/m/Y H:i"
 
-#: unknown
-msgid "Year must be less than %d (%s)"
+ msgid "Year must be less than %d (%s)"
  msgstr "L'année doit être inférieure à %d (%s)"
 
-#: unknown
-msgid "Yearly"
+ msgid "Yearly"
  msgstr "Annuel"
 
-#: unknown
-msgid "You are"
+ msgid "You are"
  msgstr "Vous êtes"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are about to delete <strong>{{ count }} host groups.</strong> This "
  "action cannot be undone. Do you want to delete them?"
  msgstr ""
  "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</"
  "strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are about to delete the <strong>{{ name }}</strong> host group. This "
  "action cannot be undone. Do you want to delete it?"
  msgstr ""
  "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</"
  "strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
  "cannot be undone. If you proceed, all requests made using this token will "
  "be <br> rejected. Do you want to delete the token?"
@@ -23529,322 +22517,250 @@ msgid ""
  "effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le "
  "jeton ?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are about to duplicate <strong>{{ count }} host groups.</strong> How "
  "many duplications would you like to make?"
  msgstr ""
  "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</"
  "strong>. Combien de duplications souhaitez-vous effectuer?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are about to duplicate the <strong>{{ name }}</strong> host group. "
  "How many duplications would you like to make?"
  msgstr ""
  "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</"
  "strong>. Combien de duplications souhaitez-vous effectuer?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You are going to delete <strong>{{name}}</strong> from the user list. "
  "This user will no longer be able to access the dashboard."
  msgstr ""
  "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste "
  "des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
-#: unknown
-msgid "You are not allowed to access this host group"
+ msgid "You are not allowed to access this host group"
  msgstr "Vous n'êtes pas autorisé à accéder à ce groupe d'hôte"
 
-#: unknown
-msgid "You are not allowed to add tokens linked to user with ID %d"
+ msgid "You are not allowed to add tokens linked to user with ID %d"
  msgstr ""
  "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
 
-#: unknown
-msgid "You are not allowed to create host categories"
+ msgid "You are not allowed to create host categories"
  msgstr "Vous n'êtes pas autorisé à créer des catégories d'hôtes"
 
-#: unknown
-msgid "You are not allowed to list authentication tokens"
+ msgid "You are not allowed to list authentication tokens"
  msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 
-#: unknown
-msgid "You are not authorized to access this resource"
+ msgid "You are not authorized to access this resource"
  msgstr "Vous n'êtes pas autorisé à accéder à cette ressource"
 
-#: unknown
-msgid "You are not in an access group"
+ msgid "You are not in an access group"
  msgstr "Vous n'êtes pas dans un groupe d'accès"
 
-#: unknown
-msgid "You are not in the following contact group: [%s]"
+ msgid "You are not in the following contact group: [%s]"
  msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 
-#: unknown
-msgid "You can see the full list by visiting the Centreon's Github"
+ msgid "You can see the full list by visiting the Centreon's Github"
  msgstr ""
  "Vous pouvez visualiser la liste complète à partir de du projet "
  "Centreonsur Github"
 
-#: unknown
-msgid "You can see the full list on the"
+ msgid "You can see the full list on the"
  msgstr "Vous pouvez voir la liste complète sur le"
 
-#: unknown
-msgid "You can select a maximum of 2 metric units."
+ msgid "You can select a maximum of 2 metric units."
  msgstr "Vous pouvez sélectionner 2 unités métriques au maximum."
 
-#: unknown
-msgid "You can select a maximum of two metric units"
+ msgid "You can select a maximum of two metric units"
  msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
 
-#: unknown
-msgid ""
+ msgid ""
  "You can't edit this hostgroup because you don't have access to all its "
  "resources"
  msgstr ""
  "Vous ne pouvez pas éditer groupe d'hote car vous n'êtes pas autorisé à "
  "accéder à toutes les ressources liées"
 
-#: unknown
-msgid "You cannot add the same dashboard to a playlist several times."
+ msgid "You cannot add the same dashboard to a playlist several times."
  msgstr ""
  "Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans "
  "une liste de diffusion."
 
-#: unknown
-msgid "You cannot share the same playlist to a contact group several times"
+ msgid "You cannot share the same playlist to a contact group several times"
  msgstr ""
  "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à "
  "un groupe de contacts"
 
-#: unknown
-msgid "You cannot share the same playlist to a contact several times"
+ msgid "You cannot share the same playlist to a contact several times"
  msgstr ""
  "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à "
  "un contact"
 
-#: unknown
-msgid "You do not have editing rights on the following playlist: [%d]"
+ msgid "You do not have editing rights on the following playlist: [%d]"
  msgstr ""
  "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : "
  "[%d]"
 
-#: unknown
-msgid "You have unsaved changes, do you want to proceed?"
+ msgid "You have unsaved changes, do you want to proceed?"
  msgstr ""
  "Vous avez des modifications non enregistrées, voulez-vous continuer?"
 
-#: unknown
-msgid ""
+ msgid ""
  "You may refer to the line that causes problem in order to find out more "
  "about the issue."
  msgstr ""
  "Vous pouvez vous référer à la ligne qui pose problème pour en savoir plus "
  "sur l'incident."
 
-#: unknown
-msgid "You must fill in more resources."
+ msgid "You must fill in more resources."
  msgstr "Vous devez indiquer plus de ressources."
 
-#: unknown
-msgid "You must set a poller for generate configuration."
+ msgid "You must set a poller for generate configuration."
  msgstr "Sélectionner un collecteur pour générer la configuration."
 
-#: unknown
-msgid "You must specify a password"
+ msgid "You must specify a password"
  msgstr "Vou devez spécifier un mot de passe"
 
-#: unknown
-msgid "You must specify a username"
+ msgid "You must specify a username"
  msgstr "Vou devez spécifier un nom d'utilisateur"
 
-#: unknown
-msgid "Your session is expired."
+ msgid "Your session is expired."
  msgstr "Votre session a expirée"
 
-#: unknown
-msgid "cgi"
+ msgid "cgi"
  msgstr "cgi"
 
-#: unknown
-msgid "cgi.cfg"
+ msgid "cgi.cfg"
  msgstr "cgi.cfg"
 
-#: unknown
-msgid "command"
+ msgid "command"
  msgstr "commande"
 
-#: unknown
-msgid "contact"
+ msgid "contact"
  msgstr "contact"
 
-#: unknown
-msgid "contactgroup"
+ msgid "contactgroup"
  msgstr "groupe de contacts"
 
-#: unknown
-msgid "critical"
+ msgid "critical"
  msgstr "critique"
 
-#: unknown
-msgid "d/m/Y H:i"
+ msgid "d/m/Y H:i"
  msgstr "d/m/Y H:i"
 
-#: unknown
-msgid "default"
+ msgid "default"
  msgstr "défaut"
 
-#: unknown
-msgid "deprecated"
+ msgid "deprecated"
  msgstr "déprécié"
 
-#: unknown
-msgid "down"
+ msgid "down"
  msgstr "indisponible"
 
-#: unknown
-msgid "escalation"
+ msgid "escalation"
  msgstr "escalade"
 
-#: unknown
-msgid "false"
+ msgid "false"
  msgstr "faux"
 
-#: unknown
-msgid "host"
+ msgid "host"
  msgstr "hôte"
 
-#: unknown
-msgid "host dependency"
+ msgid "host dependency"
  msgstr "dépendance d'hôte"
 
-#: unknown
-msgid "hostgroup"
+ msgid "hostgroup"
  msgstr "groupe d'hôtes"
 
-#: unknown
-msgid "hostgroup dependency"
+ msgid "hostgroup dependency"
  msgstr "dépendance de groupe d'hôtes"
 
-#: unknown
-msgid "in seconds - Must be higher than 10"
+ msgid "in seconds - Must be higher than 10"
  msgstr "en secondes - Doit être supérieur à 10"
 
-#: unknown
-msgid "in seconds - Must be higher than 2"
+ msgid "in seconds - Must be higher than 2"
  msgstr "en secondes - Doit etre supérieur à 2"
 
-#: unknown
-msgid "it's required"
+ msgid "it's required"
  msgstr "Requis"
 
-#: unknown
-msgid "launch %s with root permissions.\n"
+ msgid "launch %s with root permissions.\n"
  msgstr "lancer %s avec les permissions root.\n"
 
-#: unknown
-msgid "looks like a CLAPI action"
+ msgid "looks like a CLAPI action"
  msgstr "Probablement une action réalisée par CLAPI"
 
-#: unknown
-msgid "m/d/Y (H:i:s)"
+ msgid "m/d/Y (H:i:s)"
  msgstr "d/m/Y - H:i:s"
 
-#: unknown
-msgid "main.cfg"
+ msgid "main.cfg"
  msgstr "main.cfg"
 
-#: unknown
-msgid "nagios.cfg"
+ msgid "nagios.cfg"
  msgstr "nagios.cfg"
 
-#: unknown
-msgid "ndo2db.cfg"
+ msgid "ndo2db.cfg"
  msgstr "ndo2db.cfg"
 
-#: unknown
-msgid "ndomod.cfg"
+ msgid "ndomod.cfg"
  msgstr "ndomod.cfg"
 
-#: unknown
-msgid "pending"
+ msgid "pending"
  msgstr "en attente"
 
-#: unknown
-msgid "platform not found"
+ msgid "platform not found"
  msgstr "plateforme non trouvée"
 
-#: unknown
-msgid "resource.cfg"
+ msgid "resource.cfg"
  msgstr "resource.cfg"
 
-#: unknown
-msgid "resources"
+ msgid "resources"
  msgstr "ressources"
 
-#: unknown
-msgid "s"
+ msgid "s"
  msgstr "s"
 
-#: unknown
-msgid "service"
+ msgid "service"
  msgstr "service"
 
-#: unknown
-msgid "service dependency"
+ msgid "service dependency"
  msgstr "dépendance de service"
 
-#: unknown
-msgid "servicegroup"
+ msgid "servicegroup"
  msgstr "groupe de services"
 
-#: unknown
-msgid "servicegroup dependency"
+ msgid "servicegroup dependency"
  msgstr "dépendance de groupe de services"
 
-#: unknown
-msgid "snmp traps"
+ msgid "snmp traps"
  msgstr "traps snmp"
 
-#: unknown
-msgid "snmpttconvertmib Directory + Binary"
+ msgid "snmpttconvertmib Directory + Binary"
  msgstr "Chemin complet de l'exécutable snmpttconvertmib"
 
-#: unknown
-msgid "timeperiod"
+ msgid "timeperiod"
  msgstr "période de temps"
 
-#: unknown
-msgid "topology_name"
+ msgid "topology_name"
  msgstr "Nom de la topologie"
 
-#: unknown
-msgid "true"
+ msgid "true"
  msgstr "vrai"
 
-#: unknown
-msgid "unknown"
+ msgid "unknown"
  msgstr "inconnu"
 
-#: unknown
-msgid "unreachable"
+ msgid "unreachable"
  msgstr "injoignable"
 
-#: unknown
-msgid "up"
+ msgid "up"
  msgstr "disponible"
 
-#: unknown
-msgid "vCenter name"
+ msgid "vCenter name"
  msgstr "Nom du vCenter"
 
-#: unknown
-msgid "warning"
+ msgid "warning"
  msgstr "alerte"
 
-#: unknown
-msgid "will display resources with host name starting by'"
+ msgid "will display resources with host name starting by'"
  msgstr "affichera les ressources avec un nom d'hôte commençant par"
