@@ -142,8 +142,7 @@ function createTranslationFile(
         // Only if the code of language is not 'en'
         $final[$languageCode] = $translations;
     }
-    // if (0 === file_put_contents($destinationFile, serialize($final))) {
-    if (0 === file_put_contents($destinationFile, var_export($final, true))) {
+    if (0 === file_put_contents($destinationFile, serialize($final))) {
         exit(
             sprintf("Impossible to create destination file '%s'\n", $destinationFile)
         );
