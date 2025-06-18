@@ -6097,27 +6097,34 @@ msgid ""
 "days."
 msgstr ""
 
- msgid "<br/>"
+#: unknown
+msgid "<br/>"
  msgstr "<br/>"
 
- msgid ""
+#: unknown
+msgid ""
  "Allows user to generate and export configuration, and restart poller."
  msgstr ""
  "Permite que o usuário gere e exporte a configuração e reinicie o poller."
 
- msgid "Archives logs of monitoring engine."
+#: unknown
+msgid "Archives logs of monitoring engine."
  msgstr "Arquive logs dos mecanismos de supervisão."
 
- msgid "Arrow color."
+#: unknown
+msgid "Arrow color."
  msgstr "Cor das setas."
 
- msgid "Background color."
+#: unknown
+msgid "Background color."
  msgstr "Cor de fundo."
 
- msgid "Bind user"
+#: unknown
+msgid "Bind user"
  msgstr "Ligação do usuário"
 
- msgid ""
+#: unknown
+msgid ""
  "By default Nagios will assume that all hosts are in UP states when it "
  "starts. You can override the initial state for a host by using this "
  "directive."
@@ -6126,7 +6133,8 @@ msgstr ""
  "quando é iniciado. \n"
  "Você pode substituir o estado inicial de um host usando essa diretiva."
 
- msgid ""
+#: unknown
+msgid ""
  "By default Nagios will assume that all services are in OK states when it "
  "starts. You can override the initial state for a service by using this "
  "directive."
@@ -6136,7 +6144,8 @@ msgstr ""
  "Você pode substituir esse estado inicial para um serviço usando essa "
  "diretiva."
 
- msgid ""
+#: unknown
+msgid ""
  "By default monitoring engine will assume that all services are in OK "
  "states when it starts. You can override the initial state for a service "
  "by using this directive."
@@ -6145,68 +6154,85 @@ msgstr ""
  "estado OK quando é iniciado. \n"
  "Você pode substituir esse comportamento usando essa diretiva."
 
- msgid "Centreon Broker socket path for send external command."
+#: unknown
+msgid "Centreon Broker socket path for send external command."
  msgstr ""
  "Caminho para o soquete Unix usado pelo módulo do Centreon Broker para "
  "receber comandos externos."
 
- msgid "Centstorage will check for data to purge every now and then."
+#: unknown
+msgid "Centstorage will check for data to purge every now and then."
  msgstr "O Centstorage verificará os dados a serem removidos periodicamente."
 
- msgid "Choose the Nagios server instance this configuration is defined for."
+#: unknown
+msgid "Choose the Nagios server instance this configuration is defined for."
  msgstr ""
  "Selecione a instância do servidor Nagios para o qual esta configuração "
  "está definida."
 
- msgid ""
+#: unknown
+msgid ""
  "Choose whether or not a special command should be run by snmptrapd when "
  "this trap was received."
  msgstr ""
  "Define se um comando especial deve ou não ser executado pelo snmptrapd "
  "quando este trap é recebido."
 
- msgid "Color for Host Down (in Service monitoring consoles)."
+#: unknown
+msgid "Color for Host Down (in Service monitoring consoles)."
  msgstr ""
  "Cor do host em status problemático (para consoles de monitoramento de "
  "serviço)."
 
- msgid "Color for Host Unreachable (in Service monitoring consoles)."
+#: unknown
+msgid "Color for Host Unreachable (in Service monitoring consoles)."
  msgstr ""
  "Cor dos hosts que não podem ser supervisionados porque último localizou "
  "um item com status problemático (para consoles de monitoramento de "
  "serviço)."
 
- msgid "Color of Hosts / Services that are acknowledged."
+#: unknown
+msgid "Color of Hosts / Services that are acknowledged."
  msgstr "Cor da linha dos hosts e / ou serviços reconhecidos."
 
- msgid "Color of Hosts / Services that are on downtime."
+#: unknown
+msgid "Color of Hosts / Services that are on downtime."
  msgstr "Cor da linha do host e / ou serviços no desligamento programado."
 
- msgid "Color of the left and top border."
+#: unknown
+msgid "Color of the left and top border."
  msgstr "Cor da borda esquerda e superior da imagem."
 
- msgid "Color of the right and bottom border."
+#: unknown
+msgid "Color of the right and bottom border."
  msgstr "Cor da borda direita e inferior da imagem."
 
- msgid "Comments on this host group."
+#: unknown
+msgid "Comments on this host group."
  msgstr "Comentários do grupo de hosts."
 
- msgid "Comments regarding criticality."
+#: unknown
+msgid "Comments regarding criticality."
  msgstr "Comentários sobre criticality"
 
- msgid "Criticality level"
+#: unknown
+msgid "Criticality level"
  msgstr "Nível de criticidade"
 
- msgid "Curve area color."
+#: unknown
+msgid "Curve area color."
  msgstr "Cor da área de preenchimento da curva."
 
- msgid "Curve transparency."
+#: unknown
+msgid "Curve transparency."
  msgstr "Transparência da curva."
 
- msgid "Default timezone."
+#: unknown
+msgid "Default timezone."
  msgstr "Fuso horário por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an image that should be associated with this host group in the "
  "statusmap CGI in Nagios. You can choose a JPEG, PNG, and GIF image. The "
  "GD2 image format is preferred, as other image formats must be converted "
@@ -6220,7 +6246,8 @@ msgstr ""
  "convertidos antes que o statusmap seja gerado.A imagem ficará melhor se "
  "tiver 40x40 pixels de tamanho."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an image that should be associated with this host group in the "
  "statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
  "image. The GD2 image format is preferred, as other image formats must be "
@@ -6234,7 +6261,8 @@ msgstr ""
  "convertidos antes que o statusmap seja gerado. \n"
  "A imagem terá uma renderização melhor se tiver um tamanho de 40x40 pixels."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more actions to be "
  "performed on the host group. You will see the link to the action URL in "
  "the host group details."
@@ -6243,7 +6271,8 @@ msgstr ""
  "serem executadas no grupo de hosts. \n"
  "Você verá o link para o URL de ação nos detalhes do grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host group. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the host group, emergency contact "
@@ -6256,7 +6285,8 @@ msgstr ""
  "sobre o grupo de hosts, métodos de contato de emergência, etc. \n"
  "Disponível para outras pessoas na equipe de suporte."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host. Any valid URL can be used. This can be very useful if you want "
  "to make detailed information on the host, emergency contact methods, etc. "
@@ -6270,7 +6300,8 @@ msgstr ""
  "diante. \n"
  "para outras pessoas da equipe de suporte."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the service. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the service, emergency contact "
@@ -6283,16 +6314,20 @@ msgstr ""
  "detalhadas ao serviço, procedimento e pessoas a serem contatadas em caso "
  "de emergência, etc."
 
- msgid "Define an optional string of notes pertaining to the host group."
+#: unknown
+msgid "Define an optional string of notes pertaining to the host group."
  msgstr "Define uma sequência opcional relevante para o grupo de hosts."
 
- msgid "Define an optional string of notes pertaining to the host."
+#: unknown
+msgid "Define an optional string of notes pertaining to the host."
  msgstr "Define notas opcionais para este host."
 
- msgid "Define an optional string of notes pertaining to the service."
+#: unknown
+msgid "Define an optional string of notes pertaining to the service."
  msgstr "Especifica uma nota informativa opcional anexada ao serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "Define categories in which this host belongs to. You can add this later "
  "by editing the host or the category you want to add it to."
  msgstr ""
@@ -6300,7 +6335,8 @@ msgstr ""
  "Você pode adicionar isso mais tarde editando o host ou a categoria à qual "
  "deseja adicioná-lo."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the VRML image that should be associated with this host. This "
  "image will be used as the texture map for the specified host in the 3D "
  "statuswrl CGI in monitoring engine."
@@ -6309,7 +6345,8 @@ msgstr ""
  "Esta imagem será usada como logotipo para o host especificado no status "
  "3D do 3D do mecanismo de supervisão."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the address of the host here. Normally, this should be an IP "
  "address, but a FQDN can be used to identify the host instead. If DNS "
  "services are not reachable a FQDN could cause problems."
@@ -6320,14 +6357,16 @@ msgstr ""
  "Se os serviços DNS não estiverem acessíveis, um nome FQDN poderá causar "
  "problemas."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the command to execute by snmptrapd's trap handler. The command "
  "must be located in the PATH of the snmptrapd user."
  msgstr ""
  "Define o comando a ser executado pelo manipulador de traps snmptrapd. \n"
  "O comando deve estar localizado no snmptrapd do PATH do usuário."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the description of the service. It may contain spaces, dashes, and "
  "colons (semicolons, apostrophes, and quotation marks should be avoided). "
  "Services must have a unique description on a per host basis."
@@ -6338,7 +6377,8 @@ msgstr ""
  "Os serviços devem ter uma descrição única por host na qual eles são "
  "baseados."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the hostgroup(s) that this host belongs to. This directive may be "
  "used as an alternative to (or in addition to) defining the members in "
  "hostgroup definitions."
@@ -6347,7 +6387,8 @@ msgstr ""
  "Esta opção pode ser usada como uma alternativa (ou suplemento) à escolha "
  "de membros feita nas definições de grupos de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the image that should be associated with this host group here. "
  "This image will be displayed in the various places. The image will look "
  "best if it is 40x40 pixels in size."
@@ -6356,7 +6397,8 @@ msgstr ""
  "Esta imagem será exibida em diferentes lugares. \n"
  "A imagem terá uma renderização melhor se for um tamanho de 40x40 pixels."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the number of \"time units\" to wait before sending out the "
  "recovery notification when this host enters a non-UP state. The default "
  "time unit is 0 (this number will mean multiples of 1 minute). If you set "
@@ -6370,7 +6412,8 @@ msgstr ""
  "minuto. \n"
  "Se o valor especificado for 0, a notificação será enviada imediatamente."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the number of times that Nagios will retry the service check "
  "command if it returns any state other than an OK state. Setting this "
  "value to 1 will cause Nagios to generate an alert without retrying the "
@@ -6382,20 +6425,24 @@ msgstr ""
  "Definir esse valor como 1 fará com que um alerta do Nagios seja gerado "
  "sem tentar novamente."
 
- msgid "Define the timezone of the host's location."
+#: unknown
+msgid "Define the timezone of the host's location."
  msgstr "Define o fuso horário para a localização do host."
 
- msgid "Directory for Centreon Connector for Centreon Engine >= 1.3"
+#: unknown
+msgid "Directory for Centreon Connector for Centreon Engine >= 1.3"
  msgstr ""
  "Diretório em que os conectores usados ​​pelo Centreon Engine estão "
  "armazenados. \n"
  "Compatível apenas com o motor Centreon> = 1.3."
 
- msgid "Directory of trap configuration files."
+#: unknown
+msgid "Directory of trap configuration files."
  msgstr ""
  "Diretório contendo arquivos que permitem que o SNMPTT traduza traps SNMP."
 
- msgid ""
+#: unknown
+msgid ""
  "Directory where Centreon will export Nagios object configuration files "
  "to. Nagios will parse all .cfg files in this directory."
  msgstr ""
@@ -6403,30 +6450,36 @@ msgstr ""
  "do Nagios. \n"
  "O Nagios irá procurar todos os arquivos .cfg nesse diretório."
 
- msgid "Dump file."
+#: unknown
+msgid "Dump file."
  msgstr "Arquivo de backup."
 
- msgid "Dumps data into another file."
+#: unknown
+msgid "Dumps data into another file."
  msgstr "Salva os dados em outro arquivo."
 
- msgid ""
+#: unknown
+msgid ""
  "Enable Monitoring Engine Logs synchronisation between poller and Central "
  "Server operated by Centcore"
  msgstr ""
  "Permite a sincronização de logs do planejador entre os coletores e o "
  "servidor central, operados pelo Centcore."
 
- msgid ""
+#: unknown
+msgid ""
  "Enable Perfdata synchronisation between poller and Central Server "
  "operated by Centcore"
  msgstr ""
  "Permite a sincronização de dados de desempenho entre os coletores e o "
  "servidor central, operados pelo Centcore."
 
- msgid "Enable caching"
+#: unknown
+msgid "Enable caching"
  msgstr "Ativa Cache"
 
- msgid ""
+#: unknown
+msgid ""
  "Enable notification form for this user. If you select \"no\" , this "
  "contact will never be generated into nagios configuration files."
  msgstr ""
@@ -6434,99 +6487,126 @@ msgstr ""
  "Se você escolher \"não\", o contato nunca será gerado nos arquivos de "
  "configuração do nagios."
 
- msgid "Enables Centstorage Engine."
+#: unknown
+msgid "Enables Centstorage Engine."
  msgstr "Ative o motor Centstorage."
 
- msgid "Enables RRDTool auto purge system."
+#: unknown
+msgid "Enables RRDTool auto purge system."
  msgstr "Ativa a limpeza automática do RRDTool."
 
- msgid "Enables component split."
+#: unknown
+msgid "Enables component split."
  msgstr "Ativar separação de componentes."
 
- msgid "Enables resource's insertion in index_data."
+#: unknown
+msgid "Enables resource's insertion in index_data."
  msgstr "Ativar a inserção de recursos em index_data"
 
- msgid "Enables timezone management."
+#: unknown
+msgid "Enables timezone management."
  msgstr "Ativar gerenciamento de fuso horário."
 
- msgid ""
+#: unknown
+msgid ""
  "File where correlation state will be stored during correlation engine "
  "restart"
  msgstr ""
  "Arquivo de retenção de dados de correlação que será usado ao reiniciar o "
  "mecanismo de monitoramento."
 
- msgid "Font size of X-axis and Y-axis."
+#: unknown
+msgid "Font size of X-axis and Y-axis."
  msgstr "Tamanho da fonte do eixo X e Y"
 
- msgid "Font size of captions."
+#: unknown
+msgid "Font size of captions."
  msgstr "Tamanho da fonte da legenda."
 
- msgid "Font size of titles."
+#: unknown
+msgid "Font size of titles."
  msgstr "Tamanho da fonte dos títulos."
 
- msgid "Font size of units."
+#: unknown
+msgid "Font size of units."
  msgstr "Tamanho da fonte das unidades."
 
- msgid "Font size of watermarks."
+#: unknown
+msgid "Font size of watermarks."
  msgstr "Tamanho da fonte das marcas d'água."
 
- msgid "Font style of X-axis and Y-axis."
+#: unknown
+msgid "Font style of X-axis and Y-axis."
  msgstr "Estilo de fonte do eixo X e Y"
 
- msgid "Font style of captions."
+#: unknown
+msgid "Font style of captions."
  msgstr "Estilo de fonte de legendas."
 
- msgid "Font style of titles."
+#: unknown
+msgid "Font style of titles."
  msgstr "Estilo dos títulos das fontes."
 
- msgid "Font style of units."
+#: unknown
+msgid "Font style of units."
  msgstr "Estilo de polícia das unidades."
 
- msgid "Font style of watermarks."
+#: unknown
+msgid "Font style of watermarks."
  msgstr "Estilo de fonte de marcas d'água."
 
- msgid "Grid background color."
+#: unknown
+msgid "Grid background color."
  msgstr "Cor de fundo da grelha."
 
- msgid "Group attribute"
+#: unknown
+msgid "Group attribute"
  msgstr "Atributo de grupo"
 
- msgid "Group filter"
+#: unknown
+msgid "Group filter"
  msgstr "Filtro de grupo"
 
- msgid "Group member attribute"
+#: unknown
+msgid "Group member attribute"
  msgstr "Atributo dos membros do grupo"
 
- msgid "Height of grid."
+#: unknown
+msgid "Height of grid."
  msgstr "Altura da grade."
 
- msgid "Host DOWN Color."
+#: unknown
+msgid "Host DOWN Color."
  msgstr "Cor do host em status problemático."
 
- msgid "Host UNREACHABLE Color."
+#: unknown
+msgid "Host UNREACHABLE Color."
  msgstr ""
  "A cor dos hosts que não podem ser supervisionados porque eles localizaram "
  "um item com status problemático pela última vez."
 
- msgid "Host UP Color."
+#: unknown
+msgid "Host UP Color."
  msgstr "Cor do host no status operacional."
 
- msgid ""
+#: unknown
+msgid ""
  "Icon for identifying criticality. Will be visible in the monitoring "
  "consoles."
  msgstr ""
  "Ícone para identificar a criticalidade. \n"
  "Será visível no console de supervisão."
 
- msgid ""
+#: unknown
+msgid ""
  "If TLS is enabled, make sure to configure the certificate requirements on "
  "the ldap.conf file and restart your web server."
  msgstr ""
  "Se a opção TLS estiver ativada, verifique se o certificado está "
  "corretamente definido no arquivo ldap.conf e reinicie o servidor da web."
 
- msgid ""
+#: unknown
+msgid ""
  "If this option is enable, the comments will be displayed on status chart."
  "<br><b>Warning</b> : This option can slow down the display of chart."
  msgstr ""
@@ -6535,61 +6615,73 @@ msgstr ""
  "serviço. <br> <b> Aviso </ b>: Esta opção pode retardar o carregamento "
  "dos gráficos."
 
- msgid ""
+#: unknown
+msgid ""
  "In a distributed monitoring environment, the monitoring node (central or "
  "satellite) for this host can be specified here."
  msgstr ""
  "Em um ambiente de supervisão distribuída, o nó de supervisão (central ou "
  "satélite) para este host pode ser especificado aqui."
 
- msgid ""
+#: unknown
+msgid ""
  "Init script for Correlation Engine. Only compatible with Centreon Engine."
  msgstr ""
  "Script de inicialização do Mecanismo de Correlação. \n"
  "Compatível apenas com o motor Centreon."
 
- msgid ""
+#: unknown
+msgid ""
  "It should be enabled to control whether or not Centreon Broker should "
  "insert performance data in the data_bin table."
  msgstr ""
  "Ele deve ser ativado para controlar se o Centreon Broker deve ou não "
  "inserir dados de desempenho na tabela data_bin."
 
- msgid "Knowledge database host."
+#: unknown
+msgid "Knowledge database host."
  msgstr "Endereço do banco de dados."
 
- msgid "Knowledge database name."
+#: unknown
+msgid "Knowledge database name."
  msgstr "Nome do banco de dados da base de conhecimento."
 
- msgid "Knowledge database password."
+#: unknown
+msgid "Knowledge database password."
  msgstr "Senha da conta do usuário"
 
- msgid "Knowledge database prefix."
+#: unknown
+msgid "Knowledge database prefix."
  msgstr "Prefixo das tabelas no banco de dados."
 
- msgid "Knowledge database user."
+#: unknown
+msgid "Knowledge database user."
  msgstr ""
  "Conta de usuário para se conectar ao banco de dados da base de "
  "conhecimento"
 
- msgid ""
+#: unknown
+msgid ""
  "Ldap server. Failover will take place if multiple servers are defined."
  msgstr ""
  "Se vários servidores LDAP estiverem configurados, o Centreon mudará de um "
  "servidor para outro se um servidor não responder à solicitação."
 
- msgid "Level of criticality. Must be a number."
+#: unknown
+msgid "Level of criticality. Must be a number."
  msgstr ""
  "Nível de criticidade. \n"
  "Deve ser um número."
 
- msgid ""
+#: unknown
+msgid ""
  "Location (path and filename) where Nagios should create its main log file."
  msgstr ""
  "Localização (caminho e arquivo) onde o Nagios deve criar seu arquivo de "
  "log principal."
 
- msgid ""
+#: unknown
+msgid ""
  "Location of the Perl program to provide Perl code persistence for the "
  "Monitoring Engine project. This program provides an API for calling "
  "Monitoring Engine Perl plugins from Monitoring Engine when it is built "
@@ -6605,13 +6697,16 @@ msgstr ""
  "e as repetições de mudança de contexto para recompilar os plugins Perl. \n"
  "O arquivo p1.pl é fornecido com o mecanismo de supervisão."
 
- msgid "Login attribute"
+#: unknown
+msgid "Login attribute"
  msgstr "Atributos de login"
 
- msgid "Main grid color."
+#: unknown
+msgid "Main grid color."
  msgstr "Cor principal da grade."
 
- msgid ""
+#: unknown
+msgid ""
  "Monitoring Engine tries to be smart about how and when it checks the "
  "status of hosts. By default this option is disabled and will allow "
  "Monitoring Engine to make some smarter decisions and check hosts a bit "
@@ -6630,10 +6725,12 @@ msgstr ""
  "Esta opção não deve ser ativada, a menos que o mecanismo de supervisor "
  "tenha dificuldade em detectar um retorno normal para um host."
 
- msgid "Monitoring engine"
+#: unknown
+msgid "Monitoring engine"
  msgstr "Motor de supervisão"
 
- msgid ""
+#: unknown
+msgid ""
  "Only works with Centreon Engine (>= 1.3). For better performance, set "
  "this to 'No'. But it is safer to leave it to 'Default' ('Yes'), for a few "
  "native plugins could trigger a monitoring crash."
@@ -6642,29 +6739,36 @@ msgstr ""
  "permite separar os processos filhos do processo principal. \n"
  "É melhor deixar essa opção em \"Padrão\"."
 
- msgid "Outline color."
+#: unknown
+msgid "Outline color."
  msgstr "Cor do contorno."
 
- msgid "Path of init script of SNMPTT"
+#: unknown
+msgid "Path of init script of SNMPTT"
  msgstr "Caminho do script de início do SNMPTT"
 
- msgid "Path of init script of the scheduler"
+#: unknown
+msgid "Path of init script of the scheduler"
  msgstr "Iniciar caminho do script do agendador"
 
- msgid ""
+#: unknown
+msgid ""
  "Path to the correlation file which holds host, services, dependencies and "
  "parenting definitions."
  msgstr ""
  "Caminho para o arquivo de correlação que contém a definição de "
  "dependências de host, serviços e relacionamentos de host físico."
 
- msgid "Perl library directory."
+#: unknown
+msgid "Perl library directory."
  msgstr "Diretório de Bibliotecas Perl."
 
- msgid "Protocol version"
+#: unknown
+msgid "Protocol version"
  msgstr "Versão do protocolo"
 
- msgid ""
+#: unknown
+msgid ""
  "RRD retention duration of all the services that are in this host group. "
  "If service is in multiple host groups, the highest retention value will "
  "be used."
@@ -6674,21 +6778,26 @@ msgstr ""
  "No caso de um serviço pertencer a mais de um grupo de hosts, o maior "
  "tempo de retenção será aplicado."
 
- msgid "Refresh interval used for statistics (top counters)."
+#: unknown
+msgid "Refresh interval used for statistics (top counters)."
  msgstr ""
  "Intervalo de atualização usado para estatísticas de estado de host e "
  "serviço (tabelas na parte superior das páginas)."
 
- msgid "Refresh interval used in monitoring consoles."
+#: unknown
+msgid "Refresh interval used in monitoring consoles."
  msgstr "Intervalo de atualização usado nas páginas de supervisão."
 
- msgid "Retention duration of logs."
+#: unknown
+msgid "Retention duration of logs."
  msgstr "Tempo de retenção do log."
 
- msgid "Row Color for Service CRITICAL."
+#: unknown
+msgid "Row Color for Service CRITICAL."
  msgstr "Cor da linha de serviços em status crítico."
 
- msgid ""
+#: unknown
+msgid ""
  "Runs the scheduler debug mode. You have to configure SNMPTT manualy via "
  "the configuration file (snmptt.ini) in order to enable daemon mode. "
  "Centreon canot configure SNMPTT for you."
@@ -6698,69 +6807,88 @@ msgstr ""
  "configuração (snmptt.ini) para ativar o modo daemon. \n"
  "O Centreon só pode configurar o SNMPTT para você."
 
- msgid "SNMP global community."
+#: unknown
+msgid "SNMP global community."
  msgstr "Comunidade SNMP global usada por padrão."
 
- msgid "SNMP version."
+#: unknown
+msgid "SNMP version."
  msgstr "Versão do protocolo SNMP (1, 2, 2c ou 3)."
 
- msgid ""
+#: unknown
+msgid ""
  "SNMPTT init script. This options is used only if snmptt is used in daemon "
  "mode."
  msgstr ""
  "Script de inicialização do SNMPTT. \n"
  "Esta opção é usada apenas se o snmptt for usado no modo daemon."
 
- msgid "SNMPTT log file."
+#: unknown
+msgid "SNMPTT log file."
  msgstr "Log SNMPTT"
 
- msgid "SSH port of the remote poller"
+#: unknown
+msgid "SSH port of the remote poller"
  msgstr "Porta SSH do coletor remoto"
 
- msgid "Scheduling engine"
+#: unknown
+msgid "Scheduling engine"
  msgstr "Mecanismo de agendamento"
 
- msgid "Search group base DN"
+#: unknown
+msgid "Search group base DN"
  msgstr "Banco de dados DN da pesquisa de grupo"
 
- msgid "Search user base DN"
+#: unknown
+msgid "Search user base DN"
  msgstr "Banco de dados DN de pesquisa de usuário"
 
- msgid "Secondary grid color."
+#: unknown
+msgid "Secondary grid color."
  msgstr "Cor secundária da grade."
 
- msgid ""
+#: unknown
+msgid ""
  "Select the categories this service should be linked to. Categories are "
  "used for finer control in service ACL definitions."
  msgstr ""
  "Selecione a categoria na qual este serviço deve estar localizado. \n"
  "Categorias podem ser usadas para refinar as ACLs de um serviço."
 
- msgid "Service CRITICAL Color."
+#: unknown
+msgid "Service CRITICAL Color."
  msgstr "Cor dos serviços em estado crítico."
 
- msgid "Service OK Color."
+#: unknown
+msgid "Service OK Color."
  msgstr "Cor de serviço no status operacional."
 
- msgid "Service PENDING Color."
+#: unknown
+msgid "Service PENDING Color."
  msgstr "Cor de serviços esperando para ser supervisionado."
 
- msgid "Service UNKNOWN Color."
+#: unknown
+msgid "Service UNKNOWN Color."
  msgstr "Cor dos serviços em status desconhecido."
 
- msgid "Service WARNING Color."
+#: unknown
+msgid "Service WARNING Color."
  msgstr "Cor dos serviços em estado de alerta."
 
- msgid "Severity level"
+#: unknown
+msgid "Severity level"
  msgstr "Nível de criticidade configurável no menu \"Categorias\"."
 
- msgid "Severity level use to sort issue in Monitoring menu."
+#: unknown
+msgid "Severity level use to sort issue in Monitoring menu."
  msgstr "Criticalidade, usada para classificar objetos no menu Supervisão."
 
- msgid "Severity level, must be a number. "
+#: unknown
+msgid "Severity level, must be a number. "
  msgstr "Nível de gravidade, deve ser um número."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify a file in which a cached copy of object definitions should be "
  "stored. The cache file is (re)created every time Monitoring Engine is "
  "(re)started and is used by the CGIs. It is intended to speed up config "
@@ -6776,7 +6904,8 @@ msgstr ""
  "cache no CGIs e permitem modificar os objetos de origem durante a "
  "operação do mecanismo de monitoramento sem afetar l`affichage na CGIs."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify a file in which a pre-processed, pre-cached copy of object "
  "definitions should be stored. This file can be used to drastically "
  "improve startup times in large/complex Monitoring Engine installations. "
@@ -6792,7 +6921,8 @@ msgstr ""
  "inicialização, leia a seção \"Opções de Início Rápido\" da documentação "
  "do mecanismo de supervisão."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify one or multiple host templates, that should be linked to this "
  "template. A service, that uses this service template, will complete the "
  "missing host relation and result in a full service definition."
@@ -6802,7 +6932,8 @@ msgstr ""
  "Um serviço que usa esse modelo de serviço concluirá o relacionamento do "
  "host ausente e resultará em uma definição de serviço completo."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify one or multiple service templates, that should be linked to this "
  "template. A host, that uses this host template, will complete the missing "
  "host relation and result in a full service definition. Note that "
@@ -6814,30 +6945,36 @@ msgstr ""
  "Um host, que usa esse modelo de host, completará o relacionamento do host "
  "ausente e resultará em uma definição de serviço completa."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify the command that Nagios will run in order to check the status of "
  "the service."
  msgstr ""
  "Especifica o comando que o Nagios executará para monitorar o status do "
  "serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify the host(s) that this service \"runs\" on or is associated with."
  msgstr ""
  "Especifica que este serviço \"é executado\" ou está associado ao (s) host "
  "(s)."
 
- msgid "Storage Type."
+#: unknown
+msgid "Storage Type."
  msgstr "Tipo de armazenamento."
 
- msgid "Switch the submission of trap results to nagios on or off."
+#: unknown
+msgid "Switch the submission of trap results to nagios on or off."
  msgstr ""
  "Altere o envio de resultados de trap para nagios ativado ou desativado."
 
- msgid "Text color."
+#: unknown
+msgid "Text color."
  msgstr "Cor do texto."
 
- msgid ""
+#: unknown
+msgid ""
  "The TCP port used to communicate with rrdcached. This is a global option, "
  "go to Administration > Options > RRDTool to modify it."
  msgstr ""
@@ -6845,7 +6982,8 @@ msgstr ""
  "Esta opção é definida globalmente no menu \"Administração> Opções> "
  "RRDTool\"."
 
- msgid ""
+#: unknown
+msgid ""
  "The Unix socket used to communicate with rrdcached. This is a global "
  "option, go to Administration > Options > RRDTool to modify it."
  msgstr ""
@@ -6853,14 +6991,16 @@ msgstr ""
  "Esta opção é definida globalmente no menu \"Administração> Opções> "
  "RRDTool\"."
 
- msgid ""
+#: unknown
+msgid ""
  "The contact template for auto imported user.<br/>This template is applied "
  "for Nagios contact configuration"
  msgstr ""
  "O modelo de contato para a importação automática de usuários. <br/> Este "
  "modelo é aplicado para a configuração de contato do Nagios."
 
- msgid ""
+#: unknown
+msgid ""
  "The higher the buffer size is, the best compression. This however "
  "increase data streaming latency. Use with caution."
  msgstr ""
@@ -6870,24 +7010,28 @@ msgstr ""
  "que pode adicionar um pouco de latência antes de enviar os dados. \n"
  "Use com cuidado."
 
- msgid ""
+#: unknown
+msgid ""
  "The host name defined here is used in host group and service definitions "
  "to reference this particular host."
  msgstr ""
  "O nome do host definido aqui é usado na definição do grupo de hosts e um "
  "serviço para se referir a esse host específico."
 
- msgid "The passive mode is for the secondary Centreon Broker."
+#: unknown
+msgid "The passive mode is for the secondary Centreon Broker."
  msgstr "Caminho para os módulos do Centreon Broker"
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to define a short name used to identify the host "
  "group."
  msgstr ""
  "Essa diretiva é usada para definir um nome abreviado usado para "
  "identificar o grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to define is a longer name or description used to "
  "identify the host group. It is provided in order to allow you to more "
  "easily identify a particular host group."
@@ -6897,7 +7041,8 @@ msgstr ""
  "Destina-se a ajudá-lo a identificar um grupo específico de hosts com mais "
  "facilidade."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to define is a longer name or description used to "
  "identify the host group.It is provided in order to allow you to more "
  "easily identify a particular host group."
@@ -6906,14 +7051,16 @@ msgstr ""
  "para identificar o grupo de hosts. Ela é fornecida para permitir que você "
  "identifique mais facilmente um determinado grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to determine whether or not the contact can submit "
  "external commands to Nagios from the CGIs."
  msgstr ""
  "Essa diretiva é usada para determinar se o contato tem ou não o direito "
  "de enviar pedidos externos para o Nagios dos CGIs."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to identify the short name(s) of the "
  "servicegroup(s) that the service belongs to. This directive may be used "
  "as an alternative to using the members directive in servicegroup "
@@ -6924,7 +7071,8 @@ msgstr ""
  "Essa diretiva pode ser usada como uma alternativa usando o parâmetro de "
  "membro das definições do grupo de serviços."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a directory that Monitoring Engine can use as scratch space for "
  "creating temporary files used during the monitoring process. You should "
  "run tmpwatch, or a similar utility, on this directory occasionally to "
@@ -6936,7 +7084,8 @@ msgstr ""
  "Você pode executar o comando tmpwatch ou uma ferramenta semelhante para "
  "apagar arquivos com mais de 24 horas deste diretório."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a directory that Nagios can use as scratch space for creating "
  "temporary files used during the monitoring process. You should run "
  "tmpwatch, or a similiar utility, on this directory occassionally to "
@@ -6947,7 +7096,8 @@ msgstr ""
  "Você deve executar tmpwatch, ou um utilitário semelhante, neste diretório "
  "de tempos em tempos, a fim de excluir arquivos com mais de 24 horas."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a list of hosts that should be included in this group. This "
  "directive may be used as an alternative to (or in addition to) the "
  "hostgroups directive in host definitions."
@@ -6956,7 +7106,8 @@ msgstr ""
  "Essa diretiva pode ser usada como uma alternativa para (ou além de) a "
  "diretiva de grupos de host na definição de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a temporary file that Monitoring Engine periodically creates and "
  "uses when updating comment data, status data, etc. The file is deleted "
  "when it is no longer needed."
@@ -6966,7 +7117,8 @@ msgstr ""
  "diante. \n"
  "Este arquivo é excluído quando não é mais necessário."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a temporary file that Nagios periodically creates and uses when "
  "updating comment data, status data, etc. The file is deleted when it is "
  "no longer needed."
@@ -6976,7 +7128,8 @@ msgstr ""
  "diante. \n"
  "O arquivo é excluído assim que não for mais necessário."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively.  These options determine "
  "which service process attributes are NOT retained across program "
@@ -6990,7 +7143,8 @@ msgstr ""
  "NÃO serão mantidos quando o mecanismo for reiniciado. \n"
  "Por padrão, todos os processos são recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host attributes are NOT retained across program restarts. By default, all "
@@ -7003,7 +7157,8 @@ msgstr ""
  "mecanismo for reiniciado. \n"
  "Por padrão, todos os atributos são recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host contact attributes are NOT retained across program restarts. By "
@@ -7016,7 +7171,8 @@ msgstr ""
  "retidos quando o mecanismo for reiniciado. \n"
  "Por padrão, todos os atributos são recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host process attributes are NOT retained across program restarts. By "
@@ -7027,7 +7183,8 @@ msgstr ""
  "atributos do processo do host NÃO são retidos nas reinicializações do "
  "programa. Por padrão, todos os atributos de host e serviço são mantidos."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service attributes are NOT retained across program restarts. By default, "
@@ -7040,7 +7197,8 @@ msgstr ""
  "o mecanismo for reiniciado. \n"
  "Por padrão, todos os atributos são recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service contact attributes are NOT retained across program restarts. By "
@@ -7053,7 +7211,8 @@ msgstr ""
  "o mecanismo for reiniciado. \n"
  "Por padrão, todos os atributos são recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the directory where Nagios should place log files that have been "
  "rotated. This option is ignored if you choose to not use the log rotation "
  "functionality."
@@ -7063,7 +7222,8 @@ msgstr ""
  "Essa opção será ignorada se você optar por não usar o recurso de rotação "
  "de log."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the email address for the administrator of the local machine (i."
  "e. the one that Nagios is running on). This value can be used in "
  "notification commands by using the $ADMINEMAIL$ macro."
@@ -7073,7 +7233,8 @@ msgstr ""
  "Esse valor pode ser usado em comandos de notificação usando a macro $ "
  "ADMINEMAIL $."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the file that Nagios will check for external commands to process. "
  "Centreon writes commands to this file. The external command file is "
  "implemented as a named pipe (FIFO), which is created when Nagios starts "
@@ -7088,7 +7249,8 @@ msgstr ""
  "Se o arquivo existir quando o Nagios for iniciado, o processo do Nagios "
  "terminará com uma mensagem de erro."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow a "
  "host performance data processor command or service performance data "
  "processor command to be run. If a command exceeds this time limit it will "
@@ -7100,7 +7262,8 @@ msgstr ""
  "será armazenado em \n"
  "o arquivo de log."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive host processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -7110,7 +7273,8 @@ msgstr ""
  "Se um comando exceder esse limite, ele será eliminado e um alerta será "
  "registrado no arquivo de log."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive service processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -7120,7 +7284,8 @@ msgstr ""
  "Se um comando exceder esse limite, ele será eliminado e um alerta será "
  "registrado."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the pager number (or pager email gateway) for the administrator "
  "of the local machine (i.e. the one that Nagios is running on). The pager "
  "number/address can be used in notification commands by using the "
@@ -7132,14 +7297,16 @@ msgstr ""
  "O número / endereço do pager pode ser usado em comandos de notificação "
  "usando a macro $ ADMINPAGER $."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the rotation method that you would like Nagios to use for your "
  "log file."
  msgstr ""
  "Este é o método de rotação que você gostaria que o Nagios usasse para "
  "seus arquivos de log."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective group that the Monitoring Engine "
  "process should run as. After initial program startup and before starting "
  "to monitor anything, Monitoring Engine will drop its effective privileges "
@@ -7152,7 +7319,8 @@ msgstr ""
  "grupo. \n"
  "Você pode dar um nome de grupo ou um GID."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective group that the Nagios process should "
  "run as. After initial program startup and before starting to monitor "
  "anything, Nagios will drop its effective privileges and run as this "
@@ -7164,7 +7332,8 @@ msgstr ""
  "coisa, o Nagios diminuirá seus privilégios e continuará com este grupo. \n"
  "Você pode especificar um nome de grupo ou seu GID."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective user that the Monitoring Engine process "
  "should run as. After initial program startup and before starting to "
  "monitor anything, Monitoring Engine will drop its effective privileges "
@@ -7177,7 +7346,8 @@ msgstr ""
  "usuário. \n"
  "Você pode fornecer um nome de usuário ou um UID."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective user that the Nagios process should run "
  "as. After initial program startup and before starting to monitor "
  "anything, Nagios will drop its effective privileges and run as this user. "
@@ -7190,7 +7360,8 @@ msgstr ""
  "usuário. \n"
  "Você pode especificar um nome de usuário ou seu UID."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every host "
  "check to process host performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -7204,7 +7375,8 @@ msgstr ""
  "estiver ativada e se o parâmetro process_perf_data na definição do host "
  "também estiver configurado."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every host "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -7224,7 +7396,8 @@ msgstr ""
  "ativada globalmente e a diretiva obsess_over_host na definição do host "
  "estiver ativada."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every service "
  "check to process service performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -7238,7 +7411,8 @@ msgstr ""
  "desempenho estiver ativada e o parâmetro process_perf_data estiver "
  "ativado na definição de serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every service "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -7258,7 +7432,8 @@ msgstr ""
  "ativada globalmente e a diretiva obsess_over_service na definição de "
  "serviço estiver ativada."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a file to which host performance data "
  "will be written after every host check. Data will be written to the "
  "performance file as specified by the host_perfdata_file_template option. "
@@ -7274,7 +7449,8 @@ msgstr ""
  "process_performance_data está habilitado globalmente e se a directiva "
  "process_perf_data está habilitado na definição de serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a file to which service performance "
  "data will be written after every service check. Data will be written to "
  "the performance file as specified by the service_perfdata_file_template "
@@ -7290,7 +7466,8 @@ msgstr ""
  "process_performance_data está habilitado globalmente e se a directiva "
  "process_perf_data está habilitado na definição de serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify illegal characters that cannot be used "
  "in host names, service descriptions, or names of other object types. "
  "Nagios will allow you to use most characters in object definitions, but I "
@@ -7305,21 +7482,24 @@ msgstr ""
  "Isso pode causar problemas na exibição na interface da Web, comandos de "
  "notificação e assim por diante."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the host performance data file."
  msgstr ""
  "Essa opção permite especificar o comando que precisará ser executado para "
  "processar o arquivo de dados de desempenho do host."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the service performance data file."
  msgstr ""
  "Essa opção permite especificar o comando que precisará ser executado para "
  "processar o arquivo de dados de desempenho do serviço."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "host performance data file is processed using the host performance data "
  "file processing command. A value of 0 indicates that the performance data "
@@ -7331,7 +7511,8 @@ msgstr ""
  "Um valor de 0 indicará que o arquivo de dados de desempenho não será "
  "processado em intervalos regulares."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "service performance data file is processed using the service performance "
  "data file processing command. A value of 0 indicates that the performance "
@@ -7343,14 +7524,16 @@ msgstr ""
  "Um valor de 0 indicará que o arquivo de dados de desempenho não será "
  "processado em intervalos regulares."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify what kind of date/time format Nagios "
  "should use in the web interface and date/time macros."
  msgstr ""
  "Esta opção permite que você especifique o tipo de formato de data / hora "
  "que Nagios deveria usar l`interface web e em macros."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how much debugging information Nagios should write "
  "to the debug_file. By default the verbosity is set to level 1."
  msgstr ""
@@ -7358,7 +7541,8 @@ msgstr ""
  "gravar em seu arquivo de depuração. \n"
  "Por padrão, o detalhamento é definido como 1."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how often Nagios will attempt to automatically "
  "reschedule checks. This option only has an effect if the "
  "auto_reschedule_checks option is enabled. Default is 30 seconds."
@@ -7369,7 +7553,8 @@ msgstr ""
  "ativada. \n"
  "Por padrão, são 30 segundos."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how the host performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -7378,7 +7563,8 @@ msgstr ""
  "host. \n"
  "A menos que o arquivo seja um pipe nomeado, o padrão é o modo Adicionar."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how the service performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -7387,7 +7573,8 @@ msgstr ""
  "serviço. \n"
  "A menos que o arquivo seja um pipe nomeado, o padrão é o modo Adicionar."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines the maximum number of minutes from when Monitoring "
  "Engine starts that all services (that are scheduled to be regularly "
  "checked) are checked. This option will automatically adjust the service "
@@ -7408,7 +7595,8 @@ msgstr ""
  "use_retained_scheduling_info. \n"
  "O valor padrão é 30 (minutos)."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines what (and how) data is written to the host "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -7422,7 +7610,8 @@ msgstr ""
  "Uma nova linha é automaticamente adicionada após cada gravação no arquivo "
  "de dados de desempenho."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines what (and how) data is written to the service "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -7436,14 +7625,16 @@ msgstr ""
  "Uma nova linha é automaticamente adicionada após cada gravação no arquivo "
  "de dados de desempenho."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines what type of information Nagios should write to "
  "the debug_file."
  msgstr ""
  "Essa opção determina o tipo de informação que o Nagios deve gravar no "
  "arquivo de depuração."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will force all "
  "initial host and service states to be logged, even if they result in an "
  "OK state. Initial service and host states are normally only logged when "
@@ -7462,7 +7653,8 @@ msgstr ""
  "serviços. \n"
  "Esta opção deve estar ativada para usar relatórios com o Centreon."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will fork() child "
  "processes twice when it executes host and service checks. By default, "
  "Monitoring Engine fork()s twice. However, if the "
@@ -7479,7 +7671,8 @@ msgstr ""
  "Ao declarar essa opção no seu arquivo de configuração, você tem a opção "
  "de alterar esse comportamento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will free memory "
  "in child processes when they are fork()ed off from the main process. By "
  "default, Monitoring Engine frees memory. However, if the "
@@ -7496,7 +7689,8 @@ msgstr ""
  "Ao declarar essa opção no seu arquivo de configuração, você tem a opção "
  "de alterar esse comportamento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will translate "
  "DOWN/UNREACHABLE passive host check results to their \"correct\" state "
  "from the viewpoint of the local Monitoring Engine instance. This can be "
@@ -7509,7 +7703,8 @@ msgstr ""
  "Isso pode ser muito útil em ambientes distribuídos ou redundantes. \n"
  "Esta opção está desativada por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Nagios will check the command file "
  "for commands that should be executed. This option must be enabled if you "
  "plan on using Centreon to issue commands via the web interface."
@@ -7519,7 +7714,8 @@ msgstr ""
  "Essa opção deve ser ativada se você planeja usar o Centreon para emitir "
  "comandos a partir da interface da web."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Nagios will log external commands "
  "that it receives from the external command file. This option is enabled "
  "by default."
@@ -7528,7 +7724,8 @@ msgstr ""
  "que recebe do arquivo de comando externo. \n"
  "Esta opção está ativada por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Nagios will log passive host and "
  "service checks that it receives from the external command file. This "
  "option is enabled by default. If you are setting up a distributed "
@@ -7543,7 +7740,8 @@ msgstr ""
  "ter muitas verificações passivas, talvez queira desabilitar essa opção "
  "para evitar que o arquivo de log fique muito grande."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not host check retries are logged. "
  "Logging host check retries is mostly useful when attempting to debug "
  "Nagios or test out host event handlers."
@@ -7553,7 +7751,8 @@ msgstr ""
  "Verificações de confirmação de log são úteis quando você deseja depurar o "
  "Nagios ou testar o manipulador de eventos."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not service check retries are logged. "
  "Service check retries occur when a service check results in a non-OK "
  "state, but you have configured Nagios to retry the service more than once "
@@ -7571,7 +7770,8 @@ msgstr ""
  "Registrar as verificações de confirmação de serviço é útil quando você "
  "deseja depurar o Nagios ou testar o manipulador de eventos."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not the Monitoring Engine daemon will "
  "take several shortcuts to improve performance. These shortcuts result in "
  "the loss of a few features, but larger installations will likely see a "
@@ -7583,7 +7783,8 @@ msgstr ""
  "grandes ambientes. \n"
  "Esta opção está desativada por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "This option is used to set the high threshold for detection of host "
  "flapping. For more information read the Nagios section about flapping."
  msgstr ""
@@ -7591,7 +7792,8 @@ msgstr ""
  "oscilação de um host. \n"
  "Para mais informações, leia a seção Nagios sobre a oscilação."
 
- msgid ""
+#: unknown
+msgid ""
  "This option is used to set the high threshold for detection of service "
  "flapping. For more information read the Nagios section about flapping."
  msgstr ""
@@ -7599,7 +7801,8 @@ msgstr ""
  "oscilação de um serviço. \n"
  "Para mais informações, leia a seção Nagios sobre a oscilação."
 
- msgid ""
+#: unknown
+msgid ""
  "This option is used to set the low threshold for detection of host "
  "flapping. For more information read the Nagios section about flapping."
  msgstr ""
@@ -7607,7 +7810,8 @@ msgstr ""
  "oscilação de um host. \n"
  "Para mais informações, leia a seção Nagios sobre a oscilação."
 
- msgid ""
+#: unknown
+msgid ""
  "This option is used to set the low threshold for detection of service "
  "flapping. For more information read the Nagios section about flapping."
  msgstr ""
@@ -7615,7 +7819,8 @@ msgstr ""
  "oscilação de um serviço. \n"
  "Para mais informações, leia a seção Nagios sobre a oscilação."
 
- msgid ""
+#: unknown
+msgid ""
  "This option specifies the location of the lock file that Monitoring "
  "Engine should create when it runs as a daemon. This file contains the "
  "process id (PID) number of the running Monitoring Engine process."
@@ -7625,7 +7830,8 @@ msgstr ""
  "Este arquivo contém o ID do processo (PID) do mecanismo de supervisão em "
  "execução."
 
- msgid ""
+#: unknown
+msgid ""
  "This option specifies the location of the lock file that Nagios should "
  "create when it runs as a daemon. This file contains the process id (PID) "
  "number of the running Nagios process."
@@ -7634,14 +7840,16 @@ msgstr ""
  "deve criar quando é iniciado como um daemon. \n"
  "Este arquivo contém o ID do processo (PID) do processo atual do Nagios."
 
- msgid ""
+#: unknown
+msgid ""
  "This optional directive can be used to include hosts from other host "
  "groups in this host group."
  msgstr ""
  "Essa diretiva opcional pode ser usada para incluir hosts de outros grupos "
  "de hosts nesse grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This options determines which directory Nagios will use to temporarily "
  "store host and service check results before they are processed. This "
  "directory should not be used to store any other files, as Nagios will "
@@ -7662,7 +7870,8 @@ msgstr ""
  "problemas com resultado controle (inconsistente) como tratados pela "
  "instância errada do Nagios."
 
- msgid ""
+#: unknown
+msgid ""
  "This setting determines whether or not the embedded Perl interpreter is "
  "enabled on a program-wide basis. Monitoring Engine must be compiled with "
  "support for embedded Perl for this option to have an effect. Please read "
@@ -7675,7 +7884,8 @@ msgstr ""
  "Você pode encontrar mais informações sobre isso na documentação do "
  "mecanismo de supervisão na seção correspondente."
 
- msgid ""
+#: unknown
+msgid ""
  "This setting determines whether or not the embedded Perl interpreter "
  "should be used for Perl plugins/scripts that do not explicitly enable/"
  "disable it."
@@ -7683,7 +7893,8 @@ msgstr ""
  "Esta opção determina se o interpretador Perl embutido deve ser usado para "
  "plugins / scripts Perl que não o habilitam / desabilitam explicitamente."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over host checks results and run the obsessive compulsive host processor "
  "command you define. This option is useful for performing distributed "
@@ -7697,7 +7908,8 @@ msgstr ""
  "Esta opção está desativada por padrão. \n"
  "Se você não estiver supervisionando distribuído, não ative essa opção."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over service checks results and run the obsessive compulsive service "
  "processor command you define. This option is useful for performing "
@@ -7711,7 +7923,8 @@ msgstr ""
  "Esta opção está desativada por padrão. \n"
  "Se você não estiver supervisionando distribuído, não ative essa opção."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will process host "
  "and service check performance data. This option is disabled by default."
  msgstr ""
@@ -7719,7 +7932,8 @@ msgstr ""
  "de desempenho das verificações de host e serviço. \n"
  "Esta opção está ativada por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Nagios will process host and service "
  "check performance data. This option is disabled by default."
  msgstr ""
@@ -7727,7 +7941,8 @@ msgstr ""
  "desempenho de dados em um host e serviço. \n"
  "Esta opção está desativada por padrão."
 
- msgid ""
+#: unknown
+msgid ""
  "Timeout value in seconds. Used for freeing Centcore when it's stuck "
  "because of blocking pipe files or SSH connections."
  msgstr ""
@@ -7735,10 +7950,12 @@ msgstr ""
  "de dados estatísticos módulos Centreon Broker via conexão SSH (aparece se "
  "o tubo está bloqueado estatísticas)."
 
- msgid "Unique name for identifying criticality."
+#: unknown
+msgid "Unique name for identifying criticality."
  msgstr "Nome exclusivo para qualificar a criticalidade"
 
- msgid ""
+#: unknown
+msgid ""
  "Use this key to open graphs page from outside centreon with uri \"/"
  "centreon/include/views/graphs/generateGraphs/generateImage.php?"
  "username=user&akey=This_autologin_key&timerange=<a href='http://fr2.php."
@@ -7755,35 +7972,44 @@ msgstr ""
  "service_description\". \n"
  "O intervalo de tempo é opcional, você pode usar o início e o fim."
 
- msgid "Used protocol to join proxy."
+#: unknown
+msgid "Used protocol to join proxy."
  msgstr "Protocolo usado para o proxy da web."
 
- msgid "User email attribute"
+#: unknown
+msgid "User email attribute"
  msgstr "Atributo de Atributo do Usuário"
 
- msgid "User filter"
+#: unknown
+msgid "User filter"
  msgstr "Filtro do usuário"
 
- msgid "User firstname attribute"
+#: unknown
+msgid "User firstname attribute"
  msgstr "Atributo do primeiro nome do usuário"
 
- msgid "User group attribute"
+#: unknown
+msgid "User group attribute"
  msgstr "Atribuição do grupo de usuários"
 
- msgid "User pager attribute"
+#: unknown
+msgid "User pager attribute"
  msgstr "Atributo do número de telefone do usuário"
 
- msgid ""
+#: unknown
+msgid ""
  "When enabled, the broker engine will check whether or not the replication "
  "is up to date before attempting to update data."
  msgstr ""
  "Permite que o módulo Centreon Broker verifique o status da replicação do "
  "MySQL (se implementada) antes de tentar inserir dados no banco de dados."
 
- msgid "Whether SSO authentication is enabled."
+#: unknown
+msgid "Whether SSO authentication is enabled."
  msgstr "Se a autenticação de SSO estiver habilitada"
 
- msgid ""
+#: unknown
+msgid ""
  "Whether or not Broker should create entries in the index_data table. This "
  "process should be done by Centreon and this option should only be enabled "
  "by advanced users knowing what they\\'re doing"
@@ -7793,20 +8019,25 @@ msgstr ""
  "Este processo é normalmente feito pelo Centreon e a modificação desta "
  "opção deve ser feita conscientemente."
 
- msgid "Whether this host group is enabled."
+#: unknown
+msgid "Whether this host group is enabled."
  msgstr "Disponibilidade do grupo de convidados."
 
- msgid "Width of grid."
+#: unknown
+msgid "Width of grid."
  msgstr "Largura da grade."
 
- msgid "Will not submit result in case no rules match"
+#: unknown
+msgid "Will not submit result in case no rules match"
  msgstr ""
  "O resultado não será enviado se nenhuma regra correspondente for válida."
 
- msgid "Your OpenId Connect redirect url (this server)."
+#: unknown
+msgid "Your OpenId Connect redirect url (this server)."
  msgstr "Seu endereço de redirecionamento OpenId Connect (este servidor)."
 
- msgid "snmpttconvertmib binary with complete path."
+#: unknown
+msgid "snmpttconvertmib binary with complete path."
  msgstr ""
  "Caminho completo para o script snmpttconvertmib. \n"
  "O último torna possível converter os arquivos MIB importados no Centreon."

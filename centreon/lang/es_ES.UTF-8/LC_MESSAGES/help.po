@@ -6144,10 +6144,12 @@ msgid ""
 "days."
 msgstr ""
 
- msgid "Archives logs of monitoring engine."
+#: unknown
+msgid "Archives logs of monitoring engine."
  msgstr "Archivo de registros de los motores de supervisión."
 
- msgid ""
+#: unknown
+msgid ""
  "By default monitoring engine will assume that all services are in OK "
  "states when it starts. You can override the initial state for a service "
  "by using this directive."
@@ -6156,20 +6158,25 @@ msgstr ""
  "están en un estado OK cuando se inicia. \n"
  "Puede anular este comportamiento utilizando esta directiva."
 
- msgid "Centstorage will check for data to purge every now and then."
+#: unknown
+msgid "Centstorage will check for data to purge every now and then."
  msgstr ""
  "Centstorage verificará los datos que se eliminarán de vez en cuando."
 
- msgid "Comments on this host group."
+#: unknown
+msgid "Comments on this host group."
  msgstr "Comentarios del grupo de anfitriones."
 
- msgid "Curve area color."
+#: unknown
+msgid "Curve area color."
  msgstr "Color del área de relleno de la curva."
 
- msgid "Curve transparency."
+#: unknown
+msgid "Curve transparency."
  msgstr "Transparencia de la curva."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an image that should be associated with this host group in the "
  "statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
  "image. The GD2 image format is preferred, as other image formats must be "
@@ -6184,7 +6191,8 @@ msgstr ""
  "La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
  "píxeles."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more actions to be "
  "performed on the host group. You will see the link to the action URL in "
  "the host group details."
@@ -6193,7 +6201,8 @@ msgstr ""
  "para ejecutar en el grupo host. \n"
  "Verá el enlace a la URL de acción en los detalles del grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host group. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the host group, emergency contact "
@@ -6206,7 +6215,8 @@ msgstr ""
  "el grupo de anfitriones, los métodos de contacto de emergencia, etc. \n"
  "Disponible para otras personas en el equipo de soporte."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the host. Any valid URL can be used. This can be very useful if you want "
  "to make detailed information on the host, emergency contact methods, etc. "
@@ -6219,7 +6229,8 @@ msgstr ""
  "el anfitrión, los contactos para los procedimientos de emergencia, etc. \n"
  "a otras personas en el equipo de soporte."
 
- msgid ""
+#: unknown
+msgid ""
  "Define an optional URL that can be used to provide more information about "
  "the service. Any valid URL can be used. This can be very useful if you "
  "want to make detailed information on the service, emergency contact "
@@ -6232,16 +6243,20 @@ msgstr ""
  "servicio, a los procedimientos y a las personas con quienes contactar en "
  "caso de emergencia, etc."
 
- msgid "Define an optional string of notes pertaining to the host group."
+#: unknown
+msgid "Define an optional string of notes pertaining to the host group."
  msgstr "Define una cadena opcional relevante para el grupo de hosts."
 
- msgid "Define an optional string of notes pertaining to the host."
+#: unknown
+msgid "Define an optional string of notes pertaining to the host."
  msgstr "Establece notas opcionales para este host."
 
- msgid "Define an optional string of notes pertaining to the service."
+#: unknown
+msgid "Define an optional string of notes pertaining to the service."
  msgstr "Especifica una nota de información opcional adjunta al servicio."
 
- msgid ""
+#: unknown
+msgid ""
  "Define categories in which this host belongs to. You can add this later "
  "by editing the host or the category you want to add it to."
  msgstr ""
@@ -6249,7 +6264,8 @@ msgstr ""
  "Puede agregar esto más adelante editando el host o la categoría a la que "
  "desea agregarlo."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the VRML image that should be associated with this host. This "
  "image will be used as the texture map for the specified host in the 3D "
  "statuswrl CGI in monitoring engine."
@@ -6258,7 +6274,8 @@ msgstr ""
  "Esta imagen se utilizará como logotipo para el host especificado en el "
  "CGI statuswrl 3D del motor de supervisión."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the address of the host here. Normally, this should be an IP "
  "address, but a FQDN can be used to identify the host instead. If DNS "
  "services are not reachable a FQDN could cause problems."
@@ -6269,7 +6286,8 @@ msgstr ""
  "Si no se puede acceder a los servicios DNS, un nombre FQDN podría causar "
  "problemas."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the description of the service. It may contain spaces, dashes, and "
  "colons (semicolons, apostrophes, and quotation marks should be avoided). "
  "Services must have a unique description on a per host basis."
@@ -6280,7 +6298,8 @@ msgstr ""
  "Los servicios deben tener una descripción única por host en el que se "
  "basan."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the hostgroup(s) that this host belongs to. This directive may be "
  "used as an alternative to (or in addition to) defining the members in "
  "hostgroup definitions."
@@ -6289,7 +6308,8 @@ msgstr ""
  "Esta opción se puede utilizar como alternativa (o complemento) a la "
  "elección de los miembros realizada en las definiciones de grupos de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "Define the image that should be associated with this host group here. "
  "This image will be displayed in the various places. The image will look "
  "best if it is 40x40 pixels in size."
@@ -6299,85 +6319,108 @@ msgstr ""
  "La imagen tendrá una mejor representación si tiene un tamaño de 40x40 "
  "píxeles."
 
- msgid "Define the timezone of the host's location."
+#: unknown
+msgid "Define the timezone of the host's location."
  msgstr "Establece la zona horaria para la ubicación del host."
 
- msgid "Dump file."
+#: unknown
+msgid "Dump file."
  msgstr "Archivo de copia de seguridad."
 
- msgid "Dumps data into another file."
+#: unknown
+msgid "Dumps data into another file."
  msgstr "Guarda los datos en otro archivo."
 
- msgid ""
+#: unknown
+msgid ""
  "Enable Monitoring Engine Logs synchronisation between poller and Central "
  "Server operated by Centcore"
  msgstr ""
  "Permite la sincronización de los registros del programador entre los "
  "recolectores y el servidor central, operado por Centcore."
 
- msgid ""
+#: unknown
+msgid ""
  "Enable Perfdata synchronisation between poller and Central Server "
  "operated by Centcore"
  msgstr ""
  "Permite la sincronización de los datos de rendimiento entre los "
  "recolectores y el servidor central, operado por Centcore."
 
- msgid "Enable caching"
+#: unknown
+msgid "Enable caching"
  msgstr "Habilitar la gestión de caché"
 
- msgid "Enables Centstorage Engine."
+#: unknown
+msgid "Enables Centstorage Engine."
  msgstr "Activar el motor de centstorage."
 
- msgid "Enables RRDTool auto purge system."
+#: unknown
+msgid "Enables RRDTool auto purge system."
  msgstr "Habilita la purga automática de RRDTool."
 
- msgid "Enables component split."
+#: unknown
+msgid "Enables component split."
  msgstr "Habilitar la separación de componentes."
 
- msgid "Enables resource's insertion in index_data."
+#: unknown
+msgid "Enables resource's insertion in index_data."
  msgstr "Habilitar la inserción de recursos en index_data."
 
- msgid ""
+#: unknown
+msgid ""
  "File where correlation state will be stored during correlation engine "
  "restart"
  msgstr ""
  "Archivo de retención de datos de correlación que se utilizará al "
  "reiniciar el motor de monitoreo."
 
- msgid "Font size of X-axis and Y-axis."
+#: unknown
+msgid "Font size of X-axis and Y-axis."
  msgstr "Tamaño de fuente de los ejes X e Y"
 
- msgid "Font size of captions."
+#: unknown
+msgid "Font size of captions."
  msgstr "Tamaño de la fuente del título."
 
- msgid "Font size of titles."
+#: unknown
+msgid "Font size of titles."
  msgstr "Tamaño de la fuente de los títulos."
 
- msgid "Font size of units."
+#: unknown
+msgid "Font size of units."
  msgstr "Tamaño de la fuente de las unidades."
 
- msgid "Font size of watermarks."
+#: unknown
+msgid "Font size of watermarks."
  msgstr "Tamaño de letra de las marcas de agua."
 
- msgid "Font style of X-axis and Y-axis."
+#: unknown
+msgid "Font style of X-axis and Y-axis."
  msgstr "Estilo de fuente de los ejes X e Y"
 
- msgid "Font style of captions."
+#: unknown
+msgid "Font style of captions."
  msgstr "Estilo de letra de leyendas."
 
- msgid "Font style of titles."
+#: unknown
+msgid "Font style of titles."
  msgstr "Estilo de los títulos tipográficos."
 
- msgid "Font style of units."
+#: unknown
+msgid "Font style of units."
  msgstr "Estilo policial de las unidades."
 
- msgid "Font style of watermarks."
+#: unknown
+msgid "Font style of watermarks."
  msgstr "Estilo de fuente de las filigranas."
 
- msgid "Height of grid."
+#: unknown
+msgid "Height of grid."
  msgstr "Altura de la rejilla."
 
- msgid ""
+#: unknown
+msgid ""
  "If this option is enable, the comments will be displayed on status chart."
  "<br><b>Warning</b> : This option can slow down the display of chart."
  msgstr ""
@@ -6386,38 +6429,46 @@ msgstr ""
  "del servicio. <br> <b> Advertencia </ b>: Esta opción puede reducir la "
  "carga de los gráficos."
 
- msgid ""
+#: unknown
+msgid ""
  "In a distributed monitoring environment, the monitoring node (central or "
  "satellite) for this host can be specified here."
  msgstr ""
  "En un entorno de supervisión distribuida, el nodo de supervisión (central "
  "o satélite) para este host se puede especificar aquí."
 
- msgid ""
+#: unknown
+msgid ""
  "It should be enabled to control whether or not Centreon Broker should "
  "insert performance data in the data_bin table."
  msgstr ""
  "Debe estar habilitado para que el módulo de Centreon Broker inserte datos "
  "de rendimiento en la base de datos en la tabla \"data_bin\"."
 
- msgid "Knowledge database host."
+#: unknown
+msgid "Knowledge database host."
  msgstr "Dirección de la base de datos."
 
- msgid "Knowledge database name."
+#: unknown
+msgid "Knowledge database name."
  msgstr "Nombre de la base de datos de la base de conocimientos."
 
- msgid "Knowledge database password."
+#: unknown
+msgid "Knowledge database password."
  msgstr "Contraseña de cuenta de usuario"
 
- msgid "Knowledge database prefix."
+#: unknown
+msgid "Knowledge database prefix."
  msgstr "Prefijo de las tablas en la base de datos."
 
- msgid "Knowledge database user."
+#: unknown
+msgid "Knowledge database user."
  msgstr ""
  "Cuenta de usuario para conectarse a la base de datos de la base de "
  "conocimiento."
 
- msgid ""
+#: unknown
+msgid ""
  "Monitoring Engine tries to be smart about how and when it checks the "
  "status of hosts. By default this option is disabled and will allow "
  "Monitoring Engine to make some smarter decisions and check hosts a bit "
@@ -6436,10 +6487,12 @@ msgstr ""
  "Esta opción no debe estar habilitada a menos que el motor supervisor "
  "tenga dificultades para detectar un retorno normal a un host."
 
- msgid "Monitoring engine"
+#: unknown
+msgid "Monitoring engine"
  msgstr "Motor de supervisión"
 
- msgid ""
+#: unknown
+msgid ""
  "Only works with Centreon Engine (>= 1.3). For better performance, set "
  "this to 'No'. But it is safer to leave it to 'Default' ('Yes'), for a few "
  "native plugins could trigger a monitoring crash."
@@ -6448,17 +6501,20 @@ msgstr ""
  "permite separar los procesos secundarios del proceso principal. \n"
  "Es mejor dejar esta opción en \"Predeterminado\"."
 
- msgid "Path of init script of the scheduler"
+#: unknown
+msgid "Path of init script of the scheduler"
  msgstr "Iniciar la ruta del script del planificador"
 
- msgid ""
+#: unknown
+msgid ""
  "Path to the correlation file which holds host, services, dependencies and "
  "parenting definitions."
  msgstr ""
  "Ruta al archivo de correlación que contiene la definición de dependencias "
  "de host, servicios y relaciones físicas de host."
 
- msgid ""
+#: unknown
+msgid ""
  "RRD retention duration of all the services that are in this host group. "
  "If service is in multiple host groups, the highest retention value will "
  "be used."
@@ -6468,28 +6524,34 @@ msgstr ""
  "En el caso de que un servicio pertenezca a más de un grupo de hosts, se "
  "aplicará el mayor tiempo de retención."
 
- msgid "Refresh interval used for statistics (top counters)."
+#: unknown
+msgid "Refresh interval used for statistics (top counters)."
  msgstr ""
  "Intervalo de actualización utilizado para las estadísticas del estado del "
  "host y del servicio (tablas en la parte superior de las páginas)."
 
- msgid "Refresh interval used in monitoring consoles."
+#: unknown
+msgid "Refresh interval used in monitoring consoles."
  msgstr "Intervalo de actualización utilizado en las páginas de supervisión."
 
- msgid "SSH port of the remote poller"
+#: unknown
+msgid "SSH port of the remote poller"
  msgstr "Puerto SSH del colector remoto."
 
- msgid ""
+#: unknown
+msgid ""
  "Select the categories this service should be linked to. Categories are "
  "used for finer control in service ACL definitions."
  msgstr ""
  "Seleccione la categoría en la que debe ubicarse este servicio. \n"
  "Las categorías se pueden usar para refinar las ACL de un servicio."
 
- msgid "Severity level use to sort issue in Monitoring menu."
+#: unknown
+msgid "Severity level use to sort issue in Monitoring menu."
  msgstr "Criticidad, utilizada para ordenar objetos en el menú Supervisión."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify one or multiple host templates, that should be linked to this "
  "template. A service, that uses this service template, will complete the "
  "missing host relation and result in a full service definition."
@@ -6499,16 +6561,19 @@ msgstr ""
  "Un servicio que utiliza este modelo de servicio completará la relación de "
  "host faltante y dará como resultado una definición de servicio completa."
 
- msgid ""
+#: unknown
+msgid ""
  "Specify the host(s) that this service \"runs\" on or is associated with."
  msgstr ""
  "Especifica que este servicio \"se ejecuta\" en o está asociado con el "
  "host (s)."
 
- msgid "Storage Type."
+#: unknown
+msgid "Storage Type."
  msgstr "Tipo de almacenamiento."
 
- msgid ""
+#: unknown
+msgid ""
  "The TCP port used to communicate with rrdcached. This is a global option, "
  "go to Administration > Options > RRDTool to modify it."
  msgstr ""
@@ -6516,7 +6581,8 @@ msgstr ""
  "Esta opción se configura globalmente en el menú \"Administración> "
  "Opciones> RRDTool\"."
 
- msgid ""
+#: unknown
+msgid ""
  "The Unix socket used to communicate with rrdcached. This is a global "
  "option, go to Administration > Options > RRDTool to modify it."
  msgstr ""
@@ -6524,7 +6590,8 @@ msgstr ""
  "Esta opción se configura globalmente en el menú \"Administración> "
  "Opciones> RRDTool\"."
 
- msgid ""
+#: unknown
+msgid ""
  "The higher the buffer size is, the best compression. This however "
  "increase data streaming latency. Use with caution."
  msgstr ""
@@ -6534,24 +6601,28 @@ msgstr ""
  "que puede agregar algo de latencia antes de enviar los datos. \n"
  "Utilizar con precaución."
 
- msgid ""
+#: unknown
+msgid ""
  "The host name defined here is used in host group and service definitions "
  "to reference this particular host."
  msgstr ""
  "El nombre de host definido aquí se utiliza en la definición del grupo de "
  "hosts y un servicio para referirse a ese host en particular."
 
- msgid "The passive mode is for the secondary Centreon Broker."
+#: unknown
+msgid "The passive mode is for the secondary Centreon Broker."
  msgstr "Ruta a los módulos de Centreon Broker"
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to define a short name used to identify the host "
  "group."
  msgstr ""
  "Esta directiva se utiliza para definir un nombre corto que se utiliza "
  "para identificar el grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to define is a longer name or description used to "
  "identify the host group. It is provided in order to allow you to more "
  "easily identify a particular host group."
@@ -6561,7 +6632,8 @@ msgstr ""
  "Está pensado para ayudarlo a identificar un grupo particular de hosts más "
  "fácilmente."
 
- msgid ""
+#: unknown
+msgid ""
  "This directive is used to identify the short name(s) of the "
  "servicegroup(s) that the service belongs to. This directive may be used "
  "as an alternative to using the members directive in servicegroup "
@@ -6572,7 +6644,8 @@ msgstr ""
  "Esta directiva se puede utilizar como alternativa utilizando el parámetro "
  "miembro de las definiciones de grupos de servicios."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a list of hosts that should be included in this group. This "
  "directive may be used as an alternative to (or in addition to) the "
  "hostgroups directive in host definitions."
@@ -6581,7 +6654,8 @@ msgstr ""
  "Esta directiva se puede utilizar como alternativa a (o además de) la "
  "directiva de grupos de hosts en la definición de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This is a temporary file that Monitoring Engine periodically creates and "
  "uses when updating comment data, status data, etc. The file is deleted "
  "when it is no longer needed."
@@ -6590,7 +6664,8 @@ msgstr ""
  "periódicamente durante la actualización de comentarios, estados, etc. \n"
  "Este archivo se elimina cuando ya no es necesario."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively.  These options determine "
  "which service process attributes are NOT retained across program "
@@ -6604,7 +6679,8 @@ msgstr ""
  "conservarán cuando se reinicie el motor. \n"
  "Por defecto, todos los procesos se recuperan."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host attributes are NOT retained across program restarts. By default, all "
@@ -6617,7 +6693,8 @@ msgstr ""
  "reinicie el motor. \n"
  "Por defecto, todos los atributos son recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host contact attributes are NOT retained across program restarts. By "
@@ -6630,7 +6707,8 @@ msgstr ""
  "conservarán cuando se reinicie el motor. \n"
  "Por defecto, todos los atributos son recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "host process attributes are NOT retained across program restarts. By "
@@ -6644,7 +6722,8 @@ msgstr ""
  "conservarán cuando se reinicie el motor. \n"
  "Por defecto, todos los procesos se recuperan."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service attributes are NOT retained across program restarts. By default, "
@@ -6657,7 +6736,8 @@ msgstr ""
  "se reinicie el motor. \n"
  "Por defecto, todos los atributos son recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is an advanced feature. You'll need to read the Centreon Engine "
  "source code to use this option effectively. These options determine which "
  "service contact attributes are NOT retained across program restarts. By "
@@ -6670,7 +6750,8 @@ msgstr ""
  "cuando se reinicie el motor. \n"
  "Por defecto, todos los atributos son recuperados."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow a "
  "host performance data processor command or service performance data "
  "processor command to be run. If a command exceeds this time limit it will "
@@ -6682,7 +6763,8 @@ msgstr ""
  "una alerta. \n"
  "el archivo de registro."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive host processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -6692,7 +6774,8 @@ msgstr ""
  "Si un comando supera este límite, se eliminará y se registrará una alerta "
  "en el archivo de registro."
 
- msgid ""
+#: unknown
+msgid ""
  "This is the maximum number of seconds that Monitoring Engine will allow "
  "an obsessive compulsive service processor command to be run. If a command "
  "exceeds this time limit it will be killed and a warning will be logged."
@@ -6701,7 +6784,8 @@ msgstr ""
  "comando de Reordenación de control de servicio. \n"
  "Si un comando supera este límite, se eliminará y se registrará una alerta."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective group that the Monitoring Engine "
  "process should run as. After initial program startup and before starting "
  "to monitor anything, Monitoring Engine will drop its effective privileges "
@@ -6714,7 +6798,8 @@ msgstr ""
  "con este grupo. \n"
  "Puede dar un nombre de grupo o un GID."
 
- msgid ""
+#: unknown
+msgid ""
  "This is used to set the effective user that the Monitoring Engine process "
  "should run as. After initial program startup and before starting to "
  "monitor anything, Monitoring Engine will drop its effective privileges "
@@ -6727,7 +6812,8 @@ msgstr ""
  "con este usuario. \n"
  "Puede dar un nombre de usuario o un UID."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every host "
  "check to process host performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -6741,7 +6827,8 @@ msgstr ""
  "está habilitada y si el parámetro process_perf_data en la definición del "
  "host también está configurado."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every host "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -6761,7 +6848,8 @@ msgstr ""
  "habilitada globalmente y la directiva obsess_over_host en la definición "
  "de host está habilitada."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every service "
  "check to process service performance data that may be returned from the "
  "check. This command is only executed if the process_performance_data "
@@ -6775,7 +6863,8 @@ msgstr ""
  "rendimiento está habilitada y el parámetro process_perf_data está "
  "habilitado en la definición de servicio."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a command to be run after every service "
  "check, which can be useful in distributed monitoring. This command is "
  "executed after any event handler or notification commands. The maximum "
@@ -6795,7 +6884,8 @@ msgstr ""
  "habilitada globalmente y la directiva obsess_over_service en la "
  "definición de servicio está habilitada."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a file to which host performance data "
  "will be written after every host check. Data will be written to the "
  "performance file as specified by the host_perfdata_file_template option. "
@@ -6811,7 +6901,8 @@ msgstr ""
  "process_performance_data está habilitada globalmente y si la directiva "
  "process_perf_data está habilitada en la definición de servicio."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify a file to which service performance "
  "data will be written after every service check. Data will be written to "
  "the performance file as specified by the service_perfdata_file_template "
@@ -6828,21 +6919,24 @@ msgstr ""
  "process_performance_data está habilitada globalmente y si la directiva "
  "process_perf_data está habilitada en la definición de servicio."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the host performance data file."
  msgstr ""
  "Esta opción le permite especificar el comando que deberá ejecutarse para "
  "procesar el archivo de datos de rendimiento del host."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the command that should be executed to "
  "process the service performance data file."
  msgstr ""
  "Esta opción le permite especificar el comando que deberá ejecutarse para "
  "procesar el archivo de datos de rendimiento del servicio."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "host performance data file is processed using the host performance data "
  "file processing command. A value of 0 indicates that the performance data "
@@ -6854,7 +6948,8 @@ msgstr ""
  "Un valor de 0 indicará que el archivo de datos de rendimiento no se "
  "procesará a intervalos regulares."
 
- msgid ""
+#: unknown
+msgid ""
  "This option allows you to specify the interval (in seconds) at which the "
  "service performance data file is processed using the service performance "
  "data file processing command. A value of 0 indicates that the performance "
@@ -6867,7 +6962,8 @@ msgstr ""
  "Un valor de 0 indicará que el archivo de datos de rendimiento no se "
  "procesará a intervalos regulares."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how the host performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -6877,7 +6973,8 @@ msgstr ""
  "A menos que el archivo tenga una canalización con nombre, el valor "
  "predeterminado es el modo Agregar."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines how the service performance data file is opened. "
  "Unless the file is a named pipe you'll probably want to use the default "
  "mode of append."
@@ -6887,7 +6984,8 @@ msgstr ""
  "A menos que el archivo tenga una canalización con nombre, el valor "
  "predeterminado es el modo Agregar."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines the maximum number of minutes from when Monitoring "
  "Engine starts that all services (that are scheduled to be regularly "
  "checked) are checked. This option will automatically adjust the service "
@@ -6909,7 +7007,8 @@ msgstr ""
  "conserva mediante la opción use_retained_scheduling_info. \n"
  "El valor predeterminado es 30 (minutos)."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines what (and how) data is written to the host "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -6924,7 +7023,8 @@ msgstr ""
  "Se agrega automáticamente una nueva línea después de cada escritura en el "
  "archivo de datos de rendimiento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines what (and how) data is written to the service "
  "performance data file. The template may contain macros, special "
  "characters (\\t for tab, \\r for carriage return, \\n for newline) and "
@@ -6939,7 +7039,8 @@ msgstr ""
  "Se agrega automáticamente una nueva línea después de cada escritura en el "
  "archivo de datos de rendimiento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will force all "
  "initial host and service states to be logged, even if they result in an "
  "OK state. Initial service and host states are normally only logged when "
@@ -6958,7 +7059,8 @@ msgstr ""
  "servicios. \n"
  "Esta opción debe estar habilitada para utilizar informes con Centreon."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will fork() child "
  "processes twice when it executes host and service checks. By default, "
  "Monitoring Engine fork()s twice. However, if the "
@@ -6975,7 +7077,8 @@ msgstr ""
  "Al declarar esta opción en su archivo de configuración, tiene la opción "
  "de cambiar este comportamiento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will free memory "
  "in child processes when they are fork()ed off from the main process. By "
  "default, Monitoring Engine frees memory. However, if the "
@@ -6992,7 +7095,8 @@ msgstr ""
  "Al declarar esta opción en su archivo de configuración, tiene la opción "
  "de cambiar este comportamiento."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not Monitoring Engine will translate "
  "DOWN/UNREACHABLE passive host check results to their \"correct\" state "
  "from the viewpoint of the local Monitoring Engine instance. This can be "
@@ -7006,7 +7110,8 @@ msgstr ""
  "Esto puede ser muy útil en entornos distribuidos o redundantes. \n"
  "Esta opción está deshabilitada por defecto."
 
- msgid ""
+#: unknown
+msgid ""
  "This option determines whether or not the Monitoring Engine daemon will "
  "take several shortcuts to improve performance. These shortcuts result in "
  "the loss of a few features, but larger installations will likely see a "
@@ -7018,7 +7123,8 @@ msgstr ""
  "ganancias en entornos grandes. \n"
  "Esta opción está deshabilitada por defecto."
 
- msgid ""
+#: unknown
+msgid ""
  "This option specifies the location of the lock file that Monitoring "
  "Engine should create when it runs as a daemon. This file contains the "
  "process id (PID) number of the running Monitoring Engine process."
@@ -7028,14 +7134,16 @@ msgstr ""
  "Este archivo contiene el ID de proceso (PID) del motor de supervisión en "
  "ejecución."
 
- msgid ""
+#: unknown
+msgid ""
  "This optional directive can be used to include hosts from other host "
  "groups in this host group."
  msgstr ""
  "Esta directiva opcional se puede usar para incluir hosts de otros grupos "
  "de hosts en este grupo de hosts."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over host checks results and run the obsessive compulsive host processor "
  "command you define. This option is useful for performing distributed "
@@ -7049,7 +7157,8 @@ msgstr ""
  "Esta opción está deshabilitada por defecto. \n"
  "Si no está realizando una supervisión distribuida, no active esta opción."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will \"obsess\" "
  "over service checks results and run the obsessive compulsive service "
  "processor command you define. This option is useful for performing "
@@ -7063,7 +7172,8 @@ msgstr ""
  "Esta opción está deshabilitada por defecto. \n"
  "Si no está realizando una supervisión distribuida, no active esta opción."
 
- msgid ""
+#: unknown
+msgid ""
  "This value determines whether or not Monitoring Engine will process host "
  "and service check performance data. This option is disabled by default."
  msgstr ""
@@ -7071,7 +7181,8 @@ msgstr ""
  "rendimiento de las comprobaciones del host y del servicio. \n"
  "Esta opción está habilitada por defecto."
 
- msgid ""
+#: unknown
+msgid ""
  "Timeout value in seconds. Used for freeing Centcore when it's stuck "
  "because of blocking pipe files or SSH connections."
  msgstr ""
@@ -7080,10 +7191,12 @@ msgstr ""
  "la conexión SSH (aparece en caso de que el canal de estadísticas esté "
  "bloqueado)."
 
- msgid "Used protocol to join proxy."
+#: unknown
+msgid "Used protocol to join proxy."
  msgstr "Protocolo utilizado para el proxy web."
 
- msgid ""
+#: unknown
+msgid ""
  "When enabled, the broker engine will check whether or not the replication "
  "is up to date before attempting to update data."
  msgstr ""
@@ -7091,7 +7204,8 @@ msgstr ""
  "replicación de MySQL (si está implementado) antes de intentar insertar "
  "datos en la base de datos."
 
- msgid ""
+#: unknown
+msgid ""
  "Whether or not Broker should create entries in the index_data table. This "
  "process should be done by Centreon and this option should only be enabled "
  "by advanced users knowing what they\\'re doing"
@@ -7101,11 +7215,14 @@ msgstr ""
  "Este proceso normalmente lo realiza Centreon y la modificación de esta "
  "opción debe realizarse a sabiendas."
 
- msgid "Whether this host group is enabled."
+#: unknown
+msgid "Whether this host group is enabled."
  msgstr "Disponibilidad del grupo de invitados."
 
- msgid "Width of grid."
+#: unknown
+msgid "Width of grid."
  msgstr "Ancho de la rejilla."
 
- msgid "Your OpenId Connect redirect url (this server)."
+#: unknown
+msgid "Your OpenId Connect redirect url (this server)."
  msgstr "Su URL de redirección de OpenId Connect (este servidor)."
