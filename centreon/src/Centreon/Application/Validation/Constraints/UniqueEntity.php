@@ -46,7 +46,7 @@ class UniqueEntity extends Constraint
     /**
      * @var string
      */
-    public $validatorClass = UniqueEntityValidator::class;
+    public string $validatorClass = UniqueEntityValidator::class;
 
     /**
      * @var string
