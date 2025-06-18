@@ -3697,20 +3697,33 @@ function findHostsOfService(int $serviceId): array
  */
 function checkServiceTemplateHasCommand(array $fields): array|bool
 {
-    global $pearDB;
-    $errors = [];
-    if (isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
-        $serviceTemplateId = $fields["service_template_model_stm_id"];
-        $serviceTemplateCommand = $pearDB->fetchOne(
-           "SELECT command_command_id FROM service WHERE service_id = :stm_id",
-            QueryParameters::create([QueryParameter::int('stm_id', $serviceTemplateId)])
-        );
-        if ($serviceTemplateCommand === null) {
-            $errors['command_command_id'] = _("The selected inherited service template does not contain any "
-                . "check command. You must select one here."
-            );
-        }
+    $errors['command_command_id'] = _(
+        "The selected inherited service template does not contain any check command. You must select one here."
+    );
+    if (! empty($fields["command_command_id"])) {
+        return true;
     }
 
-    return $errors !== [] ? $errors : true;
+    if (! isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        return $errors;
+    }
+
+    return isCheckCommandDefined($fields["service_template_model_stm_id"]) ? true : $errors;
+}
+
+function isCheckCommandDefined(int $serviceId): bool
+{
+    global $pearDB;
+    $result = $pearDB->fetchAssociative(
+        "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id",
+        QueryParameters::create([QueryParameter::int('stm_id', $serviceId)])
+    );
+
+    if ($result['command_command_id'] !== null) {
+        return true;
+    } elseif ($result['command_command_id'] === null && $result['service_template_model_stm_id'] !== null) {
+        return isCheckCommandDefined($result['service_template_model_stm_id']);
+    }
+
+    return false;
 }

@@ -149,4 +149,9 @@ class AgentConfigurationException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    public static function invalidHostId(int $hostId): self
+    {
+        return new self(sprintf(_('Host ID #%d is invalid'), $hostId));
+    }
 }

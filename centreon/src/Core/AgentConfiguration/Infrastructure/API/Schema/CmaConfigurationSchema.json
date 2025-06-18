@@ -44,11 +44,15 @@
                     "items": {
                         "required": [
                             "address",
+                            "id",
                             "port",
                             "poller_ca_certificate",
                             "poller_ca_name"
                         ],
                         "properties": {
+                            "id": {
+                                "type": ["integer"]
+                            },
                             "address": {
                                 "type": "string"
                             },
