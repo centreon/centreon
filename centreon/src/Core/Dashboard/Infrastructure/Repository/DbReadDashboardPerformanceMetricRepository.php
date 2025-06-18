@@ -575,10 +575,13 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
 
+        // To add a regex join clause for service name if it exists in the search parameters.
+        // To patch a bug from top/bottom widget
         $serviceRegexWhereClause = $this->addServiceRegexJoinClause($requestParameters);
         $request .= ! is_null(
             $serviceRegexWhereClause
         ) ? " {$serviceRegexWhereClause} AND r.enabled = 1" : ' AND r.enabled = 1';
+        // End of this patch
 
         if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
@@ -630,17 +633,17 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         // To add a regex join clause for service name if it exists in the search parameters.
         // To patch a bug from top/bottom widget
-        if (! $this->queryParameters->isEmpty()){
-            foreach ($this->queryParameters->getIterator() as $queryParameter) {
-                $statement->bindValue(
-                    param: $queryParameter->getName(),
-                    value: $queryParameter->getValue(),
-                    type: ! is_null($queryParameter->getType())
-                        ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
-                        : \PDO::PARAM_STR // Default type if not specified
-                );
-            }
+        if (! $this->queryParameters->isEmpty() && $this->queryParameters->has('serviceRegex')){
+            $queryParameter = $this->queryParameters->get('serviceRegex');
+            $statement->bindValue(
+                param: $queryParameter->getName(),
+                value: $queryParameter->getValue(),
+                type: ! is_null($queryParameter->getType())
+                    ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
+                    : \PDO::PARAM_STR // Default type if not specified
+            );
         }
+        // End of this patch
 
         $statement->execute();
 
