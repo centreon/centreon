@@ -388,11 +388,8 @@ if ($o === ACL_ADD) {
 }
 $form->setRequiredNote(_('Required field'));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Just watch a LCA information

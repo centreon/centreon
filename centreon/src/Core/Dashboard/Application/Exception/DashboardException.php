@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ class DashboardException extends \Exception
 {
     public const CODE_NOT_FOUND = 1;
     public const CODE_FORBIDDEN = 2;
+    public const CODE_CONFLICT = 3;
 
     /**
      * @return self
@@ -34,6 +35,14 @@ class DashboardException extends \Exception
     public static function errorWhileSearching(): self
     {
         return new self(_('Error while searching for dashboards'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingFavorites(): self
+    {
+        return new self(_('Error while searching for user favorite dashboards'));
     }
 
     /**
@@ -110,6 +119,22 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileSearchingSharableContacts(): self
+    {
+        return new self(_('Error while retrieving contacts allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingSharableContactGroups(): self
+    {
+        return new self(_('Error while retrieving contact groups allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileDeleting(): self
     {
         return new self(_('Error while deleting a dashboard'));
@@ -121,6 +146,14 @@ class DashboardException extends \Exception
     public static function errorWhileUpdating(): self
     {
         return new self(_('Error while updating a dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdatingDashboardShare(): self
+    {
+        return new self(_('Error while updating the dashboard share'));
     }
 
     /**
@@ -147,6 +180,16 @@ class DashboardException extends \Exception
     public static function theDashboardDoesNotExist(int $dashboardId): self
     {
         return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId), self::CODE_NOT_FOUND);
+    }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function dashboardAlreadySetAsFavorite(int $dashboardId): self
+    {
+        return new self(sprintf(_('The dashboard [%d] is already set as favorite'), $dashboardId), self::CODE_CONFLICT);
     }
 
     /**
@@ -212,15 +255,15 @@ class DashboardException extends \Exception
         return new self(_('You cannot share the same dashboard to a contact group several times'));
     }
 
-    public static function notSufficientAccessRightForUser(int $contactId, string $role): self
+    public static function notSufficientAccessRightForUser(string $contactName, string $role): self
     {
-        return new self(sprintf(_('No sufficient access rights to user [%d] to give role [%s]'), $contactId, $role));
+        return new self(sprintf(_('No sufficient access rights to user [%s] to give role [%s]'), $contactName, $role));
     }
 
-    public static function notSufficientAccessRightForContactGroup(int $contactGroupId, string $role): self
+    public static function notSufficientAccessRightForContactGroup(string $contactGroupName, string $role): self
     {
         return new self(
-            sprintf(_('No sufficient access rights to contact group [%d] to give role [%s]'), $contactGroupId, $role)
+            sprintf(_('No sufficient access rights to contact group [%s] to give role [%s]'), $contactGroupName, $role)
         );
     }
 
@@ -233,6 +276,19 @@ class DashboardException extends \Exception
     {
         return new self(sprintf(
             _('The users [%s] are not in your access groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInContactGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your contact groups'),
             implode(', ', $contactIds)
         ));
     }

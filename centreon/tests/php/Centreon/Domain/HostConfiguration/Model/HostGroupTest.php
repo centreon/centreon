@@ -71,94 +71,6 @@ class HostGroupTest extends TestCase
     }
 
     /**
-     * Too long notes test
-     */
-    public function testNotesTooLongException(): void
-    {
-        $notes = str_repeat('.', HostGroup::MAX_NOTES_LENGTH + 1);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::maxLength(
-                $notes,
-                strlen($notes),
-                HostGroup::MAX_NOTES_LENGTH,
-                'HostGroup::notes'
-            )->getMessage()
-        );
-        (new HostGroup('hg-name'))->setNotes($notes);
-    }
-
-    /**
-     * Too long notes url test
-     */
-    public function testNotesUrlTooLongException(): void
-    {
-        $notesUrl = str_repeat('.', HostGroup::MAX_NOTES_URL_LENGTH + 1);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::maxLength(
-                $notesUrl,
-                strlen($notesUrl),
-                HostGroup::MAX_NOTES_URL_LENGTH,
-                'HostGroup::notesUrl'
-            )->getMessage()
-        );
-        (new HostGroup('hg-name'))->setNotesUrl($notesUrl);
-    }
-
-    /**
-     * Test the action url
-     */
-    public function testActionUrlTooLongException(): void
-    {
-        $actionUrl = str_repeat('.', HostGroup::MAX_ACTION_URL_LENGTH + 1);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::maxLength(
-                $actionUrl,
-                strlen($actionUrl),
-                HostGroup::MAX_ACTION_URL_LENGTH,
-                'HostGroup::actionUrl'
-            )->getMessage()
-        );
-        (new HostGroup('hg-name'))->setActionUrl($actionUrl);
-    }
-
-    /**
-     * Too long rrd test
-     */
-    public function testRrdTooLongException(): void
-    {
-        $rrd = HostGroup::MAX_RRD_NUMBER + 1;
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::max(
-                $rrd,
-                HostGroup::MAX_RRD_NUMBER,
-                'HostGroup::rrd'
-            )->getMessage()
-        );
-        (new HostGroup('hg-name'))->setRrd($rrd);
-    }
-
-    /**
-     * Too short rrd test
-     */
-    public function testRrdTooShortException(): void
-    {
-        $rrd = HostGroup::MIN_RRD_NUMBER - 1;
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::min(
-                $rrd,
-                HostGroup::MIN_RRD_NUMBER,
-                'HostGroup::rrd'
-            )->getMessage()
-        );
-        (new HostGroup('hg-name'))->setRrd($rrd);
-    }
-
-    /**
      * Too long comments test
      */
     public function testCommentTooLongException(): void
@@ -205,7 +117,6 @@ class HostGroupTest extends TestCase
             ->setName('hg-name')
             ->setAlias('host group name')
             ->setActivated(true)
-            ->setIcon((new Image())->setId(1)->setName('my icon')->setPath('/'))
-            ->setIconMap((new Image())->setId(2)->setName('my map image')->setPath('/'));
+            ->setIcon((new Image())->setId(1)->setName('my icon')->setPath('/'));
     }
 }

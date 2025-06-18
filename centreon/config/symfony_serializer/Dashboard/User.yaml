@@ -1,0 +1,6 @@
+Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response\UserResponseDto:
+  attributes:
+    id:
+      groups: ['FavoriteDashboards:Read']
+    name:
+      groups: ['FavoriteDashboards:Read']

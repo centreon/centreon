@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method } from '@centreon/js-config/cypress/component/commands';
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
@@ -14,11 +14,13 @@ import {
 
 import { labelMoreActions } from '../Resources/translatedLabels';
 
+import { equals } from 'ramda';
 import { DashboardsPage } from './DashboardsPage';
 import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+  dashboardsFavoriteEndpoint,
   getDashboardAccessRightsContactGroupEndpoint,
   getDashboardEndpoint,
   playlistsByDashboardEndpoint
@@ -33,8 +35,12 @@ import {
   labelListView,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
-import { DashboardLayout } from './models';
+import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from './testsUtils';
 import {
   labelAddAContact,
   labelCancel,
@@ -66,6 +72,7 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   layout?: DashboardLayout;
   ownRole?: DashboardRole;
+  customListingPath?: string;
 }
 
 const initializeAndMount = ({
@@ -74,7 +81,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   emptyList,
-  layout = DashboardLayout.Library
+  layout = DashboardLayout.Library,
+  customListingPath
 }: InitializeAndMountProps): {
   navigate;
   store;
@@ -107,7 +115,8 @@ const initializeAndMount = ({
   cy.viewport('macbook-13');
 
   cy.fixture(
-    `Dashboards/${emptyList ? 'emptyDashboards' : 'dashboards'}.json`
+    customListingPath ??
+      `Dashboards/${emptyList ? 'emptyDashboards' : 'dashboards'}.json`
   ).then((dashboards) => {
     cy.interceptAPIRequest({
       alias: 'getDashboards',
@@ -184,6 +193,24 @@ const initializeAndMount = ({
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
 
+  cy.interceptAPIRequest({
+    alias: 'addFavorite',
+    method: Method.POST,
+    path: `./api/latest${dashboardsFavoriteEndpoint}`,
+    statusCode: 204
+  });
+
+  cy.fixture('Dashboards/favorites/listing/listAllMarkedFavorite.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'getFavoritesList',
+        method: Method.GET,
+        path: `./api/latest${dashboardsFavoriteEndpoint}?**`,
+        response: data
+      });
+    }
+  );
+
   const version = {
     fix: '0',
     major: '0',
@@ -259,6 +286,75 @@ const columns = [
   'Last update',
   'Actions'
 ];
+
+const favoriteManagementData = [
+  { view: labelCardsView, dashboardId: 1 },
+  { view: labelListView, dashboardId: 2 }
+];
+
+const getAliasFavoriteButton = (position: number) => {
+  cy.findAllByRole('button', { name: 'FavoriteIconButton' }).as('listButtons');
+
+  if (equals(position, 0)) {
+    cy.get('@listButtons').first().as('favoriteIcon');
+
+    return '@favoriteIcon';
+  }
+
+  cy.get('@listButtons').last().as('favoriteIcon');
+
+  return '@favoriteIcon';
+};
+
+const getPath = ({ position, action }: GetPath) => {
+  if (equals(position, 0)) {
+    const path = equals(action, FavoriteAction.add)
+      ? 'Dashboards/favorites/listing/afterAddAction/listOne.json'
+      : 'Dashboards/favorites/listing/afterDeleteAction/listOne.json';
+
+    return path;
+  }
+
+  const path = equals(action, FavoriteAction.add)
+    ? 'Dashboards/favorites/listing/afterAddAction/listTwo.json'
+    : 'Dashboards/favorites/listing/afterDeleteAction/listTwo.json';
+
+  return path;
+};
+
+const runFavoriteManagementFromList = ({
+  action,
+  position,
+  view,
+  customListingPath
+}) => {
+  initializeAndMount({ customListingPath });
+  cy.waitForRequest('@getDashboards');
+
+  const buttonAlias = getAliasFavoriteButton(position);
+  const path = getPath({ position, action });
+
+  const aliasRequestAction = equals(FavoriteAction.add, action)
+    ? '@addFavorite'
+    : '@removeFavorite';
+
+  cy.fixture(path).then((dashboards) => {
+    cy.interceptAPIRequest({
+      alias: 'getUpdatedDashboards',
+      method: Method.GET,
+      path: `${dashboardsEndpoint}?**`,
+      response: dashboards
+    });
+  });
+
+  cy.findByRole('button', { name: view }).click();
+
+  manageAFavorite({
+    action,
+    buttonAlias,
+    requestsToWait: [aliasRequestAction, '@getUpdatedDashboards']
+  });
+};
 
 describe('Dashboards', () => {
   describe('Overview', () => {
@@ -548,7 +644,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelDuplicate).click();
 
         cy.waitForRequest('@createDashboard').then(({ request }) => {
-          expect(JSON.parse(request.body).name).to.be.equal('new name');
+          expect(request.body.name).to.be.equal('new name');
         });
 
         cy.contains(labelDashboardDuplicated).should('be.visible');
@@ -832,6 +928,45 @@ describe('Dashboards', () => {
         });
 
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Managment favorite dashboards', () => {
+    favoriteManagementData.forEach(({ view, dashboardId }, index) => {
+      it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+        runFavoriteManagementFromList({
+          position: index,
+          view,
+          action: FavoriteAction.add,
+          customListingPath: 'Dashboards/favorites/listing/list.json'
+        });
+        cy.makeSnapshot();
+      });
+
+      it(`remove a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
+        interceptDashboardsFavoriteDelete(dashboardId);
+
+        runFavoriteManagementFromList({
+          position: index,
+          view,
+          action: FavoriteAction.delete,
+          customListingPath:
+            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
+        });
+        cy.makeSnapshot();
+      });
+    });
+
+    it('displays the favorites dashboard when the checkbox filter is selected.', () => {
+      initializeAndMount({});
+      cy.waitForRequest('@getDashboards');
+
+      cy.get('[type="checkbox"]').check();
+      cy.waitForRequest('@getFavoritesList');
+      cy.makeSnapshot();
+
+      cy.get('[type="checkbox"]').uncheck();
+      cy.waitForRequest('@getDashboards');
     });
   });
 });

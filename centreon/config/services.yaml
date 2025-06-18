@@ -7,7 +7,7 @@
 parameters:
     locale: en
     api.header: "Api-Version"
-    api.version.latest: "24.10"
+    api.version.latest: "25.07"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -140,3 +140,7 @@ services:
             $apiVersionLatest: '%api.version.latest%'
             $apiHeaderName: '%api.header%'
             $translationPath: '%translation_path%'
+
+    Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface:
+        class: Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository
+        public: true

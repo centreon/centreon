@@ -22,15 +22,23 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
 
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryDRB
+ * @package Centreon\Domain\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryDRB
 {
-    /**
-     * @var DatabaseConnection
-     */
-    protected $db;
+    /** @var DatabaseConnection */
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -44,7 +52,7 @@ class AbstractRepositoryDRB
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }

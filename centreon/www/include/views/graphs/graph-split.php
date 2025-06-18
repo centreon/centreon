@@ -43,11 +43,8 @@ if (!isset($centreon)) {
  */
 $path = "./include/views/graphs/";
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $chartId = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
 

@@ -36,8 +36,9 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteDatase
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(protected DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db)
     {
+        $this->db = $db;
     }
 
     /**

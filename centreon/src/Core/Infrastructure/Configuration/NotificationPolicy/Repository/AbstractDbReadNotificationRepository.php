@@ -68,9 +68,9 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
                 t2.tp_name as service_timeperiod_name,
                 t2.tp_alias as service_timeperiod_alias
             FROM `:db`.contact c
-            INNER JOIN `:db`.timeperiod t1
+            LEFT JOIN `:db`.timeperiod t1
                 ON t1.tp_id = c.timeperiod_tp_id
-            INNER JOIN `:db`.timeperiod t2
+            LEFT JOIN `:db`.timeperiod t2
                 ON t2.tp_id = c.timeperiod_tp_id2'
         );
 
@@ -144,9 +144,9 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
                     t2.tp_name as service_timeperiod_name,
                     t2.tp_alias as service_timeperiod_alias
                 FROM `:db`.contact c
-                INNER JOIN `:db`.timeperiod t1
+                LEFT JOIN `:db`.timeperiod t1
                     ON t1.tp_id = c.timeperiod_tp_id
-                INNER JOIN `:db`.timeperiod t2
+                LEFT JOIN `:db`.timeperiod t2
                     ON t2.tp_id = c.timeperiod_tp_id2
                 INNER JOIN `:db`.acl_group_contacts_relations agcr
                     ON agcr.contact_contact_id = c.contact_id

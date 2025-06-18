@@ -160,9 +160,8 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('resource_name', _("Resource used by one of the instances"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Just watch a Resources CFG information
 if ($o == MACRO_WATCH) {
@@ -193,13 +192,14 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $rsObj->setValue(insertResourceInDB());
     } elseif ($form->getSubmitValue("submitC")) {
+        $submitedValues = $form->getSubmitValues();
         if ($rs['is_password']) {
-            $_REQUEST['is_password'] = $rs['is_password'];
-            if ($_REQUEST['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
-                $_REQUEST['resource_line'] = $rs['original_value'];
+            $submitedValues['is_password'] = $rs['is_password'];
+            if ($submitedValues['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
+                $submitedValues['resource_line'] = $rs['original_value'];
             }
         }
-        updateResourceInDB($rsObj->getValue());
+        updateResourceInDB($rsObj->getValue(), $submitedValues);
     }
     $o = null;
     $form->addElement(

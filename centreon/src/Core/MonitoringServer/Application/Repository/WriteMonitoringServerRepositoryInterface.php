@@ -32,4 +32,13 @@ interface WriteMonitoringServerRepositoryInterface {
      * @throws \Throwable
      */
     public function notifyConfigurationChange(int $monitoringServerId): void;
+
+    /**
+     * Notify the monitoring servers as changed.
+     *
+     * @param int[] $monitoringServerIds
+     *
+     * @throws \Throwable
+     */
+    public function notifyConfigurationChanges(array $monitoringServerIds): void;
 }

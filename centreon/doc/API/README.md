@@ -3,6 +3,5 @@
 ## How to build ?
 
 ```console
-npm install -g redoc-cli
-redoc-cli bundle --options.hideDownloadButton=true centreon-api-v2.yaml -o centreon-api-v2.html
+pnpm --package=@redocly/cli dlx openapi build-docs ./doc/API/centreon-api.yaml -o centreon-api.html
 ```

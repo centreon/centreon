@@ -135,12 +135,16 @@ final class PatchUser
 
         foreach ($userSessionIds as $sessionId) {
             /**
-             * @var \Centreon $centreon
+             * @var \Centreon|null $centreon
              */
             $centreon = $this->readSessionRepository->getValueFromSession(
                 $sessionId,
                 'centreon'
             );
+            if ($centreon === null) {
+                continue;
+            }
+
             $centreon->user->theme = $request->theme;
             $this->writeSessionRepository->updateSession(
                 $sessionId,

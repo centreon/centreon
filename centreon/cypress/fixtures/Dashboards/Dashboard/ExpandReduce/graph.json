@@ -1,0 +1,65 @@
+{
+  "base": 1000,
+  "metrics": [
+      {
+          "metric_id": 85,
+          "metric": "load5",
+          "host_name": null,
+          "service_name": "test-host2",
+          "metric_legend": "test-host2: load5",
+          "unit": "",
+          "min": 0,
+          "max": null,
+          "ds_data": {
+              "ds_color_line": "#E97B15",
+              "ds_color_area": "#E97B15",
+              "ds_filled": true,
+              "ds_invert": false,
+              "ds_legend": null,
+              "ds_stack": false,
+              "ds_order": 2,
+              "ds_transparency": 80,
+              "ds_color_line_mode": 0
+          },
+          "legend": "test-host2: Average Load Last 5 Minutes",
+          "stack": 0,
+          "warning_high_threshold": 3,
+          "critical_high_threshold": 5,
+          "warning_low_threshold": 0,
+          "critical_low_threshold": 0,
+          "ds_order": 2,
+          "data": [
+              0.31373333333,
+              0.20133333333,
+              0.30986666667,
+              0.388,
+              0.25506666667,
+              0.1872,
+              0.172,
+              0.30066666667,
+              0.308,
+              0.20493333333,
+              null,
+              null
+          ],
+          "last_value": 0,
+          "minimum_value": null,
+          "maximum_value": null,
+          "average_value": 0.27
+      }
+  ],
+  "times": [
+      "2024-12-24T15:35:00+00:00",
+      "2024-12-24T15:40:00+00:00",
+      "2024-12-24T15:45:00+00:00",
+      "2024-12-24T15:50:00+00:00",
+      "2024-12-24T15:55:00+00:00",
+      "2024-12-24T16:00:00+00:00",
+      "2024-12-24T16:05:00+00:00",
+      "2024-12-24T16:10:00+00:00",
+      "2024-12-24T16:15:00+00:00",
+      "2024-12-24T16:20:00+00:00",
+      "2024-12-24T16:25:00+00:00",
+      "2024-12-24T16:30:00+00:00"
+  ]
+}

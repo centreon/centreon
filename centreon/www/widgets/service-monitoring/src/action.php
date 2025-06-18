@@ -81,9 +81,10 @@ try {
     }
 
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
+        // Smarty template initialization
         $path = $centreon_path . "www/widgets/service-monitoring/src/";
-        $template = new Smarty();
-        $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+        $template = SmartyBC::createSmartyTemplate($path, './');
+
         $template->assign('stickyLabel', _("Sticky"));
         $template->assign('persistentLabel', _("Persistent"));
         $template->assign('authorLabel', _("Author"));

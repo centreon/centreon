@@ -19,9 +19,10 @@
  * limitations under the License.
  */
 
+// Smarty template initialization
 $path = "./modules/centreon-open-tickets/views/rules/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $rows = 0;
 $nbRule = 0;
 require "./include/common/autoNumLimit.php";

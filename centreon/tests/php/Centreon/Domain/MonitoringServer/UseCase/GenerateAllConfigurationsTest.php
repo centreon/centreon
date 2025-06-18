@@ -23,15 +23,15 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use Centreon\Domain\MonitoringServer\MonitoringServer;
-use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
+use Centreon\Domain\MonitoringServer\MonitoringServer;
+use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
 use Centreon\Domain\Repository\RepositoryException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class GenerateAllConfigurationsTest extends TestCase
@@ -72,7 +72,7 @@ class GenerateAllConfigurationsTest extends TestCase
         $exception = new \Exception();
         $this->monitoringServerRepository
             ->expects($this->once())
-            ->method('findServersWithRequestParameters')
+            ->method('findServersWithoutRequestParameters')
             ->willThrowException($exception);
 
         $this->expectException(ConfigurationMonitoringServerException::class);
@@ -132,7 +132,7 @@ class GenerateAllConfigurationsTest extends TestCase
 
         $this->monitoringServerRepository
             ->expects($this->once())
-            ->method('findServersWithRequestParameters')
+            ->method('findServersWithoutRequestParameters')
             ->willReturn($monitoringServers);
 
         $this->monitoringServerConfigurationRepository
@@ -171,7 +171,7 @@ class GenerateAllConfigurationsTest extends TestCase
         $monitoringServers = [$monitoringServer];
         $this->monitoringServerRepository
             ->expects($this->once())
-            ->method('findServersWithRequestParameters')
+            ->method('findServersWithoutRequestParameters')
             ->willReturn($monitoringServers);
 
         $this->monitoringServerConfigurationRepository
@@ -210,7 +210,7 @@ class GenerateAllConfigurationsTest extends TestCase
         $monitoringServers = [$monitoringServer];
         $this->monitoringServerRepository
             ->expects($this->once())
-            ->method('findServersWithRequestParametersAndAccessGroups')
+            ->method('findAllServersWithAccessGroups')
             ->willReturn($monitoringServers);
 
         $this->monitoringServerConfigurationRepository

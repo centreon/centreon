@@ -106,9 +106,9 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required 
 ##End of form definition
 #
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
+
 $tpl->assign(
     "helpattr",
     'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange", ' .

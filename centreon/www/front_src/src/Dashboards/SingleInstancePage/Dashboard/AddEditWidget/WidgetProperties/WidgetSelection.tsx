@@ -1,23 +1,37 @@
 import parse from 'html-react-parser';
-import { find, propEq } from 'ramda';
+import { always, cond, equals, find, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { Box, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
+import {
+  Box,
+  ListItemIcon,
+  ListItemText,
+  SvgIcon,
+  useTheme
+} from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
-import { Avatar } from '@centreon/ui/components';
+import { Avatar, CollapsibleItem } from '@centreon/ui/components';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import type { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import { labelWidgetType } from '../../translatedLabels';
+import {
+  labelGenericWidgets,
+  labelMBIReportingWidgets,
+  labelRealTimeWidgets,
+  labelWidgetType
+} from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
 
+import { WidgetType } from '../models';
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';
 
 const WidgetSelection = (): JSX.Element => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { classes } = useWidgetSelectionStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
 
@@ -25,6 +39,26 @@ const WidgetSelection = (): JSX.Element => {
     useWidgetSelection();
 
   const { canEditField } = useCanEditProperties();
+
+  const getWidgetGroupTitle = cond([
+    [equals(WidgetType.Generic), always(labelGenericWidgets)],
+    [equals(WidgetType.RealTime), always(labelRealTimeWidgets)],
+    [equals(WidgetType.MBI), always(labelMBIReportingWidgets)]
+  ]);
+
+  const renderGroup = ({ group, key, ...rest }): JSX.Element => (
+    <CollapsibleItem
+      dataTestId={group}
+      defaultExpanded
+      key={key}
+      title={t(getWidgetGroupTitle(group))}
+      classes={{ root: classes.groupContainer }}
+      titleProps={{ variant: 'body1', color: theme.palette.common.white }}
+      expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}
+    >
+      {rest?.children}
+    </CollapsibleItem>
+  );
 
   const renderOption = (renderProps, option): JSX.Element => {
     const widget = find(
@@ -73,6 +107,8 @@ const WidgetSelection = (): JSX.Element => {
         value={selectedWidget || null}
         onChange={(_, newValue) => selectWidget(newValue)}
         onTextChange={searchWidgets}
+        groupBy={(option) => option.widgetType}
+        renderGroup={renderGroup}
       />
     </Box>
   );

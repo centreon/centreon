@@ -55,31 +55,53 @@ services:
             - '../../src/Core/HostCategory'
             - '../../src/Core/ServiceSeverity/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/UserProfile/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Logger:
         class: Centreon\Domain\Log\Logger
 
+    Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger:
+      arguments:
+        $logger: '@Logger'
+
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
 
+    Adaptation\Database\Connection\Model\ConnectionConfig:
+      arguments:
+        $host: '%database_host%'
+        $user: '%database_user%'
+        $password: '%database_password%'
+        $databaseNameConfiguration: '%database_db%'
+        $databaseNameRealTime: '%database_dbstg%'
+        $port: '%database_port%'
+
+    Adaptation\Database\Connection\ConnectionInterface:
+        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
+
+    Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter:
+      factory: [ null, 'createFromConfig' ]
+      arguments:
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
     Centreon\Infrastructure\DatabaseConnection:
-        class: Centreon\Infrastructure\DatabaseConnection
-        bind:
-            $logger: '@Logger'
-        arguments:
-            $host: '%database_host%'
-            $port: '%database_port%'
-            $basename: '%database_db%'
-            $login: '%database_user%'
-            $password: '%database_password%'
-        calls:
-            - method: setCentreonDbName
-              arguments: ['%database_db%']
-            - method: setStorageDbName
-              arguments: ['%database_dbstg%']
+      factory: [ null, 'createFromConfig' ]
+      arguments:
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
+    Adaptation\Database\QueryBuilder\QueryBuilderInterface:
+      alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
+
+    Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter:
+      factory: [ null, 'createFromConnectionConfig' ]
+      arguments:
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
+    Core\Common\Domain\Repository\RepositoryManagerInterface:
+      class: Core\Common\Infrastructure\Repository\DatabaseRepositoryManager
 
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
@@ -108,6 +130,10 @@ services:
 
     Core\Common\Application\Repository\ReadVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
+        public: true
+
+    Symfony\Component\HttpClient\AmpHttpClient:
+        class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
 
     # JSON Validator
@@ -449,14 +475,6 @@ services:
     # Menu
     Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface:
         class: Centreon\Infrastructure\Menu\MenuRepositoryRDB
-
-    Core\Security\Authentication\Application\UseCase\LoginSession\LoginSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Core\Security\Authentication\Application\UseCase\LoginOpenIdSession\LoginOpenIdSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
 
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider

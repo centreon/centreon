@@ -43,6 +43,7 @@ final class FindDashboardsFactory
      * @param array<int, array<DashboardContactGroupShare>> $contactGroupShares
      * @param DashboardSharingRole $defaultRole
      * @param array<int, Media> $thumbnails
+     * @param int[] $favoriteDashboards
      *
      * @return FindDashboardsResponse
      */
@@ -53,7 +54,8 @@ final class FindDashboardsFactory
         array $contactShares,
         array $contactGroupShares,
         DashboardSharingRole $defaultRole,
-        array $thumbnails
+        array $thumbnails,
+        array $favoriteDashboards
     ): FindDashboardsResponse {
         $response = new FindDashboardsResponse();
 
@@ -110,6 +112,10 @@ final class FindDashboardsFactory
                     $thumbnail->getFilename(),
                     $thumbnail->getDirectory()
                 );
+            }
+
+            if (in_array($dto->id, $favoriteDashboards, true)) {
+                $dto->isFavorite = true;
             }
 
             $response->dashboards[] = $dto;

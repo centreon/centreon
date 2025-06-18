@@ -1,7 +1,7 @@
 import { ComponentType, LazyExoticComponent, useMemo, useRef } from 'react';
 
 import { fromPairs, replace } from 'ramda';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { ComponentProps, Parameters } from './models';
 import { routes } from './routes';

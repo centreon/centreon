@@ -1,0 +1,7 @@
+DeleteDashboardFromFavorites:
+  methods: DELETE
+  path: /configuration/dashboards/{dashboardId}/favorites
+  controller: 'Core\Dashboard\Infrastructure\API\DeleteDashboardFromFavorites\DeleteDashboardFromFavoritesController'
+  requirements:
+    hostId: '\d+'
+  condition: "request.attributes.get('version') >= 24.04"

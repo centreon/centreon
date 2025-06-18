@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 
-import { AcknowledgementIcon, DowntimeIcon } from '@centreon/ui';
+import { AcknowledgementIcon, DowntimeIcon, FlappingIcon } from '@centreon/ui';
 
 import { useTileStyles } from './StatusGrid.styles';
 import { getColor } from './utils';
@@ -9,18 +9,27 @@ interface Props {
   isAcknowledged?: boolean;
   isCompact: boolean;
   isInDowntime?: boolean;
+  isInFlapping?: boolean;
 }
 
 const getStateIcon = ({
   isAcknowledged,
-  isInDowntime
-}: Pick<Props, 'isInDowntime' | 'isAcknowledged'>): JSX.Element | null => {
+  isInDowntime,
+  isInFlapping
+}: Pick<
+  Props,
+  'isInDowntime' | 'isAcknowledged' | 'isInFlapping'
+>): JSX.Element | null => {
+  if (isInDowntime) {
+    return <DowntimeIcon />;
+  }
+
   if (isAcknowledged) {
     return <AcknowledgementIcon />;
   }
 
-  if (isInDowntime) {
-    return <DowntimeIcon />;
+  if (isInFlapping) {
+    return <FlappingIcon />;
   }
 
   return null;
@@ -29,7 +38,8 @@ const getStateIcon = ({
 const State = ({
   isCompact,
   isAcknowledged,
-  isInDowntime
+  isInDowntime,
+  isInFlapping
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes } = useTileStyles();
@@ -44,6 +54,7 @@ const State = ({
         backgroundColor: getColor({
           is_acknowledged: isAcknowledged,
           is_in_downtime: isInDowntime,
+          is_in_flapping: isInFlapping,
           severityCode: undefined,
           theme
         })
@@ -52,7 +63,7 @@ const State = ({
       {!isCompact && (
         <div className={classes.stateContent}>
           <div className={classes.stateIcon}>
-            {getStateIcon({ isAcknowledged, isInDowntime })}
+            {getStateIcon({ isAcknowledged, isInDowntime, isInFlapping })}
           </div>
         </div>
       )}

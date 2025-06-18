@@ -138,10 +138,14 @@ const Text = ({
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
-        inputProps={{
-          'data-testid': dataTestId || label,
-          'aria-label': label,
-          min: text?.min
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'data-testid': dataTestId || label,
+              'aria-label': label,
+              min: text?.min
+            }
+          }
         }}
       />
     ),

@@ -33,9 +33,12 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface as ReadRealTimeHostRepositoryInterface;
 use Centreon\Domain\Engine\EngineConfiguration;
 use Centreon\Domain\HostConfiguration\Host;
+use Centreon\Domain\Option\OptionService;
 use Core\Domain\RealTime\Model\Host as RealTimeHost;
 use Core\Domain\RealTime\Model\HostStatus;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
 use Core\Domain\Configuration\Notification\Model\HostNotification;
@@ -49,6 +52,9 @@ beforeEach(function (): void {
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->readRealTimeHostRepository = $this->createMock(ReadRealTimeHostRepositoryInterface::class);
+    $this->optionsService = $this->createMock(OptionService::class);
+    $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
+    $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class);
 
     $this->host = new Host();
     $this->realTimeHost = new RealTimeHost(
@@ -85,6 +91,9 @@ beforeEach(function (): void {
         $this->accessGroupRepository,
         $this->contact,
         $this->readRealTimeHostRepository,
+        $this->optionsService,
+        $this->readHostTemplateRepository,
+        $this->readHostRepository
     );
 });
 
@@ -147,13 +156,13 @@ it('returns users, user groups and notification status', function (): void {
 
     $this->readHostNotificationRepository
         ->expects($this->once())
-        ->method('findNotifiedContactsById')
+        ->method('findNotifiedContactsByIds')
         ->with(1)
         ->willReturn([$this->notifiedContact]);
 
     $this->readHostNotificationRepository
         ->expects($this->once())
-        ->method('findNotifiedContactGroupsById')
+        ->method('findNotifiedContactGroupsByIds')
         ->with(1)
         ->willReturn([$this->notifiedContactGroup]);
 

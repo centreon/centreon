@@ -1,0 +1,92 @@
+{
+    "default": {
+        "dependency": {
+            "name": "serv-dependency-name",
+            "description": "serv-dependency-desc",
+            "parent_relationship": 0,
+            "execution_fails_on_ok": 1,
+            "execution_fails_on_warning": 1,
+            "execution_fails_on_unknown": 0,
+            "execution_fails_on_critical": 1,
+            "execution_fails_on_pending": 0,
+            "execution_fails_on_none": 0,
+            "notification_fails_on_none": 0,
+            "notification_fails_on_ok": 1,
+            "notification_fails_on_warning": 1,
+            "notification_fails_on_unknown": 0,
+            "notification_fails_on_critical": 1,
+            "notification_fails_on_pending": 0,
+            "comment": "Comment for creation/duplication!"
+        },
+        "services": ["Centreon-Server - Memory"],
+        "dependentServices": ["service_test_ok"],
+        "dependentHosts": ["host2"]
+  },
+  "ServDependency1": {
+        "dependency": {
+            "name": "serv-dependency-name-changed",
+            "description": "serv-dependency-name-changed",
+            "parent_relationship": 0,
+            "execution_fails_on_ok": 1,
+            "execution_fails_on_warning": 0,
+            "execution_fails_on_unknown": 0,
+            "execution_fails_on_critical": 1,
+            "execution_fails_on_pending": 0,
+            "execution_fails_on_none": 0,
+            "notification_fails_on_none": 0,
+            "notification_fails_on_ok": 1,
+            "notification_fails_on_warning": 0,
+            "notification_fails_on_unknown": 0,
+            "notification_fails_on_critical": 1,
+            "notification_fails_on_pending": 0,
+            "comment": "comment!"
+        },
+        "services": ["service_test_ok"],
+        "dependentServices": ["service2"],
+        "dependentHosts": ["host3"]
+  },
+  "defaultSGDependency": {
+        "dependency": {
+            "name": "service-group-dependency-name",
+            "description": "service-group-dependency-desc",
+            "parent_relationship": 0,
+            "execution_fails_on_ok": 1,
+            "execution_fails_on_warning": 1,
+            "execution_fails_on_unknown": 0,
+            "execution_fails_on_critical": 1,
+            "execution_fails_on_pending": 0,
+            "execution_fails_on_none": 0,
+            "notification_fails_on_none": 0,
+            "notification_fails_on_ok": 1,
+            "notification_fails_on_warning": 1,
+            "notification_fails_on_unknown": 0,
+            "notification_fails_on_critical": 1,
+            "notification_fails_on_pending": 0,
+            "comment": "Comment for creation/duplication!"
+        },
+        "service_groups": ["service_group"],
+        "dependent_service_groups": ["service_group_2"]
+  },
+  "SGDependency1": {
+        "dependency": {
+            "name": "service-group-dependency-name-changed",
+            "description": "service-group-dependency-name-changed",
+            "parent_relationship": 0,
+            "execution_fails_on_ok": 1,
+            "execution_fails_on_warning": 0,
+            "execution_fails_on_unknown": 0,
+            "execution_fails_on_critical": 1,
+            "execution_fails_on_pending": 0,
+            "execution_fails_on_none": 0,
+            "notification_fails_on_none": 0,
+            "notification_fails_on_ok": 1,
+            "notification_fails_on_warning": 0,
+            "notification_fails_on_unknown": 0,
+            "notification_fails_on_critical": 1,
+            "notification_fails_on_pending": 0,
+            "comment": "comment!"
+        },
+        "service_groups": ["service_group_2"],
+        "dependent_service_groups": ["service_group"]
+  }
+}

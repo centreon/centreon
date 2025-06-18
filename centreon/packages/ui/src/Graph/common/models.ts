@@ -6,14 +6,20 @@ export interface LineChartData {
   times: Array<string>;
 }
 
+export interface Threshold {
+  label: string;
+  value: number;
+}
+
 export interface Thresholds {
-  critical: Array<{
-    label: string;
-    value: number;
-  }>;
+  critical: Array<Threshold>;
   enabled: boolean;
-  warning: Array<{
-    label: string;
-    value: number;
-  }>;
+  warning: Array<Threshold>;
+}
+
+export interface AdditionalLineProps {
+  yValue: number;
+  text?: string;
+  color: string;
+  unit: string;
 }

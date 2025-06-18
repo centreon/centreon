@@ -24,11 +24,8 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller\Administration;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Used to get global parameters
@@ -41,6 +38,7 @@ class ParametersController extends AbstractController
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration';
     private const DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale';
     private const DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring';
+    private const DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic';
     private const DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky';
     private const DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent';
     private const DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify';
@@ -54,6 +52,7 @@ class ParametersController extends AbstractController
      */
     private const KEY_NAME_CONCORDANCE = [
         self::DEFAULT_REFRESH_INTERVAL => 'monitoring_default_refresh_interval',
+        self::DEFAULT_STATISTICS_REFRESH_INTERVAL => 'statistics_default_refresh_interval',
         self::DEFAULT_DOWNTIME_DURATION => 'monitoring_default_downtime_duration',
         self::DEFAULT_ACKNOWLEDGEMENT_STICKY => 'monitoring_default_acknowledgement_sticky',
         self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT => 'monitoring_default_acknowledgement_persistent',
@@ -65,8 +64,7 @@ class ParametersController extends AbstractController
     ];
 
     public function __construct(
-        private OptionServiceInterface $optionService,
-        private ContactInterface $user
+        private OptionServiceInterface $optionService
     ) {
     }
 
@@ -77,14 +75,11 @@ class ParametersController extends AbstractController
      */
     public function getParameters(): View
     {
-        if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_MONITORING_RW)) {
-            return $this->view(null, Response::HTTP_FORBIDDEN);
-        }
-
         $parameters = [];
         $downtimeDuration = '';
         $downtimeScale = '';
         $refreshInterval = '';
+        $statisticsRefreshInterval = '';
         $isAcknowledgementPersistent = true;
         $isAcknowledgementSticky = true;
         $isAcknowledgementNotify = false;
@@ -95,6 +90,7 @@ class ParametersController extends AbstractController
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
+            self::DEFAULT_STATISTICS_REFRESH_INTERVAL,
             self::DEFAULT_ACKNOWLEDGEMENT_STICKY,
             self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT,
             self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY,
@@ -116,6 +112,9 @@ class ParametersController extends AbstractController
                     break;
                 case self::DEFAULT_REFRESH_INTERVAL:
                     $refreshInterval = $option->getValue();
+                    break;
+                case self::DEFAULT_STATISTICS_REFRESH_INTERVAL:
+                    $statisticsRefreshInterval = $option->getValue();
                     break;
                 case self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT:
                     $isAcknowledgementPersistent = (int) $option->getValue() === 1;
@@ -147,6 +146,8 @@ class ParametersController extends AbstractController
             $this->convertToSeconds((int) $downtimeDuration, $downtimeScale);
 
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_REFRESH_INTERVAL]] = (int) $refreshInterval;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_STATISTICS_REFRESH_INTERVAL]] =
+            (int) $statisticsRefreshInterval;
 
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT]] =
             $isAcknowledgementPersistent;

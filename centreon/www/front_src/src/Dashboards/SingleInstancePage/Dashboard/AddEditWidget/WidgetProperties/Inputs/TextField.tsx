@@ -1,10 +1,10 @@
-import { type ChangeEvent, useMemo } from 'react';
+import { type ChangeEvent, useCallback, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { clamp, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { TextField } from '@centreon/ui';
+import { TextField, usePluralizedTranslation } from '@centreon/ui';
 
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import type { Widget, WidgetPropertyProps } from '../../models';
@@ -25,6 +25,7 @@ const WidgetTextField = ({
   secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
 
   const { classes } = useTextFieldStyles({ hasMarginBottom: !!secondaryLabel });
 
@@ -51,48 +52,71 @@ const WidgetTextField = ({
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
 
-    if (equals(text?.type, 'number')) {
+    const newText = event.target.value;
+    setFieldValue(`options.${propertyName}`, newText);
+  };
+
+  const blur = useCallback(
+    (event) => {
+      if (!equals(text?.type, 'number')) {
+        return;
+      }
       setFieldValue(
         `options.${propertyName}`,
         equals(event.target.value, '')
           ? ''
           : clamp(text?.min, text?.max, Number(event.target.value))
       );
-
-      return;
-    }
-    const newText = event.target.value;
-    setFieldValue(`options.${propertyName}`, newText);
-  };
+    },
+    [text]
+  );
 
   const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
 
   return (
     <div className={classes.container}>
       {secondaryLabel && <Label>{t(secondaryLabel)}</Label>}
-      <TextField
-        fullWidth
-        autoSize={text?.autoSize}
-        autoSizeDefaultWidth={8}
-        className={className}
-        dataTestId={label}
-        disabled={!canEditField || disabled}
-        error={isTouched && error}
-        helperText={isTouched && error}
-        inputProps={{
-          'aria-label': t(label) as string,
-          max: text?.max,
-          min: text?.min,
-          step: text?.step || '1'
-        }}
-        label={t(label) || ''}
-        multiline={text?.multiline || false}
-        required={required}
-        size={text?.size || 'small'}
-        type={text?.type || 'text'}
-        value={value ?? ''}
-        onChange={change}
-      />
+      <div className={classes.inputContainer}>
+        <TextField
+          fullWidth
+          autoSize={text?.autoSize}
+          autoSizeDefaultWidth={8}
+          className={className}
+          dataTestId={label}
+          disabled={!canEditField || disabled}
+          error={isTouched && error}
+          helperText={isTouched && error}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': t(label) as string,
+                max: text?.max,
+                min: text?.min,
+                step: text?.step || '1'
+              }
+            }
+          }}
+          label={t(label) || ''}
+          onBlur={blur}
+          multiline={text?.multiline || false}
+          required={required}
+          size={text?.size || 'small'}
+          type={text?.type || 'text'}
+          value={value ?? ''}
+          onChange={change}
+        />
+        {text?.unit && (
+          <Typography>
+            {pluralizedT({
+              label: text.unit,
+              count:
+                equals(text.type, 'number') && text?.pluralize
+                  ? Number(value)
+                  : 1
+            })}
+          </Typography>
+        )}
+      </div>
     </div>
   );
 };

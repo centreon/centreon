@@ -84,8 +84,10 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 
 export const panelsLengthAtom = atom(0);
 
-const strictMinWidgetSize = 2;
-const preferredWidgetSize = 4;
+const strictMinWidgetWidth = 4;
+const preferredWidgetWidth = 8;
+const strictMinWidgetHeight = 2;
+const preferredWidgetHeight = 2;
 
 interface PanelPosition {
   x: number;
@@ -172,17 +174,17 @@ export const addPanelDerivedAtom = atom(
       )}_${increasedPanelsLength}`;
 
     const panelWidth =
-      width || panelConfiguration?.panelDefaultWidth || preferredWidgetSize;
+      width || panelConfiguration?.panelDefaultWidth || preferredWidgetWidth;
 
     const panelHeight =
-      height || panelConfiguration?.panelDefaultHeight || preferredWidgetSize;
+      height || panelConfiguration?.panelDefaultHeight || preferredWidgetHeight;
 
     const basePanelLayout = {
       data,
       h: panelHeight,
       i: id,
-      minH: panelConfiguration?.panelMinHeight || strictMinWidgetSize,
-      minW: panelConfiguration?.panelMinWidth || strictMinWidgetSize,
+      minH: panelConfiguration?.panelMinHeight || strictMinWidgetHeight,
+      minW: panelConfiguration?.panelMinWidth || strictMinWidgetWidth,
       name: moduleName,
       options,
       panelConfiguration,

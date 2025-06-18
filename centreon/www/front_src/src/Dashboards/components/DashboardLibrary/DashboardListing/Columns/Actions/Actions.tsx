@@ -17,13 +17,24 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { resource } from '../../../../../api/models';
+import FavoriteAction from '../../Actions/favoriteAction';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
+  const queryClient = useQueryClient();
   const { hasEditPermission } = useDashboardUserPermissions();
+  const isFetchingListing = useIsFetching({ queryKey: [resource.dashboards] });
+
+  const refetch = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
+  }, []);
+
   const {
     isNestedRow,
     editAccessRights,
@@ -35,18 +46,36 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   if (isNestedRow) {
     return (
-      <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
-        <UnShareIcon className={classes.icon} />
-      </IconButton>
+      <div className={classes.spacing}>
+        <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
+          <UnShareIcon className={classes.icon} />
+        </IconButton>
+      </div>
     );
   }
 
   if (!hasEditPermission(row)) {
-    return <Box className={classes.line}>-</Box>;
+    return (
+      <div className={classes.actions}>
+        <FavoriteAction
+          dashboardId={row.id}
+          isFavorite={row?.isFavorite}
+          refetch={refetch}
+          isFetching={isFetchingListing > 0}
+        />
+        <Box className={classes.line}>-</Box>
+      </div>
+    );
   }
 
   return (
     <Box className={classes.actions}>
+      <FavoriteAction
+        dashboardId={row.id}
+        isFavorite={row?.isFavorite}
+        refetch={refetch}
+        isFetching={isFetchingListing > 0}
+      />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
         title={t(labelShareWithContacts)}

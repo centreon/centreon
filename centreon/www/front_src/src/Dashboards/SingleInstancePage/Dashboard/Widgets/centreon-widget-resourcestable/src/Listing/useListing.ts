@@ -125,7 +125,7 @@ const useListing = ({
   );
 
   useEffect(() => {
-    if (isOpenTicketEnabled) {
+    if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
 
       return;
@@ -222,7 +222,7 @@ const useListing = ({
   };
 
   useEffect(() => {
-    if (!hasMetaService) {
+    if (!hasMetaService || !isFromPreview) {
       return;
     }
 

@@ -16,7 +16,7 @@ const BackgroundColor = ({
   return (
     <div
       className={classes.background}
-      data-hasDescription={hasDescription}
+      data-has-description={hasDescription}
       style={{
         backgroundColor: backgroundColor ?? '#255891'
       }}

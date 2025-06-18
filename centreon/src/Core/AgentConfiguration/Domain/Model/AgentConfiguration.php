@@ -41,6 +41,7 @@ class AgentConfiguration
      * @param int $id
      * @param string $name
      * @param Type $type
+     * @param ConnectionModeEnum $connectionMode
      * @param ConfigurationParametersInterface $configuration
      *
      * @throws AssertionFailedException
@@ -49,6 +50,7 @@ class AgentConfiguration
         private readonly int $id,
         string $name,
         private readonly Type $type,
+        private readonly ConnectionModeEnum $connectionMode,
         private readonly ConfigurationParametersInterface $configuration,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -70,6 +72,11 @@ class AgentConfiguration
     public function getType(): Type
     {
         return $this->type;
+    }
+
+    public function getConnectionMode(): ConnectionModeEnum
+    {
+        return $this->connectionMode;
     }
 
     /**

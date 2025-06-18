@@ -22,6 +22,7 @@ import { IndicatorType } from './models';
 interface GetColorProps {
   is_acknowledged?: boolean;
   is_in_downtime?: boolean;
+  is_in_flapping?: boolean;
   severityCode?: number;
   theme: Theme;
 }
@@ -29,14 +30,20 @@ interface GetColorProps {
 export const getColor = ({
   is_acknowledged,
   is_in_downtime,
+  is_in_flapping,
   severityCode,
   theme
 }: GetColorProps): string => {
+  if (is_in_downtime) {
+    return theme.palette.action.inDowntimeBackground;
+  }
+
   if (is_acknowledged) {
     return theme.palette.action.acknowledgedBackground;
   }
-  if (is_in_downtime) {
-    return theme.palette.action.inDowntimeBackground;
+
+  if (is_in_flapping) {
+    return theme.palette.action.inFlappingBackground;
   }
 
   return getStatusColors({
@@ -109,7 +116,7 @@ export const getStatusFromThresholds = ({
 };
 
 const getBALink = (id: number): string => {
-  return `/main.php?p=20701&o=d&ba_id=${id}`;
+  return `/monitoring/bam/bas/${id}`;
 };
 
 export const getBooleanRuleLink = (id: number): string => {

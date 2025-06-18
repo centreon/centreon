@@ -214,9 +214,8 @@ $filter = [
 
 $redirectionUrl = $resourceController->buildListingUri(['filter' => json_encode($filter)]);
 
-//Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path, '/templates/');
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);

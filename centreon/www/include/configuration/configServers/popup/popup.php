@@ -52,8 +52,8 @@ if ($isAdmin === false) {
     }
 }
 
-$tpl = new Smarty();
-$tpl = initSmartyTpl(null, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate();
 
 // get remote server ip
 $query = 'SELECT ip FROM remote_servers';

@@ -4,7 +4,7 @@ import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 

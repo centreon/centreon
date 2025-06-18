@@ -153,7 +153,12 @@ describe('Autocomplete Suggestions', () => {
     },
     {
       cursorPosition: 6,
-      expectedResult: ['unhandled', 'acknowledged', 'in_downtime'],
+      expectedResult: [
+        'unhandled',
+        'acknowledged',
+        'in_downtime',
+        'in_flapping'
+      ],
       inputSearch: 'state:'
     },
     {
@@ -163,12 +168,12 @@ describe('Autocomplete Suggestions', () => {
     },
     {
       cursorPosition: 15,
-      expectedResult: [',acknowledged', ',in_downtime'],
+      expectedResult: [',acknowledged', ',in_downtime', ',in_flapping'],
       inputSearch: 'state:unhandled'
     },
     {
       cursorPosition: 16,
-      expectedResult: ['acknowledged', 'in_downtime'],
+      expectedResult: ['acknowledged', 'in_downtime', 'in_flapping'],
       inputSearch: 'state:unhandled,'
     },
     {

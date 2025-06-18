@@ -1,3 +1,5 @@
+includes:
+    - vendor/phpstan/phpstan-mockery/extension.neon
 parameters:
     bootstrapFiles:
         - config/centreon.config.php.template
@@ -7,7 +9,6 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
     level: 2
     paths:
-        - src/Centreon/Tests
         - tests/php/Core
         - tests/php/Centreon
         - tests/php/Security

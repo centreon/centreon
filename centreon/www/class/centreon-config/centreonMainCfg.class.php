@@ -117,7 +117,7 @@ class CentreonMainCfg
      */
     private function setBrokerOptions(): void
     {
-        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so', 'wizard' => '/usr/lib64/nagios/cbmod.so /etc/centreon-broker/poller-module.json'];
+        $this->aDefaultBrokerDirective = ['ui' => '/usr/lib64/centreon-engine/externalcmd.so'];
     }
 
     /**
@@ -161,7 +161,7 @@ class CentreonMainCfg
             'max_host_check_spread' => '15',
             'check_result_reaper_frequency' => '5',
             'auto_reschedule_checks' => '0',
-            'enable_flap_detection' => '0',
+            'enable_flap_detection' => '1',
             'low_service_flap_threshold' => '25.0',
             'high_service_flap_threshold' => '50.0',
             'low_host_flap_threshold' => '25.0',
@@ -188,7 +188,7 @@ class CentreonMainCfg
             'nagios_server_id' => '1',
             'enable_predictive_host_dependency_checks' => '1',
             'enable_predictive_service_dependency_checks' => '1',
-            'host_down_disable_service_checks' => '0',
+            'host_down_disable_service_checks' => '1',
             'passive_host_checks_are_soft' => '0',
             'enable_environment_macros' => '0',
             'debug_file' => '/var/log/centreon-engine/centengine.debug',
@@ -245,7 +245,7 @@ class CentreonMainCfg
      */
     public function insertBrokerDefaultDirectives($iId, $source)
     {
-        if (empty($iId) || !in_array($source, ['ui', 'wizard'])) {
+        if (empty($iId) || !in_array($source, ['ui'])) {
             return false;
         }
 

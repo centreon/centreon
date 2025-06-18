@@ -244,11 +244,8 @@ if ($o == "c" || $o == 'w') {
 }
 
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /**
  * $o parameter possible values

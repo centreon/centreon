@@ -25,7 +25,7 @@ const emptyLayout: Array<Panel> = [
       path: ''
     },
     static: true,
-    w: 3,
+    w: 6,
     x: 0,
     y: 0
   }

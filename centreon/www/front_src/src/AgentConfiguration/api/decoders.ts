@@ -17,9 +17,13 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
         JsonDecoder.object(
           {
             id: JsonDecoder.number,
-            name: JsonDecoder.string
+            name: JsonDecoder.string,
+            isCentral: JsonDecoder.optional(JsonDecoder.boolean)
           },
-          'poller'
+          'poller',
+          {
+            isCentral: 'is_central'
+          }
         ),
         'pollers'
       )
@@ -32,12 +36,12 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
 
 const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   {
-    otelPrivateKey: JsonDecoder.string,
-    otelPublicCertificate: JsonDecoder.string,
+    otelPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
+    otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    confPrivateKey: JsonDecoder.string,
+    confPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
     confServerPort: JsonDecoder.number,
-    confCertificate: JsonDecoder.string
+    confCertificate: JsonDecoder.nullable(JsonDecoder.string)
   },
   'Telegraf configuration',
   {
@@ -52,17 +56,32 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    tokens: JsonDecoder.optional(
+      JsonDecoder.array(
+        JsonDecoder.object(
+          {
+            creatorId: JsonDecoder.number,
+            name: JsonDecoder.string
+          },
+          'token',
+          { creatorId: 'creator_id' }
+        ),
+        'tokens'
+      )
+    ),
     isReverse: JsonDecoder.boolean,
-    otelPublicCertificate: JsonDecoder.string,
+    otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    otelPrivateKey: JsonDecoder.string,
+    otelPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
     hosts: JsonDecoder.array(
       JsonDecoder.object(
         {
           address: JsonDecoder.string,
           port: JsonDecoder.number,
           pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-          pollerCaName: JsonDecoder.nullable(JsonDecoder.string)
+          pollerCaName: JsonDecoder.nullable(JsonDecoder.string),
+          name: JsonDecoder.optional(JsonDecoder.string),
+          id: JsonDecoder.optional(JsonDecoder.number)
         },
         'Host configuration',
         {
@@ -85,6 +104,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
 export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
   {
     name: JsonDecoder.string,
+    connectionMode: JsonDecoder.string,
     type: JsonDecoder.enumeration<AgentType>(AgentType, 'Agent type'),
     pollers: JsonDecoder.array(
       JsonDecoder.object(
@@ -101,5 +121,35 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
       'Agent configuration configuration'
     )
   },
-  'Agent configuration'
+  'Agent configuration',
+  {
+    connectionMode: 'connection_mode'
+  }
 );
+
+export const tokenDecoder = JsonDecoder.object(
+  {
+    name: JsonDecoder.string,
+    creator: JsonDecoder.object(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string
+      },
+      'Creator'
+    )
+  },
+  'ListedToken'
+).map(({ name, creator }) => {
+  return {
+    name,
+    creatorId: creator.id,
+    id: `${name}_${creator?.id}`,
+    token_name: name
+  };
+});
+
+export const listTokensDecoder = buildListingDecoder({
+  entityDecoder: tokenDecoder,
+  entityDecoderName: 'Tokens',
+  listingDecoderName: 'listTokens'
+});

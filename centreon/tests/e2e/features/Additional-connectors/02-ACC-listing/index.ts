@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 before(() => {
@@ -45,8 +46,9 @@ Given('a non-admin user is logged in', () => {
 
 When('the user clicks on the Additional Connector Configuration page', () => {
   cy.navigateTo({
-    page: 'Additional connector configurations',
-    rootItemNumber: 0
+    page: 'Additional Configuration',
+    rootItemNumber: 0,
+    subMenu: 'Connectors'
   });
 });
 
@@ -100,7 +102,7 @@ Then(
   'a pop up is displayed with all of the additional connector informations',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional connector configuration').should(
+    cy.contains('Update additional configuration').should(
       'be.visible'
     );
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(

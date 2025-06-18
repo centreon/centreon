@@ -14,7 +14,6 @@ import {
   labelShares
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
-
 import Actions from './Actions/Actions';
 import Description from './Decription';
 import Role from './Role';

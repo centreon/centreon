@@ -70,11 +70,11 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
     value: ''
   },
   {
-    selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayMonth',
+    selector: '[data-testid="local_passwordExpirationMonths"]',
     value: '5'
   },
   {
-    selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
+    selector: '[data-testid="local_passwordExpirationDays"]',
     value: '27'
   },
   {
@@ -87,11 +87,11 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
     value: ''
   },
   {
-    selector: '#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordDay',
+    selector: '[data-testid="local_timeBetweenPasswordChangesDays"]',
     value: '0'
   },
   {
-    selector: '#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordHour',
+    selector: '[data-testid="local_timeBetweenPasswordChangesHours"]',
     value: '1'
   },
   {
@@ -103,18 +103,15 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
     value: '5'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationDay',
+    selector: '[data-testid="local_blockingDurationDays"]',
     value: '0'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationHour',
+    selector: '[data-testid="local_blockingDurationHours"]',
     value: '0'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationMinute',
+    selector: '[data-testid="local_blockingDurationMinutes"]',
     value: '15'
   }
 ];

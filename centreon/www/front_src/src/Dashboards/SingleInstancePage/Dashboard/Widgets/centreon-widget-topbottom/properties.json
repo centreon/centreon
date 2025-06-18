@@ -47,5 +47,7 @@
   },
   "singleMetricSelection": true,
   "customBaseColor": false,
-  "moduleName": "centreon-widget-topbottom"
+  "moduleName": "centreon-widget-topbottom",
+  "canExpand": true,
+  "widgetType": "realtime"
 }

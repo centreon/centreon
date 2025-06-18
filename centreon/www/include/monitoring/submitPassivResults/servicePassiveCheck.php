@@ -107,9 +107,8 @@ if (($is_admin || $flag_acl) && $host_id) {
     $form->addElement('submit', 'submit', _("Save"), ["class" => "btc bt_success"]);
     $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
-    # Smarty template Init
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl);
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($path);
 
     #Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

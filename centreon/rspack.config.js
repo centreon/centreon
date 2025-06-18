@@ -9,11 +9,12 @@ const {
   isDevelopmentMode
 } = require('./packages/js-config/rspack/patch/devServer');
 
-module.exports = (enableCoverage = false) =>
+module.exports = (enableCoverage = false, postCssBase = undefined) =>
   merge(
     getBaseConfiguration({
       enableCoverage,
-      moduleName: 'centreon'
+      moduleName: 'centreon',
+      postCssBase: postCssBase || './www/front_src/src'
     }),
     {
       devServer: {
@@ -51,9 +52,6 @@ module.exports = (enableCoverage = false) =>
         })
       ],
       resolve: {
-        alias: {
-          'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
-        },
         modules: [path.resolve(__dirname, '.'), 'node_modules']
       }
     }

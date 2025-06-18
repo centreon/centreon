@@ -42,9 +42,13 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
       <TextField
         autoSize
         dataTestId={labelInterval}
-        inputProps={{
-          'aria-label': t(labelInterval) as string,
-          min: 1
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelInterval) as string,
+              min: 1
+            }
+          }
         }}
         size="compact"
         type="number"

@@ -61,11 +61,8 @@ $mediaObj       = new CentreonMedia($pearDB);
 $host_method    = new CentreonHost($pearDB);
 $oNotification     = new CentreonNotification($pearDB);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * start header menu

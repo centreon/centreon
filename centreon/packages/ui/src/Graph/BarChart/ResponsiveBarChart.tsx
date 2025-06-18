@@ -13,6 +13,7 @@ import { useIntersection } from '../Chart/useChartIntersection';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import Thresholds from '../common/Thresholds/Thresholds';
 import { Thresholds as ThresholdsModel } from '../common/models';
 import {
@@ -22,7 +23,6 @@ import {
 } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
-
 import BarGroup from './BarGroup';
 import BarChartTooltip from './Tooltip/BarChartTooltip';
 import { tooltipDataAtom } from './atoms';
@@ -58,7 +58,7 @@ const ResponsiveBarChart = ({
   barStyle,
   skipIntersectionObserver
 }: Props): JSX.Element => {
-  const { title, timeSeries, baseAxis, lines } = graphData;
+  const { title, timeSeries, baseAxis, lines } = graphData || {};
 
   const { classes, cx } = useTooltipStyles();
 
@@ -70,20 +70,32 @@ const ResponsiveBarChart = ({
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
   const displayedLines = useMemo(
-    () => linesGraph.filter(({ display }) => display),
+    () => (linesGraph || []).filter(({ display }) => display),
     [linesGraph]
   );
 
   const [firstUnit, secondUnit] = getUnits(displayedLines);
   const allUnits = getUnits(lines);
 
-  const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
-    hasSecondUnit: Boolean(secondUnit),
-    height,
-    legendDisplay: legend?.display,
-    legendPlacement: legend?.placement,
-    width
-  });
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      graphData,
+      thresholds,
+      thresholdUnit,
+      axis,
+      firstUnit,
+      secondUnit
+    });
+
+  const { legendRef, graphWidth, graphHeight, titleRef } =
+    useComputeBaseChartDimensions({
+      hasSecondUnit: Boolean(secondUnit),
+      height,
+      legendDisplay: legend?.display,
+      legendPlacement: legend?.placement,
+      width,
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+    });
 
   const thresholdValues = flatten([
     pluck('value', thresholds?.warning || []),
@@ -181,6 +193,7 @@ const ResponsiveBarChart = ({
       lines={linesGraph}
       setLines={setLinesGraph}
       title={title}
+      titleRef={titleRef}
     >
       <Tooltip
         classes={{
@@ -216,6 +229,8 @@ const ResponsiveBarChart = ({
             svgRef={graphSvgRef}
             timeSeries={timeSeries}
             xScale={xScale}
+            maxAxisCharacters={maxLeftAxisCharacters}
+            hasSecondUnit={Boolean(secondUnit)}
           >
             <>
               <BarGroup

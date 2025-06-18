@@ -61,6 +61,7 @@ class Backend
     public $engine_sub = 'engine';
     /** @var string */
     public $broker_sub = 'broker';
+    public $vmware_sub = 'vmware';
 
     /** @var CentreonDB|null  */
     public $db = null;
@@ -174,12 +175,21 @@ class Backend
      */
     public function initPath($poller_id, $engine = 1): void
     {
-        if ($engine == 1) {
-            $this->createDirectories([$this->generate_path, $this->engine_sub]);
-            $this->full_path = $this->generate_path . '/' . $this->engine_sub;
-        } else {
-            $this->createDirectories([$this->generate_path, $this->broker_sub]);
-            $this->full_path = $this->generate_path . '/' . $this->broker_sub;
+        switch($engine) {
+            case 1:
+                $this->createDirectories([$this->generate_path, $this->engine_sub]);
+                $this->full_path = $this->generate_path . '/' . $this->engine_sub;
+                break;
+            case 2:
+                $this->createDirectories([$this->generate_path, $this->broker_sub]);
+                $this->full_path = $this->generate_path . '/' . $this->broker_sub;
+                break;
+            case 3:
+                $this->createDirectories([$this->generate_path, $this->vmware_sub]);
+                $this->full_path = $this->generate_path . '/' . $this->vmware_sub;
+                break;
+            default:
+                throw new Exception("Invalid engine type");
         }
         if (is_dir($this->full_path . '/' . $poller_id) && !is_writable($this->full_path . '/' . $poller_id)) {
             throw new Exception("Not writeable directory '" . $this->full_path . '/' . $poller_id . "'");

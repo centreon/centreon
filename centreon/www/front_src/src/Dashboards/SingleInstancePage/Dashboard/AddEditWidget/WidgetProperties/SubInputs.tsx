@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil, isNotNil } from 'ramda';
@@ -39,16 +39,18 @@ const SubInputs = ({
     [subInputsToDisplay]
   );
 
-  if (!equals(previousSubInputsToDisplayRef.current, subInputsToDisplay)) {
-    subInputsToDisplay?.forEach(({ input, name }) => {
-      if (isNotNil(values.options[name])) {
-        return;
-      }
+  useEffect(() => {
+    if (!equals(previousSubInputsToDisplayRef.current, subInputsToDisplay)) {
+      subInputsToDisplay?.forEach(({ input, name }) => {
+        if (isNotNil(values.options[name])) {
+          return;
+        }
 
-      setFieldValue(`options.${name}`, input.defaultValue, false);
-    });
-    previousSubInputsToDisplayRef.current = subInputsToDisplay;
-  }
+        setFieldValue(`options.${name}`, input.defaultValue, false);
+      });
+      previousSubInputsToDisplayRef.current = subInputsToDisplay;
+    }
+  }, [previousSubInputsToDisplayRef.current, subInputsToDisplay]);
 
   return (
     <Stack

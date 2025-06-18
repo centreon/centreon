@@ -1,8 +1,12 @@
 import { SelectEntry } from '@centreon/ui';
 import { useFormikContext } from 'formik';
-import { isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
-import { AgentConfigurationForm, HostConfiguration } from '../../models';
+import {
+  AgentConfigurationForm,
+  ConnectionMode,
+  HostConfiguration
+} from '../../models';
 import { portRegex } from '../useValidationSchema';
 
 interface UseHostConfigurationProps {
@@ -18,6 +22,7 @@ interface UseHostConfigurationState {
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
   hostErrors: Partial<HostConfiguration> | undefined;
   hostTouched: Partial<HostConfiguration> | undefined;
+  areCertificateFieldsVisible: boolean;
 }
 
 export const useHostConfiguration = ({
@@ -33,9 +38,12 @@ export const useHostConfiguration = ({
   } = useFormikContext<AgentConfigurationForm>();
 
   const selectHost = useCallback(
-    (_, { address }) => {
+    (_, { id, name, address }) => {
       setFieldTouched(`configuration.hosts.${index}.address`, true, false);
       setFieldTouched(`configuration.hosts.${index}.port`, true, false);
+
+      setFieldValue(`configuration.hosts.${index}.name`, name, false);
+      setFieldValue(`configuration.hosts.${index}.id`, id, false);
       setFieldValue(`configuration.hosts.${index}.address`, address, false);
       setFieldValue(`configuration.hosts.${index}.port`, 4317, false);
       setFieldError(`configuration.hosts.${index}.address`, undefined);
@@ -95,12 +103,17 @@ export const useHostConfiguration = ({
     [touched, index]
   );
 
+  const areCertificateFieldsVisible =
+    equals(values?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(values?.connectionMode?.id, ConnectionMode.insecure);
+
   return {
     changeAddress,
     changePort,
     changeStringInput,
     selectHost,
     hostErrors,
-    hostTouched
+    hostTouched,
+    areCertificateFieldsVisible
   };
 };

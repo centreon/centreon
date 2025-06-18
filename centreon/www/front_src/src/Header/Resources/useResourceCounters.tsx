@@ -1,15 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import type { NavigateFunction } from 'react-router-dom';
+import type { NavigateFunction } from 'react-router';
+import { useNavigate } from 'react-router';
+
 import type { JsonDecoder } from 'ts.data.json';
 
 import { useFetchQuery } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import {
+  statisticsRefreshIntervalAtom,
+  userAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { applyFilterDerivedAtom } from '../../Resources/Filter/filterAtoms';
 import type { Filter } from '../../Resources/Filter/models';
@@ -48,26 +53,29 @@ const useResourceCounters: UseRessourceCounters = ({
   decoder
 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
+  const userPermissions = useAtomValue(userPermissionsAtom);
 
-  const refetchInterval = useAtomValue(refreshIntervalAtom);
+  const refetchInterval = useAtomValue(statisticsRefreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
+  const isAllowed = useMemo(
+    () => userPermissions?.top_counter || false,
+    [userPermissions?.top_counter]
+  );
+
   const { isLoading, data } = useFetchQuery({
-    catchError: ({ statusCode }): void => {
-      if (equals(statusCode, 401)) {
-        setIsAllowed(false);
-      }
-    },
     decoder,
     getEndpoint: () => endPoint,
     getQueryKey: () => [endPoint, queryName],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000
+      refetchInterval: refetchInterval * 1000,
+      enabled: isAllowed,
+      refetchOnMount: false,
+      suspense: false
     }
   });
 
@@ -85,7 +93,7 @@ const useResourceCounters: UseRessourceCounters = ({
       isAllowed,
       isLoading
     }),
-    [isLoading, data]
+    [isLoading, data, i18n.language]
   );
 };
 

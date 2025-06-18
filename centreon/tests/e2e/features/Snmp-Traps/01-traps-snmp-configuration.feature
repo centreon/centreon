@@ -1,4 +1,3 @@
-@REQ_MON-151631
 Feature: TrapsSNMPConfiguration
   As an IT supervisor
   I want to configure SNMP traps

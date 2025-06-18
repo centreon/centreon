@@ -16,6 +16,11 @@ const rowColorConditions = (theme: Theme): Array<Condition> => [
     color: theme.palette.action.acknowledgedBackground,
     condition: ({ is_acknowledged }): boolean => is_acknowledged,
     name: 'acknowledged'
+  },
+  {
+    color: theme.palette.action.inFlappingBackground,
+    condition: ({ is_in_flapping }): boolean => is_in_flapping,
+    name: 'inFlapping'
   }
 ];
 

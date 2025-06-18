@@ -1,0 +1,65 @@
+get:
+  tags:
+    - Dashboard
+  summary: "List all dashboards set as favorite for the current user"
+  description: |
+    Return all dashboard configurations that were marked as favorite for the current user.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * created_by
+    * created_at
+    * updated_at
+
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    "200":
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items: { $ref: 'Schema/Dashboard.Listing.yaml' }
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+post:
+  tags:
+    - Dashboard
+  summary: "Set dashboard as favorite for the current user"
+  description: |
+    Set dashboard as favorite for the current user
+
+    `Since Centreon Web 24.10`
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/Dashboard.AddAsFavorite.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

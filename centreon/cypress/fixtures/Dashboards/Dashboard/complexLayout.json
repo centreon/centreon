@@ -19,9 +19,9 @@
       "layout": {
         "x": 0,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -43,11 +43,11 @@
       "id": 31,
       "name": "centreon-widget-clock",
       "layout": {
-        "x": 6,
+        "x": 12,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -69,11 +69,11 @@
       "id": 32,
       "name": "centreon-widget-clock",
       "layout": {
-        "x": 8,
+        "x": 16,
         "y": 3,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -93,16 +93,16 @@
     },
     {
       "id": 33,
-      "name": "centreon-widget-statusgrid",
+      "name": "centreon-widget-clock",
       "layout": {
         "x": 0,
         "y": 3,
-        "width": 5,
+        "width": 10,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
-      "widget_type": "/widgets/statusgrid",
+      "widget_type": "/widgets/clock",
       "widget_settings": {
         "data": {
           "resources": [
@@ -113,18 +113,10 @@
           ]
         },
         "options": {
-          "viewMode": "standard",
-          "resourceType": "service",
-          "statuses": [
-            "warning",
-            "problem",
-            "pending",
-            "success",
-            "undefined"
-          ],
-          "sortBy": "status_severity_code",
-          "tiles": 100,
-          "refreshInterval": "default",
+          "displayType": "clock",
+          "showTimezone": true,
+          "showDate": true,
+          "timeFormat": "12",
           "description": {
             "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1,\u0022textStyle\u0022:\u0022\u0022}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
             "enabled": true

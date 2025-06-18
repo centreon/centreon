@@ -46,7 +46,7 @@ const Axes = ({
 
   const [, secondUnit] = getUnits(lines);
 
-  const xTickCount = Math.min(Math.ceil(width / 82), 12);
+  const xTickCount = Math.floor(Math.min(width / 100, 12));
 
   const domain = xScale.domain();
 
@@ -97,7 +97,7 @@ const Axes = ({
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
           angle: yAxisTickLabelRotation,
-          dx: isHorizontal ? -8 : 4,
+          dx: isHorizontal ? -4 : 4,
           dy: isHorizontal ? 4 : -6
         })}
         tickLength={2}

@@ -1,4 +1,3 @@
-@REQ_MON-151193
 Feature: Edit a service template
     As a Centreon user
     I want to manipulate a service

@@ -196,11 +196,8 @@ $form->addElement('hidden', 'gopt_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/**
- * Smarty
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . 'ldap/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'ldap/');
 
 $ldapAdmin = new CentreonLdapAdmin($pearDB);
 

@@ -4,7 +4,7 @@ updates:
     directory: '/'
     schedule:
       interval: monthly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 50
     labels:
       - 'dependencies'
       - 'gha'
@@ -20,6 +20,8 @@ updates:
     allow:
       - dependency-type: "direct"
       - dependency-type: "production"
+    ignore:
+      - dependency-name: '*'
 
   - package-ecosystem: composer
     directory: '/'
@@ -32,3 +34,5 @@ updates:
     allow:
       - dependency-type: "direct"
       - dependency-type: "production"
+    ignore:
+      - dependency-name: '*'

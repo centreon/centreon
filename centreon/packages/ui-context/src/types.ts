@@ -26,7 +26,7 @@ export interface User {
   id?: number;
   isAdmin?: boolean;
   isExportButtonEnabled: boolean;
-  locale: string;
+  locale: string | null;
   name: string;
   themeMode?: ThemeMode;
   timezone: string;
@@ -139,4 +139,9 @@ export interface PlatformVersions {
   modules: Record<string, Version>;
   web: Version;
   widgets: Record<string, Version | null>;
+}
+
+export interface UserPermissions {
+  top_counter: boolean;
+  poller_statistics: boolean;
 }

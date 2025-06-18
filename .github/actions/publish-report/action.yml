@@ -10,10 +10,6 @@ inputs:
   format:
     description: "Path to the junit files"
     default: "jest-junit"
-  urlFilePrefix:
-    description: "Prefix for the Github URL"
-    required: false
-    default: ''
 runs:
   using: "composite"
   steps:
@@ -27,7 +23,6 @@ runs:
       uses: ./.github/actions/publish-cypress-report
       with:
         path: "${{ inputs.path }}"
-        urlFilePrefix: "${{ inputs.urlFilePrefix }}"
 
     - if: ${{ inputs.format == 'eslint' }}
       uses: ./.github/actions/publish-lint-report
@@ -36,7 +31,7 @@ runs:
         check_name: ${{ inputs.check_name }}
 
     - if: ${{ inputs.format != 'php-junit' && inputs.format != 'eslint' && inputs.format != 'cypress' }}
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@6e6a65b7a0bd2c9197df7d0ae36ac5cee784230c # v2.0.0
       with:
         name: "${{ inputs.check_name }}"                  # Name of the check run which will be created
         path: "${{ inputs.path }}"                     # Path to test results (inside artifact .zip)

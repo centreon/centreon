@@ -76,27 +76,19 @@ Cypress.Commands.add('editWidget', (nameOrPosition) => {
 
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
-  (accessRightsTestId, expectedElementCount, closeIconIndex) => {
-    const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
+  (accessRightsTestId: string, expectedElementCount: number) => {
+    const openModalAndCheck = (): Cypress.Chainable<boolean> => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
       cy.get('.MuiSelect-select').should('be.visible');
 
-      return cy
-        .get('.MuiSelect-select')
-        .should('be.visible')
-        .then(($element) => {
-          if (closeIconIndex !== undefined) {
-            cy.getByTestId({ testId: 'CloseIcon' }).eq(closeIconIndex).click();
-          } else {
-            cy.getByTestId({ testId: 'CloseIcon' }).click();
-          }
-
-          return cy.wrap($element.length === expectedElementCount);
-        });
+      return cy.get('.MuiSelect-select').should('be.visible').then(($elements) => {
+        cy.getByLabel({ label: 'close', tag: 'button' }).click();
+        return cy.wrap($elements.length === expectedElementCount);
+      });
     };
 
     return cy.waitUntil(() => openModalAndCheck(), {
-      errorMsg: 'The element does not exist',
+      errorMsg: 'The expected number of elements was not found',
       interval: 3000,
       timeout: 30000
     });
@@ -355,7 +347,12 @@ Cypress.Commands.add('applyAcl', () => {
 
 Cypress.Commands.add(
   'verifyLegendItemStyle',
-  (index, expectedColors, expectedValue) => {
+  (
+    index: number,
+    expectedColors: Array<string>,
+    expectedValues: Array<string>,
+    alternativeValues: Array<string> = []
+  ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
       .each(($legendItem) => {
@@ -364,22 +361,29 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find('div')
-                .invoke('attr', 'style')
+                .find("div")
+                .invoke("attr", "style")
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
-              // Get the value of the <p> element next to the <a> tag
               cy.wrap(aTag)
-                .next('p')
-                .invoke('text')
+                .next("p")
+                .invoke("text")
                 .then((text) => {
-                  expect(text).to.contain(expectedValue[i]);
+                  const possibleValues = [expectedValues[i]];
+
+                  if (alternativeValues[i]) {
+                    possibleValues.push(alternativeValues[i]);
+                  }
+
+                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
                 });
             });
           });
       });
+
+    return cy;
   }
 );
 
@@ -685,7 +689,8 @@ declare global {
       verifyLegendItemStyle: (
         index: number,
         expectedColors: Array<string>,
-        expectedValue: Array<string>
+        expectedValue: Array<string>,
+        alternativeValues?: Array<string>
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
@@ -696,9 +701,8 @@ declare global {
       ): Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
-        expectedElementCount: number,
-        closeIconIndex?: number
-      ) => Cypress.Chainable;
+        expectedElementCount: number
+      ) => Cypress.Chainable<boolean>;
       waitUntilPingExists: () => Cypress.Chainable;
     }
   }

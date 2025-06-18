@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useBlocker } from 'react-router-dom';
+import { useBlocker } from 'react-router';
 
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 

@@ -1,6 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtomValue } from 'jotai';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider, createStore } from 'jotai';
+import { BrowserRouter as Router } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
@@ -9,21 +8,15 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import Resources from '..';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { Type } from '../Actions/model';
-import { panelWidthStorageAtom } from '../Details/detailsAtoms';
 import useDetails from '../Details/useDetails';
-import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
-import { allFilter } from '../Filter/models';
 import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
   labelAcknowledged,
   labelAll,
-  labelDisplayView,
   labelInDowntime,
-  labelMoreActions,
+  labelResourceFlapping,
   labelViewByHost,
   labelViewByService
 } from '../translatedLabels';
@@ -32,7 +25,7 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import { enabledAutorefreshAtom, selectedColumnIdsAtom } from './listingAtoms';
+import { selectedColumnIdsAtom } from './listingAtoms';
 import {
   columnToSort,
   columns,
@@ -47,6 +40,7 @@ import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import {
   __,
+  equals,
   filter,
   find,
   head,
@@ -69,66 +63,14 @@ const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
-const listingActionsData = [
-  {
-    conditionsInListing: [
-      { rule: 'be.visible', testId: 'PlayArrowIcon' },
-      { rule: 'be.visible', testId: 'RefreshIcon' }
-    ],
-    conditionsInMoreActions: [
-      {
-        rule: 'not.exist',
-        testId: 'RefreshInMoreActions'
-      },
-      {
-        rule: 'not.exist',
-        testId: 'AutorefreshInMoreActions'
-      }
-    ],
-    height: 590,
-    panelWidth: 750,
-    type: Type.medium
-  },
-  {
-    conditionsInListing: [
-      { rule: 'not.exist', testId: 'PlayArrowIcon' },
-      { rule: 'not.exist', testId: 'RefreshIcon' }
-    ],
-    conditionsInMoreActions: [
-      {
-        rule: 'be.visible',
-        testId: 'RefreshInMoreActions'
-      },
-      {
-        rule: 'be.visible',
-        testId: 'AutorefreshInMoreActions'
-      }
-    ],
-    height: 590,
-    panelWidth: 900,
-    type: Type.small
-  }
-];
-
-const interceptRequest = ({ dataPath, alias, path }): void => {
-  cy.fixture(dataPath).then((data) => {
-    cy.interceptAPIRequest({
-      alias,
-      method: Method.GET,
-      path,
-      response: data
-    });
-  });
-};
-
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
+  store.set(userAtom, {
+    user_interface_density: listingVariant,
+    locale: 'en_US',
+    timezone: 'Europe/Paris'
+  });
 };
 
 before(() => {
@@ -189,91 +131,6 @@ const interceptRequestsAndMountBeforeEach = (
 
   cy.adjustViewport();
 };
-
-const mountResourcePage = (): void => {
-  cy.interceptAPIRequest({
-    alias: 'filterRequest',
-    method: Method.GET,
-    path: './api/latest/users/filters/events-view?*',
-    response: fakeData
-  });
-
-  interceptRequest({
-    alias: 'listingRequest',
-    dataPath: 'resources/resourceListing.json',
-    path: './api/latest/monitoring/resources?*'
-  });
-
-  interceptRequest({
-    alias: 'detailsRequest',
-    dataPath: 'resources/anomalyDetectionDetails.json',
-    path: './api/latest/monitoring/resources/anomaly-detection/1'
-  });
-
-  cy.mount({
-    Component: (
-      <Provider store={store}>
-        <Router>
-          <TestQueryProvider>
-            <Resources />
-          </TestQueryProvider>
-        </Router>
-      </Provider>
-    )
-  });
-};
-
-describe('Responsivity listing actions', () => {
-  beforeEach(() => {
-    cy.viewport(1650, 590);
-    store.set(applyFilterDerivedAtom, allFilter);
-    store.set(selectedVisualizationAtom, Visualization.All);
-    store.set(enabledAutorefreshAtom, false);
-    store.set(platformFeaturesAtom, getPlatformFeatures({}));
-
-    mountResourcePage();
-  });
-  listingActionsData.forEach(
-    ({
-      panelWidth,
-      conditionsInListing,
-      type,
-      conditionsInMoreActions,
-      height
-    }) => {
-      it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
-        const collection =
-          document?.getElementById('cy-root')?.children[0]?.children[0];
-        collection.style.height = '590px';
-        store.set(panelWidthStorageAtom, panelWidth);
-
-        cy.waitForRequest('@filterRequest');
-        cy.waitForRequest('@listingRequest');
-
-        cy.contains('ad').click();
-
-        cy.waitForRequest('@detailsRequest');
-
-        cy.findByText(labelDisplayView).should('not.exist');
-
-        conditionsInListing.forEach(({ rule, testId }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.findByLabelText(labelMoreActions).click();
-
-        conditionsInMoreActions.forEach(({ testId, rule }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.makeSnapshotWithCustomResolution({
-          resolution: { height, width: 1650 },
-          title: `listing actions when the size is ${type}`
-        });
-      });
-    }
-  );
-});
 
 describe('Resource Listing', () => {
   beforeEach(() => {
@@ -763,6 +620,19 @@ describe('Display additional columns', () => {
     cy.findByText('Set by admin').should('be.visible');
 
     cy.makeSnapshot();
+
+    cy.findByLabelText(chipLabel).trigger('mouseout');
+
+    cy.get('[value="Information"]').click();
+    cy.get('[value="Status"]').click();
+    cy.get('[value="Resource"]').click();
+    cy.get('[value="Parent"]').click();
+    cy.get('[value="Graph (G)"]').click();
+    cy.get('[value="Duration"]').click();
+    cy.get('[value="Last check"]').click();
+    cy.get('[value="Tries"]').click();
+
+    cy.findByLabelText('Add columns').click();
   });
 
   const columnIds = map(prop('id'), columns);
@@ -802,6 +672,8 @@ describe('Display additional columns', () => {
         cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
+      cy.findByLabelText('Add columns').click();
+
       cy.makeSnapshot();
     });
   });
@@ -817,13 +689,9 @@ describe('Notification column', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('be.visible');
-
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
   });
 
   it('hides notification column if the cloud notification feature is enabled', () => {
@@ -835,8 +703,6 @@ describe('Notification column', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('be.visible');
-
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Severity (S)').should('exist');
@@ -846,11 +712,12 @@ describe('Notification column', () => {
   });
 });
 
-['dark', 'light'].forEach((mode) => {
+['light'].forEach((mode) => {
   describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
     beforeEach(() => {
-      const userData = renderHook(() => useAtomValue(userAtom));
-      userData.result.current.themeMode = mode;
+      store.set(userAtom, {
+        themeMode: mode
+      });
 
       store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
       cy.interceptAPIRequest({
@@ -860,16 +727,14 @@ describe('Notification column', () => {
         response: fakeData
       });
 
-      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            alias: 'listing',
-            method: Method.GET,
-            path: '**/resources?*',
-            response: data
-          });
-        }
-      );
+      cy.fixture('resources/listing/listingWithStates.json').then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'listing',
+          method: Method.GET,
+          path: '**/resources?*',
+          response: data
+        });
+      });
       cy.mount({
         Component: (
           <Router>
@@ -879,11 +744,90 @@ describe('Notification column', () => {
       });
     });
 
-    it('displays listing when some resources are in downtime/acknowledged', () => {
+    it('displays listing with state icons when the resource is in one or more states', () => {
       cy.waitForRequest('@filterRequest');
       cy.waitForRequest('@listing');
-
       cy.contains('Memory').should('be.visible');
+
+      cy.findByRole('table').within(() => {
+        cy.findAllByTestId('DowntimeIcon').should('have.length', 2);
+        cy.findAllByTestId('PersonIcon').should('have.length', 2);
+      });
+
+      cy.findAllByTestId('FlappingIcon').should('have.length', 4);
+      cy.findAllByTestId('FlappingIcon').first().trigger('mouseover');
+      cy.contains(labelResourceFlapping).should('be.visible');
+    });
+
+    it('displays the listing row in downtime color when the resource is in downtime state', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 7);
+
+      cy.findAllByRole('row')
+        .eq(1)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(81, 41, 128)' : 'rgb(229, 216, 243)'
+        );
+
+      cy.makeSnapshot();
+    });
+    it('displays the listing row in acknowledge color when the resource is in acknowledge state but not in downtime', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 7);
+
+      cy.findAllByRole('row')
+        .eq(2)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(116, 95, 53)' : 'rgb(223, 210, 185)'
+        );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the listing row in flapping color when the resource is in flapping state only', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 7);
+
+      cy.findAllByRole('row')
+        .eq(4)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(6, 74, 63)' : 'rgb(216, 243, 239)'
+        );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a Down icon when the parent status is null', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findByTestId('Add columns').click();
+      cy.findByText('Parent').click();
+
+      cy.contains(/^D$/).should('be.visible');
+
       cy.makeSnapshot();
     });
   });

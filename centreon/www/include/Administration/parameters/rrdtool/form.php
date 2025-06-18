@@ -79,11 +79,8 @@ $form->registerRule('rrdcached_valid', 'callback', 'rrdcached_valid');
 $form->addRule('rrdtool_path_bin', _("Can't execute binary"), 'is_executable_binary');
 // $form->addRule('oreon_rrdbase_path', _("Can't write in directory"), 'is_writable_path'); - Field is not added so no need for rule
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path.'rrdtool/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'rrdtool/');
 
 $version = '';
 if (isset($gopt['rrdtool_path_bin']) && trim($gopt['rrdtool_path_bin']) != '') {

@@ -52,6 +52,7 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
       submitting={isSubmitting}
       onCancel={onCancel}
       onConfirm={submitForm}
+      dialogContentTextProps={{ component: 'div' }}
     >
       <TextField
         required

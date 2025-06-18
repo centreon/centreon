@@ -99,9 +99,8 @@ if (isset($_GET["o"]) && $_GET["o"] === 'r') {
     }
 }
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 $res = $pearDB->executeQuery(
     <<<SQL

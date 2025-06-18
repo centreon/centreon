@@ -136,11 +136,8 @@ if ($centreon->user->access->checkAction("host_comment")) {
         $valid = true;
         require_once($path . "listComment.php");
     } else {
-        /*
-		 * Smarty template Init
-		 */
-        $tpl = new Smarty();
-        $tpl = initSmartyTpl($path, $tpl, "template/");
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($path, 'template/');
 
         if (isset($host_id)) {
             $tpl->assign('host_name', $host_name);

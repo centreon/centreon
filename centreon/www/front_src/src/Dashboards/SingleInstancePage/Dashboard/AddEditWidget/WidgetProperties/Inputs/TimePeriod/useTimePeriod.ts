@@ -8,6 +8,7 @@ import { SelectEntry } from '@centreon/ui';
 
 import {
   labelCustomize,
+  labelLast2Months,
   labelLast3Hours,
   labelLast3Months,
   labelLast6Hours,
@@ -15,6 +16,7 @@ import {
   labelLast7Days,
   labelLast12Hours,
   labelLast12Months,
+  labelLast14Days,
   labelLast24Hours,
   labelLast30Days,
   labelLastHour
@@ -51,8 +53,16 @@ export const options: Array<SelectEntry> = [
     name: labelLast7Days
   },
   {
+    id: 14 * day,
+    name: labelLast14Days
+  },
+  {
     id: month * day,
     name: labelLast30Days
+  },
+  {
+    id: 2 * month * day,
+    name: labelLast2Months
   },
   {
     id: 3 * month * day,

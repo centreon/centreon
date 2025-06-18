@@ -19,6 +19,12 @@ const useStyles = makeStyles<StylesProps>()((theme, { severityCode }) => ({
     gap: theme.spacing(0.5),
     marginRight: theme.spacing(1)
   },
+  nestedStatus: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: theme.spacing(0.5),
+    marginLeft: theme.spacing(3)
+  },
   statusCount: {
     alignItems: 'center',
     display: 'flex'

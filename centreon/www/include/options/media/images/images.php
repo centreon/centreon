@@ -40,14 +40,13 @@
 if (!isset($oreon)) {
     exit();
 }
-
-define('IMAGE_ADD', 'a');
-define('IMAGE_WATCH', 'w');
-define('IMAGE_MODIFY', 'ci');
-define('IMAGE_MODIFY_DIRECTORY', 'cd');
-define('IMAGE_MOVE', 'm');
-define('IMAGE_DELETE', 'd');
-define('IMAGE_SYNC_DIR', 'sd');
+const IMAGE_ADD = 'a';
+const IMAGE_WATCH = 'w';
+const IMAGE_MODIFY = 'ci';
+const IMAGE_MODIFY_DIRECTORY = 'cd';
+const IMAGE_MOVE = 'm';
+const IMAGE_DELETE = 'd';
+const IMAGE_SYNC_DIR = 'sd';
 
 $imageId = filter_var(
     $_GET["img_id"] ?? $_POST["img_id"] ?? null,
@@ -71,6 +70,7 @@ require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";
 
 switch ($o) {
+    case IMAGE_MODIFY:
     case IMAGE_ADD:
         require_once($path . "formImg.php");
         break;
@@ -79,13 +79,8 @@ switch ($o) {
             require_once($path . "formImg.php");
         }
         break;
-    case IMAGE_MODIFY:
-        require_once($path . "formImg.php");
-        break;
-    case IMAGE_MODIFY_DIRECTORY:
-        require_once($path . "formDirectory.php");
-        break;
     case IMAGE_MOVE:
+    case IMAGE_MODIFY_DIRECTORY:
         require_once($path . "formDirectory.php");
         break;
     case IMAGE_DELETE:

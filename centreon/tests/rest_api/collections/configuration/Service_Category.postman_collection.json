@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f06fc448-b4e5-468d-80b6-cb1ffe044aa3",
+		"_postman_id": "16fbff3e-4817-4221-a60e-ff0b0b499078",
 		"name": "Service_Category",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f06fc448-b4e5-468d-80b6-cb1ffe044aa3?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -2239,22 +2238,38 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service category\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceCategory1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceCategory1Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory1Alias\"),\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category creation response\", function () {\r",
+									"  const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"integer\" },\r",
+									"      name: { type: \"string\" },\r",
+									"      alias: { type: \"string\" },\r",
+									"      is_activated: { type: \"boolean\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"  };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2265,7 +2280,8 @@
 									"pm.collectionVariables.set(\"ServiceCategory1Alias\", \"I'm a service category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2353,9 +2369,44 @@
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2401,22 +2452,38 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service category\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceCategory2Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceCategory2Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory2Alias\"),\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category creation response\", function () {\r",
+									"  const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"integer\" },\r",
+									"      name: { type: \"string\" },\r",
+									"      alias: { type: \"string\" },\r",
+									"      is_activated: { type: \"boolean\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"  };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2427,7 +2494,8 @@
 									"pm.collectionVariables.set(\"ServiceCategory2Alias\", \"Oh I'm your second category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2522,9 +2590,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2575,9 +2678,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2586,7 +2704,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2628,9 +2747,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewServiceCategory::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2639,7 +2773,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2681,9 +2816,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2692,7 +2842,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2734,9 +2885,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] NULL value found, but a string is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2745,7 +2911,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2782,22 +2949,38 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory3Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service category\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceCategory3Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceCategory3Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory3Alias\"),\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category creation response\", function () {\r",
+									"  const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"integer\" },\r",
+									"      name: { type: \"string\" },\r",
+									"      alias: { type: \"string\" },\r",
+									"      is_activated: { type: \"boolean\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"  };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2808,7 +2991,8 @@
 									"pm.collectionVariables.set(\"ServiceCategory3Alias\", \"Finally, a third successful category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2910,9 +3094,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3070,9 +3289,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3249,23 +3503,39 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory4Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service category\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceCategory4Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceCategory4Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory4Alias\"),\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category creation response\", function () {\r",
+									"  const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"integer\" },\r",
+									"      name: { type: \"string\" },\r",
+									"      alias: { type: \"string\" },\r",
+									"      is_activated: { type: \"boolean\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"  };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3276,7 +3546,8 @@
 									"pm.collectionVariables.set(\"ServiceCategory4Alias\", \"I'm the fourth successful category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3378,9 +3649,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3538,9 +3844,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3757,7 +4098,7 @@
 									"raw": "{\n  \"action\": \"show\",\n  \"object\": \"ACLRESOURCE\"\n}"
 								},
 								"url": {
-									"raw": "{{baseUriCentreonCLAPI}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
 										"{{baseUriCentreonCLAPI}}"
 									],
@@ -3816,7 +4157,7 @@
 									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory3Name}}\"\n}"
 								},
 								"url": {
-									"raw": "{{baseUriCentreonCLAPI}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
 										"{{baseUriCentreonCLAPI}}"
 									],
@@ -3969,23 +4310,39 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory5Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service category\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceCategory5Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceCategory5Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory5Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory5Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory5Alias\"),\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category creation response\", function () {\r",
+									"  const schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"integer\" },\r",
+									"      name: { type: \"string\" },\r",
+									"      alias: { type: \"string\" },\r",
+									"      is_activated: { type: \"boolean\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"  };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3996,7 +4353,8 @@
 									"pm.collectionVariables.set(\"ServiceCategory5Alias\", \"I'm the fifth successful category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4056,9 +4414,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4108,9 +4501,24 @@
 									"pm.test(\"Service category not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Service category not found\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4119,7 +4527,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4293,9 +4702,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4304,7 +4728,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4345,9 +4770,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service category\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4356,7 +4796,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4459,9 +4900,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4675,7 +5151,7 @@
 									"raw": "{\n  \"action\": \"delfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory3Name}}\"\n}\n"
 								},
 								"url": {
-									"raw": "{{baseUriCentreonCLAPI}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
 										"{{baseUriCentreonCLAPI}}"
 									],
@@ -4734,7 +5210,7 @@
 									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceCategory5Name}}\"\n}"
 								},
 								"url": {
-									"raw": "{{baseUriCentreonCLAPI}}",
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
 									"host": [
 										"{{baseUriCentreonCLAPI}}"
 									],
@@ -4892,9 +5368,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4903,7 +5394,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4963,9 +5455,44 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5015,9 +5542,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service category\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5026,7 +5568,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5200,9 +5743,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5211,7 +5769,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5252,9 +5811,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service category\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5263,7 +5837,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5308,9 +5883,24 @@
 									"pm.test(\"Service category not found\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access service categories\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service category listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5351,266 +5941,6 @@
 				},
 				{
 					"name": "Logout from user with no access",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Reset",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service categories",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory3Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory3Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories",
-								"{{ServiceCategory3Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service categories",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory4Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories",
-								"{{ServiceCategory4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service categories",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service Category\" + pm.collectionVariables.get(\"ServiceCategory5Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory5Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories",
-								"{{ServiceCategory5Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RAZ Logout from admin user",
 					"event": [
 						{
 							"listen": "test",

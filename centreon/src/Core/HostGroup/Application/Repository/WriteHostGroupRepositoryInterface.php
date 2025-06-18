@@ -70,4 +70,43 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlinkFromHost(int $hostId, array $groupIds): void;
+
+    /**
+     * Add a list of hosts to a host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     */
+    public function addHostLinks(int $hostGroupId, array $hostIds): void;
+
+    /**
+     * Delete a list of hosts from an host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     * @return void
+     */
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void;
+
+    /**
+     * Set an host group as enabled or disabled.
+     *
+     * @param int $hostGroupId
+     * @param bool $isEnable
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void;
+
+    /**
+     * Duplicate a host group.
+     *
+     * @param int $hostGroupId
+     * @param int $duplicateIndex The index to append to the duplicated host group name
+     *
+     * @throws \Throwable
+     *
+     * @return int The new host group ID
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int;
 }

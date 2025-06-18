@@ -20,6 +20,8 @@ import {
   groupBy,
   isEmpty,
   isNil,
+  isNotEmpty,
+  isNotNil,
   keys,
   last,
   not,
@@ -114,9 +116,8 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   inputs: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: theme.spacing(1),
-    rowGap: theme.spacing(2),
-    marginBottom: theme.spacing(1)
+    margin: theme.spacing(2, 0),
+    rowGap: theme.spacing(2)
   }
 }));
 
@@ -203,6 +204,7 @@ const Inputs = ({
           ? find(propEq(groupName, 'name'), groups)
           : ({} as Group);
 
+        const hasGroupDivider = !groups[index]?.isDividerHidden;
         const isFirstElement = areGroupsOpen || equals(index, 0);
 
         return (
@@ -217,22 +219,19 @@ const Inputs = ({
               >
                 <div className={classes.inputs}>
                   {groupedInputs.map((inputProps) => {
+                    const key =
+                      isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
+                        ? inputProps.label
+                        : inputProps.additionalLabel;
+
                     if (isLoading) {
-                      return (
-                        <LoadingSkeleton
-                          input={inputProps}
-                          key={inputProps.label}
-                        />
-                      );
+                      return <LoadingSkeleton input={inputProps} key={key} />;
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div
-                        className={classes.inputWrapper}
-                        key={inputProps.label}
-                      >
+                      <div className={classes.inputWrapper} key={key}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(
@@ -253,17 +252,19 @@ const Inputs = ({
                 </div>
               </CollapsibleGroup>
             </div>
-            {hasGroupTitle && not(equals(lastGroup, groupName as string)) && (
-              <Divider
-                flexItem
-                className={classes.divider}
-                orientation={
-                  equals(groupDirection, GroupDirection.Horizontal)
-                    ? 'vertical'
-                    : 'horizontal'
-                }
-              />
-            )}
+            {hasGroupDivider &&
+              hasGroupTitle &&
+              not(equals(lastGroup, groupName as string)) && (
+                <Divider
+                  flexItem
+                  className={classes.divider}
+                  orientation={
+                    equals(groupDirection, GroupDirection.Horizontal)
+                      ? 'vertical'
+                      : 'horizontal'
+                  }
+                />
+              )}
           </Fragment>
         );
       })}

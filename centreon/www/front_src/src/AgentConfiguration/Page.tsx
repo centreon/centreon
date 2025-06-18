@@ -37,7 +37,9 @@ const AgentConfigurationPage = (): JSX.Element => {
     <PageLayout>
       <PageLayout.Header>
         <PageHeader>
-          <PageHeader.Title title={t(labelAgentsConfigurations)} />
+          <PageHeader.Main>
+            <PageHeader.Title title={t(labelAgentsConfigurations)} />
+          </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
@@ -45,7 +47,7 @@ const AgentConfigurationPage = (): JSX.Element => {
           {isEmpty ? (
             <DataTable.EmptyState
               aria-label="create"
-              data-testid="create-agent-configuration"
+              buttonCreateTestId="create-agent-configuration"
               labels={{
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
                 description: t(labelWelcomeDescription),

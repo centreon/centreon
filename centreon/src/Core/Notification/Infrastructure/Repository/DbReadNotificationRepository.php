@@ -630,6 +630,37 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findLastNotificationDependencyIdsByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+                FROM dependency_hostgroupParent_relation
+                WHERE dependency_dep_id IN
+                    (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
+                        WHERE hostgroup_hg_id =  :hostGroupId)
+                GROUP BY dependency_dep_id
+                SQL
+        ));
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $lastDependencyIds = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            /**
+             * @var array{id:int,nb_dependency:int} $result
+             */
+            if ($result['nb_dependency'] === 1) {
+                $lastDependencyIds[] = $result['id'];
+            }
+        }
+
+        return $lastDependencyIds;
+    }
+
+    /**
      * Build Query for findAll with research parameters.
      *
      * @param SqlRequestParametersTranslator|null $sqlTranslator

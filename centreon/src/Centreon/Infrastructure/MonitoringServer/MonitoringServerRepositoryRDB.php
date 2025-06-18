@@ -146,6 +146,14 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
     /**
      * @inheritDoc
      */
+    public function findAllServersWithAccessGroups(array $accessGroups): array
+    {
+        return $this->findServers(searchRequest: null, sortRequest: null, paginationRequest: null, accessGroups: $accessGroups);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findServersWithoutRequestParameters(): array
     {
         return $this->findServers(null, null, null);
@@ -415,5 +423,19 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $statement = $this->db->prepare($this->translateDbName("DELETE FROM `:db`.nagios_server WHERE id = :id"));
         $statement->bindValue(':id', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findRemoteServersIps(): array
+    {
+        $request = $this->translateDbName('SELECT ip FROM remote_servers');
+        $statement = $this->db->query($request);
+        $statement->execute();
+        if ($statement !== false) {
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        }
+        return [];
     }
 }

@@ -499,11 +499,10 @@ if (
         }
         require_once "listDowntime.php";
     } else {
-        /*
-         * Smarty template Init
-         */
-        $tpl = new Smarty();
-        $tpl = initSmartyTpl($path, $tpl, "template/");
+
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($path, 'template/');
+
         $tpl->assign('dataPickerMaxYear', DOWNTIME_YEAR_MAX - 1);
 
         /*

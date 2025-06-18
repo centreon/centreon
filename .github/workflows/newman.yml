@@ -64,7 +64,7 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: List Postman Collections and Environments
         id: set_collections
@@ -92,7 +92,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Test Execution and test plan Keys
         id: get-test-ids
@@ -387,14 +387,14 @@ jobs:
       DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 10
           run_install: false
 
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: pnpm
@@ -409,7 +409,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -417,11 +417,11 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         continue-on-error: true
         timeout-minutes: 6
         with:
-          path: /tmp/cache/docker-image
+          path: ./docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
@@ -429,7 +429,7 @@ jobs:
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
-          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
@@ -526,7 +526,7 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -810,16 +810,18 @@ jobs:
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev')
+      startsWith(github.ref_name, 'dev') &&
+      github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         uses: ./.github/actions/create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman"]'
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman-${{ inputs.os }}-${{ inputs.database_image }}"]'
+          ticket_squad: "Product Backlog"

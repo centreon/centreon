@@ -3,6 +3,7 @@ import { MutableRefObject, useRef } from 'react';
 import { equals, isNil } from 'ramda';
 
 import { margin } from '../../Chart/common';
+import { margins } from '../margins';
 
 export const extraMargin = 10;
 
@@ -13,12 +14,14 @@ interface UseComputeBaseChartDimensionsProps {
   legendHeight?: number;
   legendPlacement?: string;
   width: number;
+  maxAxisCharacters: number;
 }
 
 interface UseComputeBaseChartDimensionsState {
   graphHeight: number;
   graphWidth: number;
   legendRef: MutableRefObject<HTMLDivElement | null>;
+  titleRef: MutableRefObject<HTMLDivElement | null>;
 }
 
 export const useComputeBaseChartDimensions = ({
@@ -27,9 +30,11 @@ export const useComputeBaseChartDimensions = ({
   legendDisplay,
   legendPlacement,
   hasSecondUnit,
-  legendHeight
+  legendHeight,
+  maxAxisCharacters
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const legendRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLDivElement | null>(null);
 
   const currentLegendHeight =
     legendHeight ?? (legendRef.current?.getBoundingClientRect().height || 0);
@@ -48,19 +53,23 @@ export const useComputeBaseChartDimensions = ({
   const graphWidth =
     width > 0
       ? width -
-        margin.left -
-        (hasSecondUnit ? margin.right : 8) -
-        extraMargin -
+        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
+        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
         legendBoundingWidth
       : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) - margin.top - 5 - legendBoundingHeight
+      ? (height || 0) -
+        margin.top -
+        legendBoundingHeight -
+        (titleRef.current?.getBoundingClientRect().height || 0) -
+        5
       : 0;
 
   return {
     graphHeight,
     graphWidth,
-    legendRef
+    legendRef,
+    titleRef
   };
 };

@@ -32,7 +32,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
+    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -135,7 +135,7 @@ runs:
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
         case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
+          "22.10"|"23.10")
             SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
             ;;
           *)
@@ -163,7 +163,7 @@ runs:
         done
 
         case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
+          "22.10"|"23.10")
             ARTIFACT_SEARCH_PATTERN=".+\.deb"
             ;;
           *)

@@ -34,7 +34,7 @@ import {
   labelUpdateConnectorConfiguration,
   labelVcenterNameMustBeUnique
 } from '../translatedLabels';
-import { defaultParameters } from '../utils';
+import { getDefaultParameters } from '../utils';
 
 const mockPageRequests = (): void => {
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {
@@ -155,10 +155,10 @@ export default (): void => {
       cy.findByText(labelParameters).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
-      keys(defaultParameters).forEach((parameter) => {
+      keys(getDefaultParameters(0)).forEach((parameter) => {
         cy.get(`input[data-testid="${parameter}_value"`)
           .should('be.visible')
-          .should('have.value', defaultParameters[parameter])
+          .should('have.value', getDefaultParameters(0)[parameter])
           .should('not.be.disabled');
       });
 
@@ -592,7 +592,7 @@ export default (): void => {
         cy.contains(labelAdditionalConnectorCreated);
 
         cy.waitForRequest('@createConnector').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equals({
+          expect(request.body).to.deep.equals({
             description: null,
             name: 'New name',
             parameters: {
@@ -625,7 +625,7 @@ export default (): void => {
         cy.get(`button[data-testid="submit"`).click();
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equals({
+          expect(request.body).to.deep.equals({
             name: 'Updated name',
             description: 'Description for VMWare1',
             parameters: {
@@ -662,10 +662,11 @@ export default (): void => {
       it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
         initializeModal({ variant: 'update' });
 
-        cy.get('input[name="port"]').clear();
+        cy.findAllByTestId('vCenter name_value').eq(1).clear();
+        cy.findAllByTestId('vCenter name_value').eq(1).blur();
         cy.contains(labelCancel).click();
 
-        cy.contains('Do you want to resolve the errors?').should('be.visible');
+        cy.contains('Do you want to leave this page?').should('be.visible');
 
         cy.makeSnapshot();
       });

@@ -44,9 +44,9 @@ $baseUri = (function() {
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/open-tickets/src/";
-$template = new Smarty();
-$template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
 /** @var \Centreon $centreon */
 $centreon = $_SESSION['centreon'];

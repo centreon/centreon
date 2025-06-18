@@ -1,0 +1,77 @@
+post:
+  tags:
+    - Host group
+  summary: "Duplicate multiple host groups"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+              description: "List of host group IDs to duplicate"
+              example: [ 1, 2 ]
+            nb_duplicates:
+              type: integer
+              description: "Number of duplicates to create"
+              example: 3
+          required:
+            - ids
+            - nb_duplicates
+  description: |
+    Duplicate multiple host groups from configuration
+  responses:
+    '204':
+      description: "Objects duplicated"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                href:
+                  type: string
+                  format: uri
+                  description: "URI to the duplicated host group"
+                status:
+                  type: integer
+                  description: "HTTP Status Code of the operation"
+                  example: 204
+                message:
+                  type: string
+                  nullable: true
+                  description: "Error message for non 204 status"
+                  example: null
+    '404':
+      description: "Host Group not found"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                href:
+                  type: string
+                  format: uri
+                  description: "URI to the host group to duplicate"
+                status:
+                  type: integer
+                  description: "HTTP Status Code of the operation"
+                  example: 404
+                message:
+                  type: string
+                  nullable: true
+                  description: "Host Group not found"
+                  example: "Host Group not found"
+    '401':
+      $ref: '../../Common/Response/Unauthorized.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

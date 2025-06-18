@@ -40,8 +40,7 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
       ),
       '@mui/material': path.resolve('./node_modules/@mui/material'),
       'centreon-widgets': path.resolve('www', 'widgets', 'src'),
-      dayjs: path.resolve('./node_modules/dayjs'),
-      'react-router-dom': path.resolve('./node_modules/react-router-dom')
+      dayjs: path.resolve('./node_modules/dayjs')
     }
   }
 });

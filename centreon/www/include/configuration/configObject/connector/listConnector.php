@@ -48,8 +48,8 @@ if ($centreon->historyLastUrl === $url && isset($_GET['num'])) {
 try {
     $connectorsList = $connectorObj->getList(false, (int)$num, (int)$limit);
 
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl);
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($path);
 
     $tpl->assign('mode_access', $lvl_access);
 

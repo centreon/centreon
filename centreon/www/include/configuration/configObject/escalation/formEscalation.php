@@ -46,10 +46,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
  */
 $esc = [];
 if (($o == "c" || $o == "w") && $esc_id) {
-    $DBRESULT = $pearDB->query("SELECT * FROM escalation WHERE esc_id = '" . $esc_id . "' LIMIT 1");
-
+    $statement = $pearDB->prepare("SELECT * FROM escalation WHERE esc_id = :escId LIMIT 1");
+    $statement->bindValue(':escId', $esc_id, \PDO::PARAM_INT);
+    $statement->execute();
     # Set base value
-    $esc = array_map("myEncode", $DBRESULT->fetchRow());
+    $esc = array_map("myEncode", $statement->fetchRow());
 
     # Set Host Options
     $esc["escalation_options1"] = explode(',', $esc["escalation_options1"]);
@@ -185,9 +186,8 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('esc_name', _("Name is already in use"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 # Just watch an Escalation information
 if ($o == "w") {

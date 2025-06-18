@@ -19,9 +19,9 @@
  * limitations under the License.
  */
 
+// Smarty template initialization
 $path = "./modules/centreon-open-tickets/views/rules/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $required_field = '&nbsp;<font color="red" size="1">*</font>';
 

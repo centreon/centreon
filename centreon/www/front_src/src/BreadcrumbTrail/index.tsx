@@ -13,7 +13,7 @@ import navigationAtom from '../Navigation/navigationAtoms';
 import { useCopyToClipboard } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import Breadcrumb from './Breadcrumb';
 import getBreadcrumbsByPath from './getBreadcrumbsByPath';
 import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';

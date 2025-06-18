@@ -82,6 +82,7 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
                 INNER JOIN `:dbstg`.tags AS host_categories
                     ON host_categories.tag_id  = rtags.tag_id
                     AND host_categories.`type` = 3
+
             SQL;
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();

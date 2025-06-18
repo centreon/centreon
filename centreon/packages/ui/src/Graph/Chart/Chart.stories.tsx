@@ -22,6 +22,7 @@ import dataLastDayThreshold from '../mockedData/lastDayThreshold.json';
 import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
 import dataLastMonth from '../mockedData/lastMonth.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
+import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
@@ -536,7 +537,7 @@ export const customLinesAndBars: Story = {
   render: (args) => (
     <WrapperChart
       {...args}
-      data={dataPingServiceLinesBars as unknown as LineChartData}
+      data={dataPingService as unknown as LineChartData}
     />
   )
 };
@@ -565,7 +566,7 @@ export const linesAndBars: Story = {
   render: (args) => (
     <WrapperChart
       {...args}
-      data={dataPingServiceLinesBars as unknown as LineChartData}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
     />
   )
 };
@@ -669,7 +670,7 @@ export const linesAndBarsMixedCenteredZero: Story = {
   )
 };
 const CustomYUnits = (props): JSX.Element => {
-  const [leftUnit, setLeftUnit] = useState('b');
+  const [leftUnit, setLeftUnit] = useState('B');
   const [rightUnit, setRightUnit] = useState('ms');
 
   return (
@@ -694,4 +695,25 @@ export const customYUnits: Story = {
   argTypes,
   args: argumentsData,
   render: (args) => <CustomYUnits {...args} />
+};
+
+export const WithAdditionalLines: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    additionalLines: [
+      {
+        yValue: 3,
+        text: 'my text',
+        color: 'grey',
+        unit: '%'
+      }
+    ]
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingService as unknown as LineChartData}
+    />
+  )
 };

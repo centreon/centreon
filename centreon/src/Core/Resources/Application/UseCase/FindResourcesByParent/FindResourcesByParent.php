@@ -175,6 +175,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
@@ -185,6 +186,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return ResourceEntity[]
      */
     private function findParentResources(ResourceFilter $filter): array

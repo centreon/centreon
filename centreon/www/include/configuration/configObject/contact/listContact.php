@@ -66,11 +66,6 @@ $selectedContact = filter_var(
     FILTER_VALIDATE_INT
 );
 
-$p = filter_var(
-    $_GET['p'] ?? $_POST['p'],
-    FILTER_VALIDATE_INT
-);
-
 $searchContact = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchC'] ?? $_GET['searchC'] ?? null
 );
@@ -112,9 +107,8 @@ $rows = count($contacts);
 
 include "./include/common/checkPagination.php";
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? WRITE : READ;

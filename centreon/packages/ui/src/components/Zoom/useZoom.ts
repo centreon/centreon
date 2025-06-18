@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
 
 import { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals, isNil } from 'ramda';
+import { equals } from 'ramda';
 
 import { localPoint } from './localPoint';
 import { ZoomState } from './models';
 
-const isLeftMouseButtonClicked = (e): boolean =>
-  !isNil(e.nativeEvent.which) && equals(e.nativeEvent.which, 1);
+const isLeftMouseButtonClicked = (e: MouseEvent): boolean =>
+  equals(e.buttons, 1);
 
 interface UseZoomState {
   dragEnd: () => void;

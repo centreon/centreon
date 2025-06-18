@@ -237,11 +237,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required 
 $form->addRule('execution_failure_criteria', _("Required Field"), 'required');
 $form->addRule('notification_failure_criteria', _("Required Field"), 'required');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign("sort1", _("Information"));
 $tpl->assign("sort2", _("Service Description"));

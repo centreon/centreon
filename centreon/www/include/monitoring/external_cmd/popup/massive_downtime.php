@@ -52,13 +52,9 @@ if (isset($_GET['select'])) {
     }
 }
 
+// Smarty template initialization
 $path = _CENTREON_PATH_ . "/www/include/monitoring/external_cmd/popup/";
-
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTplForPopup($path, $tpl, './templates/', _CENTREON_PATH_);
+$tpl = SmartyBC::createSmartyTemplate($path, './templates/');
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', 'main.php');
 
