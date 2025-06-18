@@ -77,6 +77,6 @@ Then(
   'the additional connector configuration is no longer displayed in the listing page',
   () => {
     cy.wait('@deleteConnector');
-    cy.contains('Welcome to the additional configurations page').should('be.visible');
+    cy.get('*[role="rowgroup"]').should('not.contain', 'Connector-001');
   }
 );

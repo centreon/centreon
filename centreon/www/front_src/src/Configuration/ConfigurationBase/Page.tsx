@@ -1,5 +1,5 @@
-import { isNotEmpty, or } from 'ramda';
-import { JSX, useEffect } from 'react';
+import { isNil, isNotEmpty, or } from 'ramda';
+import { JSX, useLayoutEffect } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 
@@ -16,17 +16,23 @@ import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilte
 import useLoadData from './Listing/useLoadData';
 import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
 
+import { LoadingSkeleton } from '@centreon/ui';
+
 const WelcomePage = ({ labels, dataTestId, onCreate }) => {
   const { isLoading, data } = useLoadData();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
   const { isClear } = useCoutChangedFilters();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
       setIsWelcomePageDisplayed(false);
     }
   }, [isLoading]);
+
+  if (isLoading && isNil(data)) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <DataTable.EmptyState
