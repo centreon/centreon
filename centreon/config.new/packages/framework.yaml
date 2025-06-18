@@ -4,6 +4,9 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
+    assets:
+        base_path: '/centreon'
+
     session:
         handler_id: null
         cookie_secure: auto
