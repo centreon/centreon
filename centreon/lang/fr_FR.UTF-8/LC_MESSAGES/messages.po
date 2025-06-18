@@ -22627,9 +22627,6 @@ msgstr ""
  msgid "Your session is expired."
  msgstr "Votre session a expirée"
 
- msgid "bloblo"
- msgstr "blublu"
-
  msgid "cgi"
  msgstr "cgi"
 
@@ -22767,3 +22764,6 @@ msgstr ""
 
  msgid "will display resources with host name starting by'"
  msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+ msgid "bloblo"
+ msgstr "blublu"
