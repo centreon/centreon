@@ -306,6 +306,7 @@ export default (): void => {
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
       cy.findByLabelText('close').click();
+      cy.findByLabelText('Leave').click();
     });
 
     describe('Form validation', () => {
