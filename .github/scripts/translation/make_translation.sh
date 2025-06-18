@@ -123,7 +123,7 @@ if [ "$PROJECT" = "centreon" ]; then
     rm -f $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-fuzzy-matching --update --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot
+    $MSGMERGE --update --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot
     # uncomment obsolete translations
     sed -i -r 's/^#~//g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
@@ -143,7 +143,7 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-fuzzy-matching --update --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot
+    $MSGMERGE --update --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot
     # uncomment obsolete translations
     sed -i -r 's/^#~//g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
