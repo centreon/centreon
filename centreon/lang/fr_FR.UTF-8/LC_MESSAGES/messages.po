@@ -1313,12 +1313,8 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid ""
-"An agent is a piece of software you install on the host you want to monitor, "
-"that executes the checks."
-msgstr ""
-"Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui "
-"exécute les contrôles."
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est un logiciel que vous installez sur l'hôte que vous souhaitez surveiller, et qui exécute les vérifications."
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "An error occured while decoding Identity Provider ID Token"
@@ -1596,7 +1592,7 @@ msgstr "Source d'authentification"
 
 #: centreon/www/install/menu_translation.php
 msgid "Authentication Tokens"
-msgstr ""
+msgstr "Jetons d'authentification"
 
 #: centreon/www/install/front_translate.php
 msgid "Authentication conditions"
@@ -23848,3 +23844,7 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "Hello"
+msgstr "Bonjour"
