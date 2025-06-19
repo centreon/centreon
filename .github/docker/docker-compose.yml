@@ -77,7 +77,7 @@ services:
     env_file:
       - .env
     image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
-    ports: ["8086:8080"]
+    ports: ["8080:8080"]
     profiles: ["saml"]
 
   openldap:

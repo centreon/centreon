@@ -71,6 +71,7 @@ Then(
     }).as('getUserInformation');
 
     cy.loginKeycloak('admin');
+
     cy.get('#input-error')
       .should('be.visible')
       .and('include.text', 'Invalid username or password.');

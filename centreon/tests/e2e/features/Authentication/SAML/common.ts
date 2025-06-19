@@ -10,8 +10,8 @@ interface SamlConfigValues {
   x509Certificate: string;
 }
 
-const getSamlConfigValues = ({ providerAddress = 'localhost', providerPort = 8080 }): SamlConfigValues => {
-  const keycloakURL = `http://${providerAddress}:${providerPort}/realms/Centreon_SSO`;
+const getSamlConfigValues = (): SamlConfigValues => {
+  const keycloakURL = `http://localhost:8080/realms/Centreon_SSO`;
 
   return {
     entityID: keycloakURL,
@@ -24,50 +24,45 @@ const getSamlConfigValues = ({ providerAddress = 'localhost', providerPort = 808
 };
 
 const configureSAML = (): Cypress.Chainable => {
-  return cy.getContainerIpAddress('saml').then((containerIpAddress) => {
-    const samlConfigValues = getSamlConfigValues({
-      providerAddress: containerIpAddress,
-      providerPort: 8080
-    });
+  const samlConfigValues = getSamlConfigValues();
 
-    cy.contains('Enable SAMLv2 authentication').should('be.visible');
+  cy.contains('Enable SAMLv2 authentication').should('be.visible');
 
-    cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
-    cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
-      .should('be.visible')
-      .type(`{selectall}{backspace}${samlConfigValues.remoteLoginURL}`);
+  cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
+  cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${samlConfigValues.remoteLoginURL}`);
 
-    cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
-      .should('be.visible')
-      .type(`{selectall}{backspace}${samlConfigValues.entityID}`);
+  cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${samlConfigValues.entityID}`);
 
-    cy.getByLabel({
-      label: 'Copy/paste x.509 certificate',
-      tag: 'textarea'
-    })
-      .should('be.visible')
-      .type(`{selectall}{backspace}${samlConfigValues.x509Certificate}`);
+  cy.getByLabel({
+    label: 'Copy/paste x.509 certificate',
+    tag: 'textarea'
+  })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${samlConfigValues.x509Certificate}`);
 
-    cy.getByLabel({
-      label: 'User ID (login) attribute for Centreon user',
-      tag: 'input'
-    })
-      .should('be.visible')
-      .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
+  cy.getByLabel({
+    label: 'User ID (login) attribute for Centreon user',
+    tag: 'input'
+  })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
 
-    cy.getByLabel({ label: 'Requested authentication context' })
-      .should('be.visible');
+  cy.getByLabel({ label: 'Requested authentication context' })
+    .should('be.visible');
 
-    cy.getByLabel({
-      label: 'Both identity provider and Centreon UI',
-      tag: 'input'
-    }).check();
+  cy.getByLabel({
+    label: 'Both identity provider and Centreon UI',
+    tag: 'input'
+  }).check();
 
-    return cy
-      .getByLabel({ label: 'Logout URL', tag: 'input' })
-      .should('be.visible')
-      .type(`{selectall}{backspace}${samlConfigValues.logoutURL}`);
-  });
+  return cy
+    .getByLabel({ label: 'Logout URL', tag: 'input' })
+    .should('be.visible')
+    .type(`{selectall}{backspace}${samlConfigValues.logoutURL}`);
 };
 
 const saveSamlFormIfEnabled = () => {

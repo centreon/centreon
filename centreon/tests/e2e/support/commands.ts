@@ -135,7 +135,7 @@ declare global {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginKeycloak: (containerName: string) => Cypress.Chainable;
+      loginKeycloak: (jsonName: string) => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
