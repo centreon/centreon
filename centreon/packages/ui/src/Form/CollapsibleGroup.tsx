@@ -77,7 +77,7 @@ const CollapsibleGroup = ({
           disableGutters
           disableRipple
           aria-label={group?.name}
-          className={cx(classes.groupTitleContainer, containerClassName)}
+          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           onClick={toggle}
         >
           {containerComponentChildren}
@@ -94,12 +94,14 @@ const CollapsibleGroup = ({
     <>
       {hasGroupTitle && (
         <ContainerComponent>
-          {isCollapsible && <CollapseIcon />}
-          <div className={classes.groupTitleIcon}>
+          <div
+            className={`${classes.groupTitleIcon} snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white`}
+          >
             <Typography
-              className="groupText"
+              className="groupText scroll-m-12 snap-start"
               variant="h6"
               {...group?.titleAttributes}
+              data-section-group-form-id={group?.name}
             >
               {t(group?.name as string)}
             </Typography>
@@ -116,6 +118,7 @@ const CollapsibleGroup = ({
                 </MuiIconButton>
               </Tooltip>
             )}
+            {isCollapsible && <CollapseIcon />}
           </div>
         </ContainerComponent>
       )}

@@ -5,29 +5,40 @@ import { Tabs as MuiTabs, Tab, TabsProps } from '@mui/material';
 
 import { useTabsStyles } from './Tab.styles';
 
+import '../../ThemeProvider/tailwindcss.css';
+
+export interface TabI {
+  label: string;
+  value: string;
+}
+
 type Props = {
-  children: Array<JSX.Element>;
+  children?: Array<JSX.Element>;
   defaultTab: string;
   tabList?: TabsProps;
-  tabs: Array<{
-    label: string;
-    value: string;
-  }>;
+  tabs: TabI[];
+  onChange?: (newValue: string) => void;
 };
 
 export const Tabs = ({
   children,
   defaultTab,
   tabs,
-  tabList
+  tabList,
+  onChange
 }: Props): JSX.Element => {
   const { classes } = useTabsStyles();
 
   const [selectedTab, setSelectedTab] = useState(defaultTab);
 
   const changeTab = useCallback((_, newValue: string): void => {
+    if (onChange) onChange(newValue);
+
     setSelectedTab(newValue);
   }, []);
+
+  const selectedTabStyle = ' font-bold text-primary-main';
+  const defaultTabStyle = ' font-normal';
 
   return (
     <TabContext value={selectedTab}>
@@ -43,7 +54,7 @@ export const Tabs = ({
         {tabs.map(({ value, label }) => (
           <Tab
             aria-label={label}
-            className={classes.tab}
+            className={`${classes.tab} ${selectedTab === value ? selectedTabStyle : defaultTabStyle}`}
             key={value}
             label={label}
             value={value}

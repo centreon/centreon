@@ -1,15 +1,13 @@
 import { ReactElement, ReactNode } from 'react';
 
-import { useStyles } from './Modal.styles';
+import style from './modal.module.css';
 
 export type ModalHeaderProps = {
   children?: ReactNode;
 };
 
 const ModalBody = ({ children }: ModalHeaderProps): ReactElement => {
-  const { classes } = useStyles();
-
-  return <div className={classes.modalBody}>{children}</div>;
+  return <div className={style.modalBody}>{children}</div>;
 };
 
 export { ModalBody };

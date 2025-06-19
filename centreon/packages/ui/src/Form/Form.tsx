@@ -11,6 +11,7 @@ import { useStyles } from './Form.styles';
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
+import { FormSection } from './Section/FormSection';
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
@@ -76,6 +77,7 @@ const Form = <T extends object>({
       {...formikSharedConfig}
     >
       <div>
+        <FormSection groups={groups} />
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs

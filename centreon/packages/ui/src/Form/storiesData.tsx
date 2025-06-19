@@ -157,12 +157,16 @@ export const basicFormGroups: Array<Group> = [
   {
     EndIcon: () => <HelpOutlineIcon />,
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
+    name: 'Third group',
+    order: 3
+  },
+  {
     name: 'Second group',
     order: 2
   },
   {
-    name: 'Third group',
-    order: 3
+    name: 'Fourth group',
+    order: 4
   }
 ];
 

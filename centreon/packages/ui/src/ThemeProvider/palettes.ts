@@ -297,7 +297,7 @@ export const lightPalette: PaletteOptions = {
     contrastText: '#000',
     main: '#FD9B27',
     light: '#FCC481',
-    dark: '#FC7E00',
+    dark: '#FC7E00'
   }
 };
 
