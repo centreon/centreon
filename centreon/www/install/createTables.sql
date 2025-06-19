@@ -697,7 +697,7 @@ CREATE TABLE `connector` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contact` (
+CREATE TABLE IF NOT EXISTS `contact` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_tp_id` int(11) DEFAULT NULL,
   `timeperiod_tp_id2` int(11) DEFAULT NULL,
@@ -740,6 +740,7 @@ CREATE TABLE `contact` (
   `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0',
   `login_attempts` INT(11) UNSIGNED DEFAULT NULL,
   `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL,
+  `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)',
   PRIMARY KEY (`contact_id`),
   KEY `name_index` (`contact_name`),
   KEY `alias_index` (`contact_alias`),

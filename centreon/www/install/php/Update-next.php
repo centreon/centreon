@@ -41,13 +41,38 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
     );
 };
 
+// -------------------------------------------- Services as contacts -------------------------------------------- //
+$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            ALTER TABLE `contact`
+                ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
+            SQL
+    );
+};
+
+$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `contact`
+            SET `is_service_account` = 1
+            WHERE `contact_name` IN ('centreon-gorgone', 'CBIS', 'centreon-map')
+            SQL
+    );
+};
+
 try {
+    $addServiceFlagToContacts();
+
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
     $updateCfgParameters();
+    $flagContactsAsServiceAccount();
 
     $pearDB->commit();
 
