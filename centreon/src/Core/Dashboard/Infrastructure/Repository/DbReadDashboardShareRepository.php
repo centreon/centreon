@@ -480,7 +480,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND acltr.access_right IS NOT NULL
                 SQL_WRAP
-            : <<<SQL_WRAP
+            : <<<'SQL_WRAP'
                 WHERE c.contact_admin = '0'
                 AND c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
