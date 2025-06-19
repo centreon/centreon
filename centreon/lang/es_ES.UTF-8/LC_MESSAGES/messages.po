@@ -21301,10 +21301,6 @@ msgstr "Dirección n ° 6"
 #  msgstr ""
 
 #: unknown
-msgid "Advanced mode"
-msgstr "Modo avanzado"
-
-#: unknown
 msgid "Aggressive Host Checks"
 msgstr "Control agresivo de los anfitriones."
 
