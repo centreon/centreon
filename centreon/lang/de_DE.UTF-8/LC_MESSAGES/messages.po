@@ -19688,9 +19688,6 @@ msgstr "Adresse6"
 # msgid "Custom boundaries apply to the percentage."
 # msgstr "Les limitations personnalisées s'appliquent au pourcentage."
 
-#~ msgid "Advanced mode"
-#~ msgstr "Erweiterter Modus"
-
 #  msgid "Display view:"
 #  msgstr ""
 
