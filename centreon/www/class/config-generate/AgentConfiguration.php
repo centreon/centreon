@@ -150,7 +150,7 @@ class AgentConfiguration extends AbstractObjectJSON
 
             $tokenNames = array_filter(
                 array_map(
-                    static fn(array $host): string => $host['token'] !== null ? $host['token']['name']: null,
+                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name']: null,
                     $data['hosts']
                 )
             );
