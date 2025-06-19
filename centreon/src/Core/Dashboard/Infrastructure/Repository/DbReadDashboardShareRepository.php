@@ -473,6 +473,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         $query .= $searchRequest !== null
             ? <<<SQL_WRAP
+
                 {$searchRequest}
                 AND c.contact_admin = '0'
                 AND c.contact_oreon = '1'
@@ -481,6 +482,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 AND acltr.access_right IS NOT NULL
                 SQL_WRAP
             : <<<'SQL_WRAP'
+
                 WHERE c.contact_admin = '0'
                 AND c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
