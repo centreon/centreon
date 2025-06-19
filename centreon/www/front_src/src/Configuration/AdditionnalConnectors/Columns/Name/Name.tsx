@@ -15,7 +15,7 @@ const Name = ({
   const name = renderEllipsisTypography?.({
     className: classes.resourceNameText,
     formattedString: truncate({ content: row.name, maxLength: 50 })
-  });
+  }) || name;
 
   return <div className={classes.container}>{name}</div>;
 };
