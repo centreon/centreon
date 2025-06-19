@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma8, alma9, bookworm, jammy]
+        distrib: [alma8, alma9, bookworm, jammy, noble]
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

@@ -125,7 +125,7 @@ class CentreonPurgeEngine
             $row = $DBRESULT->fetchRow();
             $matches = [];
             // dont care of MAXVALUE
-            if (preg_match_all('/PARTITION `(.*?)` VALUES LESS THAN \((.*?)\)/', $row['Create Table'], $matches)) {
+            if (preg_match_all('/PARTITION `{0,1}(.*?)`{0,1} VALUES LESS THAN \((.*?)\)/', $row['Create Table'], $matches)) {
                 $this->tablesToPurge[$name]['is_partitioned'] = true;
                 $this->tablesToPurge[$name]['partitions'] = [];
                 for ($i = 0; isset($matches[1][$i]); $i++) {

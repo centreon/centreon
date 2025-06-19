@@ -23,8 +23,18 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Providers\Application\UseCase;
 
-final class FindProvidersResponse
+use Core\Application\Common\UseCase\ListingResponseInterface;
+
+final class FindProvidersResponse implements ListingResponseInterface
 {
     /** @var ProviderDto[] */
     public array $providers;
+
+    /**
+     * @return ProviderDto[]
+     */
+    public function getData(): array
+    {
+        return $this->providers;
+    }
 }

@@ -36,6 +36,9 @@ runs:
         elif [[ "${{ inputs.distrib }}" == "jammy" ]]; then
           PACKAGE_DISTRIB_SEPARATOR="-"
           PACKAGE_DISTRIB_NAME="0ubuntu.22.04"
+        elif [[ "${{ inputs.distrib }}" == "noble" ]]; then
+          PACKAGE_DISTRIB_SEPARATOR="-"
+          PACKAGE_DISTRIB_NAME="0ubuntu.24.04"
         else
           echo "::error::Distrib ${{ inputs.distrib }} cannot be parsed"
           exit 1

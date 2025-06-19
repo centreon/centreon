@@ -23,11 +23,15 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+
 final class AddAgentConfigurationRequest
 {
     public string $name = '';
 
     public string $type = '';
+
+    public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
 
 	/** @var int[] */
 	public array $pollerIds = [];

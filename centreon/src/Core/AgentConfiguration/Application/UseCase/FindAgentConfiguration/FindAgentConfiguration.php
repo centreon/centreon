@@ -70,7 +70,15 @@ final class FindAgentConfiguration
 
             return new FindAgentConfigurationResponse($agentConfiguration, $pollers);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+            $this->error($ex->getMessage(), [
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
 
             return new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObject());
         }

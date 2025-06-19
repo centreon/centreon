@@ -59,7 +59,10 @@ final class DeleteAgentConfiguration
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to access poller/agent configurations",
-                    ['user_id' => $this->user->getId()]
+                    [
+                        'user_id' => $this->user->getId(),
+                        'ac_id' => $id,
+                    ],
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
@@ -98,11 +101,20 @@ final class DeleteAgentConfiguration
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_id' => $id,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->setResponseStatus(new ErrorResponse(
                 $ex instanceof AgentConfigurationException
-                    ? $ex
-                    : AgentConfigurationException::deleteAc()
+                    ? $ex : AgentConfigurationException::deleteAc()
             ));
         }
     }

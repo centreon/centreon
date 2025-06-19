@@ -13,9 +13,9 @@ import {
   QueryParameter,
   buildListingEndpoint
 } from '@centreon/ui';
-
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
+import { getFormattedResources } from '../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -113,7 +113,7 @@ export const getListingQueryParameters = ({
       return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
@@ -178,7 +178,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = resources.map((resource) => {
+  const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
@@ -189,12 +189,12 @@ export const buildCondensedViewEndpoint = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const searchConditions = formattedResources.map(
+  const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: resourceType,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }

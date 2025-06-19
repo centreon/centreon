@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\UpdateAgentConfigura
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
@@ -34,12 +33,14 @@ use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateA
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\Validator;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -55,7 +56,7 @@ beforeEach(function (): void {
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
     );
 
@@ -71,6 +72,7 @@ beforeEach(function (): void {
         'conf_certificate' => 'conf-certif',
         'conf_private_key' => 'conf-key',
     ];
+    $this->request->connectionMode = ConnectionModeEnum::SECURE;
 
     $this->poller = new Poller(1, 'poller-name');
 
@@ -78,6 +80,7 @@ beforeEach(function (): void {
         id: $this->agentConfigurationId = 1,
         name: $this->agentConfigurationName = 'ac-name',
         type: $this->agentConfigurationType = Type::TELEGRAF,
+        connectionMode: $this->agentConfigurationConnectionMode = ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 });

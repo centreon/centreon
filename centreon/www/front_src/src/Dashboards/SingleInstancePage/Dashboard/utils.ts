@@ -75,8 +75,12 @@ export const getResourcesUrlForMetricsWidgets = ({
       };
     }
 
+    const field = equals(resourceType, 'hostgroup')
+      ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+      : resourcesCriteriasMapping[resourceType];
+
     return {
-      name: resourcesCriteriasMapping[resourceType],
+      name: field,
       value: uniq(
         resources.map(({ name, id }) => ({
           id,

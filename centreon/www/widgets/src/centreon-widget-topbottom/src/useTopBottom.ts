@@ -20,6 +20,7 @@ import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
+import { WidgetResourceType } from '../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 interface UseTopBottomProps
   extends Pick<
@@ -77,7 +78,9 @@ const useTopBottom = ({
             limit: topBottomSettings.numberOfValues,
             search: {
               lists: resources.map((resource) => ({
-                field: resourceTypeQueryParameter[resource.resourceType],
+                field: equals(resource.resourceType, 'hostgroup')
+                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                : resourceTypeQueryParameter[resource.resourceType],
                 values: equals(resource.resourceType, 'service')
                   ? pluck('name', resource.resources)
                   : pluck('id', resource.resources)

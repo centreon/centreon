@@ -25,6 +25,7 @@ namespace Core\AgentConfiguration\Infrastructure\API\AddAgentConfiguration;
 
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationPresenterInterface;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationResponse;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
@@ -51,12 +52,19 @@ class AddAgentConfigurationPresenter extends AbstractPresenter implements AddAge
                         'name' => $response->name,
                         'type' => $response->type->value,
                         'configuration' => $response->configuration,
+                        'connection_mode' => $this->connectionModeToString($response->connectionMode),
                         'pollers' => array_map(fn(Poller $poller) => ['id' => $poller->id, 'name' => $poller->name], $response->pollers),
                     ]
                 )
             );
-
             // NOT setting location as required route does not currently exist
         }
+    }
+
+    private function ConnectionModeToString(ConnectionModeEnum $connectionMode): string {
+        return match ($connectionMode) {
+            ConnectionModeEnum::SECURE => 'secure',
+            ConnectionModeEnum::NO_TLS => 'no-tls',
+        };
     }
 }

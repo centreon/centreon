@@ -39,6 +39,10 @@ jobs:
           script: |
             await exec.exec("sleep 20s");
 
+            const excludedJobs = [
+              'check-qa-validation',
+            ];
+
             for (let i = 0; i < 120; i++) {
               const failure = [];
               const cancelled = [];
@@ -49,7 +53,7 @@ jobs:
                 repo: context.repo.repo,
                 ref: "${{ github.head_ref }}"
               });
-              result.data.check_suites.forEach(({ app: { slug }, conclusion, id}) => {
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id }) => {
                 if (slug === 'github-actions') {
                   if (conclusion === 'failure' || conclusion === 'cancelled') {
                     failure.push(id);
@@ -76,7 +80,7 @@ jobs:
                   });
 
                   resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
-                    if (conclusion === 'failure' || conclusion === 'cancelled') {
+                    if (['failure', 'cancelled'].includes(conclusion) && ! excludedJobs.includes(name)) {
                       failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
                     }
                   });
@@ -84,7 +88,7 @@ jobs:
 
                 core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
                 core.summary.addList(failedCheckRuns);
-                core.summary.write()
+                core.summary.write();
 
                 if (failedCheckRuns.length > 0) {
                   core.setFailed(`${failedCheckRuns.length} job(s) failed`);

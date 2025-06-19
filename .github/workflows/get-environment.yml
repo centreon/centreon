@@ -298,7 +298,7 @@ jobs:
       - name: Get version from ${{ inputs.version_file }}
         id: get_version
         run: |
-          if [[ "${{ inputs.version_file }}" == */.version ]]; then
+          if [[ "${{ inputs.version_file }}" == *.version.* ]]; then
             . .version
             . ${{ inputs.version_file }}
             VERSION="$MAJOR.$MINOR"

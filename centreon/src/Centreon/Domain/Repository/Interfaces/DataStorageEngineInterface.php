@@ -23,8 +23,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository\Interfaces;
 
+use Core\Common\Application\Repository\RepositoryManagerInterface;
+
 /**
  * This interface is designed to perform specific operations on the data storage engine.
+ *
+ * @deprecated instead use {@see RepositoryManagerInterface}
  */
 interface DataStorageEngineInterface
 {

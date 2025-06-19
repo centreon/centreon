@@ -30,23 +30,25 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       options,
       data,
       name
-    }) => ({
-      id: Number(i),
-      layout: {
-        height: h,
-        min_height: minH || 0,
-        min_width: minW || 0,
-        width: w,
-        x,
-        y
-      },
-      name: name || '',
-      widget_settings: {
-        data,
-        options
-      },
-      widget_type: panelConfiguration.path
-    })
+    }) => {
+      return {
+        id: Number(i),
+        layout: {
+          height: h,
+          min_height: minH || 0,
+          min_width: minW || 0,
+          width: w,
+          x,
+          y
+        },
+        name: name || '',
+        widget_settings: {
+          data,
+          options
+        },
+        widget_type: panelConfiguration.path
+      };
+    }
   );
 
 interface DataToFormDataProps {

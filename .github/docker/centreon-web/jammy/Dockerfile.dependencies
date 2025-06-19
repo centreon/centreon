@@ -114,6 +114,7 @@ RUN bash -e <<EOF
 apt-get update
 
 apt-get install -y \
+  centreon-common \
   centreon-gorgone \
   centreon-engine \
   centreon-broker-cbmod \
