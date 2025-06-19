@@ -15,10 +15,20 @@ paths = [
   '''composer\.lock''',
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
-  '''(.*?)(jpg|gif|doc|pdf|bin)$'''
+  '''centreon\/www\/include\/common\/javascript''',
+  '''(.*?)(jpg|gif|doc|pdf|bin)$''',
+  '''centreon/tests/e2e/results/logs''' # tests run results
 ]
 
 regexTarget = "match"
 regexes = [
-  '''ABCDEFG1234567890'''
+  '''ABCDEFG1234567890''', # test credential
+  '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''', #test token
+  '''R0MIlEL91Hhh2OJIGIS9y43TDFWCRX0r2aClU7sI''', # test token
+  '''6a174c20-f6de-a53c-74d2-6018fcceff64''', # test key
+  '''Ns4CuByx9MBIZhkO83mMaKYrceFJ21YNmGDw59K8''', # test key
+  '''gpg-pubkey-3fc49c1b-651d4c25''', # mock public ssh key
+  '''gpg-pubkey-8a7652bc-4cb6f1f6''', # mock public ssh key
+  '''AIDAQEAAAAAAAAAAAAAA''', # test credential
+  '''broker_instance-2''' # false postive
 ]
