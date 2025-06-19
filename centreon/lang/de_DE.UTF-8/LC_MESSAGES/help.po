@@ -1800,8 +1800,8 @@ msgstr ""
 "sollte auf dem Standardwert belassen werden (Standardwert: \"127.0.0.1\")."
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "IP address of the poller"
-msgstr "IP-Adresse des Pollers"
+msgid "Address of the poller"
+msgstr "Adresse des Pollers"
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
