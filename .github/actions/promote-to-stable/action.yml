@@ -127,7 +127,7 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
-        if [[ ${{ inputs.distrib }} == "ubuntu" ]]; then
+        if [[ ${{ inputs.distrib }} == "noble" ]]; then
           ROOT_REPO_PREFIX="ubuntu"
         else
           ROOT_REPO_PREFIX="apt"
