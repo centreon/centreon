@@ -22137,3 +22137,12 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
+
+# msgid "CMA authentication token(s)"
+# msgstr ""
+
+# msgid "Select existing CMA token(s)"
+# msgstr ""
+
+# msgid "Create new CMA token"
+# msgstr ""
