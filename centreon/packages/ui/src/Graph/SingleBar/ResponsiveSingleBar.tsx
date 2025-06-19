@@ -118,13 +118,13 @@ const ResponsiveSingleBar = ({
 
   const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
 
-  const realBarHeight = !isSmall
-    ? clamp(
+  const realBarHeight = isSmall
+    ? barHeights.small
+    : clamp(
         barHeights.small,
         barHeights.medium,
         height - textHeight - 2 * margins.top
-      )
-    : barHeights.small;
+      );
 
   return (
     <div
