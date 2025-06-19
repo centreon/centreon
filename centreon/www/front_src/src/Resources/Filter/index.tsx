@@ -581,6 +581,7 @@ const Filter = (): JSX.Element => {
                   fullWidth
                   EndAdornment={renderEndAdornmentFilter(clearFilters)}
                   disabled={isCriteriasPanelOpen}
+                  error={hasSimpleSearch ? true : undefined}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
                   placeholder={t(labelSearch) as string}
                   value={search}
@@ -591,7 +592,6 @@ const Filter = (): JSX.Element => {
                   }}
                   onFocus={(): void => setIsSearchFieldFocused(true)}
                   onKeyDown={inputKey}
-                  error={hasSimpleSearch ? true : undefined}
                 />
                 <Suspense
                   fallback={

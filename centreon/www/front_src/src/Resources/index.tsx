@@ -10,13 +10,14 @@ import {
   useMemoComponent
 } from '@centreon/ui';
 
-import { useNavigate } from 'react-router';
 import Details from './Details';
 import {
   clearSelectedResourceDerivedAtom,
   selectedResourcesDetailsAtom
 } from './Details/detailsAtoms';
 import { editPanelOpenAtom } from './Filter/filterAtoms';
+import useDetails from './Details/useDetails';
+import useFilter from './Filter/useFilter';
 
 const EditFiltersPanel = lazy(() => import('./Filter/Edit'));
 
@@ -62,18 +63,10 @@ const ResourcesPage = (): JSX.Element => {
 };
 
 const Resources = (): JSX.Element => {
-  const navigate = useNavigate();
+  useDetails();
+  useFilter();
 
-  useEffect(() => {
-    navigate('/main.php?p=20201', { replace: true });
-  }, []);
-
-  return <div />;
-
-  // useDetails();
-  // useFilter();
-  //
-  // return <ResourcesPage />;
+  return <ResourcesPage />;
 };
 
 export default Resources;
