@@ -1,5 +1,6 @@
 parameters:
     paths:
+        - ./src/App/ResourceConfiguration
         - ./src/App/Shared
 
     layers:

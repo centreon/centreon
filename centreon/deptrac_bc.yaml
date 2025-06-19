@@ -3,6 +3,11 @@ parameters:
         - ./src/App
 
     layers:
+        - name: ResourceConfiguration
+          collectors:
+              - type: directory
+                value: src/App/ResourceConfiguration/.*
+
         - name: Shared
           collectors:
               - type: directory
@@ -19,6 +24,7 @@ parameters:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
 
     ruleset:
+        ResourceConfiguration: [ Shared, Vendors ]
         Shared: [ Vendors ]
         LegacyKernel: [ Vendors ]
 
