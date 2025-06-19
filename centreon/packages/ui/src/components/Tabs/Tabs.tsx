@@ -31,11 +31,14 @@ export const Tabs = ({
 
   const [selectedTab, setSelectedTab] = useState(defaultTab);
 
-  const changeTab = useCallback((_, newValue: string): void => {
-    if (onChange) onChange(newValue);
+  const changeTab = useCallback(
+    (_, newValue: string): void => {
+      if (onChange) onChange(newValue);
 
-    setSelectedTab(newValue);
-  }, []);
+      setSelectedTab(newValue);
+    },
+    [onChange]
+  );
 
   const selectedTabStyle = ' font-bold text-primary-main';
   const defaultTabStyle = ' font-normal';

@@ -220,6 +220,12 @@ export const basicFormInputs: Array<InputProps> = [
     type: InputType.Radio
   },
   {
+    fieldName: 'div',
+    group: 'First group',
+    label: 'divider',
+    type: InputType.Divider
+  },
+  {
     additionalLabel: 'Notifications',
     fieldName: '',
     grid: {

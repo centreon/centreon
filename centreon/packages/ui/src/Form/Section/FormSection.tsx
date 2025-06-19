@@ -24,7 +24,7 @@ export const useNavigateToSection = () => {
 
 const FormSection = ({ groups }: FormSectionProps) => {
   if (isNil(groups) || groups.length < 4) {
-    return;
+    return null;
   }
 
   const navigateToSection = useNavigateToSection();

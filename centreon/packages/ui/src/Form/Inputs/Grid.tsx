@@ -44,7 +44,7 @@ const Grid = ({
             {field.additionalLabel && (
               <Typography
                 sx={{ marginBottom: 0.5, color: 'primary.main' }}
-                className={cx(field?.additionalLabelClassName)}
+                className={field?.additionalLabelClassName}
                 variant="h6"
               >
                 {field.additionalLabel}

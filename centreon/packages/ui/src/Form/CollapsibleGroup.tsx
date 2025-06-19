@@ -35,12 +35,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  groupTitleIcon: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row'
-  },
   tooltip: {
     maxWidth: theme.spacing(60)
   },
@@ -95,7 +89,9 @@ const CollapsibleGroup = ({
       {hasGroupTitle && (
         <ContainerComponent>
           <div
-            className={`${classes.groupTitleIcon} snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white`}
+            className={
+              'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white'
+            }
           >
             <Typography
               className="groupText scroll-m-12 snap-start"
