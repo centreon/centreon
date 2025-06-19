@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/php/App/bootstrap.php"
          cacheResultFile=".phpunit.new.cache/test-results"
          executionOrder="depends,defects"
          beStrictAboutOutputDuringTests="true"
@@ -12,14 +12,18 @@
          verbose="true">
 
     <testsuites>
-        <testsuite name="default">
-            <directory>tests/php/App</directory>
+        <testsuite name="resource_configuration">
+            <directory>tests/php/App/ResourceConfiguration</directory>
         </testsuite>
     </testsuites>
 
     <php>
+        <ini name="display_errors" value="1" />
+        <ini name="error_reporting" value="-1" />
+        <server name="APP_ENV" value="test" force="true" />
         <server name="KERNEL_CLASS" value="App\Shared\Infrastructure\Symfony\Kernel" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other" />
+	<server name="SHELL_VERBOSITY" value="-1" />
     </php>
 
     <listeners>

@@ -1,0 +1,11 @@
+framework:
+    messenger:
+        transports:
+            sync: 'sync://'
+
+        buses:
+            command.bus:
+                middleware:
+                    - validation
+
+        default_bus: command.bus

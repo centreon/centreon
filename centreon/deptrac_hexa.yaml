@@ -1,5 +1,6 @@
 parameters:
     paths:
+        - ./src/App/ResourceConfiguration
         - ./src/App/Shared
 
     layers:
@@ -21,6 +22,7 @@ parameters:
         - name: Vendors
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
+              - { type: classNameRegex, value: '#^Doctrine\\#' }
               - { type: classNameRegex, value: '#^Symfony\\(?!(Component\\Uid\\))#' }
               - { type: classNameRegex, value: '#^Webmozart\\(?!Assert\\Assert)#' }
 
@@ -29,9 +31,15 @@ parameters:
               - { type: classNameRegex, value: '#^Symfony\\Component\\Uid\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\Assert\\Assert#' }
 
-        - name: LegacyKernel
+        - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^Core\\#' }
+              - { type: classNameRegex, value: '#^EventSubscriber\\#' }
+              - { type: classNameRegex, value: '#^Security\\#' }
+              - { type: classNameRegex, value: '#^Utility\\#' }
 
     ruleset:
         Domain: [ Helpers ]
@@ -41,3 +49,7 @@ parameters:
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
             - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyContainer: 
+            - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper: 
+            - Security\TokenAPIAuthenticator

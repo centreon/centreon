@@ -20,14 +20,5 @@ declare(strict_types=1);
  * For more information : contact@centreon.com
  */
 
-return [
-    ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
-    DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
-    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-    Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
-    Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
-    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
-];
+require dirname(__DIR__, 3) . '/vendor/autoload.php';
+require dirname(__DIR__, 3) . '/config/bootstrap.php';

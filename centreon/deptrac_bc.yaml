@@ -3,6 +3,11 @@ parameters:
         - ./src/App
 
     layers:
+        - name: ResourceConfiguration
+          collectors:
+              - type: directory
+                value: src/App/ResourceConfiguration/.*
+
         - name: Shared
           collectors:
               - type: directory
@@ -11,17 +16,29 @@ parameters:
         - name: Vendors
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
+              - { type: classNameRegex, value: '#^Doctrine\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }
 
-        - name: LegacyKernel
+        - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^Core\\#' }
+              - { type: classNameRegex, value: '#^EventSubscriber\\#' }
+              - { type: classNameRegex, value: '#^Security\\#' }
+              - { type: classNameRegex, value: '#^Utility\\#' }
 
     ruleset:
+        ResourceConfiguration: [ Shared, Vendors ]
         Shared: [ Vendors ]
-        LegacyKernel: [ Vendors ]
+        Legacy: [ Vendors ]
 
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
             - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyContainer: 
+            - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper: 
+            - Security\TokenAPIAuthenticator

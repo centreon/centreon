@@ -20,14 +20,16 @@ declare(strict_types=1);
  * For more information : contact@centreon.com
  */
 
-namespace Tests\App;
+namespace App\ResourceConfiguration\Application\Command;
 
-use PHPUnit\Framework\TestCase;
+use App\ResourceConfiguration\Domain\Aggregate\ServiceCategoryName;
 
-final class TmpTest extends TestCase
+final readonly class CreateServiceCateogoryCommand
 {
-    public function testNothing(): void
-    {
-        static::assertTrue(true);
+    public function __construct(
+        public ServiceCategoryName $name,
+        public ServiceCategoryName $alias,
+        public bool $activated,
+    ) {
     }
 }

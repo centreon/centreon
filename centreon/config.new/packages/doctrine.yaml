@@ -1,5 +1,16 @@
 doctrine:
    dbal:
+       default_connection: default
        connections:
            default:
                use_savepoints: true
+               dbname: '%env(db)%'
+               user: '%env(user)%'
+               password: '%env(password)%'
+               host: '%env(hostCentreon)%'
+           realtime:
+               use_savepoints: true
+               dbname: '%env(dbcstg)%'
+               user: '%env(user)%'
+               password: '%env(password)%'
+               host: '%env(hostCentreon)%'

@@ -20,14 +20,15 @@ declare(strict_types=1);
  * For more information : contact@centreon.com
  */
 
-return [
-    ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
-    DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
-    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-    Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
-    Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
-    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
-];
+namespace App\ResourceConfiguration\Domain\Aggregate;
+
+use Webmozart\Assert\Assert;
+
+final readonly class ServiceCategoryId
+{
+    public function __construct(
+        public int $value,
+    ) {
+        Assert::positiveInteger($value);
+    }
+}

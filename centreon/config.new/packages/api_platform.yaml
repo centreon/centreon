@@ -2,7 +2,23 @@ api_platform:
     title: Centreon
     version: 25.10.0
     show_webby: false
+
+    name_converter: 'serializer.name_converter.camel_case_to_snake_case'
+
+    exception_to_status:
+        App\Shared\Domain\Exception\AggregateAlreadyExistException: 409
+
     defaults:
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin', 'X-Auth-Token']
+
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/App/ResourceConfiguration/Infrastructure/ApiPlatform/Resource/'
+
+    swagger:
+         api_keys:
+             apiKey:
+                name: X-Auth-Token
+                type: header

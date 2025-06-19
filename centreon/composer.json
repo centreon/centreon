@@ -60,6 +60,7 @@
     "symfony/http-kernel": "6.4.*",
     "symfony/lock": "6.4.*",
     "symfony/maker-bundle": "1.61.*",
+    "symfony/messenger": "6.4.*",
     "symfony/mime": "6.4.*",
     "symfony/monolog-bundle": "3.10.*",
     "symfony/options-resolver": "6.4.*",

@@ -50,15 +50,15 @@ services:
 
     security.provider.tokenapi:
         class: Security\TokenAPIAuthenticator
-        public: false
+        public: true
 
     security.provider.sessionapi:
         class: Security\SessionAPIAuthenticator
-        public: false
+        public: true
 
     security.provider.websso:
         class: Security\WebSSOAuthenticator
-        public: false
+        public: true
 
     Centreon\Domain\Entity\EntityValidator:
         class: Centreon\Domain\Entity\EntityValidator

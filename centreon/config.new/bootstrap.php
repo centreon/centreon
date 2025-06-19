@@ -9,7 +9,7 @@ declare(strict_types=1);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,22 +18,19 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
-require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
-require_once dirname(__DIR__).'/config.new/bootstrap.php';
 
-$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+use Symfony\Component\Dotenv\Dotenv;
 
-$matches = [];
-preg_match('#^(/[^/]+)/#', $uri, $matches);
+(new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
 
-$baseUri = $matches[1] ?? '/centreon';
+$constants = [];
+$conf_centreon = [];
 
-// Fake SCRIPT_NAME and PHP_SELF so Symfony thinks the script is under $baseUri
-$_SERVER['SCRIPT_NAME'] = $baseUri . '/index.php';
-$_SERVER['PHP_SELF'] = $baseUri . '/index.php';
+include_once dirname(__DIR__) . '/config/centreon.config.php';
 
-return function (array $context) {
-    return new \App\Shared\Infrastructure\Symfony\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
-};
+(new Dotenv())->populate($constants);
+(new Dotenv())->populate($conf_centreon);
+
+// TODO really need it?
+require_once dirname(__DIR__) . '/container.php';

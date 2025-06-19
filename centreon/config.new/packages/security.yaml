@@ -1,0 +1,37 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+
+    firewalls:
+        dev:
+            pattern: '/api/latest/_(profiler|wdt)'
+            security: false
+
+        api:
+            pattern: '/api/latest'
+            stateless: true
+            custom_authenticators:
+                - App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper
+            # TODO implement it
+            #     - security.provider.websso
+            #     - security.provider.sessionapi
+            entry_point: App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper
+
+    access_control:
+        - { path: '/api/latest$', roles: PUBLIC_ACCESS }         # Allows accessing the Swagger UI
+        - { path: '/api/latest/docs', roles: PUBLIC_ACCESS }     # Allows accessing the Swagger UI docs
+        - { path: '/api/latest/contexts', roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI contexts
+        - { path: '/api/latest/login', roles: PUBLIC_ACCESS }    # Allows accessing the login
+        - { path: '/', roles: IS_AUTHENTICATED_FULLY }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10
