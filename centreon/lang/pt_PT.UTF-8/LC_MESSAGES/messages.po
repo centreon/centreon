@@ -4032,6 +4032,7 @@ msgstr ""
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/home/customViews/index.php
 msgid "Dashboards"
 msgstr ""
 
@@ -17352,10 +17353,11 @@ msgid "Use basic authentication for token endpoint authentication"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated monitoring pages"
+msgid "Use deprecated custom views"
 msgstr ""
 
-msgid "Use deprecated custom views"
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+msgid "Use deprecated monitoring pages"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
@@ -18939,6 +18941,7 @@ msgstr ""
 msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 
+#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Services/service.php
