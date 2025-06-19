@@ -58,12 +58,7 @@ if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
 
-  SAML_IP_ADDRESS=$(getent hosts "${SAML_HOST}" | awk '{print $1;}') || {
-    echo "Failed to resolve ${SAML_HOST} hostname"
-    exit 1
-  }
-
-  SAML_BASE_URL="http://${SAML_IP_ADDRESS}:8080"
+  SAML_BASE_URL="http://localhost:8080"
 
   curl -X PUT \
       --fail-with-body \
