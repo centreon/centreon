@@ -201,7 +201,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -226,7 +226,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -251,7 +251,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
@@ -276,7 +276,7 @@ interface QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): self;
 
     /**
