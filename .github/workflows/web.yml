@@ -93,6 +93,7 @@ jobs:
               - 'centreon/features/**'
               - 'centreon/src/**'
               - 'centreon/config/**'
+              - 'centreon/config.new/**'
               - 'centreon/composer.*'
               - 'centreon/www/!(front_src)/**'
               - 'centreon/doc/API/**'
