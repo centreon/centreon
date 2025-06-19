@@ -170,6 +170,7 @@ const SelectInput = ({
         onDelete
       }}
       className={classes.input}
+      exclusionOptionProperty="name"
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
@@ -180,7 +181,6 @@ const SelectInput = ({
       search={dataByFilterName?.autocompleteSearch}
       value={value}
       onChange={handleChange}
-      exclusionOptionProperty="name"
     />
   );
 };

@@ -88,11 +88,12 @@ const InputGroup = ({
 
   return (
     <MultiConnectedAutocompleteField
-    disableSortedOptions
+      disableSortedOptions
       chipProps={{
         onDelete
       }}
       className={classes.input}
+      exclusionOptionProperty="name"
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
@@ -102,7 +103,6 @@ const InputGroup = ({
       search={dataByFilterName?.autocompleteSearch}
       value={value}
       onChange={handleChange}
-      exclusionOptionProperty="name"
     />
   );
 };
