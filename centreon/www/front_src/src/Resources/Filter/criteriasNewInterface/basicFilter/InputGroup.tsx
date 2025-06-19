@@ -88,7 +88,7 @@ const InputGroup = ({
 
   return (
     <MultiConnectedAutocompleteField
-    disableSortedOptions
+      disableSortedOptions
       chipProps={{
         onDelete
       }}
