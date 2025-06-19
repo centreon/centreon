@@ -36,8 +36,8 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
-  labelSearch
-  labelSelectExistingCMATokenExistingCMAToken,
+  labelSearch,
+  labelSelectExistingCMAToken,
   labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
