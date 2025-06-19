@@ -26,25 +26,10 @@ namespace Core\Module\Domain\Model;
 final readonly class ModuleInformation
 {
     public function __construct(
-        private string $packageName,
-        private string $displayName,
-        private string $version,
+        public string $packageName,
+        public string $displayName,
+        public string $version,
     ) {
-    }
-
-    public function getPackageName(): string
-    {
-        return $this->packageName;
-    }
-
-    public function getDisplayName(): string
-    {
-        return $this->displayName;
-    }
-
-    public function getVersion(): string
-    {
-        return $this->version;
     }
 }
 

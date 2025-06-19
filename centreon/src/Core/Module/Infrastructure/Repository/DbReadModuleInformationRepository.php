@@ -61,7 +61,7 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
             /** @var _ModuleInformation|false $result */
             $result = $this->connection->fetchAssociative($query, $queryParameters);
 
-            if ($result === [] || $result === false) {
+            if (! $result) {
                 return null;
             }
 

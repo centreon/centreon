@@ -57,7 +57,7 @@ final readonly class ModuleInstallationVerifier
             return $module_conf[$moduleName]['mod_release'];
         };
 
-        return version_compare($getConfigFileVersion(), $moduleInformation->getVersion(), '=');
+        return version_compare($getConfigFileVersion(), $moduleInformation->version, '=');
     }
 }
 
