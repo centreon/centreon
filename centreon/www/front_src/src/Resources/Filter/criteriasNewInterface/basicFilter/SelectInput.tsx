@@ -180,6 +180,7 @@ const SelectInput = ({
       search={dataByFilterName?.autocompleteSearch}
       value={value}
       onChange={handleChange}
+      exclusionOptionProperty="name"
     />
   );
 };
