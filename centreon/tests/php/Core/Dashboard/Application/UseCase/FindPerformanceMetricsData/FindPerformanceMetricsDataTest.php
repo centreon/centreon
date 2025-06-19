@@ -227,7 +227,6 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
                     'base' => 1000,
                     'title' => 'Ping graph on myHost',
                     'host_name' => 'myHost',
-                    'host_name' => 'myHost',
                     'service_description' => 'Ping',
                 ],
                 'metrics' => [
