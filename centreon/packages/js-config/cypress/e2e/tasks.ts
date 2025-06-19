@@ -271,32 +271,11 @@ export default (on: Cypress.PluginEvents): void => {
     getExportedFile({ downloadsFolder }: { downloadsFolder: string }): string {
       const files = fs
         .readdirSync(downloadsFolder)
-        .filter((name) => name.startsWith("ResourceStatusExport_all"))
-        .map((name) => {
-          const match = name.match(
-            /ResourceStatusExport_all_(\d+)-(\d+)-(\d+)--(\d+)-(\d+)-(AM|PM)/
-          );
-          if (!match) return null;
-
-          const [, month, day, year, hourStr, minuteStr, period] = match;
-          let hour = parseInt(hourStr, 10);
-          const minute = parseInt(minuteStr, 10);
-
-          if (period === "PM" && hour < 12) hour += 12;
-          if (period === "AM" && hour === 12) hour = 0;
-
-          const date = new Date(
-            `20${year}-${month}-${day}T${String(hour).padStart(2, "0")}:${String(
-              minute
-            ).padStart(2, "0")}:00`
-          );
-
-          return {
-            name,
-            time: date.getTime(),
-          };
-        })
-        .filter((item): item is { name: string; time: number } => item !== null)
+        .filter((name) => name.startsWith("ResourceStatusExport_all") && name.endsWith(".csv"))
+        .map((name) => ({
+          name,
+          time: fs.statSync(path.join(downloadsFolder, name)).mtime.getTime()
+        }))
         .sort((a, b) => b.time - a.time);
 
       if (files.length === 0) {

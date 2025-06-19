@@ -36,7 +36,8 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
-  labelSearch,
+  labelSearch
+  labelSelectExistingCMATokenExistingCMAToken,
   labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
@@ -541,6 +542,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
+
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -548,7 +550,12 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).type('/certificate/test.crt');
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('privateKey.key');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -557,6 +564,7 @@ describe('Agent configurations modal', () => {
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
+          tokens: [{ name: 'token 1', creator_id: 1 }],
           is_reverse: false,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/certificate/test.crt',
@@ -651,7 +659,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -660,6 +671,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
+          tokens: [],
           is_reverse: true,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/test.cer',
@@ -782,10 +794,11 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
 
     cy.makeSnapshot();
 
-    cy.contains(labelSave).click();
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -795,6 +808,7 @@ describe('Agent configurations modal', () => {
         poller_ids: [1],
         configuration: {
           is_reverse: true,
+          tokens: [],
           otel_ca_certificate: null,
           otel_public_certificate: null,
           otel_private_key: null,

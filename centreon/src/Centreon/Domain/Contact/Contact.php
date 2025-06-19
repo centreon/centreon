@@ -230,6 +230,8 @@ class Contact implements UserInterface, ContactInterface
      */
     private $useDeprecatedPages;
 
+    private bool $useDeprecatedCustomViews;
+
     /**
      * @var string|null
      */
@@ -762,6 +764,18 @@ class Contact implements UserInterface, ContactInterface
     public function setUseDeprecatedPages(bool $useDeprecatedPages): static
     {
         $this->useDeprecatedPages = $useDeprecatedPages;
+
+        return $this;
+    }
+
+    public function isUsingDeprecatedCustomViews(): bool
+    {
+        return $this->useDeprecatedCustomViews;
+    }
+
+    public function setUseDeprecatedCustomViews(bool $useDeprecatedCustomViews): static
+    {
+        $this->useDeprecatedCustomViews = $useDeprecatedCustomViews;
 
         return $this;
     }

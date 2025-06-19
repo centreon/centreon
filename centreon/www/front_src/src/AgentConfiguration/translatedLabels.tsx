@@ -80,3 +80,7 @@ export const labelInsecure = 'Insecure TLS';
 
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
+
+export const labelCMAauthenticationToken = 'CMA authentication token(s)';
+export const labelSelectExistingCMAToken = 'Select existing CMA token(s)';
+export const labelCreateNewCMAToken = 'Create new CMA token';
