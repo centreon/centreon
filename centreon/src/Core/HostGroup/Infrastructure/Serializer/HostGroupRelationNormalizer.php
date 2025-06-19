@@ -25,13 +25,15 @@ namespace Core\HostGroup\Infrastructure\Serializer;
 
 use Core\Common\Domain\SimpleEntity;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class HostGroupRelationNormalizer implements NormalizerInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
+    ) {
     }
 
     /**
@@ -83,10 +85,23 @@ class HostGroupRelationNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof HostGroupRelation;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            HostGroupRelation::class => true,
+        ];
     }
 }

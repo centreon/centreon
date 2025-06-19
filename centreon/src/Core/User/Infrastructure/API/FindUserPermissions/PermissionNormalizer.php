@@ -24,14 +24,16 @@ declare(strict_types = 1);
 namespace Core\User\Infrastructure\API\FindUserPermissions;
 
 use Core\User\Domain\Model\Permission;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final readonly class PermissionNormalizer implements NormalizerInterface
 {
-    public function __construct(private ObjectNormalizer $normalizer)
-    {
+    public function __construct(
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
+    ) {
     }
 
     /**
@@ -40,14 +42,13 @@ final readonly class PermissionNormalizer implements NormalizerInterface
      * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
-     * @return array<string, bool>
+     * @return array<string, mixed>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): array
-    {
+    ): array {
         $data = $this->normalizer->normalize($object, $format, $context);
         if (! isset($data['name'], $data['is_active'])) {
             throw new \InvalidArgumentException('Normalized data missing, required fields: name, is_active');
@@ -56,8 +57,24 @@ final readonly class PermissionNormalizer implements NormalizerInterface
         return [$data['name'] => $data['is_active']];
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Permission;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Permission::class => true,
+        ];
     }
 }

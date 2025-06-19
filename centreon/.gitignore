@@ -20,6 +20,7 @@ www/include/core/menu/templates/*.tpl
 junit.xml
 .nyc_output
 coverage/
+**/v8-compile-cache-0
 
 #sample files
 !www/img/media/.keep
