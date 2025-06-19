@@ -34,7 +34,9 @@
  *
  */
 
-use Core\ActionLog\Domain\Model\ActionLog;
+ use Adaptation\Database\Connection\Collection\QueryParameters;
+ use Adaptation\Database\Connection\ValueObject\QueryParameter;
+ use Core\ActionLog\Domain\Model\ActionLog;
 
 if (!isset($centreon)) {
     exit();
@@ -3288,7 +3290,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
         : $rq .= "NULL ";
 
-    if (! $isCloudPlatform) { 
+    if (! $isCloudPlatform) {
         $rq .= ", esi_icon_image_alt = ";
         isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
             ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
@@ -3507,20 +3509,35 @@ function findHostsOfService(int $serviceId): array
  */
 function checkServiceTemplateHasCommand(array $fields): array|bool
 {
-    global $pearDB;
-    $errors = [];
-    if (isset($fields['service_template_model_stm_id']) && empty($fields['command_command_id'])) {
-        $serviceTemplateId = $fields['service_template_model_stm_id'];
-        $statement = $pearDB->prepare('SELECT command_command_id FROM service WHERE service_id = :service_id');
-        $statement->bindValue(':service_id', $serviceTemplateId, \PDO::PARAM_INT);
-        $statement->execute();
-        $serviceTemplateCommand = $statement->fetchColumn();
-        if ((bool) $serviceTemplateCommand === false) {
-            $errors['command_command_id'] = _('The selected inherited service template does not contain any '
-                . 'check command. You must select one here.'
-            );
-        }
+    $errors['command_command_id'] = _(
+        "The selected inherited service template does not contain any check command. You must select one here."
+    );
+    if (! empty($fields["command_command_id"])) {
+        return true;
     }
 
-    return $errors !== [] ? $errors : true;
+    if (! isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        return $errors;
+    }
+
+    return isCheckCommandDefined($fields["service_template_model_stm_id"]) ? true : $errors;
+}
+
+function isCheckCommandDefined(int $serviceId): bool
+{
+    global $pearDB;
+    $query = $pearDB->prepare(
+        "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id"
+    );
+    $query->bindValue(':stm_id', $serviceId, \PDO::PARAM_INT);
+    $query->execute();
+    $result = $query->fetch(\PDO::FETCH_ASSOC);
+
+    if ($result['command_command_id'] !== null) {
+        return true;
+    } elseif ($result['command_command_id'] === null && $result['service_template_model_stm_id'] !== null) {
+        return isCheckCommandDefined($result['service_template_model_stm_id']);
+    }
+
+    return false;
 }
