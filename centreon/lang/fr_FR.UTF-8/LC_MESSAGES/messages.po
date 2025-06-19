@@ -17139,8 +17139,12 @@ msgstr ""
 "d'entrée de jeton"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
-msgstr "Utiliser les pages dépréciées"
+msgid "Use deprecated monitoring pages"
+msgstr "Utiliser les pages dépréciées de supervision"
+
+msgid "Use deprecated custom views"
+msgstr "Utiliser les vues personalisées dépréciées"
+
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"

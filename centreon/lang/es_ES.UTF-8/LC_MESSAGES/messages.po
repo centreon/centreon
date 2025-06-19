@@ -18534,7 +18534,10 @@ msgid "Use basic authentication for token endpoint authentication"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
+msgid "Use deprecated monitoring pages"
+msgstr ""
+
+msgid "Use deprecated custom views"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php

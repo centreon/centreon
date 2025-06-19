@@ -27,6 +27,58 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
+/**
+ * Add column `show_deprecated_custom_views` to contact table.
+ */
+$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
+    if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
+        $pearDB->executeQuery(
+            <<<SQL
+            ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
+            SQL
+        );
+    }
+};
+
+/**
+ * Switch Topology Order between Dashboards and Custom Views.
+ */
+$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to update topology of Custom Views';
+    $pearDB->executeQuery(
+        <<<SQL
+        UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
+        SQL
+    );
+    $errorMessage = 'Unable to update topology of Dashboards';
+    $pearDB->executeQuery(
+        <<<SQL
+        UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
+        SQL
+    );
+};
+
+/**
+ * Set Show Deprecated Custom Views to true by default is there is existing custom views.
+ */
+$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB) {
+    $errorMessage = 'Unable to retrieve custom views';
+    $statement = $pearDB->executeQuery(
+        <<<SQL
+        SELECT 1 FROM custom_views
+        SQL
+    );
+
+    if (! empty($statement->fetchAll())) {
+        $pearDB->executeQuery(
+            <<<SQL
+            UPDATE contact SET show_deprecated_custom_views = '1'
+            SQL
+        );
+    }
+};
+
 $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update cfg_nagios table';
 
@@ -41,12 +93,23 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
     );
 };
 
+
 try {
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
+    
+
+    // DDL statements for configuration database
+    // TODO add your function calls to update the configuration database structure here
+    $addDeprecateCustomViewsToContact();
+
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    $updateDashboardAndCustomViewsTopology();
+    $updateContactsShowDeprecatedCustomViews();
     $updateCfgParameters();
 
     $pearDB->commit();
