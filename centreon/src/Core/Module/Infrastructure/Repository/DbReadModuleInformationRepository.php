@@ -41,7 +41,7 @@ use Core\Module\Domain\Model\ModuleInformation;
  *     mod_release: string,
  * }
  */
-class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
+final class DbReadModuleInformationRepository extends DatabaseRepository implements ModuleInformationRepositoryInterface
 {
     use LoggerTrait;
 
@@ -58,6 +58,7 @@ class DbReadModuleInformationRepository extends DatabaseRepository implements Mo
                 ->getQuery();
 
             $queryParameters = QueryParameters::create([QueryParameter::string('name', $name)]);
+            /** @var _ModuleInformation|false $result */
             $result = $this->connection->fetchAssociative($query, $queryParameters);
 
             if ($result === [] || $result === false) {

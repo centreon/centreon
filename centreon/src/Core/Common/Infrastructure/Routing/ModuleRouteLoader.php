@@ -56,7 +56,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
         $controllerFilePattern = $this->projectDir . '/src/' . $this->getModuleDirectory() . '/**/*Controller.php';
         $routeCollections = $this->loader->import($controllerFilePattern, 'attribute');
-        if (! is_array($routeCollections)) {
+        if (! is_iterable($routeCollections)) {
             return $routes;
         }
         foreach ($routeCollections as $routeCollection) {
