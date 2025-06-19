@@ -123,7 +123,7 @@ runs:
         for file in $FILES; do
           # build a search pattern using ARTIFACT_BASENAME+OS_DISTRIB+ARCH
 
-          VERSION=${{ inputs.major_version }}
+          VERSION=${{ inputs.version }}
           BASENAME=$(echo "$file" | cut -d '_' -f 1)
           OS_DISTRIB=$(echo "$file" | sed -n 's/.*+\(deb[0-9]\+\).*/\1/p')
           ARCH=$(echo $file | cut -d '_' -f3 | cut -d '.' -f1)
