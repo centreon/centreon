@@ -22,6 +22,7 @@ export const useHostConfigurationsStyle = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.paper
   },
   hostConfigurations: {
+    paddingTop: theme.spacing(0.75),
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1.5),

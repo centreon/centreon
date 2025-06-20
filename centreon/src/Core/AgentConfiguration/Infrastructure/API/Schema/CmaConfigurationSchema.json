@@ -39,16 +39,37 @@
                         "string"
                     ]
                 },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "creator_id"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "creator_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
                 "hosts": {
                     "type": "array",
                     "items": {
                         "required": [
                             "address",
+                            "id",
                             "port",
                             "poller_ca_certificate",
                             "poller_ca_name"
                         ],
                         "properties": {
+                            "id": {
+                                "type": ["integer"]
+                            },
                             "address": {
                                 "type": "string"
                             },

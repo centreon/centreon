@@ -21,9 +21,12 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\Common\Domain\Exception;
+
 use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use LogicException;
 
 it('test with a basic context from a repository exception', function () {
     try {
@@ -48,7 +51,7 @@ it('test with a basic context from a repository exception', function () {
                         'line' => $exception->getLine(),
                         'code' => 1,
                         'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                        'method' => '{closure}',
+                        'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
                         'previous' => [
                             'type' => LogicException::class,
                             'message' => 'logic_message',
@@ -56,7 +59,8 @@ it('test with a basic context from a repository exception', function () {
                             'line' => $exception->getPrevious()->getLine(),
                             'code' => 100,
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                            'method' => '{closure}',
+                            'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
+                            'previous' => null,
                         ],
                         'context' => [
                             'name' => 'John',
@@ -92,7 +96,7 @@ it('test with a business context from a repository exception', function () {
                         'line' => $exception->getLine(),
                         'code' => 1,
                         'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                        'method' => '{closure}',
+                        'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
                         'previous' => [
                             'type' => CollectionException::class,
                             'message' => 'collection_message',
@@ -100,7 +104,7 @@ it('test with a business context from a repository exception', function () {
                             'line' => $exception->getPrevious()->getLine(),
                             'code' => 0,
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                            'method' => '{closure}',
+                            'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
                             'previous' => null,
                         ],
                         'context' => [
@@ -149,7 +153,7 @@ it('test with a business context with previous from a repository exception', fun
                         'line' => $exception->getLine(),
                         'code' => 1,
                         'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                        'method' => '{closure}',
+                        'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
                         'previous' => [
                             'type' => CollectionException::class,
                             'message' => 'collection_message',
@@ -157,7 +161,7 @@ it('test with a business context with previous from a repository exception', fun
                             'line' => $exception->getPrevious()->getLine(),
                             'code' => 0,
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                            'method' => '{closure}',
+                            'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
                             'previous' => [
                                 'type' => LogicException::class,
                                 'message' => 'logic_message',
@@ -165,7 +169,8 @@ it('test with a business context with previous from a repository exception', fun
                                 'line' => $exception->getPrevious()->getPrevious()->getLine(),
                                 'code' => 100,
                                 'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
-                                'method' => '{closure}',
+                                'method' => 'Tests\Core\Common\Domain\Exception\{closure}',
+                                'previous' => null,
                             ],
                         ],
                         'context' => [

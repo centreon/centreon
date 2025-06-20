@@ -24,22 +24,43 @@ declare(strict_types = 1);
 namespace Core\Security\Token\Infrastructure\API\FindTokens;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
+use Core\Security\Token\Infrastructure\Voters\TokenVoters;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    TokenVoters::TOKEN_LIST,
+    null,
+    'You are not allowed to list the tokens',
+    Response::HTTP_FORBIDDEN
+)]
 final class FindTokensController extends AbstractController
 {
     /**
      * @param FindTokens $useCase
-     * @param FindTokensPresenter $presenter
+     * @param StandardPresenter $presenter
      *
      * @return Response
      */
-    public function __invoke(FindTokens $useCase, FindTokensPresenter $presenter): Response
+    public function __invoke(FindTokens $useCase, StandardPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        $useCase($presenter);
+        $response = $useCase();
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString(
+            $presenter->present(
+                $response,
+                [
+                    'groups' => ['Token:List'],
+                ]
+            ),
+            Response::HTTP_OK
+        );
     }
 }

@@ -368,7 +368,7 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(formData);
+      expect(request.body).to.deep.equal(formData);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -401,7 +401,7 @@ describe('Create modal', () => {
 
     cy.findByLabelText(labelSave).click();
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(allResourcesFormData);
+      expect(request.body).to.deep.equal(allResourcesFormData);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -438,7 +438,7 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllHostGroups);
+      expect(request.body).to.deep.equal(formDataWithAllHostGroups);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -483,7 +483,7 @@ describe('Create modal', () => {
 
     cy.findByLabelText(labelSave).click();
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(formDataWithBusinessViews);
+      expect(request.body).to.deep.equal(formDataWithBusinessViews);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -512,7 +512,7 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllContacts);
+      expect(request.body).to.deep.equal(formDataWithAllContacts);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -544,9 +544,7 @@ describe('Create modal', () => {
 
     cy.findByLabelText(labelSave).click();
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(
-        formDataWithAllBusinessViews
-      );
+      expect(request.body).to.deep.equal(formDataWithAllBusinessViews);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -575,9 +573,7 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(
-        formDataWithAllContactGroups
-      );
+      expect(request.body).to.deep.equal(formDataWithAllContactGroups);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');

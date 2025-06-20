@@ -21,22 +21,24 @@
 
 declare(strict_types=1);
 
+use Core\Common\Domain\Exception\BusinessLogicException;
+
 /**
  * Class CentreonDbException
  *
  * @class CentreonDbException
  */
-class CentreonDbException extends ExceptionAbstract
+class CentreonDbException extends BusinessLogicException
 {
 
     /**
      * @param string $message
-     * @param array $options
+     * @param array $context
      * @param Throwable|null $previous
      */
-    public function __construct(string $message, array $options = [], ?Throwable $previous = null)
+    public function __construct(string $message, array $context = [], ?Throwable $previous = null)
     {
-        parent::__construct($message, self::DATABASE_ERROR_CODE, $options, $previous);
+        parent::__construct($message, self::ERROR_CODE_REPOSITORY, $context, $previous);
     }
 
 }

@@ -42,17 +42,47 @@ if (!isset($centreon)) {
     exit();
 }
 
-$cG = $_GET["contact_id"] ?? null;
-$cP = $_POST["contact_id"] ?? null;
+$cG = array_key_exists("contact_id", $_GET) && $_GET["contact_id"] !== null
+    ? HtmlSanitizer::createFromString($_GET["contact_id"])->sanitize()->getString()
+    : null;
+$cP = array_key_exists("contact_id", $_POST) && $_POST["contact_id"] !== null
+    ? HtmlSanitizer::createFromString($_POST["contact_id"])->sanitize()->getString()
+    : null;
 $contact_id = $cG ?: $cP;
-
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = array_key_exists("select", $_GET) && $_GET["select"] !== null
+    ? validateInput($_GET["select"])
+    : null;
+$cP = array_key_exists("select", $_POST) && $_POST["select"] !== null
+    ? validateInput($_POST["select"])
+    : null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = array_key_exists("dupNbr", $_GET) && $_GET["dupNbr"] !== null
+    ? validateInput($_GET["dupNbr"])
+    : null;
+$cP = array_key_exists("dupNbr", $_POST) && $_POST["dupNbr"] !== null
+    ? validateInput($_POST["dupNbr"])
+    : null;
 $dupNbr = $cG ?: $cP;
+
+function validateInput(array|string $inputs): array
+{
+    if (is_string($inputs)) {
+        $inputs = explode(',', trim($inputs, ','));
+    }
+    foreach($inputs as $contactTemplateId => $value) {
+        if(
+            filter_var($contactTemplateId, FILTER_VALIDATE_INT) !== false
+            && filter_var($value, FILTER_VALIDATE_INT) !== false
+        ) {
+            continue;
+        } else {
+            throw new \Exception('Invalid value supplied');
+        }
+    }
+
+    return $inputs;
+}
 
 /*
  * Path to the configuration dir
