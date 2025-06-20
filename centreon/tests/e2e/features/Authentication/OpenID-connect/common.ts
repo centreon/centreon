@@ -13,9 +13,9 @@ interface OidcConfigValues {
   tokenEndpoint: string;
 }
 
-const getOidcConfigValues = ({ providerAddress }): OidcConfigValues => ({
+const getOidcConfigValues = ({ providerAddress = 'localhost', providerPort = 8080 }): OidcConfigValues => ({
   authEndpoint: '/auth',
-  baseUrl: `http://${providerAddress}:8080/realms/Centreon_SSO/protocol/openid-connect`,
+  baseUrl: `http://${providerAddress}:${providerPort}/realms/Centreon_SSO/protocol/openid-connect`,
   clientID: 'centreon-oidc-frontend',
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
@@ -51,7 +51,8 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
 
   return cy.getContainerIpAddress('openid').then((containerIpAddress) => {
     const oidcConfigValues = getOidcConfigValues({
-      providerAddress: containerIpAddress
+      providerAddress: containerIpAddress,
+      providerPort: 8080
     });
 
     // Identity provider section
@@ -93,8 +94,23 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   });
 };
 
+const saveOpenIdFormIfEnabled = () => {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(":disabled")) {
+      return;
+    } else {
+      cy.wrap($btn).click();
+
+      return cy.wait('@updateOIDCProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    }
+  });
+};
+
 export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect
+  configureOpenIDConnect,
+  saveOpenIdFormIfEnabled
 };
