@@ -28,3 +28,7 @@ export const labelRequired = 'Required';
 export const labelInvalidCoordinateFormat = 'Invalid geo-coordinate format';
 
 export const labelIcon = 'Icon';
+
+export const labelWelcomeToHostGroups = 'Welcome to the host groups page';
+
+export const labelAddHostGroup = 'Add host group';
