@@ -110,12 +110,21 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
+<<<<<<< HEAD
         $tokens = $this->readTokenRepository->findByNames(
             array_map(
                 static fn(array $token): string => $token['name'],
                 $data['tokens'] ?? []
             )
         );
+=======
+        $tokens = $data['tokens'] !== []
+            ? $this->readTokenRepository->findByNames(array_map(
+                    static fn(array $token): string => $token['name'],
+                    $data['tokens']
+            ))
+            : [];
+>>>>>>> 2b2340ba1e (enh(PAC) handle cma tokens in Agent configuration for reverse connection (#7533))
 
         $tokens = array_filter(
             $tokens,
@@ -143,6 +152,24 @@ class AgentConfiguration extends AbstractObjectJSON
             $hostIds = array_map(static fn(array $host): int => $host['id'], $data['hosts']);
             $hosts = $this->readHostRepository->findByIds($hostIds);
 
+            $tokenNames = array_filter(
+                array_map(
+                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name']: null,
+                    $data['hosts']
+                )
+            );
+            $tokens = $tokenNames !== []
+                ? $this->readTokenRepository->findByNames($tokenNames)
+                : [];
+
+            $tokens = array_filter(
+                $tokens,
+                static fn(Token $token): bool =>  !(
+                    $token->isRevoked()
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new \DateTimeImmutable())
+                )
+            );
+
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
@@ -152,6 +179,12 @@ class AgentConfiguration extends AbstractObjectJSON
                         ? $host['poller_ca_certificate']
                         : '',
                     'ca_name' => $host['poller_ca_name'],
+                    'token' => isset($tokens[$host['token']['name']])
+                        ? [
+                            'token' => $tokens[$host['token']['name']]->getToken(),
+                            'encoding_key' => $tokens[$host['token']['name']]->getEncodingKey(),
+                        ]
+                        : null,
                 ],
                 array_filter(
                     $data['hosts'],
