@@ -10,7 +10,7 @@ export interface FormSectionProps extends TabsProps {
 }
 
 export const useNavigateToSection = () => {
-    return (sectionName) => {
+    return (sectionName: string) => {
         const section = document.querySelector(
             `[data-section-group-form-id="${sectionName}"]`
         );

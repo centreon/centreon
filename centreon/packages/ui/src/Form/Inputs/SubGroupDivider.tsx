@@ -1,7 +1,7 @@
 import Divider from '@mui/material/Divider';
 
 const SubgroupDivider = () => {
-  return <Divider sx={{ borderStyle: 'dashed' }} />;
+    return <Divider className="border-dashed" />;
 };
 
 export { SubgroupDivider };

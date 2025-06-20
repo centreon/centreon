@@ -5,7 +5,6 @@ export const useTabsStyles = makeStyles()((theme) => ({
     bottom: 'unset'
   },
   tab: {
-    '&[aria-selected="true"]': {},
     marginRight: theme.spacing(2),
     minHeight: 0,
     minWidth: 0,
