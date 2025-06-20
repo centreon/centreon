@@ -102,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el8, el9, bookworm, noble]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -113,6 +113,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-noble
+            distrib: noble
 
     runs-on: ubuntu-24.04
 
