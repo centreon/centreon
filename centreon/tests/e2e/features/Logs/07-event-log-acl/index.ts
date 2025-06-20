@@ -38,7 +38,7 @@ const resultsToSubmit = [
 ];
 
 beforeEach(() => {
-  // cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
@@ -88,13 +88,13 @@ Then("the admin user should see all event logs", () => {
 });
 
 When("the admin creates an access group for the restricted user", () => {
-  // cy.setUserTokenApiV1();
-  // cy.addContact({
-  //   admin: restrictedUser.admin,
-  //   email: restrictedUser.email,
-  //   name: restrictedUser.login,
-  //   password: restrictedUser.password,
-  // });
+  cy.setUserTokenApiV1();
+  cy.addContact({
+    admin: restrictedUser.admin,
+    email: restrictedUser.email,
+    name: restrictedUser.login,
+    password: restrictedUser.password,
+  });
   cy.navigateTo({
     page: "Access Groups",
     rootItemNumber: 4,
@@ -229,53 +229,53 @@ Then(
 );
 
 When("the admin creates host resources", () => {
-  // cy.setUserTokenApiV1();
-  // cy.addHost({
-  //   hostGroup: "Linux-Servers",
-  //   name: services.serviceOk.host,
-  //   template: "generic-host",
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template,
-  //   })
-  // cy.addHost({
-  //   hostGroup: "Linux-Servers",
-  //   name: services.serviceWarning.host,
-  //   template: "generic-host",
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceWarning.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceWarning.name,
-  //     template: services.serviceWarning.template,
-  //   })
-  // cy.addHost({
-  //   hostGroup: "Linux-Servers",
-  //   name: services.serviceCritical.host,
-  //   template: "generic-host",
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template,
-  //   })
-  //   .applyPollerConfiguration();
-  // checkHostsAreMonitored([{ name: services.serviceOk.host },
-  //                         { name: services.serviceCritical.host },
-  //                         { name: services.serviceWarning.host }]);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name },
-  //   { name: services.serviceOk.name },
-  //   { name: services.serviceWarning.name },
-  // ]);
-  // cy.submitResults(resultsToSubmit);
+  cy.setUserTokenApiV1();
+  cy.addHost({
+    hostGroup: "Linux-Servers",
+    name: services.serviceOk.host,
+    template: "generic-host",
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template,
+    })
+  cy.addHost({
+    hostGroup: "Linux-Servers",
+    name: services.serviceWarning.host,
+    template: "generic-host",
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceWarning.host,
+      maxCheckAttempts: 1,
+      name: services.serviceWarning.name,
+      template: services.serviceWarning.template,
+    })
+  cy.addHost({
+    hostGroup: "Linux-Servers",
+    name: services.serviceCritical.host,
+    template: "generic-host",
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template,
+    })
+    .applyPollerConfiguration();
+  checkHostsAreMonitored([{ name: services.serviceOk.host },
+                          { name: services.serviceCritical.host },
+                          { name: services.serviceWarning.host }]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name },
+    { name: services.serviceWarning.name },
+  ]);
+  cy.submitResults(resultsToSubmit);
 });
 
 
