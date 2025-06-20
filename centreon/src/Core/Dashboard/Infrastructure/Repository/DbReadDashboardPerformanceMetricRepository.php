@@ -726,22 +726,22 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         $searchParameters = $requestParameters->extractSearchNames(true);
 
-        if (isset($searchParameters['name']) && $searchParameters['name'] !== [] && count($searchParameters['name']) === 1) {
-            $nameParameter = $searchParameters['name'];
+        if (($searchParameters['name'] ?? []) === [] || count($searchParameters['name']) !== 1) {
+            return null;
+        }
+        
+        $nameParameter = $searchParameters['name'];
 
-            if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
-                return null;
-            }
-
-            $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
-            $this->queryParameters->add(
-                'serviceRegex',
-                QueryParameter::string(':serviceRegex', $value)
-            );
-
-            return ' AND r.name REGEXP :serviceRegex';
+        if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
+            return null;
         }
 
-        return null;
+        $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
+        $this->queryParameters->add(
+            'serviceRegex',
+            QueryParameter::string(':serviceRegex', $value)
+        );
+
+        return ' AND r.name REGEXP :serviceRegex';
     }
 }
