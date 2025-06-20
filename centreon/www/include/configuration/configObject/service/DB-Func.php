@@ -34,15 +34,9 @@
  *
  */
 
-<<<<<<< HEAD
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\ActionLog\Domain\Model\ActionLog;
-=======
- use Adaptation\Database\Connection\Collection\QueryParameters;
- use Adaptation\Database\Connection\ValueObject\QueryParameter;
- use Core\ActionLog\Domain\Model\ActionLog;
->>>>>>> 24.04.x
 
 if (!isset($centreon)) {
     exit();
@@ -3532,19 +3526,10 @@ function checkServiceTemplateHasCommand(array $fields): array|bool
 function isCheckCommandDefined(int $serviceId): bool
 {
     global $pearDB;
-<<<<<<< HEAD
     $result = $pearDB->fetchAssociative(
         "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id",
         QueryParameters::create([QueryParameter::int('stm_id', $serviceId)])
     );
-=======
-    $query = $pearDB->prepare(
-        "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id"
-    );
-    $query->bindValue(':stm_id', $serviceId, \PDO::PARAM_INT);
-    $query->execute();
-    $result = $query->fetch(\PDO::FETCH_ASSOC);
->>>>>>> 24.04.x
 
     if ($result['command_command_id'] !== null) {
         return true;
