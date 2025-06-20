@@ -1,5 +1,10 @@
 import { SelectEntry } from '@centreon/ui';
 
+export type NamedEntity = {
+  id: number;
+  name: string;
+};
+
 export enum AgentType {
   Telegraf = 'telegraf',
   CMA = 'centreon-agent'
@@ -95,4 +100,10 @@ export interface AgentConfigurationAPI
 export enum FormVariant {
   Add = 0,
   Update = 1
+}
+
+export interface FiltersType {
+  name: string;
+  pollers: Array<NamedEntity>;
+  types: Array<NamedEntity>;
 }

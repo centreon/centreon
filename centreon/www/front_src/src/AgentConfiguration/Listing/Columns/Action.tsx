@@ -1,6 +1,5 @@
-import { IconButton } from '@centreon/ui';
+import { DeleteIcon, IconButton } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
-import { DeleteOutline } from '@mui/icons-material';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +51,7 @@ const Action = ({ row }: Props): JSX.Element => {
       onClick={askBeforeDelete}
       className={classes.removeButton}
     >
-      <DeleteOutline className={classes.removeIcon} />
+      <DeleteIcon />
     </IconButton>
   );
 };
