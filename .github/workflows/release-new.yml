@@ -1,5 +1,5 @@
 ---
-name: Release
+name: release-new
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ on:
 
 jobs:
   check-inputs:
-    if: ${{ github.repository == 'centreon/workflow-centreon-collect' }}
+    if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -64,8 +64,7 @@ jobs:
           fi
         shell: bash
   release:
-    # if: ${{ github.repository == 'centreon/centreon' }}
-    if: ${{ github.repository == 'centreon/workflow-centreon' }}
+    if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     outputs:
       new_release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
