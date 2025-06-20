@@ -132,7 +132,114 @@ describe('Form list', () => {
   });
 });
 
-const initializeFile = (): void => {
+const initializeFormWithSections = (): void => {
+  cy.mount({
+    Component: (
+      <Form
+        isCollapsible
+        initialValues={{
+          list: []
+        }}
+        groups={[
+          {
+            name: 'First group',
+            order: 1
+          },
+          {
+            name: 'Third group',
+            order: 3
+          },
+          {
+            name: 'Second group',
+            order: 2
+          },
+          {
+            name: 'Fourth group',
+            order: 4
+          }
+        ]}
+        inputs={[
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'First group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'Second group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'Third group',
+            label: 'Name',
+            type: InputType.Text
+          },
+          {
+            fieldName: 'name',
+            group: 'Fourth group',
+            label: 'Name',
+            type: InputType.Text
+          },
+        ]}
+        submit={cy.stub()}
+        validationSchema={object()}
+      />
+    )
+  });
+};
+
+const initializeFile = () => {
   cy.mount({
     Component: (
       <Form
@@ -141,7 +248,7 @@ const initializeFile = (): void => {
         }}
         inputs={[
           {
-            fieldName: 'file',
+            fieldName: 'list',
             group: '',
             label: 'json',
             type: InputType.File,
@@ -155,7 +262,7 @@ const initializeFile = (): void => {
       />
     )
   });
-};
+}
 
 describe('File', () => {
   it('uploads a file when a file is selected', () => {
@@ -170,3 +277,17 @@ describe('File', () => {
     cy.makeSnapshot();
   });
 });
+
+describe('Form with sections', () => {
+  beforeEach(initializeFormWithSections)
+  it('displays sections when correct amount of sections', () => {
+    cy.contains('First group').should('be.visible')
+
+    cy.makeSnapshot();
+  })
+
+  it('scrolls correctly to section', () => {
+    cy.contains('Third group').click()
+    cy.window().its('scrollY').should('not.equal', 0)
+  })
+})
