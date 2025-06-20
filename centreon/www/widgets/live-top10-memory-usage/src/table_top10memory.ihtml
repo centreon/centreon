@@ -27,21 +27,26 @@
         {else}
             {assign var='classStyle' value='list_two'}
         {/if}
+        {if $theme === "Generic-theme"}
+            {assign var='color' value='color: #303030;'}
+        {else}
+            {assign var='color' value='color: #fcfcfc;'}
+        {/if}
         <tr class="{$classStyle}">
             <td class="index ListColCenter">#{$elem.numLin}</td>
             <td class="ui-widget-content stat">
-                <div class="bar">
+                <div class="bar" style='font-weight: bold; {$color}'>
                 {if $elem.status == 0 }
                     <span class="progress-ok"  style="width: {$elem.ratio}%;"></span>
-                    <span class="percent" style="color: #88b917;">{$elem.ratio}%</span>
+                    <span class="percent">{$elem.ratio}%</span>
                 {/if}
                 {if $elem.status == 1 }
                     <span class="progress-warning" style="width: {$elem.ratio}%;"></span>
-                    <span class="percent" style="color: #ff9a13;">{$elem.ratio}%</span>
+                    <span class="percent">{$elem.ratio}%</span>
                 {/if}
                 {if $elem.status == 2 }
                     <span class="progress-critical" style="width: {$elem.ratio}%;"></span>
-                    <span  class="percent" style="color: #e00b3d;">{$elem.ratio}%</span>
+                    <span  class="percent">{$elem.ratio}%</span>
                 {/if}
                 {if $elem.status == 3 }
                     <span class="progress-unknown" style="width: {$elem.ratio}%;" style="background-color: #bcbdc0;"></span>
