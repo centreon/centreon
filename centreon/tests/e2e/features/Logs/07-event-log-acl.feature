@@ -22,4 +22,3 @@ Feature: Event Logs visibility based on user roles
     Given the restricted user logs in
     When the restricted user navigates to the Event Logs page
     Then the restricted user should see only the event logs related to the assigned resources
-
