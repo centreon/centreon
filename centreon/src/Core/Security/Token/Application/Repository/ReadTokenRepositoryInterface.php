@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Token\Application\Repository;
 
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 
 interface ReadTokenRepositoryInterface
@@ -38,6 +39,16 @@ interface ReadTokenRepositoryInterface
      * @return Token|null
      */
     public function find(string $tokenString): ?Token;
+
+    /**
+     * Find JWT tokens by their names.
+     * Response array is indexed by token name.
+     *
+     * @param string[] $tokenNames
+     *
+     * @return array<string,JwtToken>
+     */
+    public function findByNames(array $tokenNames): array;
 
     /**
      * Find a token exists by its name and user ID.

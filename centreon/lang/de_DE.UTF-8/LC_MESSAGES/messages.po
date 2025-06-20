@@ -19805,3 +19805,12 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
+
+# msgid "CMA authentication token(s)"
+# msgstr ""
+
+# msgid "Select existing CMA token(s)"
+# msgstr ""
+
+# msgid "Create new CMA token"
+# msgstr ""

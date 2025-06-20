@@ -39,6 +39,23 @@
                         "string"
                     ]
                 },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "creator_id"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "creator_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
                 "hosts": {
                     "type": "array",
                     "items": {
