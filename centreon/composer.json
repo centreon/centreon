@@ -37,7 +37,6 @@
     "phpdocumentor/reflection-docblock": "5.4.*",
     "pimple/pimple": "3.5.*",
     "psr/container": "1.1.*",
-    "sensio/framework-extra-bundle": "6.2.*",
     "smarty-gettext/smarty-gettext": "1.7.*",
     "smarty/smarty": "4.5.*",
     "symfony/config": "6.4.*",
@@ -63,6 +62,7 @@
     "symfony/property-access": "6.4.*",
     "symfony/property-info": "6.4.*",
     "symfony/routing": "6.4.*",
+    "symfony/runtime": "6.4.*",
     "symfony/security-bundle": "6.4.*",
     "symfony/security-core": "6.4.*",
     "symfony/serializer": "6.4.*",
@@ -149,9 +149,10 @@
       "*": "dist"
     },
     "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": false,
       "symfony/flex": false,
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "symfony/runtime": true
     }
   },
   "scripts": {
