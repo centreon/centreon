@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
@@ -92,7 +93,7 @@ final readonly class FindMetricsTop
             }
 
             $presenter->presentResponse($this->createResponse($resourceMetrics));
-        } catch (\Throwable $e) {
+        } catch (RepositoryException $e) {
             $presenter->presentResponse(
                 new ErrorResponse(
                     message: 'An error occured while retrieving top metrics',
@@ -138,7 +139,7 @@ final readonly class FindMetricsTop
     }
 
     /**
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return bool
      */
