@@ -8528,10 +8528,6 @@ msgstr ""
 msgid "Host commands and shortcuts"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Host configurations"
-msgstr ""
-
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr ""
@@ -11264,6 +11260,10 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Monday"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Monitored hosts"
 msgstr ""
 
 #: centreon/www/install/menu_translation.php
@@ -15106,6 +15106,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Select criterias"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select existing CMA token"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
