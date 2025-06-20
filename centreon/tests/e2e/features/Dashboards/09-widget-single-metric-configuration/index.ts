@@ -120,7 +120,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
     cy.contains('Ping').realClick();
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('rta (ms)').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 

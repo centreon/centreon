@@ -7,6 +7,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   pluck,
   split
 } from 'ramda';
@@ -28,6 +29,7 @@ import {
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
+  labelMinMustLowerThanMax,
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
   labelRequired
@@ -59,6 +61,22 @@ interface GetYupValidatorTypeProps {
   properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   t: TFunction;
 }
+
+export const boundariesValidationSchema = object()
+  .shape({
+    min: number(),
+    max: number().test(
+      'isMinAboveMax',
+      labelMinMustLowerThanMax,
+      (value, context) => {
+        if (isNil(value) || isNil(context.parent.min)) {
+          return true;
+        }
+        return Number(value || 0) > context.parent.min;
+      }
+    )
+  })
+  .optional();
 
 const getYupValidatorType = ({
   t,
@@ -161,6 +179,10 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(number().min(1))
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
+      always(boundariesValidationSchema)
     ]
   ])(properties.type);
 
