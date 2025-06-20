@@ -25,7 +25,6 @@ namespace Centreon\Application\Controller\Configuration;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Application\Normalizer\IconUrlNormalizer;
 use Centreon\Domain\Configuration\Icon\Interfaces\IconServiceInterface;
 use Centreon\Application\Controller\AbstractController;
 
@@ -44,20 +43,9 @@ class IconController extends AbstractController
      */
     private $iconService;
 
-    /**
-     * @var IconUrlNormalizer
-     */
-    protected $iconUrlNormalizer;
-
-    /**
-     * IconController constructor.
-     *
-     * @param IconServiceInterface $iconService
-     */
-    public function __construct(IconServiceInterface $iconService, IconUrlNormalizer $iconUrlNormalizer)
+    public function __construct(IconServiceInterface $iconService)
     {
         $this->iconService = $iconService;
-        $this->iconUrlNormalizer = $iconUrlNormalizer;
     }
 
     /**
@@ -73,7 +61,9 @@ class IconController extends AbstractController
 
         $icons = $this->iconService->getIcons();
         foreach ($icons as $icon) {
-            $this->iconUrlNormalizer->normalize($icon);
+            if (isset($_SERVER['REQUEST_URI']) && preg_match('/^(.+)\/api\/.+/', $_SERVER['REQUEST_URI'], $matches)) {
+                $icon->setUrl($matches[1] . '/img/media/' . $icon->getUrl());
+            }
         }
 
         $context = (new Context())

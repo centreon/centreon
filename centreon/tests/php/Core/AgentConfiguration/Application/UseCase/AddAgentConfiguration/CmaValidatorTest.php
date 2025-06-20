@@ -23,22 +23,36 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\Validation\CmaValidator;
-use Core\AgentConfiguration\Domain\Model\Type;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 
 beforeEach(function (): void {
     $this->cmaValidator = new CmaValidator(
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
+        $this->user = $this->createMock(ContactInterface::class),
     );
 
     $this->request = new AddAgentConfigurationRequest();
     $this->request->name = 'cmatest';
     $this->request->type = 'centeron-agent';
     $this->request->pollerIds = [1];
+    $this->request->connectionMode = ConnectionModeEnum::SECURE;
+    $this->request->configuration = [
+        'is_reverse' => true,
+        'otel_public_certificate' => '/etc/pki/test.crt',
+        'otel_private_key' => '/etc/pki/test.key',
+        'otel_ca_certificate' => '/etc/pki/test.cer',
+        'tokens' => [],
+        'hosts' => [],
+    ];
 
     $this->poller = new Poller(1, 'poller-name');
 });
@@ -90,7 +104,6 @@ foreach (
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }
-
 foreach (
     [
         'invalidfilename',
@@ -119,6 +132,27 @@ foreach (
         $this->cmaValidator->validateParametersOrFail($this->request);
     })->expectNotToPerformAssertions();
 }
+
+it("should throw an exception when a token is not provided and connection is not no_tls or reverse", function (): void {
+    $this->request->configuration['is_reverse'] = false;
+    $this->expectException(AgentConfigurationException::class);
+    $this->cmaValidator->validateParametersOrFail($this->request);
+});
+
+it("should throw an exception when a token is provided but invalid and connection is not no_tls or reverse", function (): void {
+    $this->request->configuration['is_reverse'] = false;
+    $this->request->configuration['tokens'] = [['name' => 'tokenName', 'creator_id' => 1]];
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->willReturn(null);
+    $this->expectException(AgentConfigurationException::class);
+    $this->cmaValidator->validateParametersOrFail($this->request);
+});
 
 it('should throw an exception when the host id is invalid', function (): void {
     $this->request->configuration['hosts'] = [

@@ -23,7 +23,7 @@
       "defaultValue": [],
       "useAdditionalResources": true,
       "required": true,
-      "singleResourceType":true,
+      "singleResourceType": true,
       "restrictedResourceTypes": ["business-activity"]
     }
   },

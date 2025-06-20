@@ -433,7 +433,7 @@ const insertResources = (): Cypress.Chainable => {
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
     const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
-    
+
     // Check if the version-specific file already exists
     return cy.execInContainer({
       command: `ls ${targetUpdateFile} || echo "File not found"`,
@@ -444,7 +444,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         cy.log(`Version-specific update file already exists in container: ${targetUpdateFile}`);
         return cy.wrap(null);
       }
-      
+
       // If version-specific file does not exist => copy content from Update-next.php
       return cy.exec(`ls ../../www/install/php/Update-next.php || echo ""`)
       .then((result) => {
@@ -633,12 +633,7 @@ When('administrator exports Poller configuration', () => {
     name: 'host2'
   });
 
-  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
-
-  cy.get('button[data-testid="Export configuration"]').click();
-
-  cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
-
+  cy.exportConfig();
   cy.wait('@generateAndReloadPollers').then(() => {
     cy.contains('Configuration exported and reloaded').should('have.length', 1);
   });
