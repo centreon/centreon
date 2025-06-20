@@ -37,7 +37,6 @@
     "phpdocumentor/reflection-docblock": "5.4.*",
     "pimple/pimple": "3.5.*",
     "psr/container": "1.1.*",
-    "sensio/framework-extra-bundle": "6.2.*",
     "smarty-gettext/smarty-gettext": "1.7.*",
     "smarty/smarty": "4.5.*",
     "symfony/config": "6.4.*",
