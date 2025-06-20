@@ -56,7 +56,7 @@ Given("the admin user logs in", () => {
   });
 });
 
-When("the admin user navigates to the Event Logs page", () => {
+Then("the admin user navigates to the Event Logs page", () => {
     cy.navigateTo({
       page: "Event Logs",
       rootItemNumber: 1,
@@ -74,16 +74,20 @@ Then("the admin user should see all event logs", () => {
   cy.getIframeBody().find("button.btc.bt_info").contains("Select all").click();
   cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
   // check event logs
-  cy.getIframeBody()
-    .find("table.ListTable tbody tr") // All table rows
-    .find("td:nth-child(3) a") // get the 3rd column with object name with links to the host
-    .then(($links) => {
-      const found = [...$links].some(
-        (link) => link.innerText.trim() === "Centreon-Server", // name of the host
-      );
-      expect(found).to.be.true;
-    });
+  const expectedHosts = [
+    services.serviceWarning.host,
+    services.serviceCritical.host,
+  ];
 
+  cy.getIframeBody()
+    .find("table.ListTable tbody tr td:nth-child(3) a")
+    .then(($links) => {
+      const hostNames = [...$links].map((link) => link.innerText.trim());
+
+      expectedHosts.forEach((expectedHost) => {
+        expect(hostNames).to.include(expectedHost);
+      });
+    });
 
 });
 
