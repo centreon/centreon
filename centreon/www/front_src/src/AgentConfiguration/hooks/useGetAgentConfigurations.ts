@@ -19,10 +19,8 @@ import { AgentConfigurationListing } from '../models';
 import { useListingQueryKey } from './useListingQueryKey';
 
 interface UseGetAgentConfigurationsState {
-  data: Array<AgentConfigurationListing>;
+  data?: ListingModel<AgentConfigurationListing>;
   isLoading: boolean;
-  hasData: boolean;
-  isDataEmpty: boolean;
   total: number;
 }
 
@@ -110,13 +108,8 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     }
   });
 
-  const agentConfigurations = data?.result || [];
-  const hasData = !!data;
-
   return {
-    data: agentConfigurations,
-    isDataEmpty: isEmpty(agentConfigurations),
-    hasData,
+    data,
     isLoading: isFetching,
     total: data?.meta.total || 0
   };

@@ -36,3 +36,5 @@ export const selectedColumnIdsAtom = atomWithStorage(
   columnsAtomKey,
   defaultSelectedColumnIds
 );
+
+export const isWelcomePageDisplayedAtom = atom<boolean>(true);
