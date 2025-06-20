@@ -1,4 +1,4 @@
-name: "release action"
+name: release-new
 description: "Create git release tags, github releases, jira version and push release communication."
 inputs:
   github_ref_name:
