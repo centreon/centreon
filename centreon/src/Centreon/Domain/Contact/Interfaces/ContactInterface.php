@@ -203,6 +203,10 @@ interface ContactInterface
      */
     public function setUseDeprecatedPages(bool $useDeprecatedPages): static;
 
+    public function isUsingDeprecatedCustomViews(): bool;
+
+    public function setUseDeprecatedCustomViews(bool $useDeprecatedCustomViews): static;
+
     /**
      * @return bool
      */
