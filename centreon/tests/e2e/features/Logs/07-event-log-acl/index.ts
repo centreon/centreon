@@ -65,6 +65,7 @@ When("the admin user navigates to the Event Logs page", () => {
 });
 
 Then("the admin user should see all event logs", () => {
+  // Select all host groups
   cy.waitForElementInIframe("#main-content", 'select[id="host_group_filter"]');
   cy.getIframeBody()
     .find('select[id="host_group_filter"]')
@@ -73,6 +74,7 @@ Then("the admin user should see all event logs", () => {
 
   cy.getIframeBody().find("button.btc.bt_info").contains("Select all").click();
   cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
+
   // check event logs
   cy.waitForElementInIframe("#main-content", 'select[id="host_group_filter"]');
   cy.getIframeBody()
@@ -329,8 +331,6 @@ Then(
       .find('input[name="add"]')
       .filter((index, el) => el.getAttribute("onclick")?.includes("acl_hosts"))
       .click();
-    // Select all host groups
-    cy.getIframeBody().find("#all_hostgroups").click();
 
     // Submit changes
     cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
