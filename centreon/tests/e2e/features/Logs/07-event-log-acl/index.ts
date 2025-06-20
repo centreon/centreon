@@ -37,7 +37,7 @@ const resultsToSubmit = [
   },
 ];
 
-before(() => {
+beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: "GET",
@@ -47,7 +47,6 @@ before(() => {
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
   }).as("getTimeZone");
-
 });
 
 Given("the admin user logs in", () => {
@@ -373,6 +372,6 @@ Then(
   },
 );
 
-after(() => {
+afterEach(() => {
   cy.stopContainers();
 });
