@@ -289,5 +289,7 @@ describe('Form with sections', () => {
   it('scrolls correctly to section', () => {
     cy.contains('Third group').click()
     cy.window().its('scrollY').should('not.equal', 0)
+
+    cy.makeSnapshot();
   })
 })
