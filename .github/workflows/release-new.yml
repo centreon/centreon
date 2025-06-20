@@ -103,7 +103,7 @@ jobs:
         shell: bash
       - name: Release
         id: release
-        uses: ./.github/actions/release
+        uses: ./.github/actions/release-new
         with:
           github_ref_name: ${{ github.ref_name }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
