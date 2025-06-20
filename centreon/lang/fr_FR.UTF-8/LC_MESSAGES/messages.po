@@ -2002,6 +2002,10 @@ msgstr "CA"
 msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
 
+#: centreon/www/install/front_translate.php
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
+
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 msgid "CRITICAL"
@@ -3440,6 +3444,10 @@ msgstr "Créer un jeton d'authentification"
 #: centreon/www/install/front_translate.php
 msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
+
+#: centreon/www/install/front_translate.php
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"
 
 #: centreon/www/install/front_translate.php
 msgid "Create new Poller"
@@ -13458,6 +13466,10 @@ msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
 #: centreon/www/install/front_translate.php
+msgid "Select existing CMA token(s)"
+msgstr "Sélectionner des jetons CMA existants"
+
+#: centreon/www/install/front_translate.php
 msgid "Select host"
 msgstr "Sélectionner un hôte"
 
@@ -15950,6 +15962,15 @@ msgstr "Point d'entrée de jeton"
 #: centreon/www/install/front_translate.php
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+#, php-format
+msgid "Token with name \"%s\" and creator ID \"%d\" is not valid"
+msgstr ""
+
+#: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
+msgid "Tokens are mandatory"
+msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
@@ -23356,12 +23377,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-msgid "CMA authentication token(s)"
-msgstr "Jeton(s) d'authentification CMA"
-
-msgid "Select existing CMA token(s)"
-msgstr "Sélectionner des jetons CMA existants"
-
-msgid "Create new CMA token"
-msgstr "Créer un nouveau jeton CMA"
