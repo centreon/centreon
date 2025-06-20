@@ -14521,6 +14521,10 @@ msgid "Select Timeperiod..."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select a Poller"
 msgstr ""
 

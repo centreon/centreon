@@ -13834,6 +13834,10 @@ msgid "Select Timeperiod..."
 msgstr "Selecione Período de Tempo..."
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select a Poller"
 msgstr ""
 
@@ -22264,12 +22268,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-# msgid "Select a Business Activity to display the preview."
-# msgstr ""
-
-# msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-# msgstr ""
-
-# msgid "Business Activity status timeline"
-# msgstr ""

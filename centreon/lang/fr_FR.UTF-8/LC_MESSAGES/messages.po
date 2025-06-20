@@ -13409,6 +13409,10 @@ msgid "Select Timeperiod..."
 msgstr "Choisissez la période de temps..."
 
 #: centreon/www/install/front_translate.php
+msgid "Select a Business Activity to display the preview."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select a Poller"
 msgstr ""
 
@@ -18922,6 +18926,10 @@ msgid "Business Activity Diagram"
 msgstr "Diagramme d'activité métier"
 
 #: unknown
+msgid "Business Activity status timeline"
+msgstr "Historique du statut d’une Activité Métier"
+
+#: unknown
 msgid "Business Intelligence"
 msgstr "Business Intelligence"
 
@@ -19650,6 +19658,14 @@ msgstr ""
 #: unknown
 msgid "Displays metrics for a given time period."
 msgstr "Affiche les métriques pour une période donnée."
+
+#: unknown
+msgid ""
+"Displays the distribution of current statuses on a Business Activity, as "
+"a chronological timeline for a given time period."
+msgstr ""
+"Affiche la répartition des statuts actuels sur une activité métier, sous "
+"forme de frise chronologique pour une période donnée."
 
 #: unknown
 msgid ""
@@ -23340,9 +23356,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-msgid "Displays the distribution of current statuses on a Business Activity, as a chronological timeline for a given time period."
-msgstr "Affiche la répartition des statuts actuels sur une activité métier, sous forme de frise chronologique pour une période donnée."
-
-msgid "Business Activity status timeline"
-msgstr "Historique du statut d’une Activité Métier"
