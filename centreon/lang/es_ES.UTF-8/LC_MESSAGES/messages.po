@@ -1064,10 +1064,6 @@ msgstr ""
 msgid "Agent type"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Agent types"
-msgstr ""
-
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
 #: centreon/www/include/reporting/dashboard/initReport.php
@@ -16767,8 +16763,6 @@ msgid "Sticky"
 msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 
 # msgid "Add new agent configuration"
-# msgstr ""
-# msgid "Agent types"
 # msgstr ""
 # msgid "Delete poller"
 # msgstr ""

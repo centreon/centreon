@@ -15,10 +15,10 @@ import { agentTypeOptions, useFilters } from './useFilters';
 import { useGetAgentConfigurations } from '../../hooks/useGetAgentConfigurations';
 
 import {
-  labelAgentTypes,
+  labelAgentType,
   labelClear,
   labelName,
-  labelPollers,
+  labelPoller,
   labelSearch
 } from '../../translatedLabels';
 
@@ -53,7 +53,7 @@ const Filters = (): JSX.Element => {
         options={agentTypeOptions}
         value={filters.types}
         onChange={changeTypes}
-        label={t(labelAgentTypes)}
+        label={t(labelAgentType)}
         chipProps={{
           onDelete: deleteItem('types'),
           color: 'primary'
@@ -64,9 +64,9 @@ const Filters = (): JSX.Element => {
           onDelete: deleteItem('pollers'),
           color: 'primary'
         }}
-        dataTestId={labelPollers}
+        dataTestId={labelPoller}
         getEndpoint={getPollersEndpoint}
-        label={t(labelPollers)}
+        label={t(labelPoller)}
         value={filters.pollers}
         field="name"
         onChange={changePollers}

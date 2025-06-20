@@ -11,7 +11,6 @@ export const labelCollapse = 'Collapse';
 export const labelAddNewAgent = 'Add new agent configuration';
 export const labelSearch = 'Search';
 export const labelFilters = 'Filters';
-export const labelAgentTypes = 'Agent types';
 export const labelPollers = 'Pollers';
 export const labelClear = 'Clear';
 export const labelDeletePoller = 'Delete poller';

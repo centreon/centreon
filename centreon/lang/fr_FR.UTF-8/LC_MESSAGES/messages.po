@@ -1071,10 +1071,6 @@ msgstr "Configurations d'agent"
 msgid "Agent type"
 msgstr "Type d'agent"
 
-#: centreon/www/install/front_translate.php
-msgid "Agent types"
-msgstr "Types d'agent"
-
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
 #: centreon/www/include/reporting/dashboard/initReport.php
