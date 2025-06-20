@@ -8,7 +8,7 @@ const useStyles = makeStyles<{
 }>()((theme, props) => ({
   modal: {
     '& .MuiDialog-paper': {
-      gap: theme.spacing(2),
+      gap: theme.spacing(3),
       padding: theme.spacing(2.5)
     },
     '&[data-size="fullscreen"]': {
@@ -65,15 +65,6 @@ const useStyles = makeStyles<{
     right: 0,
     zIndex: theme.zIndex.modal
   },
-  modalBody: {
-    '& > p': {
-      '&:first-of-type': {
-        margin: theme.spacing(0, 0, 1, 0)
-      },
-      margin: theme.spacing(1, 0, 1, 0),
-      width: '90%'
-    }
-  },
   modalCloseButton: {
     position: 'absolute',
     right: theme.spacing(1),
@@ -81,15 +72,6 @@ const useStyles = makeStyles<{
       opacity: 0.6
     },
     top: theme.spacing(1)
-  },
-  modalHeader: {
-    '& .MuiDialogTitle-root': {
-      padding: theme.spacing(0)
-    },
-    display: 'flex',
-    gap: theme.spacing(2),
-
-    justifyContent: 'space-between'
   }
 }));
 
