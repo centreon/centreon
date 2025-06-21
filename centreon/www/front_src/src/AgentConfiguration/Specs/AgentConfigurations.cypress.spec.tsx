@@ -113,7 +113,7 @@ describe('Agent configurations', () => {
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
-    cy.findByLabelText(labelPoller.click({ force: true });
+    cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
 
@@ -148,7 +148,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelPoller.click({ force: true });
+    cy.findByLabelText(labelPoller).click({ force: true });
 
     cy.waitForRequest('@getFilterPollers');
 
