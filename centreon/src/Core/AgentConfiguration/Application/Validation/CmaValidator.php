@@ -135,7 +135,7 @@ class CmaValidator implements TypeValidatorInterface
             ? '/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/'
             : '/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/';
 
-        if ($value === null || preg_match($pattern, $value)) {
+        if ($value !== null && preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
         }
     }
