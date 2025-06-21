@@ -20,6 +20,14 @@ declare(strict_types=1);
  * For more information : contact@centreon.com
  */
 
-if (file_exists(dirname(__DIR__) . '/var/cache/prod/App_Shared_Infrastructure_Symfony_KernelProdContainer.preload.php')) {
-    require_once dirname(__DIR__) . '/var/cache/prod/App_Shared_Infrastructure_Symfony_KernelProdContainer.preload.php';
+namespace Tests\App;
+
+use PHPUnit\Framework\TestCase;
+
+final class TmpTest extends TestCase
+{
+    public function testNothing(): void
+    {
+        static::assertTrue(true);
+    }
 }

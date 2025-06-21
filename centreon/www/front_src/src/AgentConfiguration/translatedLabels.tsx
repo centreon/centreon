@@ -32,7 +32,7 @@ export const labelCaCertificate = 'CA';
 export const labelPrivateKey = 'Private key';
 export const labelOTLPReceiver = 'OTLP Receiver';
 export const labelAddressInvalid = 'Invalid address';
-export const labelHostConfigurations = 'Host configurations';
+export const labelMonitoredHosts = 'Monitored hosts';
 export const labelAddAHost = 'Add a host';
 export const labelParameters = 'Parameters';
 export const labelDNSIP = 'DNS/IP';
@@ -81,5 +81,6 @@ export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
 
 export const labelCMAauthenticationToken = 'CMA authentication token(s)';
-export const labelSelectExistingCMAToken = 'Select existing CMA token(s)';
+export const labelSelectExistingCMATokens = 'Select existing CMA token(s)';
+export const labelSelectExistingCMAToken = 'Select existing CMA token';
 export const labelCreateNewCMAToken = 'Create new CMA token';
