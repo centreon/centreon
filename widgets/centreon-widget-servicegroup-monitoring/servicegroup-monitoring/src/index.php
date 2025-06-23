@@ -43,6 +43,7 @@ require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonLog.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/ServicegroupMonitoring.class.php';
 
 CentreonSession::start(1);
@@ -167,6 +168,14 @@ if ($orderByToAnalyse !== null) {
     }
 }
 
+// Sanitize and validate input
+$entriesPerPage = filter_var($preferences['entries'], FILTER_VALIDATE_INT);
+if ($entriesPerPage === false || $entriesPerPage < 1) {
+    $entriesPerPage = DEFAULT_ENTRIES_PER_PAGE; // Default value
+}
+
+$offset = max(0, $page) * $entriesPerPage;
+
 try {
     // Query to count total rows
     $countQuery = "SELECT COUNT(*) " . $baseQuery;
@@ -177,14 +186,6 @@ try {
         $countStatement = $dbb->executeQuery($countQuery);
     }
     $nbRows = (int) $dbb->fetchColumn($countStatement);
-
-    // Sanitize and validate input
-    $entriesPerPage = filter_var($preferences['entries'], FILTER_VALIDATE_INT);
-    if ($entriesPerPage === false || $entriesPerPage < 1) {
-        $entriesPerPage = DEFAULT_ENTRIES_PER_PAGE; // Default value
-    }
-
-    $offset = max(0, $page) * $entriesPerPage;
 
     // Main SELECT query with LIMIT
     $query = "SELECT name, servicegroup_id " . $baseQuery;
@@ -355,6 +356,8 @@ try {
         ];
     }
 } catch (CentreonDbException $e){
+    $nbRows = 0;
+    $data = [];
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         "Error while fetching service group monitoring",

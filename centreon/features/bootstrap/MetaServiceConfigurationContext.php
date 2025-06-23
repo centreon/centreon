@@ -46,8 +46,6 @@ class MetaServiceConfigurationContext extends CentreonContext
         'calculation_type' => 'Max',
         'data_source_type' => 'COUNTER',
         'selection_mode' => 1,
-        'sql_like_clause_expression' => 'metaServiceExpressionChanged',
-        'metric' => '',
         'check_period' => 'nonworkhours',
         'max_check_attempts' => 5,
         'normal_check_interval' => 10,

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
@@ -147,13 +148,21 @@ it(
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('fetchColumn')->willReturn(10);
 
+        $dbConfig = new ConnectionConfig(
+            'localhost',
+            'centreon',
+            'centreon',
+            'centreon',
+            'centreon-monitoring'
+        );
         $dbConnection = $this->createMock(DatabaseConnection::class);
-        $dbConnection->expects($this->once())->method('getStorageDbName')->willReturn('centreon-monitoring');
-        $dbConnection->expects($this->once())->method('getCentreonDbName')->willReturn('centreon');
+        $dbConnection->expects($this->exactly(2))->method('getConnectionConfig')->willReturn($dbConfig);
+
         $dbConnection->expects($this->once())->method('prepare')->with(generateExpectedSQLQuery(''))
             ->willReturn($statement);
         $dbConnection->expects($this->once())->method('query')->with('SELECT FOUND_ROWS() AS REALTIME')
             ->willReturn($statement);
+
         $serviceResourceType = $this->createMock(ServiceResourceType::class);
         $requestParams = $this->createMock(RequestParametersInterface::class);
         $requestParams
@@ -187,9 +196,16 @@ it(
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('fetchColumn')->willReturn(10);
 
+        $dbConfig = new ConnectionConfig(
+            'localhost',
+            'centreon',
+            'centreon',
+            'centreon',
+            'centreon-monitoring'
+        );
         $dbConnection = $this->createMock(DatabaseConnection::class);
-        $dbConnection->expects($this->once())->method('getStorageDbName')->willReturn('centreon-monitoring');
-        $dbConnection->expects($this->once())->method('getCentreonDbName')->willReturn('centreon');
+        $dbConnection->expects($this->exactly(2))->method('getConnectionConfig')->willReturn($dbConfig);
+
         $accessGroupSubQuery = generateAccessGroupSubQuery($resourceACLProviders, $accessGroupIDs);
         $dbConnection
             ->expects($this->once())

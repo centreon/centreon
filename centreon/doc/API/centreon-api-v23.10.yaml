@@ -22,6 +22,7 @@ info:
     + Updated host template endpoint (GET)
     + Updated JSON API returned keys for /monitoring/resources endpoint (GET)
     + Added metrics by service listing endpoint to service resource type
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -5898,6 +5899,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - requested_authn_context
         - logout_from
       properties:
         is_active:
@@ -5922,6 +5924,10 @@ components:
         user_id_attribute:
           type: string
           description: ""
+        requested_authn_context:
+          type: string
+          enum: ['minimum', 'exact', 'better', 'maximum']
+          description: "Requested authentication context"
         logout_from:
           type: boolean
           description: "Logout"

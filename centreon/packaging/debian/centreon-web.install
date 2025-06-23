@@ -23,7 +23,6 @@ bin/centreon-remove-duplicate-host-service-relations.php        usr/share/centre
 .env.local.php                                                  usr/share/centreon
 container.php                                                   usr/share/centreon
 bootstrap.php                                                   usr/share/centreon
-composer.json                                                   usr/share/centreon
 lib/Slug.class.php                                              usr/share/centreon/lib
 GPL_LIB/*                                                       usr/share/centreon/GPL_LIB
 lib/Centreon/*                                                  usr/share/centreon/lib/Centreon
