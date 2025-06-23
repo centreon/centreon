@@ -207,12 +207,7 @@ export default (): void => {
 
       cy.matchImageSnapshot();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findByText(labelParameters).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 2);
@@ -254,12 +249,8 @@ export default (): void => {
 
       cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
+
 
       cy.get(`button[data-testid="submit"`)
         .should('be.visible')
@@ -274,12 +265,7 @@ export default (): void => {
       cy.findByText(labelUpdateConnectorConfiguration).should('be.visible');
       cy.findAllByTestId(labelName).eq(1).clear();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.get(`button[data-testid="submit"`)
         .should('be.visible')
@@ -331,12 +317,7 @@ export default (): void => {
 
       cy.findByText(labelAddvCenterESX).click();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findAllByTestId('parameterGroup').should('have.length', 2);
 
@@ -347,12 +328,7 @@ export default (): void => {
 
       cy.findByText(labelAddvCenterESX).click();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findAllByTestId(labelRemoveVCenterESX).should('have.length', 2);
 

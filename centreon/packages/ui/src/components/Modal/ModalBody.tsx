@@ -7,7 +7,11 @@ export type ModalHeaderProps = {
 };
 
 const ModalBody = ({ children }: ModalHeaderProps): ReactElement => {
-  return <div className={modalBody}>{children}</div>;
+  return (
+    <div className={modalBody} data-testid="modal-body">
+      {children}
+    </div>
+  );
 };
 
 export { ModalBody };

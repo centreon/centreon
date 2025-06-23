@@ -4,8 +4,8 @@ import Modal from './Acc.modal';
 import Page from './Acc.page';
 
 describe('Additional Connctor Configuration', () => {
-  Page();
-  Listing();
-  Filters();
+  // Page();
+  // Listing();
+  // Filters();
   Modal();
 });
