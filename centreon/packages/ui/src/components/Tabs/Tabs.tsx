@@ -61,6 +61,7 @@ export const Tabs = ({
             key={value}
             label={label}
             value={value}
+            data-testid={`tab-${value}`}
           />
         ))}
       </MuiTabs>
