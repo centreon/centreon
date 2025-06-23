@@ -8058,10 +8058,6 @@ msgstr "Options de contrôle de l'hôte"
 msgid "Host commands and shortcuts"
 msgstr "Commandes et racourcis d'hôte"
 
-#: centreon/www/install/front_translate.php
-msgid "Host configurations"
-msgstr "Configurations d'hôte"
-
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dépendance d'hôte"
@@ -10630,6 +10626,10 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Monday"
 msgstr "Lundi"
+
+#: centreon/www/install/front_translate.php
+msgid "Monitored hosts"
+msgstr "Hôtes supervisés"
 
 #: centreon/www/install/menu_translation.php
 msgid "Monitoring"
@@ -13997,6 +13997,10 @@ msgstr "Sélectionner les colonnes"
 #: centreon/www/install/front_translate.php
 msgid "Select criterias"
 msgstr "Sélectionner les critères"
+
+#: centreon/www/install/front_translate.php
+msgid "Select existing CMA token"
+msgstr "Sélectionner un jeton CMA existant"
 
 #: centreon/www/install/front_translate.php
 msgid "Select existing CMA token(s)"
@@ -21031,6 +21035,10 @@ msgstr "Catégorie d'hôtes introuvable"
 #: unknown
 msgid "Host comments"
 msgstr "Commentaires associés à l'hôte"
+
+#: unknown
+msgid "Host configurations"
+msgstr "Configurations d'hôte"
 
 #: unknown
 msgid "Host group created"
