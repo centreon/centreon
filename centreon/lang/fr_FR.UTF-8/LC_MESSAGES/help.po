@@ -893,7 +893,7 @@ msgstr ""
 "l'icône de l'hôte à dessiner. Note : Ne vous inquiétez pas du nombre maximal "
 "de coordonnées que vous pouvez utiliser ici. Le CGI va automatiquement "
 "calculer les dimensions maximales de l'image qu'il crée en se basant sur les "
-"plus grandes valeurs x et y que vous avez précisé."
+"plus grandes valeurs x et y que vous avez précisées."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
