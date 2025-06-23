@@ -41,8 +41,9 @@ require_once __DIR__ . '/../../../include/common/vault-functions.php';
 use App\Kernel;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\Dotenv\Dotenv;
-
+use Symfony\Component\Filesystem\Filesystem;
 
 $step = new \CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
@@ -84,6 +85,16 @@ try {
             }
         }
     }
+
+    /** @var EncryptionInterface $encryption */
+    $encryption = $kernel->getContainer()->get(EncryptionInterface::class);
+    $engineContext = [
+        'app_secret' => $_ENV['APP_SECRET'],
+        'salt' => $encryption->generateRandomString(),
+    ];
+
+    $fileSystem = new Filesystem();
+    $fileSystem->dumpFile('/etc/centreon-engine/engine-context.json', json_encode($engineContext));
 
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
         . '/install-' . $version . '-' . date('Ymd_His');

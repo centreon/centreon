@@ -989,10 +989,9 @@ function updateServer(int $id, array $data): void
     }
     $rq .= "`is_encryption_ready` = ";
     if (isset($data["is_encryption_ready"]) && $data["is_encryption_ready"] === '1') {
-        $rq .= '1';
-        $retValue[':isDefault'] = (int)$data["is_default"]['is_default'];
+        $rq .= "'1', ";
     } else {
-        $rq .= "0, ";
+        $rq .= "'0', ";
     }
     $rq .= "`centreonbroker_logs_path` = ";
     if (isset($data["centreonbroker_logs_path"]) && $data["centreonbroker_logs_path"] != null) {
