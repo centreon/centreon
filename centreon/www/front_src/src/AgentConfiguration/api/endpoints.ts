@@ -27,3 +27,5 @@ export const getAgentConfigurationEndpoint = (id: number) =>
   `${getAgentConfigurationsEndpoint}/${id}`;
 
 export const hostsConfigurationEndpoint = '/configuration/hosts';
+
+export const listTokensEndpoint = '/administration/tokens';

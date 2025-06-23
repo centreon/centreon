@@ -134,15 +134,18 @@ const ConnectedAutocomplete = ({
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
+        decoder={connectedAutocomplete?.decoder}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
         name={fieldName}
         required={isRequired}
-        value={value ?? null}
+        value={value ?? []}
         onBlur={blur}
         onChange={changeAutocomplete}
+        limitTags={connectedAutocomplete?.limitTags}
+        searchConditions={connectedAutocomplete?.additionalConditionParameters}
       />
     ),
     memoProps: [
