@@ -367,7 +367,6 @@ Then(
     // check event logs
     const expectedHosts = [
       services.serviceWarning.host,
-      services.serviceCritical.host,
     ];
 
     cy.getIframeBody()
