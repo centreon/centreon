@@ -14,6 +14,7 @@ import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
+import Loading from '../../LoadingSkeleton';
 
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
@@ -74,22 +75,26 @@ const BarChart = ({
   return (
     <Provider>
       <Box ref={ref} sx={{ height: '100%', overflow: 'hidden', width: '100%' }}>
-        <ResponsiveBarChart
-          axis={axis}
-          barStyle={barStyle}
-          graphData={adjustedData}
-          graphRef={ref}
-          header={header}
-          height={height || responsiveHeight || 0}
-          legend={legend}
-          limitLegend={limitLegend}
-          orientation={orientation}
-          thresholdUnit={thresholdUnit}
-          thresholds={thresholds}
-          tooltip={tooltip}
-          width={width || 0}
-          skipIntersectionObserver={skipIntersectionObserver}
-        />
+        {!responsiveHeight ? (
+          <Loading height={height || '100%'} width={width} />
+        ) : (
+          <ResponsiveBarChart
+            axis={axis}
+            barStyle={barStyle}
+            graphData={adjustedData}
+            graphRef={ref}
+            header={header}
+            height={height || responsiveHeight || 0}
+            legend={legend}
+            limitLegend={limitLegend}
+            orientation={orientation}
+            thresholdUnit={thresholdUnit}
+            thresholds={thresholds}
+            tooltip={tooltip}
+            width={width || 0}
+            skipIntersectionObserver={skipIntersectionObserver}
+          />
+        )}
       </Box>
     </Provider>
   );

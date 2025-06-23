@@ -94,39 +94,39 @@ const WrapperChart = ({
     );
   }
 
-  if (!adjustedData) {
-    return <Loading height={height || 0} width={width} />;
-  }
-
   return (
     <div
       ref={ref}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
-      <Chart
-        annotationEvent={annotationEvent}
-        axis={axis}
-        barStyle={barStyle}
-        displayAnchor={displayAnchor}
-        graphData={adjustedData}
-        graphInterval={{ end, start }}
-        graphRef={ref}
-        header={header}
-        height={height || responsiveHeight || 0}
-        legend={legend}
-        limitLegend={limitLegend}
-        lineStyle={lineStyle}
-        shapeLines={shapeLines}
-        thresholdUnit={thresholdUnit}
-        thresholds={thresholds}
-        timeShiftZones={timeShiftZones}
-        tooltip={tooltip}
-        width={width || responsiveWidth || 0}
-        zoomPreview={zoomPreview}
-        skipIntersectionObserver={rest.skipIntersectionObserver}
-        additionalLines={additionalLines}
-        transformMatrix={transformMatrix}
-      />
+      {!responsiveHeight ? (
+        <Loading height={height || '100%'} width={width} />
+      ) : (
+        <Chart
+          annotationEvent={annotationEvent}
+          axis={axis}
+          barStyle={barStyle}
+          displayAnchor={displayAnchor}
+          graphData={adjustedData}
+          graphInterval={{ end, start }}
+          graphRef={ref}
+          header={header}
+          height={height || responsiveHeight || 0}
+          legend={legend}
+          limitLegend={limitLegend}
+          lineStyle={lineStyle}
+          shapeLines={shapeLines}
+          thresholdUnit={thresholdUnit}
+          thresholds={thresholds}
+          timeShiftZones={timeShiftZones}
+          tooltip={tooltip}
+          width={width || responsiveWidth || 0}
+          zoomPreview={zoomPreview}
+          skipIntersectionObserver={rest.skipIntersectionObserver}
+          additionalLines={additionalLines}
+          transformMatrix={transformMatrix}
+        />
+      )}
     </div>
   );
 };
