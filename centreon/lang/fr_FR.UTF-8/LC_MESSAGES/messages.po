@@ -23578,9 +23578,6 @@ msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode cla
 msgid "Your changes will not be saved if you switch to regex mode."
 msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode regex."
 
-#~ msgid "An error occurred while filtering columns"
-#~ msgstr "Une erreur est survenue lors du filtrage des colonnes"
-
 #: unknown
 msgid "You are"
 msgstr "Vous êtes"
