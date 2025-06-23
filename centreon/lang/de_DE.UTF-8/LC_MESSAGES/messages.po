@@ -19726,10 +19726,6 @@ msgstr "Adresse6"
 # msgstr ""
 
 #: unknown
-msgid "Advanced mode"
-msgstr "Erweiterter Modus"
-
-#: unknown
 msgid "Append"
 msgstr "Anhängen"
 
