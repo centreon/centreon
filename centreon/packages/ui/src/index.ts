@@ -72,6 +72,7 @@ export { default as StatusChip } from './StatusChip';
 export type { Props as StatusChipProps } from './StatusChip';
 
 export type { Listing as ListingModel } from './api/models';
+export type { ListingMap as ListingMapModel } from './api/models';
 
 export { default as useCancelTokenSource } from './api/useCancelTokenSource';
 export { getData, patchData, postData, putData, deleteData } from './api';
