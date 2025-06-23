@@ -24376,9 +24376,6 @@ msgstr "Puede ver la lista completa del proyecto Centeronsur Github"
 #  msgid "Host Groups (simplified)"
 #  msgstr ""
 
-#~ msgid "Advanced mode"
-#~ msgstr "Modo avanzado"
-
 # msgid "Activate Regex"
 # msgstr ""
 
