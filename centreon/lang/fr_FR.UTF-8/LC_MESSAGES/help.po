@@ -2386,7 +2386,7 @@ msgid ""
 "'actions'"
 msgstr ""
 "Les commandes PREEXEC sont exécutées après les commandes de routage et avant "
-"les règles de correspondantes (REGEXP sur le statut) et les règles d'actions."
+"les règles de correspondance (REGEXP sur le statut) et les règles d'actions."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
