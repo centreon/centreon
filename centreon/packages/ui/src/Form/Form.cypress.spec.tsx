@@ -160,77 +160,83 @@ const initializeFormWithSections = (): void => {
         ]}
         inputs={[
           {
-            fieldName: 'name',
+            fieldName: 'First name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Divider',
+            group: 'First group',
+            label: 'Divider',
+            type: InputType.Divider
+          },
+          {
+            fieldName: 'Second name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Third name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Fourth name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Fifth name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Sixth name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Seventh name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Eighth name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'Ninth name',
             group: 'First group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'First second group name',
             group: 'Second group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'First third group name',
             group: 'Third group',
             label: 'Name',
             type: InputType.Text
           },
           {
-            fieldName: 'name',
+            fieldName: 'First fourth group name',
             group: 'Fourth group',
             label: 'Name',
             type: InputType.Text
-          },
+          }
         ]}
         submit={cy.stub()}
         validationSchema={object()}
@@ -262,7 +268,7 @@ const initializeFile = () => {
       />
     )
   });
-}
+};
 
 describe('File', () => {
   it('uploads a file when a file is selected', () => {
@@ -279,17 +285,21 @@ describe('File', () => {
 });
 
 describe('Form with sections', () => {
-  beforeEach(initializeFormWithSections)
+  beforeEach(initializeFormWithSections);
   it('displays sections when correct amount of sections', () => {
-    cy.contains('First group').should('be.visible')
-
+    cy.contains('First group').should('be.visible');
+    cy.contains('Second group').should('be.visible');
+    cy.contains('Third group').should('be.visible');
+    cy.contains('Fourth group').should('be.visible');
     cy.makeSnapshot();
-  })
+  });
 
   it('scrolls correctly to section', () => {
-    cy.contains('Third group').click()
-    cy.window().its('scrollY').should('not.equal', 0)
-
+    cy.window().then((win) => {
+      const initialScrollY = win.scrollY;
+      cy.contains('Third group').click();
+      cy.window().its('scrollY').should('be.greaterThan', initialScrollY);
+    });
     cy.makeSnapshot();
-  })
-})
+  });
+});
