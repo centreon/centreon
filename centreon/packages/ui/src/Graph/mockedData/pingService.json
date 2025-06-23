@@ -62,7 +62,7 @@
         "ds_filled": true,
         "ds_invert": false,
         "ds_legend": null,
-        "ds_stack": false,
+        "ds_stack": true,
         "ds_order": 1,
         "ds_transparency": 80.0,
         "ds_color_line_mode": 0
@@ -99,7 +99,7 @@
         "ds_filled": true,
         "ds_invert": false,
         "ds_legend": null,
-        "ds_stack": false,
+        "ds_stack": true,
         "ds_order": 1,
         "ds_transparency": 80.0,
         "ds_color_line_mode": 0
@@ -144,7 +144,7 @@
         "ds_filled": false,
         "ds_invert": false,
         "ds_legend": null,
-        "ds_stack": false,
+        "ds_stack": true,
         "ds_order": 2,
         "ds_transparency": 80.0,
         "ds_color_line_mode": 0

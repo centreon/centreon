@@ -349,13 +349,14 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
             private false|array $currentItem;
 
             public function __construct(
-                protected DatabaseConnection $db,
+                DatabaseConnection $db,
                 readonly private int $maxItemByRequest,
                 callable $createCommand,
                 callable $findArguments,
                 callable $findMacros,
                 readonly private LoggerInterface $logger
             ) {
+                $this->db = $db;
                 $this->createCommand = $createCommand;
                 $this->findArguments = $findArguments;
                 $this->findMacros = $findMacros;

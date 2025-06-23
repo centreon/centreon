@@ -10,6 +10,7 @@ import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
 
 import { useLegendStyles } from './Legend.styles';
+import { Resource } from '../../../models';
 
 interface Props {
   data: Array<FormattedResponse>;
@@ -19,6 +20,7 @@ interface Props {
   total: number;
   unit: 'number' | 'percentage';
   resourceType: string;
+  resources: Array<Resource>;
 }
 
 const Legend = ({
@@ -27,7 +29,8 @@ const Legend = ({
   unit,
   direction,
   getLinkToResourceStatusPage,
-  resourceType
+  resourceType,
+  resources
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -55,6 +58,7 @@ const Legend = ({
                   total={total}
                   value={value}
                   resourceType={resourceType}
+                  resources={resources}
                 />
               }
               position="bottom"

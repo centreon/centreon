@@ -10,7 +10,9 @@ import {
   labelCancel,
   labelDelete,
   labelDeleteAgent,
-  labelDeletePoller
+  labelDeleteAgentConfirmation,
+  labelDeletePoller,
+  labelDeletePollerConfirmation
 } from '../translatedLabels';
 
 const DeleteModal = (): JSX.Element => {
@@ -54,21 +56,15 @@ const DeleteModal = (): JSX.Element => {
       </Modal.Header>
       <Modal.Body>
         <Typography>
-          {hasPoller ? (
-            <Trans t={t}>
-              You are going to delete the configuration for the{' '}
-              <strong>{{ poller }}</strong> poller from the{' '}
-              <strong>{{ agent }}</strong> agent configuration. All
-              configuration parameters for this poller will be deleted. This
-              action cannot be undone.
-            </Trans>
-          ) : (
-            <Trans t={t}>
-              You are going to delete the <strong>{{ agent }}</strong> agent
-              configuration. All configuration parameters for this agent will be
-              deleted. This action cannot be undone.
-            </Trans>
-          )}
+          <Trans
+            defaults={
+              hasPoller
+                ? labelDeletePollerConfirmation
+                : labelDeleteAgentConfirmation
+            }
+            values={hasPoller ? { poller, agent } : { agent }}
+            components={{ bold: <strong /> }}
+          />
         </Typography>
       </Modal.Body>
       <Box

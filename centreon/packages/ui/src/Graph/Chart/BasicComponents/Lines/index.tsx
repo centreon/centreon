@@ -9,13 +9,13 @@ import {
   getYScale
 } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
-import { getPointRadius } from '../../../common/utils';
+import { getPointRadius, getStyle } from '../../../common/utils';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
-import type { DisplayAnchor, GlobalAreaLines } from '../../models';
+import type { DisplayAnchor, GlobalAreaLines, LineStyle } from '../../models';
 
 import Point from './Point';
 import RegularLine from './RegularLines';
@@ -29,33 +29,24 @@ import {
 } from './Threshold/models';
 
 interface Props extends GlobalAreaLines {
-  areaTransparency?: number;
-  curve: 'linear' | 'step' | 'natural';
-  dashLength?: number;
-  dashOffset?: number;
   displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
-  dotOffset?: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
-  lineWidth?: number;
   scale?: 'linear' | 'logarithmic';
   scaleLogarithmicBase?: number;
-  showArea?: boolean;
-  showPoints?: boolean;
   timeSeries: Array<TimeValue>;
   width: number;
   xScale: ScaleLinear<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
+  lineStyle: LineStyle | Array<LineStyle>;
 }
 
 const Lines = ({
-  areaTransparency,
   height,
   graphSvgRef,
   width,
   displayAnchor,
-  curve,
   yScalesPerUnit,
   xScale,
   timeSeries,
@@ -63,14 +54,9 @@ const Lines = ({
   areaThresholdLines,
   areaStackedLines,
   areaRegularLines,
-  showArea,
-  showPoints,
-  lineWidth,
-  dotOffset,
-  dashLength,
-  dashOffset,
   scale,
-  scaleLogarithmicBase
+  scaleLogarithmicBase,
+  lineStyle
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -88,18 +74,10 @@ const Lines = ({
 
   const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
-    areaTransparency,
-    curve,
-    dashLength,
-    dashOffset,
     displayAnchor: displayGuidingLines,
-    dotOffset,
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    lineWidth,
-    showArea,
-    showPoints,
     xScale
   };
 
@@ -119,6 +97,7 @@ const Lines = ({
           {Object.entries(stackedLinesData).map(
             ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
               <StackedLines
+                lineStyle={lineStyle}
                 key={`stacked-${unit}`}
                 lines={lines}
                 timeSeries={stackedTimeSeries}
@@ -130,6 +109,7 @@ const Lines = ({
           {Object.entries(invertedStackedLinesData).map(
             ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
               <StackedLines
+                lineStyle={lineStyle}
                 key={`invert-stacked-${unit}`}
                 lines={lines}
                 timeSeries={stackedTimeSeries}
@@ -196,6 +176,11 @@ const Lines = ({
                 timeSeries
               });
 
+              const style = getStyle({
+                style: lineStyle,
+                metricId: metric_id
+              }) as LineStyle;
+
               return (
                 <g key={metric_id}>
                   {displayGuidingLines && (
@@ -209,13 +194,13 @@ const Lines = ({
                       yScale={yScale}
                     />
                   )}
-                  {showPoints &&
+                  {style?.showPoints &&
                     getDates(relatedTimeSeries).map((timeTick) => (
                       <Point
                         key={timeTick.toString()}
                         lineColor={lineColor}
                         metric_id={metric_id}
-                        radius={getPointRadius(lineWidth)}
+                        radius={getPointRadius(style?.lineWidth)}
                         timeSeries={relatedTimeSeries}
                         timeTick={timeTick}
                         xScale={xScale}
@@ -230,21 +215,21 @@ const Lines = ({
                     ))}
                   <RegularLine
                     areaColor={areaColor || lineColor}
-                    curve={curve}
-                    dashLength={dashLength}
-                    dashOffset={dashOffset}
-                    dotOffset={dotOffset}
-                    filled={isNil(showArea) ? filled : showArea}
+                    curve={style?.curve || 'linear'}
+                    dashLength={style?.dashLength}
+                    dashOffset={style?.dashOffset}
+                    dotOffset={style?.dotOffset}
+                    filled={isNil(style?.showArea) ? filled : style.showArea}
                     graphHeight={height}
                     highlight={highlight}
                     lineColor={lineColor}
-                    lineWidth={lineWidth}
+                    lineWidth={style?.lineWidth || 2}
                     metric_id={metric_id}
                     timeSeries={relatedTimeSeries}
                     transparency={
-                      isNil(areaTransparency)
+                      isNil(style?.areaTransparency)
                         ? transparency || 80
-                        : areaTransparency
+                        : style.areaTransparency
                     }
                     unit={unit}
                     xScale={xScale}

@@ -34,6 +34,9 @@
  *
  */
 
+use App\Kernel;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Pimple\Container;
 
 /**
@@ -53,6 +56,34 @@ abstract class AbstractObjectJSON
 
     /** @var array */
     protected $content = [];
+
+    /** @var bool */
+    protected $isVaultEnabled = false;
+
+    /** @var null|ReadVaultRepositoryInterface */
+    protected $readVaultRepository = null;
+
+    /**
+     * Get Centreon Vault Configuration Status
+     *
+     * @return void
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function getVaultConfigurationStatus(): void
+    {
+        $kernel = Kernel::createForWeb();
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+        $featureFlag = $kernel->getContainer()->get(FeatureFlags::class);
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
+        if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
+            $this->isVaultEnabled = true;
+            $this->readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+        }
+    }
 
     /**
      * @param Container $dependencyInjector

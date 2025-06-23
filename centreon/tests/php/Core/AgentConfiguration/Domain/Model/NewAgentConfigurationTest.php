@@ -25,6 +25,7 @@ namespace Tests\Core\AgentConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -33,6 +34,7 @@ beforeEach(function (): void {
         return new NewAgentConfiguration(
             name: $fields['name'] ?? 'ac-name',
             type: Type::TELEGRAF,
+            connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
             configuration: $this->createMock(ConfigurationParametersInterface::class)
         );
     };

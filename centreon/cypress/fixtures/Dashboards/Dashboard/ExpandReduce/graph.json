@@ -3,7 +3,9 @@
   "metrics": [
       {
           "metric_id": 85,
-          "metric": "test-host2: load5",
+          "metric": "load5",
+          "host_name": null,
+          "service_name": "test-host2",
           "metric_legend": "test-host2: load5",
           "unit": "",
           "min": 0,

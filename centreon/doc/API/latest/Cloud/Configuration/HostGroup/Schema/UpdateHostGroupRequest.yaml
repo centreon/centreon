@@ -1,0 +1,39 @@
+type: object
+properties:
+  name:
+    type: string
+    maxLength: 200
+    description: "Host group name"
+    example: "MySQL-Servers"
+  alias:
+    type: string
+    nullable: true
+    maxLength: 200
+    description: "Host group alias"
+    example: "All MySQL Servers"
+  geo_coords:
+    type: string
+    nullable: true
+    maxLength: 32
+    description: "Geographical coordinates use by Centreon Map module to position element on map"
+    example: "48.51,2.20"
+  icon_id:
+    type: integer
+    nullable: true
+    description: "ID of the host group icon"
+  comment:
+    type: string
+    nullable: true
+    description: "Host group comment"
+    example: "This is a comment"
+  hosts:
+    type: array
+    description: "Hosts linked to this host group"
+    items:
+      type: integer
+      description: "Host ID"
+  resource_access_rules:
+    type: array
+    description: "Resource access rules"
+    items:
+      type: integer

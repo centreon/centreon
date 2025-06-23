@@ -455,7 +455,7 @@ describe('Listing header actions: mass delete', () => {
       method: Method.POST,
       path: `${resourceAccessRuleEndpoint({})}/_delete`,
       response: deleteMultipleRulesWarningResponse,
-      statusCode: 207
+      statusCode: 200
     });
     const warningMessage = `${labelFailedToDeleteSelectedRules}: rule0, rule1`;
 
@@ -479,7 +479,7 @@ describe('Listing header actions: mass delete', () => {
       method: Method.POST,
       path: `${resourceAccessRuleEndpoint({})}/_delete`,
       response: deleteMultipleRulesFailedResponse,
-      statusCode: 207
+      statusCode: 200
     });
 
     cy.waitForRequest('@defaultRequest');

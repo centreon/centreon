@@ -1,9 +1,10 @@
 import { Form } from '@centreon/ui';
-import { isNil } from 'ramda';
+import { find, isNil, propEq } from 'ramda';
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
-import { useInputs } from './useInputs';
+import { useFormStyles } from './Modal.styles';
+import { connectionModes, useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
 interface Props {
@@ -15,13 +16,16 @@ const defaultInitialValues = {
   name: '',
   type: null,
   pollers: [],
-  configuration: {}
+  configuration: {},
+  connectionMode: find(propEq('secure', 'id'), connectionModes)
 };
 
 const AgentConfigurationForm = ({
   initialValues,
   isLoading
 }: Props): JSX.Element => {
+  const { classes } = useFormStyles();
+
   const { groups, inputs } = useInputs();
 
   const validationSchema = useValidationSchema();
@@ -41,6 +45,7 @@ const AgentConfigurationForm = ({
       inputs={inputs}
       initialValues={values}
       submit={submit}
+      groupsClassName={classes.groups}
     />
   );
 };

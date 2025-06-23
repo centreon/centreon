@@ -156,7 +156,7 @@ const mockedBulkDelete = (response): void => {
     method: Method.POST,
     path: `${notificationEndpoint({})}/_delete`,
     response,
-    statusCode: 207
+    statusCode: 200
   });
 };
 

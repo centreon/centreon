@@ -173,18 +173,13 @@ it('should present a FindHostsResponse when no error occurs for an admin user', 
         ->willReturn($hostsFound);
 
     $hostGroup = new HostGroup(
-        $oneHost->getGroupIds()[0],
-        'hostgroup_name',
-        '',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-        null,
-        '',
-        true,
+        id: $oneHost->getGroupIds()[0],
+        name: 'hostgroup_name',
+        alias: '',
+        iconId: null,
+        geoCoords: null,
+        comment: '',
+        isActivated: true,
     );
     $this->hostGroupRepository
         ->expects($this->once())

@@ -192,13 +192,14 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $rsObj->setValue(insertResourceInDB());
     } elseif ($form->getSubmitValue("submitC")) {
+        $submitedValues = $form->getSubmitValues();
         if ($rs['is_password']) {
-            $_REQUEST['is_password'] = $rs['is_password'];
-            if ($_REQUEST['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
-                $_REQUEST['resource_line'] = $rs['original_value'];
+            $submitedValues['is_password'] = $rs['is_password'];
+            if ($submitedValues['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
+                $submitedValues['resource_line'] = $rs['original_value'];
             }
         }
-        updateResourceInDB($rsObj->getValue());
+        updateResourceInDB($rsObj->getValue(), $submitedValues);
     }
     $o = null;
     $form->addElement(

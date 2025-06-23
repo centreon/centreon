@@ -211,7 +211,7 @@ export const lightPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#4A4A4A',
+      border: '#EDEDED',
       description: '#4A4A4A',
       title: '#000000'
     }
@@ -353,7 +353,7 @@ export const darkPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#bdbdbd',
+      border: '#666666',
       description: '#bdbdbd',
       title: '#fff'
     }

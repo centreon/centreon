@@ -49,5 +49,5 @@
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom",
   "canExpand": true,
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

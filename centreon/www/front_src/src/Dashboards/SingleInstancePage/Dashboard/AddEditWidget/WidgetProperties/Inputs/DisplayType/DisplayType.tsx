@@ -16,7 +16,8 @@ import useDisplayType from './useDisplayType';
 const DisplayType = ({
   options,
   propertyName,
-  isInGroup
+  isInGroup,
+  label
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
   const { classes: resourcesClasses } = useResourceStyles();
@@ -29,7 +30,9 @@ const DisplayType = ({
 
   return (
     <div>
-      <Label className={resourcesClasses.subtitle}>{t(labelDisplayAs)}</Label>
+      <Label className={resourcesClasses.subtitle}>
+        {t(label || labelDisplayAs)}
+      </Label>
       <div className={classes.displayTypeContainer}>
         {options?.map(({ id, icon, label }) => (
           <Option

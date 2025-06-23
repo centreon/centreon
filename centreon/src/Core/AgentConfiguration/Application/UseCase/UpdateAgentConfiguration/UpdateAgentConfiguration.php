@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
@@ -40,6 +39,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -53,10 +53,10 @@ final class UpdateAgentConfiguration
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly Validator $validator,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
-    ) {
-    }
+        private readonly bool $isCloudPlatform,
+    ) {}
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
@@ -66,13 +66,34 @@ final class UpdateAgentConfiguration
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to access poller/agent configurations",
-                    ['user_id' => $this->user->getId()]
+                    [
+                        'user_id' => $this->user->getId(),
+                        'ac_id' => $request->id,
+                        'ac_name' => $request->name,
+                        'ac_type' => $request->type,
+                    ],
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
                 );
 
                 return;
+            }
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $linkedPollerIds = array_map(
+                    static fn(Poller $poller): int => $poller->id,
+                    $this->readAcRepository->findPollersByAcId($request->id)
+                );
+
+                $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
             }
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
@@ -91,22 +112,48 @@ final class UpdateAgentConfiguration
                 id: $agentConfiguration->getId(),
                 name: $request->name,
                 type: $agentConfiguration->getType(),
-                parameters: $request->configuration
+                parameters: $request->configuration,
+                connectionMode: $request->connectionMode,
             );
 
             $this->save($updatedAgentConfiguration, $request->pollerIds);
 
-            $presenter->setResponseStatus(New NoContentResponse());
+            $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_id' => $request->id,
+                'ac_name' => $request->name,
+                'ac_type' => $request->type,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(
-                $ex instanceof AgentConfigurationException
-                    ? $ex
-                    : AgentConfigurationException::updateAc()
-            ));
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_id' => $request->id,
+                'ac_name' => $request->name,
+                'ac_type' => $request->type,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
+            $presenter->setResponseStatus(
+                new ErrorResponse(
+                    $ex instanceof AgentConfigurationException
+                        ? $ex : AgentConfigurationException::updateAc()
+                )
+            );
         }
     }
 
@@ -122,7 +169,6 @@ final class UpdateAgentConfiguration
     private function getAgentConfiguration(int $id): null|AgentConfiguration
     {
         if (null === $agentConfiguration = $this->readAcRepository->find($id)) {
-
             return null;
         }
 
@@ -135,7 +181,6 @@ final class UpdateAgentConfiguration
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
             if ([] !== array_diff($pollerIds, $validPollerIds)) {
-
                 return null;
             }
         }
@@ -152,16 +197,16 @@ final class UpdateAgentConfiguration
     private function save(AgentConfiguration $agentConfiguration, array $pollers): void
     {
         try {
-            $this->dataStorageEngine->startTransaction();
+            $this->repositoryManager->startTransaction();
 
             $this->writeAcRepository->update($agentConfiguration);
             $this->writeAcRepository->removePollers($agentConfiguration->getId());
             $this->writeAcRepository->linkToPollers($agentConfiguration->getId(), $pollers);
 
-            $this->dataStorageEngine->commitTransaction();
+            $this->repositoryManager->commitTransaction();
         } catch (\Throwable $ex) {
             $this->error("Rollback of 'UpdateAgentConfiguration' transaction.");
-            $this->dataStorageEngine->rollbackTransaction();
+            $this->repositoryManager->rollbackTransaction();
 
             throw $ex;
         }

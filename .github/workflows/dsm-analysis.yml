@@ -16,15 +16,8 @@ on:
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
       - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -39,6 +32,7 @@ env:
 
 jobs:
   get-environment:
+    if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
@@ -51,7 +45,7 @@ jobs:
       github.ref_name == 'develop' &&
       needs.get-environment.outputs.skip_workflow == 'false'
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -66,28 +60,23 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  veracode-analysis:
+  checkmarx-analysis:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
       github.event.pull_request.draft != 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
-    uses: ./.github/workflows/veracode-analysis.yml
+    uses: ./.github/workflows/checkmarx-analysis.yml
     with:
       module_directory: centreon-dsm
       module_name: centreon-dsm
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      stability: ${{ needs.get-environment.outputs.stability }}
     secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
+      cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
+      cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
+      cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
 
   set-skip-label:
-    needs: [get-environment, veracode-analysis]
+    needs: [get-environment, checkmarx-analysis]
     if: needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/set-pull-request-skip-label.yml

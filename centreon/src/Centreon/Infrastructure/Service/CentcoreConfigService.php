@@ -90,7 +90,6 @@ class CentcoreConfigService
             'centreonbroker_lib' => '/usr/share/centreon/lib/centreon-broker',
             'centreonbroker_varlib' => '/var/lib/centreon-broker',
             'centreonbroker_log' => '/var/log/centreon-broker',
-            'centreonbroker_cbmod' => '/usr/lib64/nagios/cbmod.so',
             'centreonbroker_etc' => '/etc/centreon-broker',
             'centreonplugins' => '/usr/lib/centreon/plugins',
             'centreon_plugins' => '/usr/lib/centreon/plugins',
@@ -106,7 +105,6 @@ class CentcoreConfigService
          * centreonbroker_lib -> nagios_server.centreonbroker_module_path
          * centreonbroker_varlib -> cfg_centreonbroker.cache_directory
          * centreonbroker_log
-         * centreonbroker_cbmod
          * centreonbroker_etc
          * centreonplugins -> cfg_resource.resource_line (resource_name: $CENTREONPLUGINS$)
          * centreon_plugins

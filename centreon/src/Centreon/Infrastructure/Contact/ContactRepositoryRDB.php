@@ -576,7 +576,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }

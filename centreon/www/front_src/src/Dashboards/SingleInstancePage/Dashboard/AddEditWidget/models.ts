@@ -56,6 +56,8 @@ export interface WidgetPropertyProps {
     size?: string;
     step?: string;
     type?: string;
+    unit?: string;
+    pluralize?: string;
   };
   type: string;
   useAdditionalResources?: boolean;
@@ -114,7 +116,7 @@ export enum RadioOptions {
 }
 
 export enum WidgetType {
-  Generic = 'Generic widgets',
-  RealTime = 'Real time widgets',
-  MBI = 'MBI reporting widgets'
+  Generic = 'generic',
+  RealTime = 'realtime',
+  MBI = 'MBI'
 }

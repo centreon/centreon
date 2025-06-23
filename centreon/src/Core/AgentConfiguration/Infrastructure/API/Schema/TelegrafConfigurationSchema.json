@@ -20,7 +20,10 @@
             ],
             "properties": {
                 "otel_public_certificate": {
-                    "type": "string"
+                    "type": [
+                        "null",
+                        "string"
+                    ]
                 },
                 "otel_ca_certificate": {
                     "type": [
@@ -29,16 +32,25 @@
                     ]
                 },
                 "otel_private_key": {
-                    "type": "string"
+                    "type": [
+                        "null",
+                        "string"
+                    ]
                 },
                 "conf_server_port": {
                     "type": "integer"
                 },
                 "conf_certificate": {
-                    "type": "string"
+                    "type": [
+                        "null",
+                        "string"
+                    ]
                 },
                 "conf_private_key": {
-                    "type": "string"
+                    "type": [
+                        "null",
+                        "string"
+                    ]
                 }
             }
         }

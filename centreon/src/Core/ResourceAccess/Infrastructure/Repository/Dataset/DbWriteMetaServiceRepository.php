@@ -36,8 +36,9 @@ class DbWriteMetaServiceRepository extends AbstractRepositoryRDB implements Writ
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(protected DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db)
     {
+        $this->db = $db;
     }
 
     /**

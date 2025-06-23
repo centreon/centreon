@@ -23,6 +23,7 @@ interface Props {
     displayLegend: boolean;
     legendHeight?: number;
   };
+  titleRef: MutableRefObject<HTMLDivElement | null>;
   legendRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: number | false;
   lines: Array<Line>;
@@ -42,6 +43,7 @@ const BaseChart = ({
   setLines,
   children,
   legendRef,
+  titleRef,
   title,
   header,
   isHorizontal = true
@@ -68,7 +70,9 @@ const BaseChart = ({
 
   return (
     <>
-      <Header header={header} title={title} />
+      <div ref={titleRef}>
+        <Header header={header} title={title} ref={titleRef} />
+      </div>
       <div className={classes.container}>
         <Stack
           direction={equals(legend?.placement, 'left') ? 'row' : 'row-reverse'}

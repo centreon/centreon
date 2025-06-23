@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "384cb969-6721-4540-8b80-365894416a4a",
+		"_postman_id": "287aa5a6-cb73-42e7-bf5e-3a2e27244231",
 		"name": "Local_Provider_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-384cb969-6721-4540-8b80-365894416a4a?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -87,9 +86,49 @@
 									"        \"delay_before_new_password\": 3600\r",
 									"    }\r",
 									"    );\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            password_security_policy: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    password_min_length: { type: \"integer\" },\r",
+									"                    has_uppercase: { type: \"boolean\" },\r",
+									"                    has_lowercase: { type: \"boolean\" },\r",
+									"                    has_number: { type: \"boolean\" },\r",
+									"                    has_special_character: { type: \"boolean\" },\r",
+									"                    attempts: { type: \"integer\" },\r",
+									"                    blocking_duration: { type: \"integer\" },\r",
+									"                    password_expiration: {\r",
+									"                        type: \"object\",\r",
+									"                        properties: {\r",
+									"                            expiration_delay: { type: \"integer\" },\r",
+									"                            excluded_users: {\r",
+									"                                type: \"array\",\r",
+									"                                items: {\r",
+									"                                    type: \"string\"\r",
+									"                                }\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"expiration_delay\", \"excluded_users\"]\r",
+									"                    },\r",
+									"                    can_reuse_passwords: { type: \"boolean\" },\r",
+									"                    delay_before_new_password: { type: \"integer\" }\r",
+									"                },\r",
+									"                required: [\"password_min_length\", \"has_uppercase\", \"has_lowercase\", \"has_number\", \"has_special_character\", \"attempts\", \"password_expiration\", \"can_reuse_passwords\", \"delay_before_new_password\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"password_security_policy\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -197,9 +236,49 @@
 									"        \"can_reuse_passwords\": true,\r",
 									"        \"delay_before_new_password\": 7200\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            password_security_policy: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    password_min_length: { type: \"integer\" },\r",
+									"                    has_uppercase: { type: \"boolean\" },\r",
+									"                    has_lowercase: { type: \"boolean\" },\r",
+									"                    has_number: { type: \"boolean\" },\r",
+									"                    has_special_character: { type: \"boolean\" },\r",
+									"                    attempts: { type: \"integer\" },\r",
+									"                    blocking_duration: { type: \"integer\" },\r",
+									"                    password_expiration: {\r",
+									"                        type: \"object\",\r",
+									"                        properties: {\r",
+									"                            expiration_delay: { type: \"integer\" },\r",
+									"                            excluded_users: {\r",
+									"                                type: \"array\",\r",
+									"                                items: {\r",
+									"                                    type: \"string\"\r",
+									"                                }\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"expiration_delay\", \"excluded_users\"]\r",
+									"                    },\r",
+									"                    can_reuse_passwords: { type: \"boolean\" },\r",
+									"                    delay_before_new_password: { type: \"integer\" }\r",
+									"                },\r",
+									"                required: [\"password_min_length\", \"has_uppercase\", \"has_lowercase\", \"has_number\", \"has_special_character\", \"attempts\", \"password_expiration\", \"can_reuse_passwords\", \"delay_before_new_password\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"password_security_policy\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -305,9 +384,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.password_min_length] The property password_min_length is required\\n[password_security_policy.has_uppercase] The property has_uppercase is required\\n[password_security_policy.has_lowercase] The property has_lowercase is required\\n[password_security_policy.has_number] The property has_number is required\\n[password_security_policy.has_special_character] The property has_special_character is required\\n[password_security_policy.attempts] The property attempts is required\\n[password_security_policy.blocking_duration] The property blocking_duration is required\\n[password_security_policy.password_expiration] The property password_expiration is required\\n[password_security_policy.can_reuse_passwords] The property can_reuse_passwords is required\\n[password_security_policy.delay_before_new_password] The property delay_before_new_password is required\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -353,9 +447,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.password_min_length] Must have a minimum value of 8\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -401,9 +510,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.password_min_length] Must have a maximum value of 128\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -449,9 +573,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.attempts] Must have a minimum value of 1\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -497,9 +636,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.attempts] Must have a maximum value of 10\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -545,9 +699,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.blocking_duration] Must have a maximum value of 604800\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -593,9 +762,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.password_expiration.expiration_delay] Must have a minimum value of 604800\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -641,9 +825,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.password_expiration.expiration_delay] Must have a maximum value of 31536000\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -689,9 +888,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.delay_before_new_password] Must have a minimum value of 3600\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -737,9 +951,24 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[password_security_policy.delay_before_new_password] Must have a maximum value of 604800\\n\")\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -801,9 +1030,49 @@
 									"        \"can_reuse_passwords\": true,\r",
 									"        \"delay_before_new_password\": 7200\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            password_security_policy: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    password_min_length: { type: \"integer\" },\r",
+									"                    has_uppercase: { type: \"boolean\" },\r",
+									"                    has_lowercase: { type: \"boolean\" },\r",
+									"                    has_number: { type: \"boolean\" },\r",
+									"                    has_special_character: { type: \"boolean\" },\r",
+									"                    attempts: { type: \"integer\" },\r",
+									"                    blocking_duration: { type: \"integer\" },\r",
+									"                    password_expiration: {\r",
+									"                        type: \"object\",\r",
+									"                        properties: {\r",
+									"                            expiration_delay: { type: \"integer\" },\r",
+									"                            excluded_users: {\r",
+									"                                type: \"array\",\r",
+									"                                items: {\r",
+									"                                    type: \"string\"\r",
+									"                                }\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"expiration_delay\", \"excluded_users\"]\r",
+									"                    },\r",
+									"                    can_reuse_passwords: { type: \"boolean\" },\r",
+									"                    delay_before_new_password: { type: \"integer\" }\r",
+									"                },\r",
+									"                required: [\"password_min_length\", \"has_uppercase\", \"has_lowercase\", \"has_number\", \"has_special_character\", \"attempts\", \"password_expiration\", \"can_reuse_passwords\", \"delay_before_new_password\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"password_security_policy\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1133,7 +1402,8 @@
 									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1690,18 +1960,58 @@
 									"        \"attempts\": 6,\r",
 									"        \"blocking_duration\": 1200,\r",
 									"        \"password_expiration\": {\r",
-									"        \"expiration_delay\": 25552000,\r",
-									"        \"excluded_users\": [\r",
-									"            \"admin\"\r",
-									"        ]\r",
+									"            \"expiration_delay\": 25552000,\r",
+									"            \"excluded_users\": [\r",
+									"                \"admin\"\r",
+									"            ]\r",
 									"        },\r",
 									"        \"can_reuse_passwords\": true,\r",
 									"        \"delay_before_new_password\": 3600\r",
 									"    }\r",
 									"    );\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the authentication provider listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            password_security_policy: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    password_min_length: { type: \"integer\" },\r",
+									"                    has_uppercase: { type: \"boolean\" },\r",
+									"                    has_lowercase: { type: \"boolean\" },\r",
+									"                    has_number: { type: \"boolean\" },\r",
+									"                    has_special_character: { type: \"boolean\" },\r",
+									"                    attempts: { type: \"integer\" },\r",
+									"                    blocking_duration: { type: \"integer\" },\r",
+									"                    password_expiration: {\r",
+									"                        type: \"object\",\r",
+									"                        properties: {\r",
+									"                            expiration_delay: { type: \"integer\" },\r",
+									"                            excluded_users: {\r",
+									"                                type: \"array\",\r",
+									"                                items: {\r",
+									"                                    type: \"string\"\r",
+									"                                }\r",
+									"                            }\r",
+									"                        },\r",
+									"                        required: [\"expiration_delay\", \"excluded_users\"]\r",
+									"                    },\r",
+									"                    can_reuse_passwords: { type: \"boolean\" },\r",
+									"                    delay_before_new_password: { type: \"integer\" }\r",
+									"                },\r",
+									"                required: [\"password_min_length\", \"has_uppercase\", \"has_lowercase\", \"has_number\", \"has_special_character\", \"attempts\", \"password_expiration\", \"can_reuse_passwords\", \"delay_before_new_password\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"password_security_policy\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

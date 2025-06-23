@@ -10,8 +10,8 @@ import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
 import {
   labelAddHost,
+  labelCACommonName,
   labelCaCertificate,
-  labelCertificate,
   labelDNSIP,
   labelPort
 } from '../../translatedLabels';
@@ -30,6 +30,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostErrors,
     hostTouched,
     changePort,
+    areCertificateFieldsVisible,
     changeStringInput
   } = useHostConfiguration({
     index
@@ -89,42 +90,47 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           }
         }}
       />
-      <TextField
-        value={host?.pollerCaCertificate || ''}
-        onChange={changeStringInput('pollerCaCertificate')}
-        label={t(labelCertificate)}
-        dataTestId={labelCertificate}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: {
-              'aria-label': labelCertificate
+      {areCertificateFieldsVisible && (
+        <TextField
+          value={host?.pollerCaCertificate || ''}
+          onChange={changeStringInput('pollerCaCertificate')}
+          label={t(labelCaCertificate)}
+          dataTestId={labelCaCertificate}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': labelCaCertificate
+              }
             }
+          }}
+          fullWidth
+          error={
+            (hostTouched?.pollerCaCertificate &&
+              hostErrors?.pollerCaCertificate) ||
+            undefined
           }
-        }}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaCertificate &&
-            hostErrors?.pollerCaCertificate) ||
-          undefined
-        }
-      />
-      <TextField
-        value={host?.pollerCaName || ''}
-        onChange={changeStringInput('pollerCaName')}
-        label={t(labelCaCertificate)}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: {
-              'aria-label': labelCaCertificate
+        />
+      )}
+
+      {areCertificateFieldsVisible && (
+        <TextField
+          value={host?.pollerCaName || ''}
+          onChange={changeStringInput('pollerCaName')}
+          label={t(labelCACommonName)}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': labelCACommonName
+              }
             }
+          }}
+          dataTestId={labelCACommonName}
+          fullWidth
+          error={
+            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
           }
-        }}
-        dataTestId={labelCaCertificate}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-        }
-      />
+        />
+      )}
     </Box>
   );
 };

@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -93,7 +94,6 @@ class UpdateOpenIdConfiguration
         UpdateOpenIdConfigurationPresenterInterface $presenter,
         UpdateOpenIdConfigurationRequest $request
     ): void {
-
         $this->info('Updating OpenID Provider');
         try {
             $provider = $this->providerAuthenticationFactory->create(Provider::OPENID);
@@ -132,13 +132,40 @@ class UpdateOpenIdConfiguration
         } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
-                ['trace' => $ex->getTraceAsString()]
+                [
+                    'exception' => [
+                        'type' => $ex::class,
+                        'message' => $ex->getMessage(),
+                        'file' => $ex->getFile(),
+                        'line' => $ex->getLine(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
             );
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
+        } catch (RepositoryException $exception) {
+            $this->error(
+                'Error during Opend ID Provider Update',
+                ['exception' => $exception->getContext()]
+            );
+            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
+
+            return;
         } catch (\Throwable $ex) {
-            $this->error('Error during Opend ID Provider Update', ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                'Error during Opend ID Provider Update',
+                [
+                    'exception' => [
+                        'type' => $ex::class,
+                        'message' => $ex->getMessage(),
+                        'file' => $ex->getFile(),
+                        'line' => $ex->getLine(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
             $presenter->setResponseStatus(new UpdateOpenIdConfigurationErrorResponse());
 
             return;
@@ -152,7 +179,7 @@ class UpdateOpenIdConfiguration
      *
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
      *
-     * @throws \Throwable|ConfigurationException
+     * @throws ConfigurationException|RepositoryException
      *
      * @return ContactTemplate|null
      */

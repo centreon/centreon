@@ -234,4 +234,9 @@ interface ContactInterface
      * @return string|null
      */
     public function getUserInterfaceDensity(): ?string;
+
+    /**
+     * @return string
+     */
+    public function getFormatDate(): string;
 }

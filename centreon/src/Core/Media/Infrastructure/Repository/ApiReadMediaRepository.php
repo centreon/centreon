@@ -56,6 +56,14 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByIds(array $mediaIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByPath(string $path): bool
     {
         throw RepositoryException::notYetImplemented();

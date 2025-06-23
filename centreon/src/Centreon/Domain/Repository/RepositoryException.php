@@ -22,6 +22,14 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
 
+/**
+ * Class
+ *
+ * @class RepositoryException
+ * @package Centreon\Domain\Repository
+ *
+ * @deprecated instead use {@see \Core\Common\Domain\Exception\RepositoryException}
+ */
 class RepositoryException extends \Exception
 {
     public static function notYetImplemented(): self

@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
@@ -39,6 +38,8 @@ use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 final class AddAgentConfiguration
 {
@@ -47,9 +48,11 @@ final class AddAgentConfiguration
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
         private readonly WriteAgentConfigurationRepositoryInterface $writeAcRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMsRepository,
         private readonly Validator $validator,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -61,8 +64,13 @@ final class AddAgentConfiguration
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to access poller/agent configurations",
-                    ['user_id' => $this->user->getId()]
+                    [
+                        'user_id' => $this->user->getId(),
+                        'ac_type' => $request->type,
+                        'ac_name' => $request->name,
+                    ],
                 );
+
                 $presenter->presentResponse(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
                 );
@@ -71,6 +79,18 @@ final class AddAgentConfiguration
             }
 
             $request->pollerIds = array_unique($request->pollerIds);
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $centralPoller = $this->readMsRepository->findCentralByIds($request->pollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->presentResponse(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
+            }
+
             $type = Type::from($request->type);
 
             $this->validator->validateRequestOrFail($request);
@@ -78,6 +98,7 @@ final class AddAgentConfiguration
             $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
                 name: $request->name,
                 type: $type,
+                connectionMode: $request->connectionMode,
                 parameters: $request->configuration,
             );
 
@@ -101,14 +122,35 @@ final class AddAgentConfiguration
 
             $presenter->presentResponse($this->createResponse($agentConfiguration, $pollers));
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_type' => $request->type,
+                'ac_name' => $request->name,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_type' => $request->type,
+                'ac_name' => $request->name,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->presentResponse(new ErrorResponse(
                 $ex instanceof AgentConfigurationException
-                    ? $ex
-                    : AgentConfigurationException::addAc()
+                    ? $ex : AgentConfigurationException::addAc()
             ));
         }
     }
@@ -123,10 +165,14 @@ final class AddAgentConfiguration
      *
      * @return int
      */
-    private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
-    {
+    private function save(
+        NewAgentConfiguration $agentConfiguration,
+        array $pollers,
+        ?string $module,
+        array $needBrokerDirectives
+    ): int {
         try {
-            $this->dataStorageEngine->startTransaction();
+            $this->repositoryManager->startTransaction();
 
             $newAcId = $this->writeAcRepository->add($agentConfiguration);
             $this->writeAcRepository->linkToPollers($newAcId, $pollers);
@@ -134,10 +180,10 @@ final class AddAgentConfiguration
                 $this->writeAcRepository->addBrokerDirective($module, $needBrokerDirectives);
             }
 
-            $this->dataStorageEngine->commitTransaction();
+            $this->repositoryManager->commitTransaction();
         } catch (\Throwable $ex) {
             $this->error("Rollback of 'AddAgentConfiguration' transaction.");
-            $this->dataStorageEngine->rollbackTransaction();
+            $this->repositoryManager->rollbackTransaction();
 
             throw $ex;
         }
@@ -183,6 +229,7 @@ final class AddAgentConfiguration
         return new AddAgentConfigurationResponse(
             id: $agentConfiguration->getId(),
             type: $agentConfiguration->getType(),
+            connectionMode: $agentConfiguration->getConnectionMode(),
             name: $agentConfiguration->getName(),
             configuration: $agentConfiguration->getConfiguration()->getData(),
             pollers: $pollers

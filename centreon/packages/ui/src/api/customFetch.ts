@@ -95,15 +95,6 @@ export const customFetch = <T>({
             };
           }
 
-          if (equals(response.status, 207)) {
-            return {
-              data: data.results,
-              isError: false,
-              message: '',
-              statusCode: response.status
-            };
-          }
-
           if (decoder) {
             return decoder.decodeToPromise(data).catch((error: string) => {
               catchError({

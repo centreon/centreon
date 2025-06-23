@@ -2,7 +2,7 @@ const routeMap = {
   about: '/administration/about',
   additionalConnectorConfiguration:
     '/configuration/additional-connector-configurations',
-  apiTokens: '/administration/api-token',
+  authTokens: '/administration/authentication-token',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
   cloudNotificationConfiguration: '/configuration/notifications',
@@ -21,7 +21,8 @@ const routeMap = {
   resources: '/monitoring/resources',
   upgrade: '/install/upgrade.php',
   vaultConfiguration: '/administration/parameters/vault',
-  agentConfigurations: '/configuration/pollers/agent-configurations'
+  agentConfigurations: '/configuration/pollers/agent-configurations',
+  hostGroups: '/configuration/hosts/groups'
 };
 
 export default routeMap;

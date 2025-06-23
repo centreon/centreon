@@ -19,13 +19,11 @@ const Header = ({ title, header }: Props): JSX.Element => {
     Component: (
       <div className={classes.header}>
         <div />
-        <div>
-          {displayTitle && (
-            <Typography align="center" variant="body1">
-              {title}
-            </Typography>
-          )}
-        </div>
+        {displayTitle && (
+          <Typography align="center" variant="body1" className={classes.title}>
+            {title}
+          </Typography>
+        )}
         {header?.extraComponent}
       </div>
     ),

@@ -1,0 +1,6 @@
+Core\ResourceAccess\Domain\Model\TinyRule:
+  attributes:
+    id:
+      groups: ['HostGroup:Get']
+    name:
+      groups: ['HostGroup:Get']
