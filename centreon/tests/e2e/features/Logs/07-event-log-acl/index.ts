@@ -97,6 +97,14 @@ When("the admin creates an access group for the restricted user", () => {
     name: restrictedUser.login,
     password: restrictedUser.password,
   });
+    cy.navigateTo({
+      page: "Resources Status",
+      rootItemNumber: 1
+    });
+    cy.waitForElementInIframe(
+      "#main-content",
+      'div[data-testid="Search bar"]',
+    );
   cy.navigateTo({
     page: "Access Groups",
     rootItemNumber: 4,
