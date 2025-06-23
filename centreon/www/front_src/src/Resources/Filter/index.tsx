@@ -73,7 +73,6 @@ import {
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import SearchHelp from './SearchHelp';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
-import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -210,7 +209,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
+    const selectedValues = remove(-1, 1, values);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -228,7 +227,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: escapeRegExpSpecialChars(lastValue || '')
+            value: lastValue || ''
           }
         }
       })

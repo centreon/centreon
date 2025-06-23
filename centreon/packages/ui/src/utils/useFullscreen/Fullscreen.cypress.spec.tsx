@@ -72,6 +72,9 @@ describe('Fullscreen', () => {
   it('exits fullscreen mode when the button is clicked', () => {
     initialize();
 
+    cy.contains(labelEnterFullscreen).click();
+    cy.contains(labelExitFullscreen).click();
+
     cy.get('#test')
       .should('have.attr', 'data-fullscreenActivated', 'false')
       .should('have.attr', 'data-fullscreenEnabled', 'true');

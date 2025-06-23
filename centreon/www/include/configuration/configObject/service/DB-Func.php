@@ -34,6 +34,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\ActionLog\Domain\Model\ActionLog;
 
 if (!isset($centreon)) {
@@ -1426,7 +1428,11 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
 {
     global $form;
 
-    if (!$serviceId) {
+    if (! count($parameters)) {
+        $parameters = $form->getSubmitValues();
+    }
+
+    if (! $serviceId) {
         return;
     }
 
@@ -1517,16 +1523,15 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
         isset($ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"])
         && $ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"]
     ) {
-        updateServiceNotifOptionTimeperiod($serviceId);
+        updateServiceNotifOptionTimeperiod($serviceId, $parameters);
     } elseif (
         isset($ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"])
         && !$ret["mc_mod_notifopt_timeperiod"]["mc_mod_notifopt_timeperiod"]
     ) {
         updateServiceNotifOptionTimeperiod_MC($serviceId);
     } else {
-        updateServiceNotifOptionTimeperiod($serviceId);
+        updateServiceNotifOptionTimeperiod($serviceId, $parameters);
     }
-
 
     // Function for updating host/hg parent
     // 1 - MC with deletion of existing host/hg parent
@@ -1622,7 +1627,11 @@ function insertServiceInDBForCloud($submittedValues = [], $onDemandMacro = null)
 
 function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = null)
 {
-    global $centreon;
+    global $form, $centreon;
+
+    if (! count($submittedValues)) {
+        $submittedValues = $form->getSubmitValues();
+    }
 
     $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
     if (! isset($tmp_fields['service_id'])) {
@@ -1973,6 +1982,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         ? $rq .= "'" . $submittedValues["service_acknowledgement_timeout"] . "'"
         : $rq .= "NULL";
     $rq .= ")";
+
     $dbResult = $pearDB->query($rq);
     $dbResult = $pearDB->query("SELECT MAX(service_id) FROM service");
     $service_id = $dbResult->fetch();
@@ -2712,7 +2722,7 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
         $stmt = $pearDB->prepareQuery($request);
         $queryParams['service_id'] = $serviceId;
 
-        $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
+        $queryParams['timeperiod_tp_id2'] = !empty($ret['timeperiod_tp_id2']) ? $ret['timeperiod_tp_id2'] : null;
 
         $pearDB->executePreparedQuery($stmt, $queryParams);
     } catch (CentreonDbException $ex) {
@@ -3035,6 +3045,7 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
         $ret2 = CentreonUtils::mergeWithInitialValues($form, 'service_hgPars');
     }
 
+
     /*
      * Get actual config
      */
@@ -3279,7 +3290,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
         : $rq .= "NULL ";
 
-    if (! $isCloudPlatform) { 
+    if (! $isCloudPlatform) {
         $rq .= ", esi_icon_image_alt = ";
         isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
             ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "
@@ -3487,4 +3498,44 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+/**
+ * Will check if the service template inherited by the service has a command.
+ *
+ * @param array<string, mixed> $fields The fields of the service
+ *
+ * @return array<string, string>|bool
+ */
+function checkServiceTemplateHasCommand(array $fields): array|bool
+{
+    $errors['command_command_id'] = _(
+        "The selected inherited service template does not contain any check command. You must select one here."
+    );
+    if (! empty($fields["command_command_id"])) {
+        return true;
+    }
+
+    if (! isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        return $errors;
+    }
+
+    return isCheckCommandDefined($fields["service_template_model_stm_id"]) ? true : $errors;
+}
+
+function isCheckCommandDefined(int $serviceId): bool
+{
+    global $pearDB;
+    $result = $pearDB->fetchAssociative(
+        "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id",
+        QueryParameters::create([QueryParameter::int('stm_id', $serviceId)])
+    );
+
+    if ($result['command_command_id'] !== null) {
+        return true;
+    } elseif ($result['command_command_id'] === null && $result['service_template_model_stm_id'] !== null) {
+        return isCheckCommandDefined($result['service_template_model_stm_id']);
+    }
+
+    return false;
 }

@@ -6,6 +6,7 @@ import { Tooltip } from '@centreon/ui/components';
 
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
+import { Resource } from '../../../models';
 
 import { useLegendStyles } from './Legend.styles';
 
@@ -14,6 +15,7 @@ interface Props {
   direction: 'row' | 'column';
   getLinkToResourceStatusPage: (status, resourceType) => string;
   resourceType: string;
+  resources: Array<Resource>;
   total: number;
   unit: 'number' | 'percentage';
 }
@@ -24,7 +26,8 @@ const Legend = ({
   unit,
   direction,
   getLinkToResourceStatusPage,
-  resourceType
+  resourceType,
+  resources
 }: Props): JSX.Element => {
   const { classes } = useLegendStyles({
     direction
@@ -45,6 +48,7 @@ const Legend = ({
                   color={color}
                   label={status}
                   resourceType={resourceType}
+                  resources={resources}
                   total={total}
                   value={value}
                 />

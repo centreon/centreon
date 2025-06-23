@@ -58,10 +58,10 @@ jobs:
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-jammy
             image: packaging-nfpm-jammy
-          - runner: ["self-hosted", "collect-arm64"]
+          - runner: centreon-collect-arm64
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
-          - runner: ["self-hosted", "collect-arm64"]
+          - runner: centreon-collect-arm64
             dockerfile: packaging-nfpm-bullseye
             image: packaging-nfpm-bullseye-arm64
 

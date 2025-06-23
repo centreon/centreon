@@ -1,0 +1,33 @@
+name: "get-pr-labels"
+description: "Get pull request labels. Allow to get new labels on re-run (not possible with github context)."
+outputs:
+  labels:
+    description: "list of labels on the pull request"
+    value: ${{ steps.get-labels.outputs.result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check if PR has skip label
+      id: get-labels
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        script: |
+          let labels = [];
+
+          if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            try {
+              const fetchedLabels = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number
+              });
+              for (const label of fetchedLabels.data) {
+                labels.push(label.name);
+              }
+            } catch (e) {
+              core.warning(`failed to list labels: ${e}`);
+            }
+          }
+
+          return labels;

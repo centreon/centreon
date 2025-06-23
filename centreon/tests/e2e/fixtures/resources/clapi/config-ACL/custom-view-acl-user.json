@@ -1,0 +1,42 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "custom-view-acl-user;custom-view-acl-user;custom-view-acl-user@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"custom-view-acl-user;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;alias-creator-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;1;Home;Custom Views;"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;1;Administration;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;alias-creator-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;name-creator-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;custom-view-acl-user;"
+    }
+]

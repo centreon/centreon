@@ -1,4 +1,4 @@
-Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric) => {
+Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric, showGraph: boolean) => {
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="vmetric_name"]');
     cy.getIframeBody()
@@ -69,7 +69,9 @@ Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric) => {
       .find('input[name="crit"]')
       .clear()
       .type(body.critical_threshold); 
-    cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+    if(!showGraph){
+      cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+    }
     cy.getIframeBody()
       .find('textarea[name="comment"]')
       .clear()
@@ -420,12 +422,11 @@ Cypress.Commands.add('checkValuesOfHostGroupService', (name:string, body: HostGr
       .and('have.text', body.contactgroups);
 
   cy.getIframeBody().find('input[name="service_notification_interval"]').should('have.value',body.notinterval);
-  //these lines is commented until the related bug is getting fixed https://centreon.atlassian.net/browse/MON-158257
-  //  cy.getIframeBody()
-  //     .find('#timeperiod_tp_id2')
-  //     .find('option:selected')
-  //     .should('have.length', 1)
-  //     .and('have.text', body.notificationperiod);
+   cy.getIframeBody()
+      .find('#timeperiod_tp_id2')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.notificationperiod);
   cy.getIframeBody().find('#notifC').should('be.checked');
   cy.getIframeBody().find('#notifU').should('be.checked');
   cy.getIframeBody().find('input[name="service_first_notification_delay"]').should('have.value',body.firstnotdelay);
@@ -574,7 +575,7 @@ interface HtmlElt {
 declare global {
   namespace Cypress {
     interface Chainable {
-      addOrUpdateVirtualMetric: (body: VirtualMetric) => Cypress.Chainable;
+      addOrUpdateVirtualMetric: (body: VirtualMetric, showGraph: boolean) => Cypress.Chainable;
       checkFieldsOfVM: (body: VirtualMetric) => Cypress.Chainable;
       addMetaService: (body: MetaService) => Cypress.Chainable;
       addMSDependency: (body:MetaServiceDependency) => Cypress.Chainable;

@@ -1034,6 +1034,10 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
         if (! $form->getSubmitValue('service_hgPars') && $serviceHParsFieldIsAdded) {
             $form->addRule('service_hPars', _('HostGroup or Host Required'), 'required');
         }
+    } else {
+        if (! $isCloudPlatform) {
+            $form->addFormRule('checkServiceTemplateHasCommand');
+        }
     }
     if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {
         $form->addRule('service_hgPars', _('HostGroup or Host Required'), 'required');

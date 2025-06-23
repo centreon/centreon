@@ -66,15 +66,33 @@ runs:
           ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
         fi
 
-        for FILE in $FILES; do
-          echo "[DEBUG] - File: $FILE"
+        # Cleanup (equivalent to --sync-deletes done with RPMs)
+        # This is a workaround the fact that jfrog cli does not allow upload
+        # of multiple artifacts at once to an APT repository
+
+        # For each local artifact
+        for file in $FILES; do
+          # build a search pattern using ARTIFACT_BASENAME+OS_DISTRIB+ARCH
 
           VERSION=${{ inputs.version }}
-          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
-          ARCH=$(echo $FILE | cut -d '_' -f3 | cut -d '.' -f1)
+          BASENAME=$(echo "$file" | cut -d '_' -f 1)
+          OS_DISTRIB=$(echo "$file" | sed -n 's/.*+\(deb[0-9]\+\).*/\1/p')
+          ARCH=$(echo $file | cut -d '_' -f3 | cut -d '.' -f1)
 
+          # debug
           echo "[DEBUG] - Version: $VERSION"
+          echo "[DEBUG] - Basename: $BASENAME"
+          echo "[DEBUG] - OS_distrib: $OS_DISTRIB"
+          echo "[DEBUG] - Arch: $ARCH"
 
-          jf rt upload "$FILE" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH" --flat
+          SEARCH_PATH="$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
+
+          # search and delete all remote artifacts matching this pattern
+          echo "Searching and deleting $SEARCH_PATH"
+          jf rt delete "$SEARCH_PATH"
+
+          # upload local artifact
+          echo "Uploading $file"
+          jf rt upload "$file" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash

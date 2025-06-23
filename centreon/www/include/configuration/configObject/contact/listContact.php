@@ -66,11 +66,6 @@ $selectedContact = filter_var(
     FILTER_VALIDATE_INT
 );
 
-$p = filter_var(
-    $_GET['p'] ?? $_POST['p'],
-    FILTER_VALIDATE_INT
-);
-
 $searchContact = \HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchC'] ?? $_GET['searchC'] ?? null
 );
