@@ -34,8 +34,8 @@
  *
  */
 
-require_once __DIR__ . "/../../../class/centreonDB.class.php";
-require_once __DIR__ . "/../../../class/exceptions/StatisticException.php";
+require_once __DIR__ . '/../../../class/centreonDB.class.php';
+require_once __DIR__ . '/../../../class/exceptions/StatisticException.php';
 
 class CentreonDSMStats
 {
@@ -68,11 +68,10 @@ class CentreonDSMStats
             $data = $this->getSlotsUsage();
 
             return ['dsm' => $data];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new StatisticException(
-                "Unable to get Centreon DSM statistics: " . $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                message: 'Unable to get Centreon DSM statistics: ' . $e->getMessage(),
+                previous: $e
             );
         }
     }

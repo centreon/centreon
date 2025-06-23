@@ -106,7 +106,7 @@ const MemoizedGridRows = memo(Grid.GridRows, propsAreEqual);
 const MemoizedLines = memo(Lines, propsAreEqual);
 const MemoizedAnnotations = memo(Annotations, propsAreEqual);
 
-const margin = { bottom: 30, left: 45, right: 45, top: 30 };
+const margin = { bottom: 30, left: 60, right: 60, top: 30 };
 
 const commentTooltipWidth = 165;
 

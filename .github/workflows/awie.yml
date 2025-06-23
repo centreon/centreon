@@ -40,7 +40,10 @@ jobs:
 
   changes:
     needs: [get-environment]
-    runs-on: ubuntu-22.04
+    if: |
+      needs.get-environment.outputs.stability != 'stable' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
     outputs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
       has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
@@ -73,8 +76,11 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
-    needs: [get-environment, changes]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [changes, get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.has_backend_changes == 'true' &&
+      needs.get-environment.outputs.stability != 'stable'
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -153,7 +159,14 @@ jobs:
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
 
     steps:
       - name: Checkout sources
@@ -175,6 +188,9 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
     runs-on: centreon-common
 
@@ -204,7 +220,11 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: centreon-common
 
     strategy:

@@ -1,540 +1,604 @@
 <?php
 /*
- * Copyright 2005-2009 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
-
-use Core\ActionLog\Domain\Model\ActionLog;
 
 if (!isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\ActionLog\Domain\Model\ActionLog;
+
+// Only these fields are permitted from user input
+const ALLOWED_FIELDS = [
+    'hc_name', 'hc_alias', 'hc_type',
+    'hc_severity_level', 'hc_severity_icon',
+    'hc_comment', 'hc_activate',
+    'hc_hosts', 'hc_hostsTemplate'
+];
+/**
+ * Retrieve only the allowed host-category form fields and sanitize them.
+ */
+function getHostCategoryValues(): array
+{
+    global $form;
+    $raw = $form ? $form->getSubmitValues() : [];
+
+    $ret = [];
+    foreach (ALLOWED_FIELDS as $field) {
+        if (!array_key_exists($field, $raw)) {
+            continue;
+        }
+        $value = $raw[$field];
+        // Sanitize strings
+        if (is_string($value)) {
+            $value = \HtmlSanitizer::createFromString($value)
+                ->removeTags()
+                ->sanitize()
+                ->getString();
+        }
+        $ret[$field] = $value;
+    }
+
+    return $ret;
+}
+
 /**
  * Rule that checks whether severity data is set
  */
-function checkSeverity($fields)
+function checkSeverity(array $fields)
 {
-    $arr = [];
-    if (isset($fields['hc_type']) && $fields['hc_severity_level'] == "") {
-        $arr['hc_severity_level'] = "Severity level is required";
+    $errors = [];
+    if (!empty($fields['hc_type']) && ($fields['hc_severity_level'] ?? '') === '') {
+        $errors['hc_severity_level'] = 'Severity level is required';
     }
-    if (isset($fields['hc_type']) && $fields['hc_severity_icon'] == "") {
-        $arr['hc_severity_icon'] = "Severity icon is required";
+    if (!empty($fields['hc_type']) && ($fields['hc_severity_icon'] ?? '') === '') {
+        $errors['hc_severity_icon'] = 'Severity icon is required';
     }
-    if (count($arr)) {
-        return $arr;
-    }
-    return true;
+    return $errors ?: true;
 }
 
-function testHostCategorieExistence($name = null)
+/**
+ * Check existence of a host category name
+ *
+ * @throws RepositoryException
+ */
+function testHostCategorieExistence(?string $name = null): bool
 {
     global $pearDB, $form;
 
-    $name = \HtmlAnalyzer::sanitizeAndRemoveTags($name);
-    $id = null;
-    if (isset($form)) {
-        $id = $form->getSubmitValue('hc_id');
+    if (empty($name)) {
+        throw new RepositoryException('Host category name is required for existence check');
     }
 
-    $statement = $pearDB->prepare("SELECT hc_name, hc_id FROM hostcategories WHERE hc_name = :hc_name");
-    $statement->bindValue(':hc_name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $hc = $statement->fetch();
+    $currentId = $form ? $form->getSubmitValue('hc_id') : null;
+    $query = <<<SQL
+            SELECT hc_id FROM hostcategories WHERE hc_name = :hc_name
+        SQL;
 
-    if ($statement->rowCount() >= 1 && $hc["hc_id"] != $id) {
-        return false;
-    } else {
-        return true;
+    try {
+        $cleanName = \HtmlSanitizer::createFromString($name)
+            ->removeTags()
+            ->sanitize()
+            ->getString();
+        $result = $pearDB->fetchAssociative(
+            $query,
+            QueryParameters::create([
+                QueryParameter::string('hc_name', $cleanName)
+            ])
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
+
+    return !($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
 }
 
+/**
+ * Simple boolean check (legacy)
+ */
 function shouldNotBeEqTo0($value)
 {
-    if ($value) {
-        return true;
-    } else {
-        return false;
-    }
+    return (bool) $value;
 }
 
-function enableHostCategoriesInDB(int $hcId = null, $hcArr = [])
+/**
+ * Enable one or multiple host categories
+ *
+ * @throws RepositoryException
+ */
+function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    if (!$hcId && !count($hcArr)) {
-        return;
-    }
-
-    if ($hcId) {
-        $hcArr = [$hcId => "1"];
-    }
-
-    $statement = $pearDB->prepare("UPDATE hostcategories SET hc_activate = '1' WHERE hc_id = :hc_id");
-    $statement2 = $pearDB->prepare("SELECT hc_name FROM `hostcategories` WHERE `hc_id` = :hc_id LIMIT 1");
-    foreach (array_keys($hcArr) as $key) {
-        $hcId = filter_var($key, FILTER_VALIDATE_INT);
-
-        $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement2->execute();
-        $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $key,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_ENABLE
-        );
-    }
-}
-
-function disableHostCategoriesInDB(int $hcId = null, $hcArr = [])
-{
-    global $pearDB, $centreon;
-
-    if (!$hcId && !count($hcArr)) {
+    if (!$hcId && empty($hcArr)) {
         return;
     }
     if ($hcId) {
-        $hcArr = [$hcId => "1"];
+        $hcArr = [$hcId => '1'];
     }
 
-    $statement = $pearDB->prepare("UPDATE hostcategories SET hc_activate = '0' WHERE hc_id = :hc_id");
-    $statement2 = $pearDB->prepare("SELECT hc_name FROM `hostcategories` WHERE `hc_id` = :hc_id LIMIT 1");
-    foreach (array_keys($hcArr) as $key) {
-        $hcId = filter_var($key, FILTER_VALIDATE_INT);
+    $updQuery = <<<SQL
+            UPDATE hostcategories SET hc_activate = '1' WHERE hc_id = :hc_id
+        SQL;
 
-        $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement->execute();
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
 
-        $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement2->execute();
-        $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $key,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_DISABLE
+    try {
+        foreach (array_keys($hcArr) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
+            $pearDB->update(
+                $updQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
+            );
+            $row = $pearDB->fetchAssociative(
+                $selQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
+            );
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                object_id: $id,
+                object_name: $row['hc_name'] ?? '',
+                action_type: ActionLog::ACTION_TYPE_ENABLE
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Unable to enable host categories',
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ], $exception
         );
     }
 }
 
-function deleteHostCategoriesInDB($hostCategories = [])
+/**
+ * Disable one or multiple host categories
+ *
+ * @throws RepositoryException
+ */
+function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    $statement = $pearDB->prepare("SELECT hc_name FROM `hostcategories` WHERE `hc_id` = :hc_id LIMIT 1");
-    $statement2 = $pearDB->prepare("DELETE FROM hostcategories WHERE hc_id = :hc_id");
-    foreach (array_keys($hostCategories) as $key) {
-        $hcId = filter_var($key, FILTER_VALIDATE_INT);
+    if (!$hcId && empty($hcArr)) {
+        return;
+    }
+    if ($hcId) {
+        $hcArr = [$hcId => '1'];
+    }
 
-        $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
+    $updQuery = <<<SQL
+            UPDATE hostcategories SET hc_activate = '0' WHERE hc_id = :hc_id
+        SQL;
 
-        $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement2->execute();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $hcId,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
+
+    try {
+        foreach (array_keys($hcArr) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
+            $pearDB->update(
+                $updQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+            );
+            $row = $pearDB->fetchAssociative(
+                $selQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+            );
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                object_id: $id,
+                object_name: $row['hc_name'] ?? '',
+                action_type: ActionLog::ACTION_TYPE_DISABLE
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Unable to disable host categories',
+            [
+                'hcId' => $hcId,
+                'hcArr' => $hcArr,
+            ],
+            $exception
         );
     }
-    $centreon->user->access->updateACL();
 }
 
-function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
+/**
+ * Delete one or multiple host categories
+ *
+ * @throws RepositoryException
+ */
+function deleteHostCategoriesInDB(array $hostCategories = []): void
 {
     global $pearDB, $centreon;
 
-    $hcAcl = [];
-    $statement = $pearDB->prepare("SELECT * FROM hostcategories WHERE hc_id = :hc_id LIMIT 1");
-    foreach (array_keys($hostCategories) as $key) {
-        $hcId = filter_var($key, FILTER_VALIDATE_INT);
-        $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
-        $row["hc_id"] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $level = false;
-            $bindParams = [];
-            foreach ($row as $key2 => $value2) {
-                switch ($key2) {
-                    case 'hc_name':
-                        $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $hc_name = $value2 = $value2 . "_" . $i;
-                        $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value2];
-                        break;
-                    case 'hc_alias':
-                        $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $bindParams[':hc_alias'] = [\PDO::PARAM_STR => $value2];
-                        break;
-                    case 'level':
-                        $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        if ($value2) {
-                            $bindParams[':level'] = [\PDO::PARAM_INT => $value2];
-                            $level = true;
-                        } else {
-                            $bindParams[':level'] = [\PDO::PARAM_NULL => null];
-                        }
-                        break;
-                    case 'icon_id':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                        $value2
-                            ? $bindParams[':icon_id'] = [\PDO::PARAM_INT => $value2]
-                            : $bindParams[':icon_id'] = [\PDO::PARAM_NULL => null];
-                        break;
-                    case 'hc_comment':
-                        $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $value2
-                            ? $bindParams[':hc_comment'] = [\PDO::PARAM_STR => $value2]
-                            : $bindParams[':hc_comment'] = [\PDO::PARAM_NULL => null];
-                        break;
-                    case 'hc_activate':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_REGEXP, [
-                            "options" => [
-                                "regexp" => "/^0|1$/"
-                            ]
-                        ]);
-                        $value2
-                            ? $bindParams[':hc_activate'] = [\PDO::PARAM_STR => $value2]
-                            : $bindParams[':hc_activate'] = [\PDO::PARAM_STR => "0"];
-                        break;
-                }
+    if (empty($hostCategories)) {
+        return;
+    }
 
-                if ($key2 != "hc_id") {
-                    $fields[$key2] = $value2;
-                }
+    $selQuery = <<<SQL
+            SELECT hc_name FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
+
+    $delQuery = <<<SQL
+            DELETE FROM hostcategories WHERE hc_id = :hc_id
+        SQL;
+
+    try {
+        foreach (array_keys($hostCategories) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
+            $row = $pearDB->fetchAssociative(
+                $selQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+            );
+            $pearDB->delete(
+                $delQuery,
+                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+            );
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                object_id: $id,
+                object_name: $row['hc_name'] ?? '',
+                action_type: ActionLog::ACTION_TYPE_DELETE
+            );
+        }
+        $centreon->user->access->updateACL();
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Unable to delete host categories',
+            [
+                'hostCategories' => $hostCategories,
+            ],
+            $exception
+        );
+    }
+}
+
+/**
+ * Duplicate host categories N times
+ *
+ * @throws RepositoryException
+ */
+function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = []): void
+{
+    global $pearDB, $centreon;
+
+    $aclMap = [];
+
+    try {
+        foreach (array_keys($hostCategories) as $key) {
+            $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
+
+            $selectQ = <<<SQL
+                    SELECT * FROM hostcategories WHERE hc_id = :hc_id LIMIT 1
+                SQL;
+            $row = $pearDB->fetchAssociative(
+                $selectQ,
+                QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
+            );
+            if (!$row) {
+                continue;
             }
-            $fields["hc_name"] = $hc_name;
-            if (testHostCategorieExistence($hc_name)) {
-                if (!empty($bindParams)) {
-                    $statement2 = $pearDB->prepare("
-                        INSERT INTO hostcategories
-                        VALUES (NULL, :hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
-                    ");
-                    foreach ($bindParams as $token => $bindValues) {
-                        foreach ($bindValues as $paramType => $value) {
-                            $statement2->bindValue($token, $value, $paramType);
-                        }
-                    }
-                    $statement2->execute();
+
+            for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
+                $newName = \HtmlSanitizer::createFromString($row['hc_name'])
+                    ->removeTags()
+                    ->sanitize()
+                    ->getString() . "_$i";
+                if (! testHostCategorieExistence($newName)) {
+                    continue;
                 }
-                $dbResult = $pearDB->query("SELECT MAX(hc_id) FROM hostcategories");
-                $maxId = $dbResult->fetch();
 
-                if (isset($maxId["MAX(hc_id)"]) && !$level) {
-                    $hcAcl[$maxId["MAX(hc_id)"]] = $hcId;
+                $insQuery = <<<SQL
+                        INSERT INTO hostcategories (hc_name, hc_alias, level, icon_id, hc_comment, hc_activate)
+                        VALUES (:hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
+                    SQL;
 
-                    $statement3 = $pearDB->prepare("
-                        SELECT DISTINCT hgr.host_host_id FROM hostcategories_relation hgr
-                        WHERE hgr.hostcategories_hc_id = :hc_id
-                    ");
-                    $statement3->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-                    $statement3->execute();
-                    $fields["hc_hosts"] = "";
-                    $hrstatement = $pearDB->prepare("INSERT INTO hostcategories_relation VALUES (:maxId, :hostId)");
-                    while ($host = $statement3->fetch()) {
-                        $hrstatement->bindValue(':maxId', (int) $maxId["MAX(hc_id)"], \PDO::PARAM_INT);
-                        $hrstatement->bindValue(':hostId', (int) $host["host_host_id"], \PDO::PARAM_INT);
-                        $hrstatement->execute();
-                        $fields["hc_hosts"] .= $host["host_host_id"] . ",";
-                    }
-                    $fields["hc_hosts"] = trim($fields["hc_hosts"], ",");
-                    $centreon->CentreonLogAction->insertLog(
-                        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-                        object_id: $maxId["MAX(hc_id)"],
-                        object_name: $hc_name,
-                        action_type: ActionLog::ACTION_TYPE_ADD,
-                        fields: $fields
+                $params = [
+                    QueryParameter::string('hc_name', $newName),
+                    QueryParameter::string('hc_alias', \HtmlSanitizer::createFromString($row['hc_alias'])
+                        ->removeTags()->sanitize()->getString()),
+                    QueryParameter::int('level', $row['level'] !== null ? (int)$row['level'] : null),
+                    QueryParameter::int('icon_id', $row['icon_id'] !== null ? (int)$row['icon_id'] : null),
+                    $row['hc_comment']
+                        ? QueryParameter::string('hc_comment', \HtmlSanitizer::createFromString($row['hc_comment'])
+                            ->removeTags()->sanitize()->getString())
+                        : QueryParameter::string('hc_comment', null),
+                    QueryParameter::string('hc_activate', preg_match('/^[01]$/', $row['hc_activate'] ?? '') ? $row['hc_activate'] : '0')
+                ];
+
+                $pearDB->insert($insQuery, QueryParameters::create($params));
+                $newId = (int) $pearDB->getLastInsertId();
+                $aclMap[$newId] = $hcId;
+
+                if (empty($row['level'])) {
+                    $relSelect = <<<SQL
+                            SELECT host_host_id FROM hostcategories_relation WHERE hostcategories_hc_id = :hc_id
+                        SQL;
+                    $hostRows = $pearDB->fetchAllAssociative(
+                        $relSelect,
+                        QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
                     );
+                    foreach ($hostRows as $host) {
+                        $insertRelation = <<<SQL
+                                INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id)
+                                VALUES (:new, :host)
+                            SQL;
+                        $pearDB->insert(
+                            $insertRelation,
+                            QueryParameters::create([
+                                QueryParameter::int('new', $newId),
+                                QueryParameter::int('host', $host['host_host_id'])
+                            ])
+                        );
+                    }
                 }
+
+                $fields = [
+                    'hc_name' => $newName,
+                    'hc_hosts' => !empty($hostRows)
+                        ? implode(',', array_column($hostRows, 'host_host_id'))
+                        : ''
+                ];
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                    object_id: $newId,
+                    object_name: $newName,
+                    action_type: ActionLog::ACTION_TYPE_ADD,
+                    fields: $fields
+                );
             }
         }
+
+        CentreonACL::duplicateHcAcl($aclMap);
+        $centreon->user->access->updateACL();
+    } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
+        throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap], $exception);
     }
-    CentreonACL::duplicateHcAcl($hcAcl);
-    $centreon->user->access->updateACL();
 }
 
-function insertHostCategoriesInDB($ret = [])
+/**
+ * Insert host categories
+ *
+ * @throws RepositoryException
+ */
+function insertHostCategories(array $ret = []): int
 {
-    global $centreon;
+    global $pearDB, $centreon;
 
-    $hcId = insertHostCategories($ret);
-    updateHostCategoriesHosts($hcId, $ret);
-    $centreon->user->access->updateACL();
-    return $hcId;
-}
-
-function updateHostCategoriesInDB($hcId = null)
-{
-    global $centreon;
-    if (!$hcId) {
-        return;
-    }
-    updateHostCategories($hcId);
-    updateHostCategoriesHosts($hcId);
-    $centreon->user->access->updateACL();
-}
-
-function insertHostCategories($ret = [])
-{
-    global $form, $pearDB, $centreon;
-
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
+    if (empty($ret)) {
+        $ret = getHostCategoryValues();
     }
 
-    $bindParams = [];
-    foreach ($ret as $key => $value) {
-        switch ($key) {
-            case 'hc_name':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value];
-                break;
-            case 'hc_alias':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $bindParams[':hc_alias'] = [\PDO::PARAM_STR => $value];
-                break;
-            case 'hc_severity_level':
-                $value = filter_var($value, FILTER_VALIDATE_INT);
-                $value
-                    ? $bindParams[':level'] = [\PDO::PARAM_INT => $value]
-                    : $bindParams[':level'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_severity_icon':
-                $value = filter_var($value, FILTER_VALIDATE_INT);
-                $value
-                    ? $bindParams[':icon_id'] = [\PDO::PARAM_INT => $value]
-                    : $bindParams[':icon_id'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_comment':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $value
-                    ? $bindParams[':hc_comment'] = [\PDO::PARAM_STR => $value]
-                    : $bindParams[':hc_comment'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_activate':
-                $value = filter_var($value['hc_activate'], FILTER_VALIDATE_REGEXP, [
-                    "options" => [
-                        "regexp" => "/^0|1$/"
-                    ]
-                ]);
-                $value
-                    ? $bindParams[':hc_activate'] = [\PDO::PARAM_STR => $value]
-                    : $bindParams[':hc_activate'] = [\PDO::PARAM_STR => "0"];
-                break;
-        }
-    }
+    $insQuery = <<<SQL
+            INSERT INTO hostcategories (hc_name, hc_alias, level, icon_id, hc_comment, hc_activate)
+            VALUES (:hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
+        SQL;
 
-    $statement = $pearDB->prepare("
-        INSERT INTO hostcategories
-        (hc_name, hc_alias, level, icon_id, hc_comment, hc_activate)
-        VALUES (:hc_name, :hc_alias, :level, :icon_id, :hc_comment, :hc_activate)
-    ");
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $statement->bindValue($token, $value, $paramType);
-        }
-    }
-    $statement->execute();
-    $dbResult = $pearDB->query("SELECT MAX(hc_id) FROM hostcategories");
-    $hcId = $dbResult->fetch();
 
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
+    // Enforce '0' or '1' on activation
+    $rawAct  = $ret['hc_activate']['hc_activate'] ?? '';
+    $activate = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
 
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-        object_id: $hcId["MAX(hc_id)"],
-        object_name: $ret["hc_name"],
-        action_type: ActionLog::ACTION_TYPE_ADD,
-        fields: $fields
-    );
-    return ($hcId["MAX(hc_id)"]);
-}
+    $params = [
+        QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
+        QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
+        QueryParameter::int('level', !empty($ret['hc_severity_level']) ? (int) $ret['hc_severity_level'] : null),
+        QueryParameter::int('icon_id', isset($ret['hc_severity_icon'])  ? (int) $ret['hc_severity_icon']  : null),
+        QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
+        QueryParameter::string('hc_activate', $activate),
+    ];
 
-function updateHostCategories($hcId)
-{
-    if (!$hcId) {
-        return;
-    }
-    $hcId = filter_var($hcId, FILTER_VALIDATE_INT);
-    global $form, $pearDB, $centreon;
-    $ret = [];
-    $ret = $form->getSubmitValues();
-    $ret['hc_type']
-        ? $scType = true
-        : $scType = false;
-    $bindParams = [];
-    $bindParams[':hc_id'] = [\PDO::PARAM_INT => $hcId];
-    foreach ($ret as $key => $value) {
-        switch ($key) {
-            case 'hc_name':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value];
-                break;
-            case 'hc_alias':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $bindParams[':hc_alias'] = [\PDO::PARAM_STR => $value];
-                break;
-            case 'hc_severity_level':
-                $value = filter_var($value, FILTER_VALIDATE_INT);
-                ($value && $scType)
-                    ? $bindParams[':level'] = [\PDO::PARAM_INT => $value]
-                    : $bindParams[':level'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_severity_icon':
-                $value = filter_var($value, FILTER_VALIDATE_INT);
-                ($value && $scType)
-                    ? $bindParams[':icon_id'] = [\PDO::PARAM_INT => $value]
-                    : $bindParams[':icon_id'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_comment':
-                $value = \HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                $value
-                    ? $bindParams[':hc_comment'] = [\PDO::PARAM_STR => $value]
-                    : $bindParams[':hc_comment'] = [\PDO::PARAM_NULL => null];
-                break;
-            case 'hc_activate':
-                $value = filter_var($value['hc_activate'], FILTER_VALIDATE_REGEXP, [
-                    "options" => [
-                        "regexp" => "/^0|1$/"
-                    ]
-                ]);
-                $value
-                    ? $bindParams[':hc_activate'] = [\PDO::PARAM_STR => $value]
-                    : $bindParams[':hc_activate'] = [\PDO::PARAM_STR => "0"];
-                break;
-        }
-    }
-
-    $statement = $pearDB->prepare("
-        UPDATE hostcategories SET
-            hc_name = :hc_name,
-            hc_alias = :hc_alias,
-            level = :level,
-            icon_id = :icon_id,
-            hc_comment = :hc_comment,
-            hc_activate = :hc_activate
-        WHERE hc_id = :hc_id
-    ");
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $statement->bindValue($token, $value, $paramType);
-        }
-    }
-    $statement->execute();
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-        object_id: $hcId,
-        object_name: $ret["hc_name"],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: $fields
-    );
-    if (array_key_exists(':hc_activate', $bindParams)) {
+    try {
+        $pearDB->insert($insQuery, QueryParameters::create($params));
+        $hcId = (int) $pearDB->getLastInsertId();
+        $fields = CentreonLogAction::prepareChanges($ret);
         $centreon->CentreonLogAction->insertLog(
             object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
             object_id: $hcId,
-            object_name: $ret["hc_name"],
-            action_type: (bool) $bindParams[':hc_activate'][\PDO::PARAM_STR]
-                ? ActionLog::ACTION_TYPE_ENABLE
-                : ActionLog::ACTION_TYPE_DISABLE,
+            object_name: $ret['hc_name'] ?? '',
+            action_type: ActionLog::ACTION_TYPE_ADD,
             fields: $fields
         );
+
+        return $hcId;
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Unable to insert host category',
+            [
+                'hcName' => $ret['hc_name'] ?? '',
+                'params' => $params,
+                'ret' => $ret,
+                'hcId' => $hcId ?? null,
+            ],
+            $exception
+        );
     }
 }
 
-function updateHostCategoriesHosts($hcId, $ret = [])
+/**
+ * Legacy wrapper: calls insertHostCategories(), then updates relations & ACL.
+ *
+ * @throws RepositoryException
+ */
+function insertHostCategoriesInDB(array $ret = []): int
 {
-    global $form, $pearDB;
+    global $centreon;
+    try {
+        $hcId = insertHostCategories($ret);
+        updateHostCategoriesHosts($hcId, $ret);
+        $centreon->user->access->updateACL();
+
+        return $hcId;
+    } catch (RepositoryException $exception) {
+        throw $exception;
+    }
+}
+
+/**
+ * Update host categories (master entry + relations + ACL)
+ *
+ * @throws RepositoryException
+ */
+function updateHostCategoriesInDB(?int $hcId = null): void
+{
+    global $centreon;
+    if (!$hcId) {
+        throw new RepositoryException('Host category ID is required for update');
+    }
+    try {
+        updateHostCategories($hcId);
+        updateHostCategoriesHosts($hcId);
+        $centreon->user->access->updateACL();
+    } catch (RepositoryException $exception) {
+        throw $exception;
+    }
+}
+
+/**
+ * Perform the UPDATE query on hostcategories.
+ *
+ * @throws RepositoryException
+ */
+function updateHostCategories(int $hcId): void
+{
+    global $pearDB, $centreon;
+
+    // Whitelist & sanitize incoming values
+    $ret = getHostCategoryValues();
+
+    $query = <<<SQL
+            UPDATE hostcategories
+            SET hc_name = :hc_name,
+                hc_alias = :hc_alias,
+                level = :level,
+                icon_id = :icon_id,
+                hc_comment = :hc_comment,
+                hc_activate = :hc_activate
+            WHERE hc_id = :hc_id
+        SQL;
+
+    // Prepare params with conditional binding
+    $rawAct = $ret['hc_activate']['hc_activate'] ?? '';
+    $activate = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
+    $params = [
+        QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
+        QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
+        !empty($ret['hc_type']) && isset($ret['hc_severity_level'])
+            ? QueryParameter::int('level', (int) $ret['hc_severity_level'])
+            : QueryParameter::string('level', null),
+        !empty($ret['hc_type']) && isset($ret['hc_severity_icon'])
+            ? QueryParameter::int('icon_id', (int) $ret['hc_severity_icon'])
+            : QueryParameter::string('icon_id', null),
+        QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
+        QueryParameter::string('hc_activate', $activate),
+        QueryParameter::int('hc_id', $hcId),
+    ];
+
+    try {
+        // Execute update
+        $pearDB->update($query, QueryParameters::create($params));
+
+        // Log change
+        $fields = CentreonLogAction::prepareChanges($ret);
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $hcId,
+            object_name: $ret['hc_name'] ?? '',
+            action_type: ActionLog::ACTION_TYPE_CHANGE,
+            fields: $fields
+        );
+
+        if (array_key_exists('hc_activate', $ret)) {
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                object_id: $hcId,
+                object_name: $ret['hc_name'] ?? '',
+                action_type: $activate === '1'
+                    ? ActionLog::ACTION_TYPE_ENABLE
+                    : ActionLog::ACTION_TYPE_DISABLE,
+                fields: $fields
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException('Unable to update host category', ['hcId' => $hcId], $exception);
+    }
+}
+
+/**
+ * Update host relations: deletes old relations and inserts new ones.
+ *
+ * @throws RepositoryException
+ */
+function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
+{
+    global $pearDB, $form;
 
     if (!$hcId) {
-        return;
+        throw new RepositoryException('Host category ID is required for relation update');
     }
-    $hcId = filter_var($hcId, FILTER_VALIDATE_INT);
-    /*
-     * Special Case, delete relation between host/service, when service
-     * is linked to hostcategories in escalation, dependencies, osl
-     *
-     * Get initial Host list to make a diff after deletion
-     */
-    $hostsOLD = [];
 
-    $statement = $pearDB->prepare("
-        SELECT host_host_id FROM hostcategories_relation
-        WHERE hostcategories_hc_id = :hc_id");
-    $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-    $statement->execute();
-    while ($host = $statement->fetch()) {
-        $hostsOLD[$host["host_host_id"]] = $host["host_host_id"];
-    }
-    $statement->closeCursor();
+    try {
+        // Delete old relations
+        $delQuery = <<<SQL
+                DELETE FROM hostcategories_relation WHERE hostcategories_hc_id = :hc_id
+            SQL;
+        $pearDB->delete(
+            $delQuery,
+            QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
+        );
 
-    // delete all previous relations before reinsert new relations
-    $statement = $pearDB->prepare("DELETE FROM hostcategories_relation WHERE hostcategories_hc_id = :hc_id");
-    $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-    $statement->execute();
-    // get host relations
-    $linkedHosts = isset($ret["hc_hosts"]) ?
-        $ret["hc_hosts"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
+        // Merge hosts
+        $hosts = array_merge(
+            $ret['hc_hosts'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts'),
+            $ret['hc_hostsTemplate'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate')
+        );
 
-    // get host template relations
-    $linkedHostTemplates = isset($ret["hc_hostsTemplate"]) ?
-        $ret["hc_hostsTemplate"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
-
-    // merge host and host template relations
-    $linkedObjects = array_merge($linkedHosts, $linkedHostTemplates);
-
-    // build query to insert all relations
-    if (count($linkedObjects)) {
-        $query = "INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES ";
-        for ($i = 0; $i < count($linkedObjects); $i++) {
-            if ($i != 0) {
-                $query .= ", ";
-            }
-            $query .= " (:hc_id, '" . $linkedObjects[$i] . "')";
+        if (empty($hosts)) {
+            return;
         }
-        $statement = $pearDB->prepare($query);
-        $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
-        $statement->execute();
+
+        $insQuery = <<<SQL
+                INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id)
+                VALUES (:hc_id, :host)
+            SQL;
+
+        foreach ($hosts as $hostId) {
+            $pearDB->insert(
+                $insQuery,
+                QueryParameters::create([
+                    QueryParameter::int('hc_id', $hcId),
+                    QueryParameter::int('host', (int) $hostId)
+                ])
+            );
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException('Unable to update host relations', ['hcId' => $hcId], $exception);
     }
 }

@@ -19,6 +19,29 @@
  * For more information : contact@centreon.com
  *
  */
-class StatisticException extends Exception
+
+use Core\Common\Domain\Exception\BusinessLogicException;
+
+/**
+ * Class
+ *
+ * @class StatisticException
+ */
+class StatisticException extends BusinessLogicException
 {
+    /**
+     * StatisticException constructor
+     *
+     * @param string $message
+     * @param array $context
+     * @param Throwable|null $previous
+     */
+    public function __construct(
+        string $message,
+        array $context = [],
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+    }
+
 }
