@@ -110,21 +110,12 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
-<<<<<<< HEAD
-        $tokens = $this->readTokenRepository->findByNames(
-            array_map(
-                static fn(array $token): string => $token['name'],
-                $data['tokens'] ?? []
-            )
-        );
-=======
         $tokens = $data['tokens'] !== []
             ? $this->readTokenRepository->findByNames(array_map(
                     static fn(array $token): string => $token['name'],
-                    $data['tokens']
+                    $data['tokens'] ?? []
             ))
             : [];
->>>>>>> 2b2340ba1e (enh(PAC) handle cma tokens in Agent configuration for reverse connection (#7533))
 
         $tokens = array_filter(
             $tokens,
@@ -154,7 +145,7 @@ class AgentConfiguration extends AbstractObjectJSON
 
             $tokenNames = array_filter(
                 array_map(
-                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name']: null,
+                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
                     $data['hosts']
                 )
             );
