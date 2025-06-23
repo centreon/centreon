@@ -3,6 +3,8 @@
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 
+sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
+
 cd /usr/share/centreon/www/install/steps/process
 su apache -s /bin/bash -c "php configFileSetup.php"
 
@@ -12,14 +14,11 @@ if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
     echo "Centreon is already installed."
     su apache -s /bin/bash -c "php createDbUser.php"
 else
-  sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
-
   su apache -s /bin/bash -c "php installConfigurationDb.php"
   su apache -s /bin/bash -c "php installStorageDb.php"
   su apache -s /bin/bash -c "php createDbUser.php"
   su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su apache -s /bin/bash -c "php partitionTables.php"
-  su apache -s /bin/bash -c "php generationCache.php"
 
   mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
   mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
