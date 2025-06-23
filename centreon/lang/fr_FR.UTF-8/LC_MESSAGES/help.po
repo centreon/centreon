@@ -3884,7 +3884,7 @@ msgid ""
 "directive."
 msgstr ""
 "Cette directive est utilisée pour déterminer si les informations non liées "
-"au statut de l'hôte sont conservés après chaque redémarrage du programme. "
+"au statut de l'hôte sont conservées après chaque redémarrage du programme. "
 "Cela n'est utile que si vous avez activé l'option de rétention globale des "
 "états."
 
