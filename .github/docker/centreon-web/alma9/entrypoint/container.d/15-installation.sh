@@ -20,7 +20,6 @@ else
   su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su apache -s /bin/bash -c "php partitionTables.php"
   su apache -s /bin/bash -c "php generationCache.php"
-  cd -
 
   mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
   mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
