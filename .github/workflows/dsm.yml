@@ -22,10 +22,14 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
+    tags:
+      - "centreon-dsm-*"
 
 env:
   module: dsm
