@@ -145,7 +145,7 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-fuzzy-matching --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
+    $MSGMERGE --no-fuzzy-matching --sort-output $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     # uncomment obsolete translations
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
