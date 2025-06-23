@@ -38,7 +38,7 @@ const resultsToSubmit = [
 ];
 
 beforeEach(() => {
-  // cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
