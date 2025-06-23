@@ -8,7 +8,6 @@ import data_acl_r from "../../../fixtures/acls/acl-access-ressources.json";
 
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
-
 const services = {
   serviceCritical: {
     host: "hostC",
@@ -47,6 +46,10 @@ beforeEach(() => {
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
   }).as("getTimeZone");
+  cy.intercept({
+    method: "GET",
+    url: "/centreon/api/latest/monitoring/resources?page=*",
+  }).as("getResources");
 });
 
 Given("the admin user logs in", () => {
@@ -64,6 +67,7 @@ When("the admin user navigates to the Event Logs page", () => {
   cy.waitForElementToBeVisible('div[data-testid="Search bar"]');
   cy.get('input[placeholder="Search"]').clear();
   cy.get('[data-testid="Refresh"]').click();
+  cy.submitResult(services.serviceCritical.name, "Critical");
     cy.navigateTo({
       page: "Event Logs",
       rootItemNumber: 1,
@@ -89,7 +93,7 @@ Then("the admin user should see all event logs", () => {
     .find("td:nth-child(3) a") // get the 3rd column with object name with links to the host
     .then(($links) => {
       const found = [...$links].some(
-        (link) => link.innerText.trim() === "Centreon-Server", // name of the host
+        (link) => link.innerText.trim() === services.serviceCritical.host, // name of the host
       );
       expect(found).to.be.true;
     });
