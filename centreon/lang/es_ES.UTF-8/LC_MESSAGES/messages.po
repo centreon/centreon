@@ -4054,6 +4054,7 @@ msgstr ""
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/home/customViews/index.php
 msgid "Dashboards"
 msgstr ""
 
@@ -9332,10 +9333,6 @@ msgstr "Opciones de control de host"
 msgid "Host commands and shortcuts"
 msgstr "Comandos y atajos"
 
-#: centreon/www/install/front_translate.php
-msgid "Host configurations"
-msgstr ""
-
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dependencia del anfitrión"
@@ -12022,6 +12019,10 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Monday"
 msgstr "lunes"
+
+#: centreon/www/install/front_translate.php
+msgid "Monitored hosts"
+msgstr ""
 
 #: centreon/www/install/menu_translation.php
 msgid "Monitoring"
@@ -15380,6 +15381,10 @@ msgid "Select criterias"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select existing CMA token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select existing CMA token(s)"
 msgstr ""
 
@@ -18534,7 +18539,11 @@ msgid "Use basic authentication for token endpoint authentication"
 msgstr ""
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
+msgid "Use deprecated custom views"
+msgstr ""
+
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+msgid "Use deprecated monitoring pages"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
@@ -20116,6 +20125,7 @@ msgstr ""
 msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 
+#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Services/service.php
