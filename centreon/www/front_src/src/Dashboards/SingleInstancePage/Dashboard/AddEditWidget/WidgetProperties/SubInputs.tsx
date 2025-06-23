@@ -26,18 +26,34 @@ const SubInputs = ({
   const previousSubInputsToDisplayRef = useRef<Array<SubInput> | undefined>();
   const { setFieldValue, values } = useFormikContext<Widget>();
 
+  const comparedValues = subInputs
+    ?.map(({ customPropertyMatch }) => {
+      const { target, property } = customPropertyMatch || {};
+      return target && property ? values[target][property] : value;
+    })
+    .join('');
+
   const subInputsToDisplay = useMemo(
     () =>
       subInputs?.filter(({ displayValue, customPropertyMatch }) => {
+        const { target, property } = customPropertyMatch || {};
+        const comparedValue =
+          target && property ? values[target][property] : value;
+
         if (equals(customPropertyMatch?.method, 'pluck')) {
-          const valuesToCompare = pluck(customPropertyMatch?.property, value);
+          const valuesToCompare = pluck(
+            customPropertyMatch?.property,
+            comparedValue
+          );
 
           return equals(valuesToCompare, displayValue);
         }
 
-        return equals(displayValue, null) ? true : equals(value, displayValue);
+        return equals(displayValue, null)
+          ? true
+          : equals(comparedValue, displayValue);
       }),
-    [subInputs, value]
+    [subInputs, value, comparedValues]
   );
 
   const hasSubInputs = useMemo(

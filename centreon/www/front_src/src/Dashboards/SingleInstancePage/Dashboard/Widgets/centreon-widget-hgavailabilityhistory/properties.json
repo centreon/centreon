@@ -134,7 +134,8 @@
           "name": "warningtext",
           "displayValue": "host-group",
           "customPropertyMatch": {
-            "customTarget": { "target": "options", "property": "resourceTypes" }
+            "target": "options",
+            "property": "resourceTypes"
           },
           "input": {
             "type": "warning",
@@ -145,7 +146,8 @@
           "name": "warningtext",
           "displayValue": "host-category",
           "customPropertyMatch": {
-            "customTarget": { "target": "options", "property": "resourceTypes" }
+            "target": "options",
+            "property": "resourceTypes"
           },
           "input": {
             "type": "warning",
@@ -156,7 +158,8 @@
           "name": "warningtext",
           "displayValue": "host",
           "customPropertyMatch": {
-            "customTarget": { "target": "options", "property": "resourceTypes" }
+            "target": "options",
+            "property": "resourceTypes"
           },
           "input": {
             "type": "warning",

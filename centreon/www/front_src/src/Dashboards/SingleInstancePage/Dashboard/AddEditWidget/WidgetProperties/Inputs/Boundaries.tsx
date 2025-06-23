@@ -38,12 +38,11 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
     [getProperty({ obj: touched, propertyName: `${propertyName}.max` })]
   );
 
-    const boundariesType = getProperty({
+  const boundariesType = getProperty({
     obj: values,
     propertyName: 'boundariesType'
   });
   const validateBoundaries = () => {
-
     if (equals(boundariesType, 'auto')) {
       return;
     }
@@ -63,8 +62,8 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
           : { ...errors, options: boundaryError }
       );
     }
-  };  
-  
+  };
+
   validateBoundaries();
 
   useEffect(() => {
@@ -73,8 +72,6 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
     }
     setFieldValue(`options.${propertyName}`, { min: 0, max: 100 });
   }, []);
-
-
 
   return (
     <div>

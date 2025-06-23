@@ -149,10 +149,8 @@ const Resources = ({
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    getResourceStatic(resource.resourceType)||
-                    getDefaultRequiredSelectType(
-                      resource.resourceType
-                    )
+                    getResourceStatic(resource.resourceType) ||
+                    getDefaultRequiredSelectType(resource.resourceType)
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
