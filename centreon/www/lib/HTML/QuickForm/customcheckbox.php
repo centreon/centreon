@@ -40,6 +40,9 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
     public $checkboxTemplate;
 
 
+    /**
+     * @return string
+     */
     public function toHtml()
     {
         $oldHtml = parent::toHtml();

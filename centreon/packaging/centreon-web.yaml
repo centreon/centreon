@@ -254,6 +254,11 @@ contents:
     file_info:
       mode: 0664
 
+  - src: "../config.new"
+    dst: "/usr/share/centreon/config.new"
+    file_info:
+      mode: 0664
+
   - dst: "/usr/share/centreon/cron"
     type: dir
     file_info:

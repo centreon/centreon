@@ -3828,6 +3828,7 @@ msgstr "Tableau de bord mis à jour"
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/home/customViews/index.php
 msgid "Dashboards"
 msgstr "Tableaux de bord"
 
@@ -8057,10 +8058,6 @@ msgstr "Options de contrôle de l'hôte"
 msgid "Host commands and shortcuts"
 msgstr "Commandes et racourcis d'hôte"
 
-#: centreon/www/install/front_translate.php
-msgid "Host configurations"
-msgstr "Configurations d'hôte"
-
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dépendance d'hôte"
@@ -10629,6 +10626,10 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Monday"
 msgstr "Lundi"
+
+#: centreon/www/install/front_translate.php
+msgid "Monitored hosts"
+msgstr "Hôtes supervisés"
 
 #: centreon/www/install/menu_translation.php
 msgid "Monitoring"
@@ -13998,6 +13999,10 @@ msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
 #: centreon/www/install/front_translate.php
+msgid "Select existing CMA token"
+msgstr "Sélectionner un jeton CMA existant"
+
+#: centreon/www/install/front_translate.php
 msgid "Select existing CMA token(s)"
 msgstr "Sélectionner des jetons CMA existants"
 
@@ -17139,8 +17144,12 @@ msgstr ""
 "d'entrée de jeton"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
-msgstr "Utiliser les pages dépréciées"
+msgid "Use deprecated custom views"
+msgstr "Utiliser les vues personalisées dépréciées"
+
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+msgid "Use deprecated monitoring pages"
+msgstr "Utiliser les pages dépréciées de supervision"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"
@@ -18790,6 +18799,7 @@ msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 "[%s] : Aucun code d'autorisation n'a été retourné par le fournisseur externe"
 
+#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Services/service.php
@@ -21025,6 +21035,10 @@ msgstr "Catégorie d'hôtes introuvable"
 #: unknown
 msgid "Host comments"
 msgstr "Commentaires associés à l'hôte"
+
+#: unknown
+msgid "Host configurations"
+msgstr "Configurations d'hôte"
 
 #: unknown
 msgid "Host group created"
@@ -23848,3 +23862,31 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+
+msgid "Failed to delete the additional configuration"
+msgstr "Échec de la suppression de la configuration additionnelle"
+
+msgid "Additional configurations"
+msgstr "Configurations additionnelles"
+
+msgid "Welcome to the additional configurations page"
+msgstr "Bienvenue sur la page des configurations additionnelles"
+
+msgid "For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here."
+msgstr "Pour certains connecteurs, vous devez définir sur le collecteur les identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le faire facilement depuis cette page."
+
+msgid "Add additional configurations"
+msgstr "Ajouter des configurations additionnelles"
+
+msgid "Add an additional configuration"
+msgstr "Ajouter une configuration additionnelle"
+
+msgid "Modify an additional configuration"
+msgstr "Modifier une configuration additionnelle"
+
+msgid "You are about to delete the <strong>{{ name }}</strong> additional configuration. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer la configuration additionnelle <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+msgid "Welcome to the host groups page"
+msgstr "Bienvenue sur la page des groupes d'hôtes"
