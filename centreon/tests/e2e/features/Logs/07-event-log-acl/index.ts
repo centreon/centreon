@@ -38,7 +38,7 @@ const resultsToSubmit = [
 ];
 
 beforeEach(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
@@ -57,6 +57,13 @@ Given("the admin user logs in", () => {
 });
 
 When("the admin user navigates to the Event Logs page", () => {
+  cy.navigateTo({
+    page: "Resources Status",
+    rootItemNumber: 1,
+  });
+  cy.waitForElementToBeVisible('div[data-testid="Search bar"]');
+  cy.get('input[placeholder="Search"]').clear();
+  cy.get('[data-testid="Refresh"]').click();
     cy.navigateTo({
       page: "Event Logs",
       rootItemNumber: 1,
@@ -97,14 +104,6 @@ When("the admin creates an access group for the restricted user", () => {
     name: restrictedUser.login,
     password: restrictedUser.password,
   });
-    cy.navigateTo({
-      page: "Resources Status",
-      rootItemNumber: 1
-    });
-    cy.waitForElementInIframe(
-      "#main-content",
-      'div[data-testid="Search bar"]',
-    );
   cy.navigateTo({
     page: "Access Groups",
     rootItemNumber: 4,
