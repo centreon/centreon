@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1808868a56d69a4d62d71300cd09331",
+    "content-hash": "00427f2294480fc25829023ef2543209",
     "packages": [
         {
             "name": "amphp/amp",
@@ -8935,12 +8935,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "cda889154755a00ed8f75e2914aab61c3c542c36"
+                "reference": "34548d5ecf298afb63b5f4012b5afba0d57990d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/cda889154755a00ed8f75e2914aab61c3c542c36",
-                "reference": "cda889154755a00ed8f75e2914aab61c3c542c36",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/34548d5ecf298afb63b5f4012b5afba0d57990d6",
+                "reference": "34548d5ecf298afb63b5f4012b5afba0d57990d6",
                 "shasum": ""
             },
             "require": {
@@ -8997,7 +8997,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-03-27T10:03:58+00:00"
+            "time": "2025-04-22T12:14:14+00:00"
         },
         {
             "name": "clue/ndjson-react",

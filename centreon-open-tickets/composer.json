@@ -12,6 +12,7 @@
     "php": "8.2",
     "ext-json": "*",
     "ext-openssl": "*",
+    "ext-pdo": "*",
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
@@ -49,7 +50,8 @@
     "allow-plugins": {
       "symfony/flex": false,
       "pestphp/pest-plugin": true,
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "symfony/runtime": true
     }
   },
   "scripts": {

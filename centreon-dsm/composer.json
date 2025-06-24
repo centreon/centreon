@@ -6,6 +6,7 @@
   "require-dev": {
     "php": "8.2",
     "ext-json": "*",
+    "ext-pdo": "*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
     "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
@@ -33,7 +34,8 @@
     "allow-plugins": {
       "symfony/flex": false,
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "symfony/runtime": true
     }
   },
   "scripts": {
