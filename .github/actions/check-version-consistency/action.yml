@@ -29,7 +29,6 @@ runs:
 
           if (filePath.match(/insertBaseConf\.sql$/)) {
             const content = fs.readFileSync(filePath, { encoding: 'utf8' });
-            console.log(content);
             const matches = content.match(/\('version',\s*'([^']+)'\)/);
 
             if (!matches || matches.length < 2) {
@@ -42,7 +41,8 @@ runs:
               return;
             }
 
-            console.log(`Version consistency check passed for ${filePath}.`);
+            core.info(`Version consistency check passed for ${filePath} ${matches[1]}.`);
+            console.log(`Version consistency check passed for ${filePath}. ${matches[1]}`);
           } else {
             // core.setFailed(`Unsupported file: ${filePath}`);
             return;
