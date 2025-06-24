@@ -73,13 +73,6 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
             );
 
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            $this->error(
-                "Find module name failed : {$exception->getMessage()}",
-                [
-                    'module_name' => $name,
-                    'exception' => $exception->getContext(),
-                ]
-            );
 
             throw new RepositoryException(
                 "Find module name failed : {$exception->getMessage()}",
