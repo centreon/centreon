@@ -24,6 +24,7 @@ export {
   federatedWidgetsAtom
 } from './federatedModulesAndWidgetsAtoms';
 export { browserLocaleAtom } from './browserLocaleAtom';
+export { isResourcesStatusPerformanceModeEnabledAtom } from './isResourcesStatusPerformanceModeEnabledAtom';
 
 export type {
   User,
