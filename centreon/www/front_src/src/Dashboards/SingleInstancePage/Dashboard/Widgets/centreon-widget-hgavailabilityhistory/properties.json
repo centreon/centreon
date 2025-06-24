@@ -95,9 +95,9 @@
       "label": "threshold",
       "tooltipLabel": "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
     },
-    "refreshInterval": {
+      "refreshInterval": {
       "type": "refresh-interval",
-      "defaultValue": "custom",
+      "defaultValue": "default",
       "label": "Interval"
     }
   },
