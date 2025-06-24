@@ -65,10 +65,24 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
     }
 
     /**
-     * @inheritDoc
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof AddTokenResponse || $data instanceof GetTokenResponse;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            AddTokenResponse::class => true,
+            GetTokenResponse::class => true,
+        ];
     }
 }
