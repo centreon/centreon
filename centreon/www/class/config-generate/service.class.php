@@ -572,7 +572,8 @@ class Service extends AbstractService
         $this->service_cache[$serviceId]['contact_groups'] = '';
 
         $this->getImages($this->service_cache[$serviceId]);
-        $this->getMacros($this->service_cache[$serviceId]);
+        error_log("DANS GENERATE From Service Id Host ID = " . $hostId);
+        $this->getMacros($this->service_cache[$serviceId], $hostId);
         $this->service_cache[$serviceId]['macros']['_SERVICE_ID'] = $serviceId;
         // useful for servicegroup on servicetemplate
         $service_template = ServiceTemplate::getInstance($this->dependencyInjector);
