@@ -20,7 +20,7 @@ const Grid = ({
   return (
     <div
       className={`${className} grid gap-3`}
-      style={{
+      style={className ? undefined : {
         gridTemplateColumns:
           grid?.gridTemplateColumns ||
           `repeat(${grid?.columns.length || 1}, 1fr)`,
