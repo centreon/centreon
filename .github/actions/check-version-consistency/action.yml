@@ -28,7 +28,7 @@ runs:
           }
 
           if (filePath.match(/insertBaseConf\.sql$/)) {
-            const content = fs.readFileSync(filePath, 'utf8');
+            const content = fs.readFileSync(filePath);
             const matches = content.match(/\('version',\s*'([^']+)'\)/);
 
             if (!matches || matches.length < 2) {
