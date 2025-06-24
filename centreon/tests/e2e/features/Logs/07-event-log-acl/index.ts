@@ -365,18 +365,14 @@ Then(
       .click();
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
-    const expectedHosts = [
-      services.serviceWarning.host,
-    ];
-
     cy.getIframeBody()
-      .find("table.ListTable tbody tr td:nth-child(3) a")
+      .find("table.ListTable tbody tr") // All table rows
+      .find("td:nth-child(3)") // get the 3rd column with object name with no links to any host
       .then(($links) => {
-        const hostNames = [...$links].map((link) => link.innerText.trim());
-
-        expectedHosts.forEach((expectedHost) => {
-          expect(hostNames).to.include(expectedHost);
-        });
+        const found = [...$links].some(
+          (link) => link.innerText.trim() === services.serviceWarning.host, // name of the host
+        );
+        expect(found).to.be.false;
       });
 
   },
