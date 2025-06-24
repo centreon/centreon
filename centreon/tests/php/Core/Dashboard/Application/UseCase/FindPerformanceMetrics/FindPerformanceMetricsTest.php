@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
@@ -66,7 +67,9 @@ it('should present an ErrorResponse when something occurs in the repository', fu
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
         ->method('findByRequestParameters')
-        ->willThrowException(new \Exception('An error occured'));
+        ->willThrowException(
+            new RepositoryException('An error occurred while trying to find performance metrics by request parameters.')
+        );
 
     $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
