@@ -22,4 +22,5 @@ runs:
 
           if (!fs.existsSync(process.env.FILE)) {
             core.setFailed(`File ${process.env.FILE} does not exist.`);
+            exit(1);
           }
