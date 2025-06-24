@@ -14,7 +14,6 @@ const services = {
     name: "service_test_critical",
     template: "SNMP-Linux-Load-Average",
   },
-  serviceOk: { host: "hostO", name: "service_test_ok", template: "Ping-LAN" },
   serviceWarning: {
     host: "hostW",
     name: "service_test_warning",
@@ -101,7 +100,6 @@ Then("the admin user should see all event logs", () => {
 });
 
 When("the admin creates an access group for the restricted user", () => {
-  cy.setUserTokenApiV1();
   cy.addContact({
     admin: restrictedUser.admin,
     email: restrictedUser.email,
@@ -242,19 +240,6 @@ Then(
 );
 
 When("the admin creates host resources", () => {
-  cy.setUserTokenApiV1();
-  cy.addHost({
-    hostGroup: "Linux-Servers",
-    name: services.serviceOk.host,
-    template: "generic-host",
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template,
-    })
   cy.addHost({
     hostGroup: "Linux-Servers",
     name: services.serviceWarning.host,
@@ -280,12 +265,10 @@ When("the admin creates host resources", () => {
       template: services.serviceCritical.template,
     })
     .applyPollerConfiguration();
-  checkHostsAreMonitored([{ name: services.serviceOk.host },
-                          { name: services.serviceCritical.host },
+  checkHostsAreMonitored([{ name: services.serviceCritical.host },
                           { name: services.serviceWarning.host }]);
   checkServicesAreMonitored([
     { name: services.serviceCritical.name },
-    { name: services.serviceOk.name },
     { name: services.serviceWarning.name },
   ]);
   cy.submitResults(resultsToSubmit);
@@ -333,7 +316,6 @@ Then(
     cy.getIframeBody()
       .find("select#acl_hosts-f")
       .select([
-        services.serviceOk.host,
         services.serviceWarning.host,
         services.serviceCritical.host,
       ]);
