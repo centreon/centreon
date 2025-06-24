@@ -117,6 +117,32 @@ Cypress.Commands.add('checkLogDetails',(tableIndex: number, trIndex:number, firs
     .should('include', thirdTd);
 });
 
+Cypress.Commands.add('submitResult', (service: string, status:string) => {
+	cy.visit("/centreon/monitoring/resources");
+	cy.get('input[placeholder="Search"]').clear().type("{enter}");
+	cy.wait("@getResources");
+	cy.getByLabel({ label: "Refresh" }).click();
+	cy.wait("@getResources");
+	cy.get('input[placeholder="Search"]').clear().type(`${service}{enter}`);
+	cy.wait("@getResources");
+	cy.getByLabel({ label: "Refresh" }).click();
+	cy.wait("@getResources");
+	cy.getByLabel({ label: "Select all" }).click();
+	cy.get("button#Moreactions").click();
+	cy.getByTestId({ testId: "Submit a status" }).click({ force: true });
+	cy.contains("div", "Ok").click();
+	cy.contains("p", status).click();
+	cy.getByLabel({ label: "Output" }).type("Output");
+	cy.getByLabel({ label: "Performance data" }).type("Performance data");
+	cy.get('button[data-testid="Confirm"]').should("not.be.disabled").click();
+  cy.wait("@getResources");
+  cy.getByLabel({ label: "Refresh" }).click();
+});
+
+interface submitResult {
+  service: string;
+  status: string;
+}
 
 interface IDyas {
     day: number,
@@ -140,12 +166,22 @@ declare global {
   namespace Cypress {
     interface Chainable {
       addTimePeriodViaApi: (body: TimePeriod) => Cypress.Chainable;
-      updateTimePeriodViaApi: (name: string, body: TimePeriod) => Cypress.Chainable;
+      updateTimePeriodViaApi: (
+        name: string,
+        body: TimePeriod,
+      ) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
-      checkLogDetails: (tableIndex: number, trIndex:number, firstTd:string, secondTd:string, thirdTd:string) => Cypress.Chainable;
+      checkLogDetails: (
+        tableIndex: number,
+        trIndex: number,
+        firstTd: string,
+        secondTd: string,
+        thirdTd: string,
+      ) => Cypress.Chainable;
       addSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
       deleteSubjectViaAPIv2: (url: string) => Cypress.Chainable;
       updateSubjectViaAPIv2: (payload: any, url: string) => Cypress.Chainable;
+      submitResult: (service: string, status: string) => Cypress.Chainable;
     }
   }
 }
