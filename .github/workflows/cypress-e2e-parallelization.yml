@@ -199,7 +199,7 @@ jobs:
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
       - name: Upload test results
-        if: failure()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -354,7 +354,7 @@ jobs:
     steps:
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
-        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        if: ${{ ! cancelled() }}
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
@@ -362,9 +362,7 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        if: |
-          success() ||
-          ( failure() && matrix.type_of_report == 'test-results' )
+        if: ${{ ! cancelled() }}
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
