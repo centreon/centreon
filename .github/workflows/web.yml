@@ -158,13 +158,13 @@ jobs:
       - name: Check ${{ env.installation_file }}
         uses: ./.github/actions/check-version-consistency
         with:
-          file: centreon/www/install/${{ env.installation_file }}
+          file: ${{ env.installation_file }}
           version: ${{ env.version }}
 
       - name: Check ${{ env.update_file }}
         uses: ./.github/actions/check-version-consistency
         with:
-          file: centreon/www/install/php/${{ env.update_file }}
+          file: ${{ env.update_file }}
           version: ${{ env.version }}
 
   # gherkin-lint:
