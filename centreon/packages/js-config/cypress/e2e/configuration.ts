@@ -84,7 +84,6 @@ export default ({
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
-    viewportWidth: 1920,
-    experimentalMemoryManagement : true
+    viewportWidth: 1920
   });
 };
