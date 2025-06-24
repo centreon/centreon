@@ -19,8 +19,29 @@ runs:
       with:
         script: |
           const fs = require('fs');
+          const filePath = process.env.FILE;
+          const version = process.env.VERSION;
 
-          if (!fs.existsSync(process.env.FILE)) {
-            core.setFailed(`File ${process.env.FILE} does not exist.`);
+          if (!fs.existsSync(filePath)) {
+            core.setFailed(`File ${filePath} does not exist.`);
             return;
+          }
+
+          if (filePath.match(/insertBaseConf.sql)) {
+            const content = fs.readFileSync(filePath, 'utf8');
+            const matches = content.match(/\('version',\s*'([^']+)'\)/);
+
+            if (!matches || matches.length < 2) {
+              core.setFailed(`Version not found in ${filePath}.`);
+              return;
+            }
+
+            if (version !== matches[1]) {
+              core.setFailed(`Version mismatch: expected ${version}, found ${matches[1]} in ${filePath}.`);
+              return;
+            }
+
+            console.log(`Version consistency check passed for ${filePath}.`);
+          } else {
+            core.setFailed(`Unsupported file type: ${filePath}`);
           }
