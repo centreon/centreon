@@ -372,7 +372,7 @@ Then(
         const found = [...$links].some(
           (link) => link.innerText.trim() === services.serviceWarning.host, // name of the host
         );
-        expect(found).to.be.false;
+        expect(found).to.be.true;
       });
 
   },
