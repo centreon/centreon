@@ -231,8 +231,8 @@ class CentreonAuthLDAP
             }
 
             if ($userEmail === '') {
-                /* empty email is not an error, we replace it with an underscore */
-                $userEmail = '_';
+                /* empty email is not an error, we replace it with a dash */
+                $userEmail = '-';
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
