@@ -106,6 +106,16 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
     $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
 
+$addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage) {
+    $errorMessage = "Unable to retrieve 'resource_status_search_mode' option from options table";
+    $statement = $pearDB->executeQuery("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
+
+    $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
+    }
+};
+
 try {
 
     $bbdoDefaultUpdate();
@@ -120,6 +130,7 @@ try {
     $updateContactsShowDeprecatedCustomViews();
     $updateCfgParameters();
     $bbdoCfgUpdate();
+    $addResourceStatusSearchModeOption();
 
     $pearDB->commit();
 

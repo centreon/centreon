@@ -248,3 +248,10 @@ $help['tip_display_comment_chart'] = dgettext(
     'If this option is enabled, the comments will be displayed on the status chart.<br>' .
     '<b>Warning</b> : This option can slow down the display of the chart.'
 );
+
+$help['tip_resource_status_search_mode'] = dgettext(
+    'help',
+    'This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data.
+Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data.
+Full search: Free text search will also be performed on the "information" field. This is appropriate only if you have a small amount of data, as it affects performance.'
+);

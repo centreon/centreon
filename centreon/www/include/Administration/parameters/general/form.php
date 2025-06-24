@@ -37,6 +37,8 @@
 require_once __DIR__ . '/../../../../../bootstrap.php';
 require_once __DIR__ . "/../../../../class/centreonGMT.class.php";
 
+const RESOURCE_STATUS_LIMITED_SEARCH = 0;
+const RESOURCE_STATUS_FULL_SEARCH = 1;
 const VERTICAL_NOTIFICATION = 1;
 const CLOSE_NOTIFICATION = 2;
 const CUMULATIVE_NOTIFICATION = 3;
@@ -109,6 +111,26 @@ $inheritanceMode[] = $form->createElement(
 
 $form->addGroup($inheritanceMode, 'inheritance_mode', _("Contacts & Contact groups method calculation"), '&nbsp;');
 $form->setDefaults(['inheritance_mode' => CUMULATIVE_NOTIFICATION]);
+
+$resourceStatusSearchMode = [];
+$resourceStatusSearchMode[] = $form->createElement(
+    'radio',
+    'resource_status_search_mode',
+    null,
+    _("Limited search"),
+    RESOURCE_STATUS_LIMITED_SEARCH
+);
+
+$resourceStatusSearchMode[] = $form->createElement(
+    'radio',
+    'resource_status_search_mode',
+    null,
+    _("Full search"),
+    RESOURCE_STATUS_FULL_SEARCH
+);
+
+$form->addGroup($resourceStatusSearchMode, 'resource_status_search_mode', _("Free text search behavior"), '&nbsp;');
+$form->setDefaults(['resource_status_search_mode' => RESOURCE_STATUS_FULL_SEARCH]);
 
 $limit = [10 => 10, 20 => 20, 30 => 30, 40 => 40, 50 => 50, 60 => 60, 70 => 70, 80 => 80, 90 => 90, 100 => 100];
 $form->addElement('select', 'maxViewMonitoring', _("Limit per page for Monitoring"), $limit);
@@ -303,6 +325,7 @@ $tpl->assign("genOpt_time_zone", _("Time Zone"));
 $tpl->assign("genOpt_auth", _("Authentication properties"));
 $tpl->assign("support", _("Support Information"));
 $tpl->assign('statistics', _("Statistics"));
+$tpl->assign('resource_status_performance', _("Resource status performance"));
 $tpl->assign('valid', $valid);
 
 /*
