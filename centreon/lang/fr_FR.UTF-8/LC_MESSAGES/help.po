@@ -114,7 +114,7 @@ msgid ""
 "Allows user to generate and export configuration, and restart centreontrapd "
 "process."
 msgstr ""
-"Permet à l'utilisateur de générer et exporter la configuration, et de "
+"Permet à l'utilisateur de générer et d'exporter la configuration, et de "
 "redémarrer le processus centreontrapd."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
