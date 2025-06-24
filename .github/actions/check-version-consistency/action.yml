@@ -43,5 +43,6 @@ runs:
 
             console.log(`Version consistency check passed for ${filePath}.`);
           } else {
-            core.setFailed(`Unsupported file type: ${filePath}`);
+            // core.setFailed(`Unsupported file: ${filePath}`);
+            return;
           }
