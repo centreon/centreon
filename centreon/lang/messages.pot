@@ -839,6 +839,10 @@ msgid "Add a widget"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Add additional configurations"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Add advanced server configuration"
 msgstr ""
 
@@ -857,6 +861,10 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Add an Extended Info"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add an additional configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -882,6 +890,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Add filter"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add host group"
 msgstr ""
 
 #: centreon/www/install/steps/process/installConfigurationDb.php
@@ -3607,10 +3619,6 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Create a view"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Create additional configuration"
 msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
@@ -7657,6 +7665,12 @@ msgid ""
 "store it well."
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"For some connectors, you must define on the poller the credentials required "
+"to access the monitored hosts. You can do it easily from here."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
 msgstr ""
@@ -7842,6 +7856,7 @@ msgstr ""
 msgid "General Options"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -11207,6 +11222,10 @@ msgstr ""
 msgid "Modify an Extended Info"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Modify an additional configuration"
+msgstr ""
+
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
 msgstr ""
@@ -13267,6 +13286,7 @@ msgid "Plugins Directory"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
@@ -13335,7 +13355,6 @@ msgid "Poller/agent configuration updated"
 msgstr ""
 
 #: centreon/www/install/menu_translation.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -15925,6 +15944,7 @@ msgid "Setting up configuration file"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Settings"
 msgstr ""
 
@@ -17971,7 +17991,6 @@ msgid "Type your text here"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/front_translate.php
 msgid "Types"
 msgstr ""
 
@@ -18291,10 +18310,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Update"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Update additional configuration"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19098,6 +19113,14 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the additional configurations page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the host groups page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -20548,6 +20571,10 @@ msgstr ""
 
 #: centreon/www/class/centreonContact.class.php
 msgid "uppercase characters"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "vCenter/ESX"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
