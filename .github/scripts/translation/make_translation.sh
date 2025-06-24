@@ -127,7 +127,7 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
@@ -149,7 +149,7 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
+    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr || true)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi
