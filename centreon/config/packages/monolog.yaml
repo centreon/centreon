@@ -25,12 +25,6 @@ when@prod:
         type: service
         id: monolog.handler
         channels: [ 'centreon' ]
-      deprecation:
-        type: rotating_file
-        path: "%log_path%/%kernel.environment%.deprecations.log"
-        max_files: 2
-        channels: [ 'deprecation' ]
-        file_permission: 0660
 when@dev:
   monolog:
     channels: [ 'centreon' ]
