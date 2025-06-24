@@ -231,7 +231,7 @@ class CentreonAuthLDAP
             }
 
             if ($userEmail === '') {
-                /* empty email is not an error, we replace it with an undescore */
+                /* empty email is not an error, we replace it with an underscore */
                 $userEmail = '_';
             }
             //getting user's pager
