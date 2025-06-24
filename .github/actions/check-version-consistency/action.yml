@@ -1,0 +1,25 @@
+name: "check-version-consistency"
+description: "Check consistency between given version and given file (install, update, .version...)."
+inputs:
+  file:
+    description: The file to check for version consistency
+    required: true
+  version:
+    description: The version to check against the file
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check version consistency
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        VERSION: ${{ inputs.version }}
+        FILE: ${{ inputs.file }}
+      with:
+        script: |
+          const fs = require('fs');
+
+          if (!fs.existsSync(process.env.FILE)) {
+            throw new Error(`File ${process.env.FILE} does not exist.`);
+          }
