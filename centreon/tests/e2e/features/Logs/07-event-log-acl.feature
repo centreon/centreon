@@ -3,12 +3,12 @@ Feature: Event Logs visibility based on user roles
 
   Scenario: Restricted user cannot see event logs without resource access
     Given the admin user logs in
-    Then the admin creates host resources
-    When the admin user navigates to the Event Logs page
-    Then the admin user should see all event logs
+    When the admin creates host resources
+    Then the admin user navigates to the Event Logs page
+    And the admin user should see all event logs
     When the admin creates an access group for the restricted user
     Then the admin grants the restricted user event Monitoring through the Menu Access ACL
-    When the admin user logs out
+    And the admin user logs out
     Given the restricted user logs in
     When the restricted user navigates to the Event Logs page
     Then the event log page is accessible and restricted user should not see any event logs displayed

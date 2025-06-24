@@ -58,7 +58,7 @@ Given("the admin user logs in", () => {
   });
 });
 
-When("the admin user navigates to the Event Logs page", () => {
+Then("the admin user navigates to the Event Logs page", () => {
   cy.navigateTo({
     page: "Resources Status",
     rootItemNumber: 1,
@@ -184,7 +184,7 @@ Then(
   },
 );
 
-When("the admin user logs out", () => {
+Then("the admin user logs out", () => {
   cy.logout();
 });
 
