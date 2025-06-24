@@ -11,6 +11,7 @@ import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  isResourcesStatusPerformanceModeEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
   refreshIntervalAtom,
@@ -88,9 +89,11 @@ const useApp = (): UseAppState => {
   const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
-
   const setPlaformName = useSetAtom(platformNameAtom);
   const setUserPermissions = useSetAtom(userPermissionsAtom);
+  const setIsResourcesStatusPerformanceModeEnabled = useSetAtom(
+    isResourcesStatusPerformanceModeEnabledAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -145,6 +148,7 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
+        setIsResourcesStatusPerformanceModeEnabled(true);
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
