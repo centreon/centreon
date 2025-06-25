@@ -25,7 +25,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
-    if [ $CENTREON_DATASET = "1" ]; then
+    if [ "$CENTREON_DATASET" = "1" ]; then
       echo "CENTREON_DATASET environment variable is set, dump will be inserted."
       DATA_DUMP_DIR="/usr/local/src/sql/data"
       for file in `ls $DATA_DUMP_DIR` ; do
