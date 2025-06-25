@@ -95,7 +95,7 @@
       "label": "threshold",
       "tooltipLabel": "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
     },
-      "refreshInterval": {
+    "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",
       "label": "Interval"
@@ -115,8 +115,10 @@
         "meta-service"
       ],
       "selectType": {
-        "defaultResourceType": "host-group",
-        "required": true
+        "defaultResourceType": [
+          { "resourceType": "host-group", "requied": true },
+          { "resourceType": "host-category", "requied": true }
+        ]
       },
       "forceSingleAutocompleteConditions": {
         "resourceType": "host-group",

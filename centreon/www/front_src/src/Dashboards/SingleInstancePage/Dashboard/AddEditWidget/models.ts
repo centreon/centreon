@@ -27,9 +27,12 @@ export interface ForceSingleAutocompleteConditions {
   conditions: Array<WidgetHiddenCondition> | WidgetHiddenCondition;
 }
 
+export interface DefaultResourceType {
+  resourceType: string;
+  requied?: boolean;
+}
 export interface SelectType {
-  defaultResourceType: string;
-  required?: boolean;
+  defaultResourceType: Array<DefaultResourceType>;
 }
 
 export interface OverrideAddButtonVisibility {

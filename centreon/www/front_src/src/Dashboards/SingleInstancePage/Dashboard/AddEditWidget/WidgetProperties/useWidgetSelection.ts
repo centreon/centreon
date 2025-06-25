@@ -189,14 +189,17 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
       (acc, [key, value]) => {
         if (value?.selectType) {
+          const selectedTypes = value.selectType.defaultResourceType;
           return {
             ...acc,
-            [key]: [
-              {
-                [key]: value.defaultValue,
-                resourceType: value.selectType.defaultResourceType
-              }
-            ]
+            [key]: selectedTypes.map(({ resourceType }, index) => {
+              return {
+                [key]: Array.isArray(value.defaultValue)
+                  ? value.defaultValue[index] || []
+                  : value.defaultValue,
+                resourceType
+              };
+            })
           };
         }
 
