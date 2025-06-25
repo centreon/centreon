@@ -33,7 +33,7 @@ runs:
           }
 
           const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
-          const majorVersionMatch = majorVersionContent.match(/MAJOR=(\d+\.\d+)$/);
+          const majorVersionMatch = majorVersionContent.match(/MAJOR=(\d+\.\d+)/);
           console.log(majorVersionContent);
           console.log(majorVersionMatch);
           if (!majorVersionMatch || majorVersionMatch.length < 2) {
