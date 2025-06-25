@@ -13,6 +13,7 @@ export interface DefaultParameters {
   monitoring_default_downtime_with_services: boolean;
   monitoring_default_refresh_interval: string;
   resource_status_view_mode: ListingVariant;
+  is_resource_status_full_search_enabled: boolean;
 }
 
 type Translation = KeyValuePair<string, string>;

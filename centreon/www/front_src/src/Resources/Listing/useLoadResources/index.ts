@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import type { SelectEntry } from '@centreon/ui';
 import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
 import {
-  isResourcesStatusPerformanceModeEnabledAtom,
+  isResourceStatusFullSearchEnabledAtom,
   refreshIntervalAtom
 } from '@centreon/ui-context';
 
@@ -104,8 +104,8 @@ const useLoadResources = (): LoadResources => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
-  const isResourcesStatusPerformanceModeEnabled = useAtomValue(
-    isResourcesStatusPerformanceModeEnabledAtom
+  const isResourceStatusFullSearchEnabled = useAtomValue(
+    isResourceStatusFullSearchEnabledAtom
   );
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
@@ -192,7 +192,7 @@ const useLoadResources = (): LoadResources => {
       search: mergeRight(
         getSearch({
           searchCriteria: getCriteriaValue('search'),
-          isPerformanceModeEnabled: isResourcesStatusPerformanceModeEnabled
+          isResourceStatusFullSearchEnabled
         }) || {},
         {
           conditions: [

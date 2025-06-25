@@ -7,12 +7,12 @@ import { CriteriaValue } from '../../Filter/Criterias/models';
 
 interface GetSearchProps {
   searchCriteria?: CriteriaValue;
-  isPerformanceModeEnabled?: boolean;
+  isResourceStatusFullSearchEnabled?: boolean;
 }
 
 export const getSearch = ({
   searchCriteria,
-  isPerformanceModeEnabled
+  isResourceStatusFullSearchEnabled
 }: GetSearchProps): Search | undefined => {
   if (!searchCriteria) {
     return undefined;
@@ -48,7 +48,7 @@ export const getSearch = ({
 
   return {
     regex: {
-      fields: isPerformanceModeEnabled
+      fields: isResourceStatusFullSearchEnabled
         ? searchableFieldsForPerformance
         : searchableFields,
       value: searchCriteria as string
