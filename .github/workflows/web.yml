@@ -137,10 +137,9 @@ jobs:
   check-version-consistency:
     runs-on: ubuntu-24.04
     needs: [get-environment]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      needs.get-environment.outputs.is_nightly == 'false'
+    # if: |
+    #   needs.get-environment.outputs.skip_workflow == 'false' &&
+    #   needs.get-environment.outputs.stability == 'testing'
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
@@ -487,6 +486,7 @@ jobs:
   #     [
   #       gherkin-lint,
   #       get-environment,
+  #       check-version-consistency,
   #       translation-build,
   #       backend-dependencies,
   #       backend-lint,

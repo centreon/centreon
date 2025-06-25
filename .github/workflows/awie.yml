@@ -7,17 +7,17 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-    paths:
-      - ".version"
-      - ".version.centreon-awie"
-      - "centreon-awie/**"
-      - "!centreon-awie/features/**"
-      - "!centreon-awie/behat.yml"
+    # types:
+    #   - opened
+    #   - synchronize
+    #   - reopened
+    #   - ready_for_review
+    # paths:
+    #   - ".version"
+    #   - ".version.centreon-awie"
+    #   - "centreon-awie/**"
+    #   - "!centreon-awie/features/**"
+    #   - "!centreon-awie/behat.yml"
   push:
     branches:
       - develop
@@ -39,6 +39,31 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
+  check-version-consistency:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    # if: |
+    #   needs.get-environment.outputs.skip_workflow == 'false' &&
+    #   needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-awie
+      configuration_file: centreon-awie/www/modules/centreon-awie/conf.php
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.configuration_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.configuration_file }}
+          version: ${{ env.version }}
 
   changes:
     needs: [get-environment]
@@ -104,7 +129,7 @@ jobs:
         working-directory: centreon-awie
 
   package:
-    needs: [get-environment, backend-lint]
+    needs: [get-environment, check-version-consistency, backend-lint]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
 
     strategy:
