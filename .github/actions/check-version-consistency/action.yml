@@ -40,7 +40,7 @@ runs:
           }
           const majorVersion = majorVersionMatch[1];
 
-          if (filePath.match(/Update-\d{2}\.\d{2}\.\d{2}\.php$/)) {
+          if (filePath.match(/Update-\d+\.\d+\.\d+\.php$/)) {
             // Only check if the file exists
             return;
           }
