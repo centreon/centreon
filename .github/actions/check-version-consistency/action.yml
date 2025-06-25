@@ -62,7 +62,7 @@ runs:
             const minorVersionContent = fs.readFileSync(filePath, { encoding: 'utf8' });
             const minorVersionMatch = minorVersionContent.match(/MAJOR="?(\d+\.\d+)"?$/);
             if (!minorVersionMatch || minorVersionMatch.length < 2) {
-              core.setFailed(`No valid MINOR version found in ${filePath}.``);
+              core.setFailed(`No valid MINOR version found in ${filePath}.`);
               return;
             }
             const minorVersion = minorVersionMatch[1];
