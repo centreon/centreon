@@ -138,7 +138,8 @@ const Resources = ({
                 deleteButtonHidden={
                   deleteButtonHidden ||
                   getResourceStatic(resource.resourceType) ||
-                  hideResourceDeleteButton()
+                  hideResourceDeleteButton() ||
+                  getDefaultRequiredSelectType(resource.resourceType)
                 }
                 key={`${index}${resource.resourceType}`}
                 labelDelete={t(labelDelete)}
