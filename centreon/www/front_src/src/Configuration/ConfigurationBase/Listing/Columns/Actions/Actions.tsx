@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -12,7 +13,6 @@ import { ComponentColumnProps, IconButton } from '@centreon/ui';
 import { labelDelete, labelDuplicate } from '../../../translatedLabels';
 import { useColumnStyles } from '../Columns.styles';
 
-import { JSX } from 'react';
 import useActions from './useActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
