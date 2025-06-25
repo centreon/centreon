@@ -19,30 +19,120 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = '24.10.9';
 $errorMessage = '';
 
-// TODO add your functions here
+// -------------------------------------------- SAML configuration -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws ConnectionException
+ * @throws JsonException
+ * @throws CollectionException
+ * @throws ValueObjectException
+ * @throws UnexpectedValueException
+ * @return void
+ */
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \UnexpectedValueException('SAML configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
+};
+
+// -------------------------------------------- Token -------------------------------------------- //
+
+/**
+ * @throws ConnectionException
+ * @return void
+ */
+$createJwtTable = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to create table jwt_tokens';
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `jwt_tokens` (
+                `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+                `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
+                `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
+                `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
+                `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
+                `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
+                `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
+                `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+                PRIMARY KEY (`token_name`),
+                CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
+                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens'
+            SQL
+    );
+};
+
+/**
+ * @throws ConnectionException
+ * @return void
+ */
+$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to update new authentication tokens topology';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `topology`
+                SET
+                    `topology_name` = 'Authentication Tokens',
+                    `topology_url` = '/administration/authentication-token'
+            WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
+            SQL
+    );
+};
 
 try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
-
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $createJwtTable();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $updateSamlProviderConfiguration($pearDB);
+    $updateTopologyForAuthenticationTokens();
 
     $pearDB->commit();
 
