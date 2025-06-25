@@ -33,9 +33,7 @@ runs:
           }
 
           const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
-          const majorVersionMatch = majorVersionContent.match(/MAJOR=(\d+\.\d+)/);
-          console.log(majorVersionContent);
-          console.log(majorVersionMatch);
+          const majorVersionMatch = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/);
           if (!majorVersionMatch || majorVersionMatch.length < 2) {
             core.setFailed('No valid MAJOR version found in .version.');
             return;
@@ -62,7 +60,7 @@ runs:
             core.info(`Version consistency check passed for ${filePath} ${matches[1]}.`);
           } else if (filePath.match(/\.version.(\w|-)+$/)) {
             const minorVersionContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-            const minorVersionMatch = minorVersionContent.match(/MAJOR="?(\d+\.\d+)"?$/);
+            const minorVersionMatch = minorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/);
             if (!minorVersionMatch || minorVersionMatch.length < 2) {
               core.setFailed(`No valid MINOR version found in ${filePath}.`);
               return;
