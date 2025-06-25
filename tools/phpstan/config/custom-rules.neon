@@ -1,0 +1,20 @@
+rules:
+    - Tools\PhpStan\CustomRules\MiscRules\VariableLengthCustomRule
+    - Tools\PhpStan\CustomRules\MiscRules\StringBackquotesCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\FinalClassCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
+    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
+    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
+    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
+    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
+
+services:
+    -
+        class: Tools\PhpStan\CustomRules\Collectors\MethodCallCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Tools\PhpStan\CustomRules\Collectors\UseUseCollector
+        tags:
+            - phpstan.collector
