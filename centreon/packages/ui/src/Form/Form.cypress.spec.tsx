@@ -297,9 +297,10 @@ describe('Form with sections', () => {
   it('scrolls correctly to section', () => {
     cy.window().then((win) => {
       const initialScrollY = win.scrollY;
-      cy.contains('Third group').click();
-      cy.window().its('scrollY').should('be.greaterThan', initialScrollY);
+      cy.contains('Third group').click().then(() => {
+        cy.window().its('scrollY').should('be.greaterThan', initialScrollY);
+        cy.makeSnapshot();
+      });
     });
-    cy.makeSnapshot();
   });
 });
