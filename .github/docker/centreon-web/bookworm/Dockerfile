@@ -1,20 +1,82 @@
-ARG REGISTRY_URL=docker.centreon.com/centreon
-ARG FROM_IMAGE_VERSION=develop
-
-FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-bookworm:${FROM_IMAGE_VERSION}
+FROM php:8.2-fpm
 
 ARG STABILITY
+ARG VERSION
+ARG IS_CLOUD
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY *.deb /tmp/debs-centreon/
 
-COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
-COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
+# Install required dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
+    sudo \
+    default-mysql-client \
+    libldap2-dev \
+    libsnmp-dev \
+    libicu-dev \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    wget \
+    gpg \
+    && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
+    && docker-php-ext-install \
+        pdo_mysql \
+        gd \
+        xml \
+        mbstring \
+        ldap \
+        snmp \
+        intl \
+        curl \
+        zip \
+        gettext \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
+    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
+    --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
-RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+groupadd -g 6000 centreon
+useradd -u 6000 -g centreon -m -r -d /var/spool/centreon -c "Centreon" -s /bin/bash centreon
+groupadd -g 6001 centreon-engine
+useradd -u 6001 -g centreon-engine -m -r -d /var/lib/centreon-engine -c "Centreon Engine" -s /bin/bash centreon-engine
+groupadd -g 6002 centreon-broker
+useradd -u 6002 -g centreon-broker -m -r -d /var/lib/centreon-broker -c "Centreon Broker"  -s /bin/bash centreon-broker
+groupadd -g 6003 centreon-gorgone
+useradd -u 6003 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -c "Centreon Gorgone"  -s /bin/bash centreon-gorgone
+usermod -aG centreon www-data
+usermod -aG centreon-engine www-data
+usermod -aG centreon-broker www-data
+usermod -aG www-data centreon
+usermod -aG www-data centreon-engine
+usermod -aG www-data centreon-broker
+
+echo 'Acquire::Retries "10"; \
+Acquire::https::Timeout "300"; \
+Acquire::http::Timeout "300"; \
+APT::Install-Recommends "false"; \
+APT::Install-Suggests "false";' > /etc/apt/apt.conf.d/99custom
+
+VERSION_CODENAME=\$(
+  . /etc/os-release
+  echo \$VERSION_CODENAME
+)
+
+if [[ "${IS_CLOUD}" == "true" ]]; then
+  echo "deb https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/apt-standard-internal-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+else
+  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+  echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+fi
+echo "deb https://packages.centreon.com/apt-plugins-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-stable.list
+echo "deb https://packages.centreon.com/apt-plugins-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-testing.list
+echo "deb https://packages.centreon.com/apt-plugins-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
+wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
 if [[ "$STABILITY" == "testing" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
@@ -23,29 +85,35 @@ elif [[ "$STABILITY" == "stable" ]]; then
 fi
 
 apt-get update
+apt-get install -y /tmp/packages-centreon/centreon-web*.deb
 
-apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
-sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
-phpenmod -v 8.2 timezone
+mkdir -p /var/cache/centreon/ /etc/centreon/config.d /var/log/centreon/
+touch /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log 
+chown  -R www-data:www-data /var/cache/centreon/ /var/log/centreon/ /var/log/php8.2-fpm-centreon-error.log /var/log/centreon/centreon-web.log /var/cache/centreon /etc/centreon
+chmod 1230 /var/log/centreon/centreon-web.log
 
-touch /var/log/php8.2-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
-
-systemctl stop gorgoned
-systemctl stop centengine
-systemctl stop cbd
-systemctl stop apache2
-systemctl stop php8.2-fpm
-systemctl stop snmpd
-
-apt-get clean
 
 EOF
 
-EXPOSE 80
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
+COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
+COPY --chmod=755 ./.github/docker/centreon-web/init/service /usr/local/bin/service 
 
-ENTRYPOINT ["/usr/share/centreon/container.sh"]
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+RUN mv /usr/share/centreon/ /var/www/html/ &&\
+    mv /usr/sbin/service /usr/sbin/service.orig &&\
+    chown -R www-data:www-data /var/www/html/centreon /etc/centreon &&\
+    sed -i 's/User_Alias *CENTREON=%@CENTREON_GROUP@/User_Alias      CENTREON=%centreon/' /etc/sudoers.d/centreon &&\
+    ln -s /var/www/html/centreon/ /usr/share/centreon &&\
+    ln -s /usr/local/bin/service /usr/sbin/service
+
+WORKDIR /var/www/html
 
 ENV CENTREON_DATASET="1"
 ENV CENTREON_LANG="en_US"
+
+ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+CMD ["php-fpm"]

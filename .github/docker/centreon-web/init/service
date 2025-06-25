@@ -1,0 +1,24 @@
+#!/bin/sh
+# filepath: /usr/local/bin/service
+
+SERVICE="$1"
+ACTION="$2"
+
+case "$SERVICE" in
+  centengine|cbd)
+    case "$ACTION" in
+      restart|reload)
+        curl -sf -X POST "http://$SERVICE:8000/$ACTION"
+        exit $?
+        ;;
+      *)
+        echo "Unsupported action: $ACTION"
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "Unsupported service: $SERVICE"
+    exit 1
+    ;;
+esac

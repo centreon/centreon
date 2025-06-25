@@ -1,7 +1,7 @@
 {
-  "centreon_dir": "\/usr\/share\/centreon\/",
+  "centreon_dir": "\/var\/www\/html\/centreon\/",
   "centreon_etc": "\/etc\/centreon",
-  "centreon_dir_www": "\/usr\/share\/centreon\/www",
+  "centreon_dir_www": "\/var\/www\/html\/centreon\/www",
   "centreon_dir_rrd": "\/var\/lib\/centreon",
   "centreon_log": "\/var\/log\/centreon",
   "centreon_cachedir": "\/var\/cache\/centreon",

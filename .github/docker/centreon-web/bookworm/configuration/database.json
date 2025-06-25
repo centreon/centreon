@@ -1,5 +1,5 @@
 {
-  "address": "localhost",
+  "address": "db",
   "port": "3306",
   "root_user": "root",
   "root_password": "centreon",
