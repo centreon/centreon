@@ -55,7 +55,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user clicks on the line of the agent configuration', () => {
-  cy.get('*[role="row"]').eq(1).click({ force: true });
+  cy.contains('telegraf-001').click();
   cy.wait('@getAgentsDetails');
 });
 
