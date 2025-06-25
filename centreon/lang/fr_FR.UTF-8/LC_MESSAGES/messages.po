@@ -23557,26 +23557,26 @@ msgstr "L'année doit être inférieure à %d (%s)"
 msgid "Yearly"
 msgstr "Annuel"
 
-msgid "Activate Regex"
+msgid "Enter regex mode"
 msgstr "Activer le mode regex"
 
-msgid "Deactivate regex mode"
+msgid "Exit regex mode"
 msgstr "Désactiver le mode regex"
 
 msgid "Enter regex"
 msgstr "Saisir une regex"
 
-msgid "Do you want to leave the regex mode?"
-msgstr "Voulez-vous quitter le mode regex ?"
+msgid "Do you want to switch to classic mode?"
+msgstr "Voulez-vous passer en mode classique ?"
 
-msgid "Do you want to leave the classic mode?"
-msgstr "Voulez-vous quitter le mode classique ?"
+msgid "Do you want to switch to regex mode?"
+msgstr "Voulez-vous passer en mode regex ?"
 
-msgid "Your changes will not be saved if you switch to classic mode."
-msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode classique."
+msgid "Your changes will not be saved if you leave regex mode."
+msgstr "Vos modifications ne seront pas enregistrées si vous quittez le mode regex."
 
-msgid "Your changes will not be saved if you switch to regex mode."
-msgstr "Vos modifications ne seront pas enregistrées si vous passez en mode regex."
+msgid "Your changes will not be saved if you leave classic mode."
+msgstr "Vos modifications ne seront pas enregistrées si vous quittez le mode classique."
 
 #: unknown
 msgid "You are"
