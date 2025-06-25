@@ -102,7 +102,9 @@ const initialize = ({
         <SnackbarProvider>
           <TestQueryProvider>
             <Provider store={store}>
-              <HostGroups />
+              <div style={{ height: '100vh' }}>
+                <HostGroups />
+              </div>
             </Provider>
           </TestQueryProvider>
         </SnackbarProvider>

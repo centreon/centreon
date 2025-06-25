@@ -16,7 +16,7 @@ const ModalHeader = ({
 }: ModalHeaderProps & DialogTitleProps): ReactElement => {
   return (
     <div className={modalHeader}>
-      <MuiDialogTitle className="p-0 font-bold" color="primary" {...rest}>
+      <MuiDialogTitle className="p-0 font-bold text-2xl" color="primary" {...rest}>
         {children}
       </MuiDialogTitle>
     </div>
