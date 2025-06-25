@@ -27,7 +27,23 @@ runs:
             return;
           }
 
-          if (filePath.match(/insertBaseConf\.sql$/)) {
+          if (!fs.existsSync('.version')) {
+            core.setFailed('No .version file found in the repository.');
+            return;
+          }
+
+          const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
+          const majorVersionMatch = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?$/);
+          if (!majorVersionMatch || majorVersionMatch.length < 2) {
+            core.setFailed('No valid MAJOR version found in .version.');
+            return;
+          }
+          const majorVersion = majorVersionMatch[1];
+
+          if (filePath.match(/Update-\d{2}\.\d{2}\.\d{2}\.php$/)) {
+            // Only check if the file exists
+            return;
+          } else if (filePath.match(/insertBaseConf\.sql$/)) {
             const content = fs.readFileSync(filePath, { encoding: 'utf8' });
             const matches = content.match(/\('version',\s*'([^']+)'\)/);
 
@@ -42,8 +58,22 @@ runs:
             }
 
             core.info(`Version consistency check passed for ${filePath} ${matches[1]}.`);
-            console.log(`Version consistency check passed for ${filePath}. ${matches[1]}`);
+          } else if (filePath.match(/\.version.(\w|-)+$/)) {
+            const minorVersionContent = fs.readFileSync(filePath, { encoding: 'utf8' });
+            const minorVersionMatch = minorVersionContent.match(/MAJOR="?(\d+\.\d+)"?$/);
+            if (!minorVersionMatch || minorVersionMatch.length < 2) {
+              core.setFailed(`No valid MINOR version found in ${filePath}.``);
+              return;
+            }
+            const minorVersion = minorVersionMatch[1];
+
+            if (version !== `${majorVersion}.${minorVersion}`) {
+              core.setFailed(`Version mismatch: expected ${version}, found ${majorVersion}.${minorVersion} in ${filePath}.`);
+              return;
+            }
+
+            core.info(`Version consistency check passed for ${filePath} ${majorVersion}.${minorVersion}.`);
           } else {
-            // core.setFailed(`Unsupported file: ${filePath}`);
+            core.setFailed(`Unsupported file: ${filePath}`);
             return;
           }
