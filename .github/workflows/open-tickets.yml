@@ -7,15 +7,15 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    # types:
-    #   - opened
-    #   - synchronize
-    #   - reopened
-    #   - ready_for_review
-    # paths:
-    #   - ".version"
-    #   - ".version.centreon-open-tickets"
-    #   - "centreon-open-tickets/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - ".version"
+      - ".version.centreon-open-tickets"
+      - "centreon-open-tickets/**"
   push:
     branches:
       - develop
@@ -39,9 +39,9 @@ jobs:
   check-version-consistency:
     runs-on: ubuntu-24.04
     needs: [get-environment]
-    # if: |
-    #   needs.get-environment.outputs.skip_workflow == 'false' &&
-    #   needs.get-environment.outputs.stability == 'testing'
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-open-tickets
