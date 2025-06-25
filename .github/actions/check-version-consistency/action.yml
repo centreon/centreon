@@ -43,7 +43,9 @@ runs:
           if (filePath.match(/Update-\d{2}\.\d{2}\.\d{2}\.php$/)) {
             // Only check if the file exists
             return;
-          } else if (filePath.match(/insertBaseConf\.sql$/)) {
+          }
+
+          if (filePath.match(/insertBaseConf\.sql$/)) {
             const content = fs.readFileSync(filePath, { encoding: 'utf8' });
             const matches = content.match(/\('version',\s*'([^']+)'\)/);
 
@@ -58,7 +60,10 @@ runs:
             }
 
             core.info(`Version consistency check passed for ${filePath} ${matches[1]}.`);
-          } else if (filePath.match(/\.version.(\w|-)+$/)) {
+            return;
+          }
+
+          if (filePath.match(/\.version.(\w|-)+$/)) {
             const minorVersionContent = fs.readFileSync(filePath, { encoding: 'utf8' });
             const minorVersionMatch = minorVersionContent.match(/MINOR="?(\d+)"?/);
             if (!minorVersionMatch || minorVersionMatch.length < 2) {
@@ -73,7 +78,44 @@ runs:
             }
 
             core.info(`Version consistency check passed for ${filePath} ${majorVersion}.${minorVersion}.`);
-          } else {
-            core.setFailed(`Unsupported file: ${filePath}`);
             return;
           }
+
+          if (filePath.match(/conf\.php$/)) {
+            const content = fs.readFileSync(filePath, { encoding: 'utf8' });
+            const matches = content.match(/mod_release.+(?:'|")(\d+\.\d+\.\d+)(?:'|")/);
+            if (!matches || matches.length < 2) {
+              core.setFailed(`Version not found in ${filePath}.`);
+              return;
+            }
+            const foundVersion = matches[1];
+
+            if (version !== foundVersion) {
+              core.setFailed(`Version mismatch: expected ${version}, found ${foundVersion} in ${filePath}.`);
+              return;
+            }
+
+            core.info(`Version consistency check passed for ${filePath} ${foundVersion}.`);
+            return;
+          }
+
+          if (filePath.match(/configs\.xml$/)) {
+            const content = fs.readFileSync(filePath, { encoding: 'utf8' });
+            const matches = content.match(/<version>(\d+\.\d+\.\d+)<\/version>/);
+            if (!matches || matches.length < 2) {
+              core.setFailed(`Version not found in ${filePath}.`);
+              return;
+            }
+            const foundVersion = matches[1];
+
+            if (version !== foundVersion) {
+              core.setFailed(`Version mismatch: expected ${version}, found ${foundVersion} in ${filePath}.`);
+              return;
+            }
+
+            core.info(`Version consistency check passed for ${filePath} ${foundVersion}.`);
+            return;
+          }
+
+          core.setFailed(`Unsupported file: ${filePath}`);
+          return;
