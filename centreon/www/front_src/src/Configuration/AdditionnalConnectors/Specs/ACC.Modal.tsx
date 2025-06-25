@@ -88,6 +88,7 @@ export default (): void => {
         .should('not.be.disabled');
 
       cy.get('input[name="port"]')
+        .scrollIntoView()
         .should('be.visible')
         .should('have.value', 5700)
         .should('not.be.disabled');
@@ -150,6 +151,7 @@ export default (): void => {
         .should('not.be.disabled');
 
       cy.get('input[name="port"]')
+        .scrollIntoView()
         .should('be.visible')
         .should('have.value', 443)
         .should('not.be.disabled');
