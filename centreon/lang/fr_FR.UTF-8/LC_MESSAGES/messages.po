@@ -803,6 +803,10 @@ msgid "Add a widget"
 msgstr "Ajouter widget"
 
 #: centreon/www/install/front_translate.php
+msgid "Add additional configurations"
+msgstr "Ajouter des configurations additionnelles"
+
+#: centreon/www/install/front_translate.php
 msgid "Add advanced server configuration"
 msgstr ""
 
@@ -822,6 +826,10 @@ msgstr "Ajouter une escalade"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Add an Extended Info"
 msgstr "Ajouter une information supplémentaire"
+
+#: centreon/www/install/front_translate.php
+msgid "Add an additional configuration"
+msgstr "Ajouter une configuration additionnelle"
 
 #: centreon/www/install/front_translate.php
 msgid "Add an advanced configuration"
@@ -846,6 +854,10 @@ msgstr "Ajouter une plage de maintenance"
 #: centreon/www/install/front_translate.php
 msgid "Add filter"
 msgstr "Ajouter un filtre"
+
+#: centreon/www/install/front_translate.php
+msgid "Add host group"
+msgstr ""
 
 #: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
@@ -3541,10 +3553,6 @@ msgstr "Créer un ticket"
 msgid "Create a view"
 msgstr "Créer une vue"
 
-#: centreon/www/install/front_translate.php
-msgid "Create additional configuration"
-msgstr "Créer une configuration additionnelle"
-
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Create and edit pollers"
 msgstr "Créer et modifier des collecteurs"
@@ -3828,6 +3836,7 @@ msgstr "Tableau de bord mis à jour"
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/include/home/customViews/index.php
 msgid "Dashboards"
 msgstr "Tableaux de bord"
 
@@ -7226,6 +7235,15 @@ msgstr ""
 "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule "
 "fois. Pensez à bien le stocker."
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"For some connectors, you must define on the poller the credentials required "
+"to access the monitored hosts. You can do it easily from here."
+msgstr ""
+"Pour certains connecteurs, vous devez définir sur le collecteur les "
+"identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le "
+"faire facilement depuis cette page."
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
 msgstr "Forcer les contrôles actifs"
@@ -7675,7 +7693,7 @@ msgstr "Hard"
 
 #: centreon/www/include/eventLogs/viewLog.php
 msgid "Hard Only"
-msgstr "Etat validés (Hard) seulement"
+msgstr "États validés (Hard) seulement"
 
 #: centreon/www/include/monitoring/status/Services/serviceJS.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
@@ -8057,10 +8075,6 @@ msgstr "Options de contrôle de l'hôte"
 msgid "Host commands and shortcuts"
 msgstr "Commandes et racourcis d'hôte"
 
-#: centreon/www/install/front_translate.php
-msgid "Host configurations"
-msgstr "Configurations d'hôte"
-
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dépendance d'hôte"
@@ -8193,12 +8207,12 @@ msgstr "Ce nom de sévérité d'hôtes existe déjà"
 
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 msgid "Host state"
-msgstr "Etat de l'hôte"
+msgstr "État de l'hôte"
 
 #: centreon/www/class/centreonGraphPoller.class.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 msgid "Host status"
-msgstr "Etat des hôtes"
+msgstr "État des hôtes"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Host template"
@@ -8964,7 +8978,7 @@ msgstr ""
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AclConditionsException.php
 msgid "Invalid roles mapping fetched from provider"
-msgstr "Les roles récupérés depuis le serveur d'identité sont incorrects"
+msgstr "Les rôles récupérés depuis le serveur d'identité sont incorrects"
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
@@ -10130,7 +10144,7 @@ msgstr "Nom du méta-services"
 
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 msgid "Meta Service State"
-msgstr "Etat du Meta Service"
+msgstr "État du Meta Service"
 
 #: centreon/src/Centreon/Application/Controller/Monitoring/MetricController.php
 #: centreon/src/Centreon/Application/Controller/DowntimeController.php
@@ -10581,6 +10595,10 @@ msgstr "Modifier une escalade"
 msgid "Modify an Extended Info"
 msgstr "Modifier une information supplémentaire"
 
+#: centreon/www/install/front_translate.php
+msgid "Modify an additional configuration"
+msgstr "Modifier une configuration additionnelle"
+
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
 msgstr "Modifier le répertoire"
@@ -10629,6 +10647,10 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 msgid "Monday"
 msgstr "Lundi"
+
+#: centreon/www/install/front_translate.php
+msgid "Monitored hosts"
+msgstr "Hôtes supervisés"
 
 #: centreon/www/install/menu_translation.php
 msgid "Monitoring"
@@ -11477,7 +11499,7 @@ msgstr "Paramètres de notification"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Notification status"
-msgstr "Etat de la notification"
+msgstr "État de la notification"
 
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
@@ -13998,6 +14020,10 @@ msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
 #: centreon/www/install/front_translate.php
+msgid "Select existing CMA token"
+msgstr "Sélectionner un jeton CMA existant"
+
+#: centreon/www/install/front_translate.php
 msgid "Select existing CMA token(s)"
 msgstr "Sélectionner des jetons CMA existants"
 
@@ -14314,7 +14340,7 @@ msgstr "Raccourcis de service"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Service State"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -14371,7 +14397,7 @@ msgstr "Groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
-msgstr "Etat du groupe de services"
+msgstr "État du groupe de services"
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -14423,12 +14449,12 @@ msgstr "Ce nom de sévérité de services existe déjà"
 
 #: centreon/www/include/reporting/dashboard/viewServicesLog.php
 msgid "Service state"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/class/centreonGraphPoller.class.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 msgid "Service status"
-msgstr "Etat du service"
+msgstr "État du service"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Service template"
@@ -17065,10 +17091,6 @@ msgid "Update"
 msgstr "Mise à jour"
 
 #: centreon/www/install/front_translate.php
-msgid "Update additional configuration"
-msgstr "Mettre à jour la configuration additionnelle"
-
-#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr ""
 
@@ -17139,8 +17161,12 @@ msgstr ""
 "d'entrée de jeton"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
-msgid "Use deprecated pages"
-msgstr "Utiliser les pages dépréciées"
+msgid "Use deprecated custom views"
+msgstr "Utiliser les vues personalisées dépréciées"
+
+#: centreon/www/include/Administration/myAccount/formMyAccount.php
+msgid "Use deprecated monitoring pages"
+msgstr "Utiliser les pages dépréciées de supervision"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Use service DNS"
@@ -17805,6 +17831,14 @@ msgstr "Bienvenue dans le processus d'installation de Centreon"
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the additional configurations page"
+msgstr "Bienvenue sur la page des configurations additionnelles"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the host groups page"
+msgstr "Bienvenue sur la page des groupes d'hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
@@ -18790,6 +18824,7 @@ msgid "[%s]: No authorization code return by external provider"
 msgstr ""
 "[%s] : Aucun code d'autorisation n'a été retourné par le fournisseur externe"
 
+#: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 #: centreon/www/include/monitoring/status/Services/service.php
@@ -19213,6 +19248,10 @@ msgid "uppercase characters"
 msgstr "caractères majuscules"
 
 #: centreon/www/install/front_translate.php
+msgid "vCenter/ESX"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "will display all resources with host having alias containing"
 msgstr "affichera les ressources avec un alias d'hôte contenant"
 
@@ -19434,6 +19473,10 @@ msgstr "Ajouter un jeu de données de ressources"
 #: unknown
 msgid "Add viewer / viewer group"
 msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
+
+#: unknown
+msgid "Additional configurations"
+msgstr "Configurations additionnelles"
 
 #: unknown
 msgid "Additional daemon"
@@ -20143,6 +20186,10 @@ msgid "Could not import ndomod"
 msgstr "Impossible d'importer ndomod"
 
 #: unknown
+msgid "Create additional configuration"
+msgstr "Créer une configuration additionnelle"
+
+#: unknown
 msgid "Create new object with prefix"
 msgstr "Créer un nouvel objet avec un prefix"
 
@@ -20725,6 +20772,10 @@ msgid "Failed to delete resource access rule"
 msgstr "Échec de la suppression de la règle d'accès aux ressources"
 
 #: unknown
+msgid "Failed to delete the additional configuration"
+msgstr "Échec de la suppression de la configuration additionnelle"
+
+#: unknown
 msgid "Failed to delete the host group"
 msgstr "Échec de la suppression du groupe d'hôtes"
 
@@ -21025,6 +21076,10 @@ msgstr "Catégorie d'hôtes introuvable"
 #: unknown
 msgid "Host comments"
 msgstr "Commentaires associés à l'hôte"
+
+#: unknown
+msgid "Host configurations"
+msgstr "Configurations d'hôte"
 
 #: unknown
 msgid "Host group created"
@@ -23206,6 +23261,10 @@ msgid "Up Time"
 msgstr "Temps état disponible"
 
 #: unknown
+msgid "Update additional configuration"
+msgstr "Mettre à jour la configuration additionnelle"
+
+#: unknown
 msgid "Update definition in case of double definition"
 msgstr "Mettre à jour la définition en cas de définition en double"
 
@@ -23509,6 +23568,15 @@ msgid ""
 msgstr ""
 "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</"
 "strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> additional "
+"configuration. This action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer la configuration additionnelle "
+"<strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous "
+"la supprimer ?"
 
 #: unknown
 msgid ""
