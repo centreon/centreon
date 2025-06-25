@@ -152,7 +152,6 @@ class PhpCsFixerRuleSet
             'short_scalar_cast' => true,
             'simple_to_complex_string_variable' => true,
             'simplified_if_return' => true,
-            'simplified_null_return' => true,
             'single_line_comment_spacing' => true,
             'single_line_comment_style' => true,
             'single_quote' => true,

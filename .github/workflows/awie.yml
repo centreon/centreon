@@ -99,8 +99,12 @@ jobs:
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of phpstan on /www at level 6
-        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.neon
+      - name: Run of php-cs-fixer on the legacy section
+        run: composer phpcsfixer:legacy
+        working-directory: centreon-awie
+
+      - name: Run of phpstan on the legacy section at level 6
+        run: vendor/bin/phpstan analyse --no-progress --configuration=phpstan.legacy.neon
         working-directory: centreon-awie
 
   package:

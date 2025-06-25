@@ -1,6 +1,8 @@
 parameters:
-    level: max
+    level: 6
     scanFiles:
+        - phpstan.legacy.stub
         - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:
+        - features
         - www

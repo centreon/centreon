@@ -42,15 +42,13 @@
     }
   },
   "scripts": {
-    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
-    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
-    "phpcs:ci": "@phpcs",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=0 --memory-limit=512M --debug",
-    "phpstan:ci": "@phpstan --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug",
-    "require:check": "composer-require-checker check --config-file=composer-require-checker.json composer.json"
+    "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
+    "phpcsfixer:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
+    "phpcsfixer:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
+    "phpstan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",
+    "php:check8.2": "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
+    "rector:check": "../tools/vendor/bin/rector --dry-run",
+    "rector:fix": "../tools/vendor/bin/rector"
   },
   "extra": {
     "symfony": {

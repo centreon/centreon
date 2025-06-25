@@ -207,7 +207,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -275,7 +275,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -318,7 +318,7 @@ function deletePoolInDB($pools = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -442,15 +442,15 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                 unset($row['pool_id']);
 
                 $fields = [
-                    'pool_name' => \PDO::PARAM_STR,
-                    'pool_host_id' => \PDO::PARAM_INT,
-                    'pool_description' => \PDO::PARAM_STR,
-                    'pool_number' => \PDO::PARAM_INT,
-                    'pool_prefix' => \PDO::PARAM_STR,
-                    'pool_cmd_id' => \PDO::PARAM_INT,
-                    'pool_args' => \PDO::PARAM_STR,
-                    'pool_activate' => \PDO::PARAM_STR,
-                    'pool_service_template_id' => \PDO::PARAM_INT,
+                    'pool_name' => PDO::PARAM_STR,
+                    'pool_host_id' => PDO::PARAM_INT,
+                    'pool_description' => PDO::PARAM_STR,
+                    'pool_number' => PDO::PARAM_INT,
+                    'pool_prefix' => PDO::PARAM_STR,
+                    'pool_cmd_id' => PDO::PARAM_INT,
+                    'pool_args' => PDO::PARAM_STR,
+                    'pool_activate' => PDO::PARAM_STR,
+                    'pool_service_template_id' => PDO::PARAM_INT,
                 ];
 
                 for ($i = 1; $i <= $nbrDup[$key]; $i++) {
@@ -460,7 +460,7 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                     $row['pool_activate'] = '0';
 
                     foreach ($fields as $field => $type) {
-                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? \PDO::PARAM_NULL : $type];
+                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? PDO::PARAM_NULL : $type];
                     }
 
                     if (! testPoolExistence($row['pool_name'])) {

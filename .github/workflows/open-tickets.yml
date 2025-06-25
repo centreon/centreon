@@ -60,7 +60,7 @@ jobs:
         shell: bash
 
       - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.legacy.neon
         working-directory: centreon-open-tickets
 
       - name: Run of phpstan on /src at level max

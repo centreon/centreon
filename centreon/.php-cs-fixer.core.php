@@ -34,6 +34,8 @@ $finder = Finder::create()
     ])
     ->append([
         __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
+        __DIR__ . '/bootstrap.php',
+        __DIR__ . '/container.php',
     ]);
 
 return $config

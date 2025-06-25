@@ -1,7 +1,6 @@
 parameters:
-    level: max
+    level: 0
     scanFiles:
-        - phpstan.stub
         - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:
         - www

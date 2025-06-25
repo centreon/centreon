@@ -48,6 +48,10 @@ $finder = Finder::create()
         __DIR__.'/src/App',
 //        __DIR__ . '/tests/php/Adaptation', // TODO add this folder when the code is ready
         __DIR__.'/tests/php/App',
+    ])
+    ->append([
+        __DIR__ . '/castor.php',
+        __DIR__ . '/rector.php',
     ]);
 
 return (new Config())
