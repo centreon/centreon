@@ -21,13 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+namespace Tools\PhpStan\CustomRules;
 
-enum Type: string {
-    /*
-     * TODO: when enum will contain more than one case:
-     *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.legacy.src.neon,
-     *  - update skipped tests in UpdateAdditionalConnector/ValidatorTests
+use PHPStan\Rules\RuleErrorBuilder;
+
+/**
+ * This class defines a method to build a custom error message for PHPStan custom rules by
+ * overloading its parent's method message().
+ */
+class CentreonRuleErrorBuilder extends RuleErrorBuilder
+{
+    /**
+     * This method builds a custom error message for PHPStan custom rules by overloading its
+     * parent's method message.
+     *
+     * @param string $message
+     *
+     * @return RuleErrorBuilder
      */
-    case VMWARE_V6 = 'vmware_v6';
+    public static function message(string $message): RuleErrorBuilder
+    {
+        return parent::message('[CENTREON-RULE]: ' . $message);
+    }
 }

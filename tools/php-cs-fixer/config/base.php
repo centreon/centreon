@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+use Tools\PhpCsFixer\PhpCsFixerRuleSet;
+use PhpCsFixer\Config;
 
-enum Type: string {
-    /*
-     * TODO: when enum will contain more than one case:
-     *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.legacy.src.neon,
-     *  - update skipped tests in UpdateAdditionalConnector/ValidatorTests
-     */
-    case VMWARE_V6 = 'vmware_v6';
-}
+return (new Config())
+    ->setRiskyAllowed(true)
+    ->setUsingCache(false)
+    ->setRules(PhpCsFixerRuleSet::getRulesSafe());

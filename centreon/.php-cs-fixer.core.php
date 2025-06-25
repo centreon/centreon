@@ -24,25 +24,19 @@ declare(strict_types=1);
 use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
 use PhpCsFixer\{Config, Finder};
 
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.php';
+
 $finder = Finder::create()
-    // add directories
     ->in([
         __DIR__ . '/src/Core',
-        __DIR__ . '/src/Adaptation',
+        __DIR__ . '/src/Adaptation', // TODO remove it from this file and add it in new config when the code is ready
+//        __DIR__ . '/tests/php/Core', // TODO add this folder when the code is ready
     ])
-    // add files
     ->append([
         __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
     ]);
 
-/**
- * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
- * 👉️ We use the other php-cs-fixer config file for this legacy code.
- *
- * @see .php-cs-fixer.unstrict.php
- */
-return (new Config())
-    ->setFinder($finder)
-    ->setRiskyAllowed(true)
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRules());
+return $config
+    // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
+    ->setFinder($finder);

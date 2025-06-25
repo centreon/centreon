@@ -1,35 +1,7 @@
-# ABU 2023-09-11
-# Import of test-lib file instead of including it.
-# The purpose is to temporary disable rules which are not mandatory from a php point of view.
-# This will allow us to put phpstan faster in the CI, to increase quality of code.
-# When phpstan will be propagated to a sufficient number of namespaces, we will (if always a thing)
-# restore the less important rules commented below.
-#includes:
-#    - vendor/centreon/centreon-test-lib/src/PHPStan/phpstan.neon
-rules:
-    - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
-    - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
-    - Centreon\PHPStan\CustomRules\LoggerRules\LogMethodInCatchCustomRule
-    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
-    - Centreon\PHPStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
-    - Centreon\PHPStan\CustomRules\ArchitectureRules\FinalClassCustomRule
-    - Centreon\PHPStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
-# The following rules are not mandatory for high quality code and they are too widely not respected.
-#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
-#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
-#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
-services:
-    -
-        class: Centreon\PHPStan\CustomRules\Collectors\MethodCallCollector
-        tags:
-            - phpstan.collector
-    -
-        class: Centreon\PHPStan\CustomRules\Collectors\UseUseCollector
-        tags:
-            - phpstan.collector
-
+includes:
+    - ../tools/phpstan/config/custom-rules.neon
 parameters:
-    level: max
+    level: 8
     paths:
         - src/Core
         - src/Adaptation
@@ -49,40 +21,6 @@ parameters:
                 - src/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotification.php
                 - src/Core/Service/Application/UseCase/DeleteService/DeleteService.php
                 - src/Core/ResourceAccess/Application/UseCase/AddRule/AddRule.php
-
-        - # [CENTREON-RULE]: The logging is already done in a parent try catch block.
-            reportUnmatched: false
-            message: '#Catch block must contain a Logger trait method call.#'
-            paths:
-                - src/Core/Application/Configuration/User/UseCase/PatchUser/PatchUser.php
-                - src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersions.php
-                - src/Core/Resources/Infrastructure/API/FindResources/FindResourcesRequestValidator.php
-                - src/Core/Security/Authentication/Application/UseCase/Login/Login.php
-                - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
-                - src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfiguration.php
-                - src/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfiguration.php
-                - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/AttributePath/HttpUrlFetcher.php
-                - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/AttributePath/UserInformationFetcher.php
-                - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
-                - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
-                - src/Core/ServiceCategory/Infrastructure/Repository/DbWriteServiceCategoryRepository.php
-                - src/Core/Media/Infrastructure/Repository/DbWriteMediaRepository.php
-                - src/Core/Media/Application/UseCase/AddMedia/AddMedia.php
-                - src/Core/Common/Infrastructure/Repository/FileDataStoreEngine.php
-                - src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
-                - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
-                - src/Core/Media/Application/UseCase/UpdateMedia/UpdateMedia.php
-                - src/Core/Dashboard/Application/UseCase/AddDashboardThumbnail/AddDashboardThumbnail.php
-                - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
-                - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
-                - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
-                - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
-                - src/Core/Common/Infrastructure/RequestParameters/Transformer
-                - src/Core/AgentConfiguration/Infrastructure/Repository
-                - src/Core/Common/Infrastructure/Repository
-                - src/Core/Contact/Infrastructure/Repository
-                - src/Core/Resources/Infrastructure
-                - src/Core/Security/AccessGroup/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

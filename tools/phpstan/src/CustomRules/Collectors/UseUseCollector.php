@@ -21,13 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Domain\Model;
+namespace Tools\PhpStan\CustomRules\Collectors;
 
-enum Type: string {
-    /*
-     * TODO: when enum will contain more than one case:
-     *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.legacy.src.neon,
-     *  - update skipped tests in UpdateAdditionalConnector/ValidatorTests
-     */
-    case VMWARE_V6 = 'vmware_v6';
+use PhpParser\Node;
+use PHPStan\Analyser\Scope;
+use PHPStan\Collectors\Collector;
+
+/**
+ * This class implements Collector interface to collect the information about
+ * 'uses' in codebase.
+ *
+ * @implements Collector<Node\Stmt\UseUse, array{int, string}>
+ */
+class UseUseCollector implements Collector
+{
+    public function getNodeType(): string
+    {
+        return Node\Stmt\UseUse::class;
+    }
+
+    public function processNode(Node $node, Scope $scope): ?array
+    {
+        return [$node->getLine(), (string) $node->name];
+    }
 }

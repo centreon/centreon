@@ -429,24 +429,32 @@ jobs:
         run: composer symfony:check:ci
         working-directory: centreon
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+      - name: Run of php-cs-fixer on the legacy section for the /src directory
+        run: composer phpcsfixer:legacy:src
         working-directory: centreon
 
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+      - name: Run of php-cs-fixer on the api legacy section for the /src/Core directory
+        run: composer phpcsfixer:core
         working-directory: centreon
 
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+      - name: Run of php-cs-fixer on the new section for the /src/App directory
+        run: composer phpcsfixer:new
         working-directory: centreon
 
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+      - name: Run of phpstan on the legacy section for the /src directory at level 4
+        run: composer phpstan:legacy:src
+        working-directory: centreon
+
+      - name: Run of phpstan on the api legacy section for the /src/Core directory at level 8 + Centreon Custom Rules
+        run: composer phpstan:core
+        working-directory: centreon
+
+      - name: Run of phpstan on the new section for the /src/App directory at level max
+        run: composer phpstan:new
         working-directory: centreon
 
       - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+        run: composer phpstan:test
         working-directory: centreon
 
   package:
