@@ -20,10 +20,10 @@ const Grid = ({
   return (
     <div
       className={`${className} grid gap-3`}
-      style={className ? undefined : {
+      style={{
         gridTemplateColumns:
-          grid?.gridTemplateColumns ||
-          `repeat(${grid?.columns.length || 1}, 1fr)`,
+          className ? grid?.gridTemplateColumns || undefined : grid?.gridTemplateColumns ||
+            `repeat(${grid?.columns.length || 1}, 1fr)`,
         alignItems: grid?.alignItems || 'flex-start'
       }}
     >
