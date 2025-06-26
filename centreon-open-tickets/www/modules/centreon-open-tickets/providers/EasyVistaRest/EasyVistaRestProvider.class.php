@@ -647,8 +647,12 @@ class EasyVistaRestProvider extends AbstractProvider
                     $this->closeTicketEzv($k);
                     $tickets[$k]['status'] = 2;
                 } catch (\Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
+                    if ($this->doCloseTicketContinueOnError()) {
+                        $tickets[$k]['status'] = 2;
+                    } else {
+                        $tickets[$k]['status'] = -1;
+                        $tickets[$k]['msg_error'] = $e->getMessage();    
+                    }
                 }
             }
         } else {
