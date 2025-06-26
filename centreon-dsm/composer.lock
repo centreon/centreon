@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "27857401f26a6baa2d0212f69e4e50d8",
+  "content-hash": "e14a97017c413450f0821e39eaeea029",
   "packages": [],
   "packages-dev": [
     {
@@ -1244,7 +1244,7 @@
       "dist": {
         "type": "path",
         "url": "../centreon",
-        "reference": "88208e309989c14bc69b9750dae9baa105bbcb68"
+        "reference": "10c5a662e5c0af2b1abed4131aa2af6dbfb2b79a"
       },
       "require": {
         "amphp/http-client": "4.6.*",
@@ -1338,21 +1338,13 @@
         "behat/mink-selenium2-driver": "1.6.*",
         "centreon/centreon-test-lib": "dev-master",
         "dama/doctrine-test-bundle": "8.2.*",
-        "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
         "deptrac/deptrac": "3.0.*",
         "friends-of-behat/mink": "1.11.*",
         "friends-of-behat/mink-extension": "2.7.*",
-        "friendsofphp/php-cs-fixer": "3.64.*",
-        "maglnet/composer-require-checker": "4.16.*",
         "mockery/mockery": "1.6.*",
         "pestphp/pest": "1.23.*",
         "php-vfs/php-vfs": "1.4.*",
-        "phpcompatibility/php-compatibility": "9.3.*",
-        "phpstan/phpstan": "1.12.*",
-        "phpstan/phpstan-beberlei-assert": "1.1.*",
-        "phpstan/phpstan-mockery": "1.1.*",
         "phpunit/phpunit": "9.6.*",
-        "rector/rector": "1.2.*",
         "robertfausk/mink-panther-driver": "1.1.*",
         "squizlabs/php_codesniffer": "3.10.*",
         "symfony/phpunit-bridge": "6.4.*",
@@ -1401,62 +1393,56 @@
         ]
       },
       "scripts": {
+        "require:check": [
+          "../tools/vendor/bin/composer-require-checker check composer.json"
+        ],
+        "symfony:check:ci": [
+          "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
+        ],
+        "phpcsfixer:legacy:src": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff"
+        ],
+        "phpcsfixer:legacy:src:fix": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff"
+        ],
+        "phpcsfixer:core": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff"
+        ],
+        "phpcsfixer:core:fix": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff"
+        ],
+        "phpcsfixer:new": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff"
+        ],
+        "phpcsfixer:new:fix": [
+          "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff"
+        ],
+        "phpstan:legacy:src": [
+          "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G"
+        ],
+        "phpstan:core": [
+          "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G"
+        ],
+        "phpstan:test": [
+          "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G"
+        ],
+        "phpstan:new": [
+          "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G"
+        ],
+        "php:check8.2": [
+          "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
+        ],
+        "rector:check": [
+          "../tools/vendor/bin/rector process --dry-run --debug"
+        ],
+        "rector:fix": [
+          "../tools/vendor/bin/rector process --debug"
+        ],
         "test": [
           "pest --do-not-cache-result"
         ],
         "test:ci": [
           "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
-        ],
-        "phpcs:strict": [
-          "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff"
-        ],
-        "phpcs:unstrict": [
-          "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff"
-        ],
-        "phpcs:strict:exec": [
-          "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff"
-        ],
-        "phpcs:unstrict:exec": [
-          "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff"
-        ],
-        "phpcs:strict:ci": [
-          "@phpcs:strict"
-        ],
-        "phpcs:unstrict:ci": [
-          "@phpcs:unstrict"
-        ],
-        "phpstan": [
-          "phpstan analyse -c phpstan.neon --level=4 --memory-limit=1G --debug"
-        ],
-        "phpstan:core": [
-          "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug"
-        ],
-        "phpstan:test": [
-          "phpstan analyse -c phpstan.test.neon --level=2 --memory-limit=1G --debug"
-        ],
-        "phpstan:ci": [
-          "@phpstan --no-progress"
-        ],
-        "phpstan:core:ci": [
-          "@phpstan:core --no-progress"
-        ],
-        "phpstan:test:ci": [
-          "@phpstan:test --no-progress"
-        ],
-        "php:check8.2": [
-          "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
-        ],
-        "rector:check": [
-          "rector process --dry-run --debug"
-        ],
-        "rector:exec": [
-          "rector process --debug"
-        ],
-        "symfony:check:ci": [
-          "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
-        ],
-        "require:check": [
-          "composer-require-checker check composer.json"
         ]
       },
       "license": [
@@ -13699,12 +13685,12 @@
   },
   "prefer-stable": false,
   "prefer-lowest": false,
-  "platform": [],
-  "platform-dev": {
+  "platform": {
     "php": "8.2",
-    "ext-json": "*",
+    "ext-gettext": "*",
     "ext-pdo": "*"
   },
+  "platform-dev": [],
   "platform-overrides": {
     "php": "8.2"
   },
