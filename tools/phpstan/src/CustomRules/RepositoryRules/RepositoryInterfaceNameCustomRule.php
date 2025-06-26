@@ -58,14 +58,14 @@ class RepositoryInterfaceNameCustomRule implements Rule
         // If there's no implementation of RepositoryInterface,
         // it's RepositoryImplementsInterfaceCustomRule that will return an error.
         foreach ($node->implements as $implementation) {
-            if ($this->getRepositoryInterfaceName($implementation->toString())) {
+            if (! is_null($this->getRepositoryInterfaceName($implementation->toString()))) {
                 return [];
             }
         }
 
         return [
             CentreonRuleErrorBuilder::message(
-                "At least one Interface name must start with 'Read' or 'Write' and end with 'RepositoryInterface'."
+                "(RepositoryInterfaceNameCustomRule) At least one Interface name must start with 'Read' or 'Write' and end with 'RepositoryInterface'."
             )->build(),
         ];
     }

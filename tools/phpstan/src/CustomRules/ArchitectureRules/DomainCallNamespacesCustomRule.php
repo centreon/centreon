@@ -61,7 +61,7 @@ class DomainCallNamespacesCustomRule implements Rule
                     || str_contains($useNamespace, '\\Infrastructure\\')
                 ) {
                     $errors[] = CentreonRuleErrorBuilder::message(
-                        'Domain must not call Application or Infrastructure namespaces.'
+                        '(DomainCallNamespacesCustomRule) Domain must not call Application or Infrastructure namespaces.'
                     )->line($line)->file($file)->build();
                 }
             }

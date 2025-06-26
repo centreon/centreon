@@ -60,7 +60,7 @@ class StringBackquotesCustomRule implements Rule
         // $matches[1] = [':dbstg',':db']
         $errors = [];
         foreach ($matches[1] as $match) {
-            $errors[] = CentreonRuleErrorBuilder::message($match . ' must be enclosed in backquotes.')->build();
+            $errors[] = CentreonRuleErrorBuilder::message('(StringBackquotesCustomRule)' . $match . ' must be enclosed in backquotes.')->build();
         }
 
         return $errors;

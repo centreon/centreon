@@ -60,7 +60,7 @@ class FinalClassCustomRule implements Rule
             || str_ends_with($className, 'Controller')
         ) {
             return [
-                CentreonRuleErrorBuilder::message("Class {$className} must be final.")->build(),
+                CentreonRuleErrorBuilder::message("(FinalClassCustomRule) Class {$className} must be final.")->build(),
             ];
         }
 

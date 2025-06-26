@@ -64,7 +64,7 @@ class VariableLengthCustomRule implements Rule
         // Check rule.
         if (mb_strlen($varName) < 3) {
             return [
-                CentreonRuleErrorBuilder::message("{$varName} must contain 3 or more characters.")->build(),
+                CentreonRuleErrorBuilder::message("(VariableLengthCustomRule) {$varName} must contain 3 or more characters.")->build(),
             ];
         }
 

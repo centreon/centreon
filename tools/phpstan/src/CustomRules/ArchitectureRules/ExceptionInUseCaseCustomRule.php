@@ -148,7 +148,7 @@ class ExceptionInUseCaseCustomRule implements Rule
     private function getCentreonCustomExceptionError(): RuleError
     {
         return CentreonRuleErrorBuilder::message(
-            'Exception thrown in UseCase should be in a try catch block, and must be caught.'
+            '(ExceptionInUseCaseCustomRule) Exception thrown in UseCase should be in a try catch block, and must be caught.'
         )->build();
     }
 }

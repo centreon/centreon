@@ -45,6 +45,7 @@ class RepositoryNameCustomRule implements Rule
         return Node\Stmt\Class_::class;
     }
 
+
     public function processNode(Node $node, Scope $scope): array
     {
         // This rule does not apply.
@@ -56,15 +57,15 @@ class RepositoryNameCustomRule implements Rule
         }
 
         // Rule check.
-        if (! $this->getRepositoryName($node->name->name ?? '')) {
-            return [
-                CentreonRuleErrorBuilder::message(
-                    "Repository name must start with data storage prefix (i.e. 'Db', 'Redis', etc.), "
-                    . "which may be followed by 'Read' or 'Write' and context mention."
-                )->build(),
-            ];
+        if (! is_null($this->getRepositoryName($node->name->name ?? ''))) {
+            return [];
         }
 
-        return [];
+        return [
+            CentreonRuleErrorBuilder::message(
+                "(RepositoryNameCustomRule) Repository name must start with data storage prefix (i.e. 'Db', 'Redis', etc.), "
+                . "which may be followed by 'Read' or 'Write' and context mention."
+            )->build(),
+        ];
     }
 }

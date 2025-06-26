@@ -1,13 +1,9 @@
 rules:
     - Tools\PhpStan\CustomRules\MiscRules\VariableLengthCustomRule
-    - Tools\PhpStan\CustomRules\MiscRules\StringBackquotesCustomRule
-    - Tools\PhpStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
     - Tools\PhpStan\CustomRules\ArchitectureRules\FinalClassCustomRule
-    - Tools\PhpStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
-    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
-    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
-    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
-    #- Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
 
 services:
     -
@@ -18,3 +14,14 @@ services:
         class: Tools\PhpStan\CustomRules\Collectors\UseUseCollector
         tags:
             - phpstan.collector
+
+# To use phpstan with custom rules after updating the custom rules
+
+parameters:
+    paths:
+        - ../src/CustomRules
+    ignoreErrors:
+        - # To ignore all errors in the CustomRules directory
+            message: '#.*#'
+            paths:
+                - ../src/CustomRules

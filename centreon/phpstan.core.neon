@@ -1,16 +1,41 @@
 includes:
     - ../tools/phpstan/config/custom-rules.neon
+
+# custom rules added only for the src/Core directory
+rules:
+    - Tools\PhpStan\CustomRules\MiscRules\StringBackquotesCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
+
 parameters:
     level: 8
     paths:
         - src/Core
         - src/Adaptation
     ignoreErrors:
+
+        - # [CENTREON-RULE]: (RepositoryNameCustomRule) Repository name must start with data storage prefix, which may be followed by 'Read' or 'Write' and context mention.
+            reportUnmatched: false
+            message: '#RepositoryNameCustomRule#'
+            paths:
+                - src/Core/Common/Infrastructure/Repository/AbstractRepositoryRDB.php
+                - src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
+                - src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
+
+        - # [CENTREON-RULE]: (RepositoryInterfaceNameCustomRule) At least one Interface name must start with 'Read' or 'Write' and end with 'RepositoryInterface'.
+            reportUnmatched: false
+            message: '#RepositoryInterfaceNameCustomRule#'
+            paths:
+                - src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
+                - src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
+
         - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
             reportUnmatched: false
             message: "#Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.#"
             paths:
                 - src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
+
         - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
             reportUnmatched: false
             message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
@@ -47,7 +72,9 @@ parameters:
                 - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
 
+          # ======= To fix this rule that block the development (TO CLEAN) =======
           # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
+
         - # [CENTREON-RULE]: Domain must not call Application or Infrastructure namespaces.
             reportUnmatched: false
             message: '#Domain must not call Application or Infrastructure namespaces#'
@@ -56,13 +83,29 @@ parameters:
                 - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/SecurityAccessInterface.php
                 - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
 
-          # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
         - # [CENTREON-RULE]: The interface is not in the right namespace.
             reportUnmatched: false
             message: '#Repositories must implement an Interface defined in Application layer.#'
             paths:
                 - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
-          # ======= To fix this custom rule that block the development (TO CLEAN) =======
+
+        - # [CENTREON-RULE]: (RepositoryNameValidationByInterfaceCustomRule) Repository name should match the implemented Interface name with exception of data storage prefix and 'Interface' mention.
+            reportUnmatched: false
+            message: '#RepositoryNameValidationByInterfaceCustomRule#'
+            paths:
+                - src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
+                - src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
+                - src/Core/Notification/Infrastructure/Repository/DbHostGroupResourceRepository.php
+                - src/Core/Notification/Infrastructure/Repository/DbServiceGroupResourceRepository.php
+                - src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostCategoryRepository.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostGroupRepository.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostRepository.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteMetaServiceRepository.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceCategoryRepository.php
+                - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceGroupRepository.php
+                - src/Core/Security/Authentication/Infrastructure/Repository/DbReadTokenRepositoryInterface.php
+
         - # Problem : block usage of Value Object.
           # Unsafe usage of new static().
             reportUnmatched: false

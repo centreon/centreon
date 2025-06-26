@@ -65,7 +65,7 @@ class RepositoryImplementsInterfaceCustomRule implements Rule
 
         return [
             CentreonRuleErrorBuilder::message(
-                'Repositories must implement an Interface defined in Application layer.'
+                '(RepositoryImplementsInterfaceCustomRule) Repositories must implement an Interface defined in Application layer.'
             )->build(),
         ];
     }

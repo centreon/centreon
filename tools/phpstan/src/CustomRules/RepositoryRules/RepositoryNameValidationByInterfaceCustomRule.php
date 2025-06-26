@@ -62,14 +62,14 @@ class RepositoryNameValidationByInterfaceCustomRule implements Rule
             $repositoryName = $this->getRepositoryName($node->name->name ?? '');
             $interfaceName = $this->getRepositoryInterfaceName($implementation->toString());
 
-            if ($repositoryName && $interfaceName && str_contains($repositoryName, $interfaceName)) {
+            if (! is_null($repositoryName) && ! is_null($interfaceName) && str_contains($repositoryName, $interfaceName)) {
                 return [];
             }
         }
 
         return [
             CentreonRuleErrorBuilder::message(
-                'Repository name should match the implemented Interface name with exception of data storage prefix '
+                '(RepositoryNameValidationByInterfaceCustomRule) Repository name should match the implemented Interface name with exception of data storage prefix '
                 . "and 'Interface' mention."
             )->tip(
                 "For example, Repository name: 'DbReadSessionRepository' and implemented Interface name: "

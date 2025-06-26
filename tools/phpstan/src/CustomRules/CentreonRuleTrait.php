@@ -50,7 +50,7 @@ trait CentreonRuleTrait
      */
     private function getRepositoryName(string $className): ?string
     {
-        return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z]+)Repository$/', $className, $matches)
+        return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z0-9]+)Repository$/', $className, $matches) === 1
             ? $matches[1] : null;
     }
 
@@ -63,7 +63,7 @@ trait CentreonRuleTrait
      */
     private function getRepositoryInterfaceName(string $className): ?string
     {
-        return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z]+)RepositoryInterface$/', $className, $matches)
+        return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z0-9]+)RepositoryInterface$/', $className, $matches) === 1
             ? $matches[1] : null;
     }
 
