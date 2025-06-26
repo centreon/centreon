@@ -175,6 +175,7 @@ When("the user selects the {string}", (contactSettings: string) => {
 		cy.wait("@getUsers");
 		cy.contains(data.contacts.contact1.name).click();
 		cy.contains(data.contacts.contact2.name).click();
+		cy.get('[aria-label="Close"]').click();
 	} else {
 		throw new Error(`${contactSettings} not managed`);
 	}
