@@ -368,11 +368,7 @@ class EasyVistaRestProvider extends AbstractProvider
         // try to get assets from ezv
         try {
             // the variable is going to be used outside of this method.
-            $file = fopen("/var/log/php-fpm/close.log", "a");
-            fwrite($file, print_r("\ncurl close\n", true));
             $result= $this->curlQuery($info);
-            fwrite($file, print_r("\ncurl result<\n", true));
-            fwrite($file, print_r("\n$result\n", true));
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
@@ -523,7 +519,14 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         // execute curl and get status information
+        $file = fopen("/var/log/php-fpm/close.log", "a");
+            fwrite($file, print_r("\ncurl close\n", true));
         $curlResult = curl_exec($curl);
+        
+            fwrite($file, print_r("\ncurl result<\n", true));
+            fwrite($file, print_r("\n$curlResult\n", true));
+        fwrite($file, print_r("\httpcode<\n", true));
+            fwrite($file, print_r(curl_getinfo($curl, CURLINFO_HTTP_CODE), true));
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
