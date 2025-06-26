@@ -62,63 +62,69 @@ class CmaValidator implements TypeValidatorInterface
     {
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
-        foreach ($configuration as $key => $value) {
-            if ($request->connectionMode !== ConnectionModeEnum::NO_TLS) {
-                if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
-                    if ($key === 'otel_ca_certificate' && is_null($value)) {
-                        continue;
-                    }
-                    $this->validateFilename("configuration.{$key}", $value, true);
-                } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
-                    $this->validateFilename("configuration.{$key}", $value, false);
-                }
-            }
 
-            if ($key === 'tokens' && $configuration['is_reverse'] === false) {
-                if ($request->connectionMode !== ConnectionModeEnum::NO_TLS && $value === []) {
-                    throw AgentConfigurationException::tokensAreMandatory();
-                }
-                $this->validateTokens($value);
-            }
+        $this->validateAgentInitiatedConnection($configuration, $request->connectionMode);
+        $this->validatePollerInitiatedConnection($configuration, $request->connectionMode);
+    }
 
-            if ($key === 'hosts' && $configuration['is_reverse'] === true) {
-                foreach ($value as $host) {
-                    /** @var array{
-                     *		id: int,
-                     *		address: string,
-                     *		port: int,
-                     *		poller_ca_certificate: ?string,
-                     *		poller_ca_name: ?string,
-                     *		token: ?array{name:string,creator_id:int}
-                     *	} $host
-                     */
-                    if ($host['poller_ca_certificate'] !== null) {
-                        $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
-                    }
-                    if (! $this->readHostRepository->exists(hostId: $host['id'])) {
-                        throw AgentConfigurationException::invalidHostId($host['id']);
-                    }
-
-                    if (
-                        $request->connectionMode !== ConnectionModeEnum::NO_TLS
-                        && $host['token'] === null
-                    ) {
-                        throw AgentConfigurationException::tokensAreMandatory();
-                    }
-
-                    if ($host['token'] !== null) {
-                        $this->validateTokens([$host['token']]);
-                    }
-                }
-            }
+    /**
+     * @param _CmaParameters $configuration
+     * @param ConnectionModeEnum $connectionMode
+     */
+    private function validateAgentInitiatedConnection(array $configuration, ConnectionModeEnum $connectionMode): void
+    {
+        if ($configuration['agent_initiated'] === false) {
+            return;
         }
 
-        if (
-            $request->connectionMode !== ConnectionModeEnum::NO_TLS
-            && $configuration['is_reverse'] === false
-            && $configuration['tokens'] === []
-        ) {
-            throw AgentConfigurationException::tokensAreMandatory();
+        if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
+            $this->validateFilename(
+                'configuration.otel_public_certificate',
+                $configuration['otel_public_certificate'],
+                true
+            );
+            $this->validateFilename(
+                'configuration.otel_ca_certificate',
+                $configuration['otel_ca_certificate'],
+                true
+            );
+            $this->validateFilename(
+                'configuration.otel_private_key',
+                $configuration['otel_private_key'],
+                false
+            );
+
+            if ($configuration['tokens'] === []) {
+                throw AgentConfigurationException::tokensAreMandatory();
+            }
+        }
+        $this->validateTokens($configuration['tokens']);
+    }
+
+    /**
+     * @param _CmaParameters $configuration
+     * @param ConnectionModeEnum $connectionMode
+     */
+    private function validatePollerInitiatedConnection(array $configuration, ConnectionModeEnum $connectionMode): void
+    {
+        if ($configuration['poller_initiated'] === false) {
+            return;
+        }
+
+        foreach ($configuration['hosts'] as $host) {
+            $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
+
+            if (! $this->readHostRepository->exists(hostId: $host['id'])) {
+                throw AgentConfigurationException::invalidHostId($host['id']);
+            }
+
+            if ($connectionMode !== ConnectionModeEnum::NO_TLS && $host['token'] === null) {
+                throw AgentConfigurationException::tokensAreMandatory();
+            }
+
+            if ($host['token'] !== null) {
+                $this->validateTokens([$host['token']]);
+            }
         }
     }
 

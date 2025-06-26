@@ -29,13 +29,20 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 beforeEach(function (): void {
     $this->parameters = [
-        'is_reverse' => true,
+        'agent_initiated' => true,
+        'poller_initiated' => true,
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',
         'otel_private_key' => 'otel_key_filename',
-        'tokens' => [],
+        'tokens' => [
+            [
+                'name' => 'tokenName',
+                'creator_id' => 1,
+            ]
+        ],
         'hosts' => [
             [
+                'id' => 1,
                 'address' => '0.0.0.0',
                 'port' => 442,
                 'poller_ca_certificate' => 'poller_certif',
@@ -138,3 +145,20 @@ foreach (
         }
     );
 }
+
+it("should empty the related properties when agent_initiated is false", function (): void {
+    $this->parameters['agent_initiated'] = false;
+    $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+    $result = $cmaConfig->getData();
+    $this->assertEquals($result['otel_public_certificate'], null);
+    $this->assertEquals($result['otel_private_key'], null);
+    $this->assertEquals($result['otel_ca_certificate'], null);
+    $this->assertEquals($result['tokens'], []);
+});
+
+it("should empty the related properties when poller_initiated is false", function (): void {
+    $this->parameters['poller_initiated'] = false;
+    $cmaConfig = new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
+    $result = $cmaConfig->getData();
+    $this->assertEquals($result['hosts'], []);
+});

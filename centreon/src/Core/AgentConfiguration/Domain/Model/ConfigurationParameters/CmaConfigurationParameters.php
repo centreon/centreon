@@ -30,11 +30,12 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _CmaParameters array{
- *	    is_reverse: bool,
+ *	    agent_initiated: bool,
  *		otel_public_certificate: ?string,
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
+ *      poller_initiated: bool,
  *		hosts: array<array{
  *			id: int,
  *			address: string,
@@ -67,55 +68,54 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 
-        $this->validateOptionalCertificate(
-            $parameters['otel_public_certificate'],
-            'configuration.otel_public_certificate'
-        );
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_private_key'],
-            'configuration.otel_private_key'
-        );
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_ca_certificate'],
-            'configuration.otel_ca_certificate'
-        );
-
-        if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
-            $parameters['hosts'] = [];
-        }
-
-        if ($connectionMode !== ConnectionModeEnum::NO_TLS && $parameters['is_reverse'] === false) {
-            Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
-            foreach ($parameters['tokens'] as $token) {
-                Assertion::notEmptyString($token['name']);
-            }
-        } else {
+        if ($parameters['agent_initiated'] === false) {
+            $parameters['otel_public_certificate'] = null;
+            $parameters['otel_private_key'] = null;
+            $parameters['otel_ca_certificate'] = null;
             $parameters['tokens'] = [];
+        } else {
+            $this->validateOptionalCertificate(
+                $parameters['otel_public_certificate'],
+                'configuration.otel_public_certificate'
+            );
+            $this->validateOptionalCertificate(
+                $parameters['otel_private_key'],
+                'configuration.otel_private_key'
+            );
+            $this->validateOptionalCertificate(
+                $parameters['otel_ca_certificate'],
+                'configuration.otel_ca_certificate'
+            );
+            if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
+                Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
+                foreach ($parameters['tokens'] as $token) {
+                    Assertion::notEmptyString($token['name']);
+                }
+            }
         }
 
-        foreach ($parameters['hosts'] as $index => $host) {
-            if (
-                $connectionMode !== ConnectionModeEnum::NO_TLS
-                && $parameters['is_reverse'] === true
-            ) {
-                Assertion::notNull($host['token'], 'configuration.hosts[].token');
-                Assertion::notEmptyString($host['token']['name'] ?? '');
-                Assertion::positiveInt($host['token']['creator_id'] ?? 0);
-            } else {
-                $parameters['hosts'][$index]['token'] = null;
+        if ($parameters['poller_initiated'] === false) {
+            $parameters['hosts'] = [];
+        } else {
+            foreach ($parameters['hosts'] as $host) {
+                Assertion::positiveInt($host['id'], 'configuration.hosts[].id');
+                Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
+                Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
+                $this->validateOptionalCertificate(
+                    $host['poller_ca_certificate'],
+                    'configuration.hosts[].poller_ca_certificate'
+                );
+                $this->validateOptionalCertificate(
+                    $host['poller_ca_name'],
+                    'configuration.hosts[].poller_ca_name'
+                );
+
+                if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
+                    Assertion::notNull($host['token'], 'configuration.hosts[].token');
+                    Assertion::notEmptyString($host['token']['name'] ?? '');
+                    Assertion::positiveInt($host['token']['creator_id'] ?? 0);
+                }
             }
-            Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
-            Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-            $this->validateOptionalCertificate(
-                $host['poller_ca_certificate'],
-                'configuration.hosts[].poller_ca_certificate'
-            );
-            $this->validateOptionalCertificate(
-                $host['poller_ca_name'],
-                'configuration.hosts[].poller_ca_name'
-            );
         }
 
         /** @var _CmaParameters $parameters */
