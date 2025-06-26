@@ -368,7 +368,11 @@ class EasyVistaRestProvider extends AbstractProvider
         // try to get assets from ezv
         try {
             // the variable is going to be used outside of this method.
+            $file = fopen("/var/log/php-fpm/close.log", "a");
+            fwrite($file, print_r("\ncurl close\n", true));
             $result= $this->curlQuery($info);
+            fwrite($file, print_r("\ncurl result<\n", true));
+            fwrite($file, print_r("\n$result\n", true));
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
