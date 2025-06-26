@@ -19,97 +19,10 @@
  * limitations under the License.
  */
 
-require_once(__DIR__ . '/CentreonCommon.php');
+require_once __DIR__ . '/CentreonCommon.php';
 
 abstract class AbstractProvider
 {
-    /**
-     * Set the default extra data
-     * @return void
-     */
-    abstract protected function setDefaultValueExtra();
-    /**
-     * Check the configuration form
-     * @return void
-     */
-    abstract protected function checkConfigForm();
-    /**
-     * Prepare the extra configuration block
-     * @return void
-     */
-    abstract protected function getConfigContainer1Extra();
-    /**
-     * Prepare the extra configuration block
-     * @return void
-     */
-    abstract protected function getConfigContainer2Extra();
-    /**
-     * Add specific configuration field
-     * @return void
-     */
-    abstract protected function saveConfigExtra();
-    /**
-     * Validate the popup for submit a ticket
-     *
-     * @return array The status of validation (
-     *  'code' => int,
-     *  'message' => string
-     * )
-     */
-    abstract public function validateFormatPopup();
-    /**
-     * Create a ticket
-     *
-     * @param CentreonDB $db_storage The centreon_storage database connection
-     * @param string $contact The contact who open the ticket
-     * @param array $host_problems The list of host issues link to the ticket
-     * @param array $service_problems The list of service issues link to the ticket
-     * @return array The status of action (
-     *  'code' => int,
-     *  'message' => string
-     * )
-     */
-    abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
-
-    /** @var array<mixed> */
-    protected $rule_data;
-    /** @var array<mixed> */
-    protected $default_data;
-    /** @var array<int, string> */
-    protected $rule_list;
-    /** @var Centreon_OpenTickets_Rule */
-    protected $rule;
-    /** @var int */
-    protected $rule_id;
-    /** @var string */
-    protected $centreon_path;
-    /** @var string */
-    protected $centreon_open_tickets_path;
-    /** @var array<mixed> */
-    protected $config = ["container1_html" => '', "container2_html" => '', "clones" => []];
-    /** @var string */
-    protected $required_field = '&nbsp;<font color="red" size="1">*</font>';
-    /** @var mixed */
-    protected $submitted_config = null;
-    /** @var string */
-    protected $check_error_message = '';
-    /** @var string */
-    protected $check_error_message_append = '';
-    /** @var string */
-    protected $body = '';
-    /** @var array<mixed> */
-    protected $save_config = [];
-    /** @var int */
-    protected $widget_id;
-    /** @var string */
-    protected $uniq_id;
-    /** @var int */
-    protected $attach_files = 0;
-    /** @var int */
-    protected $close_advanced = 0;
-    /** @var int */
-    protected $proxy_enabled = 0;
-
     public const HOSTGROUP_TYPE = 0;
     public const HOSTCATEGORY_TYPE = 1;
     public const HOSTSEVERITY_TYPE = 2;
@@ -119,9 +32,65 @@ abstract class AbstractProvider
     public const SERVICECONTACTGROUP_TYPE = 6;
     public const CUSTOM_TYPE = 7;
     public const BODY_TYPE = 8;
-
     public const DATA_TYPE_JSON = 0;
     public const DATA_TYPE_XML = 1;
+
+    /** @var array<mixed> */
+    protected $rule_data;
+
+    /** @var array<mixed> */
+    protected $default_data;
+
+    /** @var array<int, string> */
+    protected $rule_list;
+
+    /** @var Centreon_OpenTickets_Rule */
+    protected $rule;
+
+    /** @var int */
+    protected $rule_id;
+
+    /** @var string */
+    protected $centreon_path;
+
+    /** @var string */
+    protected $centreon_open_tickets_path;
+
+    /** @var array<mixed> */
+    protected $config = ['container1_html' => '', 'container2_html' => '', 'clones' => []];
+
+    /** @var string */
+    protected $required_field = '&nbsp;<font color="red" size="1">*</font>';
+
+    /** @var mixed */
+    protected $submitted_config = null;
+
+    /** @var string */
+    protected $check_error_message = '';
+
+    /** @var string */
+    protected $check_error_message_append = '';
+
+    /** @var string */
+    protected $body = '';
+
+    /** @var array<mixed> */
+    protected $save_config = [];
+
+    /** @var int */
+    protected $widget_id;
+
+    /** @var string */
+    protected $uniq_id;
+
+    /** @var int */
+    protected $attach_files = 0;
+
+    /** @var int */
+    protected $close_advanced = 0;
+
+    /** @var int */
+    protected $proxy_enabled = 0;
 
     /**
      * constructor
@@ -153,7 +122,7 @@ abstract class AbstractProvider
 
         if (
             is_null($rule_id)
-            || !isset($this->rule_data['provider_id'])
+            || ! isset($this->rule_data['provider_id'])
             || $provider_id != $this->rule_data['provider_id']
         ) {
             $this->default_data = [];
@@ -174,24 +143,14 @@ abstract class AbstractProvider
     }
 
     /**
-     * @param string $path
-     * @return SmartyBC
+     * Validate the popup for submit a ticket
+     *
+     * @return array The status of validation (
+     *               'code' => int,
+     *               'message' => string
+     *               )
      */
-    protected function initSmartyTemplate($path = "providers/Abstract/templates")
-    {
-        // Smarty template initialization
-        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, $path);
-
-        $tpl->loadPlugin('smarty_function_host_get_hostgroups');
-        $tpl->loadPlugin('smarty_function_host_get_severity');
-        $tpl->loadPlugin('smarty_function_host_get_hostcategories');
-        $tpl->loadPlugin('smarty_function_host_get_macro_value_in_config');
-        $tpl->loadPlugin('smarty_function_host_get_macro_values_in_config');
-        $tpl->loadPlugin('smarty_function_service_get_servicecategories');
-        $tpl->loadPlugin('smarty_function_service_get_servicegroups');
-        $tpl->loadPlugin('smarty_function_sortgroup');
-        return $tpl;
-    }
+    abstract public function validateFormatPopup();
 
     /**
      * @param int $widget_id
@@ -225,10 +184,296 @@ abstract class AbstractProvider
     /**
      * @return void
      */
+    public function clearUploadFiles(): void
+    {
+        $upload_files = $this->getUploadFiles();
+        foreach ($upload_files as $file) {
+            unlink($file['filepath']);
+        }
+
+        unset($_SESSION['ot_upload_files'][$this->uniq_id]);
+    }
+
+    /**
+     * Build the config form
+     *
+     * @return array<mixed>
+     */
+    public function getConfig()
+    {
+        $this->getConfigContainer1Extra();
+        $this->getConfigContainer1Main();
+        $this->getConfigContainer2Main();
+        $this->getConfigContainer2Extra();
+
+        return $this->config;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChainRuleList()
+    {
+        $result = [];
+        if (isset($this->rule_data['clones']['chainruleList'])) {
+            $result = $this->rule_data['clones']['chainruleList'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMacroTicketId()
+    {
+        return $this->rule_data['macro_ticket_id'];
+    }
+
+    /**
+     * @return void
+     */
+    public function saveConfig(): void
+    {
+        $this->checkConfigForm();
+        $this->save_config = ['clones' => [], 'simple' => []];
+
+        $this->saveConfigMain();
+        $this->saveConfigExtra();
+
+        $this->rule->save($this->rule_id, $this->save_config);
+    }
+
+    /**
+     * Check select lists requirement
+     *
+     * @return array
+     */
+    public function automateValidateFormatPopupLists()
+    {
+        $rv = ['code' => 0, 'lists' => []];
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if (
+                    $values['Mandatory'] == 1
+                    && ! isset($this->submitted_config['select_' . $values['Id']])
+                ) {
+                    $rv['code'] = 1;
+                    $rv['lists'][] = $values['Id'];
+                }
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
+     * @param array<mixed> $args
+     * @param bool $addGroups
+     * @return array<mixed>|null
+     */
+    public function getFormatPopup($args, $addGroups = false)
+    {
+        if (
+            ! isset($this->rule_data['format_popup'])
+            || is_null($this->rule_data['format_popup'])
+            || $this->rule_data['format_popup'] == ''
+        ) {
+            return null;
+        }
+
+        $result = ['format_popup' => null];
+
+        $tpl = $this->initSmartyTemplate();
+
+        $groups = $this->assignFormatPopupTemplate($tpl, $args);
+        $tpl->assign('string', $this->rule_data['format_popup']);
+        $result['format_popup'] = $tpl->fetch('eval.ihtml');
+        $result['attach_files_enable'] = $this->rule_data['attach_files'] ?? 0;
+        if ($addGroups === true) {
+            $result['groups'] = $groups;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doAck()
+    {
+        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Check if schedule check is needed
+     *
+     * @return bool
+     */
+    public function doesScheduleCheck(): bool
+    {
+        return
+            isset($this->rule_data['schedule_check'])
+            && $this->rule_data['schedule_check'] === 'yes';
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doCloseTicket()
+    {
+        if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doCloseTicketContinueOnError()
+    {
+        if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param CentreonDB $db_storage
+     * @param string $contact
+     * @param array<mixed> $host_problems
+     * @param array<mixed> $service_problems
+     * @return array<mixed>
+     */
+    public function submitTicket($db_storage, $contact, $host_problems, $service_problems)
+    {
+        $result = ['confirm_popup' => null];
+
+        $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
+        if ($submit_result['ticket_is_ok'] == 1) {
+            $this->executeCmd($host_problems, $service_problems, $submit_result);
+        }
+        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
+        $result['ticket_id'] = $submit_result['ticket_id'];
+        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
+        $result['ticket_time'] = $submit_result['ticket_time'];
+        $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
+
+        return $result;
+    }
+
+    /**
+     * @param int|string $ticket_id
+     * @param array<mixed> $data
+     * @return false|string
+     */
+    public function getUrl($ticket_id, $data)
+    {
+        $tpl = $this->initSmartyTemplate();
+        foreach ($data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+
+        foreach ($this->rule_data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        $tpl->assign('ticket_id', $ticket_id);
+        $tpl->assign('string', $this->rule_data['url']);
+
+        return $tpl->fetch('eval.ihtml');
+    }
+
+    /**
+     * @param array<mixed> $tickets
+     * @return void
+     */
+    public function closeTicket(&$tickets): void
+    {
+        // By default, yes tickets are removed (even no). -1 means a error
+        foreach ($tickets as $k => $v) {
+            $tickets[$k]['status'] = 1;
+        }
+    }
+
+    /**
+     * Set the default extra data
+     * @return void
+     */
+    abstract protected function setDefaultValueExtra();
+
+    /**
+     * Check the configuration form
+     * @return void
+     */
+    abstract protected function checkConfigForm();
+
+    /**
+     * Prepare the extra configuration block
+     * @return void
+     */
+    abstract protected function getConfigContainer1Extra();
+
+    /**
+     * Prepare the extra configuration block
+     * @return void
+     */
+    abstract protected function getConfigContainer2Extra();
+
+    /**
+     * Add specific configuration field
+     * @return void
+     */
+    abstract protected function saveConfigExtra();
+
+    /**
+     * Create a ticket
+     *
+     * @param CentreonDB $db_storage The centreon_storage database connection
+     * @param string $contact The contact who open the ticket
+     * @param array $host_problems The list of host issues link to the ticket
+     * @param array $service_problems The list of service issues link to the ticket
+     * @return array The status of action (
+     *               'code' => int,
+     *               'message' => string
+     *               )
+     */
+    abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
+
+    /**
+     * @param string $path
+     * @return SmartyBC
+     */
+    protected function initSmartyTemplate($path = 'providers/Abstract/templates')
+    {
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, $path);
+
+        $tpl->loadPlugin('smarty_function_host_get_hostgroups');
+        $tpl->loadPlugin('smarty_function_host_get_severity');
+        $tpl->loadPlugin('smarty_function_host_get_hostcategories');
+        $tpl->loadPlugin('smarty_function_host_get_macro_value_in_config');
+        $tpl->loadPlugin('smarty_function_host_get_macro_values_in_config');
+        $tpl->loadPlugin('smarty_function_service_get_servicecategories');
+        $tpl->loadPlugin('smarty_function_service_get_servicegroups');
+        $tpl->loadPlugin('smarty_function_sortgroup');
+
+        return $tpl;
+    }
+
+    /**
+     * @return void
+     */
     protected function clearSession()
     {
         if (
-            !is_null($this->uniq_id)
+            ! is_null($this->uniq_id)
             && isset($_SESSION['ot_save_' . $this->uniq_id])
         ) {
             unset($_SESSION['ot_save_' . $this->uniq_id]);
@@ -242,8 +487,8 @@ abstract class AbstractProvider
      */
     protected function saveSession($key, $value)
     {
-        if (!is_null($this->uniq_id)) {
-            if (!isset($_SESSION['ot_save_' . $this->uniq_id])) {
+        if (! is_null($this->uniq_id)) {
+            if (! isset($_SESSION['ot_save_' . $this->uniq_id])) {
                 $_SESSION['ot_save_' . $this->uniq_id] = [];
             }
             $_SESSION['ot_save_' . $this->uniq_id][$key] = $value;
@@ -269,27 +514,15 @@ abstract class AbstractProvider
     }
 
     /**
-     * @return void
-     */
-    public function clearUploadFiles(): void
-    {
-        $upload_files = $this->getUploadFiles();
-        foreach ($upload_files as $file) {
-            unlink($file['filepath']);
-        }
-
-        unset($_SESSION['ot_upload_files'][$this->uniq_id]);
-    }
-
-    /**
      * @param int|string $key
      * @return mixed|null
      */
     protected function getSession($key)
     {
-        if (!is_null($key) && !is_null($this->uniq_id) && isset($_SESSION['ot_save_' . $this->uniq_id][$key])) {
+        if (! is_null($key) && ! is_null($this->uniq_id) && isset($_SESSION['ot_save_' . $this->uniq_id][$key])) {
             return $_SESSION['ot_save_' . $this->uniq_id][$key];
         }
+
         return null;
     }
 
@@ -303,8 +536,8 @@ abstract class AbstractProvider
         if ($encoding == 'UTF-8') {
             return $value;
         }
-        $value = mb_convert_encoding($value, "UTF-8", $encoding);
-        return $value;
+
+        return mb_convert_encoding($value, 'UTF-8', $encoding);
     }
 
     /**
@@ -485,9 +718,7 @@ Output: {$service.output|substr:0:1024}
             }
         }
 
-        $result = ['clone_values' => json_encode($format_values), 'clone_count' => count($format_values)];
-
-        return $result;
+        return ['clone_values' => json_encode($format_values), 'clone_count' => count($format_values)];
     }
 
     /**
@@ -500,7 +731,7 @@ Output: {$service.output|substr:0:1024}
     protected function getFormValue($uniq_id, $htmlentities = true)
     {
         $value = '';
-        if (isset($this->rule_data[$uniq_id]) && !is_null($this->rule_data[$uniq_id])) {
+        if (isset($this->rule_data[$uniq_id]) && ! is_null($this->rule_data[$uniq_id])) {
             $value = $this->rule_data[$uniq_id];
         } elseif (isset($this->default_data[$uniq_id])) {
             $value = $this->default_data[$uniq_id];
@@ -509,6 +740,7 @@ Output: {$service.output|substr:0:1024}
         if ($htmlentities) {
             $value = htmlentities($value, ENT_QUOTES);
         }
+
         return $value;
     }
 
@@ -525,13 +757,13 @@ Output: {$service.output|substr:0:1024}
 
         foreach ($groupList as $values) {
             if (preg_match('/[^A-Za-z0-9_]/', $values['Id'])) {
-                $this->check_error_message .= $this->check_error_message_append .
-                    "List id '" . $values['Id'] . "' must contains only alphanumerics or underscore characters";
+                $this->check_error_message .= $this->check_error_message_append
+                    . "List id '" . $values['Id'] . "' must contains only alphanumerics or underscore characters";
                 $this->check_error_message_append = '<br/>';
             }
             if (isset($duplicate_id[$values['Id']])) {
-                $this->check_error_message .= $this->check_error_message_append .
-                    "List id '" . $values['Id'] . "' already exits";
+                $this->check_error_message .= $this->check_error_message_append
+                    . "List id '" . $values['Id'] . "' already exits";
                 $this->check_error_message_append = '<br/>';
             }
 
@@ -563,45 +795,10 @@ Output: {$service.output|substr:0:1024}
      */
     protected function checkFormValue($uniq_id, $error_msg)
     {
-        if (!isset($this->submitted_config[$uniq_id]) || $this->submitted_config[$uniq_id] == '') {
+        if (! isset($this->submitted_config[$uniq_id]) || $this->submitted_config[$uniq_id] == '') {
             $this->check_error_message .= $this->check_error_message_append . $error_msg;
             $this->check_error_message_append = '<br/>';
         }
-    }
-
-    /**
-     * Build the config form
-     *
-     * @return array<mixed>
-     */
-    public function getConfig()
-    {
-        $this->getConfigContainer1Extra();
-        $this->getConfigContainer1Main();
-        $this->getConfigContainer2Main();
-        $this->getConfigContainer2Extra();
-
-        return $this->config;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getChainRuleList()
-    {
-        $result = [];
-        if (isset($this->rule_data['clones']['chainruleList'])) {
-            $result = $this->rule_data['clones']['chainruleList'];
-        }
-        return $result;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMacroTicketId()
-    {
-        return $this->rule_data['macro_ticket_id'];
     }
 
     /**
@@ -613,52 +810,52 @@ Output: {$service.output|substr:0:1024}
     {
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
         $tpl->assign(
-            "header",
+            'header',
             [
-                "common" => _("Common"),
-                "close_ticket" => _("Close Ticket")
+                'common' => _('Common'),
+                'close_ticket' => _('Close Ticket'),
             ]
         );
 
         // Form
         $url_html = '<input size="50" name="url" type="text" value="' . $this->getFormValue('url') . '" />';
-        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' .
-            $this->getFormValue('message_confirm') . '</textarea>';
-        $ack_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="ack" name="ack" value="yes" ' .
-            ($this->getFormValue('ack') === 'yes' ? 'checked' : '') .
-            '/><label class="empty-label" for="ack"></label></div>';
-        $scheduleCheckHtml = '<input type="checkbox" name="schedule_check" value="yes" ' .
-            ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '') . '/>';
-        $close_ticket_enable_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="close_ticket" name="close_ticket_enable" value="yes" ' .
-            ($this->getFormValue('close_ticket_enable') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="close_ticket"></label></div>';
-        $error_close_centreon_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="error_close_centreon" name="error_close_centreon" value="yes" ' .
-            ($this->getFormValue('error_close_centreon') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="error_close_centreon"></label></div>';
+        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">'
+            . $this->getFormValue('message_confirm') . '</textarea>';
+        $ack_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="ack" name="ack" value="yes" '
+            . ($this->getFormValue('ack') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="ack"></label></div>';
+        $scheduleCheckHtml = '<input type="checkbox" name="schedule_check" value="yes" '
+            . ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '') . '/>';
+        $close_ticket_enable_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="close_ticket" name="close_ticket_enable" value="yes" '
+            . ($this->getFormValue('close_ticket_enable') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="close_ticket"></label></div>';
+        $error_close_centreon_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="error_close_centreon" name="error_close_centreon" value="yes" '
+            . ($this->getFormValue('error_close_centreon') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="error_close_centreon"></label></div>';
 
         $array_form = [
-            'url' => ['label' => _("Url"), 'html' => $url_html],
-            'message_confirm' => ['label' => _("Confirm message popup"), 'html' => $message_confirm_html],
-            'ack' => ['label' => _("Acknowledge"), 'html' => $ack_html],
-            'schedule_check' => ['label' => _("Schedule check"), 'html' => $scheduleCheckHtml],
+            'url' => ['label' => _('Url'), 'html' => $url_html],
+            'message_confirm' => ['label' => _('Confirm message popup'), 'html' => $message_confirm_html],
+            'ack' => ['label' => _('Acknowledge'), 'html' => $ack_html],
+            'schedule_check' => ['label' => _('Schedule check'), 'html' => $scheduleCheckHtml],
             'close_ticket_enable' => [
-                'label' => _("Enable"),
+                'label' => _('Enable'),
                 'enable' => $this->close_advanced,
-                'html' => $close_ticket_enable_html
+                'html' => $close_ticket_enable_html,
             ],
             'error_close_centreon' => [
-                'label' => _("On error continue close Centreon"),
-                'html' => $error_close_centreon_html
+                'label' => _('On error continue close Centreon'),
+                'html' => $error_close_centreon_html,
             ],
-            'grouplist' => ['label' => _("Lists")],
-            'customlist' => ['label' => _("Custom list definition")],
-            'bodylist' => ['label' => _("Body list definition")]
+            'grouplist' => ['label' => _('Lists')],
+            'customlist' => ['label' => _('Custom list definition')],
+            'bodylist' => ['label' => _('Body list definition')],
         ];
 
         $extra_group_options = '';
@@ -670,65 +867,65 @@ Output: {$service.output|substr:0:1024}
 
         // Group list clone
         $groupListId_html = '<input id="groupListId_#index#" name="groupListId[#index#]" size="20"  type="text" />';
-        $groupListLabel_html = '<input id="groupListLabel_#index#" name="groupListLabel[#index#]" ' .
-            'size="20"  type="text" />';
-        $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">' .
-            $extra_group_options .
-        '<option value="' . self::HOSTGROUP_TYPE . '">Host group</options>' .
-        '<option value="' . self::HOSTCATEGORY_TYPE . '">Host category</options>' .
-        '<option value="' . self::HOSTSEVERITY_TYPE . '">Host severity</options>' .
-        '<option value="' . self::SERVICEGROUP_TYPE . '">Service group</options>' .
-        '<option value="' . self::SERVICECATEGORY_TYPE . '">Service category</options>' .
-        '<option value="' . self::SERVICESEVERITY_TYPE . '">Service severity</options>' .
-        '<option value="' . self::SERVICECONTACTGROUP_TYPE . '">Contact group</options>' .
-        '<option value="' . self::BODY_TYPE . '">Body</options>' .
-        '<option value="' . self::CUSTOM_TYPE . '">Custom</options>' .
-        '</select>';
-        $groupListFilter_html =  '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" ' .
-            'size="20"  type="text" />';
-        $groupListMandatory_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input id="groupListMandatory_#index#" name="groupListMandatory[#index#]" ' .
-            'type="checkbox" value="1" /><label class="empty-label" for="groupListMandatory_#index#"></label></div>';
-        $groupListSort_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input id="groupListSort_#index#" name="groupListSort[#index#]" type="checkbox" />' .
-            '<label class="empty-label" for="groupListSort_#index#"></label></div>';
+        $groupListLabel_html = '<input id="groupListLabel_#index#" name="groupListLabel[#index#]" '
+            . 'size="20"  type="text" />';
+        $groupListType_html = '<select id="groupListType_#index#" name="groupListType[#index#]" type="select-one">'
+            . $extra_group_options
+        . '<option value="' . self::HOSTGROUP_TYPE . '">Host group</options>'
+        . '<option value="' . self::HOSTCATEGORY_TYPE . '">Host category</options>'
+        . '<option value="' . self::HOSTSEVERITY_TYPE . '">Host severity</options>'
+        . '<option value="' . self::SERVICEGROUP_TYPE . '">Service group</options>'
+        . '<option value="' . self::SERVICECATEGORY_TYPE . '">Service category</options>'
+        . '<option value="' . self::SERVICESEVERITY_TYPE . '">Service severity</options>'
+        . '<option value="' . self::SERVICECONTACTGROUP_TYPE . '">Contact group</options>'
+        . '<option value="' . self::BODY_TYPE . '">Body</options>'
+        . '<option value="' . self::CUSTOM_TYPE . '">Custom</options>'
+        . '</select>';
+        $groupListFilter_html = '<input id="groupListFilter_#index#" name="groupListFilter[#index#]" '
+            . 'size="20"  type="text" />';
+        $groupListMandatory_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input id="groupListMandatory_#index#" name="groupListMandatory[#index#]" '
+            . 'type="checkbox" value="1" /><label class="empty-label" for="groupListMandatory_#index#"></label></div>';
+        $groupListSort_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input id="groupListSort_#index#" name="groupListSort[#index#]" type="checkbox" />'
+            . '<label class="empty-label" for="groupListSort_#index#"></label></div>';
         $array_form['groupList'] = [
-            ['label' => _("Id"), 'html' => $groupListId_html],
-            ['label' => _("Label"), 'html' => $groupListLabel_html],
-            ['label' => _("Type"), 'html' => $groupListType_html],
-            ['label' => _("Filter"), 'html' => $groupListFilter_html],
-            ['label' => _("Mandatory"), 'html' => $groupListMandatory_html],
-            ['label' => _("Sort"), 'html' => $groupListSort_html]
+            ['label' => _('Id'), 'html' => $groupListId_html],
+            ['label' => _('Label'), 'html' => $groupListLabel_html],
+            ['label' => _('Type'), 'html' => $groupListType_html],
+            ['label' => _('Filter'), 'html' => $groupListFilter_html],
+            ['label' => _('Mandatory'), 'html' => $groupListMandatory_html],
+            ['label' => _('Sort'), 'html' => $groupListSort_html],
         ];
 
         // Custom list clone
         $customListId_html = '<input id="customListId_#index#" name="customListId[#index#]" size="20"  type="text" />';
-        $customListValue_html = '<input id="customListValue_#index#" name="customListValue[#index#]" size="20"  ' .
-            'type="text" />';
-        $customListLabel_html = '<input id="customListLabel_#index#" name="customListLabel[#index#]" size="20"  ' .
-            'type="text" />';
-        $customListDefault_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input id="customListDefault_#index#" name="customListDefault[#index#]" ' .
-            'type="checkbox" value="1" /><label class="empty-label" for="customListDefault_#index#"></label></div>';
+        $customListValue_html = '<input id="customListValue_#index#" name="customListValue[#index#]" size="20"  '
+            . 'type="text" />';
+        $customListLabel_html = '<input id="customListLabel_#index#" name="customListLabel[#index#]" size="20"  '
+            . 'type="text" />';
+        $customListDefault_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input id="customListDefault_#index#" name="customListDefault[#index#]" '
+            . 'type="checkbox" value="1" /><label class="empty-label" for="customListDefault_#index#"></label></div>';
         $array_form['customList'] = [
-            ['label' => _("Id"), 'html' => $customListId_html],
-            ['label' => _("Value"), 'html' => $customListValue_html],
-            ['label' => _("Label"), 'html' => $customListLabel_html],
-            ['label' => _("Default"), 'html' => $customListDefault_html]
+            ['label' => _('Id'), 'html' => $customListId_html],
+            ['label' => _('Value'), 'html' => $customListValue_html],
+            ['label' => _('Label'), 'html' => $customListLabel_html],
+            ['label' => _('Default'), 'html' => $customListDefault_html],
         ];
 
         // Body list clone
-        $bodyListName_html = '<input id="bodyListName_#index#" name="bodyListName[#index#]" size="20"  ' .
-            'type="text" />';
-        $bodyListValue_html = '<textarea type="textarea" id="bodyListValue_#index#" rows="8" cols="70" ' .
-            'name="bodyListValue[#index#]"></textarea>';
-        $bodyListDefault_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input id="bodyListDefault_#index#" name="bodyListDefault[#index#]" ' .
-            'type="checkbox" value="1" /><label class="empty-label" for="bodyListDefault_#index#"></label></div>';
+        $bodyListName_html = '<input id="bodyListName_#index#" name="bodyListName[#index#]" size="20"  '
+            . 'type="text" />';
+        $bodyListValue_html = '<textarea type="textarea" id="bodyListValue_#index#" rows="8" cols="70" '
+            . 'name="bodyListValue[#index#]"></textarea>';
+        $bodyListDefault_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input id="bodyListDefault_#index#" name="bodyListDefault[#index#]" '
+            . 'type="checkbox" value="1" /><label class="empty-label" for="bodyListDefault_#index#"></label></div>';
         $array_form['bodyList'] = [
-            ['label' => _("Name"), 'html' => $bodyListName_html],
-            ['label' => _("Value"), 'html' => $bodyListValue_html],
-            ['label' => _("Default"), 'html' => $bodyListDefault_html]
+            ['label' => _('Name'), 'html' => $bodyListName_html],
+            ['label' => _('Value'), 'html' => $bodyListValue_html],
+            ['label' => _('Default'), 'html' => $bodyListDefault_html],
         ];
 
         $tpl->assign('form', $array_form);
@@ -748,80 +945,80 @@ Output: {$service.output|substr:0:1024}
     {
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_wrench', './modules/centreon-open-tickets/images/wrench.png');
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
         $tpl->assign(
-            "header",
+            'header',
             [
-                "proxy_settings" => _("Proxy settings"),
-                "title" => _("Rules"),
-                "common" => _("Common")
+                'proxy_settings' => _('Proxy settings'),
+                'title' => _('Rules'),
+                'common' => _('Common'),
             ]
         );
-        $tpl->assign("proxy_enabled", $this->proxy_enabled);
+        $tpl->assign('proxy_enabled', $this->proxy_enabled);
 
         // Form
-        $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="' .
-            $this->getFormValue('confirm_autoclose') . '" />';
-        $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="' .
-            $this->getFormValue('macro_ticket_id') . '" />';
-        $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">' .
-            $this->getFormValue('format_popup') . '</textarea>';
-        $attach_files_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="attach_files" name="attach_files" value="yes" ' .
-            ($this->getFormValue('attach_files') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="attach_files"></label></div>';
+        $confirm_autoclose_html = '<input size="5" name="confirm_autoclose" type="text" value="'
+            . $this->getFormValue('confirm_autoclose') . '" />';
+        $macro_ticket_id_html = '<input size="50" name="macro_ticket_id" type="text" value="'
+            . $this->getFormValue('macro_ticket_id') . '" />';
+        $format_popup_html = '<textarea rows="8" cols="70" name="format_popup">'
+            . $this->getFormValue('format_popup') . '</textarea>';
+        $attach_files_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="attach_files" name="attach_files" value="yes" '
+            . ($this->getFormValue('attach_files') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="attach_files"></label></div>';
 
-        //Proxy
-        $proxy_address_html = '<input size="50" name="proxy_address" type="text" value="' .
-            $this->getFormValue('proxy_address') . '" />';
-        $proxy_port_html = '<input size="10" name="proxy_port" type="text" value="' .
-            $this->getFormValue('proxy_port') . '" />';
-        $proxy_username_html = '<input size="50" name="proxy_username" type="text" value="' .
-            $this->getFormValue('proxy_username') . '" />';
-        $proxy_password_html = '<input size="50" name="proxy_password" type="password" value="' .
-            $this->getFormValue('proxy_password') . '" autocomplete="off" />';
+        // Proxy
+        $proxy_address_html = '<input size="50" name="proxy_address" type="text" value="'
+            . $this->getFormValue('proxy_address') . '" />';
+        $proxy_port_html = '<input size="10" name="proxy_port" type="text" value="'
+            . $this->getFormValue('proxy_port') . '" />';
+        $proxy_username_html = '<input size="50" name="proxy_username" type="text" value="'
+            . $this->getFormValue('proxy_username') . '" />';
+        $proxy_password_html = '<input size="50" name="proxy_password" type="password" value="'
+            . $this->getFormValue('proxy_password') . '" autocomplete="off" />';
 
         $array_form = [
             'macro_ticket_id' => [
-                'label' => _("Macro Ticket ID") . $this->required_field,
-                'html' => $macro_ticket_id_html
+                'label' => _('Macro Ticket ID') . $this->required_field,
+                'html' => $macro_ticket_id_html,
             ],
-            'format_popup' => ['label' => _("Formatting popup"), 'html' => $format_popup_html],
-            'confirm_autoclose' => ['label' => _("Confirm popup autoclose"), 'html' => $confirm_autoclose_html],
-            'chainrule' => ['label' => _("Chain rules")],
-            'command' => ['label' => _("Commands")],
+            'format_popup' => ['label' => _('Formatting popup'), 'html' => $format_popup_html],
+            'confirm_autoclose' => ['label' => _('Confirm popup autoclose'), 'html' => $confirm_autoclose_html],
+            'chainrule' => ['label' => _('Chain rules')],
+            'command' => ['label' => _('Commands')],
             'attach_files' => [
-                'label' => _("Attach Files"),
-                "enable" => $this->attach_files,
-                'html' => $attach_files_html
+                'label' => _('Attach Files'),
+                'enable' => $this->attach_files,
+                'html' => $attach_files_html,
             ],
-            'proxy_address' => ['label' => _("Proxy address"), 'html' => $proxy_address_html],
-            'proxy_port' => ['label' => _("Proxy port"), 'html' => $proxy_port_html],
-            'proxy_username' => ['label' => _("Proxy username"), 'html' => $proxy_username_html],
-            'proxy_password' => ['label' => _("Proxy password"), 'html' => $proxy_password_html]
+            'proxy_address' => ['label' => _('Proxy address'), 'html' => $proxy_address_html],
+            'proxy_port' => ['label' => _('Proxy port'), 'html' => $proxy_port_html],
+            'proxy_username' => ['label' => _('Proxy username'), 'html' => $proxy_username_html],
+            'proxy_password' => ['label' => _('Proxy password'), 'html' => $proxy_password_html],
         ];
 
         // Chain rule list clone
-        $chainruleListProvider_html = '<select id="chainruleListProvider_#index#" ' .
-            'name="chainruleListProvider[#index#]" type="select-one">';
-        $chainruleListProvider_html .=  '<option value="-1">-- ' . _('Choose provider') . ' --</options>';
+        $chainruleListProvider_html = '<select id="chainruleListProvider_#index#" '
+            . 'name="chainruleListProvider[#index#]" type="select-one">';
+        $chainruleListProvider_html .= '<option value="-1">-- ' . _('Choose provider') . ' --</options>';
         foreach ($this->rule_list as $id => $name) {
             if ($id != $this->rule_id) {
-                $chainruleListProvider_html .=  '<option value="' . $id . '">' . $name . '</options>';
+                $chainruleListProvider_html .= '<option value="' . $id . '">' . $name . '</options>';
             }
         }
         $chainruleListProvider_html .= '</select>';
         $array_form['chainruleList'] = [
-            ['label' => _("Provider"), 'html' => $chainruleListProvider_html]
+            ['label' => _('Provider'), 'html' => $chainruleListProvider_html],
         ];
 
         // Command list clone
-        $commandListCmd_html = '<input id="commandListCmd_#index#" name="commandListCmd[#index#]" ' .
-            'size="60"  type="text" />';
+        $commandListCmd_html = '<input id="commandListCmd_#index#" name="commandListCmd[#index#]" '
+            . 'size="60"  type="text" />';
         $array_form['commandList'] = [
-            ['label' => _("Command"), 'html' => $commandListCmd_html]
+            ['label' => _('Command'), 'html' => $commandListCmd_html],
         ];
 
         $tpl->assign('form', $array_form);
@@ -847,8 +1044,7 @@ Output: {$service.output|substr:0:1024}
                 $array_values = [];
                 foreach ($values as $other) {
                     if (
-                        isset($this->submitted_config[$clone_key . $other])
-                        && isset($this->submitted_config[$clone_key . $other][$index])
+                        isset($this->submitted_config[$clone_key . $other], $this->submitted_config[$clone_key.$other][$index])
                     ) {
                         $array_values[$other] = $this->submitted_config[$clone_key . $other][$index];
                     } else {
@@ -877,15 +1073,15 @@ Output: {$service.output|substr:0:1024}
         $this->save_config['simple']['schedule_check'] = (
             isset($this->submitted_config['schedule_check']) && $this->submitted_config['schedule_check'] === 'yes'
         ) ? $this->submitted_config['schedule_check'] : '';
-        $this->save_config['simple']['attach_files'] =
-            (isset($this->submitted_config['attach_files']) && $this->submitted_config['attach_files'] == 'yes'
+        $this->save_config['simple']['attach_files']
+            = (isset($this->submitted_config['attach_files']) && $this->submitted_config['attach_files'] == 'yes'
         ) ? $this->submitted_config['attach_files'] : '';
-        $this->save_config['simple']['close_ticket_enable'] =
-            (isset($this->submitted_config['close_ticket_enable'])
+        $this->save_config['simple']['close_ticket_enable']
+            = (isset($this->submitted_config['close_ticket_enable'])
                 && $this->submitted_config['close_ticket_enable'] == 'yes')
             ? $this->submitted_config['close_ticket_enable'] : '';
-        $this->save_config['simple']['error_close_centreon'] =
-            (isset($this->submitted_config['error_close_centreon'])
+        $this->save_config['simple']['error_close_centreon']
+            = (isset($this->submitted_config['error_close_centreon'])
                 && $this->submitted_config['error_close_centreon'] == 'yes')
             ? $this->submitted_config['error_close_centreon'] : '';
         $this->save_config['simple']['url'] = $this->submitted_config['url'];
@@ -911,20 +1107,6 @@ Output: {$service.output|substr:0:1024}
         $this->save_config['simple']['proxy_port'] = $this->submitted_config['proxy_port'] ?? '';
         $this->save_config['simple']['proxy_username'] = $this->submitted_config['proxy_username'] ?? '';
         $this->save_config['simple']['proxy_password'] = $this->submitted_config['proxy_password'] ?? '';
-    }
-
-    /**
-     * @return void
-     */
-    public function saveConfig(): void
-    {
-        $this->checkConfigForm();
-        $this->save_config = ['clones' => [], 'simple' => []];
-
-        $this->saveConfigMain();
-        $this->saveConfigExtra();
-
-        $this->rule->save($this->rule_id, $this->save_config);
     }
 
     /**
@@ -1066,7 +1248,7 @@ Output: {$service.output|substr:0:1024}
             'values' => $result,
             'placeholder' => $placeholder ?? null,
             'default' => $default,
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
         ];
         $groups_order[] = $entry['Id'];
     }
@@ -1187,116 +1369,15 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * Check select lists requirement
-     *
-     * @return array
-     */
-    public function automateValidateFormatPopupLists()
-    {
-        $rv = ['code' => 0, 'lists' => [] ];
-        if (isset($this->rule_data['clones']['groupList'])) {
-            foreach ($this->rule_data['clones']['groupList'] as $values) {
-                if (
-                    $values['Mandatory'] == 1
-                    && !isset($this->submitted_config['select_' . $values['Id']])
-                ) {
-                    $rv['code'] = 1;
-                    $rv['lists'][] = $values['Id'];
-                }
-            }
-        }
-
-        return $rv;
-    }
-
-    /**
-     * @param array<mixed> $args
-     * @param bool $addGroups
-     * @return array<mixed>|null
-     */
-    public function getFormatPopup($args, $addGroups = false)
-    {
-        if (
-            !isset($this->rule_data['format_popup'])
-            || is_null($this->rule_data['format_popup'])
-            || $this->rule_data['format_popup']  == ''
-        ) {
-            return null;
-        }
-
-        $result = ['format_popup' => null];
-
-        $tpl = $this->initSmartyTemplate();
-
-        $groups = $this->assignFormatPopupTemplate($tpl, $args);
-        $tpl->assign('string', $this->rule_data['format_popup']);
-        $result['format_popup'] = $tpl->fetch('eval.ihtml');
-        $result['attach_files_enable'] = $this->rule_data['attach_files'] ?? 0;
-        if ($addGroups === true) {
-            $result['groups'] = $groups;
-        }
-        return $result;
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doAck()
-    {
-        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * Check if schedule check is needed
-     *
-     * @return bool
-     */
-    public function doesScheduleCheck(): bool
-    {
-        return (
-            isset($this->rule_data['schedule_check'])
-            && $this->rule_data['schedule_check'] === 'yes'
-        );
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doCloseTicket()
-    {
-        if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doCloseTicketContinueOnError()
-    {
-        if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
      * @param SmartyBC $tpl
      * @return void
      */
     protected function assignSubmittedValues(&$tpl)
     {
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
 
         foreach ($this->submitted_config as $label => $value) {
-            if (!preg_match('/^select_/', $label)) {
+            if (! preg_match('/^select_/', $label)) {
                 $tpl->assign($label, $value);
             }
         }
@@ -1309,7 +1390,7 @@ Output: {$service.output|substr:0:1024}
                 // Maybe an error to get list
                 if (
                     $values['Type'] == self::BODY_TYPE
-                    || !isset($this->submitted_config['select_' . $values['Id']])
+                    || ! isset($this->submitted_config['select_' . $values['Id']])
                 ) {
                     continue;
                 }
@@ -1338,18 +1419,18 @@ Output: {$service.output|substr:0:1024}
                     $id = $matches[1];
                     $value = $matches[2];
                 }
-                if (!empty($placeholder)) {
+                if (! empty($placeholder)) {
                     $select_lists[$values['Id']] = [
                         'label' => _($values['Label']),
                         'id' => $id,
                         'value' => $value,
-                        'placeholder' => $placeholder
+                        'placeholder' => $placeholder,
                     ];
                 } else {
                     $select_lists[$values['Id']] = [
                         'label' => _($values['Label']),
                         'id' => $id,
-                        'value' => $value
+                        'value' => $value,
                     ];
                 }
                 if (method_exists($this, $method_name)) {
@@ -1367,7 +1448,7 @@ Output: {$service.output|substr:0:1024}
             foreach ($this->rule_data['clones']['groupList'] as $values) {
                 if (
                     $values['Type'] != self::BODY_TYPE
-                    || !isset($this->submitted_config['select_' . $values['Id']])
+                    || ! isset($this->submitted_config['select_' . $values['Id']])
                 ) {
                     continue;
                 }
@@ -1409,7 +1490,7 @@ Output: {$service.output|substr:0:1024}
 
                 $tpl->assign('string', $value_body);
                 $content = $tpl->fetch('eval.ihtml');
-                if (!empty($placeholder)) {
+                if (! empty($placeholder)) {
                     $body_lists[$values['Id']] = ['label' => _($values['Label']), 'id' => $id, 'name' => $value, 'value' => $content, 'placeholder' => $placeholder];
                 } else {
                     $body_lists[$values['Id']] = ['label' => _($values['Label']), 'id' => $id, 'name' => $value, 'value' => $content];
@@ -1446,9 +1527,9 @@ Output: {$service.output|substr:0:1024}
      */
     protected function setConfirmMessage($host_problems, $service_problems, $submit_result)
     {
-        if (!isset($this->rule_data['message_confirm'])
+        if (! isset($this->rule_data['message_confirm'])
             || is_null($this->rule_data['message_confirm'])
-            || $this->rule_data['message_confirm']  == ''
+            || $this->rule_data['message_confirm'] == ''
         ) {
             return null;
         }
@@ -1467,44 +1548,8 @@ Output: {$service.output|substr:0:1024}
         }
 
         $tpl->assign('string', $this->rule_data['message_confirm']);
+
         return $tpl->fetch('eval.ihtml');
-    }
-
-    /**
-     * @param string $cmd
-     * @param int $timeout
-     * @return string
-     */
-    private function ExecWaitTimeout($cmd, $timeout = 10)
-    {
-        $descriptorspec = [0 => ["pipe", "r"], 1 => ["pipe", "w"], 2 => ["pipe", "w"]];
-        $pipes = [];
-
-        $timeout += time();
-        $process = proc_open($cmd, $descriptorspec, $pipes);
-        if (!is_resource($process)) {
-            throw new Exception("proc_open failed on: " . $cmd);
-        }
-
-        $output = '';
-        do {
-            $timeleft = $timeout - time();
-            $read = [$pipes[1]];
-            $write = null;
-            $exceptions = null;
-            stream_select($read, $write, $exceptions, $timeleft, null);
-
-            if ($read !== []) {
-                $output .= fread($pipes[1], 8192);
-            }
-        } while (!feof($pipes[1]) && $timeleft > 0);
-
-        if ($timeleft <= 0) {
-            proc_terminate($process);
-            throw new Exception("command timeout on: " . $cmd);
-        } else {
-            return $output;
-        }
     }
 
     /**
@@ -1517,12 +1562,12 @@ Output: {$service.output|substr:0:1024}
     {
         $submit_result['commands'] = [];
 
-        if (!isset($this->rule_data['clones']['commandList'])) {
+        if (! isset($this->rule_data['clones']['commandList'])) {
             return 0;
         }
 
         $tpl = $this->initSmartyTemplate();
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
         foreach ($submit_result as $label => $value) {
@@ -1549,51 +1594,6 @@ Output: {$service.output|substr:0:1024}
 
     /**
      * @param CentreonDB $db_storage
-     * @param string $contact
-     * @param array<mixed> $host_problems
-     * @param array<mixed> $service_problems
-     * @return array<mixed>
-     */
-    public function submitTicket($db_storage, $contact, $host_problems, $service_problems)
-    {
-        $result = ['confirm_popup' => null];
-
-        $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
-        if ($submit_result['ticket_is_ok'] == 1) {
-            $this->executeCmd($host_problems, $service_problems, $submit_result);
-        }
-        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
-        $result['ticket_id'] = $submit_result['ticket_id'];
-        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
-        $result['ticket_time'] = $submit_result['ticket_time'];
-        $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
-
-        return $result;
-    }
-
-    /**
-     * @param int|string $ticket_id
-     * @param array<mixed> $data
-     * @return false|string
-     */
-    public function getUrl($ticket_id, $data)
-    {
-        $tpl = $this->initSmartyTemplate();
-        foreach ($data as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-
-        foreach ($this->rule_data as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        $tpl->assign('ticket_id', $ticket_id);
-        $tpl->assign('string', $this->rule_data['url']);
-
-        return $tpl->fetch('eval.ihtml');
-    }
-
-    /**
-     * @param CentreonDB $db_storage
      * @param array<mixed> $result
      * @param array<mixed> $extra_args
      * @return void
@@ -1602,7 +1602,7 @@ Output: {$service.output|substr:0:1024}
     {
         $default_values = ['contact' => '', 'host_problems' => [], 'service_problems' => [], 'ticket_value' => null, 'subject' => null, 'data_type' => null, 'data' => null, 'no_create_ticket_id' => false];
         foreach ($default_values as $k => $v) {
-            if (!isset($extra_args[$k])) {
+            if (! isset($extra_args[$k])) {
                 $extra_args[$k] = $v;
             }
         }
@@ -1612,12 +1612,12 @@ Output: {$service.output|substr:0:1024}
 
             if ($extra_args['no_create_ticket_id'] == false) {
                 $db_storage->query(
-                    "INSERT INTO mod_open_tickets
-                        (`timestamp`, `user`" . (is_null($extra_args['ticket_value']) ? "" : ", `ticket_value`") . ")
-                    VALUES ('" . $result['ticket_time'] . "', '" .
-                    $db_storage->escape($extra_args['contact']['name']) . "'" .
-                    (is_null($extra_args['ticket_value']) ? "" : ", '" .
-                    $db_storage->escape($extra_args['ticket_value']) . "'") . ")"
+                    'INSERT INTO mod_open_tickets
+                        (`timestamp`, `user`' . (is_null($extra_args['ticket_value']) ? '' : ', `ticket_value`') . ")
+                    VALUES ('" . $result['ticket_time'] . "', '"
+                    . $db_storage->escape($extra_args['contact']['name']) . "'"
+                    . (is_null($extra_args['ticket_value']) ? '' : ", '"
+                    . $db_storage->escape($extra_args['ticket_value']) . "'") . ')'
                 );
                 $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
             }
@@ -1661,7 +1661,7 @@ Output: {$service.output|substr:0:1024}
                 );
             }
 
-            if (!is_null($extra_args['data_type']) && !is_null($extra_args['data'])) {
+            if (! is_null($extra_args['data_type']) && ! is_null($extra_args['data'])) {
                 $db_storage->query(
                     "INSERT INTO mod_open_tickets_data (
                         `ticket_id`, `subject`, `data_type`, `data`
@@ -1682,32 +1682,21 @@ Output: {$service.output|substr:0:1024}
         } catch (Exception $e) {
             $db_storage->rollback();
             $result['ticket_error_message'] = $e->getMessage();
+
             return $result;
         }
     }
 
     /**
-     * @param array<mixed> $tickets
-     * @return void
+     * Add a value to the cache
+     *
+     * @param string $key The cache key name
+     * @param mixed $value The value to cache
+     * @param int|null $ttl The ttl of expire this cache, if it's null no expire
      */
-    public function closeTicket(&$tickets): void
-    {
-        // By default, yes tickets are removed (even no). -1 means a error
-        foreach ($tickets as $k => $v) {
-            $tickets[$k]['status'] = 1;
-        }
-    }
-
-    /**
-    * Add a value to the cache
-    *
-    * @param string $key The cache key name
-    * @param mixed $value The value to cache
-    * @param int|null $ttl The ttl of expire this cache, if it's null no expire
-    */
     protected function setCache($key, $value, $ttl = null)
     {
-        $_SESSION['ot_cache_' . $this->rule_id][$key] =  ['value' => $value, 'ttl' => $ttl, 'created' => time()];
+        $_SESSION['ot_cache_' . $this->rule_id][$key] = ['value' => $value, 'ttl' => $ttl, 'created' => time()];
     }
 
     /**
@@ -1718,15 +1707,16 @@ Output: {$service.output|substr:0:1024}
      */
     protected function getCache($key)
     {
-        if (!isset($_SESSION['ot_cache_' . $this->rule_id][$key])) {
+        if (! isset($_SESSION['ot_cache_' . $this->rule_id][$key])) {
             return null;
         }
 
-        if (!is_null($_SESSION['ot_cache_' . $this->rule_id][$key]['ttl'])) {
+        if (! is_null($_SESSION['ot_cache_' . $this->rule_id][$key]['ttl'])) {
             $timeTtl = $_SESSION['ot_cache_' . $this->rule_id][$key]['ttl']
                 + $_SESSION['ot_cache_' . $this->rule_id][$key]['created'];
             if ((int) $timeTtl < time()) {
                 unset($_SESSION['ot_cache_' . $this->rule_id][$key]);
+
                 return null;
             }
         }
@@ -1741,18 +1731,56 @@ Output: {$service.output|substr:0:1024}
      */
     protected static function setProxy(&$ch, $info)
     {
-        if (is_null($info['proxy_address']) || !isset($info['proxy_address']) || $info['proxy_address'] == '') {
+        if (is_null($info['proxy_address']) || ! isset($info['proxy_address']) || $info['proxy_address'] == '') {
             return 1;
         }
 
         curl_setopt($ch, CURLOPT_PROXY, $info['proxy_address']);
-        if (!is_null($info['proxy_port']) && isset($info['proxy_port']) && $info['proxy_port'] != '') {
+        if (! is_null($info['proxy_port']) && isset($info['proxy_port']) && $info['proxy_port'] != '') {
             curl_setopt($ch, CURLOPT_PROXYPORT, $info['proxy_port']);
         }
-        if (!is_null($info['proxy_username']) && isset($info['proxy_username']) && $info['proxy_username'] != '') {
+        if (! is_null($info['proxy_username']) && isset($info['proxy_username']) && $info['proxy_username'] != '') {
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $info['proxy_username'] . ':' . $info['proxy_password']);
         }
 
         return 0;
+    }
+
+    /**
+     * @param string $cmd
+     * @param int $timeout
+     * @return string
+     */
+    private function ExecWaitTimeout($cmd, $timeout = 10)
+    {
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+        $pipes = [];
+
+        $timeout += time();
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+        if (! is_resource($process)) {
+            throw new Exception('proc_open failed on: ' . $cmd);
+        }
+
+        $output = '';
+        do {
+            $timeleft = $timeout - time();
+            $read = [$pipes[1]];
+            $write = null;
+            $exceptions = null;
+            stream_select($read, $write, $exceptions, $timeleft, null);
+
+            if ($read !== []) {
+                $output .= fread($pipes[1], 8192);
+            }
+        } while (! feof($pipes[1]) && $timeleft > 0);
+
+        if ($timeleft <= 0) {
+            proc_terminate($process);
+
+            throw new Exception('command timeout on: ' . $cmd);
+        }
+  
+            return $output;
     }
 }

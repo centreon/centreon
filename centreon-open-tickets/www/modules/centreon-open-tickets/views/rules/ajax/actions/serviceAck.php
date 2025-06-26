@@ -20,8 +20,8 @@
  */
 
 $resultat = [
-    "code" => 0,
-    "msg" => 'ok',
+    'code' => 0,
+    'msg' => 'ok',
 ];
 
 // We get Host or Service
@@ -30,7 +30,7 @@ $db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
 
-# check services and hosts
+// check services and hosts
 $selected_str = '';
 $selected_str_append = '';
 $hosts_selected_str = '';
@@ -42,40 +42,40 @@ foreach ($selected_values as $value) {
     $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
     $selected_str_append = ' OR ';
 
-    if (!isset($hosts_done[$str[0]])) {
+    if (! isset($hosts_done[$str[0]])) {
         $hosts_selected_str .= $hosts_selected_str_append . $str[0];
         $hosts_selected_str_append = ', ';
         $hosts_done[$str[0]] = 1;
     }
 }
 
-$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
-    WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
-if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
-        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
+$query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
+    WHERE (' . $selected_str . ') AND services.host_id = hosts.host_id';
+if (! $centreon_bg->is_admin) {
+    $query .= ' AND EXISTS(
+        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ('
+            . $centreon_bg->grouplistStr . '
         )
         AND hosts.host_id = centreon_acl.host_id
         AND services.service_id = centreon_acl.service_id
-    )";
+    )';
 }
-$query .= ") UNION ALL (
+$query .= ') UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
     FROM hosts
-    WHERE hosts.host_id IN (" .
-        $hosts_selected_str . "
-    )";
-if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
+    WHERE hosts.host_id IN ('
+        . $hosts_selected_str . '
+    )';
+if (! $centreon_bg->is_admin) {
+    $query .= ' AND EXISTS(
         SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
+        WHERE centreon_acl.group_id IN ('
+            . $centreon_bg->grouplistStr . '
         )
         AND hosts.host_id = centreon_acl.host_id
-    )";
+    )';
 }
-$query .= ") ORDER BY `host_name`, `description`";
+$query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
@@ -119,7 +119,7 @@ try {
 
     foreach ($problems as $row) {
         if (is_null($row['description']) || $row['description'] == '') {
-            $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
+            $command = 'ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -132,11 +132,11 @@ try {
                         $get_information['form']['author'],
                         $get_information['form']['comment']
                     ),
-                    $row['instance_id']
+                    $row['instance_id'],
                 ]
             );
             if ($forceCheck) {
-                $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
+                $command = 'SCHEDULE_FORCED_HOST_CHECK;%s;%d';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -145,14 +145,14 @@ try {
                             $row['host_name'],
                             time()
                         ),
-                        $row['instance_id']
+                        $row['instance_id'],
                     ]
                 );
             }
             continue;
         }
 
-        $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
+        $command = 'ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s';
         call_user_func_array(
             [$external_cmd, $method_external_name],
             [
@@ -166,11 +166,11 @@ try {
                     $get_information['form']['author'],
                     $get_information['form']['comment']
                 ),
-                $row['instance_id']
+                $row['instance_id'],
             ]
         );
         if ($forceCheck) {
-            $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
+            $command = 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -180,7 +180,7 @@ try {
                         $row['description'],
                         time()
                     ),
-                    $row['instance_id']
+                    $row['instance_id'],
                 ]
             );
         }

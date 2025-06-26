@@ -22,6 +22,7 @@
 class Centreon_OpenTickets_Log
 {
     protected $_db;
+
     protected $_dbStorage;
 
     /**
@@ -34,40 +35,6 @@ class Centreon_OpenTickets_Log
     public function __construct($db, $dbStorage) {
         $this->_db = $db;
         $this->_dbStorage = $dbStorage;
-    }
-
-    protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
-    {
-        $start = null;
-        $end = null;
-        $auto_period = 1;
-        if (!is_null($start_date) && $start_date != '') {
-            $auto_period = 0;
-            if ($start_time == "") {
-                $start_time = "00:00";
-            }
-
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
-            preg_match("/^([0-9]*):([0-9]*)/", $start_time, $matchesT);
-            $start = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
-        }
-        if (!is_null($end_date) && $end_date != '') {
-            $auto_period = 0;
-            if ($end_time == "") {
-                $end_time = "00:00";
-            }
-
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
-            preg_match("/^([0-9]*):([0-9]*)/", $end_time, $matchesT);
-            $end = mktime($matchesT[1], $matchesT[2], "0", $matchesD[1], $matchesD[2], $matchesD[3]);
-        }
-
-        if ($auto_period == 1 && !is_null($period) && $period > 0) {
-            $start = time() - ($period);
-            $end = time();
-        }
-
-        return ['start' => $start, 'end' => $end];
     }
 
     /*
@@ -92,7 +59,7 @@ class Centreon_OpenTickets_Log
      */
     public function getLog($params, $centreon_bg, $pagination = 30, $current_page = 1, $all = false)
     {
-        /* Get time */
+        // Get time
         $range_time = $this->getTime(
             $params['StartDate'],
             $params['StartTime'],
@@ -101,19 +68,19 @@ class Centreon_OpenTickets_Log
             $params['period']
         );
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id, mot.timestamp, mot.user, " .
-            "motl.hostname AS host_name, motl.service_description, motd.subject " .
-            "FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ";
-        if (!is_null($range_time['start'])) {
-            $query .= "mot.timestamp >= " . $range_time['start'] . " AND ";
+        $query = 'SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id, mot.timestamp, mot.user, '
+            . 'motl.hostname AS host_name, motl.service_description, motd.subject '
+            . 'FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ';
+        if (! is_null($range_time['start'])) {
+            $query .= 'mot.timestamp >= ' . $range_time['start'] . ' AND ';
         }
-        if (!is_null($range_time['end'])) {
-            $query .= "mot.timestamp <= " . $range_time['end'] . " AND ";
+        if (! is_null($range_time['end'])) {
+            $query .= 'mot.timestamp <= ' . $range_time['end'] . ' AND ';
         }
-        if (!is_null($params['ticket_id']) && $params['ticket_id'] != '') {
+        if (! is_null($params['ticket_id']) && $params['ticket_id'] != '') {
             $query .= "mot.ticket_value LIKE '%" . $this->_db->escape($params['ticket_id']) . "%' AND ";
         }
-        if (!is_null($params['subject']) && $params['subject'] != '') {
+        if (! is_null($params['subject']) && $params['subject'] != '') {
             $query .= "motd.subject LIKE '%" . $this->_db->escape($params['subject']) . "%' AND ";
         }
 
@@ -122,32 +89,32 @@ class Centreon_OpenTickets_Log
         if (isset($params['service_filter']) && is_array($params['service_filter'])) {
             foreach ($params['service_filter'] as $val) {
                 $tmp = explode('-', $val);
-                $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0] .
-                    ' AND motl.service_id = ' . $tmp[1] . ') ';
+                $build_services_filter .= $build_services_filter_append . '(motl.host_id = ' . $tmp[0]
+                    . ' AND motl.service_id = ' . $tmp[1] . ') ';
                 $build_services_filter_append = 'OR ';
             }
         }
         if (isset($params['host_filter']) && count($params['host_filter']) > 0) {
             if ($build_services_filter != '') {
-                $query .= "(motl.host_id IN (" . join(',', $params['host_filter']) . ") " .
-                   "OR (" . $build_services_filter . ")) AND ";
+                $query .= '(motl.host_id IN (' . join(',', $params['host_filter']) . ') '
+                   . 'OR (' . $build_services_filter . ')) AND ';
             } else {
-                $query .= "motl.host_id IN (" . join(',', $params['host_filter']) . ") AND ";
+                $query .= 'motl.host_id IN (' . join(',', $params['host_filter']) . ') AND ';
             }
         } elseif ($build_services_filter != '') {
             $query .= '(' . $build_services_filter . ') AND ';
         }
 
-        if (!$centreon_bg->is_admin) {
-            $query .= "EXISTS(SELECT 1 FROM centreon_acl WHERE centreon_acl.group_id IN (" .
-                $centreon_bg->grouplistStr .
-                ") AND motl.host_id = centreon_acl.host_id " .
-                "AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)) AND ";
+        if (! $centreon_bg->is_admin) {
+            $query .= 'EXISTS(SELECT 1 FROM centreon_acl WHERE centreon_acl.group_id IN ('
+                . $centreon_bg->grouplistStr
+                . ') AND motl.host_id = centreon_acl.host_id '
+                . 'AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)) AND ';
         }
-        $query .= "motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
-            ORDER BY `timestamp` DESC ";
+        $query .= 'motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
+            ORDER BY `timestamp` DESC ';
 
-        /* Pagination */
+        // Pagination
         if (is_null($current_page) || $current_page <= 0) {
             $current_page = 1;
         }
@@ -156,9 +123,8 @@ class Centreon_OpenTickets_Log
         }
 
         if ($all == false) {
-            $query .= "LIMIT " . (($current_page - 1) * $pagination) . ', ' . $pagination;
+            $query .= 'LIMIT ' . (($current_page - 1) * $pagination) . ', ' . $pagination;
         }
-
 
         $stmt = $this->_dbStorage->prepare($query);
         $stmt->execute();
@@ -169,5 +135,39 @@ class Centreon_OpenTickets_Log
         $result['end'] = $range_time['end'];
 
         return $result;
+    }
+
+    protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
+    {
+        $start = null;
+        $end = null;
+        $auto_period = 1;
+        if (! is_null($start_date) && $start_date != '') {
+            $auto_period = 0;
+            if ($start_time == '') {
+                $start_time = '00:00';
+            }
+
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
+            preg_match('/^([0-9]*):([0-9]*)/', $start_time, $matchesT);
+            $start = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
+        }
+        if (! is_null($end_date) && $end_date != '') {
+            $auto_period = 0;
+            if ($end_time == '') {
+                $end_time = '00:00';
+            }
+
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
+            preg_match('/^([0-9]*):([0-9]*)/', $end_time, $matchesT);
+            $end = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
+        }
+
+        if ($auto_period == 1 && ! is_null($period) && $period > 0) {
+            $start = time() - ($period);
+            $end = time();
+        }
+
+        return ['start' => $start, 'end' => $end];
     }
 }

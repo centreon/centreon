@@ -34,8 +34,6 @@
  */
 class ServiceNowProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-
     public const SERVICENOW_LIST_CATEGORY = 20;
     public const SERVICENOW_LIST_SUBCATEGORY = 21;
     public const SERVICENOW_LIST_IMPACT = 22;
@@ -43,7 +41,6 @@ class ServiceNowProvider extends AbstractProvider
     public const SERVICENOW_LIST_ASSIGNMENT_GROUP = 24;
     public const SERVICENOW_LIST_ASSIGNED_TO = 25;
     public const SERVICENOW_LIST_SEVERITY = 26;
-
     public const ARG_SHORT_DESCRIPTION = 1;
     public const ARG_COMMENTS = 2;
     public const ARG_IMPACT = 3;
@@ -54,34 +51,89 @@ class ServiceNowProvider extends AbstractProvider
     public const ARG_ASSIGNMENT_GROUP = 8;
     public const ARG_SEVERITY = 9;
 
+    protected $proxy_enabled = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_SHORT_DESCRIPTION => 'ShortDescription', self::ARG_COMMENTS => 'Comments', self::ARG_IMPACT => 'Impact', self::ARG_URGENCY => 'Urgency', self::ARG_CATEGORY => 'Category', self::ARG_SEVERITY => 'Severity', self::ARG_SUBCATEGORY => 'Subcategory', self::ARG_ASSIGNED_TO => 'AssignedTo', self::ARG_ASSIGNMENT_GROUP => 'AssignmentGroup'];
 
     /**
-    * Set the default extra data
-    */
-    protected function setDefaultValueExtra()
+     * Validate the popup for submit a ticket
+     */
+    public function validateFormatPopup()
     {
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SHORT_DESCRIPTION, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_COMMENTS, 'Value' => '{$body}'], ['Arg' => self::ARG_ASSIGNED_TO, 'Value' => '{$select.servicenow_assigned_to.value}'], ['Arg' => self::ARG_ASSIGNMENT_GROUP, 'Value' => '{$select.servicenow_assignment_group.value}'], ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.servicenow_impact.value}'], ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.servicenow_urgency.value}'], ['Arg' => self::ARG_SEVERITY, 'Value' => '{$select.servicenow_severity.value}'], ['Arg' => self::ARG_CATEGORY, 'Value' => '{$select.servicenow_category.value}'], ['Arg' => self::ARG_SUBCATEGORY, 'Value' => '{$select.servicenow_subcategory.value}']];
+        $result = ['code' => 0, 'message' => 'ok'];
+
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
-    * Add default data
-    */
+     * Test the service
+     *
+     * @param TokenInfo $info The post information from webservice
+     * @return bool
+     */
+    public static function test($info)
+    {
+        // Test arguments
+        if (
+            ! isset($info['instance'])
+            || ! isset($info['clientId'])
+            || ! isset($info['clientSecret'])
+            || ! isset($info['username'])
+            || ! isset($info['password'])
+        ) {
+            throw new Exception('Missing arguments.');
+        }
+
+        try {
+            $tokens = self::getAccessToken(
+                [
+                    'instance' => $info['instance'],
+                    'client_id' => $info['clientId'],
+                    'client_secret' => $info['clientSecret'],
+                    'username' => $info['username'],
+                    'password' => $info['password'],
+                    'proxy_address' => $info['proxyAddress'],
+                    'proxy_port' => $info['proxyPort'],
+                    'proxy_username' => $info['proxyUsername'],
+                    'proxy_password' => $info['proxyPassword'],
+                ]
+            );
+
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Set the default extra data
+     */
+    protected function setDefaultValueExtra()
+    {
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SHORT_DESCRIPTION, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/'
+            . 'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_COMMENTS, 'Value' => '{$body}'], ['Arg' => self::ARG_ASSIGNED_TO, 'Value' => '{$select.servicenow_assigned_to.value}'], ['Arg' => self::ARG_ASSIGNMENT_GROUP, 'Value' => '{$select.servicenow_assignment_group.value}'], ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.servicenow_impact.value}'], ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.servicenow_urgency.value}'], ['Arg' => self::ARG_SEVERITY, 'Value' => '{$select.servicenow_severity.value}'], ['Arg' => self::ARG_CATEGORY, 'Value' => '{$select.servicenow_category.value}'], ['Arg' => self::ARG_SUBCATEGORY, 'Value' => '{$select.servicenow_subcategory.value}']];
+    }
+
+    /**
+     * Add default data
+     * @param mixed $body_html
+     */
     protected function setDefaultValueMain($body_html = 0)
     {
         parent::setDefaultValueMain($body_html);
 
-        $this->default_data['url'] = 'https://{$instance_name}.service-now.com/' .
-            'nav_to.do?uri=incident.do?sys_id={$ticket_id}';
+        $this->default_data['url'] = 'https://{$instance_name}.service-now.com/'
+            . 'nav_to.do?uri=incident.do?sys_id={$ticket_id}';
 
         $this->default_data['clones']['groupList'] = [['Id' => 'servicenow_category', 'Label' => _('Category'), 'Type' => self::SERVICENOW_LIST_CATEGORY, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'servicenow_subcategory', 'Label' => _('Subcategory'), 'Type' => self::SERVICENOW_LIST_SUBCATEGORY, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'servicenow_impact', 'Label' => _('Impact'), 'Type' => self::SERVICENOW_LIST_IMPACT, 'Filter' => '', 'Mandatory' => true], ['Id' => 'servicenow_urgency', 'Label' => _('Urgency'), 'Type' => self::SERVICENOW_LIST_URGENCY, 'Filter' => '', 'Mandatory' => true], ['Id' => 'servicenow_severity', 'Label' => _('Severity'), 'Type' => self::SERVICENOW_LIST_SEVERITY, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'servicenow_assignment_group', 'Label' => _('Assignment group'), 'Type' => self::SERVICENOW_LIST_ASSIGNMENT_GROUP, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'servicenow_assigned_to', 'Label' => _('Assigned to'), 'Type' => self::SERVICENOW_LIST_ASSIGNED_TO, 'Filter' => '', 'Mandatory' => '']];
     }
 
     /**
-    * Check the configuration form
-    */
+     * Check the configuration form
+     */
     protected function checkConfigForm()
     {
         $this->check_error_message = '';
@@ -101,51 +153,51 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-    * Prepare the extra configuration block
-    */
+     * Prepare the extra configuration block
+     */
     protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/ServiceNow/templates');
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["servicenow" => _("Service Now")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['servicenow' => _('Service Now')]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
         // Form
-        $instance_name_html = '<input size="50" name="instance_name" type="text" value="' .
-            $this->getFormValue('instance_name') . '" />';
-        $client_id_html = '<input size="50" name="client_id" type="text" value="' .
-            $this->getFormValue('client_id') . '" />';
-        $client_secret_html = '<input size="50" name="client_secret" type="password" value="' .
-            $this->getFormValue('client_secret') . '" autocomplete="off" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->getFormValue('password') . '" autocomplete="off" />';
+        $instance_name_html = '<input size="50" name="instance_name" type="text" value="'
+            . $this->getFormValue('instance_name') . '" />';
+        $client_id_html = '<input size="50" name="client_id" type="text" value="'
+            . $this->getFormValue('client_id') . '" />';
+        $client_secret_html = '<input size="50" name="client_secret" type="password" value="'
+            . $this->getFormValue('client_secret') . '" autocomplete="off" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $password_html = '<input size="50" name="password" type="password" value="'
+            . $this->getFormValue('password') . '" autocomplete="off" />';
 
-        $array_form = ['instance_name' => ['label' => _("Instance name") .
-            $this->required_field, 'html' => $instance_name_html], 'client_id' => ['label' => _("OAuth Client ID") .
-            $this->required_field, 'html' => $client_id_html], 'client_secret' => ['label' => _("OAuth client secret") .
-            $this->required_field, 'html' => $client_secret_html], 'username' => ['label' => _("OAuth username") .
-            $this->required_field, 'html' => $username_html], 'password' => ['label' => _("OAuth password") .
-            $this->required_field, 'html' => $password_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
+        $array_form = ['instance_name' => ['label' => _('Instance name')
+            . $this->required_field, 'html' => $instance_name_html], 'client_id' => ['label' => _('OAuth Client ID')
+            . $this->required_field, 'html' => $client_id_html], 'client_secret' => ['label' => _('OAuth client secret')
+            . $this->required_field, 'html' => $client_secret_html], 'username' => ['label' => _('OAuth username')
+            . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('OAuth password')
+            . $this->required_field, 'html' => $password_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_SHORT_DESCRIPTION . '">' . _('Short description') . '</options>' .
-        '<option value="' . self::ARG_COMMENTS . '">' . _('Comments') . '</options>' .
-        '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</options>' .
-        '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</options>' .
-        '<option value="' . self::ARG_SEVERITY . '">' . _('Severity') . '</options>' .
-        '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>' .
-        '<option value="' . self::ARG_SUBCATEGORY . '">' . _('Subcategory') . '</options>' .
-        '<option value="' . self::ARG_ASSIGNED_TO . '">' . _('Assigned To') . '</options>' .
-        '<option value="' . self::ARG_ASSIGNMENT_GROUP . '">' . _('Assignment Group') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_SHORT_DESCRIPTION . '">' . _('Short description') . '</options>'
+        . '<option value="' . self::ARG_COMMENTS . '">' . _('Comments') . '</options>'
+        . '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</options>'
+        . '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</options>'
+        . '<option value="' . self::ARG_SEVERITY . '">' . _('Severity') . '</options>'
+        . '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>'
+        . '<option value="' . self::ARG_SUBCATEGORY . '">' . _('Subcategory') . '</options>'
+        . '<option value="' . self::ARG_ASSIGNED_TO . '">' . _('Assigned To') . '</options>'
+        . '<option value="' . self::ARG_ASSIGNMENT_GROUP . '">' . _('Assignment Group') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -157,8 +209,8 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-    * Add specific configuration field
-    */
+     * Add specific configuration field
+     */
     protected function saveConfigExtra()
     {
         $this->save_config['simple']['instance_name'] = $this->submitted_config['instance_name'];
@@ -174,21 +226,19 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-    * Append additional list
-    *
-    * @return string
-    */
+     * Append additional list
+     *
+     * @return string
+     */
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::SERVICENOW_LIST_CATEGORY . '">ServiceNow category</options>' .
-          '<option value="' . self::SERVICENOW_LIST_SUBCATEGORY . '">ServiceNow subcategory</options>' .
-          '<option value="' . self::SERVICENOW_LIST_IMPACT . '">ServiceNow impact</options>' .
-          '<option value="' . self::SERVICENOW_LIST_URGENCY . '">ServiceNow urgency</options>' .
-          '<option value="' . self::SERVICENOW_LIST_SEVERITY . '">ServiceNow severity</options>' .
-          '<option value="' . self::SERVICENOW_LIST_ASSIGNMENT_GROUP . '">ServiceNow assignment group</options>' .
-          '<option value="' . self::SERVICENOW_LIST_ASSIGNED_TO . '">ServiceNow assigned to</options>';
-
-        return $str;
+        return '<option value="' . self::SERVICENOW_LIST_CATEGORY . '">ServiceNow category</options>'
+          . '<option value="' . self::SERVICENOW_LIST_SUBCATEGORY . '">ServiceNow subcategory</options>'
+          . '<option value="' . self::SERVICENOW_LIST_IMPACT . '">ServiceNow impact</options>'
+          . '<option value="' . self::SERVICENOW_LIST_URGENCY . '">ServiceNow urgency</options>'
+          . '<option value="' . self::SERVICENOW_LIST_SEVERITY . '">ServiceNow severity</options>'
+          . '<option value="' . self::SERVICENOW_LIST_ASSIGNMENT_GROUP . '">ServiceNow assignment group</options>'
+          . '<option value="' . self::SERVICENOW_LIST_ASSIGNED_TO . '">ServiceNow assigned to</options>';
     }
 
     protected function assignOtherServiceNow($entry, $method, &$groups_order, &$groups)
@@ -207,16 +257,21 @@ class ServiceNowProvider extends AbstractProvider
         } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
+
             return 0;
         }
 
         $groups[$entry['Id']]['values'] = $listValues;
+
         return $listValues;
     }
 
     /**
-    * Add field in popin for create a ticket
-    */
+     * Add field in popin for create a ticket
+     * @param mixed $entry
+     * @param mixed $groups_order
+     * @param mixed $groups
+     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
         if ($entry['Type'] == self::SERVICENOW_LIST_ASSIGNED_TO) {
@@ -244,9 +299,9 @@ class ServiceNowProvider extends AbstractProvider
      * @param array $host_problems The list of host issues link to the ticket
      * @param array $service_problems The list of service issues link to the ticket
      * @return array The status of action (
-     *  'code' => int,
-     *  'message' => string
-     * )
+     *               'code' => int,
+     *               'message' => string
+     *               )
      */
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
@@ -254,7 +309,7 @@ class ServiceNowProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -275,12 +330,12 @@ class ServiceNowProvider extends AbstractProvider
             }
         }
 
-        /* Create ticket */
+        // Create ticket
         try {
             $data = $this->submitted_config;
             $data['ticket_arguments'] = $ticket_arguments;
             $resultInfo = $this->callServiceNow('createTicket', $data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['ticket_error_message'] = 'Error during create ServiceNow ticket';
         }
 
@@ -292,17 +347,6 @@ class ServiceNowProvider extends AbstractProvider
             ], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($data)]
         );
 
-        return $result;
-    }
-
-    /**
-      * Validate the popup for submit a ticket
-      */
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-
-        $this->validateFormatPopupLists($result);
         return $result;
     }
 
@@ -332,60 +376,23 @@ class ServiceNowProvider extends AbstractProvider
 
         $returnJson = curl_exec($ch);
         if ($returnJson === false) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($status !== 200) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         curl_close($ch);
 
         $return = json_decode($returnJson, true);
+
         return ['accessToken' => $return['access_token'], 'refreshToken' => $return['refresh_token']];
-    }
-
-    /**
-     * Test the service
-     *
-     * @param TokenInfo $info The post information from webservice
-     * @return boolean
-     */
-    public static function test($info)
-    {
-        /* Test arguments */
-        if (
-            !isset($info['instance'])
-            || !isset($info['clientId'])
-            || !isset($info['clientSecret'])
-            || !isset($info['username'])
-            || !isset($info['password'])
-        ) {
-            throw new \Exception('Missing arguments.');
-        }
-
-        try {
-            $tokens = self::getAccessToken(
-                [
-                    'instance' => $info['instance'],
-                    'client_id' => $info['clientId'],
-                    'client_secret' => $info['clientSecret'],
-                    'username' => $info['username'],
-                    'password' => $info['password'],
-                    'proxy_address' => $info['proxyAddress'],
-                    'proxy_port' => $info['proxyPort'],
-                    'proxy_username' => $info['proxyUsername'],
-                    'proxy_password' => $info['proxyPassword']
-                ]
-            );
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
     /**
      * Refresh the access token
      *
+     * @param mixed $refreshToken
      * @return string The access token
      */
     protected function refreshToken($refreshToken)
@@ -415,20 +422,23 @@ class ServiceNowProvider extends AbstractProvider
 
         $returnJson = curl_exec($ch);
         if ($returnJson === false) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($status !== 200) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         curl_close($ch);
 
         $return = json_decode($returnJson, true);
+
         return ['accessToken' => $return['access_token'], 'refreshToken' => $return['refresh_token']];
     }
 
     /**
      * Call a service now Rest webservices
+     * @param mixed $methodName
+     * @param mixed $params
      */
     protected function callServiceNow($methodName, $params = [])
     {
@@ -448,7 +458,7 @@ class ServiceNowProvider extends AbstractProvider
             $this->setCache('refreshToken', $tokens['refreshToken'], 8400);
         }
 
-        return $this->$methodName($params, $accessToken);
+        return $this->{$methodName}($params, $accessToken);
     }
 
     /**
@@ -478,18 +488,18 @@ class ServiceNowProvider extends AbstractProvider
 
         if ($method !== 'GET') {
             curl_setopt($ch, CURLOPT_POST, 1);
-            if (!is_null($data)) {
+            if (! is_null($data)) {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             }
         }
 
         $returnJson = curl_exec($ch);
         if ($returnJson === false) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($status < 200 && $status >= 300) {
-            throw new \Exception(curl_error($ch));
+            throw new Exception(curl_error($ch));
         }
         curl_close($ch);
 
@@ -511,7 +521,7 @@ class ServiceNowProvider extends AbstractProvider
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['active'] === 'true') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
@@ -538,7 +548,7 @@ class ServiceNowProvider extends AbstractProvider
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['active'] === 'true') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['sys_id']] = $entry['name'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['name'])) {
@@ -559,14 +569,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListImpact($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive'
+            . '&sysparm_query=nameSTARTSWITHtask%5EelementSTARTSWITHimpact';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
@@ -587,14 +597,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListUrgency($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHurgency';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive'
+            . '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHurgency';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
@@ -615,14 +625,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListSeverity($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive'
+            . '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHseverity';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
@@ -643,14 +653,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListCategory($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive'
+            . '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHcategory';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
@@ -671,14 +681,14 @@ class ServiceNowProvider extends AbstractProvider
      */
     protected function getListSubcategory($params, $accessToken)
     {
-        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive' .
-            '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory';
+        $uri = '/api/now/table/sys_choice?sysparm_fields=value,label,inactive'
+            . '&sysparm_query=nameSTARTSWITHincident%5EelementSTARTSWITHsubcategory';
         $result = $this->runHttpRequest($uri, $accessToken);
 
         $selected = [];
         foreach ($result['result'] as $entry) {
             if ($entry['inactive'] === 'false') {
-                if (!isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
+                if (! isset($params['Filter']) || is_null($params['Filter']) || $params['Filter'] == '') {
                     $selected[$entry['value']] = $entry['label'];
                 }
                 if (preg_match('/' . $params['Filter'] . '/', $entry['label'])) {
@@ -735,6 +745,7 @@ class ServiceNowProvider extends AbstractProvider
             $data['comments'] = $params['ticket_arguments'][$this->internal_arg_name[self::ARG_COMMENTS]];
         }
         $result = $this->runHttpRequest($uri, $accessToken, 'POST', $data);
+
         return ['sysTicketId' => $result['result']['sys_id'], 'ticketId' => $result['result']['number']];
     }
 }

@@ -41,8 +41,7 @@ function get_contact_information()
 
 function get_provider_class($rule_id)
 {
-    global
-        $register_providers,
+    global $register_providers,
         $centreon_open_tickets_path,
         $rule,
         $centreon_path,
@@ -61,8 +60,8 @@ function get_provider_class($rule_id)
         return null;
     }
 
-    require_once $centreon_open_tickets_path . 'providers/' . $provider_name .
-        '/' . $provider_name . 'Provider.class.php';
+    require_once $centreon_open_tickets_path . 'providers/' . $provider_name
+        . '/' . $provider_name . 'Provider.class.php';
     $classname = $provider_name . 'Provider';
     $provider_class = new $classname(
         $rule,
@@ -72,6 +71,7 @@ function get_provider_class($rule_id)
         $get_information['form'],
         $provider['provider_id']
     );
+
     return $provider_class;
 }
 
@@ -99,13 +99,14 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
     }
 }
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set provider_id or form';
-    return ;
+
+    return;
 }
 
 $provider_name = null;
@@ -117,21 +118,23 @@ foreach ($register_providers as $name => $id) {
 }
 
 if (is_null($provider_name)
-    || !file_exists(
+    || ! file_exists(
         $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php'
     )
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set a provider';
-    return ;
+
+    return;
 }
-if (!isset($get_information['form']['widgetId'])
+if (! isset($get_information['form']['widgetId'])
     || is_null($get_information['form']['widgetId'])
     || $get_information['form']['widgetId'] == ''
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set widgetId';
-    return ;
+
+    return;
 }
 
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';
@@ -187,7 +190,7 @@ try {
         }
 
         foreach ($selected['host_selected'] as $value) {
-            $command = "CHANGE_CUSTOM_HOST_VAR;%s;%s;%s";
+            $command = 'CHANGE_CUSTOM_HOST_VAR;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -197,11 +200,11 @@ try {
                         $centreon_provider->getMacroTicketId(),
                         $resultat['result']['ticket_id']
                     ),
-                    $value['instance_id']
+                    $value['instance_id'],
                 ]
             );
             if ($centreon_provider->doAck()) {
-                $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
+                $command = 'ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -214,12 +217,12 @@ try {
                             $contact_infos['alias'],
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
-                        $value['instance_id']
+                        $value['instance_id'],
                     ]
                 );
             }
             if ($centreon_provider->doesScheduleCheck()) {
-                $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
+                $command = 'SCHEDULE_FORCED_HOST_CHECK;%s;%d';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -228,13 +231,13 @@ try {
                             $value['name'],
                             time()
                         ),
-                        $value['instance_id']
+                        $value['instance_id'],
                     ]
                 );
             }
         }
         foreach ($selected['service_selected'] as $value) {
-            $command = "CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s";
+            $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -245,11 +248,11 @@ try {
                         $centreon_provider->getMacroTicketId(),
                         $resultat['result']['ticket_id']
                     ),
-                    $value['instance_id']
+                    $value['instance_id'],
                 ]
             );
             if ($centreon_provider->doAck()) {
-                $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
+                $command = 'ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -263,12 +266,12 @@ try {
                             $contact_infos['alias'],
                             'open ticket: ' . $resultat['result']['ticket_id']
                         ),
-                        $value['instance_id']
+                        $value['instance_id'],
                     ]
                 );
             }
             if ($centreon_provider->doesScheduleCheck()) {
-                $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
+                $command = 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -278,7 +281,7 @@ try {
                             $value['description'],
                             time()
                         ),
-                        $value['instance_id']
+                        $value['instance_id'],
                     ]
                 );
             }

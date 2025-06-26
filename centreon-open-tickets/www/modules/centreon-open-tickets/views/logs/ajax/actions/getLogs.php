@@ -20,10 +20,10 @@
  */
 
 function set_pagination($tpl, $pagination, $current_page, $rows) {
-    $tpl->assign("pagination", $pagination);
-    $tpl->assign("current_page", $current_page);
-    $num_page = (int)(($rows / $pagination) + 1);
-    $tpl->assign("num_page", $num_page);
+    $tpl->assign('pagination', $pagination);
+    $tpl->assign('current_page', $current_page);
+    $num_page = (int) (($rows / $pagination) + 1);
+    $tpl->assign('num_page', $num_page);
 
     $total = 10;
     $bottom = $current_page - 1;
@@ -52,27 +52,27 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
         $arrow_last_display = 0;
     }
 
-    $tpl->assign("bottom_display", $bottom_display);
-    $tpl->assign("top_display", $top_display);
-    $tpl->assign("arrow_first_display", $arrow_first_display);
-    $tpl->assign("arrow_last_display", $arrow_last_display);
+    $tpl->assign('bottom_display', $bottom_display);
+    $tpl->assign('top_display', $top_display);
+    $tpl->assign('arrow_first_display', $arrow_first_display);
+    $tpl->assign('arrow_last_display', $arrow_last_display);
 }
 
-$resultat = ["code" => 0, "msg" => 'ok', "data" => null, "pagination" => null];
+$resultat = ['code' => 0, 'msg' => 'ok', 'data' => null, 'pagination' => null];
 
-//$fp = fopen('/tmp/debug.txt', 'a+');
-//fwrite($fp, print_r($get_information, true));
+// $fp = fopen('/tmp/debug.txt', 'a+');
+// fwrite($fp, print_r($get_information, true));
 
 $_SESSION['OT_form_logs'] = $get_information['form'];
 
 try {
     $tickets = $ticket_log->getLog($get_information['form'], $centreon_bg, $get_information['pagination'], $get_information['current_page']);
-    //fwrite($fp, print_r($tickets, true));
+    // fwrite($fp, print_r($tickets, true));
 
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($centreon_open_tickets_path, 'views/logs/templates');
 
-    $tpl->assign("tickets", $tickets['tickets']);
+    $tpl->assign('tickets', $tickets['tickets']);
     $resultat['data'] = $tpl->fetch('data.ihtml');
 
     // Get Pagination

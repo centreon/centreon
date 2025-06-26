@@ -96,7 +96,7 @@ return RectorConfig::configure()
         __DIR__ . '/../centreon-open-tickets/widgets',
         __DIR__ . '/../centreon-open-tickets/www',
         __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.legacy.src.php',
-        __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.dist.php',
+        __DIR__ . '/../centreon-open-tickets/.php-cs-fixer.legacy.src.php',
     ])->withRules([
 //        // ******************* performance (done) *******************
 //        CountArrayToEmptyArrayComparisonRector::class, // OK 70 files / Change count array comparison to empty array comparison to improve performance

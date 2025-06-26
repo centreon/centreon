@@ -29,9 +29,10 @@ require_once CENTREON_OPENTICKET_PATH . '/class/automatic.class.php';
 
 class CentreonOpenticket extends CentreonWebService
 {
-    /** @var Centreon  */
+    /** @var Centreon */
     public $centreon;
-    /** @var CentreonDB  */
+
+    /** @var CentreonDB */
     public $pearDBMonitoring;
 
     /**
@@ -49,12 +50,12 @@ class CentreonOpenticket extends CentreonWebService
 
     public function postTestProvider()
     {
-        if (!isset($this->arguments['service'])) {
+        if (! isset($this->arguments['service'])) {
             throw new RestBadRequestException('Missing service argument');
         }
         $service = $this->arguments['service'];
 
-        if (!file_exists(
+        if (! file_exists(
             CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php'
         )) {
             throw new RestBadRequestException('The service provider does not exists.');
@@ -63,16 +64,17 @@ class CentreonOpenticket extends CentreonWebService
         include_once CENTREON_OPENTICKET_PATH . '/providers/' . $service . '/' . $service . 'Provider.class.php';
 
         $className = $service . 'Provider';
-        if (!method_exists($className, 'test')) {
+        if (! method_exists($className, 'test')) {
             throw new RestBadRequestException('The service provider has no test function.');
         }
 
         try {
-            if (!$className::test($this->arguments)) {
+            if (! $className::test($this->arguments)) {
                 throw new RestForbiddenException('Fail.');
             }
+
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RestBadRequestException($e->getMessage());
         }
     }
@@ -107,11 +109,11 @@ class CentreonOpenticket extends CentreonWebService
          * }
          */
         if (
-            !isset($this->arguments['rule_name'])
-            || !isset($this->arguments['host_id'])
-            || !isset($this->arguments['service_id'])
-            || !isset($this->arguments['service_state'])
-            || !isset($this->arguments['service_output'])
+            ! isset($this->arguments['rule_name'])
+            || ! isset($this->arguments['host_id'])
+            || ! isset($this->arguments['service_id'])
+            || ! isset($this->arguments['service_state'])
+            || ! isset($this->arguments['service_output'])
         ) {
             throw new RestBadRequestException('Parameters missing');
         }
@@ -128,8 +130,9 @@ class CentreonOpenticket extends CentreonWebService
         try {
             $rv = $automatic->openService($this->arguments);
         } catch (Exception $e) {
-            $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
+            $rv = ['code' => -1, 'message' => $e->getMessage()];
         }
+
         return $rv;
     }
 
@@ -161,10 +164,10 @@ class CentreonOpenticket extends CentreonWebService
          * }
          */
         if (
-            !isset($this->arguments['rule_name'])
-            || !isset($this->arguments['host_id'])
-            || !isset($this->arguments['host_state'])
-            || !isset($this->arguments['host_output'])
+            ! isset($this->arguments['rule_name'])
+            || ! isset($this->arguments['host_id'])
+            || ! isset($this->arguments['host_state'])
+            || ! isset($this->arguments['host_output'])
         ) {
             throw new RestBadRequestException('Parameters missing');
         }
@@ -181,8 +184,9 @@ class CentreonOpenticket extends CentreonWebService
         try {
             $rv = $automatic->openHost($this->arguments);
         } catch (Exception $e) {
-            $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
+            $rv = ['code' => -1, 'message' => $e->getMessage()];
         }
+
         return $rv;
     }
 
@@ -198,8 +202,8 @@ class CentreonOpenticket extends CentreonWebService
          *   "host_id": 10
          */
         if (
-            !isset($this->arguments['rule_name'])
-            || !isset($this->arguments['host_id'])
+            ! isset($this->arguments['rule_name'])
+            || ! isset($this->arguments['host_id'])
         ) {
             throw new RestBadRequestException('Parameters missing');
         }
@@ -216,8 +220,9 @@ class CentreonOpenticket extends CentreonWebService
         try {
             $rv = $automatic->closeHost($this->arguments);
         } catch (Exception $e) {
-            $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
+            $rv = ['code' => -1, 'message' => $e->getMessage()];
         }
+
         return $rv;
     }
 
@@ -234,9 +239,9 @@ class CentreonOpenticket extends CentreonWebService
          *   "service_id": 30
          */
         if (
-            !isset($this->arguments['rule_name'])
-            || !isset($this->arguments['service_id'])
-            || !isset($this->arguments['host_id'])
+            ! isset($this->arguments['rule_name'])
+            || ! isset($this->arguments['service_id'])
+            || ! isset($this->arguments['host_id'])
         ) {
             throw new RestBadRequestException('Parameters missing');
         }
@@ -253,8 +258,9 @@ class CentreonOpenticket extends CentreonWebService
         try {
             $rv = $automatic->closeService($this->arguments);
         } catch (Exception $e) {
-            $rv = [ 'code' => -1, 'message' => $e->getMessage() ];
+            $rv = ['code' => -1, 'message' => $e->getMessage()];
         }
+
         return $rv;
     }
 }

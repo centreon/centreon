@@ -21,17 +21,9 @@
 
 class GlpiProvider extends AbstractProvider
 {
-    protected $glpi_connected = 0;
-    protected $glpi_session = null;
-    /** @var null|array */
-    protected $glpi_call_response;
-    /** @var string */
-    protected $rpc_error;
-
     public const GPLI_ENTITIES_TYPE = 10;
     public const GPLI_GROUPS_TYPE = 11;
     public const GLPI_ITIL_CATEGORIES_TYPE = 12;
-
     public const ARG_CONTENT = 1;
     public const ARG_ENTITY = 2;
     public const ARG_URGENCY = 3;
@@ -43,12 +35,30 @@ class GlpiProvider extends AbstractProvider
     public const ARG_GROUP_ASSIGN = 9;
     public const ARG_TITLE = 10;
 
+    protected $glpi_connected = 0;
+
+    protected $glpi_session = null;
+
+    /** @var null|array */
+    protected $glpi_call_response;
+
+    /** @var string */
+    protected $rpc_error;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_CONTENT => 'content', self::ARG_ENTITY => 'entity', self::ARG_URGENCY => 'urgency', self::ARG_IMPACT => 'impact', self::ARG_CATEGORY => 'category', self::ARG_USER => 'user', self::ARG_USER_EMAIL => 'user_email', self::ARG_GROUP => 'group', self::ARG_GROUP_ASSIGN => 'groupassign', self::ARG_TITLE => 'title'];
 
     public function __destruct()
     {
         $this->logoutGlpi();
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -61,8 +71,8 @@ class GlpiProvider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_TITLE, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-            '/Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_ENTITY, 'Value' => '{$select.gpli_entity.id}'], ['Arg' => self::ARG_CATEGORY, 'Value' => '{$select.glpi_itil_category.id}'], ['Arg' => self::ARG_GROUP_ASSIGN, 'Value' => '{$select.glpi_group.id}'], ['Arg' => self::ARG_USER_EMAIL, 'Value' => '{$user.email}'], ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.urgency.value}'], ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.impact.value}']];
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_TITLE, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers'
+            . '/Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_ENTITY, 'Value' => '{$select.gpli_entity.id}'], ['Arg' => self::ARG_CATEGORY, 'Value' => '{$select.glpi_itil_category.id}'], ['Arg' => self::ARG_GROUP_ASSIGN, 'Value' => '{$select.glpi_group.id}'], ['Arg' => self::ARG_USER_EMAIL, 'Value' => '{$user.email}'], ['Arg' => self::ARG_URGENCY, 'Value' => '{$select.urgency.value}'], ['Arg' => self::ARG_IMPACT, 'Value' => '{$select.impact.value}']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -104,45 +114,45 @@ class GlpiProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/Glpi/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["glpi" => _("Glpi")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['glpi' => _('Glpi')]);
 
         // Form
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $path_html = '<input size="50" name="path" type="text" value="' .
-            $this->getFormValue('path') . '" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->getFormValue('password') . '" autocomplete="off" />';
-        $https_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="https" name="https" value="yes" ' .
-            ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="https"></label></div>';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $path_html = '<input size="50" name="path" type="text" value="'
+            . $this->getFormValue('path') . '" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $password_html = '<input size="50" name="password" type="password" value="'
+            . $this->getFormValue('password') . '" autocomplete="off" />';
+        $https_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="https" name="https" value="yes" '
+            . ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="https"></label></div>';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'path' => ['label' => _("Path"), 'html' => $path_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html], 'https' => ['label' => _("Use https"), 'html' => $https_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'path' => ['label' => _('Path'), 'html' => $path_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('Password') . $this->required_field, 'html' => $password_html], 'https' => ['label' => _('Use https'), 'html' => $https_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</options>' .
-        '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</options>' .
-        '<option value="' . self::ARG_ENTITY . '">' . _('Entity') . '</options>' .
-        '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</options>' .
-        '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</options>' .
-        '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>' .
-        '<option value="' . self::ARG_USER . '">' . _('User') . '</options>' .
-        '<option value="' . self::ARG_USER_EMAIL . '">' . _('User email') . '</options>' .
-        '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</options>' .
-        '<option value="' . self::ARG_GROUP_ASSIGN . '">' . _('Group assign') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</options>'
+        . '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</options>'
+        . '<option value="' . self::ARG_ENTITY . '">' . _('Entity') . '</options>'
+        . '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</options>'
+        . '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</options>'
+        . '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>'
+        . '<option value="' . self::ARG_USER . '">' . _('User') . '</options>'
+        . '<option value="' . self::ARG_USER_EMAIL . '">' . _('User email') . '</options>'
+        . '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</options>'
+        . '<option value="' . self::ARG_GROUP_ASSIGN . '">' . _('Group assign') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -176,10 +186,9 @@ class GlpiProvider extends AbstractProvider
 
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::GPLI_ENTITIES_TYPE . '">Glpi entities</options>' .
-        '<option value="' . self::GPLI_GROUPS_TYPE . '">Glpi groups</options>' .
-        '<option value="' . self::GLPI_ITIL_CATEGORIES_TYPE . '">Glpi itil categories</options>';
-        return $str;
+        return '<option value="' . self::GPLI_ENTITIES_TYPE . '">Glpi entities</options>'
+        . '<option value="' . self::GPLI_GROUPS_TYPE . '">Glpi groups</options>'
+        . '<option value="' . self::GLPI_ITIL_CATEGORIES_TYPE . '">Glpi itil categories</options>';
     }
 
     protected function assignGlpiEntities($entry, &$groups_order, &$groups)
@@ -195,12 +204,13 @@ class GlpiProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->rpc_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->glpi_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['completename']);
                 continue;
             }
@@ -217,7 +227,7 @@ class GlpiProvider extends AbstractProvider
     protected function assignGlpiGroups($entry, &$groups_order, &$groups)
     {
         $filter = null;
-        if (isset($entry['Filter']) && !is_null($entry['Filter']) && $entry['Filter'] != '') {
+        if (isset($entry['Filter']) && ! is_null($entry['Filter']) && $entry['Filter'] != '') {
             $filter = $entry['Filter'];
         }
         $code = $this->listGroupsGlpi($filter);
@@ -230,6 +240,7 @@ class GlpiProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->rpc_error;
+
             return 0;
         }
 
@@ -245,7 +256,7 @@ class GlpiProvider extends AbstractProvider
     protected function assignItilCategories($entry, &$groups_order, &$groups)
     {
         $filter = null;
-        if (isset($entry['Filter']) && !is_null($entry['Filter']) && $entry['Filter'] != '') {
+        if (isset($entry['Filter']) && ! is_null($entry['Filter']) && $entry['Filter'] != '') {
             $filter = $entry['Filter'];
         }
         $code = $this->listItilCategoriesGlpi($filter);
@@ -258,6 +269,7 @@ class GlpiProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->rpc_error;
+
             return 0;
         }
 
@@ -279,13 +291,6 @@ class GlpiProvider extends AbstractProvider
         } elseif ($entry['Type'] == self::GLPI_ITIL_CATEGORIES_TYPE) {
             $this->assignItilCategories($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
     }
 
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)
@@ -336,7 +341,7 @@ class GlpiProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -363,6 +368,7 @@ class GlpiProvider extends AbstractProvider
         $code = $this->createTicketGlpi($ticket_arguments);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->rpc_error;
+
             return $result;
         }
 
@@ -371,11 +377,11 @@ class GlpiProvider extends AbstractProvider
             $result,
             ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $this->glpi_call_response['response']['id'], 'subject' => $ticket_arguments[self::ARG_TITLE], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticket_arguments)]
         );
+
         return $result;
     }
 
     /**
-     *
      * XML-RPC Calls
      *
      * @param string $error
@@ -405,7 +411,7 @@ class GlpiProvider extends AbstractProvider
         $host = $this->rule_data['address'];
 
         $url = '/';
-        if (!is_null($this->rule_data['path']) || $this->rule_data['path'] != '') {
+        if (! is_null($this->rule_data['path']) || $this->rule_data['path'] != '') {
             $url = $this->rule_data['path'];
         }
         if ($this->glpi_connected == 1) {
@@ -414,26 +420,30 @@ class GlpiProvider extends AbstractProvider
 
         $request = xmlrpc_encode_request($method, $args, ['encoding' => 'utf-8', 'escaping' => 'markup']);
         $context = stream_context_create(
-            ['http' => ['method'  => "POST", 'header'  => 'Content-Type: text/xml', 'timeout' => $this->rule_data['timeout'], 'content' => $request]]
+            ['http' => ['method' => 'POST', 'header' => 'Content-Type: text/xml', 'timeout' => $this->rule_data['timeout'], 'content' => $request]]
         );
-        $file = file_get_contents("$proto://$host/$url", false, $context);
-        if (!$file) {
-            $this->setRpcError("webservice '$method': no response");
+        $file = file_get_contents("{$proto}://{$host}/{$url}", false, $context);
+        if (! $file) {
+            $this->setRpcError("webservice '{$method}': no response");
+
             return $array_result;
         }
         $response = xmlrpc_decode($file);
-        if (!is_array($response)) {
-            $this->setRpcError("webservice '$method': bad response");
+        if (! is_array($response)) {
+            $this->setRpcError("webservice '{$method}': bad response");
+
             return $array_result;
         }
         if (xmlrpc_is_fault($response)) {
-            $this->setRpcError("webservice '$method' error (" . $response['faultCode'] . "): " .
-                $this->to_utf8($response['faultString']));
+            $this->setRpcError("webservice '{$method}' error (" . $response['faultCode'] . '): '
+                . $this->to_utf8($response['faultString']));
+
             return $array_result;
         }
 
         $array_result['response'] = $response;
         $array_result['code'] = 0;
+
         return $array_result;
     }
 
@@ -541,8 +551,9 @@ class GlpiProvider extends AbstractProvider
         if ($this->glpi_connected == 1) {
             return 0;
         }
-        if (!extension_loaded("xmlrpc")) {
-            $this->setRpcError("cannot load xmlrpc extension");
+        if (! extension_loaded('xmlrpc')) {
+            $this->setRpcError('cannot load xmlrpc extension');
+
             return -1;
         }
 
@@ -556,6 +567,7 @@ class GlpiProvider extends AbstractProvider
 
         $this->glpi_session = $this->glpi_call_response['response']['session'];
         $this->glpi_connected = 1;
+
         return 0;
     }
 }

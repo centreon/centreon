@@ -21,6 +21,14 @@
 
 class SimpleProvider extends AbstractProvider
 {
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     protected function setDefaultValueExtra()
     {
     }
@@ -67,13 +75,6 @@ class SimpleProvider extends AbstractProvider
     {
     }
 
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
-    }
-
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
@@ -83,6 +84,7 @@ class SimpleProvider extends AbstractProvider
             $result,
             ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems]
         );
+
         return $result;
     }
 }

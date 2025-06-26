@@ -58,7 +58,7 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 $db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
-$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$request = Symfony\Component\HttpFoundation\Request::createFromGlobals();
 $payload = json_decode($request->getContent(), true);
 
 $data = $payload['data'] ?? null;

@@ -19,22 +19,24 @@
  * limitations under the License.
  */
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set provider_id or form';
-    return ;
+
+    return;
 }
 
-if (!isset($get_information['form']['rule_alias']) ||
-    is_null($get_information['form']['rule_alias']) ||
-    $get_information['form']['rule_alias'] == ''
+if (! isset($get_information['form']['rule_alias'])
+    || is_null($get_information['form']['rule_alias'])
+    || $get_information['form']['rule_alias'] == ''
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set rule name';
-    return ;
+
+    return;
 }
 
 $provider_name = null;
@@ -45,14 +47,15 @@ foreach ($register_providers as $name => $id) {
     }
 }
 
-if (is_null($provider_name) ||
-    !file_exists(
+if (is_null($provider_name)
+    || ! file_exists(
         $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php'
     )
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set a provider';
-    return ;
+
+    return;
 }
 
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';

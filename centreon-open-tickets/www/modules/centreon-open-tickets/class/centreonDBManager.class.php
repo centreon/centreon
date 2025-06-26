@@ -19,17 +19,18 @@
  * limitations under the License.
  */
 
-require_once $centreon_path . "/www/class/centreonDB.class.php";
+require_once $centreon_path . '/www/class/centreonDB.class.php';
 
 class CentreonDBManager extends CentreonDB
 {
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function lastinsertId($name = null)
     {
-        $dbResult = $this->query("SELECT LAST_INSERT_ID() AS last_id FROM " . $name);
-        if (!($row = $dbResult->fetch())) {
+        $dbResult = $this->query('SELECT LAST_INSERT_ID() AS last_id FROM ' . $name);
+        if (! ($row = $dbResult->fetch())) {
             throw new Exception('Cannot get last id');
         }
+
         return $row['last_id'];
     }
 }

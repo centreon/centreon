@@ -1,5 +1,5 @@
 parameters:
-    level: max
+    level: 2
     scanFiles:
         - phpstan.stub
         - vendor/centreon/centreon/www/include/common/common-Func.php

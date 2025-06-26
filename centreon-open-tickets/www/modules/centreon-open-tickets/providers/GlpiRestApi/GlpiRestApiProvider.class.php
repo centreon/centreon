@@ -21,18 +21,12 @@
 
 class GlpiRestApiProvider extends AbstractProvider
 {
-    protected $close_advanced = 1;
-    protected $proxy_enabled = 1;
-    /** @var null|array */
-    protected $glpiCallResult;
-
     public const GLPI_ENTITY_TYPE = 14;
     public const GLPI_GROUP_TYPE = 15;
     public const GLPI_ITIL_CATEGORY_TYPE = 16;
     public const GLPI_USER_TYPE = 17;
     public const GLPI_SUPPLIER_TYPE = 18;
     public const GLPI_REQUESTER_TYPE = 19;
-
     public const ARG_CONTENT = 1;
     public const ARG_ENTITY = 2;
     public const ARG_URGENCY = 3;
@@ -46,8 +40,14 @@ class GlpiRestApiProvider extends AbstractProvider
     public const ARG_GROUP_ROLE = 11;
     public const ARG_USER_ROLE = 12;
     public const ARG_REQUESTER = 13;
-
     private const PAGE_SIZE = 20;
+
+    protected $close_advanced = 1;
+
+    protected $proxy_enabled = 1;
+
+    /** @var null|array */
+    protected $glpiCallResult;
 
     protected $internal_arg_name = [
         self::ARG_CONTENT => 'content',
@@ -62,12 +62,101 @@ class GlpiRestApiProvider extends AbstractProvider
         self::ARG_SUPPLIER => 'supplier',
         self::ARG_GROUP_ROLE => 'group_role',
         self::ARG_USER_ROLE => 'user_role',
-        self::ARG_REQUESTER => 'requester'
+        self::ARG_REQUESTER => 'requester',
     ];
 
     /*
-    * Set default values for our rule form options
+    * checks if all mandatory fields have been filled
+    *
+    * @return {array} telling us if there is a missing parameter
     */
+    public function validateFormatPopup() {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    /*
+    * test if we can reach Glpi webservice with the given Configuration
+    *
+    * @param {array} $info required information to reach the glpi api
+    *
+    * @return {bool}
+    *
+    * throw \Exception if there are some missing parameters
+    * throw \Exception if the connection failed
+    */
+    public static function test($info)
+    {
+        // this is called through our javascript code. Those parameters are already checked in JS code.
+        // but since this function is public, we check again because anyone could use this function
+        if (
+            ! isset($info['address'])
+            || ! isset($info['api_path'])
+            || ! isset($info['user_token'])
+            || ! isset($info['app_token'])
+            || ! isset($info['protocol'])
+        ) {
+                throw new Exception('missing arguments', 13);
+        }
+
+        // check if php curl is installed
+        if (! extension_loaded('curl')) {
+            throw new Exception("couldn't find php curl", 10);
+        }
+
+        $curl = curl_init();
+
+        $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
+        $info['method'] = 0;
+        // set headers
+        $info['headers'] = ['App-Token: ' . $info['app_token'], 'Authorization: user_token ' . $info['user_token'], 'Content-Type: application/json'];
+
+        // initiate our curl options
+        curl_setopt($curl, CURLOPT_URL, $apiAddress);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_POST, $info['method']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
+        // execute curl and get status information
+        $curlResult = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($httpCode > 301) {
+            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 11);
+        }
+
+        return true;
+    }
+
+    /*
+    * check if the close option is enabled, if so, try to close every selected ticket
+    *
+    * @param {array} $tickets
+    *
+    * @return void
+    */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->closeTicketGlpi($k);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
+
+    // Set default values for our rule form options
     protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
@@ -80,57 +169,57 @@ class GlpiRestApiProvider extends AbstractProvider
         $this->default_data['clones']['mappingTicket'] = [
             [
                 'Arg' => self::ARG_TITLE,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-                    '/Abstract/templates/display_title.ihtml"}'
+                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers'
+                    . '/Abstract/templates/display_title.ihtml"}',
             ],
             [
                 'Arg' => self::ARG_CONTENT,
-                'Value' => '{$body}'
+                'Value' => '{$body}',
             ],
             [
                 'Arg' => self::ARG_ENTITY,
-                'Value' => '{$select.glpi_entity.id}'
+                'Value' => '{$select.glpi_entity.id}',
             ],
             [
                 'Arg' => self::ARG_ITIL_CATEGORY,
-                'Value' => '{$select.glpi_itil_category.id}'
+                'Value' => '{$select.glpi_itil_category.id}',
             ],
             [
                 'Arg' => self::ARG_REQUESTER,
-                'Value' => '{$select.glpi_requester.id}'
+                'Value' => '{$select.glpi_requester.id}',
             ],
             [
                 'Arg' => self::ARG_USER,
-                'Value' => '{$select.glpi_users.id}'
+                'Value' => '{$select.glpi_users.id}',
             ],
             [
                 'Arg' => self::ARG_USER_ROLE,
-                'Value' => '{$select.user_role.value}'
+                'Value' => '{$select.user_role.value}',
             ],
             [
                 'Arg' => self::ARG_GROUP,
-                'Value' => '{$select.glpi_group.id}'
+                'Value' => '{$select.glpi_group.id}',
             ],
             [
                 'Arg' => self::ARG_GROUP_ROLE,
-                'Value' => '{$select.group_role.value}'
+                'Value' => '{$select.group_role.value}',
             ],
             [
                 'Arg' => self::ARG_URGENCY,
-                'Value' => '{$select.urgency.value}'
+                'Value' => '{$select.urgency.value}',
             ],
             [
                 'Arg' => self::ARG_IMPACT,
-                'Value' => '{$select.impact.value}'
+                'Value' => '{$select.impact.value}',
             ],
             [
                 'Arg' => self::ARG_PRIORITY,
-                'Value' => '{$select.priority.value}'
+                'Value' => '{$select.priority.value}',
             ],
             [
                 'Arg' => self::ARG_SUPPLIER,
-                'Value' => '{$select.glpi_supplier.id}'
-            ]
+                'Value' => '{$select.glpi_supplier.id}',
+            ],
         ];
     }
 
@@ -151,78 +240,78 @@ class GlpiRestApiProvider extends AbstractProvider
                 'Label' => _('Entity'),
                 'Type' => self::GLPI_ENTITY_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'glpi_itil_category',
                 'Label' => _('Itil category'),
                 'Type' => self::GLPI_ITIL_CATEGORY_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'glpi_requester',
                 'Label' => _('Requester'),
                 'Type' => self::GLPI_REQUESTER_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'glpi_users',
                 'Label' => _('Glpi users'),
                 'Type' => self::GLPI_USER_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'user_role',
                 'Label' => _('user_role'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'glpi_group',
                 'Label' => _('Glpi group'),
                 'Type' => self::GLPI_GROUP_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'group_role',
                 'Label' => _('group_role'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'urgency',
                 'Label' => _('Urgency'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'impact',
                 'Label' => _('Impact'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'priority',
                 'Label' => _('Priority'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
+                'Mandatory' => '',
             ],
             [
                 'Id' => 'glpi_supplier',
                 'Label' => _('Glpi supplier'),
                 'Type' => self::GLPI_SUPPLIER_TYPE,
                 'Filter' => '',
-                'Mandatory' => ''
-            ]
+                'Mandatory' => '',
+            ],
         ];
 
         $this->default_data['clones']['customList'] = [
@@ -230,122 +319,122 @@ class GlpiRestApiProvider extends AbstractProvider
                 'Id' => 'urgency',
                 'Value' => '1',
                 'Label' => 'Very Low',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'urgency',
                 'Value' => '2',
                 'Label' => 'Low',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'urgency',
                 'Value' => '3',
                 'Label' => 'Medium',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'urgency',
                 'Value' => '4',
                 'Label' => 'High',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'urgency',
                 'Value' => '5',
                 'Label' => 'Very High',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'impact',
                 'Value' => '1',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'impact',
                 'Value' => '2',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'impact',
                 'Value' => '3',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'impact',
                 'Value' => '4',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'impact',
                 'Value' => '5',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '1',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '2',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '3',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '4',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '5',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'priority',
                 'Value' => '6',
                 'Label' => '',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'group_role',
                 'Value' => '3',
                 'Label' => 'Watcher',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'group_role',
                 'Value' => '2',
                 'Label' => 'Assigned',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'user_role',
                 'Value' => '3',
                 'Label' => 'Watcher',
-                'Default' => ''
+                'Default' => '',
             ],
             [
                 'Id' => 'user_role',
                 'Value' => '2',
                 'Label' => 'Assigned',
-                'Default' => ''
-            ]
+                'Default' => '',
+            ],
         ];
     }
 
@@ -373,32 +462,28 @@ class GlpiRestApiProvider extends AbstractProvider
         }
     }
 
-    /*
-    * Initiate your html configuration and let Smarty display it in the rule form
-    */
+    // Initiate your html configuration and let Smarty display it in the rule form
     protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/GlpiRestApi/templates');
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
-        $tpl->assign('header', ['GlpiRestApi' => _("Glpi Rest Api")]);
+        $tpl->assign('header', ['GlpiRestApi' => _('Glpi Rest Api')]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
-        /*
-        * we create the html that is going to be displayed
-        */
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $api_path_html = '<input size="50" name="api_path" type="text" value="' .
-            $this->getFormValue('api_path') . '" />';
-        $protocol_html = '<input size="50" name="protocol" type="text" value="' .
-            $this->getFormValue('protocol') . '" />';
-        $user_token_html = '<input size="50" name="user_token" type="text" value="' .
-            $this->getFormValue('user_token') . '" autocomplete="off" />';
-        $app_token_html = '<input size="50" name="app_token" type="text" value="' .
-            $this->getFormValue('app_token') . '" autocomplete="off" />';
-        $timeout_html = '<input size="50" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" :>';
+        // we create the html that is going to be displayed
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $api_path_html = '<input size="50" name="api_path" type="text" value="'
+            . $this->getFormValue('api_path') . '" />';
+        $protocol_html = '<input size="50" name="protocol" type="text" value="'
+            . $this->getFormValue('protocol') . '" />';
+        $user_token_html = '<input size="50" name="user_token" type="text" value="'
+            . $this->getFormValue('user_token') . '" autocomplete="off" />';
+        $app_token_html = '<input size="50" name="app_token" type="text" value="'
+            . $this->getFormValue('app_token') . '" autocomplete="off" />';
+        $timeout_html = '<input size="50" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = [
@@ -408,31 +493,31 @@ class GlpiRestApiProvider extends AbstractProvider
             'user_token' => ['label' => _('User token') . $this->required_field, 'html' => $user_token_html],
             'app_token' => ['label' => _('APP token') . $this->required_field, 'html' => $app_token_html],
             'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html],
-            //we add a key to our array
+            // we add a key to our array
             'mappingTicketLabel' => ['label' => _('Mapping ticket arguments')],
         ];
 
         // html
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" ' .
-            'name="mappingTicketValue[#index#]" size="20" type="text"';
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" '
+            . 'name="mappingTicketValue[#index#]" size="20" type="text"';
 
         // html code for a dropdown list where we will be able to select something from the following list
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" ' .
-            'name="mappingTicketArg[#index#]" type="select-one">' .
-            '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>' .
-            '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</option>' .
-            '<option value="' . self::ARG_ENTITY . '">' . _('Entity') . '</option>' .
-            '<option value="' . self::ARG_ITIL_CATEGORY . '">' . _('Category') . '</option>' .
-            '<option value="' . self::ARG_REQUESTER . '">' ._('Requester') . '</option>' .
-            '<option value="' . self::ARG_USER . '">' . _('User') . '</option>' .
-            '<option value="' . self::ARG_USER_ROLE . '">' ._('user_role') . '</option>' .
-            '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</option>' .
-            '<option value="' . self::ARG_GROUP_ROLE . '">' ._('group_role') . '</option>' .
-            '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</option>' .
-            '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</option>' .
-            '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</option>' .
-            '<option value="' . self::ARG_SUPPLIER . '">' . _('Supplier') . '</option>' .
-            '</select>';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" '
+            . 'name="mappingTicketArg[#index#]" type="select-one">'
+            . '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>'
+            . '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</option>'
+            . '<option value="' . self::ARG_ENTITY . '">' . _('Entity') . '</option>'
+            . '<option value="' . self::ARG_ITIL_CATEGORY . '">' . _('Category') . '</option>'
+            . '<option value="' . self::ARG_REQUESTER . '">' ._('Requester') . '</option>'
+            . '<option value="' . self::ARG_USER . '">' . _('User') . '</option>'
+            . '<option value="' . self::ARG_USER_ROLE . '">' ._('user_role') . '</option>'
+            . '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</option>'
+            . '<option value="' . self::ARG_GROUP_ROLE . '">' ._('group_role') . '</option>'
+            . '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</option>'
+            . '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</option>'
+            . '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</option>'
+            . '<option value="' . self::ARG_SUPPLIER . '">' . _('Supplier') . '</option>'
+            . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
         $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
@@ -446,9 +531,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
     }
 
-    /*
-    * Saves the rule form in the database
-    */
+    // Saves the rule form in the database
     protected function saveConfigExtra()
     {
         $this->save_config['simple']['address'] = $this->submitted_config['address'];
@@ -469,14 +552,12 @@ class GlpiRestApiProvider extends AbstractProvider
     */
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::GLPI_ENTITY_TYPE . '">Entity</option>' .
-            '<option value="' . self::GLPI_REQUESTER_TYPE . '">Requester</option>' .
-            '<option value="' . self::GLPI_GROUP_TYPE . '">Group</option>' .
-            '<option value="' . self::GLPI_ITIL_CATEGORY_TYPE . '">ITIL category</option>' .
-            '<option value="' . self::GLPI_USER_TYPE . '">User</option>' .
-            '<option value="' . self::GLPI_SUPPLIER_TYPE . '">Supplier</option>';
-
-        return $str;
+        return '<option value="' . self::GLPI_ENTITY_TYPE . '">Entity</option>'
+            . '<option value="' . self::GLPI_REQUESTER_TYPE . '">Requester</option>'
+            . '<option value="' . self::GLPI_GROUP_TYPE . '">Group</option>'
+            . '<option value="' . self::GLPI_ITIL_CATEGORY_TYPE . '">ITIL category</option>'
+            . '<option value="' . self::GLPI_USER_TYPE . '">User</option>'
+            . '<option value="' . self::GLPI_SUPPLIER_TYPE . '">Supplier</option>';
     }
 
     /*
@@ -519,8 +600,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiEntities($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -532,7 +613,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listEntities = $this->getEntities();
                 $this->setCache($entry['Id'], $listEntities, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -541,7 +622,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listEntities['myentities'] ?? [] as $entity) {
             // foreach entity found, if we don't have any filter configured,
             // we just put the id and the name of the entity inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$entity['id']] = $this->to_utf8($entity['name']);
                 continue;
             }
@@ -570,8 +651,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiRequesters($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -582,7 +663,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listRequesters = $this->getUsers();
                 $this->setCache($entry['Id'], $listRequesters, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -592,7 +673,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listRequesters ?? [] as $requester) {
             // foreach requester found, if we don't have any filter configured,
             // we just put the id and the name of the requester inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$requester['id']] = $this->to_utf8($requester['name']);
                 continue;
             }
@@ -621,8 +702,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiUsers($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -633,7 +714,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listUsers = $this->getUsers();
                 $this->setCache($entry['Id'], $listUsers, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -643,7 +724,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listUsers ?? [] as $user) {
             // foreach user found, if we don't have any filter configured,
             // we just put the id and the name of the user inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$user['id']] = $this->to_utf8($user['name']);
                 continue;
             }
@@ -672,8 +753,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiGroups($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -684,7 +765,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listGroups = $this->getGroups();
                 $this->setCache($entry['Id'], $listGroups, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -695,7 +776,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listGroups ?? [] as $glpiGroup) {
             // foreach group found, if we don't have any filter configured,
             // we just put the id and the name of the group inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$glpiGroup['id']] = $this->to_utf8($glpiGroup['completename']);
                 continue;
             }
@@ -724,8 +805,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignGlpiSuppliers($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -736,7 +817,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listSuppliers = $this->getSuppliers();
                 $this->setCache($entry['Id'], $listSuppliers, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -746,7 +827,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listSuppliers ?? [] as $supplier) {
             // foreach supplier found, if we don't have any filter configured,
             // we just put the id and the name of the supplier inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$supplier['id']] = $this->to_utf8($supplier['name']);
                 continue;
             }
@@ -775,8 +856,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function assignItilCategories($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -787,7 +868,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $listCategories = $this->getItilCategories();
                 $this->setCache($entry['Id'], $listCategories, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -797,7 +878,7 @@ class GlpiRestApiProvider extends AbstractProvider
         foreach ($listCategories ?? [] as $category) {
             // foreach category found, if we don't have any filter configured,
             // we just put the id and the name of the category inside the result array
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$category['id']] = $this->to_utf8($category['completename']);
                 continue;
             }
@@ -810,18 +891,6 @@ class GlpiRestApiProvider extends AbstractProvider
         }
 
         $groups[$entry['Id']]['values'] = $result;
-    }
-
-    /*
-    * checks if all mandatory fields have been filled
-    *
-    * @return {array} telling us if there is a missing parameter
-    */
-    public function validateFormatPopup() {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     /*
@@ -867,69 +936,16 @@ class GlpiRestApiProvider extends AbstractProvider
         // we try to open the ticket
         try {
             $ticketId = $this->createTicket($ticketArguments);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
+
             return $result;
         }
 
         // we save ticket data in our database
         $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
+
         return $result;
-    }
-
-    /*
-    * test if we can reach Glpi webservice with the given Configuration
-    *
-    * @param {array} $info required information to reach the glpi api
-    *
-    * @return {bool}
-    *
-    * throw \Exception if there are some missing parameters
-    * throw \Exception if the connection failed
-    */
-    public static function test($info)
-    {
-        // this is called through our javascript code. Those parameters are already checked in JS code.
-        // but since this function is public, we check again because anyone could use this function
-        if (
-            !isset($info['address'])
-            || !isset($info['api_path'])
-            || !isset($info['user_token'])
-            || !isset($info['app_token'])
-            || !isset($info['protocol'])
-        ) {
-                throw new \Exception('missing arguments', 13);
-        }
-
-        // check if php curl is installed
-        if (!extension_loaded("curl")) {
-            throw new \Exception("couldn't find php curl", 10);
-        }
-
-        $curl = curl_init();
-
-        $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
-        $info['method'] = 0;
-        // set headers
-        $info['headers'] = ['App-Token: ' . $info['app_token'], 'Authorization: user_token ' . $info['user_token'], 'Content-Type: application/json'];
-
-        // initiate our curl options
-        curl_setopt($curl, CURLOPT_URL, $apiAddress);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_POST, $info['method']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
-        // execute curl and get status information
-        $curlResult = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        if ($httpCode > 301) {
-            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 11);
-        }
-
-        return true;
     }
 
     /*
@@ -951,7 +967,7 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             $curlResult = $this->curlQuery($info);
             $this->setCache('session_token', $curlResult['session_token'], 8 * 3600);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
 
@@ -970,15 +986,15 @@ class GlpiRestApiProvider extends AbstractProvider
     * throw \Exception if we can't get a session token
     * throw \Exception 11 if glpi api fails
     */
-    protected function curlQuery($info, int $offset = null)
+    protected function curlQuery($info, ?int $offset = null)
     {
         // check if php curl is installed
-        if (!extension_loaded("curl")) {
-            throw new \Exception("couldn't find php curl", 10);
+        if (! extension_loaded('curl')) {
+            throw new Exception("couldn't find php curl", 10);
         }
 
         if ($offset !== null && $offset < 0) {
-            throw new \InvalidArgumentException('offset must be positive');
+            throw new InvalidArgumentException('offset must be positive');
         }
 
         // if we aren't trying to initiate the session, we try to get the session token from the cache
@@ -990,18 +1006,18 @@ class GlpiRestApiProvider extends AbstractProvider
                     $sessionToken = $this->initSession();
                     $this->setCache('session_token', $sessionToken, 8 * 3600);
                     array_push($info['headers'], 'Session-Token: ' . $sessionToken);
-                } catch (\Exception $e) {
-                    throw new \Exception($e->getMessage(), $e->getCode());
+                } catch (Exception $e) {
+                    throw new Exception($e->getMessage(), $e->getCode());
                 }
-            } elseif (!preg_grep('/^Session-Token\:/', $info['headers'])) {
+            } elseif (! preg_grep('/^Session-Token\:/', $info['headers'])) {
                 array_push($info['headers'], 'Session-Token: ' . $sessionToken);
             }
         }
 
         $curl = curl_init();
 
-        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
-            $this->getFormValue('api_path') . $info['query_endpoint'];
+        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
+            . $this->getFormValue('api_path') . $info['query_endpoint'];
 
         if ($offset !== null) {
             $apiAddress .= preg_match('/.+\?/', $apiAddress) ? '&' : '?';
@@ -1089,13 +1105,13 @@ class GlpiRestApiProvider extends AbstractProvider
             try {
                 $this->initSession();
                 $this->curlQuery($info, $offset);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage(), $e->getCode());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         } elseif ($httpCode >= 400) {
             // for any other issue, we throw an exception
-            throw new Exception('ENDPOINT: ' . $apiAddress . ' || GLPI ERROR : ' . $curlResult[0] .
-            ' || GLPI MESSAGE: ' . $curlResult[1] . ' || HTTP ERROR: ' . $httpCode, 11);
+            throw new Exception('ENDPOINT: ' . $apiAddress . ' || GLPI ERROR : ' . $curlResult[0]
+            . ' || GLPI MESSAGE: ' . $curlResult[1] . ' || HTTP ERROR: ' . $httpCode, 11);
         }
 
         return $curlResult;
@@ -1119,8 +1135,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             // the variable is going to be used outside of this method.
             $this->glpiCallResult['response'] = $this->curlQuery($info, 0);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->glpiCallResult['response'];
@@ -1153,8 +1169,8 @@ class GlpiRestApiProvider extends AbstractProvider
                 // put user id in cache
                 $this->setCache('userId', $userId, 8 * 3600);
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $userId;
@@ -1178,8 +1194,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             // the variable is going to be used outside of this method.
             $this->glpiCallResult['response'] = $this->curlQuery($info, 0);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->glpiCallResult['response'];
@@ -1203,8 +1219,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             // the variable is going to be used outside of this method.
             $this->glpiCallResult['response'] = $this->curlQuery($info, 0);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->glpiCallResult['response'];
@@ -1228,8 +1244,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             // the variable is going to be used outside of this method.
             $this->glpiCallResult['response'] = $this->curlQuery($info, 0);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->glpiCallResult['response'];
@@ -1253,8 +1269,8 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             // the variable is going to be used outside of this method.
             $this->glpiCallResult['response'] = $this->curlQuery($info, 0);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->glpiCallResult['response'];
@@ -1288,16 +1304,16 @@ class GlpiRestApiProvider extends AbstractProvider
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
             $ticketId = $this->glpiCallResult['response']['id'];
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         // assign ticket to a user
         if (isset($ticketArguments['user']) && $ticketArguments['user'] != -1) {
             try {
                 $this->assignUserTicketGlpi($ticketId, $ticketArguments);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage(), $e->getCode());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         }
 
@@ -1305,8 +1321,8 @@ class GlpiRestApiProvider extends AbstractProvider
         if (isset($ticketArguments['group']) && $ticketArguments['group'] != -1) {
             try {
                 $this->assignGroupTicketGlpi($ticketId, $ticketArguments);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage(), $e->getCode());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         }
 
@@ -1314,8 +1330,8 @@ class GlpiRestApiProvider extends AbstractProvider
         if (isset($ticketArguments['supplier']) && $ticketArguments['supplier'] != -1) {
             try {
                 $this->assignSupplierTicketGlpi($ticketId, $ticketArguments);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage(), $e->getCode());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         }
 
@@ -1323,8 +1339,8 @@ class GlpiRestApiProvider extends AbstractProvider
         if (isset($ticketArguments['requester']) && $ticketArguments['requester'] != -1) {
             try {
                 $this->assignRequesterTicketGlpi($ticketId, $ticketArguments);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage(), $e->getCode());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         }
 
@@ -1355,8 +1371,8 @@ class GlpiRestApiProvider extends AbstractProvider
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 
@@ -1384,8 +1400,8 @@ class GlpiRestApiProvider extends AbstractProvider
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 
@@ -1413,8 +1429,8 @@ class GlpiRestApiProvider extends AbstractProvider
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 
@@ -1442,8 +1458,8 @@ class GlpiRestApiProvider extends AbstractProvider
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 
@@ -1472,34 +1488,10 @@ class GlpiRestApiProvider extends AbstractProvider
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return void
-    */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketGlpi($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (\Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
     }
 }

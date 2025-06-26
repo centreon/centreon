@@ -21,8 +21,8 @@
  */
 
 $result = [
-    "code" => 0,
-    "msg" => 'ok',
+    'code' => 0,
+    'msg' => 'ok',
 ];
 
 // We get Host or Service
@@ -33,7 +33,7 @@ $db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
 
-# check services and hosts
+// check services and hosts
 $selected_str = '';
 $selected_str_append = '';
 $hosts_selected_str = '';
@@ -45,19 +45,19 @@ foreach ($selected_values as $value) {
     $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
     $selected_str_append = ' OR ';
 
-    if (!isset($hosts_done[$str[0]])) {
+    if (! isset($hosts_done[$str[0]])) {
         $hosts_selected_str .= $hosts_selected_str_append . $str[0];
         $hosts_selected_str_append = ', ';
         $hosts_done[$str[0]] = 1;
     }
 }
 
-$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
+$query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
     FROM hosts
     INNER JOIN services
         ON services.host_id = hosts.host_id
-    WHERE (" . $selected_str . ')';
-if (!$centreon_bg->is_admin) {
+    WHERE (' . $selected_str . ')';
+if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT *
         FROM centreon_acl
@@ -70,14 +70,14 @@ $query .= ") UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
     FROM hosts
     WHERE hosts.host_id IN ({$hosts_selected_str})";
-if (!$centreon_bg->is_admin) {
+if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT * FROM centreon_acl
         WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
         AND hosts.host_id = centreon_acl.host_id
     )";
 }
-$query .= ") ORDER BY `host_name`, `description`";
+$query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
@@ -92,7 +92,7 @@ while (($row = $dbResult->fetch())) {
 }
 
 try {
-    #fwrite($fp, print_r($problems, true) . "===\n");
+    // fwrite($fp, print_r($problems, true) . "===\n");
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
     $external_cmd = new CentreonExternalCommand();
@@ -106,7 +106,7 @@ try {
     foreach ($problems as $row) {
         // host check action and service description from database is empty (meaning entry is about a host)
         if (! $isService && (is_null($row['description']) || $row['description'] == '')) {
-            $command = $forced ? "SCHEDULE_FORCED_HOST_CHECK;%s;%s" : "SCHEDULE_HOST_CHECK;%s;%s";
+            $command = $forced ? 'SCHEDULE_FORCED_HOST_CHECK;%s;%s' : 'SCHEDULE_HOST_CHECK;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [sprintf(
@@ -117,12 +117,13 @@ try {
             );
             continue;
         // servuce check action and service description from database is empty (meaning entry is about a host)
-        } elseif ($isService && (is_null($row['description']) || $row['description'] == '')) {
+        }
+        if ($isService && (is_null($row['description']) || $row['description'] == '')) {
             continue;
         }
 
         if ($isService) {
-            $command = $forced ? "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%s" : "SCHEDULE_SVC_CHECK;%s;%s;%s";
+            $command = $forced ? 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%s' : 'SCHEDULE_SVC_CHECK;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [sprintf(

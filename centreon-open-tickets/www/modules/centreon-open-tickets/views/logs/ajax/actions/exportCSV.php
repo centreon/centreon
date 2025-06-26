@@ -19,25 +19,25 @@
  * limitations under the License.
  */
 
-header("Content-Type: application/csv-tab-delimited-table");
-header("Content-disposition: filename=TicketLogs.csv");
-header("Cache-Control: cache, must-revalidate");
-header("Pragma: public");
+header('Content-Type: application/csv-tab-delimited-table');
+header('Content-disposition: filename=TicketLogs.csv');
+header('Cache-Control: cache, must-revalidate');
+header('Pragma: public');
 
-//$fp = fopen('/tmp/debug.txt', 'a+');
-//fwrite($fp, print_r($_SESSION['OT_form_logs'], true));
+// $fp = fopen('/tmp/debug.txt', 'a+');
+// fwrite($fp, print_r($_SESSION['OT_form_logs'], true));
 
 try {
     $tickets = $ticket_log->getLog($_SESSION['OT_form_logs'], $centreon_bg, null, null, true);
-    //fwrite($fp, print_r($tickets, true));
+    // fwrite($fp, print_r($tickets, true));
 
-    echo _("Begin date")."; "._("End date").";\n";
-    echo $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['start'])) . ";" . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['end'])) . "\n";
+    echo _('Begin date').'; '._('End date').";\n";
+    echo $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['start'])) . ';' . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['end'])) . "\n";
     echo "\n";
 
-    echo _("Day") . ";" . _("Time") . ";" . _("Host") . ";" . _("Service") . ";" . _("Ticket ID") . ";" . _("User") . ";" . _("Subject")."\n";
+    echo _('Day') . ';' . _('Time') . ';' . _('Host') . ';' . _('Service') . ';' . _('Ticket ID') . ';' . _('User') . ';' . _('Subject')."\n";
     foreach ($tickets['tickets'] as $ticket) {
-        echo $centreon_bg->GMT->getDate("Y/m/d", $ticket['timestamp']) . ";" . $centreon_bg->GMT->getDate("H:i:s", $ticket['timestamp']) . ";" . $ticket['host_name'] . ";" . $ticket['service_description'] . ";" . $ticket['ticket_id'] . ";" . $ticket['user'] . ";" . $ticket['subject'] . "\n";
+        echo $centreon_bg->GMT->getDate('Y/m/d', $ticket['timestamp']) . ';' . $centreon_bg->GMT->getDate('H:i:s', $ticket['timestamp']) . ';' . $ticket['host_name'] . ';' . $ticket['service_description'] . ';' . $ticket['ticket_id'] . ';' . $ticket['user'] . ';' . $ticket['subject'] . "\n";
     }
 } catch (Exception $e) {
 
