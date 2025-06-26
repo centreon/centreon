@@ -533,7 +533,7 @@ describe('Line chart', () => {
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="250.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="246.37513992820618"]').should('be.visible');
+      cy.get('circle[cy="251.79089393069725"]').should('be.visible');
 
       cy.makeSnapshot();
     });
