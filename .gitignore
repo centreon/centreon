@@ -23,7 +23,7 @@ centreon/.com.google.Chrome*
 **/build-storybook.log
 
 # Php-CS-Fixer cache + output file
-.php-cs-fixer.cache
+.php-cs-fixer.*
 checkstyle.core.xml
 
 # continuous integration and testing files
