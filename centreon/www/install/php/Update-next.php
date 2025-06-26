@@ -109,12 +109,14 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
 /** ------------------------------------------ Services as contacts ------------------------------------------ */
 $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            ALTER TABLE `contact`
-                ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
-            SQL
-    );
+    if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
+                SQL
+        );
+    }
 };
 
 $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
