@@ -38,6 +38,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\MonitoringServer\Infrastructure\Repository\MonitoringServerRepositoryTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Token\Domain\Model\JwtToken;
 
 /**
  * @phpstan-type _AgentConfiguration array{
@@ -46,6 +47,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *  name:string,
  *  connection_mode:string,
  *  configuration:string,
+ *  tokens?: JwtToken[]
  * }
  */
 class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implements ReadAgentConfigurationRepositoryInterface
@@ -144,7 +146,10 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             <<<'SQL'
                 SELECT
                     rel.`poller_id` as id,
-                    ng.`name`
+                    ng.`name`,
+                    (ng.`localhost` = '1' AND NOT EXISTS (
+                        SELECT 1 FROM `:db`.`remote_servers` rs WHERE rs.server_id = ng.id
+                    )) as is_central
                 FROM `:db`.`ac_poller_relation` rel
                 JOIN `:db`.`nagios_server` ng
                     ON rel.poller_id = ng.id
@@ -158,8 +163,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         // Retrieve data
         $pollers = [];
         foreach ($statement as $result) {
-            /** @var array{id:int,name:string} $result */
-            $pollers[] = new Poller($result['id'], $result['name']);
+            /** @var array{id:int,name:string,is_central:int} $result */
+            $pollers[] = new Poller($result['id'], $result['name'], $result['is_central'] === 1);
         }
 
         return $pollers;
@@ -411,8 +416,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             type: $type,
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
-                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode)
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
             }
         );
     }

@@ -1,0 +1,43 @@
+parameters:
+    paths:
+        - ./src/App/Shared
+
+    layers:
+        - name: Domain
+          collectors:
+              - type: directory
+                value: .+/Domain/.*
+
+        - name: Application
+          collectors:
+              - type: directory
+                value: .+/Application/.*
+
+        - name: Infrastructure
+          collectors:
+              - type: directory
+                value: .+/Infrastructure/.*
+
+        - name: Vendors
+          collectors:
+              - { type: classNameRegex, value: '#^ApiPlatform\\#' }
+              - { type: classNameRegex, value: '#^Symfony\\(?!(Component\\Uid\\))#' }
+              - { type: classNameRegex, value: '#^Webmozart\\(?!Assert\\Assert)#' }
+
+        - name: Helpers
+          collectors:
+              - { type: classNameRegex, value: '#^Symfony\\Component\\Uid\\#' }
+              - { type: classNameRegex, value: '#^Webmozart\\Assert\\Assert#' }
+
+        - name: LegacyKernel
+          collectors:
+              - { type: classNameRegex, value: '#^App\\Kernel$#' }
+
+    ruleset:
+        Domain: [ Helpers ]
+        Application: [ Domain, Helpers ]
+        Infrastructure: [ Domain, Application, Vendors, Helpers ]
+
+    skip_violations:
+        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
+            - App\Kernel

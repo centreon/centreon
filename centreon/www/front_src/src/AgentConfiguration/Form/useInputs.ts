@@ -1,21 +1,26 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
-import { capitalize } from '@mui/material';
+import { Box, capitalize } from '@mui/material';
 import { useAtom } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { pollersEndpoint } from '../api/endpoints';
+import { listTokensDecoder } from '../api/decoders';
+import {
+  listTokensEndpoint,
+  pollersEndpoint,
+  tokensSearchConditions
+} from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
   labelCMA,
+  labelCMAauthenticationToken,
   labelCaCertificate,
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
-  labelHostConfigurations,
-  labelInsecure,
+  labelMonitoredHosts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -25,11 +30,12 @@ import {
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
+  labelSelectExistingCMATokens,
   labelTLS
 } from '../translatedLabels';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
-
 import { useInputsStyles } from './Modal.styles';
+import RedirectToTokensPage from './RedirectToTokensPage';
 import EncryptionLevelWarning from './Warning/Warning';
 
 interface SelectEntry {
@@ -44,10 +50,6 @@ export const agentTypes: Array<SelectEntry> = [
 
 export const connectionModes: Array<SelectEntry> = [
   { id: ConnectionMode.secure, name: labelTLS },
-  {
-    id: ConnectionMode.insecure,
-    name: labelInsecure
-  },
   { id: ConnectionMode.noTLS, name: labelNoTLS }
 ];
 
@@ -81,6 +83,12 @@ export const useInputs = (): {
       {
         name: t(labelParameters),
         order: 2,
+        titleAttributes,
+        isDividerHidden: true
+      },
+      {
+        name: t(labelCMAauthenticationToken),
+        order: 3,
         titleAttributes,
         isDividerHidden: true
       }
@@ -185,6 +193,9 @@ export const useInputs = (): {
                     label: t(labelPollers),
                     connectedAutocomplete: {
                       additionalConditionParameters: [],
+                      customQueryParameters: [
+                        { name: 'exclude_central', value: true }
+                      ],
                       endpoint: pollersEndpoint,
                       filterKey: 'name',
                       chipColor: 'primary'
@@ -208,7 +219,8 @@ export const useInputs = (): {
                                   address: '',
                                   port: '',
                                   pollerCaCertificate: '',
-                                  pollerCaName: ''
+                                  pollerCaName: '',
+                                  token: null
                                 }
                               ]
                             : []
@@ -240,19 +252,16 @@ export const useInputs = (): {
                         {
                           type: InputType.Text,
                           fieldName: publicCertificateProperty,
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: caCertificateProperty,
-                          required: false,
                           label: t(labelCaCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: privateKeyProperty,
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ],
@@ -286,7 +295,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confCertificate',
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
@@ -297,7 +305,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confPrivateKey',
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ]
@@ -306,8 +313,8 @@ export const useInputs = (): {
                   {
                     type: InputType.Custom,
                     fieldName: 'host_configurations',
-                    label: labelHostConfigurations,
-                    additionalLabel: t(labelHostConfigurations),
+                    label: labelMonitoredHosts,
+                    additionalLabel: t(labelMonitoredHosts),
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf) ||
                       !values?.configuration?.isReverse,
@@ -320,6 +327,60 @@ export const useInputs = (): {
             }
           ]
         }
+      },
+      {
+        hideInput: ({ type, connectionMode, configuration }) =>
+          !equals(type?.id, AgentType.CMA) ||
+          equals(connectionMode?.id, ConnectionMode.noTLS) ||
+          configuration?.isReverse,
+        fieldName: '',
+        label: '',
+        group: t(labelCMAauthenticationToken),
+        type: InputType.Grid,
+        grid: {
+          gridTemplateColumns: '2fr 1fr',
+          columns: [
+            {
+              type: InputType.MultiConnectedAutocomplete,
+              fieldName: 'configuration.tokens',
+              required: true,
+              label: t(labelSelectExistingCMATokens),
+              connectedAutocomplete: {
+                additionalConditionParameters: tokensSearchConditions,
+                endpoint: listTokensEndpoint,
+                filterKey: 'token_name',
+                chipColor: 'primary',
+                limitTags: 15,
+                decoder: listTokensDecoder
+              }
+            },
+            {
+              hideInput: ({ type, connectionMode, configuration }) =>
+                !equals(type?.id, AgentType.CMA) ||
+                equals(connectionMode?.id, ConnectionMode.noTLS) ||
+                configuration?.isReverse,
+              fieldName: '',
+              label: '',
+              type: InputType.Custom,
+              custom: {
+                Component: Box
+              }
+            }
+          ]
+        }
+      },
+      {
+        group: t(labelCMAauthenticationToken),
+        fieldName: '',
+        label: '',
+        type: InputType.Custom,
+        custom: {
+          Component: RedirectToTokensPage
+        },
+        hideInput: ({ type, connectionMode, configuration }) =>
+          !equals(type?.id, AgentType.CMA) ||
+          equals(connectionMode?.id, ConnectionMode.noTLS) ||
+          configuration?.isReverse
       }
     ]
   };

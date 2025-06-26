@@ -463,7 +463,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.1',
+  `bbdo_version` varchar(50) DEFAULT '3.1.0',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -734,6 +734,7 @@ CREATE TABLE `contact` (
   `contact_autologin_key` varchar(255) DEFAULT NULL,
   `default_page` int(11) DEFAULT NULL,
   `show_deprecated_pages` enum('0','1') DEFAULT '0',
+  `show_deprecated_custom_views` enum('0','1') DEFAULT '0',
   `contact_charset` varchar(255) DEFAULT NULL,
   `contact_register` tinyint(6) NOT NULL DEFAULT '1',
   `contact_ldap_last_sync` int(11) NOT NULL DEFAULT 0,
@@ -1489,12 +1490,7 @@ CREATE TABLE `hostgroup` (
   `hg_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host group',
   `hg_name` varchar(200) DEFAULT NULL COMMENT 'Name of the host group',
   `hg_alias` varchar(200) DEFAULT NULL COMMENT 'Alias of the host group',
-  `hg_notes` varchar(255) DEFAULT NULL COMMENT 'Notes about the host group',
-  `hg_notes_url` varchar(255) DEFAULT NULL COMMENT 'URL for notes about the host group',
-  `hg_action_url` varchar(255) DEFAULT NULL COMMENT 'URL for actions about the host group',
   `hg_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the icon image',
-  `hg_map_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the map icon image',
-  `hg_rrd_retention` int(11) DEFAULT NULL COMMENT 'RRD retention for the host group',
   `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates of the host group',
   `hg_comment` text COMMENT 'Comment about the host group',
   `hg_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Indicates whether the host group is active 1 or disabled 0',

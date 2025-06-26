@@ -39,6 +39,8 @@
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -107,6 +109,9 @@ class Generate
     private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
 
     private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+    private ReadTokenRepositoryInterface $readTokenRepository;
+
+    private ReadHostRepositoryInterface $readHostRepository;
 
     /**
      * Generate constructor
@@ -122,7 +127,13 @@ class Generate
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         $this->readAgentConfigurationRepository = $kernel->getContainer()
             ->get(ReadAgentConfigurationRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+        $this->readTokenRepository = $kernel->getContainer()
+            ->get(ReadTokenRepositoryInterface::class)
+            ?? throw new \Exception('ReadTokenRepositoryInterface not found');
+        $this->readHostRepository = $kernel->getContainer()
+            ->get(ReadHostRepositoryInterface::class)
+            ?? throw new \Exception('ReadHostRepositoryInterface not found');
     }
 
     /**
@@ -315,7 +326,9 @@ class Generate
         ))->reset();
         (new AgentConfiguration(
             $this->backend_instance,
-            $this->readAgentConfigurationRepository
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository,
+            $this->readHostRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -337,7 +350,9 @@ class Generate
         $this->resetObjectsEngine();
         (new AgentConfiguration(
             $this->backend_instance,
-            $this->readAgentConfigurationRepository
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository,
+            $this->readHostRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);

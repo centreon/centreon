@@ -107,4 +107,15 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return int[] The list of distinct server IDs
      */
     public function findByHostsIds(array $hostIds): array;
+
+    /**
+     * Gets a monitoring server if it is a central server from the list of IDs.
+     *
+     * @param int[] $ids
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer|null
+     */
+    public function findCentralByIds(array $ids): ?MonitoringServer;
 }

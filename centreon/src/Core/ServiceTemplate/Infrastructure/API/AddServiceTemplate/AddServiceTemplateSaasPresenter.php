@@ -52,6 +52,8 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'alias' => $response->alias,
                         'service_template_id' => $response->serviceTemplateId,
                         'check_timeperiod_id' => $response->checkTimePeriodId,
+                        'check_command_id' => $response->commandId,
+                        'check_command_args' => $response->commandArguments,
                         'max_check_attempts' => $response->maxCheckAttempts,
                         'normal_check_interval' => $response->normalCheckInterval,
                         'retry_check_interval' => $response->retryCheckInterval,

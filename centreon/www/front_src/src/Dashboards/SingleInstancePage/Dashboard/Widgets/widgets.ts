@@ -26,6 +26,13 @@ const internalWidgets: Array<
     panelDefaultHeight: 6
   },
   {
+    name: 'batimeline',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 12,
+    panelMinWidth: 3,
+    panelMinHeight: 3
+  },
+  {
     name: 'baavailability',
     panelDefaultWidth: 12,
     panelDefaultHeight: 4,
@@ -66,7 +73,7 @@ const internalWidgets: Array<
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },
-  { name: 'singlemetric' },
+  { name: 'singlemetric', panelMinWidth: 2, panelDefaultWidth: 4 },
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },

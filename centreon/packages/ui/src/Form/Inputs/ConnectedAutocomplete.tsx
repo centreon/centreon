@@ -57,7 +57,8 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      }
+      },
+      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
     });
 
   const fieldNamePath = split('.', fieldName);
@@ -134,6 +135,7 @@ const ConnectedAutocomplete = ({
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
+        decoder={connectedAutocomplete?.decoder}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
@@ -145,6 +147,7 @@ const ConnectedAutocomplete = ({
         onChange={changeAutocomplete}
         disableSelectAll={connectedAutocomplete?.disableSelectAll}
         limitTags={connectedAutocomplete?.limitTags}
+        searchConditions={connectedAutocomplete?.additionalConditionParameters}
       />
     ),
     memoProps: [

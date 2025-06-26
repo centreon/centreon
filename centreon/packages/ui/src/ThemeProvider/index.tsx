@@ -21,6 +21,7 @@ import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
 import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
 import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
 
+import { GlobalStyles } from '@mui/system';
 import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
@@ -304,7 +305,8 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
   );
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledEngineProvider injectFirst enableCssLayer>
+      <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}

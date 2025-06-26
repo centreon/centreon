@@ -41,10 +41,6 @@ class HostGroupFactoryRdbTest extends TestCase
             'hg_id' => 10,
             'hg_name' => 'hg name',
             'hg_alias' => 'hg alias',
-            'hg_notes' => 'hg notes',
-            'hg_notes_url' => 'hg notes url',
-            'hg_action_url' => 'hg action url',
-            'hg_rrd_retention' => 2,
             'geo_coords' => '2;4',
             'hg_comment' => 'comment',
             'hg_activate' => '1'
@@ -63,10 +59,6 @@ class HostGroupFactoryRdbTest extends TestCase
         $this->assertEquals($this->rdbData['hg_id'], $hostGroup->getId());
         $this->assertEquals($this->rdbData['hg_name'], $hostGroup->getName());
         $this->assertEquals($this->rdbData['hg_alias'], $hostGroup->getAlias());
-        $this->assertEquals($this->rdbData['hg_notes'], $hostGroup->getNotes());
-        $this->assertEquals($this->rdbData['hg_notes_url'], $hostGroup->getNotesUrl());
-        $this->assertEquals($this->rdbData['hg_action_url'], $hostGroup->getActionUrl());
-        $this->assertEquals($this->rdbData['hg_rrd_retention'], $hostGroup->getRrd());
         $this->assertEquals($this->rdbData['geo_coords'], $hostGroup->getGeoCoords());
         $this->assertEquals($this->rdbData['hg_comment'], $hostGroup->getComment());
         $this->assertEquals((bool) $this->rdbData['hg_activate'], $hostGroup->isActivated());

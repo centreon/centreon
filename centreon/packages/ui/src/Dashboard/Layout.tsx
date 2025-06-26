@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
 
 import { ParentSize, useMemoComponent } from '..';
 
@@ -10,6 +9,7 @@ import { Box } from '@mui/material';
 import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
+import 'react-grid-layout/css/styles.css';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 
