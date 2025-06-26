@@ -21,18 +21,11 @@
 
 declare(strict_types=1);
 
-use PhpCsFixer\Finder;
+use Tools\PhpCsFixer\PhpCsFixerRuleSet;
+use PhpCsFixer\Config;
 
-$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php';
-
-$finder = Finder::create()
-    ->in([
-        __DIR__ . '/src',
-    ])
-    ->append([
-        __DIR__ . '/rector.php',
-    ]);
-
-return $config
-    ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.legacy.src.cache');
+return (new Config())
+    // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
+    ->setRiskyAllowed(false)
+    ->setRules(PhpCsFixerRuleSet::getRulesSafe());

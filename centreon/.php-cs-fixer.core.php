@@ -21,10 +21,9 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+use PhpCsFixer\Finder;
 
-$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.php';
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php';
 
 $finder = Finder::create()
     ->in([
@@ -39,6 +38,6 @@ $finder = Finder::create()
     ]);
 
 return $config
-    // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
-    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
-    ->setFinder($finder);
+    ->setFinder($finder)
+    ->setCacheFile('.php-cs-fixer.core.cache');
+

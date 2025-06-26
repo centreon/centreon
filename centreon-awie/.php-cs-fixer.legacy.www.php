@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,19 @@
 
 declare(strict_types=1);
 
-use Tools\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 
-return (new Config())
-    ->setRiskyAllowed(true)
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRulesSafe());
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.php';
+
+$finder = Finder::create()
+    ->in([
+        __DIR__ . '/features',
+        __DIR__ . '/www',
+    ])
+    ->append([
+        __DIR__ . '/rector.php',
+    ]);
+
+return $config
+    ->setFinder($finder)
+    ->setCacheFile('.php-cs-fixer.legacy.www.cache');

@@ -60,11 +60,11 @@ jobs:
         shell: bash
 
       - name: Run of php-cs-fixer on the legacy section
-        run: composer phpcsfixer:legacy
+        run: composer phpcsfixer:legacy:www
         working-directory: centreon-dsm
 
       - name: Run of phpstan on the legacy section at level 0
-        run: composer phpstan:legacy
+        run: composer phpstan:legacy:www
         working-directory: centreon-dsm
 
   package:

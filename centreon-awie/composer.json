@@ -43,9 +43,9 @@
   },
   "scripts": {
     "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
-    "phpcsfixer:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
-    "phpcsfixer:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
-    "phpstan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",
+    "phpcsfixer:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
+    "phpcsfixer:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
+    "phpstan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=512M",
     "php:check8.2": "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "../tools/vendor/bin/rector --dry-run",
     "rector:fix": "../tools/vendor/bin/rector"

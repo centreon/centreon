@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,11 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+use Tools\PhpCsFixer\PhpCsFixerRuleSet;
+use PhpCsFixer\Config;
 
-$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.php';
-
-$finder = Finder::create()
-    ->in([
-        __DIR__ . '/features',
-        __DIR__ . '/www',
-    ])
-    ->append([
-        __DIR__ . '/rector.php',
-    ]);
-
-return $config
+return (new Config())
     // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
-    ->setFinder($finder)
-    ->setRiskyAllowed(false);
+    ->setRiskyAllowed(true)
+    ->setRules(PhpCsFixerRuleSet::getRules());
