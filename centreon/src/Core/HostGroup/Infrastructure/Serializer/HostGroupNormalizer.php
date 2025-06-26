@@ -28,8 +28,8 @@ use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroupResponse;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\ResourceAccess\Domain\Model\TinyRule;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class HostGroupNormalizer implements NormalizerInterface
 {
@@ -37,11 +37,17 @@ final class HostGroupNormalizer implements NormalizerInterface
 
     public function __construct(
         private readonly string $mediaPath,
-        private readonly ObjectNormalizer $normalizer
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer
     ) {
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null)
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof HostGroupResponse
         || $data instanceof GetHostGroupResponse;
@@ -110,6 +116,18 @@ final class HostGroupNormalizer implements NormalizerInterface
         }
 
         return $data;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            HostGroupResponse::class => true,
+            GetHostGroupResponse::class => true,
+        ];
     }
 
     /**

@@ -51,13 +51,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const certificateValidation = string().when('$connectionMode.id', {
     is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
     // biome-ignore lint/suspicious/noThenProperty: <explanation>
-    then: () => certificateFileValidation.required(t(labelRequired)),
-    otherwise: () => string().nullable()
-  });
-
-  const certificateNullableValidation = string().when('$connectionMode.id', {
-    is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
-    // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.nullable(),
     otherwise: () => string().nullable()
   });
@@ -70,7 +63,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateNullableValidation,
+    otelCaCertificate: certificateValidation,
     otelPrivateKey: certificateValidation,
     confCertificate: certificateValidation,
     confPrivateKey: certificateValidation
@@ -99,7 +92,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       otherwise: (schema) => schema.nullable()
     }),
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: certificateNullableValidation,
+    otelCaCertificate: certificateValidation,
     otelPrivateKey: certificateValidation,
     hosts: array()
       .of(
@@ -114,8 +107,26 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             })
             .required(t(labelRequired)),
           port: portValidation,
-          pollerCaCertificate: certificateNullableValidation,
-          pollerCaName: string().nullable()
+          pollerCaCertificate: certificateValidation,
+          pollerCaName: string().nullable(),
+          token: object().when(['$type', '$connectionMode', '$configuration'], {
+            is: (type, connectionMode, configuration) =>
+              configuration?.isReverse &&
+              equals(type?.id, AgentType.CMA) &&
+              (equals(connectionMode?.id, ConnectionMode.secure) ||
+                equals(connectionMode?.id, ConnectionMode.insecure)),
+            // biome-ignore lint/suspicious/noThenProperty: <explanation>
+            then: (schema) =>
+              schema
+                .shape({
+                  id: string(),
+                  name: string(),
+                  creatorId: number(),
+                  token_name: string()
+                })
+                .required(t(labelRequired)),
+            otherwise: (schema) => schema.nullable()
+          })
         })
       )
       .when('isReverse', {

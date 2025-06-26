@@ -135,7 +135,7 @@ runs:
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
         case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
+          "22.10"|"23.10")
             SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
             ;;
           *)
@@ -163,7 +163,7 @@ runs:
         done
 
         case "${{ inputs.major_version }}" in
-          "22.10"|"23.04"|"23.10")
+          "22.10"|"23.10")
             ARTIFACT_SEARCH_PATTERN=".+\.deb"
             ;;
           *)

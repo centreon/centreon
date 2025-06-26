@@ -112,7 +112,10 @@ const Chart = ({
   limitLegend,
   skipIntersectionObserver,
   transformMatrix,
-  additionalLines
+  additionalLines,
+  min,
+  max,
+  boundariesUnit
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -191,7 +194,10 @@ const Chart = ({
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - margin.bottom
+        valueGraphHeight: graphHeight - margin.bottom,
+        min,
+        max,
+        boundariesUnit
       }),
     [
       linesGraph,

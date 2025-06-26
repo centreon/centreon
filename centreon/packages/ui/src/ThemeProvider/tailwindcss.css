@@ -92,6 +92,8 @@
   --color-text-primary: #000000;
   --color-text-secondary: #666666;
   --color-warning-main: #fd9b27;
+  --color-warning-light: #fcc481;
+  --color-warning-dark: #fc7e00;
   --color-white: #ffffff;
   --color-black: #000000;
 }

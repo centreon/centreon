@@ -94,12 +94,23 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
         mixed $data,
         string $type,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): bool {
         if ($context[self::ALREADY_CALL] ?? false) {
             return false;
         }
 
         return $type === ExportResourcesInput::class && is_array($data);
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ExportResourcesInput::class => false,
+        ];
     }
 }

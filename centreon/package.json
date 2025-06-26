@@ -18,11 +18,12 @@
     "test": "jest",
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
-    "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chromium --env updateSnapshots=true",
+    "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chrome --env updateSnapshots=true",
     "cypress:ui": "TZ=Etc/UTC cypress open --component --browser=chrome",
     "cypress:run": "TZ=Etc/UTC cypress run --component --browser=chrome",
     "cypress:run:coverage": "TZ=Etc/UTC cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
+    "cypress:install": "cypress install",
     "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
     "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml",
     "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.6.6 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
@@ -31,7 +32,7 @@
     "@4tw/cypress-drag-drop": "^2.3.0",
     "@biomejs/biome": "^1.9.4",
     "@centreon/js-config": "workspace:*",
-    "@cypress/code-coverage": "3.13.3",
+    "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.0",
     "@cypress/webpack-dev-server": "^4.0.1",
     "@cypress/webpack-preprocessor": "^6.0.2",
@@ -169,5 +170,11 @@
   ],
   "msw": {
     "workerDirectory": "www/front_src/public"
+  },
+  "nyc": {
+    "report-dir": "coverage",
+    "reporter": [
+      "json"
+    ]
   }
 }

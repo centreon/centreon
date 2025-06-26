@@ -25,17 +25,23 @@ namespace Core\Dashboard\Infrastructure\Serializer;
 
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class DashboardContactResponseNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        #[Autowire(service: 'serializer.normalizer.object')]
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof ContactsResponseDto;
     }
@@ -47,9 +53,9 @@ final class DashboardContactResponseNormalizer implements NormalizerInterface
      *
      * @throws \Throwable
      *
-     * @return array{id: int, name: string, email: string, most_permissive_role: string}
+     * @return array<string, mixed>
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = [])
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
     {
         /** @var array{
          *  id: int,
@@ -65,6 +71,17 @@ final class DashboardContactResponseNormalizer implements NormalizerInterface
             : DashboardGlobalRoleConverter::toString($object->mostPermissiveRole);
 
         return $data;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ContactsResponseDto::class => true,
+        ];
     }
 }
 

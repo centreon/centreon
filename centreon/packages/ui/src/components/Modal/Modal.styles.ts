@@ -90,6 +90,10 @@ const useStyles = makeStyles<{
     gap: theme.spacing(2),
 
     justifyContent: 'space-between'
+  },
+  modalTitle: {
+    fontSize: theme.typography.h5.fontSize,
+    fontWeight: theme.typography.fontWeightBold
   }
 }));
 

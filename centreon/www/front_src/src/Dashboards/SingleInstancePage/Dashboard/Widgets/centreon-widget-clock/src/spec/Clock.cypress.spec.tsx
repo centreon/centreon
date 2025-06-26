@@ -23,11 +23,16 @@ const smallDisplay = {
 const initialize = ({
   hasDescription = false,
   isSmall,
+  userLocale = 'de_DE',
   ...options
-}: PanelOptions & { hasDescription?: boolean; isSmall?: boolean }): void => {
+}: PanelOptions & {
+  hasDescription?: boolean;
+  isSmall?: boolean;
+  userLocale?: string | null;
+}): void => {
   const store = createStore();
 
-  store.set(userAtom, { locale: 'de_DE', timezone: 'Europe/Helsinki' });
+  store.set(userAtom, { locale: userLocale, timezone: 'Europe/Helsinki' });
   cy.clock(1722584072000);
 
   cy.mount({
@@ -136,6 +141,24 @@ describe('Clock-Timer', () => {
       });
 
       cy.contains('Europe/London').should('be.visible');
+      cy.makeSnapshot();
+    });
+
+    it('displays the widget when the user local is null', () => {
+      initialize({
+        displayType: 'clock',
+        showDate: true,
+        showTimezone: true,
+        timeFormat: '12',
+        userLocale: null
+      });
+
+      cy.contains('Europe/Helsinki').should('be.visible');
+      cy.findByTestId('QueryBuilderIcon').should('be.visible');
+      cy.contains('08/02/2024').should('be.visible');
+      cy.contains('10:34').should('be.visible');
+      cy.contains('AM').should('be.visible');
+
       cy.makeSnapshot();
     });
   });

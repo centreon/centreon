@@ -18,6 +18,4 @@ fos_rest:
     versioning:
         enabled: true
     body_converter:
-        enabled: true
-        validate: true
-        validation_errors_argument: violations
+        enabled: false

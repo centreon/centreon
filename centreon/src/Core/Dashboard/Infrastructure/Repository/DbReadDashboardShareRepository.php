@@ -468,16 +468,28 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ON topology.topology_id = acltr.topology_topology_id
             LEFT JOIN `:db`.topology parent
                 ON topology.topology_parent = parent.topology_page
-            WHERE
-                c.contact_admin = '0'
+            SQL_WRAP;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? <<<SQL_WRAP
+
+                {$searchRequest}
+                AND c.contact_admin = '0'
                 AND c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND acltr.access_right IS NOT NULL
-            SQL_WRAP;
+                SQL_WRAP
+            : <<<'SQL_WRAP'
 
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
+                WHERE c.contact_admin = '0'
+                AND c.contact_oreon = '1'
+                AND parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+                SQL_WRAP;
+
         $query .= ' GROUP BY c.contact_id, ag.acl_group_name';
 
         $query .= $sqlTranslator->translatePaginationToSql();

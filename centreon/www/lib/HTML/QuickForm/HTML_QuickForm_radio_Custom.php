@@ -60,7 +60,7 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
     }
 
     /**
-     * @inheritDoc
+     * @return string
      */
     public function toHtml()
     {

@@ -28,12 +28,6 @@ const useExportCsvStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     justifyContent: 'space-between'
   },
-  warning: {
-    width: '100%',
-    backgroundColor: theme.palette.warning.main,
-    padding: theme.spacing(1),
-    borderRadius: theme.shape.borderRadius
-  },
   lines: {
     fontWeight: 'bold'
   },

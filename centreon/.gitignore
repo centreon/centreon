@@ -20,6 +20,7 @@ www/include/core/menu/templates/*.tpl
 junit.xml
 .nyc_output
 coverage/
+**/v8-compile-cache-0
 
 #sample files
 !www/img/media/.keep
@@ -76,4 +77,14 @@ docker-compose.yml
 checkstyle.core.xml
 .swc
 junit.xml
+.php-cs-fixer.new.cache
 
+# castor
+.castor.stub.php
+
+# deptrac
+.deptrac_bc.cache
+.deptrac_hexa.cache
+
+# phpunit
+.phpunit.new.cache

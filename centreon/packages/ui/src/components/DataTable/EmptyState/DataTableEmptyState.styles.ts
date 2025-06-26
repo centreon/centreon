@@ -6,6 +6,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row'
   },
   dataTableEmptyState: {
+    marginTop: theme.spacing(3),
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -21,7 +22,8 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   description: {
-    maxWidth: '65%'
+    maxWidth: '65%',
+    textAlign: 'center'
   }
 }));
 

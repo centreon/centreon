@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +21,8 @@
  *
  */
 
-use App\Kernel;
-use Symfony\Component\ErrorHandler\Debug;
-use Symfony\Component\HttpFoundation\Request;
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
-require dirname(__DIR__) . '/config/bootstrap.php';
-
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-
-    Debug::enable();
-}
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(
-        explode(',', $trustedProxies),
-        Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
-    );
-}
-
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false) {
-    Request::setTrustedHosts([$trustedHosts]);
-}
-
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-$request = Request::createFromGlobals();
-$response = $kernel->handle($request);
-$response->send();
-$kernel->terminate($request, $response);
+return function (array $context) {
+    return new \App\Shared\Infrastructure\Symfony\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+};

@@ -70,7 +70,7 @@ $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
 $cct = [];
 if ($o == "c") {
     $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
-        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type
+        contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type, show_deprecated_custom_views
         FROM contact WHERE contact_id = :id";
     $DBRESULT = $pearDB->prepare($query);
     $DBRESULT->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
@@ -171,8 +171,9 @@ $form->addElement(
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
 if (!isCloudPlatform()) {
-    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated monitoring pages"), null, $attrsText);
 }
+$form->addElement('checkbox', 'show_deprecated_custom_views', _("Use deprecated custom views"), null, $attrsText);
 
 
 /* ------------------------ Topoogy ---------------------------- */
@@ -425,7 +426,6 @@ if ($form->validate()) {
     }
     $o = null;
     $features = $form->getSubmitValue('features');
-
     if ($features === null) {
         $features = [];
     }
@@ -440,9 +440,11 @@ if ($form->validate()) {
     $form->freeze();
 
     $showDeprecatedPages = $form->getSubmitValue("show_deprecated_pages") ? '1' : '0';
+    $showDeprecatedCustomViews = $form->getSubmitValue("show_deprecated_custom_views") ?: '0';
     if (
         $form->getSubmitValue("contact_lang") !== $cct['contact_lang']
-        || $showDeprecatedPages !== $cct['show_deprecated_pages']
+            || $showDeprecatedPages !== $cct['show_deprecated_pages']
+            || $showDeprecatedCustomViews !== $cct['show_deprecated_custom_views']
     ) {
         $contactStatement = $pearDB->prepare(
             'SELECT * FROM contact WHERE contact_id = :contact_id'
@@ -496,6 +498,7 @@ foreach ($help as $key => $text) {
 $tpl->assign("helptext", $helptext);
 
 $tpl->display("formMyAccount.ihtml");
+
 ?>
 <script type='text/javascript' src='./include/common/javascript/keygen.js'></script>
 <script type="text/javascript">

@@ -60,11 +60,25 @@ const internalWidgets: Array<
     panelDefaultWidth: 12
   },
   {
+    name: 'baavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
+  },
+  {
     name: 'groupmonitoring',
     panelMinWidth: 8,
     panelMinHeight: 3,
     panelDefaultWidth: 12,
     panelDefaultHeight: 4
+  },
+  {
+    name: 'hgavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
   },
   {
     name: 'resourcestable',
@@ -73,7 +87,7 @@ const internalWidgets: Array<
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },
-  { name: 'singlemetric' },
+  { name: 'singlemetric', panelMinWidth: 2, panelDefaultWidth: 4 },
   { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },

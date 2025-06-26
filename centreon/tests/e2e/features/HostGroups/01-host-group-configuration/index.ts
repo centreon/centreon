@@ -136,7 +136,7 @@ When('the user changes some properties of the configured host group', () => {
   cy.wait('@getGroups');
   cy.contains('p', hostGroups.default.name).eq(0).click();
   cy.wait('@getGroupDetails');
-  cy.contains('p', 'Modify a host group').should('be.visible');
+  cy.contains('Modify a host group').should('be.visible');
   // Update Name field
   cy.getByTestId({ testId: 'Name' })
     .eq(1)

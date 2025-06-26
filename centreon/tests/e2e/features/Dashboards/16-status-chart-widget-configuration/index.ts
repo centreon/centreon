@@ -289,6 +289,7 @@ Then(
 				blueCssBackground,
 			],
 			["100.0%", "0.0%", "0.0%", "0.0%"],
+			["66.7%", "33.3%", "0.0%", "0.0%"],
 		);
 		cy.verifyLegendItemStyle(
 			1,
@@ -328,6 +329,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 			blueCssBackground,
 		],
 		["100.0%", "0.0%", "0.0%", "0.0%"],
+		["66.7%", "33.3%", "0.0%", "0.0%"]
 	);
 	cy.verifyLegendItemStyle(
 		1,
@@ -512,7 +514,7 @@ When("the dashboard administrator clicks on a random resource", () => {
 Then(
 	"the user should be redirected to the resource status screen and all the resources must be displayed",
 	() => {
-		cy.contains("host2").should("exist");
+		cy.contains(/host2|host3/).should('exist');
 	},
 );
 

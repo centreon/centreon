@@ -26,7 +26,6 @@ use PhpCsFixer\{Config, Finder};
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/src/App',
         // __DIR__ . 'Centreon',
         __DIR__ . '/src/CentreonCommand',
         __DIR__ . '/src/CentreonLegacy',

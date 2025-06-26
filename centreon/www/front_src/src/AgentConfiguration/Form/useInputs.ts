@@ -1,11 +1,14 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
-import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { listTokensDecoder } from '../api/decoders';
-import { listTokensEndpoint, pollersEndpoint } from '../api/endpoints';
+import {
+  listTokensEndpoint,
+  pollersEndpoint,
+  tokensSearchConditions
+} from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
@@ -17,7 +20,7 @@ import {
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
-  labelHostConfigurations,
+  labelMonitoredHosts,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -27,7 +30,7 @@ import {
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
-  labelSelectExistingCMAToken,
+  labelSelectExistingCMATokens,
   labelTLS
 } from '../translatedLabels';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
@@ -216,7 +219,8 @@ export const useInputs = (): {
                                   address: '',
                                   port: '',
                                   pollerCaCertificate: '',
-                                  pollerCaName: ''
+                                  pollerCaName: '',
+                                  token: null
                                 }
                               ]
                             : []
@@ -248,19 +252,16 @@ export const useInputs = (): {
                         {
                           type: InputType.Text,
                           fieldName: publicCertificateProperty,
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: caCertificateProperty,
-                          required: false,
                           label: t(labelCaCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: privateKeyProperty,
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ],
@@ -294,7 +295,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confCertificate',
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
@@ -305,7 +305,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confPrivateKey',
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ]
@@ -314,8 +313,8 @@ export const useInputs = (): {
                   {
                     type: InputType.Custom,
                     fieldName: 'host_configurations',
-                    label: labelHostConfigurations,
-                    additionalLabel: t(labelHostConfigurations),
+                    label: labelMonitoredHosts,
+                    additionalLabel: t(labelMonitoredHosts),
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf) ||
                       !values?.configuration?.isReverse,
@@ -345,29 +344,9 @@ export const useInputs = (): {
               type: InputType.MultiConnectedAutocomplete,
               fieldName: 'configuration.tokens',
               required: true,
-              label: t(labelSelectExistingCMAToken),
+              label: t(labelSelectExistingCMATokens),
               connectedAutocomplete: {
-                additionalConditionParameters: [
-                  {
-                    field: 'type',
-                    values: {
-                      $eq: 'cma'
-                    }
-                  },
-                  {
-                    field: 'is_revoked',
-                    values: {
-                      $eq: false
-                    }
-                  },
-                  {
-                    field: 'expiration_date',
-                    values: {
-                      $ge: dayjs(Date.now()),
-                      $eq: null
-                    }
-                  }
-                ],
+                additionalConditionParameters: tokensSearchConditions,
                 endpoint: listTokensEndpoint,
                 filterKey: 'token_name',
                 chipColor: 'primary',

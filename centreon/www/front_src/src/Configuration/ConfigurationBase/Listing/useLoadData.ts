@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
 
 import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
@@ -37,6 +37,21 @@ const useLoadData = (): LoadDataState => {
 
         const fieldName = filter.fieldName as string;
         const filterValue = filters[fieldName];
+
+        if (
+          equals(filter.fieldType, FieldType.MultiAutocomplete) ||
+          equals(filter.fieldType, FieldType.MultiConnectedAutocomplete)
+        ) {
+          return isNotNil(filterValue) && isNotEmpty(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $in: pluck('id', filterValue) }
+                }
+              ]
+            : acc;
+        }
 
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]
