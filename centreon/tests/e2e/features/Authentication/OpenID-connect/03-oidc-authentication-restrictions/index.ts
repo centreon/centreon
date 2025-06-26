@@ -58,7 +58,7 @@ When(
     configureOpenIDConnect();
 
     // authentication conditions section
-    cy.getByLabel({ label: 'Authentication conditions' }).click();
+    cy.get('[data-testid="Authentication conditions-header"]').click();
     cy.getByLabel({ label: 'Blacklist client addresses' }).type(
       '{selectall}{backspace}127.0.0.1{enter}'
     );
