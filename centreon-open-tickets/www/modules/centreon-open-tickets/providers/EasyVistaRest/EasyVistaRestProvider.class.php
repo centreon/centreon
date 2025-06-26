@@ -647,9 +647,13 @@ class EasyVistaRestProvider extends AbstractProvider
                     $this->closeTicketEzv($k);
                     $tickets[$k]['status'] = 2;
                 } catch (\Exception $e) {
+                    $file = fopen("/var/log/php-fpm/close.log", "a");
+                    fwrite($file, print_r("\ncatch\n", true));
                     if ($this->doCloseTicketContinueOnError()) {
+                        fwrite($file, print_r("\nforce ticket to OK\n", true));
                         $tickets[$k]['status'] = 2;
                     } else {
+                        fwrite($file, print_r("\nignore ticket\n", true));
                         $tickets[$k]['status'] = -1;
                         $tickets[$k]['msg_error'] = $e->getMessage();    
                     }
