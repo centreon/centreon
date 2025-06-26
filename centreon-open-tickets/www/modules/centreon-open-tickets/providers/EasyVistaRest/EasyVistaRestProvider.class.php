@@ -648,13 +648,17 @@ class EasyVistaRestProvider extends AbstractProvider
     */
     public function closeTicket(&$tickets): void
     {
+        $file = fopen("/var/log/php-fpm/close.log", "a");
+        fwrite($file, print_r("\ntickets to close\n", true));
+        fwrite($file, print_r($tickets, true));
         if ($this->doCloseTicket()) {
+            fwrite($file, print_r("\nticket close enabled\n", true));
             foreach ($tickets as $k => $v) {
                 try {
+                    fwrite($file, print_r("\ntry to use ezv close ticket method\n", true));
                     $this->closeTicketEzv($k);
                     $tickets[$k]['status'] = 1;
                 } catch (\Exception $e) {
-                    $file = fopen("/var/log/php-fpm/close.log", "a");
                     fwrite($file, print_r("\ncatch\n", true));
                     if ($this->doCloseTicketContinueOnError()) {
                         fwrite($file, print_r("\nforce ticket to OK\n", true));
@@ -667,6 +671,7 @@ class EasyVistaRestProvider extends AbstractProvider
                 }
             }
         } else {
+            fwrite($file, print_r("\ncoucou tout le monde\n", true));
             parent::closeTicket($tickets);
         }
     }
