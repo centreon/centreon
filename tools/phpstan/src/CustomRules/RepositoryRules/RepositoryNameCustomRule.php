@@ -45,7 +45,6 @@ class RepositoryNameCustomRule implements Rule
         return Node\Stmt\Class_::class;
     }
 
-
     public function processNode(Node $node, Scope $scope): array
     {
         // This rule does not apply.
