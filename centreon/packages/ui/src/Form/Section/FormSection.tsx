@@ -4,20 +4,11 @@ import { useMemo } from 'react';
 import { Tabs } from '../../components/Tabs';
 import { Group } from '../Inputs/models';
 import { groupToTab } from './PanelTabs';
+import { useNavigateToSection } from './navigateToSection';
 
 export interface FormSectionProps extends TabsProps {
   groups?: Group[];
 }
-
-export const useNavigateToSection = () => {
-  return (sectionName: string) => {
-    const section = document.querySelector(
-      `[data-section-group-form-id="${sectionName}"]`
-    );
-
-    section?.scrollIntoView({ behavior: 'smooth' });
-  };
-};
 
 const FormSection = ({ groups }: FormSectionProps) => {
   if (isNil(groups) || groups.length < 4) {
