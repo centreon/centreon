@@ -14,6 +14,8 @@ import {
   ResourceTypeToToggleRegexAtom,
   resourceTypeToToggleRegexAtom
 } from './atoms';
+import { useRef } from 'react';
+import { isNotNil } from 'ramda';
 
 interface Props {
   changeRegexFieldOnResourceType: ({
@@ -31,6 +33,7 @@ const ConfirmationResourceTypeToggleRegexModal = ({
   changeRegexFieldOnResourceType
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const isRegexModeRef = useRef<boolean | undefined>(undefined);
 
   const resourceTypeToToggle = useAtomValue(resourceTypeToToggleRegexAtom);
 
@@ -42,6 +45,13 @@ const ConfirmationResourceTypeToggleRegexModal = ({
     })();
   };
 
+  if (
+    isNotNil(resourceTypeToToggle?.isRegexMode) &&
+    isRegexModeRef.current !== resourceTypeToToggle?.isRegexMode
+  ) {
+    isRegexModeRef.current = resourceTypeToToggle?.isRegexMode;
+  }
+
   return (
     <ConfirmationModal
       atom={resourceTypeToToggleRegexAtom}
@@ -49,17 +59,18 @@ const ConfirmationResourceTypeToggleRegexModal = ({
         cancel: t(labelStay),
         confirm: t(labelLeave),
         description: t(
-          resourceTypeToToggle?.isRegexMode
+          isRegexModeRef.current
             ? labelYourChangesWillNotBeSavedIfYouSwitchRegexMode
             : labelYourChangesWillNotBeSavedIfYouSwitchClassicMode
         ),
         title: t(
-          resourceTypeToToggle?.isRegexMode
+          isRegexModeRef.current
             ? labelDoYouWantToLeaveTheRegexMode
             : labelDoYouWantToLeaveTheClassicMode
         )
       }}
       onConfirm={confirm}
+      size="medium"
     />
   );
 };
