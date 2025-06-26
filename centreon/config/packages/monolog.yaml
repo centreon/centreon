@@ -2,32 +2,28 @@
 # https://github.com/symfony/monolog-bundle/blob/master/DependencyInjection/Configuration.php#L25
 #
 
-monolog:
-  channels: [ 'deprecation' ]
-  handlers:
-    deprecation:
-      type: rotating_file
-      path: "%log_path%/%kernel.environment%.deprecations.log"
-      max_files: 2
-      channels: [ 'deprecation' ]
-      file_permission: 0660
-
 when@prod:
   monolog:
-    channels: [ 'centreon']
+    channels: [ 'centreon', 'deprecation' ]
     handlers:
       system:
         type: error_log
         level: warning
         formatter: monolog.formater
-        channels: [ '!centreon' ]
+        channels: [ '!centreon', '!deprecation' ]
       centreon:
         type: service
         id: monolog.handler
         channels: [ 'centreon' ]
+      deprecation:
+        type: rotating_file
+        path: "%log_path%/%kernel.environment%.deprecations.log"
+        max_files: 2
+        channels: [ 'deprecation' ]
+        file_permission: 0660
 when@dev:
   monolog:
-    channels: [ 'centreon' ]
+    channels: [ 'centreon', 'deprecation' ]
     handlers:
       system:
         type: error_log
@@ -38,3 +34,10 @@ when@dev:
         type: service
         id: monolog.handler
         channels: [ 'centreon' ]
+      deprecation:
+        type: rotating_file
+        path: "%log_path%/%kernel.environment%.deprecations.log"
+        max_files: 2
+        channels: [ 'deprecation' ]
+        file_permission: 0660
+
