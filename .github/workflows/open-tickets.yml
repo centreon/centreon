@@ -66,11 +66,11 @@ jobs:
 
       - name: Run of php-cs-fixer on the legacy section for the /www directory
         run: composer phpcsfixer:legacy:www
-        working-directory: centreon-dsm
+        working-directory: centreon-open-tickets
 
       - name: Run of php-cs-fixer on the legacy section for the /src/CentreonOpenTickets directory
         run: composer phpcsfixer:legacy:src
-        working-directory: centreon-dsm
+        working-directory: centreon-open-tickets
 
       - name: Run of phpstan on the legacy section for the /www directory at level 2
         run: composer phpstan:legacy:www
