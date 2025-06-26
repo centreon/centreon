@@ -94,7 +94,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-awie
         run: composer install --optimize-autoloader
         working-directory: centreon-awie
         shell: bash

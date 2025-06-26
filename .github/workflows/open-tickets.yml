@@ -54,7 +54,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-open-tickets
         run: composer install --optimize-autoloader
         working-directory: centreon-open-tickets
         shell: bash
