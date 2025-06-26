@@ -29,6 +29,7 @@ import {
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
+import { buildResourceTypeNameForSearchParameter } from '../utils';
 
 interface Props {
   resources: Array<WidgetDataResource>;
@@ -64,9 +65,9 @@ export const useListMetrics = ({
             conditions: resources
               .filter((resource) => isResourcesString(resource.resources))
               .map((resource) => ({
-                field: equals(resource.resourceType, 'hostgroup')
-                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                  : resourceTypeQueryParameter[resource.resourceType],
+                field: buildResourceTypeNameForSearchParameter(
+                  resource.resourceType
+                ),
                 values: {
                   $rg: resource.resources
                 }
