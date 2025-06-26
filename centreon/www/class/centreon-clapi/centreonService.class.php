@@ -779,6 +779,14 @@ class CentreonService extends CentreonObject
             }
             $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
             $extended->update($objectId, [$params[2] => $params[3]]);
+            $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
+            $hostId = $centreonConfig->findHostsForConfigChangeFlagFromServiceIds([$objectId]);
+            $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostId);
+            $centreonConfig->signalConfigurationChange(
+                CentreonConfigurationChange::RESOURCE_TYPE_SERVICE,
+                $objectId,
+                $previousPollerIds
+            );
             $this->addAuditLog('c', $objectId, $hostName . ' - ' . $serviceDesc, [$params[2] => $params[3]]);
         }
     }
