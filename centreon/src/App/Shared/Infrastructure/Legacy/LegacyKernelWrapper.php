@@ -63,12 +63,12 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
 
         $constants = $conf_centreon = [];
 
-        require $this->projectDir . '/config/centreon.config.php';
+        require $this->projectDir.'/config/centreon.config.php';
 
-        (new Dotenv())->bootEnv($this->projectDir . '/.env');
+        (new Dotenv())->bootEnv($this->projectDir.'/.env');
         (new Dotenv())->populate($constants);
         (new Dotenv())->populate($conf_centreon);
 
-        require_once $this->projectDir . '/container.php';
+        require_once $this->projectDir.'/container.php';
     }
 }

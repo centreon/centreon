@@ -28,6 +28,6 @@ final class TmpTest extends TestCase
 {
     public function testNothing(): void
     {
-        static::assertTrue(true);
+        self::assertTrue(true);
     }
 }

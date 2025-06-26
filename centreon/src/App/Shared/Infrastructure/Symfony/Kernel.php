@@ -44,10 +44,10 @@ final class Kernel extends BaseKernel
     {
         $configDir = $this->getConfigDir();
 
-        $container->import($configDir . '/{packages}/*.yaml');
-        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
-        $container->import($configDir . '/{services}/*.php');
-        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
+        $container->import($configDir.'/{packages}/*.yaml');
+        $container->import($configDir.'/{packages}/'.$this->environment.'/*.yaml');
+        $container->import($configDir.'/{services}/*.php');
+        $container->import($configDir.'/{services}/'.$this->environment.'/*.php');
     }
 
     public function getProjectDir(): string
@@ -57,6 +57,6 @@ final class Kernel extends BaseKernel
 
     private function getConfigDir(): string
     {
-        return $this->getProjectDir() . '/config.new';
+        return $this->getProjectDir().'/config.new';
     }
 }
