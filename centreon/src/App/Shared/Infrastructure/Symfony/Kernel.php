@@ -40,23 +40,23 @@ final class Kernel extends BaseKernel
         return '/var/log/centreon/symfony.new';
     }
 
-    protected function configureContainer(ContainerConfigurator $container): void
-    {
-        $configDir = $this->getConfigDir();
-
-        $container->import($configDir.'/{packages}/*.yaml');
-        $container->import($configDir.'/{packages}/'.$this->environment.'/*.yaml');
-        $container->import($configDir.'/{services}/*.php');
-        $container->import($configDir.'/{services}/'.$this->environment.'/*.php');
-    }
-
     public function getProjectDir(): string
     {
         return \dirname(__DIR__, 5);
     }
 
+    protected function configureContainer(ContainerConfigurator $container): void
+    {
+        $configDir = $this->getConfigDir();
+
+        $container->import($configDir . '/{packages}/*.yaml');
+        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
+        $container->import($configDir . '/{services}/*.php');
+        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
+    }
+
     private function getConfigDir(): string
     {
-        return $this->getProjectDir().'/config.new';
+        return $this->getProjectDir() . '/config.new';
     }
 }

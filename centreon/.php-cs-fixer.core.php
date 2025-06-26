@@ -29,15 +29,12 @@ $finder = Finder::create()
     ->in([
         __DIR__ . '/src/Core',
         __DIR__ . '/src/Adaptation', // TODO remove it from this file and add it in new config when the code is ready
-//        __DIR__ . '/tests/php/Core', // TODO add this folder when the code is ready
+        //        __DIR__ . '/tests/php/Core', // TODO add this folder when the code is ready
     ])
     ->append([
         __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
-        __DIR__ . '/bootstrap.php',
-        __DIR__ . '/container.php',
     ]);
 
 return $config
     ->setFinder($finder)
     ->setCacheFile('.php-cs-fixer.core.cache');
-

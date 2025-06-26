@@ -49,17 +49,17 @@ class Kernel extends BaseKernel
     {
         parent::__construct($environment, $debug);
         if (\defined('_CENTREON_LOG_')) {
-            $this->logDir = _CENTREON_LOG_.'/symfony';
+            $this->logDir = _CENTREON_LOG_ . '/symfony';
         }
         if (\defined('_CENTREON_CACHEDIR_')) {
-            $this->cacheDir = _CENTREON_CACHEDIR_.'/symfony';
+            $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
     }
 
     public static function createForWeb(): self
     {
         if (null === self::$instance) {
-            include_once \dirname(__DIR__, 2).'/config/bootstrap.php';
+            include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
             if ($_SERVER['APP_DEBUG']) {
                 umask(0000);
 
@@ -77,7 +77,7 @@ class Kernel extends BaseKernel
      */
     public function registerBundles(): iterable
     {
-        $contents = require $this->getProjectDir().'/config/bundles.php';
+        $contents = require $this->getProjectDir() . '/config/bundles.php';
         foreach ($contents as $class => $envs) {
             if ($envs[$this->environment] ?? $envs['all'] ?? false) {
                 yield new $class();
