@@ -16,6 +16,7 @@ type Props = {
   children?: Array<JSX.Element>;
   defaultTab: string;
   tabList?: TabsProps;
+  variant?: 'standard' | 'scrollable' | 'fullWidth';
   tabs: TabI[];
   onChange?: (newValue: string) => void;
 };
@@ -25,6 +26,7 @@ export const Tabs = ({
   defaultTab,
   tabs,
   tabList,
+  variant,
   onChange
 }: Props): JSX.Element => {
   const { classes } = useTabsStyles();
@@ -46,6 +48,7 @@ export const Tabs = ({
   return (
     <TabContext value={selectedTab}>
       <MuiTabs
+        variant={variant}
         classes={{
           indicator: classes.indicator,
           root: classes.tabs
