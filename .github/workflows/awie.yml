@@ -100,11 +100,11 @@ jobs:
         shell: bash
 
       - name: Run of php-cs-fixer on the legacy section
-        run: composer phpcsfixer:legacy
+        run: composer phpcsfixer:legacy:www
         working-directory: centreon-awie
 
       - name: Run of phpstan on the legacy section at level 6
-        run: vendor/bin/phpstan analyse --no-progress --configuration=phpstan.legacy.neon
+        run: composer phpstan:legacy:www
         working-directory: centreon-awie
 
   package:
