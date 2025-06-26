@@ -65,9 +65,9 @@ export const useListMetrics = ({
             conditions: resources
               .filter((resource) => isResourcesString(resource.resources))
               .map((resource) => ({
-                field: buildResourceTypeNameForSearchParameter(
-                  resource.resourceType
-                ),
+                field: equals(resource.resourceType, 'hostgroup')
+                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                  : resourceTypeQueryParameter[resource.resourceType],
                 values: {
                   $rg: resource.resources
                 }
