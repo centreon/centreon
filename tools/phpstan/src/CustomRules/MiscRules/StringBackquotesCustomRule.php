@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules\MiscRules;
 
-use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
 
 /**
  * This class implements custom rule for PHPStan to check if variable :db or :dbstg

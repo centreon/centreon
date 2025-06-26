@@ -1,0 +1,7 @@
+parameters:
+    level: max
+    scanFiles:
+        - .php-cs-fixer.tools.php
+    paths:
+        - phpstan
+        - php-cs-fixer

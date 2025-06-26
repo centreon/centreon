@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules\RepositoryRules;
 
-use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
-use Tools\PhpStan\CustomRules\CentreonRuleTrait;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
+use Tools\PhpStan\CustomRules\CentreonRuleTrait;
 
 /**
  * This class implements a custom rule for PHPStan to check Repository naming requirement.

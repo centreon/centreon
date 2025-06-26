@@ -1,0 +1,51 @@
+name: tools
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - "tools/**"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - "tools/**"
+
+jobs:
+  backend-lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        with:
+          php-version: 8.2
+          coverage: none
+        env:
+          runner: ubuntu-24.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: tools
+        shell: bash
+
+      - name: Run of php-cs-fixer
+        run: composer phpcsfixer:tools
+        working-directory: tools
+
+      - name: Run of phpstan at level max
+        run: composer phpstan:tools
+        working-directory: tools

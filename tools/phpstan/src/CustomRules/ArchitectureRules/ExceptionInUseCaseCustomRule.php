@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules\ArchitectureRules;
 
-use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
-use Tools\PhpStan\CustomRules\CentreonRuleTrait;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -33,6 +31,8 @@ use PhpParser\Node\Stmt\TryCatch;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
+use Tools\PhpStan\CustomRules\CentreonRuleTrait;
 
 /**
  * This class implements a custom rule for PHPStan to check if thrown Exception is in
@@ -46,7 +46,7 @@ class ExceptionInUseCaseCustomRule implements Rule
 
     public function getNodeType(): string
     {
-        return Node\Stmt\Throw_::class;
+        return Throw_::class;
     }
 
     public function processNode(Node $node, Scope $scope): array

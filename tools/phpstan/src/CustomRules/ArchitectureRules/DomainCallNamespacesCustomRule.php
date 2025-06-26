@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules\ArchitectureRules;
 
-use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
-use Tools\PhpStan\CustomRules\Collectors\UseUseCollector;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\CollectedDataNode;
 use PHPStan\Rules\Rule;
+use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
+use Tools\PhpStan\CustomRules\Collectors\UseUseCollector;
 
 /**
  * This class implements a custom rule for PHPStan to check that classes in Domain layer

@@ -28,7 +28,7 @@ class PhpCsFixerRuleSet
     /**
      * This method returns an array of defined rules Php-Cs-Fixer.
      *
-     * @return array
+     * @return array<string, array<string, mixed>|bool>
      */
     public static function getRules(): array
     {
@@ -38,11 +38,11 @@ class PhpCsFixerRuleSet
     /**
      * This method returns an array of defined Php-Cs-Fixer rules which MUST NOT be risky.
      *
-     * @return array
+     * @return array<string, array<string, mixed>|bool>
      */
     public static function getRulesSafe(): array
     {
-        $rules = [
+        return [
             'align_multiline_comment' => true,
             'array_indentation' => true,
             'array_syntax' => true,
@@ -168,14 +168,12 @@ class PhpCsFixerRuleSet
             'visibility_required' => true,
             'whitespace_after_comma_in_array' => true,
         ];
-
-        return $rules;
     }
 
     /**
      * This method returns an array of defined Php-Cs-Fixer rules which are considered risky.
      *
-     * @return array
+     * @return array<string, array<string, mixed>|bool>
      */
     public static function getRulesRisky(): array
     {

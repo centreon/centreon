@@ -21,27 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Tools\PhpStan\CustomRules;
+use PhpCsFixer\Finder;
+use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
-use PHPStan\Rules\RuleError;
-use PHPStan\Rules\RuleErrorBuilder;
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php';
 
-/**
- * This class defines a method to build a custom error message for PHPStan custom rules by
- * overloading its parent's method message().
- */
-class CentreonRuleErrorBuilder
-{
-    /**
-     * This method builds a custom error message for PHPStan custom rules by overloading its
-     * parent's method message.
-     *
-     * @param string $message
-     *
-     * @return RuleErrorBuilder<RuleError>
-     */
-    public static function message(string $message): RuleErrorBuilder
-    {
-        return RuleErrorBuilder::message("[CENTREON-RULE]: {$message}");
-    }
-}
+$finder = Finder::create()
+    ->in([
+        __DIR__ . '/php-cs-fixer/src/',
+        __DIR__ . '/phpstan/src/',
+    ])
+    ->append([
+        __DIR__ . '/.php-cs-fixer.tools.php',
+    ]);
+
+return $config
+    ->setRules(array_merge(
+        PhpCsFixerRuleSet::getRules(),
+        [
+            'psr_autoloading' => false, // This rule is not compatible with tools directory architecture
+        ]
+    ))
+    ->setFinder($finder)
+    ->setCacheFile('.php-cs-fixer.tools.cache');

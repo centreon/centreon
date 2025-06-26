@@ -23,37 +23,12 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules;
 
-use Centreon\Domain\Log\LoggerTrait;
-
 /**
  * This trait implements checkIfInUseCase method to check if a file is
  * a Use Case.
  */
 trait CentreonRuleTrait
 {
-    /** @var array<string>|null */
-    private ?array $loggerTraitMethods = null;
-
-    /**
-     * This method creates a Reflection of Logger Trait, extract the list of its methods
-     * and returns them as array of strings.
-     *
-     * @return string[]
-     */
-    public function getLoggerTraitMethods(): array
-    {
-        if (null === $this->loggerTraitMethods) {
-            $this->loggerTraitMethods = [];
-
-            $methods = (new \ReflectionClass(LoggerTrait::class))->getMethods();
-            foreach ($methods as $method) {
-                $this->loggerTraitMethods[] = $method->name;
-            }
-        }
-
-        return $this->loggerTraitMethods;
-    }
-
     /**
      * Tells whether the class FQCN extends an Exception.
      *
@@ -76,7 +51,7 @@ trait CentreonRuleTrait
     private function getRepositoryName(string $className): ?string
     {
         return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z]+)Repository$/', $className, $matches)
-            ? ($matches[1] ?: null) : null;
+            ? $matches[1] : null;
     }
 
     /**
@@ -89,7 +64,7 @@ trait CentreonRuleTrait
     private function getRepositoryInterfaceName(string $className): ?string
     {
         return preg_match('/(?:^|\\\\)([A-Z][a-zA-Z]+)RepositoryInterface$/', $className, $matches)
-            ? ($matches[1] ?: null) : null;
+            ? $matches[1] : null;
     }
 
     /**
@@ -102,7 +77,11 @@ trait CentreonRuleTrait
     private function fileIsUseCase(string $filename): bool
     {
         $slash = '[/\\\\]';
-        $useCase = preg_quote(preg_replace("#^.*{$slash}(\w+)\.php$#", '$1', $filename), '#');
+        $cleanFilename = preg_replace("#^.*{$slash}(\w+)\.php$#", '$1', $filename);
+        if (is_null($cleanFilename)) {
+            return false;
+        }
+        $useCase = preg_quote($cleanFilename, '#');
         $pattern = '#'
             . "{$slash}UseCase"
             . "{$slash}(\w+{$slash})*{$useCase}"

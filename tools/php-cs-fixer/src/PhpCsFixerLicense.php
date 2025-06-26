@@ -41,7 +41,6 @@ class PhpCsFixerLicense
         'centreon/centreon-mbi' => self::LICENSE_PRIVATE,
         'centreon/centreon-pp-manager' => self::LICENSE_PRIVATE,
     ];
-
     private const LICENCE_TEMPLATES_DIR = __DIR__ . '/../templates/';
 
     /**
@@ -124,7 +123,7 @@ class PhpCsFixerLicense
         try {
             $composerContent = (string) file_get_contents($composerFile);
             $composerData = json_decode($composerContent, true, 512, JSON_THROW_ON_ERROR);
-            $projectName = $composerData['name'] ?? null;
+            $projectName = is_array($composerData) ? $composerData['name'] ?? null : null;
 
             if ($projectName && isset(self::LICENSES[$projectName])) {
                 return self::LICENSES[$projectName];

@@ -3,9 +3,8 @@
   "version": "25.07",
   "description": "Centreon - Tools for development",
   "require": {
-    "php": "8.2"
-  },
-  "require-dev": {
+    "php": "8.2",
+    "ext-mbstring": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "maglnet/composer-require-checker": "4.16.*",
@@ -13,7 +12,7 @@
     "phpstan/phpstan-beberlei-assert": "1.1.*",
     "phpstan/phpstan-mockery": "1.1.*"
   },
-  "autoload-dev": {
+  "autoload": {
     "psr-4": {
       "Tools\\PhpStan\\": "phpstan/src/",
       "Tools\\PhpCsFixer\\": "php-cs-fixer/src/"
@@ -30,5 +29,11 @@
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  },
+  "scripts": {
+    "require:check": "composer-require-checker check composer.json",
+    "phpcsfixer:tools": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --dry-run --diff",
+    "phpcsfixer:tools:fix": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --diff",
+    "phpstan:tools": "phpstan analyse -c phpstan.tools.neon --memory-limit=512M"
   }
 }
