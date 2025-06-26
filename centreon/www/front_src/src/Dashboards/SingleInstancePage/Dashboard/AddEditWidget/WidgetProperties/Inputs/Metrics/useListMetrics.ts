@@ -29,7 +29,6 @@ import {
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
-import { buildResourceTypeNameForSearchParameter } from '../utils';
 
 interface Props {
   resources: Array<WidgetDataResource>;
