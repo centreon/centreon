@@ -41,13 +41,15 @@ class EasyVistaRestProvider extends AbstractProvider
     public const ARG_CATALOG_GUID = 13;
     public const ARG_CATALOG_CODE = 14;
     public const ARG_CUSTOM_EZV = 15;
+    public const ARG_REQUESTOR_MAIL = 17;
+    public const ARG_RECIPIENT_MAIL = 18;
     
 
     protected $internal_arg_name = [
         self::ARG_TITLE => 'title',
         self::ARG_URGENCY_ID => 'urgency',
-        self::ARG_REQUESTOR_NAME => 'requestor',
-        self::ARG_RECIPIENT_NAME => 'recipient',
+        self::ARG_REQUESTOR_NAME => 'requestor_name',
+        self::ARG_RECIPIENT_NAME => 'recipient_name',
         self::ARG_PHONE => 'phone',
         self::ARG_ORIGIN => 'origin',
         self::ARG_IMPACT_ID => 'impact',
@@ -55,13 +57,17 @@ class EasyVistaRestProvider extends AbstractProvider
         self::ARG_DEPARTMENT_CODE => 'department',
         self::ARG_CI_NAME => 'CI',
         self::ARG_ASSET_NAME => 'asset',
-        self::ARG_LOCATION_CODE => 'requester',
+        self::ARG_LOCATION_CODE => 'location_code',
         self::ARG_CATALOG_GUID => 'catalog_guid',
-        self::ARG_CATALOG_CODE => 'catalog_code'
+        self::ARG_CATALOG_CODE => 'catalog_code',
+        self::ARG_REQUESTOR_MAIL => 'requestor_mail',
+        self::ARG_RECIPIENT_MAIL => 'recipient_mail'
     ];  
 
     /*
     * Set default values for our rule form options
+    *
+    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -129,7 +135,15 @@ class EasyVistaRestProvider extends AbstractProvider
             ],
             [
                 'Arg' => self::ARG_CATALOG_CODE,
-                'Value' => '{$select.ezv_catalog_code.id}'
+                'Value' => '{$select.ezv_catalog_code.value}'
+            ],
+            [
+                'Arg' => self::ARG_REQUESTOR_MAIL,
+                'Value' => '{$select.ezv_requestor_mail.id}'
+            ],
+            [
+                'Arg' => self::ARG_RECIPIENT_MAIL,
+                'Value' => '{$select.ezv_recipient_mail.id}'
             ]
         ];
     }
@@ -137,7 +151,7 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return void
+    * @return {void}
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -188,6 +202,8 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
+    * @return {void}
+    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -212,6 +228,8 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and let Smarty display it in the rule form
+    *
+    * @return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -248,7 +266,6 @@ class EasyVistaRestProvider extends AbstractProvider
             'token' => ['label' => _('Bearer token or account password') . $this->required_field, 'html' => $token_html],
             'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html],
             'use_token' => ['label' => _('Use token'), 'html' => $use_token_html],
-            //we add a key to our array
             'mappingTicketLabel' => ['label' => _('Mapping ticket arguments')],
         ];
 
@@ -261,8 +278,8 @@ class EasyVistaRestProvider extends AbstractProvider
             'name="mappingTicketArg[#index#]" type="select-one">' .
             '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>' .
             '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency') . '</option>' .
-            '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requester') . '</option>' .
-            '<option value="' . self::ARG_RECIPIENT_NAME . '">' ._('Recipient') . '</option>' .
+            '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requester Name') . '</option>' .
+            '<option value="' . self::ARG_RECIPIENT_NAME . '">' ._('Recipient Name') . '</option>' .
             '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</option>' .
             '<option value="' . self::ARG_ORIGIN . '">' ._('Origin') . '</option>' .
             '<option value="' . self::ARG_IMPACT_ID . '">' . _('Impact') . '</option>' .
@@ -274,6 +291,8 @@ class EasyVistaRestProvider extends AbstractProvider
             '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</option>' .
             '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog code') . '</option>' .
             '<option value="' . self::ARG_CUSTOM_EZV . '">' ._('Custom Field') . '</option>' .
+            '<option value="' . self::ARG_REQUESTOR_MAIL . '">' . _('Requester Mail') . '</option>' .
+            '<option value="' . self::ARG_RECIPIENT_MAIL . '">' ._('Recipient Mail') . '</option>' .
             '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
@@ -290,6 +309,8 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
+    *
+    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -405,7 +426,7 @@ class EasyVistaRestProvider extends AbstractProvider
         // initiate a result array
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
-        // Smarty template initialization
+        // initiate smarty variables
         $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, 'providers/Abstract/templates');
 
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
@@ -557,7 +578,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]])) {
-            $info['data']['requests'][0]['requester_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]];
+            $info['data']['requests'][0]['requestor_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]];
         }
 
         if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_NAME]])) {
@@ -590,6 +611,14 @@ class EasyVistaRestProvider extends AbstractProvider
 
         if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]])) {
             $info['data']['requests'][0]['location_code'] = $ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]];
+        }
+
+        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_MAIL]])) {
+            $info['data']['requests'][0]['requestor_mail'] = $ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_MAIL]];
+        }
+
+        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_MAIL]])) {
+            $info['data']['requests'][0]['recipient_mail'] = $ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_MAIL]];
         }
 
         foreach ($ticketArguments as $id => $value) {
@@ -637,7 +666,7 @@ class EasyVistaRestProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return void
+    * @return {void}
     */
     public function closeTicket(&$tickets): void
     {
@@ -645,10 +674,14 @@ class EasyVistaRestProvider extends AbstractProvider
             foreach ($tickets as $k => $v) {
                 try {
                     $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 2;
+                    $tickets[$k]['status'] = 1;
                 } catch (\Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
+                    if ($this->doCloseTicketContinueOnError()) {
+                        $tickets[$k]['status'] = 1;
+                    } else {
+                        $tickets[$k]['status'] = -1;
+                        $tickets[$k]['msg_error'] = $e->getMessage();
+                    }
                 }
             }
         } else {
