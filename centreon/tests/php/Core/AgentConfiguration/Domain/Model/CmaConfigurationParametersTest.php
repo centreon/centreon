@@ -39,7 +39,11 @@ beforeEach(function (): void {
                 'address' => '0.0.0.0',
                 'port' => 442,
                 'poller_ca_certificate' => 'poller_certif',
-                'poller_ca_name' => 'ca_name'
+                'poller_ca_name' => 'ca_name',
+                'token' => [
+                    'name' => 'tokenName',
+                    'creator_id' => 1,
+                ],
             ]
         ]
     ];

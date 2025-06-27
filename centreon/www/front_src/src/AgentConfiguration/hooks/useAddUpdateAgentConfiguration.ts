@@ -100,7 +100,15 @@ const adaptCMAConfigurationToAPI = (
         poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
         poller_ca_certificate: getFieldBasedOnCertificate(
           host.pollerCaCertificate
-        )
+        ),
+        token:
+          equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+          !configuration.isReverse
+            ? null
+            : {
+                name: host?.token?.name,
+                creator_id: host?.token?.creatorId
+              }
       }))
     }
   };

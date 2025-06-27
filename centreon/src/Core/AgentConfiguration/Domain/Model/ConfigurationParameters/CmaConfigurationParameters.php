@@ -41,6 +41,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *			port: int,
  *			poller_ca_certificate: ?string,
  *			poller_ca_name: ?string,
+ *			token: null|array{name:string,creator_id:int}
  *		}>
  *  }
  */
@@ -104,7 +105,18 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             $parameters['tokens'] = [];
         }
 
-        foreach ($parameters['hosts'] as $host) {
+        foreach ($parameters['hosts'] as $index => $host) {
+            if (
+                $connectionMode !== ConnectionModeEnum::NO_TLS
+                && $parameters['is_reverse'] === true
+            ) {
+                if ($host['token'] !== null) {
+                    Assertion::notEmptyString($host['token']['name'], 'configuration.hosts[].token.name');
+                    Assertion::positiveInt($host['token']['creator_id'], 'configuration.hosts[].token.creator_id');
+                }
+            } else {
+                $parameters['hosts'][$index]['token'] = null;
+            }
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
             $this->validateOptionalCertificate(
