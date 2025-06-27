@@ -42,7 +42,7 @@ abstract readonly class DbalParametersTransformer
      * @param QueryParameters $queryParameters
      *
      * @throws TransformerException
-     * @return array{0: array<string,mixed>, 1: array<string,mixed>}
+     * @return array{0: array<string, mixed>, 1: array<string, DbalParameterType>}
      */
     public static function transformFromQueryParameters(QueryParameters $queryParameters): array
     {
@@ -66,8 +66,8 @@ abstract readonly class DbalParametersTransformer
     }
 
     /**
-     * @param array<string,mixed> $params
-     * @param array<string,mixed> $types
+     * @param array<string, mixed> $params
+     * @param array<string, DbalParameterType> $types
      *
      * @throws TransformerException
      * @return QueryParameters

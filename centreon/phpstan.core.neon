@@ -1,5 +1,5 @@
 includes:
-    - ../tools/phpstan/config/custom-rules.neon
+    - ../tools/phpstan/config/common.neon
 
 # custom rules added only for the src/Core directory
 rules:

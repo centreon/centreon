@@ -81,10 +81,18 @@ final readonly class QueryParameter implements ValueObjectInterface
             default => 'unknown',
         };
 
+        if (is_object($this->value) && method_exists($this->value, '__toString')) {
+            $value = (string) $this->value;
+        } elseif (is_scalar($this->value) || $this->value === null) {
+            $value = (string) $this->value;
+        } else {
+            $value = 'unsupported type';
+        }
+
         return sprintf(
             '{name:"%s",value:"%s",type:"%s"}',
             $this->name,
-            $this->value,
+            $value,
             $type
         );
     }

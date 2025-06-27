@@ -1,8 +1,17 @@
 includes:
-    - ../tools/phpstan/config/custom-rules.neon
+    - ../tools/phpstan/config/common.neon
 
 parameters:
     level: max
+    scanFiles:
+        - .php-cs-fixer.new.php
+        - .php-cs-fixer.core.php
+        - .php-cs-fixer.legacy.src.php
+        - castor.php
+        - rector.php
     paths:
+        - config.new
+        - src/Adaptation
         - src/App
+        #- tests/php/Adaptation // TODO add this folder when the code is ready
         - tests/php/App

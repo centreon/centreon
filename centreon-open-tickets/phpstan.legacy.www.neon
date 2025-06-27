@@ -1,7 +1,7 @@
 parameters:
     level: 3
     scanFiles:
-        - phpstan.stub
+        - ../tools/phpstan/config/centreon.stub
     paths:
         - config
         - packaging

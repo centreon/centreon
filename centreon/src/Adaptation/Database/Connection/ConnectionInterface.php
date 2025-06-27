@@ -413,7 +413,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     * @return \Traversable<int,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);

@@ -1,4 +1,8 @@
+includes:
+    - ../tools/phpstan/config/common.neon
+
 parameters:
     level: max
     paths:
         - src/CentreonOpenTickets
+        - tests/php

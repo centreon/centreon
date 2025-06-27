@@ -603,7 +603,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     * @return \Traversable<int,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
@@ -776,7 +776,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         if (is_object($nativeConnection)) {
             $driverName = match ($nativeConnection::class) {
-                \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
+                \PDO::class => 'pdo_' . $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME),
                 default => '',
             };
             if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
