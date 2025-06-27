@@ -22,6 +22,7 @@ const FormSection = ({ groups }: FormSectionProps) => {
     <Box className="sticky top-0 bg-background-paper z-100">
       <Tabs
         variant="scrollable"
+        scrollButtons={false}
         tabs={tabMemo}
         defaultTab={tabMemo[0].value}
         onChange={navigateToSection}
