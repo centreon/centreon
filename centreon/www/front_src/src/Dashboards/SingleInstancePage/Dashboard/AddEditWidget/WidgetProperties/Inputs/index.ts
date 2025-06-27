@@ -23,3 +23,4 @@ export { default as WidgetColorSelector } from './Color/Color';
 export { default as WidgetTimeFormat } from './TimeFormat/TimeFormat';
 export { default as WidgetDatePicker } from './DatePicker/DatePicker';
 export { default as WidgetWarning } from './Warning';
+export { default as WidgetBoundaries } from './Boundaries';

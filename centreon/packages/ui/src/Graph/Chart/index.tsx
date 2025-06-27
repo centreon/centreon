@@ -70,6 +70,9 @@ const WrapperChart = ({
   getRef,
   transformMatrix,
   additionalLines,
+  min,
+  max,
+  boundariesUnit,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -125,6 +128,9 @@ const WrapperChart = ({
           skipIntersectionObserver={rest.skipIntersectionObserver}
           additionalLines={additionalLines}
           transformMatrix={transformMatrix}
+          min={min}
+          max={max}
+          boundariesUnit={boundariesUnit}
         />
       )}
     </div>

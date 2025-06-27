@@ -22,7 +22,15 @@ import WrapperChart from '.';
 interface Props
   extends Pick<
     LineChartProps,
-    'legend' | 'tooltip' | 'axis' | 'lineStyle' | 'barStyle' | 'additionalLines'
+    | 'legend'
+    | 'tooltip'
+    | 'axis'
+    | 'lineStyle'
+    | 'barStyle'
+    | 'additionalLines'
+    | 'min'
+    | 'max'
+    | 'boundariesUnit'
   > {
   data?: LineChartData;
 }
@@ -69,7 +77,10 @@ const initialize = ({
   axis,
   lineStyle,
   barStyle,
-  additionalLines
+  additionalLines,
+  min,
+  max,
+  boundariesUnit
 }: Props): void => {
   cy.adjustViewport();
 
@@ -93,6 +104,9 @@ const initialize = ({
           barStyle={barStyle}
           tooltip={tooltip}
           additionalLines={additionalLines}
+          min={min}
+          max={max}
+          boundariesUnit={boundariesUnit}
         />
       </Provider>
     )
@@ -165,7 +179,7 @@ describe('Line chart', () => {
 
       cy.contains('06/18/2023').should('be.visible');
 
-      cy.contains('0.45 s').should('be.visible');
+      cy.contains('0.4 s').should('be.visible');
       cy.contains('73.65%').should('be.visible');
 
       cy.makeSnapshot();
@@ -188,12 +202,12 @@ describe('Line chart', () => {
       cy.get('[data-metric="connTime"]').should(
         'have.attr',
         'data-highlight',
-        'false'
+        'true'
       );
       cy.get('[data-metric="hitratio"]').should(
         'have.attr',
         'data-highlight',
-        'true'
+        'false'
       );
 
       cy.makeSnapshot();
@@ -437,7 +451,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 241.23251487506278)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 198.7929601526369)"]').should(
         'be.visible'
       );
 
@@ -451,8 +465,8 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.contains('0.9').should('be.visible');
-      cy.contains('-0.9').should('be.visible');
+      cy.contains('0.8').should('be.visible');
+      cy.contains('-0.8').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -519,7 +533,7 @@ describe('Line chart', () => {
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="250.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="52.90739222860398"]').should('be.visible');
+      cy.get('circle[cy="246.2421135204699"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -733,10 +747,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,273.1948717814711 h56.51239669421488 h1v1 v100.80512821852892 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.80512821852892 v-1h1z"]'
-    ).should('be.visible');
+      'path[d="M7.501377410468319,278.09035407759154 h56.51239669421488 h1v1 v95.90964592240846 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-95.90964592240846 v-1h1z'
+    );
     cy.get(
-      'path[d="M24.05509641873278,218.2484747081302 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.83895905681195 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.83895905681195 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M24.05509641873278,225.7604521029811 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v17.222463958081512 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-17.222463958081512 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -760,6 +774,45 @@ describe('Lines and bars', () => {
     cy.contains('some text').should('be.visible');
     cy.findByTestId('pink-3').should('exist');
     cy.findByTestId('red-0.15').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays graph according to min and max boundaries', () => {
+    initialize({
+      data: dataPingServiceLines,
+      min: 0.01,
+      max: 0.1
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+
+    cy.contains('0.1 ms').should('be.visible');
+    cy.contains('0.1%').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays graph according to min and max boundaries for a unit', () => {
+    initialize({
+      data: dataPingServiceLines,
+      min: 0.01,
+      max: 0.1,
+      boundariesUnit: 'ms'
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+
+    cy.contains('0.1 ms').should('be.visible');
+    cy.contains('2%').should('be.visible');
 
     cy.makeSnapshot();
   });
