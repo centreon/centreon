@@ -1,4 +1,4 @@
-import { type MutableRefObject, memo, useEffect, useRef } from 'react';
+import { RefCallback, memo, useEffect } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -8,11 +8,10 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-
-import { ParentSize } from '../..';
 import Loading from '../../LoadingSkeleton';
 import type { LineChartData, Thresholds } from '../common/models';
 
+import useResizeObserver from 'use-resize-observer';
 import Chart from './Chart';
 import { useChartStyles } from './Chart.styles';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -32,7 +31,7 @@ interface Props extends Partial<LineChartProps> {
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  getRef?: (ref: MutableRefObject<HTMLDivElement | null>) => void;
+  getRef?: (ref: RefCallback<Element>) => void;
   containerStyle?: string;
 }
 
@@ -70,11 +69,15 @@ const WrapperChart = ({
   const { classes, cx } = useChartStyles();
 
   const { adjustedData } = useChartData({ data, end, start });
-  const lineChartRef = useRef<HTMLDivElement | null>(null);
+  const {
+    ref,
+    width: responsiveWidth,
+    height: responsiveHeight
+  } = useResizeObserver();
 
   useEffect(() => {
-    getRef?.(lineChartRef);
-  }, [lineChartRef?.current]);
+    getRef?.(ref);
+  }, [ref?.current]);
 
   if (loading && !adjustedData) {
     return (
@@ -85,29 +88,22 @@ const WrapperChart = ({
     );
   }
 
-  if (!adjustedData) {
-    return <Loading height={height} width={width} />;
-  }
-
   return (
     <div
-      ref={lineChartRef as MutableRefObject<HTMLDivElement>}
+      ref={ref}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
-      <ParentSize>
-        {({
-          height: responsiveHeight,
-          width: responsiveWidth
-        }): JSX.Element => {
-          return (
-            <Chart
+      {!responsiveHeight ? (
+        <Loading height={height || '100%'} width={width} />
+      ) : (
+        <Chart
               annotationEvent={annotationEvent}
               axis={axis}
               barStyle={barStyle}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
-              graphRef={lineChartRef}
+              graphRef={ref}
               header={header}
               height={height || responsiveHeight}
               legend={legend}
@@ -118,12 +114,10 @@ const WrapperChart = ({
               thresholds={thresholds}
               timeShiftZones={timeShiftZones}
               tooltip={tooltip}
-              width={width ?? responsiveWidth}
+              width={width || responsiveWidth || 0}
               zoomPreview={zoomPreview}
             />
-          );
-        }}
-      </ParentSize>
+      )}
     </div>
   );
 };
