@@ -37,6 +37,7 @@ use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Pimple\Container;
+use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -88,6 +89,10 @@ abstract class AbstractObject
     /** @var null|ReadVaultRepositoryInterface */
     protected $readVaultRepository = null;
 
+    protected Kernel $kernel;
+
+    public EncryptionInterface $engineContextEncryption;
+
     /**
      * Get Centreon Vault Configuration Status
      *
@@ -98,15 +103,14 @@ abstract class AbstractObject
      */
     public function getVaultConfigurationStatus(): void
     {
-        $kernel = Kernel::createForWeb();
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        $readVaultConfigurationRepository = $this->kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
-        $featureFlag = $kernel->getContainer()->get(FeatureFlags::class);
+        $featureFlag = $this->kernel->getContainer()->get(FeatureFlags::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
             $this->isVaultEnabled = true;
-            $this->readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+            $this->readVaultRepository = $this->kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         }
     }
 
@@ -139,8 +143,29 @@ abstract class AbstractObject
      */
     protected function __construct(Container $dependencyInjector)
     {
+        $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        if ($engineContext === false) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
+            );
+        }
+        try {
+            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
+        } catch (\JsonException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
+                exception: $ex
+            );
+
+            throw $ex;
+        }
     }
 
     /**

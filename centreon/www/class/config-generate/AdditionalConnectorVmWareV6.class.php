@@ -65,7 +65,14 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     {
         $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
+        $statement = $this->backend->db->prepare(<<<SQL
+            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+            SQL
+        );
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
 
+        $shouldBeEncrypted = (bool) $statement->fetchColumn();
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
         $object = (object) [];
         if ($additionalConnectorsVMWareV6 !== null) {
@@ -101,8 +108,12 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                     fn(VSphereServer $vSphereServer): array => [
                         'name' => $vSphereServer->getName(),
                         'url' => $vSphereServer->getUrl(),
-                        'username' => $vSphereServer->getUsername(),
-                        'password' => $vSphereServer->getPassword()
+                        'username' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getUsername())
+                            : 'raw::' . $vSphereServer->getUsername(),
+                        'password' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
+                            : 'raw::' . $vSphereServer->getPassword()
                     ],
                     $vmWareConfig->getVSphereServers()
                 ),

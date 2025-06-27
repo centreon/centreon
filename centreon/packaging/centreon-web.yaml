@@ -25,6 +25,9 @@ contents:
       group: "centreon"
       mode: 0664
 
+  - dst: "/etc/centreon-engine/engine-context.json"
+    type: ghost
+
   - src: "./src/instCentWeb.conf"
     dst: "/etc/centreon/instCentWeb.conf"
     file_info:

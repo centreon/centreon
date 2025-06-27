@@ -206,6 +206,7 @@ class Engine extends AbstractObject
         'log_level_process',
         'log_level_runtime',
         'broker_module_cfg_file',
+        'credentials_encryption'
     ];
     /** @var string[] */
     protected $attributes_default = [
@@ -394,6 +395,26 @@ class Engine extends AbstractObject
                 : '0';
     }
 
+
+    /**
+     * Insert encryption ready in engine configuration.
+     *
+     * @param int $pollerId
+     *
+     * @throws PDOException
+     */
+    private function setEncryptionReady(int $pollerId): void
+    {
+        $statement = $this->backend_instance->db->prepare(<<<SQL
+            SELECT is_encryption_ready FROM nagios_server WHERE id = :pollerId
+            SQL
+        );
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
+        $result = $statement->fetchColumn();
+        $this->engine['credentials_encryption'] = (int) $result;
+    }
+
     /**
      * @param $poller_id
      *
@@ -429,6 +450,7 @@ class Engine extends AbstractObject
         $this->setLoggerCfg();
         $this->getBrokerModules();
         $this->getIntervalLength();
+        $this->setEncryptionReady((int) $poller_id);
 
         $object = $this->engine;
 

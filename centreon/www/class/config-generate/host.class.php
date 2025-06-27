@@ -34,6 +34,10 @@
  *
  */
 
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+
 require_once __DIR__ . '/abstract/host.class.php';
 require_once __DIR__ . '/abstract/service.class.php';
 
@@ -56,13 +60,13 @@ class Host extends AbstractHost
     protected $generate_filename = 'hosts.cfg';
     /** @var string */
     protected string $object_name = 'host';
-    /** @var null */
+    /** @var null|\PDOStatement */
     protected $stmt_hg = null;
-    /** @var null */
+    /** @var null|\PDOStatement */
     protected $stmt_parent = null;
-    /** @var null */
+    /** @var null|\PDOStatement */
     protected $stmt_service = null;
-    /** @var null */
+    /** @var null|\PDOStatement */
     protected $stmt_service_sg = null;
     /** @var array */
     protected $generated_parentship = [];
@@ -128,11 +132,12 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param Macro[] $serviceMacros
      *
      * @return void
      * @throws PDOException
      */
-    private function getServices(&$host): void
+    private function getServices(&$host, array $serviceMacros, array $serviceTemplateMacros): void
     {
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare("SELECT
@@ -147,7 +152,13 @@ class Host extends AbstractHost
 
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_cache'] as $service_id) {
-            $service->generateFromServiceId($host['host_id'], $host['host_name'], $service_id);
+            $service->generateFromServiceId(
+                $host['host_id'],
+                $host['host_name'],
+                $service_id,
+                serviceMacros: $serviceMacros,
+                serviceTemplateMacros: $serviceTemplateMacros
+            );
         }
     }
 
@@ -543,6 +554,7 @@ class Host extends AbstractHost
     /**
      * @param $host
      * @param $generateConfigurationFile
+     * @param Macro[] $hostTemplateMacros
      *
      * @return void
      * @throws LogicException
@@ -550,14 +562,11 @@ class Host extends AbstractHost
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    public function processingFromHost(&$host, $generateConfigurationFile = true): void
+    public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
     {
         $this->getImages($host);
-        $this->getMacros($host);
-        $host['macros']['_HOST_ID'] = $host['host_id'];
-
         $this->getHostTimezone($host);
-        $this->getHostTemplates($host, $generateConfigurationFile);
+        $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
         $this->getHostCommands($host);
         $this->getHostPeriods($host);
         $this->getContactGroups($host);
@@ -585,19 +594,18 @@ class Host extends AbstractHost
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    public function generateFromHostId(&$host): void
+    public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
     {
-        $this->processingFromHost($host);
-
-        $this->getServices($host);
+        $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
+        $this->formatMacros($host, $hostMacros);
+        $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
         $this->getServicesByHg($host);
-
         $this->generateObjectInFile($host, $host['host_id']);
         $this->addGeneratedHost($host['host_id']);
     }
 
     /**
-     * @param $poller_id
+     * @param $pollerId
      * @param $localhost
      *
      * @return void
@@ -606,18 +614,26 @@ class Host extends AbstractHost
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      */
-    public function generateFromPollerId($poller_id, $localhost = 0): void
+    public function generateFromPollerId($pollerId, $localhost = 0): void
     {
         if (is_null($this->hosts)) {
-            $this->getHosts($poller_id);
+            $this->getHosts($pollerId);
         }
 
-        Service::getInstance($this->dependencyInjector)->set_poller($poller_id);
+        Service::getInstance($this->dependencyInjector)->set_poller($pollerId);
 
+        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
+        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
+        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
+        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
+        $hostMacros = $readHostMacroRepository->findHostsMacrosWithEncryptionReady($pollerId);
+        $hostTemplateMacros = $readHostMacroRepository->findHostTemplatesMacrosWithEncryptionReady($pollerId);
+        $serviceMacros = $readServiceMacroRepository->findServicesMacrosWithEncryptionReady($pollerId);
+        $serviceTemplateMacros = $readServiceMacroRepository->findServiceTemplatesMacrosWithEncryptionReady($pollerId);
         foreach ($this->hosts as $host_id => &$host) {
             $this->hosts_by_name[$host['host_name']] = $host_id;
             $host['host_id'] = $host_id;
-            $this->generateFromHostId($host);
+            $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
         }
 
         if ($localhost == 1) {

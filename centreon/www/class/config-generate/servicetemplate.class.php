@@ -195,7 +195,7 @@ class ServiceTemplate extends AbstractService
      * @return mixed|null
      * @throws PDOException
      */
-    public function generateFromServiceId($service_id)
+    public function generateFromServiceId($service_id, $serviceTemplateMacros)
     {
         if (is_null($service_id)) {
             return null;
@@ -212,7 +212,7 @@ class ServiceTemplate extends AbstractService
             if (!isset($this->loop_tpl[$service_id])) {
                 $this->loop_tpl[$service_id] = 1;
                 // Need to go in only to check servicegroup <-> stpl link
-                $this->getServiceTemplates($this->service_cache[$service_id]);
+                $this->getServiceTemplates($this->service_cache[$service_id], $serviceTemplateMacros);
                 $this->getServiceGroups($service_id);
             }
             return $this->service_cache[$service_id]['name'];
@@ -225,7 +225,7 @@ class ServiceTemplate extends AbstractService
         $this->loop_tpl[$service_id] = 1;
 
         $this->getImages($this->service_cache[$service_id]);
-        $this->getMacros($this->service_cache[$service_id]);
+        $this->formatMacros($this->service_cache[$service_id], $serviceTemplateMacros);
         $this->getServiceTemplates($this->service_cache[$service_id]);
         $this->getServiceCommands($this->service_cache[$service_id]);
         $this->getServicePeriods($this->service_cache[$service_id]);

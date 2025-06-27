@@ -167,6 +167,7 @@ $template->display('content.tpl');
                     if (data['next']) {
                         nextStep(data['current'], data['next']);
                     } else {
+                        generateEngineContextConfiguration();
                         generationCache();
                     }
                 } else {
@@ -174,6 +175,32 @@ $template->display('content.tpl');
                     jQuery('#refresh').show();
                 }
             });
+    }
+
+    function generateEngineContextConfiguration() {
+      stepContent.append('<tr>');
+      stepContent.append('<td>Engine Context Configuration Creation</td>');
+      stepContent.append(
+        '<td style="font-weight: bold;" name="engine.context"><img src="../img/misc/ajax-loader.gif"></td>'
+      );
+      stepContent.append('</tr>');
+      doProcess(
+        true,
+        './steps/process/createEngineContextConfiguration.php',
+        null,
+        function (response) {
+        let data = jQuery.parseJSON(response);
+          if (data['result'] === 0) {
+            jQuery('td[name="engine.context"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
+            jQuery('#troubleshoot').hide();
+            jQuery('#next').show();
+            result = true;
+          } else {
+            jQuery('td[name="engine.context"]').html("<span style='color:red;'>" + data['msg'] + '</span>');
+            jQuery('#refresh').show();
+          }
+        }
+      )
     }
 
     function generationCache() {

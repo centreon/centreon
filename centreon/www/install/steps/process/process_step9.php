@@ -41,8 +41,9 @@ require_once __DIR__ . '/../../../include/common/vault-functions.php';
 use App\Kernel;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\Dotenv\Dotenv;
-
+use Symfony\Component\Filesystem\Filesystem;
 
 $step = new \CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
@@ -69,8 +70,8 @@ try {
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
     $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
     $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
+    $kernel = Kernel::createForWeb();
     if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
-        $kernel = Kernel::createForWeb();
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
         $databaseVaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
@@ -84,6 +85,16 @@ try {
             }
         }
     }
+
+    /** @var EncryptionInterface $encryption */
+    $encryption = $kernel->getContainer()->get(EncryptionInterface::class);
+    $engineContext = [
+        'app_secret' => $_ENV['APP_SECRET'],
+        'salt' => $encryption->generateRandomString(),
+    ];
+
+    $fileSystem = new Filesystem();
+    $fileSystem->dumpFile('/etc/centreon-engine/engine-context.json', json_encode($engineContext));
 
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
         . '/install-' . $version . '-' . date('Ymd_His');

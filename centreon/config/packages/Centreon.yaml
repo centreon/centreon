@@ -555,6 +555,14 @@ services:
         class: CentreonNotification\Domain\Repository\DependencyRepository
         public: true
 
+    Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadServiceMacroRepository
+        public: true
+
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:

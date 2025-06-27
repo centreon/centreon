@@ -366,6 +366,7 @@ function duplicateServer(array $server, array $nbrDup): void
         $rowServer["ns_activate"] = '0';
         $rowServer["is_default"] = '0';
         $rowServer["localhost"] = '0';
+        $rowServer["is_encryption_ready"] = '0';
         $result->closeCursor();
 
         if (!isset($rowServer['name'])) {
@@ -522,7 +523,6 @@ function insertServerInDB(array $data): int
 function insertServer(array $data): int
 {
     global $pearDB, $centreon;
-
     $retValue = [];
     $rq = "INSERT INTO `nagios_server` (`name` , `localhost`, `ns_ip_address`, `ssh_port`, " .
         "`gorgone_communication_type`, `gorgone_port`, `nagios_bin`, `nagiostats_bin`, " .
@@ -530,7 +530,7 @@ function insertServer(array $data): int
         "`init_script_centreontrapd`, `snmp_trapd_path_conf`, " .
         "`nagios_perfdata` , `broker_reload_command`, " .
         "`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, " .
-        "`is_default`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ";
+        "`is_default`, `is_encryption_ready`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ";
     $rq .= "VALUES (";
 
     if (isset($data["name"]) && $data["name"] != null) {
@@ -659,6 +659,11 @@ function insertServer(array $data): int
         $retValue[':is_default'] = htmlentities(trim($data["is_default"]["is_default"]), ENT_QUOTES, "UTF-8");
     } else {
         $rq .= "NULL, ";
+    }
+    if (isset($data["is_encryption_ready"]) && $data["is_encryption_ready"] !== '0') {
+        $rq .= "'1', ";
+    } else {
+        $rq .="'0', ";
     }
     if (isset($data["ns_activate"]["ns_activate"]) && $data["ns_activate"]["ns_activate"] != 2) {
         $rq .= ':ns_activate, ';
@@ -981,6 +986,12 @@ function updateServer(int $id, array $data): void
         $retValue[':isDefault'] = (int)$data["is_default"]['is_default'];
     } else {
         $rq .= "0, ";
+    }
+    $rq .= "`is_encryption_ready` = ";
+    if (isset($data["is_encryption_ready"]) && $data["is_encryption_ready"] === '1') {
+        $rq .= "'1', ";
+    } else {
+        $rq .= "'0', ";
     }
     $rq .= "`centreonbroker_logs_path` = ";
     if (isset($data["centreonbroker_logs_path"]) && $data["centreonbroker_logs_path"] != null) {

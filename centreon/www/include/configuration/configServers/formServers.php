@@ -215,6 +215,9 @@ if (strcmp($serverType, 'poller') == 0) {
     $tab[] = $form->createElement('radio', 'remote_server_use_as_proxy', null, _("Disable"), '0');
     $form->addGroup($tab, 'remote_server_use_as_proxy', _("Use the Remote Server as a proxy"), '&nbsp;');
 }
+
+$form->addElement('checkbox', 'is_encryption_ready', _('Is Encryption Ready ?'));
+
 $form->addElement('text', 'nagios_bin', _("Monitoring Engine Binary"), $attrsText2);
 $form->addElement('text', 'nagiostats_bin', _("Monitoring Engine Statistics Binary"), $attrsText2);
 $form->addElement('text', 'nagios_perfdata', _("Perfdata file"), $attrsText2);
@@ -252,6 +255,8 @@ $tab = [];
 $tab[] = $form->createElement('radio', 'is_default', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'is_default', null, _("No"), '0');
 $form->addGroup($tab, 'is_default', _("Is default poller ?"), '&nbsp;');
+
+
 
 $tab = [];
 $tab[] = $form->createElement('radio', 'ns_activate', null, _("Enabled"), '1');
@@ -319,6 +324,7 @@ if (isset($_GET["o"]) && $_GET["o"] == SERVER_ADD) {
             "engine_reload_command" => $monitoring_engines["engine_reload_command"],
             "ns_activate" => '1',
             "is_default" => '0',
+            "is_encryption_ready" => '0',
             "ssh_port" => 22,
             "gorgone_communication_type" => ZMQ,
             "gorgone_port" => 5556,
