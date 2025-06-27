@@ -83,6 +83,9 @@ parameters:
                 - src/Core/Contact/Infrastructure/Repository
                 - src/Core/Resources/Infrastructure
                 - src/Core/Security/AccessGroup/Infrastructure/Repository
+                - src/Core/HostCategory/Infrastructure/Repository/DbReadRealTimeHostCategoryRepository.php
+                - src/Core/HostGroup/Infrastructure/Repository/DbReadRealTimeHostGroupRepository.php
+                - src/Core/Tag/RealTime/Infrastructure/Repository/Tag/DbReadTagRepository.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

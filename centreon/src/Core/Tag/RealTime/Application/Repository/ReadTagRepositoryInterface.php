@@ -63,4 +63,20 @@ interface ReadTagRepositoryInterface
      * @return Tag[]
      */
     public function findAllByResourceAndTypeId(int $id, int $parentId, int $typeId): array;
+
+    /**
+     * @param int $typeId
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function existsByTypeIdAndName(int $typeId, string $name): bool;
+
+    /**
+     * @param int $typeId
+     * @param array<int, string> $names
+     *
+     * @return Tag[]
+     */
+    public function findAllByTypeIdAndNames(int $typeId, array $names): array;
 }

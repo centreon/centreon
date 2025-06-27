@@ -1,0 +1,164 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Core\HostGroup\Infrastructure\Repository;
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\HostGroup\Application\Repository\ReadRealTimeHostGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+
+final class DbReadRealTimeHostGroupRepository extends DatabaseRepository implements ReadRealTimeHostGroupRepositoryInterface
+{
+    use SqlMultipleBindTrait;
+
+    public function exists(int $hostGroupId): bool
+    {
+        try {
+            $query = $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:dbstg`.tag
+                    INNER JOIN `:db`.hostgroup
+                        ON tag.id = hostgroup.hg_id
+                    WHERE hostgroup.hg_activate = '1'
+                        AND tag.id = :hostGroupId
+                        AND tag.type = 1
+                    SQL
+            );
+
+            return (bool) $this->connection->fetchOne(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', $hostGroupId)]),
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw new RepositoryException(
+                message: "Error while checking hostgroup existence: {$exception->getMessage()}",
+                context: ['host_group_id' => $hostGroupId],
+                previous: $exception
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $hostGroupId, array $accessGroups): bool
+    {
+        if ([] === $accessGroups) {
+            return false;
+        }
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups,
+        );
+
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+            return true;
+        }
+
+        try {
+            $query = $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:dbstg`.tag
+                    INNER JOIN `:db`.hostgroup
+                        ON tag.id = hostgroup.hg_id
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON hg.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    WHERE hostgroup.hg_activate = '1'
+                        AND tag.id = :hostGroupId
+                        AND tag.type = 1
+                    SQL
+            );
+
+            return (bool) $this->connection->fetchOne(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', $hostGroupId)]),
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw new RepositoryException(
+                message: "Error while checking hostgroup existence by access groups: {$exception->getMessage()}",
+                context: [
+                    'host_group_id' => $hostGroupId,
+                    'access_groups' => $accessGroupIds,
+                ],
+                previous: $exception
+            );
+        }
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        if ($accessGroupIds === []) {
+            return false;
+        }
+
+        $bindParams = $this->createMultipleBindParameters(
+            $accessGroupIds,
+            'access_group_id',
+            QueryParameterTypeEnum::INTEGER
+        );
+
+        $query = $this->translateDbName(
+            <<<SQL
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindParams['placeholderList']})
+                SQL
+        );
+
+        $queryParameters = QueryParameters::create($bindParams['parameters']);
+
+        while (($hasAccessToAll = (bool) $this->connection->fetchFirstColumn($query, $queryParameters)) !== false) {
+            if (true === $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

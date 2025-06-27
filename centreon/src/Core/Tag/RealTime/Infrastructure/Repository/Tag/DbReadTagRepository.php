@@ -28,6 +28,8 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 use Utility\SqlConcatenator;
@@ -42,6 +44,7 @@ use Utility\SqlConcatenator;
 class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -296,6 +299,78 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
         }
 
         return $tags;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByTypeIdAndName(int $typeId, string $name): bool
+    {
+        try {
+            $statement = $this->db->prepare($this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:dbstg`.`tags`
+                    WHERE `tags`.`type` = :type_id
+                        AND `tags`.`name` = :name
+                    SQL
+            ));
+
+            $statement->bindValue(':type_id', $typeId, \PDO::PARAM_INT);
+            $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+
+            $statement->execute();
+
+            return (bool) $statement->fetchColumn();
+        } catch (\Throwable $ex) {
+            throw new RepositoryException(
+                message: "Failed to check if a tag exists by given type and name: {$ex->getMessage()}",
+                context: ['type_id' => $typeId, 'name' => $name],
+                previous: $ex,
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllByTypeIdAndNames(int $typeId, array $names): array
+    {
+        try {
+            if ($names === []) {
+                return [];
+            }
+
+            [$bindValues, $placeholders] = $this->createMultipleBindQuery($names, 'name_', \PDO::PARAM_STR);
+            $statement = $this->db->prepare($this->translateDbName(
+                <<<SQL
+                    SELECT `tags`.`id` AS `id`,
+                        `tags`.`name` AS `name`,
+                        `tags`.`type` AS `type`
+                    FROM `:dbstg`.`tags`
+                    WHERE `tags`.`type` = :type_id
+                        AND `tags`.`name` IN ({$placeholders})
+                    SQL
+            ));
+            $statement->bindValue(':type_id', $typeId, \PDO::PARAM_INT);
+            foreach ($bindValues as $bindName => $bindValue) {
+                $statement->bindValue($bindName, $bindValue, \PDO::PARAM_STR);
+            }
+            $statement->execute();
+            /** @var _tag[] $records */
+            $records = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+            return array_map(
+                fn(array $record): Tag => DbTagFactory::createFromRecord($record),
+                $records
+            );
+        } catch (\Throwable $ex) {
+            throw new RepositoryException(
+                message: "Failed to check if tags exist by type and names: {$ex->getMessage()}",
+                context: ['type' => $typeId, 'names' => $names],
+                previous: $ex,
+            );
+        }
     }
 
     /**
