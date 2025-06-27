@@ -131,11 +131,14 @@ class MailProvider extends AbstractProvider
     {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
+        /**
+         * @phpstan-ignore-next-line
+         * FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
+         */
+        $values = "('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";
+
         try {
-            $db_storage->query(
-                "INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES
-                ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')"
-            );
+            $db_storage->query("INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES {$values}");
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();

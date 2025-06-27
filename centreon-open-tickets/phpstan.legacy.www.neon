@@ -1,9 +1,11 @@
 parameters:
-    level: 2
+    level: 3
     scanFiles:
         - phpstan.stub
-        - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:
+        - config
+        - packaging
+        - widgets
         - www
     ignoreErrors:
         -   # Apparently, the PHPMailer project was partially copied in this project, but the missing dependecies are not used.
@@ -38,14 +40,4 @@ parameters:
                 - "#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$smtp has unknown class PHPMailer\\\\PHPMailer\\\\SMTP as its type\\.$#"
 
         -   # We cannot deal easily with global variables with PHPStan.
-            paths:
-                - www/modules/centreon-open-tickets/views
-                - www/modules/centreon-open-tickets/providers/EasyVistaRest/ajax/call.php
-                - www/modules/centreon-open-tickets/providers/Itop/ajax/call.php
-                - www/modules/centreon-open-tickets/upgrade/
             message: "#^Variable \\$\\w+ might not be defined.$#"
-
-        -
-            message: "#^Variable \\$centreon_path might not be defined\\.$#"
-            count: 1
-            path: www/modules/centreon-open-tickets/class/centreonDBManager.class.php

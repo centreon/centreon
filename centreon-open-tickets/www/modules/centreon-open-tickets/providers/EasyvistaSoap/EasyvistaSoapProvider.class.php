@@ -60,7 +60,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     /** @var string */
     protected $ws_error;
 
-    /** @var null|array */
+    /** @var bool|string */
     protected $soap_result;
 
     /** @var string */
@@ -449,7 +449,7 @@ class EasyvistaSoapProvider extends AbstractProvider
         );
         $this->soap_result = curl_exec($ch);
 
-        if ($this->soap_result == false) {
+        if ($this->soap_result === false) {
             $this->setWsError(curl_error($ch));
             curl_close($ch);
 

@@ -77,10 +77,10 @@ abstract class AbstractProvider
     /** @var array<mixed> */
     protected $save_config = [];
 
-    /** @var int */
+    /** @var int|null */
     protected $widget_id;
 
-    /** @var string */
+    /** @var string|null */
     protected $uniq_id;
 
     /** @var int */
@@ -1598,7 +1598,7 @@ Output: {$service.output|substr:0:1024}
      * @param array<mixed> $extra_args
      * @return void
      */
-    protected function saveHistory($db_storage, &$result, $extra_args = [])
+    protected function saveHistory($db_storage, &$result, $extra_args = []): void
     {
         $default_values = ['contact' => '', 'host_problems' => [], 'service_problems' => [], 'ticket_value' => null, 'subject' => null, 'data_type' => null, 'data' => null, 'no_create_ticket_id' => false];
         foreach ($default_values as $k => $v) {
@@ -1683,7 +1683,6 @@ Output: {$service.output|substr:0:1024}
             $db_storage->rollback();
             $result['ticket_error_message'] = $e->getMessage();
 
-            return $result;
         }
     }
 

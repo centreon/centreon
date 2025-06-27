@@ -72,13 +72,6 @@ class CentreonGMT
     protected $sDefaultTimezone = null;
 
     /**
-     * CentreonGMT constructor
-     */
-    public function __construct()
-    {
-    }
-
-    /**
      * @return int
      */
     public function used()

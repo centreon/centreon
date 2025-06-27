@@ -514,12 +514,10 @@ class Centreon_OpenTickets_Rule
     }
 
     /**
-     * Delete rules
-     *
      * @param array $select
      * @return void
      */
-    public function delete($select)
+    public function delete($select): void
     {
         $query = 'DELETE FROM mod_open_tickets_rule WHERE rule_id IN (';
         $ruleList = '';
@@ -532,7 +530,7 @@ class Centreon_OpenTickets_Rule
         $query .= $ruleList;
         $query .= ')';
         if (! $ruleList) {
-            return null;
+            return;
         }
         $this->_db->query($query);
     }
@@ -677,7 +675,7 @@ class Centreon_OpenTickets_Rule
      * @param int $val
      * @return void
      */
-    protected function _setActivate($select, $val)
+    protected function _setActivate($select, $val): void
     {
         $query = "UPDATE mod_open_tickets_rule SET `activate` = '" . $val . "' WHERE rule_id IN (";
         $ruleList = '';
@@ -694,7 +692,7 @@ class Centreon_OpenTickets_Rule
         $query .= $ruleList;
         $query .= ')';
         if (! $ruleList) {
-            return null;
+            return;
         }
         $this->_db->query($query);
     }

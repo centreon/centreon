@@ -480,7 +480,7 @@ $outputLength = $preferences['output_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);
-$gmt = new CentreonGMT($db);
+$gmt = new CentreonGMT();
 $gmt->getMyGMTFromSession(session_id());
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {

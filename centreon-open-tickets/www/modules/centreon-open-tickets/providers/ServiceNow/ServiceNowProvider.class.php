@@ -351,7 +351,7 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-     * Getan access token
+     * Get an access token
      *
      * @param TokenInfo $info
      * @return array The tokens
@@ -393,7 +393,9 @@ class ServiceNowProvider extends AbstractProvider
      * Refresh the access token
      *
      * @param mixed $refreshToken
-     * @return string The access token
+     *
+     * @throws Exception
+     * @return array<string, mixed> The access token
      */
     protected function refreshToken($refreshToken)
     {
