@@ -46,7 +46,7 @@ if (! file_exists($engineContextPath)) {
 
 // this file should not be erased if it already had a content.
 if (file_get_contents($engineContextPath) === '') {
-    (new Filesystem())->dumpFile($engineContextPath, $engineContext);
+    (new Filesystem())->dumpFile($engineContextPath, json_encode($engineContext));
 }
 
 
