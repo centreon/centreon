@@ -199,10 +199,18 @@ class Broker extends AbstractObjectJSON
      * @throws PDOException
      * @throws RuntimeException
      */
-    private function generate($poller_id, $localhost): void
+    private function generate($pollerId, $localhost): void
     {
         $this->getExternalValues();
 
+        $statement = $this->backend_instance->db->prepare(<<<SQL
+            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+            SQL
+        );
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $shouldBeEncrypted = (bool) $statement->fetchColumn();
         if (is_null($this->stmt_broker)) {
             $this->stmt_broker = $this->backend_instance->db->prepare("
             SELECT $this->attributes_select
@@ -211,10 +219,10 @@ class Broker extends AbstractObjectJSON
             AND config_activate = '1'
             ");
         }
-        $this->stmt_broker->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
+        $this->stmt_broker->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
 
-        $this->getEngineParameters($poller_id);
+        $this->getEngineParameters($pollerId);
 
         if (is_null($this->stmt_broker_parameters)) {
             $this->stmt_broker_parameters = $this->backend_instance->db->prepare("SELECT
@@ -431,6 +439,23 @@ class Broker extends AbstractObjectJSON
             if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
                 foreach ($object['output'] as $outputIndex => $output) {
                     $this->processVaultOutput($output, $outputIndex, $object);
+                }
+            }
+
+            foreach ($object['output'] as &$output) {
+                if (!isset($output['lua_parameters']) || !is_array($output['lua_parameters'])) {
+                    continue;
+                }
+
+                foreach ($output['lua_parameters'] as &$luaParameter) {
+                    if (
+                        isset($luaParameter['type'], $luaParameter['value']) &&
+                        $luaParameter['type'] === 'password' &&
+                        is_string($luaParameter['value']) &&
+                        $shouldBeEncrypted
+                    ) {
+                        $luaParameter['value'] = 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value']);
+                    }
                 }
             }
 

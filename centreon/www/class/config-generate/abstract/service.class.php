@@ -34,6 +34,7 @@
  *
  */
 
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -151,15 +152,35 @@ abstract class AbstractService extends AbstractObject
     }
 
     /**
+     * Format Macros for export.
+     *
+     * @param array<string, mixed> $service
+     * @param MacroDomain[] $serviceMacros
+     *
+     */
+    protected function formatMacros(array &$service, array $serviceMacros)
+    {
+            $service['macros'] = [];
+            foreach ($serviceMacros as $serviceMacro) {
+                if ($serviceMacro->getOwnerId() === $service['service_id']) {
+                    $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->shouldBeEncrypted()
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($serviceMacro->getValue())
+                        : $serviceMacro->getValue();
+                }
+            }
+            $service['macros']['_HOST_ID'] = $service['service_id'];
+    }
+
+    /**
      * @param $service
      *
      * @return void
      * @throws PDOException
      */
-    protected function getServiceTemplates(&$service)
+    protected function getServiceTemplates(&$service, $serviceTemplateMacros = [])
     {
         $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
-            ->generateFromServiceId($service['service_template_model_stm_id'])];
+            ->generateFromServiceId($service['service_template_model_stm_id'], $serviceTemplateMacros)];
     }
 
     /**

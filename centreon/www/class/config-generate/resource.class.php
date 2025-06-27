@@ -52,7 +52,7 @@ class Resource extends AbstractObject
     protected $generate_filename = 'resource.cfg';
     /** @var string */
     protected string $object_name;
-    /** @var null */
+    /** @var null|\PDOStatement */
     protected $stmt = null;
     /** @var string[] */
     protected $attributes_hash = ['resources'];
@@ -89,7 +89,7 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $query = "SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource " .
+            $query = "SELECT resource_name, resource_line, is_password FROM cfg_resource_instance_relations, cfg_resource " .
                 "WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = " .
                 "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
             $this->stmt = $this->backend_instance->db->prepare($query);
@@ -99,7 +99,13 @@ class Resource extends AbstractObject
 
         $object = ['resources' => []];
         $vaultPaths = [];
-        foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+        $isPassword = [];
+
+        $results = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($results as $value) {
+            if ((bool) $value['is_password'] === true) {
+                $isPassword[$value['resource_name']] = true;
+            }
             $object['resources'][$value['resource_name']] = $value['resource_line'];
             if ($this->isAVaultPath($value['resource_line'])) {
                 $vaultPaths[] = $value['resource_line'];
@@ -113,6 +119,12 @@ class Resource extends AbstractObject
                         $object['resources'][$vaultKey] = $vaultValue;
                     }
                 }
+            }
+        }
+
+        foreach ($object['resources'] as $macroKey => &$macroValue) {
+            if (isset($isPassword[$macroKey])) {
+                $macroValue = "encrypt::" . $this->engineContextEncryption->crypt($macroValue);
             }
         }
 

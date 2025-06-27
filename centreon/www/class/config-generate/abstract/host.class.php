@@ -34,6 +34,7 @@
  *
  */
 
+use Core\Macro\Domain\Model\Macro;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -199,13 +200,14 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param array $host
      * @param bool $generate
+     * @param Macro[] $hostTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    protected function getHostTemplates(array &$host, bool $generate = true): void
+    protected function getHostTemplates(array &$host, bool $generate = true, array $hostTemplateMacros = []): void
     {
         if (!isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
@@ -228,9 +230,38 @@ abstract class AbstractHost extends AbstractObject
         $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
         $host['use'] = [];
         foreach ($host['htpl'] as $templateId) {
-            $host['use'][] = $hostTemplate->generateFromHostId($templateId);
+            $host['use'][] = $hostTemplate->generateFromHostId($templateId, $hostTemplateMacros);
         }
     }
+
+    /**
+     * Format Macros for export.
+     *
+     * @param array<string, mixed> $host
+     * @param Macro[] $hostMacros
+     *
+     */
+    protected function formatMacros(array &$host, array $hostMacros)
+    {
+            $host['macros'] = [];
+            foreach ($hostMacros as $hostMacro) {
+                if ($hostMacro->getOwnerId() === $host['host_id']) {
+                    $host['macros']['_' . $hostMacro->getName()] = $hostMacro->shouldBeEncrypted()
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($hostMacro->getValue())
+                        : $hostMacro->getValue();
+                }
+            }
+            if (isset($host['host_snmp_community'])) {
+                $host['macros']['_SNMPCOMMUNITY'] = $hostMacros[0]?->shouldBeEncrypted()
+                    ? 'encrypt::' . $this->engineContextEncryption->crypt($host['host_snmp_community'])
+                    : $host['host_snmp_community'];
+            }
+            $host['macros']['_HOST_ID'] = $host['host_id'];
+            if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
+                $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
+            }
+    }
+
 
     /**
      * @param array $host (passing by Reference)

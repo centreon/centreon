@@ -89,7 +89,7 @@ abstract class AbstractObject
     /** @var null|ReadVaultRepositoryInterface */
     protected $readVaultRepository = null;
 
-    private Kernel $kernel;
+    protected Kernel $kernel;
 
     public EncryptionInterface $engineContextEncryption;
 

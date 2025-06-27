@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Macro\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 
@@ -36,18 +38,13 @@ use Core\Macro\Domain\Model\Macro;
  *    svc_macro_value:string,
  *    is_password:int|null,
  *    description:string|null,
- *    macro_order:int
+ *    macro_order:int,
+ *    is_encryption_ready?:string
  * }
  */
-class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements ReadServiceMacroRepositoryInterface
+class DbReadServiceMacroRepository extends DatabaseRepository implements ReadServiceMacroRepositoryInterface
 {
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
+    use SqlMultipleBindTrait;
 
     /**
      * @inheritDoc
@@ -58,32 +55,30 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
             return [];
         }
 
-        $bindValues = [];
-        foreach ($serviceIds as $index => $serviceId) {
-            $bindValues[':service_id' . $index] = $serviceId;
+        [$bindValues, $serviceIdsAsString] = $this->createMultipleBindQuery($serviceIds, ':serviceId_');
+        $queryParams = QueryParameters::create([]);
+        foreach ($bindValues as $key => $value) {
+            /** @var int $value */
+            $queryParams->add($key, QueryParameter::int($key, $value));
         }
-        $serviceIdsAsString = implode(',', array_keys($bindValues));
-
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT
-                    m.svc_macro_name,
-                    m.svc_macro_value,
-                    m.is_password,
-                    m.svc_svc_id,
-                    m.description,
-                    m.macro_order
-                FROM `:db`.on_demand_macro_service m
-                WHERE m.svc_svc_id IN ({$serviceIdsAsString})
-                SQL
-        ));
-        foreach ($bindValues as $index => $serviceId) {
-            $statement->bindValue($index, $serviceId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(
+                <<<SQL
+                    SELECT
+                        m.svc_macro_name,
+                        m.svc_macro_value,
+                        m.is_password,
+                        m.svc_svc_id,
+                        m.description,
+                        m.macro_order
+                    FROM `:db`.on_demand_macro_service m
+                    WHERE m.svc_svc_id IN ({$serviceIdsAsString})
+                    SQL
+            ),
+            $queryParams
+        );
 
         $macros = [];
-        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($results as $result) {
             /** @var _Macro $result */
             $macros[] = $this->createMacro($result);
@@ -97,25 +92,117 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
      */
     public function findPasswords(): array
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                SELECT
-                        m.svc_macro_name,
-                        m.svc_macro_value,
-                        m.is_password,
-                        m.svc_svc_id,
-                        m.description,
-                        m.macro_order
-                FROM `:db`.on_demand_macro_service m
-                WHERE m.is_password = 1
-                SQL
-        ));
-        $statement->execute();
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT
+                            m.svc_macro_name,
+                            m.svc_macro_value,
+                            m.is_password,
+                            m.svc_svc_id,
+                            m.description,
+                            m.macro_order
+                    FROM `:db`.on_demand_macro_service m
+                    WHERE m.is_password = 1
+                    SQL
+            )
+        );
 
         $macros = [];
-        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($results as $result) {
             /** @var _Macro $result */
+            $macros[] = $this->createMacro($result);
+        }
+
+        return $macros;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServicesMacrosWithEncryptionReady(int $pollerId): array
+    {
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(<<<SQL
+                SELECT
+                    odms.svc_svc_id,
+                    odms.svc_macro_name,
+                    odms.svc_macro_value,
+                    odms.is_password,
+                    odms.description,
+                    odms.macro_order,
+                    ns.is_encryption_ready
+                FROM on_demand_macro_service odms
+                INNER JOIN host_service_relation hsr
+                    ON odms.svc_svc_id = hsr.service_service_id
+                INNER JOIN ns_host_relation nsr
+                    ON hsr.host_host_id = nsr.host_host_id
+                INNER JOIN nagios_server ns
+                    ON nsr.nagios_server_id = ns.id
+                WHERE ns.id = :pollerId
+                SQL
+            ),
+            QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
+        );
+
+        $macros = [];
+        foreach ($results as $result) {
+            /** @var array{
+             *    svc_svc_id:int,
+             *    svc_macro_name:string,
+             *    svc_macro_value:string,
+             *    is_password:int|null,
+             *    description:string|null,
+             *    macro_order:int,
+             *    is_encryption_ready:string
+             * } $result */
+            $macros[] = $this->createMacro($result);
+        }
+
+        return $macros;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceTemplatesMacrosWithEncryptionReady(int $pollerId): array
+    {
+        $results = $this->connection->fetchAllAssociative(
+            $this->translateDbName(<<<SQL
+                SELECT
+                    odms.svc_svc_id,
+                    odms.svc_macro_name,
+                    odms.svc_macro_value,
+                    odms.is_password,
+                    odms.description,
+                    odms.macro_order,
+                    ns.is_encryption_ready
+                FROM on_demand_macro_service odms
+                INNER JOIN service svc
+                    ON odms.svc_svc_id = svc.service_template_model_stm_id
+                INNER JOIN host_service_relation hsr
+                    ON svc.service_id = hsr.service_service_id
+                INNER JOIN ns_host_relation nsr
+                    ON hsr.host_host_id = nsr.host_host_id
+                INNER JOIN nagios_server ns
+                    ON nsr.nagios_server_id = ns.id
+                WHERE ns.id = :pollerId
+                SQL
+            ),
+            QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
+        );
+
+        $macros = [];
+        foreach ($results as $result) {
+            /** @var array{
+             *    host_host_id:int,
+             *    host_macro_name:string,
+             *    host_macro_value:string,
+             *    is_password:int|null,
+             *    description:string|null,
+             *    macro_order:int,
+             *    is_encryption_ready:string
+             * } $result */
             $macros[] = $this->createMacro($result);
         }
 
@@ -140,9 +227,13 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
             $macroName,
             $data['svc_macro_value'],
         );
+        $shouldBeEncrypted = array_key_exists('is_encryption_ready', $data)
+            && (bool) $data['is_password']
+            && (bool) $data['is_encryption_ready'];
         $macro->setIsPassword($data['is_password'] === 1);
         $macro->setDescription($data['description'] ?? '');
         $macro->setOrder((int) $data['macro_order']);
+        $macro->setShouldBeEncrypted($shouldBeEncrypted);
 
         return $macro;
     }
