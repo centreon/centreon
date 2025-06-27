@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -29,26 +29,26 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_POST['widgetId'])) {
     exit;
 }
 
-$baseUri = (function() {
+$baseUri = (function () {
     $scriptName = htmlspecialchars($_SERVER['SCRIPT_NAME']);
     $paths = explode('/', $scriptName);
-    $baseUri = "/" . $paths[1] . "/";
-    return $baseUri;
+    $baseUri = '/' . $paths[1] . '/';
 
+    return $baseUri;
 })();
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/open-tickets/src/";
+$path = $centreon_path . 'www/widgets/open-tickets/src/';
 $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
-/** @var \Centreon $centreon */
+/** @var Centreon $centreon */
 $centreon = $_SESSION['centreon'];
 $widgetId = $_POST['widgetId'];
 $db = new CentreonDB();
@@ -64,132 +64,132 @@ if ($admin) {
 
 $toolbar = '';
 if ($preferences['toolbar_buttons']) {
-    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    if (! isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
         if ($preferences['action_open_hosts']) {
             $toolbar .= "<label id='buttontoolbar_4' style='font-size: 13px; font-weight: bold; cursor:pointer;' "
                 . "for='host-ticket'>Host <input type='image' title='"
-                . _("Host: Open ticket") . "' alt='" . _("Host: Open ticket") . "' src='"
+                . _('Host: Open ticket') . "' alt='" . _('Host: Open ticket') . "' src='"
                 . $baseUri
                 . "/modules/centreon-open-tickets/images/open-ticket.svg' name='host-ticket' "
                 . "style='border: none; width: 24px; height: 24px; vertical-align: middle;'/> </label> | ";
         }
         if ($preferences['action_open_services']) {
             $toolbar .= "<label id='buttontoolbar_3' style='font-size: 13px; font-weight: bold; cursor:pointer;'  "
-                . "for='service-ticket'> Service <input type='image' title='" . _("Service: Open ticket") . "' alt='"
-                . _("Service: Open ticket") . "' src='" . $baseUri
+                . "for='service-ticket'> Service <input type='image' title='" . _('Service: Open ticket') . "' alt='"
+                . _('Service: Open ticket') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/open-ticket.svg' name='service-ticket' "
                 . "style='border: none; width: 24px; height: 24px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_ack']
-            && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_acknowledgement'))
         ) {
             $toolbar .= "<label id='buttontoolbar_70' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
-                . "for='ack-ticket'>Acknowledge <input type='image' title='" . _("Service: Acknowledge") . "' alt='"
-                . _("Service: Acknowledge") . "' src='" . $baseUri
+                . "for='ack-ticket'>Acknowledge <input type='image' title='" . _('Service: Acknowledge') . "' alt='"
+                . _('Service: Acknowledge') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/acknowledge.png' name='ack-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_service_forced_check']
-            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_schedule_forced_check'))
         ) {
             $toolbar .= "<label id='buttontoolbar_80' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-service-forced-check-ticket'>Service: Schedule forced check <input type='image' "
-                . "title='" . _("Service: Schedule Forced Check") . "' alt='"
-                . _("Service: Schedule Forced Check") . "' src='" . $baseUri
+                . "title='" . _('Service: Schedule Forced Check') . "' alt='"
+                . _('Service: Schedule Forced Check') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
                 . "name='schedule-service-forced-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_service_check']
-            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_schedule_check'))
         ) {
             $toolbar .= "<label id='buttontoolbar_81' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-sevice-check-ticket'>Service: Schedule check <input type='image' title='"
-                . _("Service: Schedule Check") . "' alt='"
-                . _("Service: Schedule Check") . "' src='" . $baseUri
+                . _('Service: Schedule Check') . "' alt='"
+                . _('Service: Schedule Check') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-service-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_host_forced_check']
-            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_forced_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('host_schedule_forced_check'))
         ) {
             $toolbar .= "<label id='buttontoolbar_82' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='host-service-forced-check-ticket'>Host: Schedule forced check <input type='image' title='"
-                . _("Host: Schedule Forced Check") . "' alt='"
-                . _("Host: Schedule Forced Check") . "' src='" . $baseUri
+                . _('Host: Schedule Forced Check') . "' alt='"
+                . _('Host: Schedule Forced Check') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_forced_check.png' "
                 . "name='schedule-host-forced-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> | ";
         }
         if (
             $preferences['action_host_check']
-            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('host_schedule_check'))
         ) {
             $toolbar .= "<label id='buttontoolbar_83' style='font-size: 13px; font-weight: bold; cursor:pointer;'' "
                 . "for='schedule-host-check-ticket'>Host: Schedule check <input type='image' title='"
-                . _("Host: Schedule Check") . "' alt='"
-                . _("Host: Schedule Check") . "' src='" . $baseUri
+                . _('Host: Schedule Check') . "' alt='"
+                . _('Host: Schedule Check') . "' src='" . $baseUri
                 . "/modules/centreon-open-tickets/images/schedule_check.png' name='schedule-host-check-ticket' "
                 . "style='border: none; height: 22px; vertical-align: middle;' /> </label> |";
         }
     } else {
-        $toolbar .= "<input type='image' title='" . _("Close Tickets") . "' alt='" . _("Close Tickets")
+        $toolbar .= "<input type='image' title='" . _('Close Tickets') . "' alt='" . _('Close Tickets')
             . "' src='" . $baseUri
             . "/modules/centreon-open-tickets/images/close-ticket.svg' id='buttontoolbar_10' "
             . "style='cursor:pointer; border: none;width: 24px; height: 24px;' />";
     }
 } else {
     $toolbar .= "<select class='toolbar'>";
-    $toolbar .= "<option value='0'>-- " . _("More actions") . " -- </option>";
+    $toolbar .= "<option value='0'>-- " . _('More actions') . ' -- </option>';
 
-    if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
+    if (! isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 0) {
         if ($preferences['action_open_hosts']) {
-            $toolbar .= "<option value='4'>" . _("Host: Open ticket") . "</option>";
+            $toolbar .= "<option value='4'>" . _('Host: Open ticket') . '</option>';
         }
         if ($preferences['action_open_services']) {
-            $toolbar .= "<option value='3'>" . _("Service: Open ticket") . "</option>";
+            $toolbar .= "<option value='3'>" . _('Service: Open ticket') . '</option>';
         }
         if (
             $preferences['action_ack']
-            && ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_acknowledgement'))
         ) {
-            $toolbar .= "<option value='70'>" . _("Service: Acknowledge") . "</option>";
+            $toolbar .= "<option value='70'>" . _('Service: Acknowledge') . '</option>';
         }
         if (
             $preferences['action_host_forced_check']
-            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_forced_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('host_schedule_forced_check'))
         ) {
-            $toolbar .= "<option value='82'>" . _("Host: Schedule Forced Check") . "</option>";
+            $toolbar .= "<option value='82'>" . _('Host: Schedule Forced Check') . '</option>';
         }
         if (
             $preferences['action_host_check']
-            && ($canDoAction || $centreon->user->access->checkAction("host_schedule_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('host_schedule_check'))
         ) {
-            $toolbar .= "<option value='83'>" . _("Host: Schedule Check") . "</option>";
+            $toolbar .= "<option value='83'>" . _('Host: Schedule Check') . '</option>';
         }
         if (
             $preferences['action_service_forced_check']
-            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_schedule_forced_check'))
         ) {
-            $toolbar .= "<option value='80'>" . _("Service: Schedule Forced Check") . "</option>";
+            $toolbar .= "<option value='80'>" . _('Service: Schedule Forced Check') . '</option>';
         }
         if (
             $preferences['action_service_check']
-            && ($canDoAction || $centreon->user->access->checkAction("service_schedule_check"))
+            && ($canDoAction || $centreon->user->access->checkAction('service_schedule_check'))
         ) {
-            $toolbar .= "<option value='81'>" . _("Service: Schedule Check") . "</option>";
+            $toolbar .= "<option value='81'>" . _('Service: Schedule Check') . '</option>';
         }
     } else {
-        $toolbar .= "<option value='10'>" . _("Close Tickets") . "</option>";
+        $toolbar .= "<option value='10'>" . _('Close Tickets') . '</option>';
     }
-    $toolbar .= "</select>";
+    $toolbar .= '</select>';
 }
 
-$template->assign("widgetId", $widgetId);
+$template->assign('widgetId', $widgetId);
 $template->display('toolbar.ihtml');
 
 ?>
@@ -198,7 +198,7 @@ $template->display('toolbar.ihtml');
 
 <script type='text/javascript'>
 var tab = new Array();
-var toolbar = "<?php echo $toolbar;?>";
+var toolbar = "<?php echo $toolbar; ?>";
 var widget_id = "<?php echo $widgetId; ?>";
 
 $(function() {

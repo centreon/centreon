@@ -27,6 +27,10 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.ph
 
 $finder = Finder::create()
     ->in([
+        __DIR__ . '/config',
+        __DIR__ . '/packaging',
+        __DIR__ . '/tests',
+        __DIR__ . '/widgets',
         __DIR__ . '/www',
     ]);
 

@@ -25,7 +25,6 @@ namespace Tests\CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
 
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use CentreonOpenTickets\Providers\Application\Exception\ProviderException;
 use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryInterface;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
