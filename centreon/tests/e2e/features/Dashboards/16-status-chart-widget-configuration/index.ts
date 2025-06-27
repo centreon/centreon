@@ -291,7 +291,8 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '0.0%', '0.0%', '0.0%']
+      ['100.0%', '0.0%', '0.0%', '0.0%'],
+      ["66.7%", "33.3%", "0.0%", "0.0%"]
     );
     cy.verifyLegendItemStyle(
       1,
@@ -329,7 +330,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
+    ['100.0%', '0.0%', '0.0%', '0.0%'],
+    ["66.7%", "33.3%", "0.0%", "0.0%"]
   );
   cy.verifyLegendItemStyle(
     1,
