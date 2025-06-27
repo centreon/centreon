@@ -1,6 +1,6 @@
 centreon:
     resource: "./Centreon/**/*.yaml"
-    prefix: "{base_uri}api/{version}"
+    prefix: "api/{version}"
     defaults:
         version: "latest"
     requirements:
@@ -12,7 +12,7 @@ security:
         base_uri: ".*"
 core:
     resource: "./../../src/Core/**/Infrastructure/A*/**/*Route.yaml"
-    prefix: "{base_uri}api/{version}"
+    prefix: "api/{version}"
     defaults:
         version: "latest"
     requirements:
