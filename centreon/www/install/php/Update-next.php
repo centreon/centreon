@@ -94,6 +94,7 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
+
 $bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage): void {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
@@ -107,7 +108,7 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
 };
 
 /** ------------------------------------------ Services as contacts ------------------------------------------ */
-$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
+$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update contact table';
     if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
         $pearDB->executeQuery(
@@ -119,7 +120,7 @@ $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     }
 };
 
-$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
+$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update contact table';
     $pearDB->executeQuery(
         <<<'SQL'
