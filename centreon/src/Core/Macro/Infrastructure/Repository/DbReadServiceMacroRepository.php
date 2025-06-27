@@ -195,9 +195,9 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
-             *    host_host_id:int,
-             *    host_macro_name:string,
-             *    host_macro_value:string,
+             *    svc_svc_id:int,
+             *    svc_macro_name:string,
+             *    svc_macro_value:string,
              *    is_password:int|null,
              *    description:string|null,
              *    macro_order:int,
