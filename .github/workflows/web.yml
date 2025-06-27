@@ -31,6 +31,8 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-web"
@@ -40,6 +42,8 @@ on:
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/packages/**"
+    tags:
+      - "centreon-web-*"
 
 env:
   base_directory: centreon

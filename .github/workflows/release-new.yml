@@ -1,0 +1,119 @@
+---
+name: release-new
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Release or hotfix branch name'
+        required: true
+        default: '' # Default is empty, to avoid any accident
+        type: string
+      release_number:
+        description: 'Release number using YYYYMMDD format'
+        required: true
+        default: '00000000' # Default, should return an error if left untouched
+        type: string
+      release_type:
+        description: 'Release type, affects context of release action'
+        required: true
+        default: 'release' # Default is release
+        type: choice
+        options:
+          - hotfix
+          - release
+      release_scope:
+        description: 'Release scope, affects context of release action'
+        type: choice
+        options:
+          - cloud
+          - onprem
+
+jobs:
+  check-inputs:
+    if: ${{ github.repository == 'centreon/centreon' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Fight against empty inputs
+        run: |
+          if [[ ${{ inputs.release_branch }} == '' || ${{ inputs.release_number }} == '' ]]; then
+            echo "Invalid inputs were given for release-branch (${{ inputs.release_branch }}) or release-number (${{ inputs.release_number }}). Exiting."
+            exit 1
+          else
+            echo "Inputs are not empty."
+          fi
+        shell: bash
+      - name: Check if release or hotfix branch exists
+        run: |
+          echo "Given inputs:"
+          echo "Release branch: ${{ inputs.release_branch }}"
+          echo "Release number: ${{ inputs.release_number }}"
+          echo "Release type: ${{ inputs.release_type}}"
+          echo "Release scope: ${{ inputs.release_scope }}"
+          echo "Checking for release branch based on workflow input..."
+          if git ls-remote --exit-code --heads origin "refs/heads/${{ inputs.release_branch }}"; then
+            echo "Branch ${{ inputs.release_branch }} does exist, using it as reference for versions."
+          else
+            echo "Branch ${{ inputs.release_branch }} does not exist, exiting."
+            exit 1
+          fi
+        shell: bash
+  release:
+    if: ${{ github.repository == 'centreon/centreon' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      new_release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Build new release bundle tag
+        id: build_release_bundle_tag
+        run: |
+          set -eux
+          echo "Building release bundle tag."
+          # Expected output: release-YYYYMMDD-cloud or release-YYYYMMDD-onprem
+          NEW_RELEASE_BUNDLE_TAG="release-${{ inputs.release_scope }}-${{ inputs.release_number }}"
+          # Output to GITHUB_ENV
+          echo "new_release_bundle_tag=$NEW_RELEASE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Check ref where release workflow is hosted
+        run: |
+          set -eu
+          # Check if github.ref is develop or dev-xxx branches where workflow and action are hosted
+          # This must never run on any other ref than develop or dev-xxx
+          #if [[ "${{ github.ref_name }}" == 'develop' ]]; then
+          if [[ "${{ github.ref_name }}" == 'MON-163848-poc-implement-a-working-pipeline-for-the-new-workflow' ]]; then
+            echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
+          elif  [[ "${{ github.ref_name }}" =~ ^dev-[2-9][0-9].[0-9][0-9].x ]]; then
+            echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
+          else
+            echo "::error::ref hosting release workflow is not valid (${{ github.ref }}), please use develop or dev-xxx branch, exiting."
+            exit 1
+          fi
+        shell: bash
+      - name: Release
+        id: release
+        uses: ./.github/actions/release-new
+        with:
+          github_ref_name: ${{ github.ref_name }}
+          jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
+          release_number: ${{ inputs.release_number }}
+          release_type: ${{ inputs.release_type }}
+          release_scope: ${{ inputs.release_scope }}
+          release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
+          release_branch: ${{ inputs.release_branch }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
