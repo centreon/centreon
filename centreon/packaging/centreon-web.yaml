@@ -25,12 +25,8 @@ contents:
       group: "centreon"
       mode: 0664
 
-  - src: "./src/empty_file"
-    dst: "/etc/centreon-engine/engine-context.json"
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0664
+  - dst: "/etc/centreon-engine/engine-context.json"
+    type: ghost
 
   - src: "./src/instCentWeb.conf"
     dst: "/etc/centreon/instCentWeb.conf"
