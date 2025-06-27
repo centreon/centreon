@@ -1893,7 +1893,7 @@ function insertServiceTemplateByApi(
         $basePath ? ['base_uri' => $basePath] : [],
         UrlGeneratorInterface::ABSOLUTE_URL
     );
-    dd($url, $payload);
+
     $response = callApi($url, 'POST', $payload);
     if ($response['status_code'] !== 201) {
         throw new \Exception($response['message'] ?? 'Unexpected return code by API');

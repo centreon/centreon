@@ -42,10 +42,8 @@ use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationReposit
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
-use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Symfony\Component\Filesystem\Filesystem;
 
 $configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
 if ($configFile !== false) {

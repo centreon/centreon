@@ -106,6 +106,14 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
     $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
 
+/** -------------------------------------------- Poller Encryption ------------------------------------------ */
+$addIsEncryptionReadyColumn = function() use ($pearDB, &$errorMessage) {
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'nagios_server' table";
+        $pearDB->query("ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '0'");
+    }
+};
+
 try {
 
     $bbdoDefaultUpdate();
