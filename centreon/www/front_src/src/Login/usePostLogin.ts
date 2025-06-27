@@ -13,7 +13,8 @@ const usePostLogin = (): UsePostLoginState => {
     decoder: redirectDecoder,
     getEndpoint: () => loginEndpoint,
     httpCodesBypassErrorSnackbar: [401],
-    method: Method.POST
+    method: Method.POST,
+    baseEndpoint: ''
   });
 
   return { sendLogin };
