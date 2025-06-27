@@ -43,7 +43,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Not Found Response when object does not exist', function () {
+it('should present a Not Found Response when object does not exist', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('find')
@@ -57,7 +57,7 @@ it('should present a Not Found Response when object does not exist', function ()
         ->toBe('Agent Configuration not found');
 });
 
-it('should present an Error Response when an unexpected error occurs', function () {
+it('should present an Error Response when an unexpected error occurs', function (): void {
     $this->readRepository
         ->expects($this->once())
         ->method('find')
@@ -71,7 +71,7 @@ it('should present an Error Response when an unexpected error occurs', function 
         ->toBe(AgentConfigurationException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should present a FindConfigurationResponse when everything is ok', function () {
+it('should present a FindConfigurationResponse when everything is ok', function (): void {
     $configuration = new TelegrafConfigurationParameters(
         [
             'otel_server_address' => '10.10.10.10',

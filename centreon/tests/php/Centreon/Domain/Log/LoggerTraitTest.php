@@ -45,7 +45,7 @@ afterEach(function (): void {
     }
 });
 
-it('test a log with debug level without context without exception', function () {
+it('test a log with debug level without context without exception', function (): void {
     $this->logger->debug('debug_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -54,7 +54,7 @@ it('test a log with debug level without context without exception', function () 
     );
 });
 
-it('test a log with debug level with a context without exception', function () {
+it('test a log with debug level with a context without exception', function (): void {
     $this->logger->debug('debug_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -63,7 +63,7 @@ it('test a log with debug level with a context without exception', function () {
     );
 });
 
-it('test a log with info level without context without exception', function () {
+it('test a log with info level without context without exception', function (): void {
     $this->logger->info('info_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -72,7 +72,7 @@ it('test a log with info level without context without exception', function () {
     );
 });
 
-it('test a log with info level with a context without exception', function () {
+it('test a log with info level with a context without exception', function (): void {
     $this->logger->info('info_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -81,7 +81,7 @@ it('test a log with info level with a context without exception', function () {
     );
 });
 
-it('test a log with notice level without context without exception', function () {
+it('test a log with notice level without context without exception', function (): void {
     $this->logger->notice('notice_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -90,7 +90,7 @@ it('test a log with notice level without context without exception', function ()
     );
 });
 
-it('test a log with notice level with a context without exception', function () {
+it('test a log with notice level with a context without exception', function (): void {
     $this->logger->notice('notice_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -99,7 +99,7 @@ it('test a log with notice level with a context without exception', function () 
     );
 });
 
-it('test a log with warning level without context without exception', function () {
+it('test a log with warning level without context without exception', function (): void {
     $this->logger->warning('warning_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -108,7 +108,7 @@ it('test a log with warning level without context without exception', function (
     );
 });
 
-it('test a log with warning level with a context without exception', function () {
+it('test a log with warning level with a context without exception', function (): void {
     $this->logger->warning('warning_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -117,7 +117,7 @@ it('test a log with warning level with a context without exception', function ()
     );
 });
 
-it('test a log with error level without context without exception', function () {
+it('test a log with error level without context without exception', function (): void {
     $this->logger->error('error_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -126,7 +126,7 @@ it('test a log with error level without context without exception', function () 
     );
 });
 
-it('test a log with error level with a context without exception', function () {
+it('test a log with error level with a context without exception', function (): void {
     $this->logger->error('error_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -135,7 +135,7 @@ it('test a log with error level with a context without exception', function () {
     );
 });
 
-it('test a log with critical level without context without exception', function () {
+it('test a log with critical level without context without exception', function (): void {
     $this->logger->critical('critical_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -144,7 +144,7 @@ it('test a log with critical level without context without exception', function 
     );
 });
 
-it('test a log with critical level with a context without exception', function () {
+it('test a log with critical level with a context without exception', function (): void {
     $this->logger->critical('critical_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -153,7 +153,7 @@ it('test a log with critical level with a context without exception', function (
     );
 });
 
-it('test a log with alert level without context without exception', function () {
+it('test a log with alert level without context without exception', function (): void {
     $this->logger->alert('alert_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -162,7 +162,7 @@ it('test a log with alert level without context without exception', function () 
     );
 });
 
-it('test a log with alert level with a context without exception', function () {
+it('test a log with alert level with a context without exception', function (): void {
     $this->logger->alert('alert_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -171,7 +171,7 @@ it('test a log with alert level with a context without exception', function () {
     );
 });
 
-it('test a log with emergency level without context without exception', function () {
+it('test a log with emergency level without context without exception', function (): void {
     $this->logger->emergency('emergency_message');
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -180,7 +180,7 @@ it('test a log with emergency level without context without exception', function
     );
 });
 
-it('test a log with emergency level with a context without exception', function () {
+it('test a log with emergency level with a context without exception', function (): void {
     $this->logger->emergency('emergency_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -189,7 +189,7 @@ it('test a log with emergency level with a context without exception', function 
     );
 });
 
-it('test a log with exception', function () {
+it('test a log with exception', function (): void {
     $this->logger->error(
         'error_message',
         [

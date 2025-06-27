@@ -24,27 +24,27 @@ namespace Tests\CentreonRemote\Infrastructure\Export;
 use CentreonRemote\Infrastructure\Export\ExportParserJson;
 use Symfony\Component\Filesystem\Filesystem;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->fs = new Filesystem();
     $this->fs->mkdir('/tmp');
     $this->parser = new ExportParserJson();
 });
 
-afterEach(function () {
+afterEach(function (): void {
     $this->fs->remove('/tmp/test.json');
     $this->fs->remove('/tmp/test2.json');
 });
 
-it ('should parse non existent file', function () {
+it ('should parse non existent file', function (): void {
     expect($this->parser->parse('/tmp/test.json'))->toBe([]);
 });
 
-it ('should parse file', function () {
+it ('should parse file', function (): void {
     $this->fs->dumpFile('/tmp/test.json', '{"key": "value"}');
     expect($this->parser->parse('/tmp/test.json'))->toBe(['key' => 'value']);
 });
 
-it ('should call the callback for a file with macro', function () {
+it ('should call the callback for a file with macro', function (): void {
     $this->fs->dumpFile('/tmp/test2.json', '{"key":"@val@"}');
 
     $result = $this->parser->parse(
@@ -56,7 +56,7 @@ it ('should call the callback for a file with macro', function () {
     expect($result)->toBe(['key' => 'val']);
 });
 
-it('should not create manifest file if input is an empty array', function () {
+it('should not create manifest file if input is an empty array', function (): void {
     $this->parser->dump([], '/tmp/test.json');
     expect($this->fs->exists('/tmp/test.json'))->toBeFalse();
 });

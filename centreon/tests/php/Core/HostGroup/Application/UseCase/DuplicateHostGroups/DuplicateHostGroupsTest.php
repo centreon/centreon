@@ -38,7 +38,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new DuplicateHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),

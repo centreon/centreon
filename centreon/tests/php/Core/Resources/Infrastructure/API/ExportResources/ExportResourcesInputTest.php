@@ -25,7 +25,7 @@ namespace Tests\Core\Resources\Infrastructure\API\ExportResources;
 use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
 use Symfony\Component\Validator\Validation;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->validator = Validation::createValidatorBuilder()
         ->enableAttributeMapping()
         ->getValidator();
@@ -33,7 +33,7 @@ beforeEach(function () {
 
 // format parameter
 
-it('test export resources input validation with no format', function () {
+it('test export resources input validation with no format', function (): void {
     $input = new ExportResourcesInput(
         null,
         false,
@@ -49,7 +49,7 @@ it('test export resources input validation with no format', function () {
         ->and($errors[0]->getMessage())->toBe('format parameter is required');
 });
 
-it('test export resources input validation with an empty format', function () {
+it('test export resources input validation with an empty format', function (): void {
     $input = new ExportResourcesInput(
         '',
         false,
@@ -66,7 +66,7 @@ it('test export resources input validation with an empty format', function () {
         ->and($errors[1]->getMessage())->toBe('format parameter must be one of the following: "csv"');
 });
 
-it('test export resources input validation with an invalid type for format', function () {
+it('test export resources input validation with an invalid type for format', function (): void {
     $input = new ExportResourcesInput(
         0,
         false,
@@ -82,7 +82,7 @@ it('test export resources input validation with an invalid type for format', fun
         ->and($errors[0]->getMessage())->toBe('format parameter must be one of the following: "csv"');
 });
 
-it('test export resources input validation with an invalid value for format', function () {
+it('test export resources input validation with an invalid value for format', function (): void {
     $input = new ExportResourcesInput(
         'pdf',
         false,
@@ -98,7 +98,7 @@ it('test export resources input validation with an invalid value for format', fu
         ->and($errors[0]->getMessage())->toBe('format parameter must be one of the following: "csv"');
 });
 
-it('test export resources input validation with a valid format', function () {
+it('test export resources input validation with a valid format', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -115,28 +115,28 @@ it('test export resources input validation with a valid format', function () {
 
 // sort_by parameter
 
-it('test export resources input validation with no sort_by', function () {
+it('test export resources input validation with no sort_by', function (): void {
     $input = new ExportResourcesInput('csv', false, null, null, 1, 100, null, '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter is required');
 });
 
-it('test export resources input validation with an empty sort_by', function () {
+it('test export resources input validation with an empty sort_by', function (): void {
     $input = new ExportResourcesInput('csv', false, null, null, 1, 100, '', '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter is required');
 });
 
-it('test export resources input validation with an invalid value for sort_by', function () {
+it('test export resources input validation with an invalid value for sort_by', function (): void {
     $input = new ExportResourcesInput('csv', false, null, null, 1, 100, 'toto', '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter must be a valid JSON');
 });
 
-it('test export resources input validation with sort_by with an invalid json', function () {
+it('test export resources input validation with sort_by with an invalid json', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -152,7 +152,7 @@ it('test export resources input validation with sort_by with an invalid json', f
         ->and($errors[0]->getMessage())->toBe('sort_by parameter must be a valid JSON');
 });
 
-it('test export resources input validation with a valid json for sort_by', function () {
+it('test export resources input validation with a valid json for sort_by', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -169,7 +169,7 @@ it('test export resources input validation with a valid json for sort_by', funct
 
 // search parameter
 
-it('test export resources input validation with no search', function () {
+it('test export resources input validation with no search', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -185,7 +185,7 @@ it('test export resources input validation with no search', function () {
         ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
-it('test export resources input validation with an empty search', function () {
+it('test export resources input validation with an empty search', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -201,7 +201,7 @@ it('test export resources input validation with an empty search', function () {
         ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
-it('test export resources input validation with search with an invalid value', function () {
+it('test export resources input validation with search with an invalid value', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -217,7 +217,7 @@ it('test export resources input validation with search with an invalid value', f
         ->and($errors[0]->getMessage())->toBe('search parameter must be a valid JSON');
 });
 
-it('test export resources input validation with search with an invalid json', function () {
+it('test export resources input validation with search with an invalid json', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -233,7 +233,7 @@ it('test export resources input validation with search with an invalid json', fu
         ->and($errors[0]->getMessage())->toBe('search parameter must be a valid JSON');
 });
 
-it('test export resources input validation with search with a valid json', function () {
+it('test export resources input validation with search with a valid json', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -250,7 +250,7 @@ it('test export resources input validation with search with a valid json', funct
 
 // all_pages parameter
 
-it('test export resources input validation with no all_pages', function () {
+it('test export resources input validation with no all_pages', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         null,
@@ -266,7 +266,7 @@ it('test export resources input validation with no all_pages', function () {
         ->and($errors[0]->getMessage())->toBe('all_pages parameter is required');
 });
 
-it('test export resources input validation with an empty all_pages', function () {
+it('test export resources input validation with an empty all_pages', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         '',
@@ -282,7 +282,7 @@ it('test export resources input validation with an empty all_pages', function ()
         ->and($errors[0]->getMessage())->toBe('all_pages parameter must be a boolean');
 });
 
-it('test export resources input validation with an invalid type for all_pages', function () {
+it('test export resources input validation with an invalid type for all_pages', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         'toto',
@@ -298,7 +298,7 @@ it('test export resources input validation with an invalid type for all_pages', 
         ->and($errors[0]->getMessage())->toBe('all_pages parameter must be a boolean');
 });
 
-it('test export resources input validation with all_pages equals to false without page and limit', function () {
+it('test export resources input validation with all_pages equals to false without page and limit', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -315,7 +315,7 @@ it('test export resources input validation with all_pages equals to false withou
         ->and($errors[1]->getMessage())->toBe('limit parameter is required when all_pages is false');
 });
 
-it('test export resources input validation with all_pages equals to false with page and without limit', function () {
+it('test export resources input validation with all_pages equals to false with page and without limit', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -331,7 +331,7 @@ it('test export resources input validation with all_pages equals to false with p
         ->and($errors[0]->getMessage())->toBe('limit parameter is required when all_pages is false');
 });
 
-it('test export resources input validation with all_pages equals to false with limit and without page', function () {
+it('test export resources input validation with all_pages equals to false with limit and without page', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -349,7 +349,7 @@ it('test export resources input validation with all_pages equals to false with l
 
 it(
     'test export resources input validation with all_pages equals to false with limit and page with an invalid format for limit',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             false,
@@ -368,7 +368,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to false with limit and page with an invalid format for page',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             false,
@@ -387,7 +387,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to false with limit and page = 0',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             false,
@@ -404,7 +404,7 @@ it(
     }
 );
 
-it('test export resources input validation with all_pages equals to false with valid limit and page', function () {
+it('test export resources input validation with all_pages equals to false with valid limit and page', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -421,7 +421,7 @@ it('test export resources input validation with all_pages equals to false with v
 
 it(
     'test export resources input validation with all_pages equals to true without pagination and without max_lines',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             true,
@@ -440,7 +440,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to true without pagination and with an invalid max_lines',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             true,
@@ -459,7 +459,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to true without pagination and with a max_lines greather than 10000',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             true,
@@ -478,7 +478,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to true without pagination and with a valid max_lines',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             true,
@@ -496,7 +496,7 @@ it(
 
 it(
     'test export resources input validation with all_pages equals to true with pagination (should be ignored) and with a valid max_lines',
-    function () {
+    function (): void {
         $input = new ExportResourcesInput(
             'csv',
             true,
@@ -514,7 +514,7 @@ it(
 
 // columns parameter
 
-it('test export resources input validation with no columns', function () {
+it('test export resources input validation with no columns', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -529,7 +529,7 @@ it('test export resources input validation with no columns', function () {
     expect($errors)->toHaveCount(0);
 });
 
-it('test export resources input validation with an empty columns', function () {
+it('test export resources input validation with an empty columns', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -546,7 +546,7 @@ it('test export resources input validation with an empty columns', function () {
         ->and($errors[1]->getMessage())->toBe('This value should be of type iterable.');
 });
 
-it('test export resources input validation with an invalid columns', function () {
+it('test export resources input validation with an invalid columns', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -563,7 +563,7 @@ it('test export resources input validation with an invalid columns', function ()
         ->and($errors[1]->getMessage())->toBe('This value should be of type iterable.');
 });
 
-it('test export resources input validation with columns with an empty value', function () {
+it('test export resources input validation with columns with an empty value', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -582,7 +582,7 @@ it('test export resources input validation with columns with an empty value', fu
         );
 });
 
-it('test export resources input validation with columns with an invalid value', function () {
+it('test export resources input validation with columns with an invalid value', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,
@@ -600,7 +600,7 @@ it('test export resources input validation with columns with an invalid value', 
         );
 });
 
-it('test export resources input validation with columns with a valid value', function () {
+it('test export resources input validation with columns with a valid value', function (): void {
     $input = new ExportResourcesInput(
         'csv',
         false,

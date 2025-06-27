@@ -26,7 +26,7 @@ namespace Tests\Core\Common\Domain\Exception;
 use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\RepositoryException;
 
-it('test format native exception without previous', function () {
+it('test format native exception without previous', function (): void {
     $exception = new \LogicException('logic_exception_message', 99);
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
@@ -48,7 +48,7 @@ it('test format native exception without previous', function () {
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception without previous', function () {
+it('test format business logic exception without previous', function (): void {
     $exception = new RepositoryException('repository_exception_message');
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
@@ -70,7 +70,7 @@ it('test format business logic exception without previous', function () {
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception without previous with context', function () {
+it('test format business logic exception without previous with context', function (): void {
     $exception = new RepositoryException('repository_exception_message', ['contact' => 1, 'name' => 'John']);
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
@@ -92,7 +92,7 @@ it('test format business logic exception without previous with context', functio
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception with previous', function () {
+it('test format business logic exception with previous', function (): void {
     $exception = new RepositoryException(
         'repository_exception_message', previous: new \LogicException(
         'logic_exception_message', 99

@@ -79,7 +79,7 @@ beforeEach(function (): void {
     $this->provider->register($this->container);
 });
 
-it('check services by list', function () {
+it('check services by list', function (): void {
     $checkList = [
         'centreon.notifymaster' => NotifyMasterService::class,
         'centreon.taskservice' => TaskService::class,
@@ -104,7 +104,7 @@ it('check services by list', function () {
     }
 });
 
-it('check exporters by list', function () {
+it('check exporters by list', function (): void {
     $checkList = [
         ConfigurationExporter::class,
     ];
@@ -125,7 +125,7 @@ it('check exporters by list', function () {
     }
 });
 
-it ('test provider order', function () {
+it ('test provider order', function (): void {
     expect($this->provider::order())->toBeGreaterThanOrEqual(1);
     expect($this->provider::order())->toBeLessThanOrEqual(20);
 });

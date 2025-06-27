@@ -30,7 +30,7 @@ $errorMessage = '';
 /**
  * Add column `show_deprecated_custom_views` to contact table.
  */
-$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
+$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
     if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
         $pearDB->executeQuery(
@@ -44,7 +44,7 @@ $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
 /**
  * Switch Topology Order between Dashboards and Custom Views.
  */
-$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
+$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to update topology of Custom Views';
     $pearDB->executeQuery(
         <<<SQL
@@ -62,7 +62,7 @@ $updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB
 /**
  * Set Show Deprecated Custom Views to true by default is there is existing custom views.
  */
-$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB) {
+$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to retrieve custom views';
     $statement = $pearDB->executeQuery(
         <<<SQL
@@ -79,7 +79,7 @@ $updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pear
     }
 };
 
-$updateCfgParameters = function () use ($pearDB, &$errorMessage) {
+$updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update cfg_nagios table';
 
     $pearDB->executeQuery(
@@ -94,14 +94,14 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage) {
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage) {
+$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage): void {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
         $pearDB->query('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
     }
 };
 
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
+$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
     $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };

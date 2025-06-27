@@ -27,51 +27,51 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\Identity\Email;
 use Core\Common\Domain\ValueObject\Web\IpAddress;
 
-it('is correct', function () {
+it('is correct', function (): void {
     $string = "yoyo@toto.fr";
     $email = new Email($string);
     expect($email->getValue())->toBe($string);
 });
 
-it('with special characters', function () {
+it('with special characters', function (): void {
     $email = new Email("user+tag@example.com");
     expect($email->getValue())->toBe("user+tag@example.com");
 });
 
-it('with quoted local part', function () {
+it('with quoted local part', function (): void {
     $email = new Email('"test.email"@example.com');
     expect($email->getValue())->toBe('"test.email"@example.com');
 });
 
-it('with an incorrect email', function () {
+it('with an incorrect email', function (): void {
     $string = "yoyo";
     $email = new Email($string);
 })->throws(ValueObjectException::class);
 
-it('get value', function () {
+it('get value', function (): void {
     $string = "yoyo@toto.fr";
     $email = new Email($string);
     expect($email->getValue())->toBe($string);
 });
 
-it('is not empty', function () {
+it('is not empty', function (): void {
     $string = "yoyo@toto.fr";
     $email = new Email($string);
     expect($email->isEmpty())->toBeFalse();
 });
 
-it('is empty', function () {
+it('is empty', function (): void {
     $string = "";
     $email = new Email($string);
 })->throws(ValueObjectException::class);
 
-it('length', function () {
+it('length', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->length())->toBe(12);
 });
 
 
-it('to uppercase', function () {
+it('to uppercase', function (): void {
     $email = new Email("yoyo@toto.fr");
     $newEmail = $email->toUpperCase();
     expect($email)
@@ -84,7 +84,7 @@ it('to uppercase', function () {
         ->toBe("YOYO@TOTO.FR");
 });
 
-it('to lowercase', function () {
+it('to lowercase', function (): void {
     $email = new Email("YOYO@TOTO.FR");
     $newEmail = $email->toLowerCase();
     expect($email)
@@ -97,27 +97,27 @@ it('to lowercase', function () {
         ->toBe("yoyo@toto.fr");
 });
 
-it('starts with', function () {
+it('starts with', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->startsWith("yoyo"))->toBeTrue();
 });
 
-it('not starts with', function () {
+it('not starts with', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->startsWith("bar"))->toBeFalse();
 });
 
-it('ends with', function () {
+it('ends with', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->endsWith("fr"))->toBeTrue();
 });
 
-it('not ends with', function () {
+it('not ends with', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->endsWith("bar"))->toBeFalse();
 });
 
-it('replace', function () {
+it('replace', function (): void {
     $email = new Email("yoyo@toto.fr");
     $newEmail = $email->replace("yoyo", "yaya");
     expect($email)
@@ -130,17 +130,17 @@ it('replace', function () {
         ->toBe("yaya@toto.fr");
 });
 
-it('contains', function () {
+it('contains', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->contains("yoyo"))->toBeTrue();
 });
 
-it('not contains', function () {
+it('not contains', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->contains("bar"))->toBeFalse();
 });
 
-it('append', function () {
+it('append', function (): void {
     $email = new Email("yoyo@toto.fr");
     $newEmail = $email->append("ance");
     expect($email)
@@ -153,46 +153,46 @@ it('append', function () {
         ->toBe("yoyo@toto.france");
 });
 
-it('equal', function () {
+it('equal', function (): void {
     $email1 = new Email("yoyo@toto.fr");
     $email2 = new Email("yoyo@toto.fr");
     expect($email1->equals($email2))->toBeTrue();
 });
 
-it('not equal', function () {
+it('not equal', function (): void {
     $email1 = new Email("yoyo@toto.fr");
     $email2 = new Email("yoyo@toto.com");
     expect($email1->equals($email2))->toBeFalse();
 });
 
-it('equal with incorrect type', function () {
+it('equal with incorrect type', function (): void {
     $email = new Email("yoyo@toto.fr");
     $dateTime = new \DateTime();
     $email->equals($dateTime);
 })->throws(\TypeError::class);
 
-it('equal with incorrect value object type', function () {
+it('equal with incorrect value object type', function (): void {
     $email = new Email("yoyo@toto.fr");
     $ip = new IpAddress("170.0.0.1");
     $email->equals($ip);
 })->throws(ValueObjectException::class);
 
-it('magic method toString', function () {
+it('magic method toString', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect("$email")->toBe("yoyo@toto.fr");
 });
 
-it('get local part', function () {
+it('get local part', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->getLocalPart()->getValue())->toBe("yoyo");
 });
 
-it('get domain part', function () {
+it('get domain part', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->getDomainPart()->getValue())->toBe("toto.fr");
 });
 
-it('json serialize', function () {
+it('json serialize', function (): void {
     $email = new Email("yoyo@toto.fr");
     expect($email->jsonSerialize())->toBe('yoyo@toto.fr');
 });

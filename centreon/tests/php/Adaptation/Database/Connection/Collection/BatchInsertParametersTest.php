@@ -25,7 +25,7 @@ namespace Tests\Adaptation\Database\Connection\Collection;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 
-it('add a query parameters with a good type', function () {
+it('add a query parameters with a good type', function (): void {
     $queryParameters = new \Adaptation\Database\Connection\Collection\BatchInsertParameters();
     $batchInsertParam1 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 110),
@@ -37,12 +37,12 @@ it('add a query parameters with a good type', function () {
         ->and($queryParameters->get('batch_insert_param_1'))->toBe($batchInsertParam1);
 });
 
-it('add a query parameters with a bad type', function () {
+it('add a query parameters with a bad type', function (): void {
     $queryParameters = new \Adaptation\Database\Connection\Collection\BatchInsertParameters();
     $queryParameters->add('batch_insert_param_1', new \stdClass());
 })->throws(CollectionException::class);
 
-it('create with good type', function () {
+it('create with good type', function (): void {
     $batchInsertParam1 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 110),
         QueryParameter::string('contact_name', 'foo_name'),
@@ -69,7 +69,7 @@ it('create with good type', function () {
         ->and($batchQueryParameters->get('batch_insert_param_3'))->toBe($batchInsertParam3);
 });
 
-it('create with bad type', function () {
+it('create with bad type', function (): void {
     \Adaptation\Database\Connection\Collection\BatchInsertParameters::create([
         new \stdClass(),
         new \stdClass(),

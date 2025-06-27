@@ -82,7 +82,7 @@ function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 }
 
 if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
-    it('test commit a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon): void {
         $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -114,7 +114,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon): void {
         $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -146,7 +146,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($contact)->toBeFalse();
     });
 
-    it('test commit a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon): void {
         $connection = DatabaseConnection::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -178,7 +178,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon): void {
         $connection = DatabaseConnection::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -210,7 +210,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($contact)->toBeFalse();
     });
 
-    it('test commit a transaction using CentreonDB with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using CentreonDB with success', function () use ($dbConfigCentreon): void {
         $connection = CentreonDB::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -242,7 +242,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using CentreonDB with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using CentreonDB with success', function () use ($dbConfigCentreon): void {
         $connection = CentreonDB::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -276,7 +276,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it(
         'test commit a transaction using two different connectors is not correct',
-        function () use ($dbConfigCentreon) {
+        function () use ($dbConfigCentreon): void {
             $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
             $databaseRepositoryManager = new DatabaseRepositoryManager(
                 DatabaseConnection::createFromConfig($dbConfigCentreon)
@@ -290,7 +290,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it(
         'test rollback a transaction using two different connectors is not correct',
-        function () use ($dbConfigCentreon) {
+        function () use ($dbConfigCentreon): void {
             $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
             $databaseRepositoryManager = new DatabaseRepositoryManager(
                 DatabaseConnection::createFromConfig($dbConfigCentreon)

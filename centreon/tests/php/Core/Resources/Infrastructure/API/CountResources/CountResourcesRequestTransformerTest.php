@@ -29,13 +29,13 @@ use Core\Resources\Infrastructure\API\CountResources\CountResourcesInput;
 use Core\Resources\Infrastructure\API\CountResources\CountResourcesRequestTransformer;
 use Mockery;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filter = Mockery::mock(ResourceFilter::class);
     $this->contact = new Contact();
     $this->contact->setId(1);
 });
 
-it('test transform inputs to request to count resources as admin with pagination', function () {
+it('test transform inputs to request to count resources as admin with pagination', function (): void {
     $this->contact->setAdmin(true);
     $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
@@ -45,7 +45,7 @@ it('test transform inputs to request to count resources as admin with pagination
         ->and($request->resourceFilter)->toBe($this->filter);
 });
 
-it('test transform inputs to request to count resources as admin without pagination', function () {
+it('test transform inputs to request to count resources as admin without pagination', function (): void {
     $this->contact->setAdmin(true);
     $input = new CountResourcesInput('{"$and":[]}',true, null, null);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
@@ -55,7 +55,7 @@ it('test transform inputs to request to count resources as admin without paginat
         ->and($request->resourceFilter)->toBe($this->filter);
 });
 
-it('test transform inputs to request to count resources as no admin with pagination', function () {
+it('test transform inputs to request to count resources as no admin with pagination', function (): void {
     $this->contact->setAdmin(false);
     $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
@@ -65,7 +65,7 @@ it('test transform inputs to request to count resources as no admin with paginat
         ->and($request->resourceFilter)->toBe($this->filter);
 });
 
-it('test transform inputs to request to count resources as no admin without pagination', function () {
+it('test transform inputs to request to count resources as no admin without pagination', function (): void {
     $this->contact->setAdmin(false);
     $input = new CountResourcesInput('{"$and":[]}',true, null, null);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);

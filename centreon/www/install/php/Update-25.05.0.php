@@ -107,7 +107,7 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     }
 };
 
-$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage) {
+$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update hostgroup table';
     $pearDB->executeQuery(
         <<<'SQL'
@@ -226,7 +226,7 @@ $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$error
 
 // -------------------------------------------- Token -------------------------------------------- //
 
-$createJwtTable = function () use ($pearDB, &$errorMessage) {
+$createJwtTable = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Failed to create table jwt_tokens';
 
     $pearDB->executeQuery(
@@ -248,7 +248,7 @@ $createJwtTable = function () use ($pearDB, &$errorMessage) {
     );
 };
 
-$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
+$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update new authentication tokens topology';
     $pearDB->executeQuery(
         <<<'SQL'
