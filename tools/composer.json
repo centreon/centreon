@@ -10,7 +10,8 @@
     "maglnet/composer-require-checker": "4.16.*",
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",
-    "phpstan/phpstan-mockery": "1.1.*"
+    "phpstan/phpstan-mockery": "1.1.*",
+    "rector/rector": "1.2.*"
   },
   "autoload": {
     "psr-4": {

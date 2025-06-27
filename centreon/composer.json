@@ -172,8 +172,9 @@
     "phpstan:test": "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G",
     "phpstan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
     "php:check8.2": "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "../tools/vendor/bin/rector process --dry-run --debug",
-    "rector:fix": "../tools/vendor/bin/rector process --debug",
+    "rector:list": "../tools/vendor/bin/rector list-rules",
+    "rector:check": "../tools/vendor/bin/rector process --dry-run",
+    "rector:fix": "../tools/vendor/bin/rector process",
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
   },
