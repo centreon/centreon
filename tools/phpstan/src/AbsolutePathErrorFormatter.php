@@ -76,7 +76,7 @@ class AbsolutePathErrorFormatter implements ErrorFormatter
 
         $notFileSpecificErrors = $analysisResult->getNotFileSpecificErrors();
 
-        if (count($notFileSpecificErrors) > 0) {
+        if ($notFileSpecificErrors !== []) {
             $output->writeRaw('<file>');
             $output->writeLineFormatted('');
 

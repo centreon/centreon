@@ -65,7 +65,7 @@ class ExceptionInUseCaseCustomRule implements Rule
         $parentTryCatchNodes = $this->getAllParentTryCatchNodes($node);
         $caughtExceptionTypes = $this->getCaughtExceptionTypes($parentTryCatchNodes);
 
-        if (empty($parentTryCatchNodes)) {
+        if ($parentTryCatchNodes === []) {
             return [
                 $this->getCentreonCustomExceptionError(),
             ];

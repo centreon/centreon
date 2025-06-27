@@ -2,10 +2,16 @@
 
 declare(strict_types=1);
 
-use Rector\Config\RectorConfig;
+$rectorConfig = require_once __DIR__ . '/../tools/rector/config/rector.php';
 
-return RectorConfig::configure()
+return $rectorConfig
+    ->withCache(__DIR__ . '/var/cache/rector')
     ->withPaths([
+        // directories
         __DIR__ . '/features',
         __DIR__ . '/www',
-    ])->withRules(rules: []);
+        // files
+        __DIR__ . '/.php-cs-fixer.legacy.www.php',
+        __DIR__ . '/rector.php',
+    ]);
+

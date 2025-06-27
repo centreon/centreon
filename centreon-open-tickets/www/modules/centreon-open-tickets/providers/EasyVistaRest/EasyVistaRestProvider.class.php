@@ -652,7 +652,7 @@ class EasyVistaRestProvider extends AbstractProvider
 
 //         fwrite($file, print_r("\n ticketargs \n",true));
 //         fwrite($file, print_r($ticketArguments,true));
-        
+
 // fwrite($file, print_r("\n info \n",true));
 // fwrite($file, print_r(json_encode($info['data']),true));
         $result = $this->curlQuery($info);

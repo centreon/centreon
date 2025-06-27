@@ -830,7 +830,7 @@ function insertPool($ret = [])
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
@@ -924,7 +924,7 @@ function updatePool($pool_id = null)
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 

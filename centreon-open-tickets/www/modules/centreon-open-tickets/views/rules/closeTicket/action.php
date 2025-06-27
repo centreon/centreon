@@ -40,7 +40,7 @@ function isSelectionValid(string $selection): bool
 {
     preg_match('/^(\d+;?\d+,?)+$/', $selection, $matches);
 
-    return ! empty($matches);
+    return $matches !== [];
 }
 
 if (isset($_SESSION['centreon'])) {

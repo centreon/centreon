@@ -30,9 +30,11 @@ $finder = Finder::create()
     ->in([
         __DIR__ . '/php-cs-fixer/src/',
         __DIR__ . '/phpstan/src/',
+        __DIR__ . '/rector/',
     ])
     ->append([
         __DIR__ . '/.php-cs-fixer.tools.php',
+        __DIR__ . '/rector.php',
     ]);
 
 return $config
