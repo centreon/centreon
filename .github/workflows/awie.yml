@@ -112,6 +112,10 @@ jobs:
         run: composer stan:legacy:www
         working-directory: centreon-awie
 
+      - name: Run of rector
+        run: composer rector:check
+        working-directory: centreon-awie
+
   package:
     needs: [get-environment, backend-lint]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
