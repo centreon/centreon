@@ -1297,6 +1297,8 @@ msgid ""
 "An agent is a piece of software you install on the host you want to monitor, "
 "that executes the checks."
 msgstr ""
+"Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui "
+"exécute les contrôles."
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "An error occured while decoding Identity Provider ID Token"
