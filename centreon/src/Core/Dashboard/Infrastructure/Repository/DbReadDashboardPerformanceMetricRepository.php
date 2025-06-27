@@ -23,17 +23,36 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class DbReadDashboardPerformanceMetricRepository
+ * @package Core\Dashboard\Infrastructure\Repository
+ */
 class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB implements RepositoryInterface
 {
+    /** @var SqlRequestParametersTranslator */
+    private SqlRequestParametersTranslator $sqlRequestParametersTranslator;
+
+    /** @var QueryParameters */
+    private QueryParameters $queryParameters;
+
     /**
      * @param DatabaseConnection $db
      * @param array<
@@ -48,59 +67,124 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         private array $subRequestsInformation = []
     ) {
         $this->db = $db;
+        $this->queryParameters = new QueryParameters();
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $request = $this->buildQuery($requestParameters);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement);
+        try {
+            $request = $this->buildQuery($requestParameters);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters.',
+                context: ['requestParameters' => $requestParameters->toArray()],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
-        $request = $this->buildQuery($requestParameters, $accessGroups);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement);
+        try {
+            $request = $this->buildQuery($requestParameters, $accessGroups);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters and access groups.',
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                ],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param string $metricName
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
-    public function findByRequestParametersAndMetricName(RequestParametersInterface $requestParameters, string $metricName): array
-    {
-        $request = $this->buildQuery($requestParameters, [], true);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement, $metricName);
+    public function findByRequestParametersAndMetricName(
+        RequestParametersInterface $requestParameters,
+        string $metricName
+    ): array {
+        try {
+            $request = $this->buildQuery($requestParameters, [], true);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters and metric name.',
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'metricName' => $metricName,
+                ],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     * @param string $metricName
+     *
+     * @throws RepositoryException
+     *
+     * @return ResourceMetric[]
      */
     public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
         string $metricName
     ): array {
-        $request = $this->buildQuery($requestParameters, $accessGroups, true);
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement = $this->executeQuery($statement, $metricName);
+        try {
+            $request = $this->buildQuery($requestParameters, $accessGroups, true);
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement = $this->executeQuery($statement, $metricName);
 
-        return $this->buildResourceMetrics($requestParameters, $statement);
+            return $this->buildResourceMetrics($requestParameters, $statement);
+        } catch (\Throwable $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while trying to find performance metrics by request parameters, access groups and metric name.',
+                context: [
+                    'requestParameters' => $requestParameters->toArray(),
+                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                    'metricName' => $metricName,
+                ],
+                previous: $e
+            );
+        }
     }
 
     /**
@@ -115,6 +199,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
+        $bindServiceNames = [];
         foreach ($serviceNames as $key => $serviceName) {
             $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
         }
@@ -141,6 +226,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
+        $bindMetaserviceIds = [];
         foreach ($metaserviceIds as $key => $metaserviceId) {
             $bindMetaserviceIds[':metaservice_' . $key] = [$metaserviceId => \PDO::PARAM_INT];
         }
@@ -167,6 +253,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForHostFilter(array $hostIds): array
     {
+        $bindHostIds = [];
         foreach ($hostIds as $hostId) {
             $bindHostIds[':host_' . $hostId] = [$hostId => \PDO::PARAM_INT];
         }
@@ -446,6 +533,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param AccessGroup[] $accessGroups
      * @param bool $hasMetricName
      *
+     * @throws CollectionException
+     * @throws ValueObjectException
      * @return string
      */
     private function buildQuery(
@@ -453,8 +542,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         array $accessGroups = [],
         bool $hasMetricName = false
     ): string {
-        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
+        $this->sqlRequestParametersTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $this->sqlRequestParametersTranslator->setConcordanceArray(
+            ['current_value' => 'm.current_value']
+        );
 
         $request
             = <<<'SQL_WRAP'
@@ -484,9 +575,13 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
 
-        $request .= <<<'SQL'
-                WHERE r.enabled = 1
-            SQL;
+        // To add a regex join clause for service name if it exists in the search parameters.
+        // To patch a bug from top/bottom widget
+        $serviceRegexWhereClause = $this->addServiceRegexJoinClause($requestParameters);
+        $request .= ! is_null(
+            $serviceRegexWhereClause
+        ) ? " {$serviceRegexWhereClause} AND r.enabled = 1" : ' AND r.enabled = 1';
+        // End of this patch
 
         if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
@@ -495,15 +590,13 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         if ($hasMetricName) {
-            $request .= <<<'SQL'
-                    AND m.metric_name = :metricName
-                SQL;
+            $request .= ' WHERE m.metric_name = :metricName';
         }
 
-        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
+        $sortRequest = $this->sqlRequestParametersTranslator->translateSortParameterToSql();
 
         $request .= $sortRequest ?? ' ORDER BY m.metric_id ASC';
-        $request .= $sqlRequestTranslator->translatePaginationToSql();
+        $request .= $this->sqlRequestParametersTranslator->translatePaginationToSql();
 
         return $request;
     }
@@ -514,7 +607,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param \PDOStatement $statement
      * @param string $metricName
      *
-     * @throws \Throwable
+     * @throws \PDOException
      *
      * @return \PDOStatement
      */
@@ -537,6 +630,21 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $statement->bindValue($bindToken, $bindValue, $paramType);
             }
         }
+
+        // To add a regex join clause for service name if it exists in the search parameters.
+        // To patch a bug from top/bottom widget
+        if (! $this->queryParameters->isEmpty() && $this->queryParameters->has('serviceRegex')){
+            $queryParameter = $this->queryParameters->get('serviceRegex');
+            $statement->bindValue(
+                param: $queryParameter->getName(),
+                value: $queryParameter->getValue(),
+                type: ! is_null($queryParameter->getType())
+                    ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType())
+                    : \PDO::PARAM_STR // Default type if not specified
+            );
+        }
+        // End of this patch
+
         $statement->execute();
 
         return $statement;
@@ -547,6 +655,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *
      * @param RequestParametersInterface $requestParameters
      * @param \PDOStatement $statement
+     *
+     * @throws \PDOException
      *
      * @return ResourceMetric[]
      */
@@ -597,5 +707,41 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         return $resourceMetrics;
+    }
+
+    /**
+     * To add a regex join clause for service name if it exists in the search parameters.
+     * To patch a bug from top/bottom widget
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws CollectionException
+     * @throws ValueObjectException
+     * @return string|null
+     */
+    private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string {
+        if (! $requestParameters->hasSearchParameter('name')) {
+            return null;
+        }
+
+        $searchParameters = $requestParameters->extractSearchNames(true);
+
+        if (($searchParameters['name'] ?? []) === [] || count($searchParameters['name']) !== 1) {
+            return null;
+        }
+        
+        $nameParameter = $searchParameters['name'];
+
+        if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
+            return null;
+        }
+
+        $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
+        $this->queryParameters->add(
+            'serviceRegex',
+            QueryParameter::string(':serviceRegex', $value)
+        );
+
+        return ' AND r.name REGEXP :serviceRegex';
     }
 }

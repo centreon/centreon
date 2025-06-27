@@ -78,6 +78,31 @@ const metaServiceData: Data = {
   ]
 };
 
+const widgetDataRegex: Data = {
+  metrics: [
+    {
+      id: 2,
+      name: 'C:#storage',
+      unit: 'B'
+    }
+  ],
+  resources: [
+    {
+      resourceType: 'service',
+      resources: '^Loa'
+    },
+    {
+      resourceType: 'host',
+      resources: [
+        {
+          id: 1,
+          name: 'H1'
+        }
+      ]
+    }
+  ]
+};
+
 const getTopMetrics = (fixturePath) => {
   cy.fixture(fixturePath).then((topBottom) => {
     cy.interceptAPIRequest({
@@ -205,6 +230,18 @@ describe('Public widget', () => {
 });
 
 describe('TopBottom', () => {
+  it('handles regex resources when the appropriate data is provided', () => {
+    initializeComponent({
+      data: widgetDataRegex
+    });
+
+    cy.waitForRequest('@getTop').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$and":[{"host.id":{"$in":[1]}}]},{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}]}'
+      );
+    });
+  });
+
   it('displays a message when the dataset is empty', () => {
     initializeEmptyComponent();
     cy.contains(labelPreviewRemainsEmpty).should('be.visible');

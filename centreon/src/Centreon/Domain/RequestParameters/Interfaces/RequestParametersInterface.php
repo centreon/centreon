@@ -158,7 +158,9 @@ interface RequestParametersInterface
     public function unsetSearchParameter(string $parameterToExtract);
 
     /**
+     * @param bool $withValueAndOperator
+     *
      * @return array
      */
-    public function extractSearchNames(): array;
+    public function extractSearchNames(bool $withValueAndOperator = false): array;
 }

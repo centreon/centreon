@@ -141,3 +141,16 @@ export const labelLast2Months = 'Last 2 months';
 export const labelGenericWidgets = 'Generic widgets';
 export const labelRealTimeWidgets = 'Real time widgets';
 export const labelMBIReportingWidgets = 'MBI reporting widgets';
+export const labelActivateRegex = 'Enter regex mode';
+export const labelDeactivateRegex = 'Exit regex mode';
+export const labelEnterRegex = 'Enter Regex';
+export const labelDoYouWantToLeaveTheRegexMode =
+  'Do you want to switch to classic mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchRegexMode =
+  'Your changes will not be saved if you leave regex mode.';
+export const labelDoYouWantToLeaveTheClassicMode =
+  'Do you want to switch to regex mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchClassicMode =
+  'Your changes will not be saved if you leave classic mode.';
+export const labelStay = 'Stay';
+export const labelLeave = 'Leave';

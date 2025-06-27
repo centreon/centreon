@@ -110,7 +110,8 @@
       "defaultValue": [],
       "required": false,
       "useAdditionalResources": true,
-      "excludedResourceTypes": ["meta-service"]
+      "excludedResourceTypes": ["meta-service"],
+      "allowRegexOnResourceTypes": ["service"]
     }
   },
   "moduleName": "centreon-widget-statusgrid",
