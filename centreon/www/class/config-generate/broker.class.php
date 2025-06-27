@@ -451,10 +451,11 @@ class Broker extends AbstractObjectJSON
                     if (
                         isset($luaParameter['type'], $luaParameter['value']) &&
                         $luaParameter['type'] === 'password' &&
-                        is_string($luaParameter['value']) &&
-                        $shouldBeEncrypted
+                        is_string($luaParameter['value'])
                     ) {
-                        $luaParameter['value'] = 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value']);
+                        $luaParameter['value'] = $shouldBeEncrypted 
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value'])
+                        : 'raw::' . $this->engineContextEncryption->crypt($luaParameter['value']);
                     }
                 }
             }

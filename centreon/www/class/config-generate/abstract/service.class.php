@@ -165,10 +165,10 @@ abstract class AbstractService extends AbstractObject
                 if ($serviceMacro->getOwnerId() === $service['service_id']) {
                     $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->shouldBeEncrypted()
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($serviceMacro->getValue())
-                        : $serviceMacro->getValue();
+                        : 'raw::' . $serviceMacro->getValue();
                 }
             }
-            $service['macros']['_HOST_ID'] = $service['service_id'];
+            $service['macros']['_SERVICE_ID'] = $service['service_id'];
     }
 
     /**

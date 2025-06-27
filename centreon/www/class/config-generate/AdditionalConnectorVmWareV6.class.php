@@ -109,11 +109,11 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                         'name' => $vSphereServer->getName(),
                         'url' => $vSphereServer->getUrl(),
                         'username' => $shouldBeEncrypted
-                            ? "encrypt::" . $this->engineContextEncryption->crypt($vSphereServer->getUsername())
-                            : $vSphereServer->getUsername(),
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getUsername())
+                            : 'raw::' . $vSphereServer->getUsername(),
                         'password' => $shouldBeEncrypted
-                            ? "encrypt::" . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
-                            : $vSphereServer->getPassword()
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
+                            : 'raw::' . $vSphereServer->getPassword()
                     ],
                     $vmWareConfig->getVSphereServers()
                 ),

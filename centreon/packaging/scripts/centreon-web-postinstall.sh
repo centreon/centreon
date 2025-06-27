@@ -171,7 +171,7 @@ createEngineContextFile() {
   FILE="/etc/centreon-engine/engine-context.json"
   if [ ! -f "$FILE" ]; then
     touch "$FILE"
-    chmod 644 "$FILE"
+    chmod 664 "$FILE"
     chown centreon:centreon "$FILE"
   fi
 }

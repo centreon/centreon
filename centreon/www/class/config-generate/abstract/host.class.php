@@ -248,18 +248,18 @@ abstract class AbstractHost extends AbstractObject
                 if ($hostMacro->getOwnerId() === $host['host_id']) {
                     $host['macros']['_' . $hostMacro->getName()] = $hostMacro->shouldBeEncrypted()
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($hostMacro->getValue())
-                        : $hostMacro->getValue();
+                        : 'raw::' . $hostMacro->getValue();
                 }
             }
             if (isset($host['host_snmp_community'])) {
                 $host['macros']['_SNMPCOMMUNITY'] = $hostMacros[0]?->shouldBeEncrypted()
                     ? 'encrypt::' . $this->engineContextEncryption->crypt($host['host_snmp_community'])
-                    : $host['host_snmp_community'];
+                    : 'raw::' . $host['host_snmp_community'];
             }
-            $host['macros']['_HOST_ID'] = $host['host_id'];
             if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
                 $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
             }
+            $host['macros']['_HOST_ID'] = $host['host_id'];
     }
 
 
