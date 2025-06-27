@@ -64,6 +64,13 @@ export const searchableFields = [
   'information'
 ];
 
+export const searchableFieldsForPerformance = [
+  'h.name',
+  'h.alias',
+  'h.address',
+  's.description'
+];
+
 const statusNameToQueryLanguageName = selectableStatuses
   .map(prop('id'))
   .reduce((previous, current) => {
