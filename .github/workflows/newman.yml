@@ -505,7 +505,7 @@ jobs:
           feature="${feature##*/}"
           feature="${feature%%.postman*}"
           deprecation_file_for_archive="$feature-deprecation.log"
-          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecation.*\" || echo 'deprecation file not found'")
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecations.*\" || echo 'deprecation file not found'")
           docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
           echo "Deprecation log file name generated: $deprecation_file_for_archive"
           echo "Feature"

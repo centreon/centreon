@@ -1,14 +1,6 @@
 monolog:
-  channels: ['centreon', 'deprecation']
+  channels: ['deprecation']
   handlers:
-    system:
-      type: error_log
-      level: warning
-      channels: ['!centreon', '!deprecation']
-    centreon:
-      type: service
-      id: monolog.handler
-      channels: ['centreon']
     deprecation:
       type: stream
       path: '%kernel.logs_dir%/%kernel.environment%.deprecations.log'
