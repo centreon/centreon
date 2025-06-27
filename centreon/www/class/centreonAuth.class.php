@@ -266,6 +266,19 @@ class CentreonAuth
         }
 
         foreach ($authResources as $arId) {
+            // only try to log in using the ldap config that has been used to import the user if it still exists
+            // we check array key 0 because if the ldap config exist and match the contact ar id it defaults to index 0.
+            if ($this->userInfos['ar_id'] !== $arId && array_key_exists(0, $authResources)) {
+                if ($this->debug) {
+                    $this->CentreonLog->insertLog(
+                        CentreonUserLog::TYPE_LDAP,
+                        "[" . self::AUTH_TYPE_LDAP . "] Ignoring LDAP config ID  " . $arId
+                            . " because user " . $this->userInfos['contact_alias']
+                            . " has been imported into Centreon using LDAP config ID " . $this->userInfos['ar_id']
+                    );
+                }
+                continue;
+            }
             if ($autoImport && !isset($this->ldap_auto_import[$arId])) {
                 break;
             }
