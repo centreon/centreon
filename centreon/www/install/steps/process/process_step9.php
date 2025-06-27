@@ -70,8 +70,8 @@ try {
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
     $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
     $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
+    $kernel = Kernel::createForWeb();
     if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
-        $kernel = Kernel::createForWeb();
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
         $databaseVaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
