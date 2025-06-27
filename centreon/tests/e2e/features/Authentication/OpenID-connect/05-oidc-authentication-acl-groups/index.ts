@@ -59,8 +59,7 @@ When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
     configureOpenIDConnect();
-
-    cy.getByLabel({ label: 'Roles mapping' }).click();
+    cy.get('[data-testid="Roles mapping-header"]').click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'

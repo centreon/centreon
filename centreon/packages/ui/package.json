@@ -14,6 +14,7 @@
     "test:ci": "jest --silent --reporter=jest-junit",
     "cypress:ui": "cypress open --component --browser=chrome",
     "cypress:run:updateSnapshots": "cypress run --component --browser=chrome --env updateSnapshots=true",
+    "cypress:run:chromium": "cypress run --component --browser=chromium --env updateSnapshots=true",
     "cypress:run:coverage": "cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
     "cypress:run": "cypress run --component --browser=chrome",
     "cypress:install": "cypress install",

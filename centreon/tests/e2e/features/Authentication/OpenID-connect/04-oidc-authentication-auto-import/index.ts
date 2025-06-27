@@ -70,7 +70,7 @@ When(
     configureOpenIDConnect();
 
     // Auto import users section
-    cy.getByLabel({ label: 'Auto import users' }).click();
+    cy.get('[data-testid="Auto import users-header"]').click();
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
     cy.getByLabel({
       label: 'Contact template',

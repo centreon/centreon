@@ -185,11 +185,11 @@ const initialize = (): void => {
 };
 
 const unfoldPanels = (): void => {
-  cy.findByLabelText(labelGroupsMapping).click();
-  cy.findByLabelText(labelRolesMapping).click();
-  cy.findByLabelText(labelAutoImportUsers).click();
-  cy.findByLabelText(labelAuthenticationConditions).click();
-  cy.findByLabelText(labelIdentityProvider).click();
+  cy.get(`[data-section-group-form-id="${labelGroupsMapping}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelRolesMapping}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelAutoImportUsers}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelAuthenticationConditions}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 };
 
 describe('Open ID', () => {

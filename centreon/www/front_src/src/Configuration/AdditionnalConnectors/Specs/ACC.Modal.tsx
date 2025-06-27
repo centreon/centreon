@@ -88,6 +88,7 @@ export default (): void => {
         .should('not.be.disabled');
 
       cy.get('input[name="port"]')
+        .scrollIntoView()
         .should('be.visible')
         .should('have.value', 5700)
         .should('not.be.disabled');
@@ -130,12 +131,7 @@ export default (): void => {
 
       cy.matchImageSnapshot();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findByText(labelvCenterESX).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 2);
@@ -155,6 +151,7 @@ export default (): void => {
         .should('not.be.disabled');
 
       cy.get('input[name="port"]')
+        .scrollIntoView()
         .should('be.visible')
         .should('have.value', 443)
         .should('not.be.disabled');
@@ -177,12 +174,8 @@ export default (): void => {
 
       cy.findByText(labelModifyConnectorConfiguration).should('be.visible');
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
+
 
       cy.get(`button[data-testid="submit"`)
         .should('have.text', labelSave)
@@ -201,12 +194,7 @@ export default (): void => {
 
       cy.findAllByTestId(labelName).eq(1).clear();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.get(`button[data-testid="submit"`)
         .should('have.text', labelSave)
@@ -269,12 +257,7 @@ export default (): void => {
 
       cy.findByText(labelAddvCenterESX).click();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findAllByTestId('parameterGroup').should('have.length', 2);
 
@@ -290,12 +273,7 @@ export default (): void => {
 
       cy.findByText(labelAddvCenterESX).click();
 
-      cy.findByTestId('Modal')
-        .children()
-        .eq(2)
-        .children()
-        .first()
-        .scrollTo('bottom');
+      cy.findByTestId('modal-body').scrollTo('bottom');
 
       cy.findAllByTestId(labelRemoveVCenterESX).should('have.length', 2);
 

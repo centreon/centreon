@@ -431,7 +431,7 @@ const configureProviderAcls = (): Cypress.Chainable => {
 };
 
 const configureACLGroups = (path: string): Cypress.Chainable => {
-	cy.getByLabel({ label: "Roles mapping" }).click();
+	cy.get('[data-testid="Roles mapping-header"]').click();
 
 	cy.getByLabel({
 		label: "Enable automatic management",

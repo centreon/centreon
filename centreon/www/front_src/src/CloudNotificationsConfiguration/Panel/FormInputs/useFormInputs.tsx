@@ -198,47 +198,47 @@ const useFormInputs = ({
     },
     ...(isBamModuleInstalled
       ? [
-          {
-            additionalLabel: t(labelBusinessViews),
-            additionalLabelClassName: classes.additionalLabel,
+        {
+          additionalLabel: t(labelBusinessViews),
+          additionalLabelClassName: classes.additionalLabel,
 
-            fieldName: '',
-            grid: {
-              alignItems: 'center',
-              columns: [
-                {
-                  connectedAutocomplete: {
-                    additionalConditionParameters: [],
-                    endpoint: businessViewsEndpoint
-                  },
-                  dataTestId: labelSearchBusinessViews,
-                  disableSortedOptions: true,
-                  fieldName: 'businessviews.ids',
-                  label: t(labelSearchBusinessViews),
-                  required: true,
-                  type: InputType.MultiConnectedAutocomplete
+          fieldName: '',
+          grid: {
+            alignItems: 'center',
+            columns: [
+              {
+                connectedAutocomplete: {
+                  additionalConditionParameters: [],
+                  endpoint: businessViewsEndpoint
                 },
-                {
-                  checkbox: {
-                    direction: 'horizontal',
-                    labelPlacement: 'top',
-                    options: translatedServiceEvents
-                  },
-                  dataTestId: labelBusinessViewsEvents,
-                  fieldName: 'businessviews.events',
-                  getDisabled: (values) => isEmpty(values.businessviews.ids),
-                  label: t(labelBusinessViewsEvents),
-                  type: InputType.CheckboxGroup
-                }
-              ],
-              gridTemplateColumns: handleGridTemplate(panelWidth)
-            },
-            group: basicFormGroups[0].name,
-            inputClassName: classes.hostInput,
-            label: t(labelSearchBusinessViews),
-            type: InputType.Grid
-          }
-        ]
+                dataTestId: labelSearchBusinessViews,
+                disableSortedOptions: true,
+                fieldName: 'businessviews.ids',
+                label: t(labelSearchBusinessViews),
+                required: true,
+                type: InputType.MultiConnectedAutocomplete
+              },
+              {
+                checkbox: {
+                  direction: 'horizontal',
+                  labelPlacement: 'top',
+                  options: translatedServiceEvents
+                },
+                dataTestId: labelBusinessViewsEvents,
+                fieldName: 'businessviews.events',
+                getDisabled: (values) => isEmpty(values.businessviews.ids),
+                label: t(labelBusinessViewsEvents),
+                type: InputType.CheckboxGroup
+              }
+            ],
+            gridTemplateColumns: handleGridTemplate(panelWidth)
+          },
+          group: basicFormGroups[0].name,
+          inputClassName: classes.hostInput,
+          label: t(labelSearchBusinessViews),
+          type: InputType.Grid
+        }
+      ]
       : []),
     {
       additionalLabel: <TimePeriodTitle />,
@@ -260,6 +260,7 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
+        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {
