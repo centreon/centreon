@@ -1506,34 +1506,34 @@
         "symfony:check:ci": [
           "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
         ],
-        "phpcsfixer:legacy:src": [
+        "cs:legacy:src": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff"
         ],
-        "phpcsfixer:legacy:src:fix": [
+        "cs:legacy:src:fix": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff"
         ],
-        "phpcsfixer:core": [
+        "cs:core": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff"
         ],
-        "phpcsfixer:core:fix": [
+        "cs:core:fix": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff"
         ],
-        "phpcsfixer:new": [
+        "cs:new": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff"
         ],
-        "phpcsfixer:new:fix": [
+        "cs:new:fix": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff"
         ],
-        "phpstan:legacy:src": [
+        "stan:legacy:src": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G"
         ],
-        "phpstan:core": [
+        "stan:core": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G"
         ],
-        "phpstan:test": [
+        "stan:test": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G"
         ],
-        "phpstan:new": [
+        "stan:new": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G"
         ],
         "php:check8.2": [

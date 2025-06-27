@@ -43,9 +43,9 @@ jobs:
         shell: bash
 
       - name: Run of php-cs-fixer
-        run: composer phpcsfixer:tools
+        run: composer cs:tools
         working-directory: tools
 
       - name: Run of phpstan at level max
-        run: composer phpstan:tools
+        run: composer stan:tools
         working-directory: tools
