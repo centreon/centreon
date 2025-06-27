@@ -178,7 +178,7 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
         ];
     }
 
-    if (! empty($updates)) {
+    if ($updates !== []) {
         $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
         $params = [];
         $whereParams = [];
@@ -297,11 +297,7 @@ $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pea
         SQL
     );
     foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
-        if (preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches)) {
-            $brokerConfigFile = $matches[1];
-        } else {
-            $brokerConfigFile = '';
-        }
+        $brokerConfigFile = preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches) ? $matches[1] : '';
         $pearDB->executePreparedQuery(
             $preparedStatement,
             [

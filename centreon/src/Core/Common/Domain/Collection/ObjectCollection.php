@@ -44,11 +44,7 @@ abstract class ObjectCollection extends Collection
     {
         $serializedItems = [];
         foreach ($this->items as $key => $item) {
-            if (method_exists($item, 'jsonSerialize')) {
-                $serializedItems[$key] = $item->jsonSerialize();
-            } else {
-                $serializedItems[$key] = get_object_vars($item);
-            }
+            $serializedItems[$key] = method_exists($item, 'jsonSerialize') ? $item->jsonSerialize() : get_object_vars($item);
         }
 
         return $serializedItems;

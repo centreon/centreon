@@ -72,7 +72,7 @@ class procedures
      */
     public function fetchProcedures()
     {
-        if (!empty($this->procList)) {
+        if ($this->procList !== []) {
             return null;
         }
 

@@ -49,8 +49,8 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
         PartialUpdateDashboardInput $dashboardInputValidator
     ): PartialUpdateDashboardRequest {
         $name = empty($dashboardInputValidator->name) ? new NoValue() : $dashboardInputValidator->name;
-        $description = $dashboardInputValidator->description === null ? new NoValue(
-        ) : $dashboardInputValidator->description;
+        $description = $dashboardInputValidator->description ?? new NoValue(
+        );
 
         return new PartialUpdateDashboardRequest(
             name: $name,

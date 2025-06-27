@@ -133,7 +133,7 @@ abstract class Collection implements CollectionInterface
      */
     public function isEmpty(): bool
     {
-        return empty($this->items);
+        return $this->items === [];
     }
 
     /**
@@ -253,7 +253,7 @@ abstract class Collection implements CollectionInterface
                 $this->items = $itemsBackup;
 
                 throw new CollectionException(
-                    sprintf('Collections to merge must be instances of %s, %s given', $this::class, $collection::class)
+                    sprintf('Collections to merge must be instances of %s, %s given', static::class, $collection::class)
                 );
             }
         }

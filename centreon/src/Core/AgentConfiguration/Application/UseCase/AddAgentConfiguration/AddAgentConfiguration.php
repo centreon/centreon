@@ -231,7 +231,7 @@ final class AddAgentConfiguration
         $configuration = $agentConfiguration->getConfiguration()->getData();
         if ($agentConfiguration->getType() === Type::CMA) {
             $hostIds = array_map(static fn (array $host): int => $host['id'], $configuration['hosts']);
-            if (! empty($hostIds)) {
+            if ($hostIds !== []) {
                 $hostNamesById = $this->readHostRepository->findNames($hostIds);
                 foreach ($configuration['hosts'] as $index => $host) {
                     $configuration['hosts'][$index]['name'] = $hostNamesById->getName($host['id']);

@@ -89,7 +89,7 @@ class UpdateHostGroupValidator
             );
         });
 
-        if (! empty($unexistentHosts)) {
+        if ($unexistentHosts !== []) {
             throw HostException::idsDoNotExist('hosts', $unexistentHosts);
         }
     }
@@ -112,7 +112,7 @@ class UpdateHostGroupValidator
             $this->readResourceAccessRepository->exist($resourceAccessRuleIds)
         );
 
-        if (! empty($unexistentAccessRules)) {
+        if ($unexistentAccessRules !== []) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 

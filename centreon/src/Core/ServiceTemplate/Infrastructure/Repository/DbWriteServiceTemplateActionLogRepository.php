@@ -170,7 +170,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
             }
 
             if (is_array($value)) {
-                if (empty($value)) {
+                if ($value === []) {
                     $value = '';
                 } elseif (is_string($value[0])) {
                     $value = implode(',', str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $value));

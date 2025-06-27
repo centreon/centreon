@@ -150,7 +150,7 @@ class I18nService
     {
         $data = [];
 
-        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+        $languages = ['fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8'];
 
         foreach ($languages as $language) {
             $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
@@ -210,7 +210,7 @@ class I18nService
     {
         $data = [];
 
-        $languages = array('fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8');
+        $languages = ['fr_FR.UTF-8', 'de_DE.UTF-8', 'es_ES.UTF-8', 'pt-PT.UTF-8', 'pt_BR.UTF-8'];
 
         foreach ($languages as $language) {
             // loop over each installed modules to get translation

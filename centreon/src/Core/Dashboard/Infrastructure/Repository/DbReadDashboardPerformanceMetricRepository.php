@@ -429,7 +429,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             return $acc;
         }, []);
 
-        if (! empty($subRequestForTags)) {
+        if ($subRequestForTags !== []) {
             $subRequests = array_map(fn($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
             $request .= ' INNER JOIN (';
             $request .= implode(' INTERSECT ', $subRequests);

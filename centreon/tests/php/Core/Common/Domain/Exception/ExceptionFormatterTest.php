@@ -53,7 +53,7 @@ it('test format business logic exception without previous', function () {
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -75,7 +75,7 @@ it('test format business logic exception without previous with context', functio
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -100,7 +100,7 @@ it('test format business logic exception with previous', function () {
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')

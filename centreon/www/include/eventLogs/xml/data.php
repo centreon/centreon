@@ -535,13 +535,13 @@ foreach ($tab_id as $openidItem) {
 
 if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unknown, $acknowledgement])) {
 
-    if (!empty($tab_host_ids)) {
+    if ($tab_host_ids !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($tab_host_ids, ':tab_host_ids_', \PDO::PARAM_INT);
         $hostServiceConditions[] = "(logs.host_id IN ($bindQuery) AND (logs.service_id IS NULL OR logs.service_id = 0))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
 
-    if (!empty($tab_svc)) {
+    if ($tab_svc !== []) {
         $serviceConditions = [];
         foreach ($tab_svc as $hostIndex => $services) {
             $hostParam = ':hostId' . $hostIndex;
@@ -567,7 +567,7 @@ if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unkno
 }
 
 // Exclude BAM modules if necessary
-if ($engine == "false" && empty($tab_host_ids) && empty($tab_svc)) {
+if ($engine == "false" && $tab_host_ids === [] && $tab_svc === []) {
     $whereClauses[] = "logs.msg_type NOT IN (4, 5)";
     $whereClauses[] = "logs.host_name NOT LIKE '_Module_BAM%'";
 }
@@ -616,7 +616,7 @@ $fromClause = "FROM logs";
 $joinClauses = [];
 if ($engine == "true" && !empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
-    if (!empty($pollerIds)) {
+    if ($pollerIds !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', \PDO::PARAM_INT);
         $joinClauses[] = "
         INNER JOIN instances i ON i.name = logs.instance_name

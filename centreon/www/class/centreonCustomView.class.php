@@ -68,7 +68,7 @@ class CentreonCustomView
     /** @var */
     protected $userId;
     /** @var array */
-    protected $userGroups;
+    protected $userGroups = [];
     /** @var CentreonDB */
     protected $db;
     /** @var */
@@ -90,7 +90,6 @@ class CentreonCustomView
     {
         $this->userId = is_null($userId) ? $centreon->user->user_id : $userId;
         $this->db = $db;
-        $this->userGroups = [];
         $query = 'SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :userId';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);

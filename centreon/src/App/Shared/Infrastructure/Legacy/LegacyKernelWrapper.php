@@ -60,8 +60,8 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
     private function bootstrapLegacy(): void
     {
         global $constants, $conf_centreon, $centreon_path, $classdir;
-
-        $constants = $conf_centreon = [];
+        $constants = [];
+        $conf_centreon = [];
 
         require $this->projectDir . '/config/centreon.config.php';
 

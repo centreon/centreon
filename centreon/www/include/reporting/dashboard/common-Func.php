@@ -355,13 +355,5 @@ function getTimeString($time, $reportTimePeriod)
 
 function formatData($state, $time, $timeTOTAL, $time_none, $nb_alert, $color)
 {
-    $tab = [];
-    $tab["state"] = _($state);
-    $tab["time"] = CentreonDuration::toString($time);
-    $tab["timestamp"] = $time;
-    $tab["pourcentTime"] = round($time / ($timeTOTAL + 1) * 100, 2);
-    $tab["pourcentkTime"] = $state != "Undetermined" ? round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . "%" : null;
-    $tab["nbAlert"] = $nb_alert;
-    $tab["style"] = "class='ListColCenter' style='background:" . $color . "'";
-    return $tab;
+    return ["state" => _($state), "time" => CentreonDuration::toString($time), "timestamp" => $time, "pourcentTime" => round($time / ($timeTOTAL + 1) * 100, 2), "pourcentkTime" => $state != "Undetermined" ? round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . "%" : null, "nbAlert" => $nb_alert, "style" => "class='ListColCenter' style='background:" . $color . "'"];
 }

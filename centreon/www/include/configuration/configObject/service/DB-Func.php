@@ -3429,7 +3429,7 @@ function updateServiceNotifOptionInterval_MC($service_id = null)
  *
  * @throws CentreonDbException
  */
-function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
+function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = [])
 {
     global $pearDB;
 
@@ -4271,7 +4271,7 @@ function deleteServiceByApi(array $services = []): void
     global $basePath;
 
     $serviceIds = array_keys($services);
-    if (empty($serviceIds)) {
+    if ($serviceIds === []) {
         return;
     }
 
@@ -4296,7 +4296,7 @@ function deleteServiceByApi(array $services = []): void
         }
     }
 
-    if (! empty($servicesWithError)) {
+    if ($servicesWithError !== []) {
         CentreonLog::create()->error(
             CentreonLog::LEVEL_ERROR,
             'Error while deleting services',
@@ -4315,7 +4315,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
     global $basePath;
 
     $serviceTemplateIds = array_keys($serviceTemplates);
-    if (empty($serviceTemplateIds)) {
+    if ($serviceTemplateIds === []) {
         return;
     }
 
@@ -4340,7 +4340,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
         }
     }
 
-    if (! empty($serviceTemplatesWithError)) {
+    if ($serviceTemplatesWithError !== []) {
         CentreonLog::create()->error(
             CentreonLog::LEVEL_ERROR,
             'Error while deleting service templates',

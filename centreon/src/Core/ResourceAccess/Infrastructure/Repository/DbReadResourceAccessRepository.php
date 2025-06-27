@@ -469,7 +469,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
     {
-        if (empty($ruleIds)) {
+        if ($ruleIds === []) {
             return [];
         }
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');

@@ -208,7 +208,7 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
         "RowMenu_duplicate" => $duplicate,
         "RowMenu_delete" => $delete,
     ];
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 

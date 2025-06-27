@@ -193,7 +193,7 @@ final readonly class QueryParameter implements ValueObjectInterface
             throw new ValueObjectException(
                 sprintf(
                     'Expected object of type %s, %s given',
-                    $this::class,
+                    self::class,
                     $object::class
                 )
             );

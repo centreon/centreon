@@ -505,7 +505,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             }
         }
 
-        if (count($unknownAcknowledgement)) {
+        if ($unknownAcknowledgement !== []) {
             throw new CentreonClapiException(
                 self::OBJECT_NOT_FOUND . ' OR not acknowledged : ' . implode('|', $unknownAcknowledgement)
             );
