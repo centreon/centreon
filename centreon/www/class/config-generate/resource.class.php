@@ -82,19 +82,25 @@ class Resource extends AbstractObject
      * @return int|void
      * @throws PDOException
      */
-    public function generateFromPollerId($poller_id)
+    public function generateFromPollerId($pollerId)
     {
-        if (is_null($poller_id)) {
+        if (is_null($pollerId)) {
             return 0;
         }
 
         if (is_null($this->stmt)) {
-            $query = "SELECT resource_name, resource_line, is_password FROM cfg_resource_instance_relations, cfg_resource " .
-                "WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = " .
-                "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
-            $this->stmt = $this->backend_instance->db->prepare($query);
+            $this->stmt = $this->backend_instance->db->prepare(<<<SQL
+                SELECT resource_name, resource_line, is_password, ns.is_encryption_ready
+                FROM cfg_resource_instance_relations, cfg_resource
+                INNER JOIN nagios_server ns
+                    ON ns.id = instance_id
+                WHERE instance_id = :poller_id
+                    AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id
+                    AND cfg_resource.resource_activate = '1';
+                SQL
+            );
         }
-        $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
+        $this->stmt->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
         $this->stmt->execute();
 
         $object = ['resources' => []];
@@ -121,10 +127,19 @@ class Resource extends AbstractObject
                 }
             }
         }
+        $statement = $this->backend_instance->db->prepare(<<<SQL
+            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+            SQL
+        );
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
 
+        $shouldBeEncrypted = (bool) $statement->fetchColumn();
         foreach ($object['resources'] as $macroKey => &$macroValue) {
             if (isset($isPassword[$macroKey])) {
-                $macroValue = "encrypt::" . $this->engineContextEncryption->crypt($macroValue);
+                $macroValue =  $shouldBeEncrypted
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($macroValue)
+                : 'raw::' . $this->engineContextEncryption->crypt($macroValue);
             }
         }
 
