@@ -91,6 +91,7 @@ const InputGroup = ({
 
   return (
     <MultiConnectedAutocompleteField
+    disableSortedOptions
       chipProps={{
         onDelete
       }}
@@ -103,6 +104,7 @@ const InputGroup = ({
       placeholder={t(currentLabel)}
       search={dataByFilterName?.autocompleteSearch}
       value={value}
+      exclusionOptionProperty="name"
       onChange={handleChange}
     />
   );

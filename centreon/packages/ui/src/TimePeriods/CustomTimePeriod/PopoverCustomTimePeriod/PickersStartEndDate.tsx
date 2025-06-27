@@ -10,8 +10,6 @@ import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import { userAtom } from '@centreon/ui-context';
-
 import DateTimePickerInput from '../../DateTimePickerInput';
 import { isInvalidDate } from '../../helpers';
 import {
@@ -20,6 +18,7 @@ import {
 } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
+import { useLocale } from '../../../utils';
 import ErrorText from './ErrorText';
 import {
   PickersStartEndDateDirection,
@@ -100,7 +99,7 @@ const PickersStartEndDate = ({
 }: PickersStartEndDateProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const { locale } = useAtomValue(userAtom);
+  const locale = useLocale();
   const error = useAtomValue(errorTimePeriodAtom);
   const isError = error || isInvalidDate({ endDate, startDate });
 

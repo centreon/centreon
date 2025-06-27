@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain\Collection;
 
+use Core\Common\Domain\Exception\CollectionException;
+
 /**
  * Interface
  *
@@ -38,7 +40,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return TItem[]
      */
-    public function all(): array;
+    public function toArray(): array;
 
     /**
      * Delete all items of collection
@@ -57,9 +59,10 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     /**
      * @param int|string $key
      *
+     * @throws CollectionException
      * @return TItem
      */
-    public function get(int|string $key);
+    public function get(int|string $key): mixed;
 
     /**
      * @param int|string $key
@@ -88,17 +91,75 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function length(): int;
 
     /**
+     * @param TItem $item
+     *
+     * @throws CollectionException
+     * @return int|string
+     */
+    public function indexOf(mixed $item): int|string;
+
+    /**
      * @param callable $callable
      *
-     * @return CollectionInterface<TItem>
+     * @return true
      */
-    public function filter(callable $callable): self;
+    public function sortByValues(callable $callable): bool;
+
+    /**
+     * @param callable $callable
+     *
+     * @return true
+     */
+    public function sortByKeys(callable $callable): bool;
+
+    /**
+     * Filter the collection by a callable using the item as parameter
+     *
+     * @param callable $callable
+     *
+     * @throws CollectionException
+     * @return CollectionInterface<TItem>
+     *
+     * @example $collection = new Collection([1, 2, 3, 4, 5]);
+     *          $filteredCollection = $collection->filterValues(fn($item) => $item > 2);
+     *          // $filteredCollection = [3, 4, 5]
+     */
+    public function filterOnValue(callable $callable): self;
+
+    /**
+     * Filter the collection by a callable using the key as parameter
+     *
+     * @param callable $callable
+     *
+     * @throws CollectionException
+     * @return CollectionInterface<TItem>
+     *
+     * @example $collection = new Collection(['key1' => 'foo', 'key2' => 'bar']);
+     *         $filteredCollection = $collection->filterKeys(fn($key) => $key === 'key1');
+     *        // $filteredCollection = ['key1' => 'foo']
+     */
+    public function filterOnKey(callable $callable): self;
+
+    /**
+     * Filter the collection by a callable using the item and key as parameters
+     *
+     * @param callable $callable
+     *
+     * @throws CollectionException
+     * @return CollectionInterface<TItem>
+     *
+     * @example $collection = new Collection(['key1' => 'foo', 'key2' => 'bar']);
+     *        $filteredCollection = $collection->filterValueKey(fn($item, $key) => $key === 'key1' && $item === 'foo');
+     *       // $filteredCollection = ['key1' => 'foo']
+     */
+    public function filterOnValueKey(callable $callable): self;
 
     /**
      * Merge collections with actual collection. Collections must to be the same of actual.
      *
      * @param CollectionInterface<TItem> ...$collections
      *
+     * @throws CollectionException
      * @return CollectionInterface<TItem>
      */
     public function mergeWith(self ...$collections): self;
@@ -107,6 +168,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      * @param int|string $key
      * @param TItem $item
      *
+     * @throws CollectionException
      * @return CollectionInterface<TItem>
      */
     public function add(int|string $key, mixed $item): self;
@@ -115,6 +177,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      * @param int|string $key
      * @param TItem $item
      *
+     * @throws CollectionException
      * @return CollectionInterface<TItem>
      */
     public function put(int|string $key, mixed $item): self;
@@ -134,6 +197,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function values(): array;
 
     /**
+     * @throws CollectionException
      * @return string
      */
     public function toJson(): string;

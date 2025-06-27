@@ -63,15 +63,15 @@ export const ThresholdLine = ({
         strokeDasharray="6, 6"
         strokeWidth={2}
         x1={scaledValue}
-        x2={scaledValue}
+        x2={scaledValue + 1}
         y1={
           isSmall
-            ? groupMargin - lineMargin + 6
+            ? groupMargin - lineMargin
             : groupMargin + lineMargin + margins.top
         }
         y2={
           isSmall
-            ? barHeight + groupMargin - lineMargin + margins.top - 2
+            ? barHeight + groupMargin - lineMargin + margins.top - 6
             : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
       />
@@ -80,15 +80,15 @@ export const ThresholdLine = ({
         stroke="transparent"
         strokeWidth={5}
         x1={scaledValue}
-        x2={scaledValue}
+        x2={scaledValue + 1}
         y1={
           isSmall
-            ? groupMargin - lineMargin + 5
+            ? groupMargin - lineMargin
             : groupMargin + lineMargin + margins.top
         }
         y2={
           isSmall
-            ? barHeight + groupMargin - lineMargin + margins.top + 5
+            ? barHeight + groupMargin - lineMargin + margins.top - 6
             : barHeight + groupMargin + lineMargin + 2 * margins.top
         }
         onMouseEnter={onMouseEnter}

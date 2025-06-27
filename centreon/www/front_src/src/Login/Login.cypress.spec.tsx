@@ -267,7 +267,7 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal('{"login":"admin","password":"centreon"}');
+      expect(request.body).deep.equal({ login: 'admin', password: 'centreon' });
     });
 
     cy.waitForRequest('@getUser');
@@ -294,9 +294,10 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal(
-        '{"login":"invalid_alias","password":"invalid_password"}'
-      );
+      expect(request.body).deep.equal({
+        login: 'invalid_alias',
+        password: 'invalid_password'
+      });
     });
 
     cy.contains(labelInvalidCredentials)

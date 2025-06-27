@@ -131,12 +131,20 @@ final class FindResourcesRequestValidator
     ];
 
     /** Query parameters that should be ignored but not forbidden. */
-    private const PAGINATION_PARAMETERS = [
+    private const IGNORED_PARAMETERS = [
         RequestParameters::NAME_FOR_LIMIT,
         RequestParameters::NAME_FOR_PAGE,
         RequestParameters::NAME_FOR_SEARCH,
         RequestParameters::NAME_FOR_SORT,
         RequestParameters::NAME_FOR_TOTAL,
+    ];
+
+    /** Query parameters for export that should be ignored but not forbidden only on export */
+    private const EXPORT_IGNORED_PARAMETERS = [
+        'format',
+        'columns',
+        'all_pages',
+        'max_lines',
     ];
 
     /** @var array<string> */
@@ -172,24 +180,28 @@ final class FindResourcesRequestValidator
 
     /**
      * @param array<mixed> $queryParameters
-     *
-     * @throws \InvalidArgumentException
+     * @param bool $isExport
      *
      * @return _RequestParameters
      */
-    public function validateAndRetrieveRequestParameters(array $queryParameters): array
+    public function validateAndRetrieveRequestParameters(array $queryParameters, bool $isExport = false): array
     {
         $filterData = self::EMPTY_FILTERS;
 
         // Do not handle pagination query parameters and check that parameters are handled
         foreach ($queryParameters as $param => $data) {
             // skip pagination parameters
-            if (\in_array($param, self::PAGINATION_PARAMETERS, true)) {
+            if (in_array($param, self::IGNORED_PARAMETERS, true)) {
+                continue;
+            }
+
+            // export parameters are allowed and ignored
+            if ($isExport && in_array($param, self::EXPORT_IGNORED_PARAMETERS, true)) {
                 continue;
             }
 
             // do not allow query parameters not managed
-            if (! \array_key_exists($param, $filterData)) {
+            if (! array_key_exists($param, $filterData)) {
                 throw new \InvalidArgumentException(
                     'Request parameter provided not handled',
                     self::ERROR_UNKNOWN_PARAMETER
@@ -225,8 +237,6 @@ final class FindResourcesRequestValidator
                     $filterData[$param] = $this->ensureStatusTypes($param, $value);
                     break;
                 case self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
-                    $filterData[$param] = $this->ensureBoolean($param, $value);
-                    break;
                 case self::PARAM_RESOURCES_WITH_OPENED_TICKETS:
                     $filterData[$param] = $this->ensureBoolean($param, $value);
                     break;
@@ -249,7 +259,7 @@ final class FindResourcesRequestValidator
     private function tryJsonDecodeParameterValue(mixed $parameterValue): mixed
     {
         try {
-            return \is_string($parameterValue)
+            return is_string($parameterValue)
                 ? json_decode($parameterValue, true, 512, JSON_THROW_ON_ERROR)
                 : $parameterValue;
         } catch (\JsonException) {
@@ -271,8 +281,12 @@ final class FindResourcesRequestValidator
     {
         $types = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, $this->resourceTypes, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+            if (! in_array($string, $this->resourceTypes, true)) {
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_RESOURCE_TYPE);
             }
@@ -296,8 +310,12 @@ final class FindResourcesRequestValidator
     {
         $statuses = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::ALLOWED_STATUSES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+            if (! in_array($string, self::ALLOWED_STATUSES, true)) {
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS);
             }
@@ -321,8 +339,12 @@ final class FindResourcesRequestValidator
     {
         $states = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::ALLOWED_STATES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+            if (! in_array($string, self::ALLOWED_STATES, true)) {
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATE);
             }
@@ -346,8 +368,12 @@ final class FindResourcesRequestValidator
     {
         $statusTypes = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::ALLOWED_STATUS_TYPES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+            if (! in_array($string, self::ALLOWED_STATUS_TYPES, true)) {
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS_TYPE);
             }
@@ -371,7 +397,7 @@ final class FindResourcesRequestValidator
     {
         $strings = [];
         foreach ($this->ensureArray($parameterName, $values) as $value) {
-            if (! \is_string($value)) {
+            if (! is_string($value)) {
                 $message = sprintf('Values provided for %s should only be strings', $parameterName);
                 $this->error($message);
 
@@ -397,10 +423,10 @@ final class FindResourcesRequestValidator
     {
         $integers = [];
         foreach ($this->ensureArray($parameterName, $values) as $value) {
-            if (\is_string($value) && ctype_digit($value)) {
+            if (is_string($value) && ctype_digit($value)) {
                 // Cast strings which are string-integers.
                 $value = (int) $value;
-            } elseif (! \is_int($value)) {
+            } elseif (! is_int($value)) {
                 $message = sprintf('Values provided for %s should only be integers', $parameterName);
                 $this->error($message);
 
@@ -424,7 +450,7 @@ final class FindResourcesRequestValidator
      */
     private function ensureArray(string $parameterName, mixed $value): array
     {
-        if (! \is_array($value)) {
+        if (! is_array($value)) {
             $message = sprintf('Value provided for %s is not correctly formatted. Array expected.', $parameterName);
 
             throw new \InvalidArgumentException($message, self::ERROR_NOT_AN_ARRAY);
@@ -445,7 +471,7 @@ final class FindResourcesRequestValidator
      */
     private function ensureBoolean(string $parameterName, mixed $value): bool
     {
-        if (! \is_bool($value)) {
+        if (! is_bool($value)) {
             throw new \InvalidArgumentException(
                 sprintf('Value provided for %s is not correctly formatted. Boolean expected', $parameterName),
                 self::ERROR_NOT_A_BOOLEAN
@@ -467,7 +493,7 @@ final class FindResourcesRequestValidator
      */
     private function ensureInt(string $parameterName, mixed $value): int
     {
-        if (! \is_int($value)) {
+        if (! is_int($value)) {
             throw new \InvalidArgumentException(
                 sprintf('Value provided for %s is not correctly formatted. Integer expected', $parameterName),
                 self::ERROR_NOT_A_INT

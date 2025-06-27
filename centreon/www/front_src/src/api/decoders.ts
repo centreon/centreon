@@ -52,7 +52,7 @@ export const userDecoder = JsonDecoder.object<User>(
     id: JsonDecoder.number,
     isAdmin: JsonDecoder.optional(JsonDecoder.boolean),
     isExportButtonEnabled: JsonDecoder.boolean,
-    locale: JsonDecoder.string,
+    locale: JsonDecoder.nullable(JsonDecoder.string),
     name: JsonDecoder.string,
     themeMode: JsonDecoder.optional(
       JsonDecoder.enumeration<ThemeMode>(ThemeMode, 'ThemeMode')

@@ -33,6 +33,7 @@ beforeEach(function (): void {
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',
         'otel_private_key' => 'otel_key_filename',
+        'tokens' => [],
         'hosts' => [
             [
                 'address' => '0.0.0.0',
@@ -101,7 +102,7 @@ foreach (
     )->throws(
         AssertionException::maxLength(
             CmaConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
-            CmaConfigurationParameters::MAX_LENGTH+ strlen(CmaConfigurationParameters::CERTIFICATE_BASE_PATH),
+            CmaConfigurationParameters::MAX_LENGTH + strlen(CmaConfigurationParameters::CERTIFICATE_BASE_PATH),
             CmaConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()

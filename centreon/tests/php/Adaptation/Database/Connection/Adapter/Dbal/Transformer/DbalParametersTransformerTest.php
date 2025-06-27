@@ -110,7 +110,7 @@ it('reverse to query parameters', function () {
         ]
     );
     expect($queryParameters)->toBeInstanceOf(QueryParameters::class)
-        ->and($queryParameters->all())->toBeArray()->toHaveKeys(
+        ->and($queryParameters->toArray())->toBeArray()->toHaveKeys(
             [
                 'host_id',
                 'host_name',

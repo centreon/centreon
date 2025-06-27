@@ -4,7 +4,7 @@ import { animated, useSpring } from '@react-spring/web';
 import { scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { Group, Tooltip } from '@visx/visx';
-import { equals, flatten, head, lt, pluck } from 'ramda';
+import { clamp, equals, flatten, head, pluck } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
 
@@ -40,8 +40,6 @@ const ResponsiveSingleBar = ({
   const { classes } = useTooltipStyles();
   const theme = useTheme();
 
-  const isSmallHeight = lt(height, 150);
-
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
   const thresholdValues = thresholds.enabled
@@ -72,7 +70,7 @@ const ResponsiveSingleBar = ({
     [latestMetricData, thresholds, theme]
   );
 
-  const isSmall = equals(size, 'small') || isSmallHeight;
+  const isSmall = equals(size, 'small');
 
   const textStyle = isSmall ? theme.typography.h6 : theme.typography.h4;
 
@@ -118,14 +116,15 @@ const ResponsiveSingleBar = ({
 
   const springStyle = useSpring({ width: metricBarWidth });
 
-  const barHeight = isSmallHeight ? barHeights.small : barHeights[size];
-
   const barY = groupMargin + (isSmall ? 0 : 2 * margins.top);
 
-  const realBarHeight =
-    !isSmall && textHeight + barHeight > height
-      ? height - textHeight - 2 * margins.top
-      : barHeight;
+  const realBarHeight = isSmall
+    ? barHeights.small
+    : clamp(
+        barHeights.small,
+        barHeights.medium,
+        height - textHeight - 2 * margins.top
+      );
 
   return (
     <div

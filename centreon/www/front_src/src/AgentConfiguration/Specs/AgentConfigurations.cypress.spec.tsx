@@ -6,7 +6,6 @@ import {
   labelAdd,
   labelAddAHost,
   labelAddAgentConfiguration,
-  labelAddHost,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
   labelAgentType,
@@ -37,6 +36,8 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
+  labelSelectExistingCMAToken,
+  labelSelectHost,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
@@ -109,7 +110,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -182,7 +183,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').eq(0).type('My agent');
+    cy.findAllByTestId('Search').find('input').type('My agent');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentTypes).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -373,7 +374,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal({
+      expect(request.body).to.deep.equal({
         name: 'agent',
         connection_mode: 'secure',
         type: 'telegraf',
@@ -406,7 +407,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal({
+      expect(request.body).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
         connection_mode: 'secure',
@@ -437,7 +438,7 @@ describe('Agent configurations modal', () => {
     cy.findByTestId('confirm').click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal({
+      expect(request.body).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
         connection_mode: 'secure',
@@ -529,6 +530,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
+
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
@@ -536,15 +538,21 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).type('/certificate/test.crt');
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('privateKey.key');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).deep.equal({
+      expect(request.body).deep.equal({
         name: 'My agent',
         connection_mode: 'secure',
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
+          tokens: [{ name: 'token 1', creator_id: 1 }],
           is_reverse: false,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/certificate/test.crt',
@@ -564,7 +572,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
 
     cy.waitForRequest('@getHosts');
 
@@ -636,24 +644,29 @@ describe('Agent configurations modal', () => {
     cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
     cy.findAllByLabelText(labelCaCertificate).eq(1).type('test.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).type('test.crt');
-    cy.contains(labelSave).click();
+
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
+
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).deep.equal({
+      expect(request.body).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
         connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
+          tokens: [],
           is_reverse: true,
           otel_ca_certificate: 'test.crt',
           otel_public_certificate: '/test.cer',
           otel_private_key: 'private.key',
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: 'test.crt',
@@ -726,7 +739,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal({
+      expect(request.body).to.deep.equal({
         name: 'My agent',
         connection_mode: 'no-tls',
         type: 'telegraf',
@@ -766,27 +779,30 @@ describe('Agent configurations modal', () => {
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelPrivateKey).should('not.exist');
-    cy.findByLabelText(labelAddHost).click();
+    cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).should('not.exist');
 
     cy.makeSnapshot();
 
-    cy.contains(labelSave).click();
+    cy.findByTestId('submit').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(JSON.parse(request.body)).deep.equal({
+      expect(request.body).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
         connection_mode: 'no-tls',
         poller_ids: [1],
         configuration: {
           is_reverse: true,
+          tokens: [],
           otel_ca_certificate: null,
           otel_public_certificate: null,
           otel_private_key: null,
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: null,

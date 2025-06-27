@@ -42,6 +42,9 @@
     "user_id_attribute": {
       "type": "string"
     },
+    "requested_authn_context": {
+      "type": "string"
+    },
     "logout_from": {
       "type": "boolean"
     },

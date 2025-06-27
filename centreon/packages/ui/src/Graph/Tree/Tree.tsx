@@ -84,10 +84,10 @@ export const Tree = <TData extends BaseProp>({
   );
 
   return (
-    <Group left={node.width}>
+    <Group left={node.width / 2}>
       <VisxTree
         left={0}
-        nodeSize={[node.width + nodeMargins.y, node.height + nodeMargins.x]}
+        nodeSize={[node.height + nodeMargins.x, node.height + node.width]}
         root={hierarchy(formattedTree, getExpanded)}
         separation={() => 1}
         size={[containerWidth, containerHeight]}

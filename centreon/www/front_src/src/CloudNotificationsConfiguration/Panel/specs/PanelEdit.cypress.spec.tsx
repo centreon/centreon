@@ -507,7 +507,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editNotificationRequest').then(({ request }) => {
-      expect(JSON.parse(request.body).is_activated).to.equal(true);
+      expect(request.body.is_activated).to.equal(true);
     });
 
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');

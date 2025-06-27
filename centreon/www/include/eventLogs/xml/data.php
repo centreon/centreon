@@ -354,7 +354,7 @@ if ($export) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while fetching hosts',
-            $e->getOptions()
+            $e->getContext()
         );
     }
 }
@@ -701,7 +701,7 @@ try {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching logs',
-        $e->getOptions()
+        $e->getContext()
     );
 }
 
@@ -809,7 +809,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_BUSINESS_LOG,
                     'Error while fetching meta_services',
-                    $e->getOptions()
+                    $e->getContext()
                 );
             }
         } else {

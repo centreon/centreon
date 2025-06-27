@@ -26,6 +26,7 @@ namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Host\Domain\Model\HostNamesById;
 
 final class FindAgentConfigurationResponse implements StandardResponseInterface
 {
@@ -34,9 +35,13 @@ final class FindAgentConfigurationResponse implements StandardResponseInterface
      *
      * @param AgentConfiguration $agentConfiguration
      * @param Poller[] $pollers
+     * @param ?HostNamesById $hostNamesById
      */
-    public function __construct(public readonly AgentConfiguration $agentConfiguration, public readonly array $pollers)
-    {
+    public function __construct(
+        public readonly AgentConfiguration $agentConfiguration,
+        public readonly ?HostNamesById $hostNamesById,
+        public readonly array $pollers
+    ) {
     }
 
     /**

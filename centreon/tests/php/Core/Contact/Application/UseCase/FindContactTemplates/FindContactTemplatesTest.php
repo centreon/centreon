@@ -57,10 +57,10 @@ it('should present an ErrorResponse when an exception occurred', function (): vo
     $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
     $useCase($presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        ContactTemplateException::errorWhileSearchingForContactTemplate()->getMessage()
-    );
+    expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)
+        ->and($presenter->data->getMessage())->toBe(
+            ContactTemplateException::errorWhileSearchingForContactTemplate()->getMessage()
+        );
 });
 
 it('should present a ForbiddenResponse if the user does not have the read menu access to contact templates', function (): void {
@@ -74,10 +74,10 @@ it('should present a ForbiddenResponse if the user does not have the read menu a
     $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
     $useCase($presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        ContactTemplateException::listingNotAllowed()->getMessage()
-    );
+    expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($presenter->data->getMessage())->toBe(
+            ContactTemplateException::listingNotAllowed()->getMessage()
+        );
 });
 
 it('should present a FindContactTemplatesResponse when no error occured', function (): void {
@@ -97,11 +97,11 @@ it('should present a FindContactTemplatesResponse when no error occured', functi
     $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
     $useCase($presenter);
 
-    expect($presenter->response)->toBeInstanceOf(FindContactTemplatesResponse::class);
-    expect($presenter->response->contactTemplates[0])->toBe(
-        [
-            'id' => 1,
-            'name' => 'contact_template'
-        ]
-    );
+    expect($presenter->data)->toBeInstanceOf(FindContactTemplatesResponse::class)
+        ->and($presenter->data->contactTemplates[0])->toBe(
+            [
+                'id' => 1,
+                'name' => 'contact_template'
+            ]
+        );
 });
