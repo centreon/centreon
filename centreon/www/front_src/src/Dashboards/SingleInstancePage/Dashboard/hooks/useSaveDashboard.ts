@@ -65,7 +65,6 @@ const dataToFormData = ({ panels, formData }: DataToFormDataProps): void => {
   }
 
   panels.forEach((panel, index) => {
-    console.debug('panel', panel);
     if (panel.id) {
       formData.append(`panels[${index}][id]`, panel.id);
     }
