@@ -795,6 +795,10 @@ msgid "Add a widget"
 msgstr "Adicionar uma ferramenta"
 
 #: centreon/www/install/front_translate.php
+msgid "Add additional configurations"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Add advanced server configuration"
 msgstr ""
 
@@ -814,6 +818,10 @@ msgstr "Adicionar Escala"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Add an Extended Info"
 msgstr "Adicionar uma informação extendida"
+
+#: centreon/www/install/front_translate.php
+msgid "Add an additional configuration"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Add an advanced configuration"
@@ -837,6 +845,10 @@ msgstr "Adicionar manutenção"
 
 #: centreon/www/install/front_translate.php
 msgid "Add filter"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add host group"
 msgstr ""
 
 #: centreon/www/install/steps/process/installConfigurationDb.php
@@ -3757,10 +3769,6 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 msgid "Create a view"
 msgstr "Criar uma visão"
-
-#: centreon/www/install/front_translate.php
-msgid "Create additional configuration"
-msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Create and edit pollers"
@@ -7395,6 +7403,12 @@ msgid ""
 "store it well."
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"For some connectors, you must define on the poller the credentials required "
+"to access the monitored hosts. You can do it easily from here."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
 msgstr "Forçar checagens Ativa"
@@ -10979,6 +10993,10 @@ msgstr "Modificar Escala"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Modify an Extended Info"
 msgstr "Editar informações adicionais"
+
+#: centreon/www/install/front_translate.php
+msgid "Modify an additional configuration"
+msgstr ""
 
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
@@ -17414,10 +17432,6 @@ msgid "Update"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Update additional configuration"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr ""
 
@@ -18153,6 +18167,14 @@ msgstr "Bem vindo ao processo de configuração do Centreon"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the additional configurations page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the host groups page"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19487,6 +19509,10 @@ msgstr ""
 
 #: centreon/www/class/centreonContact.class.php
 msgid "uppercase characters"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "vCenter/ESX"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

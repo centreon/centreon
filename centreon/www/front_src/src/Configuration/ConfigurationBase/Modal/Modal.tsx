@@ -1,11 +1,9 @@
 import { Modal } from '@centreon/ui/components';
 
-import { Typography } from '@mui/material';
-
 import Form from './Form/Form';
 
+import { JSX } from 'react';
 import { Form as FormType } from '../../models';
-import { useStyles } from './Modal.styles';
 import useModal from './useModal';
 
 interface Props {
@@ -14,8 +12,6 @@ interface Props {
 }
 
 const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
-  const { classes } = useStyles();
-
   const {
     labelHeader,
     submit,
@@ -29,9 +25,7 @@ const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
 
   return (
     <Modal data-testid="Modal" open={isOpen} size="xlarge" onClose={close}>
-      <Modal.Header data-testid="Modal-header">
-        <Typography className={classes.modalHeader}>{labelHeader}</Typography>
-      </Modal.Header>
+      <Modal.Header data-testid="Modal-header">{labelHeader}</Modal.Header>
       <Modal.Body>
         <Form
           onSubmit={submit}
