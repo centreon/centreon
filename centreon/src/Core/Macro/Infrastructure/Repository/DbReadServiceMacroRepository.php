@@ -123,7 +123,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
     public function findServicesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<SQL
+            $this->translateDbName(<<<'SQL'
                 SELECT
                     odms.svc_svc_id,
                     odms.svc_macro_name,
@@ -168,7 +168,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
     public function findServiceTemplatesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<SQL
+            $this->translateDbName(<<<'SQL'
                 SELECT
                     odms.svc_svc_id,
                     odms.svc_macro_name,

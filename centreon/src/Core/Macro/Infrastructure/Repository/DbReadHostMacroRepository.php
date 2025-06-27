@@ -167,7 +167,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
     public function findHostsMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<SQL
+            $this->translateDbName(<<<'SQL'
                 SELECT
                     odmh.host_host_id,
                     odmh.host_macro_name,
@@ -210,7 +210,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
     public function findHostTemplatesMacrosWithEncryptionReady(int $pollerId): array
     {
         $results = $this->connection->fetchAllAssociative(
-            $this->translateDbName(<<<SQL
+            $this->translateDbName(<<<'SQL'
                 SELECT
                     odmh.host_host_id,
                     odmh.host_macro_name,
