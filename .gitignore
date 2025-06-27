@@ -9,6 +9,7 @@ xunit-reports
 **/vendor/
 **/nbproject/
 **/.project
+**/var
 
 # front development files
 **/node_modules/
