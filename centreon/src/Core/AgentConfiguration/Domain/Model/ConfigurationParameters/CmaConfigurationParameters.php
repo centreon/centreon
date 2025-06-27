@@ -110,9 +110,10 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 $connectionMode !== ConnectionModeEnum::NO_TLS
                 && $parameters['is_reverse'] === true
             ) {
-                Assertion::notNull($host['token'], 'configuration.hosts[].token');
-                Assertion::notEmptyString($host['token']['name'] ?? '');
-                Assertion::positiveInt($host['token']['creator_id'] ?? 0);
+                if ($host['token'] !== null) {
+                    Assertion::notEmptyString($host['token']['name'], 'configuration.hosts[].token.name');
+                    Assertion::positiveInt($host['token']['creator_id'], 'configuration.hosts[].token.creator_id');
+                }
             } else {
                 $parameters['hosts'][$index]['token'] = null;
             }
