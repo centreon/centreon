@@ -52,6 +52,9 @@ export const useListMetrics = ({
   resources,
   selectedMetrics = []
 }: Props): UseListMetricsState => {
+  const resourcesWithString = resources.filter((resource) =>
+    isResourcesString(resource.resources)
+  );
   const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
@@ -62,22 +65,20 @@ export const useListMetrics = ({
         parameters: {
           limit: 1000,
           search: {
-            conditions: resources
-              .filter((resource) => isResourcesString(resource.resources))
-              .map((resource) => ({
-                field: buildResourceTypeNameForSearchParameter(
-                  resource.resourceType
-                ),
-                values: {
-                  $rg: resource.resources
-                }
-              })),
+            conditions: isEmpty(resourcesWithString)
+              ? undefined
+              : resourcesWithString.map((resource) => ({
+                  field: buildResourceTypeNameForSearchParameter(
+                    resource.resourceType
+                  ),
+                  values: {
+                    $rg: resource.resources
+                  }
+                })),
             lists: resources
               .filter((resource) => !isResourcesString(resource.resources))
               .map((resource) => ({
-                field: equals(resource.resourceType, 'hostgroup')
-                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                  : resourceTypeQueryParameter[resource.resourceType],
+                field: resourceTypeQueryParameter[resource.resourceType],
                 values: equals(resource.resourceType, 'service')
                   ? pluck('name', resource.resources)
                   : pluck('id', resource.resources)
