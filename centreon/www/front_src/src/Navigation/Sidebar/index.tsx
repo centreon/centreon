@@ -82,7 +82,7 @@ export default ({ navigationData }: Props): JSX.Element => {
         open={isMenuOpen}
         variant="permanent"
         classes={{
-          paper: 'bg-rose-700 dark:bg-rose-900'
+          paper: 'bg-pink-700 dark:bg-pink-900'
         }}
       >
         <DrawerHeader>
