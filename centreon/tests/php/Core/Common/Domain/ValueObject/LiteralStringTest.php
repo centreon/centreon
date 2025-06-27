@@ -25,30 +25,30 @@ namespace Tests\Core\Common\Domain\ValueObject;
 
 use Core\Common\Domain\ValueObject\LiteralString;
 
-it('correct instanciation', function () {
+it('correct instanciation', function (): void {
     $string = "foo";
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
-it('get value', function () {
+it('get value', function (): void {
     $string = "foo";
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
-it('is empty', function () {
+it('is empty', function (): void {
     $string = "";
     $literalString = new LiteralString($string);
     expect($literalString->isEmpty())->toBeTrue();
 });
 
-it('length', function () {
+it('length', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->length())->toBe(3);
 });
 
-it('to uppercase', function () {
+it('to uppercase', function (): void {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->toUpperCase();
     expect($literalString)
@@ -61,7 +61,7 @@ it('to uppercase', function () {
         ->toBe("FOO");
 });
 
-it('to lowercase', function () {
+it('to lowercase', function (): void {
     $literalString = new LiteralString("FOO");
     $newLiteralString = $literalString->toLowerCase();
     expect($literalString)
@@ -74,7 +74,7 @@ it('to lowercase', function () {
         ->toBe("foo");
 });
 
-it('trim', function () {
+it('trim', function (): void {
     $literalString = new LiteralString(" foo ");
     $newLiteralString = $literalString->trim();
     expect($literalString)
@@ -87,27 +87,27 @@ it('trim', function () {
         ->toBe("foo");
 });
 
-it('starts with', function () {
+it('starts with', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->startsWith("f"))->toBeTrue();
 });
 
-it('not starts with', function () {
+it('not starts with', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->startsWith("bar"))->toBeFalse();
 });
 
-it('ends with', function () {
+it('ends with', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->endsWith("o"))->toBeTrue();
 });
 
-it('not ends with', function () {
+it('not ends with', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->endsWith("bar"))->toBeFalse();
 });
 
-it('replace', function () {
+it('replace', function (): void {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->replace("foo", "bar");
     expect($literalString)
@@ -120,17 +120,17 @@ it('replace', function () {
         ->toBe("bar");
 });
 
-it('contains', function () {
+it('contains', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->contains("o"))->toBeTrue();
 });
 
-it('not contains', function () {
+it('not contains', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->contains("bar"))->toBeFalse();
 });
 
-it('append', function () {
+it('append', function (): void {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->append("bar");
     expect($literalString)
@@ -143,30 +143,30 @@ it('append', function () {
         ->toBe("foobar");
 });
 
-it('equal', function () {
+it('equal', function (): void {
     $literalString1 = new LiteralString("foo");
     $literalString2 = new LiteralString("foo");
     expect($literalString1->equals($literalString2))->toBeTrue();
 });
 
-it('not equal', function () {
+it('not equal', function (): void {
     $literalString1 = new LiteralString("foo");
     $literalString2 = new LiteralString("bar");
     expect($literalString1->equals($literalString2))->toBeFalse();
 });
 
-it('equal with incorrect type', function () {
+it('equal with incorrect type', function (): void {
     $literalString1 = new LiteralString("foo");
     $dateTime = new \DateTime();
     $literalString1->equals($dateTime);
 })->throws(\TypeError::class);
 
-it('magic method toString', function () {
+it('magic method toString', function (): void {
     $literalString = new LiteralString("foo");
     expect("$literalString")->toBe("foo");
 });
 
-it('json serialize', function () {
+it('json serialize', function (): void {
     $literalString = new LiteralString("foo");
     expect($literalString->jsonSerialize())->toBe('foo');
 });

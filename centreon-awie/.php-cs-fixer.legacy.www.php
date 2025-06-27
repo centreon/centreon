@@ -21,22 +21,20 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+use PhpCsFixer\Finder;
+
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.php';
 
 $finder = Finder::create()
     ->in([
+        __DIR__ . '/features',
         __DIR__ . '/www',
+    ])
+    ->append([
+        __DIR__ . '/.php-cs-fixer.legacy.www.php',
+        __DIR__ . '/rector.php',
     ]);
 
-/**
- * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
- * 👉️ We use the other php-cs-fixer config file for this legacy code.
- *
- * @see .php-cs-fixer.dist.php
- */
-return (new Config())
+return $config
     ->setFinder($finder)
-    ->setRiskyAllowed(false) // 👈 risky NOT allowed
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRulesSafe());
+    ->setCacheFile('.php-cs-fixer.legacy.www.cache');

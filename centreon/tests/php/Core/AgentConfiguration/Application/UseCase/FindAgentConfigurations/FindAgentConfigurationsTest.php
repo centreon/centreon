@@ -51,7 +51,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Forbidden Response when user does not have topology role', function () {
+it('should present a Forbidden Response when user does not have topology role', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -65,7 +65,7 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should retrieve agent configurations without calculating ACL for an admin', function () {
+it('should retrieve agent configurations without calculating ACL for an admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -83,7 +83,7 @@ it('should retrieve agent configurations without calculating ACL for an admin', 
     ($this->useCase)($this->presenter);
 });
 
-it('should retrieve agent configurations without calculating ACL for a non admin', function () {
+it('should retrieve agent configurations without calculating ACL for a non admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -101,7 +101,7 @@ it('should retrieve agent configurations without calculating ACL for a non admin
     ($this->useCase)($this->presenter);
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -125,7 +125,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(AgentConfigurationException::errorWhileRetrievingObjects()->getMessage());
 });
 
-it('should present a FindAgentConfigurationsResponse when no errors occurred', function () {
+it('should present a FindAgentConfigurationsResponse when no errors occurred', function (): void {
     $acOne = new AgentConfiguration(
         id: 1,
         name: 'acOne',

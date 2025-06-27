@@ -398,7 +398,7 @@ function updateHostDependencyHostParents(int $depId, array $list = []): void
             ->getQuery();
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
 
-        $items = isset($list["dep_hostParents"]) ? $list["dep_hostParents"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
+        $items = $list["dep_hostParents"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
         foreach ($items as $host) {
             $ins = $pearDB->createQueryBuilder()
                 ->insert('dependency_hostParent_relation')
@@ -432,7 +432,7 @@ function updateHostDependencyHostChilds(int $depId, array $list = []): void
             ->getQuery();
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
 
-        $items = isset($list["dep_hostChilds"]) ? $list["dep_hostChilds"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
+        $items = $list["dep_hostChilds"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
         foreach ($items as $host) {
             $ins = $pearDB->createQueryBuilder()
                 ->insert('dependency_hostChild_relation')
@@ -466,7 +466,7 @@ function updateHostDependencyServiceChildren(int $dep_id, array $list = []): voi
             ->getQuery();
         $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $dep_id) ]));
 
-        $items = isset($list["dep_hSvChi"]) ? $list["dep_hSvChi"] : CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
+        $items = $list["dep_hSvChi"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
         foreach ($items as $item) {
             [$host, $service] = explode('-', $item) + [null, null];
             if ($host !== null && $service !== null) {

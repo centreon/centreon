@@ -1,0 +1,42 @@
+{
+  "name": "centreon/tools",
+  "version": "25.07",
+  "description": "Centreon - Tools for development",
+  "require": {
+    "php": "8.2",
+    "ext-mbstring": "*",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
+    "friendsofphp/php-cs-fixer": "3.64.*",
+    "maglnet/composer-require-checker": "4.16.*",
+    "phpstan/phpstan": "1.12.*",
+    "phpstan/phpstan-beberlei-assert": "1.1.*",
+    "phpstan/phpstan-mockery": "1.1.*",
+    "rector/rector": "1.2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tools\\PhpStan\\": "phpstan/src/",
+      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "require:check": "composer-require-checker check composer.json",
+    "cs:tools": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --dry-run --diff",
+    "cs:tools:fix": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --diff",
+    "stan:tools": "phpstan analyse -c phpstan.tools.neon --memory-limit=512M",
+    "rector:check": "rector process --dry-run",
+    "rector:fix": "rector process"
+  }
+}

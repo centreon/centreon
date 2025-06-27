@@ -25,7 +25,7 @@ namespace Tests\Core\Resources\Infrastructure\API\CountResources;
 use Core\Resources\Infrastructure\API\CountResources\CountResourcesInput;
 use Symfony\Component\Validator\Validation;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->validator = Validation::createValidatorBuilder()
         ->enableAttributeMapping()
         ->getValidator();
@@ -33,35 +33,35 @@ beforeEach(function () {
 
 // search parameter
 
-it('test count resources input validation with no search', function () {
+it('test count resources input validation with no search', function (): void {
     $input = new CountResourcesInput(null, false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
-it('test count resources input validation with an empty search', function () {
+it('test count resources input validation with an empty search', function (): void {
     $input = new CountResourcesInput('',false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
-it('test count resources input validation with search with an invalid value', function () {
+it('test count resources input validation with search with an invalid value', function (): void {
     $input = new CountResourcesInput('toto', false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('search parameter must be a valid JSON');
 });
 
-it('test count resources input validation with search with an invalid json', function () {
+it('test count resources input validation with search with an invalid json', function (): void {
     $input = new CountResourcesInput('{$and:[]}',false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('search parameter must be a valid JSON');
 });
 
-it('test count resources input validation with search with a valid json', function () {
+it('test count resources input validation with search with a valid json', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -69,28 +69,28 @@ it('test count resources input validation with search with a valid json', functi
 
 // all_pages parameter without limit and page
 
-it('test count resources input validation with no all_pages', function () {
+it('test count resources input validation with no all_pages', function (): void {
     $input = new CountResourcesInput('{"$and":[]}', null, null, null);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('all_pages parameter is required');
 });
 
-it('test count resources input validation with an empty all_pages', function () {
+it('test count resources input validation with an empty all_pages', function (): void {
     $input = new CountResourcesInput('{"$and":[]}','', null, null);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('all_pages parameter must be a boolean');
 });
 
-it('test count resources input validation with all_pages with an invalid value', function () {
+it('test count resources input validation with all_pages with an invalid value', function (): void {
     $input = new CountResourcesInput('{"$and":[]}', 'toto', null, null);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('all_pages parameter must be a boolean');
 });
 
-it('test count resources input validation with a correct all_pages', function () {
+it('test count resources input validation with a correct all_pages', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',true, null, null);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -98,42 +98,42 @@ it('test count resources input validation with a correct all_pages', function ()
 
 // all_pages parameter with limit and page
 
-it('test count resources input validation for pagination with no page', function () {
+it('test count resources input validation for pagination with no page', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, null, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('page parameter is required when all_pages is false');
 });
 
-it('test count resources input validation for pagination with an empty page', function () {
+it('test count resources input validation for pagination with an empty page', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, '', 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('page parameter is required when all_pages is false');
 });
 
-it('test count resources input validation for pagination with page with invalid type', function () {
+it('test count resources input validation for pagination with page with invalid type', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 'toto', 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('page parameter must be an integer');
 });
 
-it('test count resources input validation for pagination with page lower than 1', function () {
+it('test count resources input validation for pagination with page lower than 1', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 0, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('page parameter must be greater than 1');
 });
 
-it('test count resources input validation for pagination with no limit', function () {
+it('test count resources input validation for pagination with no limit', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 1, null);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('limit parameter is required when all_pages is false');
 });
 
-it('test count resources input validation for pagination with an empty limit', function () {
+it('test count resources input validation for pagination with an empty limit', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 1, '');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -141,14 +141,14 @@ it('test count resources input validation for pagination with an empty limit', f
         ->and($errors[1]->getMessage())->toBe('limit parameter must be an integer');
 });
 
-it('test count resources input validation for pagination with limit with invalid type', function () {
+it('test count resources input validation for pagination with limit with invalid type', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 1, 'toto');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('limit parameter must be an integer');
 });
 
-it('test count resources input validation for pagination with success', function () {
+it('test count resources input validation for pagination with success', function (): void {
     $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);

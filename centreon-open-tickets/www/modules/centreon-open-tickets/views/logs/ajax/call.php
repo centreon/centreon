@@ -19,12 +19,11 @@
  * limitations under the License.
  */
 
-
 require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/ticketLog.php';
-require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
-$centreon_open_tickets_path = $centreon_path . "www/modules/centreon-open-tickets/";
+require_once $centreon_path . 'www/class/centreonXMLBGRequest.class.php';
+$centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
 
 session_start();
 $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
@@ -33,7 +32,7 @@ $dbStorage = $dependencyInjector['realtime_db'];
 $ticket_log = new Centreon_OpenTickets_Log($db, $dbStorage);
 
 if (isset($_SESSION['centreon'])) {
-    /** @var \Centreon $centreon */
+    /** @var Centreon $centreon */
     $centreon = $_SESSION['centreon'];
 } else {
     exit;
@@ -41,23 +40,23 @@ if (isset($_SESSION['centreon'])) {
 
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
-$resultat = ["code" => 0, "msg" => ""];
-$actions = ["get-logs" => __DIR__ . "/actions/getLogs.php", "export-csv" => __DIR__ . "/actions/exportCSV.php", "export-xml" => __DIR__ . "/actions/exportXML.php"];
-if (!isset($_POST['data'])) {
-    if (!isset($_GET['action'])) {
-        $resultat = ["code" => 1, "msg" => "POST 'data' needed."];
+$resultat = ['code' => 0, 'msg' => ''];
+$actions = ['get-logs' => __DIR__ . '/actions/getLogs.php', 'export-csv' => __DIR__ . '/actions/exportCSV.php', 'export-xml' => __DIR__ . '/actions/exportXML.php'];
+if (! isset($_POST['data'])) {
+    if (! isset($_GET['action'])) {
+        $resultat = ['code' => 1, 'msg' => "POST 'data' needed."];
     } else {
-        include($actions[$_GET['action']]);
+        include $actions[$_GET['action']];
     }
 } else {
     $get_information = json_decode($_POST['data'], true);
-    if (!isset($get_information['action']) ||
-        !isset($actions[$get_information['action']])) {
-        $resultat = ["code" => 1, "msg" => "Action not good."];
+    if (! isset($get_information['action'])
+        || ! isset($actions[$get_information['action']])) {
+        $resultat = ['code' => 1, 'msg' => 'Action not good.'];
     } else {
-        include($actions[$get_information['action']]);
+        include $actions[$get_information['action']];
     }
 }
 
-header("Content-type: text/plain");
+header('Content-type: text/plain');
 echo json_encode($resultat);

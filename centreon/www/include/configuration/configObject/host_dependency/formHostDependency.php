@@ -60,11 +60,7 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
         }
 
         # Set base value
-        if ($result !== false) {
-            $dep = array_map('myDecode', $result);
-        } else {
-            $dep = [];
-        }
+        $dep = $result !== false ? array_map('myDecode', $result) : [];
 
         # Set Notification Failure Criteria
         $dep["notification_failure_criteria"] = explode(',', $dep["notification_failure_criteria"]);

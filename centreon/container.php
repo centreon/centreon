@@ -21,26 +21,26 @@
 // Creating container
 use Pimple\Container;
 
-$dependencyInjector = \Centreon\LegacyContainer::getInstance();
+$dependencyInjector = Centreon\LegacyContainer::getInstance();
 
 // Define Centreon Configuration Database Connection
 $dependencyInjector['configuration_db'] = function ($c) {
-    return new \CentreonDB('centreon');
+    return new CentreonDB('centreon');
 };
 
 // Define Centreon Realtime Database Connection
 $dependencyInjector['realtime_db'] = function ($c) {
-    return new \CentreonDB('centstorage');
+    return new CentreonDB('centstorage');
 };
 
 // Define Centreon Rest Http Client
 $dependencyInjector['rest_http'] = function ($c) {
-    return new \CentreonRestHttp();
+    return new CentreonRestHttp();
 };
 
 // Define filesystem
 $dependencyInjector['filesystem'] = function ($c) {
-    return new \Symfony\Component\Filesystem\Filesystem();
+    return new Symfony\Component\Filesystem\Filesystem();
 };
 
 // Utils
@@ -50,7 +50,7 @@ $dependencyInjector['utils'] = function ($c) use ($dependencyInjector) {
 
 // Define finder
 $dependencyInjector['finder'] = $dependencyInjector->factory(function ($c) {
-    return new \Symfony\Component\Finder\Finder();
+    return new Symfony\Component\Finder\Finder();
 });
 
 // Define Language translator
@@ -59,6 +59,7 @@ $dependencyInjector['translator'] = $dependencyInjector->factory(function ($c) {
     $translator = new CentreonLang(_CENTREON_PATH_, $centreon);
     $translator->bindLang();
     $translator->bindLang('help');
+
     return $translator;
 });
 
@@ -73,12 +74,13 @@ $dependencyInjector[CentreonI18n::class] = function ($container) {
         $container['translator'];
         $lang = getenv('LANG');
     }
-    if (!str_contains($lang, '.UTF-8')) {
+    if (! str_contains($lang, '.UTF-8')) {
         $lang .= '.UTF-8';
     }
     $translationFile = _CENTREON_PATH_  . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
     $translation = new CentreonI18n();
     $translation->setFilesGenerationPath($translationFile);
+
     return $translation;
 };
 

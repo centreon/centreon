@@ -30,7 +30,7 @@ use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInter
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 
-class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements ReadTokenRepositoryInterface
+class DbReadTokenRepository extends AbstractRepositoryDRB implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
 

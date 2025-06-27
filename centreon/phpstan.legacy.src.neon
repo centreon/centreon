@@ -8,7 +8,9 @@ parameters:
     excludePaths:
         analyseAndScan:
             - src/Centreon/Tests
-    level: max
+            - src/Core
+            - src/Adaptation
+    level: 4
     paths:
         - src
     ignoreErrors:
@@ -36,4 +38,4 @@ parameters:
 
 services:
     errorFormatter.absolute:
-        class: Centreon\PHPStan\AbsolutePathErrorFormatter
+        class: Tools\PhpStan\AbsolutePathErrorFormatter

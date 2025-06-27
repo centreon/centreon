@@ -175,7 +175,7 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
-            if (empty($columns)) {
+            if ($columns === []) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
             if ($batchInsertParameters->isEmpty()) {

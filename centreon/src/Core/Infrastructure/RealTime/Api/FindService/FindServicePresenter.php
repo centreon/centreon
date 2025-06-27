@@ -91,7 +91,7 @@ class FindServicePresenter extends AbstractPresenter implements FindServicePrese
 
         $acknowledgement = null;
 
-        if (! empty($data->acknowledgement)) {
+        if ($data->acknowledgement !== []) {
             /**
              * Convert Acknowledgement dates into ISO 8601 format.
              */

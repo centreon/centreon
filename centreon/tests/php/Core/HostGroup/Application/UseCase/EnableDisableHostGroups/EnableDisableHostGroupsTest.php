@@ -39,7 +39,7 @@ use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInte
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new EnableDisableHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
@@ -53,7 +53,7 @@ beforeEach(function () {
     $this->request = new EnableDisableHostGroupsRequest([1, 2, 3], true);
 });
 
-it('should check that HostGroups exists as admin', function () {
+it('should check that HostGroups exists as admin', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -66,7 +66,7 @@ it('should check that HostGroups exists as admin', function () {
     ($this->useCase)($this->request);
 });
 
-it('should check that HostGroups exists as user', function () {
+it('should check that HostGroups exists as user', function (): void {
 
     $this->contact
         ->expects($this->any())
@@ -80,7 +80,7 @@ it('should check that HostGroups exists as user', function () {
     ($this->useCase)($this->request);
 });
 
-it('should return a EnableDisableHostGroupsResponse', function () {
+it('should return a EnableDisableHostGroupsResponse', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')

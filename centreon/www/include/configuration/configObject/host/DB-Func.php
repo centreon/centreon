@@ -1465,7 +1465,7 @@ function updateHost_MC($hostId = null)
         );
     }
 
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $request = "UPDATE host SET ";
         foreach (array_keys($bindParams) as $token) {
             $request .= ltrim($token, ':') . " = " . $token . ", ";

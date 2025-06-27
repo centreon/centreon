@@ -166,7 +166,7 @@ function mySysLog($message)
 function stopBroker()
 {
     exec('systemctl stop cbd', $output, $status);
-    return empty($output) ? $status : -1;
+    return $output === [] ? $status : -1;
 }
 
 /**
@@ -178,7 +178,7 @@ function startBroker()
 {
     exec('systemctl start cbd', $output, $status);
 
-    return empty($output) ? $status : -1;
+    return $output === [] ? $status : -1;
 }
 
 /**

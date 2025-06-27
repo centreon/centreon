@@ -1,0 +1,18 @@
+{
+  "scan-files" : [
+    ".php-cs-fixer.unstrict.php",
+    "features/bootstrap/ImportExportContext.php",
+    "features/bootstrap/CentreonAwieContext.php",
+    "www/modules/centreon-awie/conf.php",
+    "www/modules/centreon-awie/class/ClapiObject.class.php",
+    "www/modules/centreon-awie/class/Export.class.php",
+    "www/modules/centreon-awie/class/ZipAndDownload.class.php",
+    "www/modules/centreon-awie/core/formExporter.php",
+    "www/modules/centreon-awie/core/submitExport.php",
+    "www/modules/centreon-awie/core/formImporter.php",
+    "www/modules/centreon-awie/core/launchImport.php",
+    "www/modules/centreon-awie/core/generateExport.php",
+    "www/modules/centreon-awie/centreon-awie.conf.php",
+    "rector.php"
+  ]
+}

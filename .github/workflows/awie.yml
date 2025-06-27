@@ -94,13 +94,26 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-awie
         run: composer install --optimize-autoloader
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of phpstan on /www at level 6
-        run: vendor/bin/phpstan analyse --no-progress --level=6 --configuration=phpstan.neon
+      - name: Run of php-cs-fixer on the legacy section
+        run: composer cs:legacy:www
+        working-directory: centreon-awie
+
+      - name: Run of phpstan on the legacy section at level 6
+        run: composer stan:legacy:www
+        working-directory: centreon-awie
+
+      - name: Run of rector
+        run: composer rector:check
         working-directory: centreon-awie
 
   package:

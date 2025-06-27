@@ -54,17 +54,34 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-open-tickets
         run: composer install --optimize-autoloader
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+      - name: Run of php-cs-fixer on the legacy section for the /www directory
+        run: composer cs:legacy:www
         working-directory: centreon-open-tickets
 
-      - name: Run of phpstan on /src at level max
-        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+      - name: Run of php-cs-fixer on the legacy section for the /src/CentreonOpenTickets directory
+        run: composer cs:legacy:src
+        working-directory: centreon-open-tickets
+
+      - name: Run of phpstan on the legacy section for the /www directory at level 2
+        run: composer stan:legacy:www
+        working-directory: centreon-open-tickets
+
+      - name: Run of phpstan on the legacy section for the /src/CentreonOpenTickets directory at level 9
+        run: composer stan:legacy:src
+        working-directory: centreon-open-tickets
+
+      - name: Run of rector
+        run: composer rector:check
         working-directory: centreon-open-tickets
 
   backend-unit-test:

@@ -1,5 +1,5 @@
 parameters:
-    level: max
+    level: 0
     scanFiles:
         - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:

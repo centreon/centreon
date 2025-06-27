@@ -32,7 +32,7 @@ use Core\Service\Application\UseCase\DeleteServices\DeleteServices;
 use Core\Service\Application\UseCase\DeleteServices\DeleteServicesRequest;
 use Core\Service\Application\UseCase\DeleteServices\DeleteServicesResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new DeleteServices(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeRepository = $this->createMock(WriteServiceRepositoryInterface::class),
@@ -45,7 +45,7 @@ beforeEach(function () {
     $this->request = new DeleteServicesRequest([1, 2, 3]);
 });
 
-it('should check that services exists as admin', function () {
+it('should check that services exists as admin', function (): void {
 
     $this->contact
         ->expects($this->any())
@@ -59,7 +59,7 @@ it('should check that services exists as admin', function () {
     ($this->useCase)($this->request);
 });
 
-it('should check that services exists as user', function () {
+it('should check that services exists as user', function (): void {
 
     $this->contact
         ->expects($this->any())
@@ -73,7 +73,7 @@ it('should check that services exists as user', function () {
     ($this->useCase)($this->request);
 });
 
-it('should return a DeleteServicesResponse', function () {
+it('should return a DeleteServicesResponse', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')

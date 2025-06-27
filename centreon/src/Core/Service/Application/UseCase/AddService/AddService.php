@@ -256,7 +256,7 @@ final class AddService
      */
     private function linkServiceToServiceCategories(int $serviceId, AddServiceRequest $request): void
     {
-        if (empty($request->serviceCategories)) {
+        if ($request->serviceCategories === []) {
 
             return;
         }
@@ -276,7 +276,7 @@ final class AddService
      */
     private function linkServiceToServiceGroups(int $serviceId, AddServiceRequest $request): void
     {
-        if (empty($request->serviceGroups)) {
+        if ($request->serviceGroups === []) {
 
             return;
         }

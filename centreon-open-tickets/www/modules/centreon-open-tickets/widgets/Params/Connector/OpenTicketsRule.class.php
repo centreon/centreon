@@ -19,12 +19,14 @@
  * limitations under the License.
  */
 
-require_once __DIR__ . "/../../../../../class/centreonWidget/Params/List.class.php";
+require_once __DIR__ . '/../../../../../class/centreonWidget/Params/List.class.php';
 
 class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsList
 {
     /**
      * @param HTML_QuickForm $quickform
+     * @param mixed $db
+     * @param mixed $userId
      */
     public function __construct($db, $quickform, $userId)
     {
@@ -35,7 +37,7 @@ class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsL
     {
         static $tab;
 
-        if (!isset($tab)) {
+        if (! isset($tab)) {
             $res = $this->db->query(
                 "SELECT rule_id, `alias` FROM mod_open_tickets_rule WHERE `activate` = '1' ORDER BY `alias`"
             );
@@ -44,6 +46,7 @@ class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsL
                 $tab[$row['rule_id']] = $row['alias'];
             }
         }
+
         return $tab;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,28 +21,19 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+use PhpCsFixer\Finder;
+
+$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.php';
 
 $finder = Finder::create()
-    // add directories
     ->in([
-        __DIR__ . '/src/Core',
-        __DIR__ . '/src/Adaptation',
-    ])
-    // add files
-    ->append([
-        __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
+        __DIR__ . '/config',
+        __DIR__ . '/packaging',
+        __DIR__ . '/tests',
+        __DIR__ . '/widgets',
+        __DIR__ . '/www',
     ]);
 
-/**
- * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
- * 👉️ We use the other php-cs-fixer config file for this legacy code.
- *
- * @see .php-cs-fixer.unstrict.php
- */
-return (new Config())
+return $config
     ->setFinder($finder)
-    ->setRiskyAllowed(true)
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRules());
+    ->setCacheFile('.php-cs-fixer.legacy.www.cache');

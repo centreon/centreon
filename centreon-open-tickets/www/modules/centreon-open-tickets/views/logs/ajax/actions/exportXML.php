@@ -19,29 +19,29 @@
  * limitations under the License.
  */
 
-header("Content-type: text/xml");
-header("Content-Disposition: attachment; filename=TicketLogs.xml");
-header("Cache-Control: cache, must-revalidate");
-header("Pragma: public");
+header('Content-type: text/xml');
+header('Content-Disposition: attachment; filename=TicketLogs.xml');
+header('Cache-Control: cache, must-revalidate');
+header('Pragma: public');
 
-//$fp = fopen('/tmp/debug.txt', 'a+');
-//fwrite($fp, print_r($_SESSION['OT_form_logs'], true));
+// $fp = fopen('/tmp/debug.txt', 'a+');
+// fwrite($fp, print_r($_SESSION['OT_form_logs'], true));
 
 try {
     $tickets = $ticket_log->getLog($_SESSION['OT_form_logs'], $centreon_bg, null, null, true);
-    //fwrite($fp, print_r($tickets, true));
+    // fwrite($fp, print_r($tickets, true));
 
     echo '<?xml version="1.0" encoding="UTF-8"?>';
     echo '<root>';
 
     echo '<info>';
-    echo '<start>' . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['start'])) . "</start><end>" . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['end'])) . "</end>";
-    echo "</info>";
+    echo '<start>' . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['start'])) . '</start><end>' . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['end'])) . '</end>';
+    echo '</info>';
     echo '<data>';
 
     foreach ($tickets['tickets'] as $ticket) {
         echo '<line>';
-        echo '<day>' . $centreon_bg->GMT->getDate("Y/m/d", $ticket['timestamp']) . "</day><time>" . $centreon_bg->GMT->getDate("H:i:s", $ticket['timestamp']) . "</time><host_name>" . $ticket['host_name'] . "</host_name><service_description>" . $ticket['service_description'] . "</service_description><ticket_id>" . $ticket['ticket_id'] . "</ticket_id><user>" . $ticket['user'] . "</user><subject>" . $ticket['subject'] . "</subject>";
+        echo '<day>' . $centreon_bg->GMT->getDate('Y/m/d', $ticket['timestamp']) . '</day><time>' . $centreon_bg->GMT->getDate('H:i:s', $ticket['timestamp']) . '</time><host_name>' . $ticket['host_name'] . '</host_name><service_description>' . $ticket['service_description'] . '</service_description><ticket_id>' . $ticket['ticket_id'] . '</ticket_id><user>' . $ticket['user'] . '</user><subject>' . $ticket['subject'] . '</subject>';
         echo '</line>';
     }
     echo '</data>';

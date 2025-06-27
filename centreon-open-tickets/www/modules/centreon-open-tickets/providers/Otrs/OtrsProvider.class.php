@@ -21,17 +21,6 @@
 
 class OtrsProvider extends AbstractProvider
 {
-    /** @var string */
-    protected $ws_error;
-    /** @var int */
-    protected $otrs_connected = 0;
-    /** @var null|string */
-    protected $otrs_session = null;
-    /** @var null|array */
-    protected $otrs_call_response;
-    protected $attach_files = 1;
-    protected $close_advanced = 1;
-
     public const OTRS_QUEUE_TYPE = 10;
     public const OTRS_PRIORITY_TYPE = 11;
     public const OTRS_STATE_TYPE = 12;
@@ -39,7 +28,6 @@ class OtrsProvider extends AbstractProvider
     public const OTRS_CUSTOMERUSER_TYPE = 14;
     public const OTRS_OWNER_TYPE = 15;
     public const OTRS_RESPONSIBLE_TYPE = 16;
-
     public const ARG_QUEUE = 1;
     public const ARG_PRIORITY = 2;
     public const ARG_STATE = 3;
@@ -52,11 +40,51 @@ class OtrsProvider extends AbstractProvider
     public const ARG_OWNER = 17;
     public const ARG_RESPONSIBLE = 18;
 
+    /** @var string */
+    protected $ws_error;
+
+    /** @var int */
+    protected $otrs_connected = 0;
+
+    /** @var null|string */
+    protected $otrs_session = null;
+
+    /** @var null|array */
+    protected $otrs_call_response;
+
+    protected $attach_files = 1;
+
+    protected $close_advanced = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_QUEUE => 'Queue', self::ARG_PRIORITY => 'Priority', self::ARG_STATE => 'State', self::ARG_TYPE => 'Type', self::ARG_CUSTOMERUSER => 'CustomerUser', self::ARG_SUBJECT => 'Subject', self::ARG_BODY => 'Body', self::ARG_FROM => 'From', self::ARG_CONTENTTYPE => 'ContentType', self::ARG_OWNER => 'Owner', self::ARG_RESPONSIBLE => 'Responsible'];
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                if ($this->closeTicketOtrs($k) == 0) {
+                    $tickets[$k]['status'] = 2;
+                } else {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $this->ws_error;
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
     }
 
     /**
@@ -71,8 +99,8 @@ class OtrsProvider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_BODY, 'Value' => '{$body}'], ['Arg' => self::ARG_FROM, 'Value' => '{$user.email}'], ['Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'], ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.value}'], ['Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'], ['Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'], ['Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'], ['Arg' => self::ARG_CONTENTTYPE, 'Value' => 'text/html; charset=utf8']];
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/'
+            . 'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_BODY, 'Value' => '{$body}'], ['Arg' => self::ARG_FROM, 'Value' => '{$user.email}'], ['Arg' => self::ARG_QUEUE, 'Value' => '{$select.otrs_queue.value}'], ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.otrs_priority.value}'], ['Arg' => self::ARG_STATE, 'Value' => '{$select.otrs_state.value}'], ['Arg' => self::ARG_TYPE, 'Value' => '{$select.otrs_type.value}'], ['Arg' => self::ARG_CUSTOMERUSER, 'Value' => '{$select.otrs_customeruser.value}'], ['Arg' => self::ARG_CONTENTTYPE, 'Value' => 'text/html; charset=utf8']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -113,57 +141,57 @@ class OtrsProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/Otrs/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["otrs" => _("OTRS")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['otrs' => _('OTRS')]);
 
         // Form
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $path_html = '<input size="50" name="path" type="text" value="' .
-            $this->getFormValue('path') . '" />';
-        $rest_link_html = '<input size="50" name="rest_link" type="text" value="' .
-            $this->getFormValue('rest_link') . '" />';
-        $webservice_name_html = '<input size="50" name="webservice_name" type="text" value="' .
-            $this->getFormValue('webservice_name') . '" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->getFormValue('password') . '" autocomplete="off" />';
-        $https_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="https" name="https" value="yes" ' .
-            ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="https"></label></div>';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $path_html = '<input size="50" name="path" type="text" value="'
+            . $this->getFormValue('path') . '" />';
+        $rest_link_html = '<input size="50" name="rest_link" type="text" value="'
+            . $this->getFormValue('rest_link') . '" />';
+        $webservice_name_html = '<input size="50" name="webservice_name" type="text" value="'
+            . $this->getFormValue('webservice_name') . '" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $password_html = '<input size="50" name="password" type="password" value="'
+            . $this->getFormValue('password') . '" autocomplete="off" />';
+        $https_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="https" name="https" value="yes" '
+            . ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="https"></label></div>';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'path' => ['label' => _("Path"), 'html' => $path_html], 'rest_link' => ['label' => _("Rest link") . $this->required_field, 'html' => $rest_link_html], 'webservice_name' => ['label' => _("Webservice name") . $this->required_field, 'html' => $webservice_name_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html], 'https' => ['label' => _("Use https"), 'html' => $https_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")], 'mappingticketdynamicfield' => ['label' => _("Mapping ticket dynamic field")]];
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'path' => ['label' => _('Path'), 'html' => $path_html], 'rest_link' => ['label' => _('Rest link') . $this->required_field, 'html' => $rest_link_html], 'webservice_name' => ['label' => _('Webservice name') . $this->required_field, 'html' => $webservice_name_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('Password') . $this->required_field, 'html' => $password_html], 'https' => ['label' => _('Use https'), 'html' => $https_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')], 'mappingticketdynamicfield' => ['label' => _('Mapping ticket dynamic field')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_QUEUE . '">' . _('Queue') . '</options>' .
-        '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>' .
-        '<option value="' . self::ARG_STATE . '">' . _('State') . '</options>' .
-        '<option value="' . self::ARG_TYPE . '">' . _('Type') . '</options>' .
-        '<option value="' . self::ARG_CUSTOMERUSER . '">' . _('Customer user') . '</options>' .
-        '<option value="' . self::ARG_OWNER . '">' . _('Owner') . '</options>' .
-        '<option value="' . self::ARG_RESPONSIBLE . '">' . _('Responsible') . '</options>' .
-        '<option value="' . self::ARG_FROM . '">' . _('From') . '</options>' .
-        '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>' .
-        '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>' .
-        '<option value="' . self::ARG_CONTENTTYPE . '">' . _('Content Type') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_QUEUE . '">' . _('Queue') . '</options>'
+        . '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>'
+        . '<option value="' . self::ARG_STATE . '">' . _('State') . '</options>'
+        . '<option value="' . self::ARG_TYPE . '">' . _('Type') . '</options>'
+        . '<option value="' . self::ARG_CUSTOMERUSER . '">' . _('Customer user') . '</options>'
+        . '<option value="' . self::ARG_OWNER . '">' . _('Owner') . '</options>'
+        . '<option value="' . self::ARG_RESPONSIBLE . '">' . _('Responsible') . '</options>'
+        . '<option value="' . self::ARG_FROM . '">' . _('From') . '</options>'
+        . '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>'
+        . '<option value="' . self::ARG_BODY . '">' . _('Body') . '</options>'
+        . '<option value="' . self::ARG_CONTENTTYPE . '">' . _('Content Type') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         // mapping Ticket DynamicField
-        $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" ' .
-            'name="mappingTicketDynamicFieldName[#index#]" size="20"  type="text" />';
-        $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" ' .
-            'name="mappingTicketDynamicFieldValue[#index#]" size="20"  type="text" />';
-        $array_form['mappingTicketDynamicField'] = [['label' => _("Name"), 'html' => $mappingTicketDynamicFieldName_html], ['label' => _("Value"), 'html' => $mappingTicketDynamicFieldValue_html]];
+        $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" '
+            . 'name="mappingTicketDynamicFieldName[#index#]" size="20"  type="text" />';
+        $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" '
+            . 'name="mappingTicketDynamicFieldValue[#index#]" size="20"  type="text" />';
+        $array_form['mappingTicketDynamicField'] = [['label' => _('Name'), 'html' => $mappingTicketDynamicFieldName_html], ['label' => _('Value'), 'html' => $mappingTicketDynamicFieldValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -206,14 +234,13 @@ class OtrsProvider extends AbstractProvider
      */
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::OTRS_QUEUE_TYPE . '">Otrs queue</options>' .
-        '<option value="' . self::OTRS_PRIORITY_TYPE . '">Otrs priority</options>' .
-        '<option value="' . self::OTRS_STATE_TYPE . '">Otrs state</options>' .
-        '<option value="' . self::OTRS_CUSTOMERUSER_TYPE . '">Otrs customer user</options>' .
-        '<option value="' . self::OTRS_TYPE_TYPE . '">Otrs type</options>' .
-        '<option value="' . self::OTRS_OWNER_TYPE . '">Otrs owner</options>' .
-        '<option value="' . self::OTRS_RESPONSIBLE_TYPE . '">Otrs responsible</options>';
-        return $str;
+        return '<option value="' . self::OTRS_QUEUE_TYPE . '">Otrs queue</options>'
+        . '<option value="' . self::OTRS_PRIORITY_TYPE . '">Otrs priority</options>'
+        . '<option value="' . self::OTRS_STATE_TYPE . '">Otrs state</options>'
+        . '<option value="' . self::OTRS_CUSTOMERUSER_TYPE . '">Otrs customer user</options>'
+        . '<option value="' . self::OTRS_TYPE_TYPE . '">Otrs type</options>'
+        . '<option value="' . self::OTRS_OWNER_TYPE . '">Otrs owner</options>'
+        . '<option value="' . self::OTRS_RESPONSIBLE_TYPE . '">Otrs responsible</options>';
     }
 
     /**
@@ -235,12 +262,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -273,12 +301,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -311,12 +340,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -349,12 +379,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -387,12 +418,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -410,6 +442,7 @@ class OtrsProvider extends AbstractProvider
      * @param array $entry
      * @param array $groups_order
      * @param array $groups
+     * @param mixed $label_session
      * @return int|void
      */
     protected function assignOtrsUser($entry, &$groups_order, &$groups, $label_session)
@@ -425,12 +458,13 @@ class OtrsProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->otrs_call_response['response'] as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -467,13 +501,6 @@ class OtrsProvider extends AbstractProvider
         } elseif ($entry['Type'] == self::OTRS_RESPONSIBLE_TYPE) {
             $this->assignOtrsUser($entry, $groups_order, $groups, 'otrs_responsible');
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
     }
 
     /**
@@ -532,7 +559,7 @@ class OtrsProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -555,7 +582,7 @@ class OtrsProvider extends AbstractProvider
         $ticket_dynamic_fields = [];
         if (isset($this->rule_data['clones']['mappingTicketDynamicField'])) {
             foreach ($this->rule_data['clones']['mappingTicketDynamicField'] as $value) {
-                if ($value['Name'] == '' ||  $value['Value'] == '') {
+                if ($value['Name'] == '' || $value['Value'] == '') {
                     continue;
                 }
                 $array_tmp = [];
@@ -572,6 +599,7 @@ class OtrsProvider extends AbstractProvider
         $code = $this->createTicketOtrs($ticket_arguments, $ticket_dynamic_fields);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
+
             return $result;
         }
 
@@ -587,7 +615,6 @@ class OtrsProvider extends AbstractProvider
     }
 
     /**
-     *
      * REST API
      *
      * @param string $error
@@ -747,20 +774,20 @@ class OtrsProvider extends AbstractProvider
         }
 
         $argument = ['SessionID' => $this->otrs_session, 'Ticket' => [
-            'Title'             => $ticket_arguments['Subject'],
-            //'QueueID'         => xxx,
-            'Queue'             => $ticket_arguments['Queue'],
-            //'StateID'         => xxx,
-            'State'             => $ticket_arguments['State'],
-            //'PriorityID'      => xxx,
-            'Priority'          => $ticket_arguments['Priority'],
-            //'TypeID'          => 123,
-            'Type'              => $ticket_arguments['Type'],
-            //'OwnerID'         => 123,
-            'Owner'             => $ticket_arguments['Owner'],
-            //'ResponsibleID'   => 123,
-            'Responsible'       => $ticket_arguments['Responsible'],
-            'CustomerUser'      => $ticket_arguments['CustomerUser'],
+            'Title' => $ticket_arguments['Subject'],
+            // 'QueueID'         => xxx,
+            'Queue' => $ticket_arguments['Queue'],
+            // 'StateID'         => xxx,
+            'State' => $ticket_arguments['State'],
+            // 'PriorityID'      => xxx,
+            'Priority' => $ticket_arguments['Priority'],
+            // 'TypeID'          => 123,
+            'Type' => $ticket_arguments['Type'],
+            // 'OwnerID'         => 123,
+            'Owner' => $ticket_arguments['Owner'],
+            // 'ResponsibleID'   => 123,
+            'Responsible' => $ticket_arguments['Responsible'],
+            'CustomerUser' => $ticket_arguments['CustomerUser'],
         ], 'Article' => [
             'From' => $ticket_arguments['From'],
             // Must be an email
@@ -799,8 +826,9 @@ class OtrsProvider extends AbstractProvider
             return 0;
         }
 
-        if (!extension_loaded("curl")) {
-            $this->setWsError("cannot load curl extension");
+        if (! extension_loaded('curl')) {
+            $this->setWsError('cannot load curl extension');
+
             return -1;
         }
 
@@ -811,6 +839,7 @@ class OtrsProvider extends AbstractProvider
 
         $this->otrs_session = $this->otrs_call_response['SessionID'];
         $this->otrs_connected = 1;
+
         return 0;
     }
 
@@ -829,15 +858,16 @@ class OtrsProvider extends AbstractProvider
         }
 
         $argument_json = json_encode($argument);
-        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['path'] . '/' .
-            $this->rule_data['rest_link'] . '/' . $this->rule_data['webservice_name'] . '/' . $function . '/';
+        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['path'] . '/'
+            . $this->rule_data['rest_link'] . '/' . $this->rule_data['webservice_name'] . '/' . $function . '/';
         $ch = curl_init($base_url);
         if ($ch == false) {
-            $this->setWsError("cannot init curl object");
+            $this->setWsError('cannot init curl object');
+
             return 1;
         }
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
@@ -852,12 +882,14 @@ class OtrsProvider extends AbstractProvider
         if ($result == false) {
             $this->setWsError(curl_error($ch));
             curl_close($ch);
+
             return 1;
         }
 
         $decoded_result = json_decode($result, true);
         if (is_null($decoded_result) || $decoded_result == false) {
             $this->setWsError($result);
+
             return 1;
         }
 
@@ -865,26 +897,12 @@ class OtrsProvider extends AbstractProvider
 
         if (isset($decoded_result['Error'])) {
             $this->setWsError($decoded_result['Error']['ErrorMessage']);
+
             return 1;
         }
 
         $this->otrs_call_response = $decoded_result;
-        return 0;
-    }
 
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                if ($this->closeTicketOtrs($k) == 0) {
-                    $tickets[$k]['status'] = 2;
-                } else {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $this->ws_error;
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
+        return 0;
     }
 }

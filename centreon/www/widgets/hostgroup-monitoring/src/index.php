@@ -163,7 +163,7 @@ try {
     $query .= " LIMIT :offset, :entriesPerPage";
 
     // Execute count query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
     } else {

@@ -21,23 +21,27 @@
 
 declare(strict_types=1);
 
-use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
-use PhpCsFixer\{Config, Finder};
+namespace Tools\PhpStan\CustomRules;
 
-$finder = Finder::create()
-    ->in([
-        __DIR__ . '/features',
-        __DIR__ . '/www',
-    ]);
+use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 
 /**
- * These rules have various risky rune like 'declare_strict_types' which may be dangerous on legacy code.
- * 👉️ We use the other php-cs-fixer config file for this legacy code.
- *
- * @see .php-cs-fixer.dist.php
+ * This class defines a method to build a custom error message for PHPStan custom rules by
+ * overloading its parent's method message().
  */
-return (new Config())
-    ->setFinder($finder)
-    ->setRiskyAllowed(false) // 👈 risky NOT allowed
-    ->setUsingCache(false)
-    ->setRules(PhpCsFixerRuleSet::getRulesSafe());
+class CentreonRuleErrorBuilder
+{
+    /**
+     * This method builds a custom error message for PHPStan custom rules by overloading its
+     * parent's method message.
+     *
+     * @param string $message
+     *
+     * @return RuleErrorBuilder<RuleError>
+     */
+    public static function message(string $message): RuleErrorBuilder
+    {
+        return RuleErrorBuilder::message("[CENTREON-RULE]: {$message}");
+    }
+}

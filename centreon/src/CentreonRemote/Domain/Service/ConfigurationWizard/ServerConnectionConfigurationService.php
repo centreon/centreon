@@ -38,15 +38,15 @@ abstract class ServerConnectionConfigurationService
 {
     use VaultTrait;
 
-    protected string|null $serverIp;
+    protected string|null $serverIp = null;
 
-    protected string|null $centralIp;
+    protected string|null $centralIp = null;
 
-    protected string|null $dbUser;
+    protected string|null $dbUser = null;
 
-    protected string|null $dbPassword;
+    protected string|null $dbPassword = null;
 
-    protected string|null $name;
+    protected string|null $name = null;
 
     protected bool $onePeerRetention = false;
 

@@ -311,13 +311,13 @@ class FindHostNotificationPolicy
                 );
                 break;
             case self::INHERITANCE_MODE_CLOSE:
-                if (count($hostContacts) === 0) {
+                if ($hostContacts === []) {
                     $hostContacts = array_unique(
                         array_merge($hostContacts, $this->closeInheritance($hostTemplates, $parents, self::TYPE_CONTACT, $presenter)),
                         SORT_NUMERIC
                     );
                 }
-                if (count($hostContactGroups) === 0) {
+                if ($hostContactGroups === []) {
                     $hostContactGroups = array_unique(
                         array_merge($hostContactGroups, $this->closeInheritance($hostTemplates, $parents, self::TYPE_CONTACT_GROUP, $presenter)),
                         SORT_NUMERIC
@@ -439,7 +439,7 @@ class FindHostNotificationPolicy
                 ? $this->readHostNotificationRepository->findContactsByHostOrHostTemplate($currentTemplateId)
                 : $this->readHostNotificationRepository->findContactGroupsByHostOrHostTemplate($currentTemplateId);
 
-                if (count($values) > 0) {
+                if ($values !== []) {
                     return $values;
                 }
 
@@ -493,7 +493,7 @@ class FindHostNotificationPolicy
                 ? [$this->readHostNotificationRepository->findContactsByHostOrHostTemplate($currentTemplateId), $hostTemplateData->addInheritedContact()]
                 : [$this->readHostNotificationRepository->findContactGroupsByHostOrHostTemplate($currentTemplateId), $hostTemplateData->addInheritedContactGroup()];
 
-                if (count($values) > 0) {
+                if ($values !== []) {
                     $computed = array_merge($computed, $values);
                     $currentLevelCatch = $level;
 
@@ -507,7 +507,7 @@ class FindHostNotificationPolicy
                 }
             }
 
-            if (count(value: $computed) > 0) {
+            if ($computed !== []) {
                 return array_unique($computed, SORT_NUMERIC);
             }
         }

@@ -133,7 +133,7 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    if (!$hcId && empty($hcArr)) {
+    if (!$hcId && $hcArr === []) {
         return;
     }
     if ($hcId) {
@@ -189,7 +189,7 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
-    if (!$hcId && empty($hcArr)) {
+    if (!$hcId && $hcArr === []) {
         return;
     }
     if ($hcId) {
@@ -246,7 +246,7 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
 {
     global $pearDB, $centreon;
 
-    if (empty($hostCategories)) {
+    if ($hostCategories === []) {
         return;
     }
 
@@ -416,7 +416,7 @@ function insertHostCategories(array $ret = []): int
 {
     global $pearDB, $centreon;
 
-    if (empty($ret)) {
+    if ($ret === []) {
         $ret = getHostCategoryValues();
     }
 
@@ -610,7 +610,7 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             $ret['hc_hostsTemplate'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate')
         );
 
-        if (empty($hosts)) {
+        if ($hosts === []) {
             return;
         }
 

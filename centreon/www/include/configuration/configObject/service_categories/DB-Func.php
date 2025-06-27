@@ -192,7 +192,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                             ]);
                             $foundServiceIds[] = $serviceId;
                         }
-                        if (! empty($foundServiceIds)) {
+                        if ($foundServiceIds !== []) {
                             $fields["sc_services"] = implode(", ", $foundServiceIds);
                         }
 
@@ -224,7 +224,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
 function enableServiceCategorieInDB(?int $serviceCategoryId = null, array $serviceCategories = [])
 {
 
-    if (! $serviceCategoryId && empty($serviceCategories)) {
+    if (! $serviceCategoryId && $serviceCategories === []) {
         return;
     }
 
@@ -273,7 +273,7 @@ function enableServiceCategorieInDB(?int $serviceCategoryId = null, array $servi
 
 function disableServiceCategorieInDB(?int $serviceCategoryId = null, array $serviceCategories = [])
 {
-    if (! $serviceCategoryId && empty($serviceCategories)) {
+    if (! $serviceCategoryId && $serviceCategories === []) {
         return;
     }
 
