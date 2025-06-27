@@ -153,7 +153,7 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '376.203125');
+    .and('equal', '376');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
     expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
@@ -451,7 +451,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 198.90035329101724)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 198.7929601526369)"]').should(
         'be.visible'
       );
 
@@ -533,7 +533,7 @@ describe('Line chart', () => {
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
       cy.get('circle[cx="250.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="246.37513992820618"]').should('be.visible');
+      cy.get('circle[cy="246.2421135204699"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -747,10 +747,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,278.24058573496393 h56.51239669421488 h1v1 v95.96253926503607 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-95.96253926503607 v-1h1z"]'
-    ).should('be.visible');
+      'path[d="M7.501377410468319,278.09035407759154 h56.51239669421488 h1v1 v95.90964592240846 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-95.90964592240846 v-1h1z'
+    );
     cy.get(
-      'path[d="M24.05509641873278,225.88241378338913 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v17.25073393504588 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-17.25073393504588 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M24.05509641873278,225.7604521029811 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v17.222463958081512 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-17.222463958081512 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
