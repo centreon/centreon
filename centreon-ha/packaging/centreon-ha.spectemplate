@@ -83,6 +83,7 @@ This package provides the scripts and config files necessary for database and ce
 %config(noreplace) %{_sysconfdir}/centreon-ha/mysql-resources.sh
 %{_sysconfdir}/logrotate.d/centreon-ha
 %{_sysconfdir}/sudoers.d/centreon-cluster-db
+%{_sysconfdir}/sudoers.d/centreon-cluster-monitoring
 
 # lib
 %defattr(-, root, root, -)
