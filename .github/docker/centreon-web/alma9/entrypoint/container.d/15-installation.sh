@@ -17,6 +17,7 @@ else
   su apache -s /bin/bash -c "php createDbUser.php"
   su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su apache -s /bin/bash -c "php partitionTables.php"
+  su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
   su apache -s /bin/bash -c "php generationCache.php"
   cd -
 
