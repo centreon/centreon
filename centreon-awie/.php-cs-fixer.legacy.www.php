@@ -31,6 +31,7 @@ $finder = Finder::create()
         __DIR__ . '/www',
     ])
     ->append([
+        __DIR__ . '/.php-cs-fixer.legacy.www.php',
         __DIR__ . '/rector.php',
     ]);
 
