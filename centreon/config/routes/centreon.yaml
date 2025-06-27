@@ -7,7 +7,7 @@ centreon:
         base_uri: ".*"
 security:
     resource: "./Security/**/*.yaml"
-    prefix: "{base_uri}authentication"
+    prefix: "authentication"
     requirements:
         base_uri: ".*"
 core:
