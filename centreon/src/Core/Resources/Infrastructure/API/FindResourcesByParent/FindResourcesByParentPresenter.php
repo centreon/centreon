@@ -171,7 +171,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
                 'acknowledgement' => $endpoints['acknowledgement'],
                 'downtime' => $endpoints['downtime'],
                 'check' => $endpoints['check'],
-                'forced_check' => $endpoints['forced_check'],
+                'forced_check' => $endpoints['forced_check'] ?? null,
                 'metrics' => $endpoints['metrics'],
             ],
             'uris' => $this->hypermediaCreator->createInternalUris($parameters),
