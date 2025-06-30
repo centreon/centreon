@@ -442,7 +442,7 @@ jobs:
         run: composer cs:core
         working-directory: centreon
 
-      - name: Run of php-cs-fixer on the new section for the /src/App directory
+      - name: Run of php-cs-fixer on the new section for the /src/Adaptation and /src/App directories
         run: composer cs:new
         working-directory: centreon
 
@@ -458,7 +458,7 @@ jobs:
         run: composer stan:test
         working-directory: centreon
 
-      - name: Run of phpstan on the new section for the /src/App directory at level max
+      - name: Run of phpstan on the new section for the /src/Adaptation and /src/App directories at level max
         run: composer stan:new
         working-directory: centreon
 
