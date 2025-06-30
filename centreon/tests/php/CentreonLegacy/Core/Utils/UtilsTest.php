@@ -135,8 +135,8 @@ class UtilsTest extends TestCase
     public function testExecutePhpFileWithUnexistsFile(): void
     {
         $fileName = $this->fs->path('/tmp/conf2.php');
-        $this->service->executePhpFile($fileName);
         $this->expectException(\Exception::class);
+        $this->service->executePhpFile($fileName);
     }
 
     public function testExecuteSqlFile(): void

@@ -28,7 +28,6 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php'
 $finder = Finder::create()
     ->in([
         __DIR__ . '/src/Core',
-        __DIR__ . '/src/Adaptation', // TODO remove it from this file and add it in new config when the code is ready
         //        __DIR__ . '/tests/php/Core', // TODO add this folder when the code is ready
     ])
     ->append([
