@@ -2,6 +2,8 @@ openapi: 3.0.1
 info:
   title: Centreon Web RestAPI
   description: |
+    # Warning
+    This version of Centreon is no longer supported.
     # New features
     + Added vault configuration endpoints
     + Added time period configuration endpoints
@@ -27,9 +29,6 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   version: "23.04"
-externalDocs:
-  description: You can contact us on our community platform The Watch
-  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:
