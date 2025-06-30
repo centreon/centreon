@@ -107,7 +107,7 @@ class VmWareV6Parameters implements AccParametersInterface
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $currentObj->getDecryptedData();
 
-        $tempNewData = ['vcenter' => []];
+        $tempNewData = ['vcenters' => []];
         foreach ($newDatas['vcenters'] as $index => $vcenter) {
             $tempNewData['vcenters'][$vcenter['name']] = $vcenter;
             unset($newDatas['vcenters'][$index]);
