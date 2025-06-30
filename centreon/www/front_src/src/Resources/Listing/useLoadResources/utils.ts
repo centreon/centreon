@@ -48,7 +48,7 @@ export const getSearch = ({
 
   return {
     regex: {
-      fields: isResourceStatusFullSearchEnabled
+      fields: !isResourceStatusFullSearchEnabled
         ? searchableFieldsForPerformance
         : searchableFields,
       value: searchCriteria as string

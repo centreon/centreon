@@ -91,9 +91,10 @@ const useApp = (): UseAppState => {
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
   const setPlaformName = useSetAtom(platformNameAtom);
   const setUserPermissions = useSetAtom(userPermissionsAtom);
-  const isResourceStatusFullSearchEnabled = useSetAtom(
+  const setIsResourceStatusFullSearchEnabled = useSetAtom(
     isResourceStatusFullSearchEnabledAtom
   );
+
 
   const { getNavigation } = useNavigation();
 
@@ -148,7 +149,7 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
-        isResourceStatusFullSearchEnabled(
+        setIsResourceStatusFullSearchEnabled(
           retrievedParameters.is_resource_status_full_search_enabled
         );
       })
