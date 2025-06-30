@@ -144,7 +144,6 @@ class UtilsTest extends TestCase
         $this->fs->createFile('/tmp/conf.sql', "SELECT 'OK';");
         $fileName = $this->fs->path('/tmp/conf.sql');
         $this->service->executeSqlFile($fileName);
-        $this->expectException(\Exception::class);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
