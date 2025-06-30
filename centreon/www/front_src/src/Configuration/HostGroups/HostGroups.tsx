@@ -8,7 +8,7 @@ import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import { useTranslation } from 'react-i18next';
-import { ResourceType } from '../models';
+import { ResourceType } from '../Common/models';
 
 import useHostGroups from './useHostGroups';
 

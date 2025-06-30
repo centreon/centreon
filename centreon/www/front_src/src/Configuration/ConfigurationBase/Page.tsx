@@ -49,10 +49,16 @@ const Page = ({
   resourceType,
   form,
   actions,
-  labels
+  labels,
+  listAdditionalProps
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'actions' | 'labels'
+  | 'columns'
+  | 'form'
+  | 'resourceType'
+  | 'actions'
+  | 'labels'
+  | 'listAdditionalProps'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -98,6 +104,7 @@ const Page = ({
               actions={actions}
               isLoading={isLoading}
               data={data}
+              listAdditionalProps={listAdditionalProps}
             />
           )}
         </DataTable>

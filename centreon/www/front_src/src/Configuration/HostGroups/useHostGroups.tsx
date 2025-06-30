@@ -16,7 +16,7 @@ import {
   hostGroupsListEndpoint
 } from './api';
 
-import { APIType, FieldType, FilterConfiguration } from '../models';
+import { APIType, FieldType, FilterConfiguration } from '../Common/models';
 
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 

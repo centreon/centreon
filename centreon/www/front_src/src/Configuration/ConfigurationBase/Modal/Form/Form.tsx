@@ -14,7 +14,7 @@ import { isFormDirtyAtom } from '../../atoms';
 import { labelCancel, labelSave } from '../../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
-export type HostGroupFormProps = {
+export type ConfigurationFormProps = {
   id?: number;
   onSubmit?: (
     values,
@@ -73,7 +73,7 @@ const Actions =
     );
   };
 
-const HostGroupForm = ({
+const ConfigurationForm = ({
   mode,
   onSubmit,
   onCancel,
@@ -83,7 +83,7 @@ const HostGroupForm = ({
   initialValues,
   isLoading,
   hasWriteAccess
-}: HostGroupFormProps): JSX.Element => {
+}: ConfigurationFormProps): JSX.Element => {
   const { classes } = useFormStyles();
 
   return (
@@ -102,4 +102,4 @@ const HostGroupForm = ({
   );
 };
 
-export default HostGroupForm;
+export default ConfigurationForm;

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
+import Name from '../../Common/Columns/Name';
+
 import {
   labelCreationDate,
   labelCreator,
@@ -12,8 +14,6 @@ import {
   labelType,
   labelUpdateBy
 } from '../translatedLabels';
-
-import Name from './Name';
 
 const useColumns = (): {
   columns: Array<Column>;

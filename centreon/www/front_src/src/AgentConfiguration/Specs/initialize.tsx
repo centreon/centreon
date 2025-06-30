@@ -6,8 +6,6 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import AgentConfigurationPage from '../Page';
 import {
-  agentConfigurationPollersEndpoint,
-  getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
   getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
@@ -43,12 +41,12 @@ const mockRequest = (isListingEmpty): void => {
     });
   });
 
-  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
+  cy.fixture('ACC/pollers-vmware.json').then((pollers) => {
     cy.interceptAPIRequest({
       alias: 'getPollers',
       method: Method.GET,
-      path: `./api/latest${agentConfigurationPollersEndpoint}**`,
-      response: listing
+      path: `**${pollersEndpoint}**`,
+      response: pollers
     });
   });
 

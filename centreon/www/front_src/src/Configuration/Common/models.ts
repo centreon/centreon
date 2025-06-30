@@ -11,7 +11,8 @@ export enum ResourceType {
   Service = 'service',
   HostGroup = 'host group',
   ServiceGroup = 'service group',
-  AdditionalConfigurations = 'additional configuration'
+  AdditionalConfigurations = 'additional configuration',
+  PollerAgentConfiguration = 'poller/agent configuration'
 }
 
 export interface Form {
@@ -62,6 +63,7 @@ export interface ConfigurationBase {
       };
     };
   };
+  listAdditionalProps?: object;
 }
 
 export enum FieldType {

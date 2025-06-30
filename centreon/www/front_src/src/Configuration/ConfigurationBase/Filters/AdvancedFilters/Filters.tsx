@@ -4,7 +4,7 @@ import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFilterStyles } from '../Filters.styles';
 
-import { FieldType } from '../../../models';
+import { FieldType } from '../../../Common/models';
 import useLoadData from '../../Listing/useLoadData';
 import {
   MultiAutocomplete,

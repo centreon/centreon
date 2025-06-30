@@ -1,5 +1,6 @@
-import { type ComponentColumnProps, truncate } from '@centreon/ui';
 import { JSX } from 'react';
+
+import { type ComponentColumnProps, truncate } from '@centreon/ui';
 import useNameStyles from './Name.style';
 
 const Name = ({
@@ -12,10 +13,15 @@ const Name = ({
     isHovered
   });
 
-  const name = renderEllipsisTypography?.({
-    className: classes.resourceNameText,
-    formattedString: truncate({ content: row.name, maxLength: 50 })
-  }) || name;
+  if (row?.internalListingParentId) {
+    return <div />;
+  }
+
+  const name =
+    renderEllipsisTypography?.({
+      className: classes.resourceNameText,
+      formattedString: truncate({ content: row.name, maxLength: 50 })
+    }) || row.name;
 
   return <div className={classes.container}>{name}</div>;
 };
