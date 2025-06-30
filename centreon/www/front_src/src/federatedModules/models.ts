@@ -1,6 +1,9 @@
 import type { SelectEntry } from '@centreon/ui';
 import { ComponentType, LazyExoticComponent } from 'react';
-import { WidgetType } from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
+import {
+  SelectType,
+  WidgetType
+} from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -63,12 +66,13 @@ export enum FederatedWidgetOptionType {
   timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format',
-  warning = 'warning'
+  warning = 'warning',
+  boundaries = 'boundaries'
 }
 
-interface WidgetHiddenCondition {
+export interface WidgetHiddenCondition {
   matches: unknown;
-  method: 'equals' | 'includes';
+  method: 'equals' | 'includes' | 'includes-only';
   property?: string;
   target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
@@ -79,6 +83,10 @@ export interface SubInput {
   displayValue: unknown;
   input: Omit<FederatedWidgetOption, 'group' | 'hiddenCondition' | 'subInputs'>;
   name: string;
+  customPropertyMatch?: {
+    method: 'pluck';
+    property: string;
+  };
 }
 
 export interface FederatedWidgetOption {
@@ -92,7 +100,7 @@ export interface FederatedWidgetOption {
       };
   group?: string;
   hasModule?: string;
-  hiddenCondition: WidgetHiddenCondition;
+  hiddenCondition: WidgetHiddenCondition | Array<WidgetHiddenCondition>;
   label: string;
   options?:
     | Array<SelectEntry>
@@ -105,6 +113,7 @@ export interface FederatedWidgetOption {
   required?: boolean;
   secondaryLabel: string;
   subInputs?: Array<SubInput>;
+  subInputsDelimiter?: string;
   type: FederatedWidgetOptionType;
 }
 
@@ -122,7 +131,8 @@ export interface FederatedWidgetProperties {
   };
   customBaseColor?: boolean;
   data: {
-    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'> &
+      Record<'selectType', SelectType>;
   };
   description: string;
   icon?: string;
