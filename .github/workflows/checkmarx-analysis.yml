@@ -40,7 +40,7 @@ jobs:
             ENABLE_QG="false"
             echo "Skipping analysis. Caused by dependabot PR"
           fi
-          
+
           # Check forced full scan
           SCAN_MODE="--sast-incremental"
           if [[ "${{ github.event_name }}" == "schedule" || "${{ vars.CHECKMARX_FORCE_FULL_SCAN }}" == "yes" ]]; then
