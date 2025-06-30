@@ -107,31 +107,32 @@ class VmWareV6Parameters implements AccParametersInterface
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $currentObj->getDecryptedData();
 
+        $tempNewData = ['vcenter' => []];
         foreach ($newDatas['vcenters'] as $index => $vcenter) {
-            $newDatas['vcenters'][$vcenter['name']] = $vcenter;
+            $tempNewData['vcenters'][$vcenter['name']] = $vcenter;
             unset($newDatas['vcenters'][$index]);
         }
 
         $parameters['port'] = $newDatas['port'];
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Remove vcenter
-            if (! array_key_exists($vcenter['name'], $newDatas['vcenters'])) {
+            if (! array_key_exists($vcenter['name'], $tempNewData['vcenters'])) {
                 unset($parameters['vcenters'][$index]);
 
                 continue;
             }
 
             // Update vcenter
-            $updatedVcenter = $newDatas['vcenters'][$vcenter['name']];
+            $updatedVcenter = $tempNewData['vcenters'][$vcenter['name']];
             $updatedVcenter['username'] ??= $vcenter['username'];
             $updatedVcenter['password'] ??= $vcenter['password'];
 
             $parameters['vcenters'][$index] = $updatedVcenter;
-            unset($newDatas['vcenters'][$vcenter['name']]);
+            unset($tempNewData['vcenters'][$vcenter['name']]);
         }
         // Add new vcenter
-        if ([] !== $newDatas['vcenters']) {
-            foreach ($newDatas['vcenters'] as $newVcenter) {
+        if ([] !== $tempNewData['vcenters']) {
+            foreach ($tempNewData['vcenters'] as $newVcenter) {
                 $parameters['vcenters'][] = $newVcenter;
             }
         }
