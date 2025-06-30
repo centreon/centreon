@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-namespace CentreonLegacy\Core\Utils;
+namespace Tests\CentreonLegacy\Core\Utils;
 
+use CentreonLegacy\Core\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Utils;
 use CentreonLegacy\ServiceProvider;
 use CentreonLegacy\Core\Configuration\Configuration;
 use Centreon\Test\Mock;
@@ -34,9 +34,9 @@ class UtilsTest extends TestCase
 {
     /** @var FileSystem */
     public $fs;
-    /** @var Mock\CentreonDB */
+    /** @var ServiceContainer */
     public $container;
-    /** @var \CentreonLegacy\Core\Utils\Utils */
+    /** @var Utils */
     public $service
     ;
     public function setUp(): void
@@ -50,7 +50,7 @@ class UtilsTest extends TestCase
         $this->container['configuration_db'] = new Mock\CentreonDB;
         $this->container['configuration_db']->addResultSet("SELECT 'OK';", []);
 
-        $this->service = new Utils\Utils(new Container($this->container));
+        $this->service = new Utils(new Container($this->container));
     }
 
     public function tearDown(): void
@@ -60,7 +60,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArray(): void
     {
@@ -81,7 +81,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithSkippedKeys(): void
     {
@@ -99,7 +99,7 @@ class UtilsTest extends TestCase
     }
 
     /**
-     * @covers CentreonLegacy\Core\Utils\Utils::objectIntoArray
+     * @covers Utils::objectIntoArray
      */
     public function testObjectIntoArrayWithEmptyObject(): void
     {
@@ -135,25 +135,16 @@ class UtilsTest extends TestCase
     public function testExecutePhpFileWithUnexistsFile(): void
     {
         $fileName = $this->fs->path('/tmp/conf2.php');
-        $result = null;
-
-        try {
-            $result = $this->service->executePhpFile($fileName);
-        } catch (\Exception $ex) {
-            $result = $ex;
-        }
-
-        $this->assertInstanceOf(\Exception::class, $result);
+        $this->service->executePhpFile($fileName);
+        $this->expectException(\Exception::class);
     }
 
     public function testExecuteSqlFile(): void
     {
         $this->fs->createFile('/tmp/conf.sql', "SELECT 'OK';");
         $fileName = $this->fs->path('/tmp/conf.sql');
-
-        $result = $this->service->executeSqlFile($fileName);
-
-        $this->assertEmpty($result);
+        $this->service->executeSqlFile($fileName);
+        $this->expectException(\Exception::class);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void

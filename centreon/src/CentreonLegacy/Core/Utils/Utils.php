@@ -21,7 +21,9 @@
 
 namespace CentreonLegacy\Core\Utils;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Utils
 {
@@ -68,6 +70,8 @@ class Utils
      * @param array $customMacros
      * @param mixed $monitoring
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
     public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
@@ -100,6 +104,8 @@ class Utils
     /**
      * @param string $fileName
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
     public function executePhpFile($fileName): void

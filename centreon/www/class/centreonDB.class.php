@@ -42,6 +42,7 @@ require_once __DIR__ . '/centreonLog.class.php';
  * Class
  *
  * @class       CentreonDB
+ * @extends     \PDO
  * @description used to manage DB connection
  */
 class CentreonDB extends PDO implements ConnectionInterface

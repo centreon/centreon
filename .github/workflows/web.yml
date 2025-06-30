@@ -454,12 +454,12 @@ jobs:
         run: composer stan:core
         working-directory: centreon
 
-      - name: Run of phpstan on the new section for the /src/App directory at level max
-        run: composer stan:new
+      - name: Run of phpstan on the unit tests of the legacy section for the /tests at level 2
+        run: composer stan:test
         working-directory: centreon
 
-      - name: Run of phpstan on /tests at level 2
-        run: composer stan:test
+      - name: Run of phpstan on the new section for the /src/App directory at level max
+        run: composer stan:new
         working-directory: centreon
 
       - name: Run of rector

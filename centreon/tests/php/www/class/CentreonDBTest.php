@@ -129,6 +129,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'CentreonDB::createFromConfig factory with centreon database',
         function () use ($dbConfigCentreon): void {
+            /** @var CentreonDB $db */
             $db = CentreonDB::createFromConfig($dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $stmt = $db->prepare("select database()");
@@ -2093,6 +2094,7 @@ if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStor
     it(
         'CentreonDB::createFromConfig factory with centreon_storage database',
         function () use ($dbConfigCentreonStorage): void {
+            /** @var CentreonDB $db */
             $db = CentreonDB::createFromConfig($dbConfigCentreonStorage);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $stmt = $db->prepare("select database()");
