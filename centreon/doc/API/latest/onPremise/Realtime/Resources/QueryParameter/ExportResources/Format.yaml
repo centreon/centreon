@@ -1,0 +1,8 @@
+name: format
+in: query
+description: Format of the export (e.g., csv)
+required: true
+schema:
+  type: string
+  enum:
+    - csv

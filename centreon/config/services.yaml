@@ -7,7 +7,7 @@
 parameters:
     locale: en
     api.header: "Api-Version"
-    api.version.latest: "25.05"
+    api.version.latest: "25.07"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -47,10 +47,6 @@ services:
 
     Security\:
         resource: '../src/Security/*'
-
-    # Mandatory to use 'view_response_listener: true' in the fost rest config failed
-    sensio_framework_extra.view.listener:
-        alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
 
     security.provider.tokenapi:
         class: Security\TokenAPIAuthenticator
@@ -140,3 +136,7 @@ services:
             $apiVersionLatest: '%api.version.latest%'
             $apiHeaderName: '%api.header%'
             $translationPath: '%translation_path%'
+
+    Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface:
+        class: Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository
+        public: true

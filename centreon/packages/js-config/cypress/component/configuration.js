@@ -28,15 +28,10 @@ module.exports = ({
         addMatchImageSnapshotPlugin(on, config);
 
         cypressCodeCoverageTask(on, config);
-        on('task', {
-          coverageReport: () => {
-            return null;
-          }
-        });
 
         on('before:browser:launch', (browser, launchOptions) => {
           if (
-            ['chromium', 'chrome'].includes(browser.name) &&
+            ['chrome', 'chromium'].includes(browser.name) &&
             browser.isHeadless
           ) {
             launchOptions.args.push('--headless=new');

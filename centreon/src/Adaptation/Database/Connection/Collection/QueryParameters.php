@@ -43,7 +43,7 @@ class QueryParameters extends ObjectCollection
      */
     public function getIntQueryParameters(): static
     {
-        return $this->filter(
+        return $this->filterOnValue(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INTEGER
         );
     }
@@ -54,7 +54,7 @@ class QueryParameters extends ObjectCollection
      */
     public function getStringQueryParameters(): static
     {
-        return $this->filter(
+        return $this->filterOnValue(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING
         );
     }
@@ -65,7 +65,7 @@ class QueryParameters extends ObjectCollection
      */
     public function getBoolQueryParameters(): static
     {
-        return $this->filter(
+        return $this->filterOnValue(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
         );
     }
@@ -76,7 +76,7 @@ class QueryParameters extends ObjectCollection
      */
     public function getNullQueryParameters(): static
     {
-        return $this->filter(
+        return $this->filterOnValue(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL
         );
     }
@@ -87,7 +87,7 @@ class QueryParameters extends ObjectCollection
      */
     public function getLargeObjectQueryParameters(): static
     {
-        return $this->filter(
+        return $this->filterOnValue(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
         );
     }

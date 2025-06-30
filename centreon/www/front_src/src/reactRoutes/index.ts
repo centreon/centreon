@@ -48,15 +48,15 @@ const reactRoutes = [
     path: routeMap.dashboard
   },
   {
-    comp: lazy(() => import('../ApiTokens')),
-    path: routeMap.apiTokens
+    comp: lazy(() => import('../AuthenticationTokens')),
+    path: routeMap.authTokens
   },
   {
     comp: lazy(() => import('../ResourceAccessManagement')),
     path: routeMap.resourceAccessManagement
   },
   {
-    comp: lazy(() => import('../AdditionalConnectorConfiguration')),
+    comp: lazy(() => import('../Configuration/AdditionnalConnectors')),
     path: routeMap.additionalConnectorConfiguration
   },
   {

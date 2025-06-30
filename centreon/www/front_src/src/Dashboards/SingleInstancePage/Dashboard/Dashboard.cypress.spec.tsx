@@ -221,7 +221,7 @@ const waitWidgetData = ({ widgetName, isExpanded }: WaitWidgetData) => {
   if (equals(widgetName, 'centreon-widget-graph')) {
     cy.waitForRequest(`@${widgetName}`);
     cy.fixture(fixturePath).then(({ metrics }) => {
-      checkElement({ content: metrics[0].legend, isExpanded });
+      checkElement({ content: metrics[0].metric, isExpanded });
     });
     return;
   }
@@ -1239,7 +1239,5 @@ describe('Dashboard with complex layout', () => {
     cy.get('.react-grid-item')
       .eq(4)
       .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
-
-    cy.makeSnapshot();
   });
 });

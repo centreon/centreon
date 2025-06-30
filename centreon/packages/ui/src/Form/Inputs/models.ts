@@ -4,6 +4,7 @@ import { SvgIconProps, TypographyProps } from '@mui/material';
 
 import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import { QueryParameter } from '../../queryParameters/models';
 
 export enum InputType {
   Switch = 0,
@@ -55,12 +56,14 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    customQueryParameters: Array<QueryParameter>;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
     disableSelectAll?: boolean;
     limitTags?: number;
+    decoder?;
   };
   file?: {
     multiple?: boolean;

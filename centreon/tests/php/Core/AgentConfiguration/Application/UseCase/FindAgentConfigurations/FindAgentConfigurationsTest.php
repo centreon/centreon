@@ -141,8 +141,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
                 'conf_private_key' => 'conf-key'
-            ],
-            ConnectionModeEnum::SECURE
+            ]
         )
     );
 
@@ -161,13 +160,12 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
                 'conf_private_key' => 'conf-key'
-            ],
-            ConnectionModeEnum::SECURE
+            ]
         )
     );
 
-    $pollerOne = new Poller(1, 'poller_1');
-    $pollerTwo = new Poller(2, 'poller_2');
+    $pollerOne = new Poller(1, 'poller_1', true);
+    $pollerTwo = new Poller(2, 'poller_2', false);
 
     $this->user
         ->expects($this->once())
@@ -196,9 +194,9 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
 
     ($this->useCase)($this->presenter);
 
-    expect($this->presenter->data)
+    expect(value: $this->presenter->data)
         ->toBeInstanceOf(FindAgentConfigurationsResponse::class)
-        ->and($this->presenter->data->agentConfigurations)
+        ->and(value: $this->presenter->data->agentConfigurations)
         ->toBeArray()
         ->and($this->presenter->data->agentConfigurations[0])
         ->toBeInstanceOf(AgentConfigurationDto::class)

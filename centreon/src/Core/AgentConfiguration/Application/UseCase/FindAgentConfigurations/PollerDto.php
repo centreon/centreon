@@ -28,4 +28,6 @@ final class PollerDto
     public int $id;
 
     public string $name;
+
+    public bool $isCentral;
 }

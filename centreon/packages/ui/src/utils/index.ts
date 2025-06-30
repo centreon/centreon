@@ -28,3 +28,4 @@ export * from '../Graph/Chart/InteractiveComponents/TimeShiftZones/useTimeShiftZ
 export * from '../TimePeriods/helpers';
 export { lastDayPeriod, type Parameters } from '../TimePeriods/models';
 export * from './useLocaleTimezoneDate/useLocaleTimezoneDate';
+export * from './useLocale';

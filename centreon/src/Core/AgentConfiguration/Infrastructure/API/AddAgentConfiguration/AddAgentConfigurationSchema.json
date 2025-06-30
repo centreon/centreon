@@ -5,6 +5,7 @@
     "required": [
         "type",
         "name",
+        "connection_mode",
         "poller_ids",
         "configuration"
     ],
@@ -24,7 +25,8 @@
             "type": "string",
             "enum": [
                 "secure",
-                "no-tls"
+                "no-tls",
+                "insecure"
             ],
             "default": "secure"
         },

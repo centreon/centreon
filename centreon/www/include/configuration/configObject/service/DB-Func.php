@@ -38,12 +38,14 @@ if (!isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
@@ -1847,7 +1849,7 @@ function insertServiceTemplateForOnPremise(array $submittedValues = []) : int
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: "Error while creating service template: {$exception->getMessage()}",
-            customContext: ['service template Id' => $serviceId, 'basePath' => $basePath],
+            customContext: ['service template Id' => $serviceId ?? null, 'basePath' => $basePath],
             exception: $exception
         );
 
@@ -2135,7 +2137,7 @@ function insertServiceTemplateAdditionalOptions(int $serviceId, array $submitted
             && $submittedValues['service_use_only_contacts_from_host']['service_use_only_contacts_from_host'] != null
                 ? $submittedValues['service_use_only_contacts_from_host']['service_use_only_contacts_from_host']
                 : null;
-        $stalking_options =$submittedValues['service_stalOpts']
+        $stalking_options = isset($submittedValues['service_stalOpts'])
             ? implode(',', array_keys($submittedValues['service_stalOpts']))
             : null;
         $obsess_over_service = isset($submittedValues['service_obsess_over_service']['service_obsess_over_service'])
@@ -4215,6 +4217,46 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+/**
+ * Will check if the service template inherited by the service has a command.
+ *
+ * @param array<string, mixed> $fields The fields of the service
+ *
+ * @return array<string, string>|bool
+ */
+function checkServiceTemplateHasCommand(array $fields): array|bool
+{
+    $errors['command_command_id'] = _(
+        "The selected inherited service template does not contain any check command. You must select one here."
+    );
+    if (! empty($fields["command_command_id"])) {
+        return true;
+    }
+
+    if (! isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        return $errors;
+    }
+
+    return isCheckCommandDefined($fields["service_template_model_stm_id"]) ? true : $errors;
+}
+
+function isCheckCommandDefined(int $serviceId): bool
+{
+    global $pearDB;
+    $result = $pearDB->fetchAssociative(
+        "SELECT command_command_id, service_template_model_stm_id FROM service WHERE service_id = :stm_id",
+        QueryParameters::create([QueryParameter::int('stm_id', $serviceId)])
+    );
+
+    if ($result['command_command_id'] !== null) {
+        return true;
+    } elseif ($result['command_command_id'] === null && $result['service_template_model_stm_id'] !== null) {
+        return isCheckCommandDefined($result['service_template_model_stm_id']);
+    }
+
+    return false;
 }
 
 // ------ API Configuration calls --------------------------------------------------------

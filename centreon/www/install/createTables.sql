@@ -463,7 +463,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.1',
+  `bbdo_version` varchar(50) DEFAULT '3.1.0',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -588,6 +588,7 @@ CREATE TABLE `cfg_nagios` (
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
   `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
+  `broker_module_cfg_file` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
   KEY `cmd2_index` (`global_service_event_handler`),
@@ -696,7 +697,7 @@ CREATE TABLE `connector` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contact` (
+CREATE TABLE IF NOT EXISTS `contact` (
   `contact_id` int(11) NOT NULL AUTO_INCREMENT,
   `timeperiod_tp_id` int(11) DEFAULT NULL,
   `timeperiod_tp_id2` int(11) DEFAULT NULL,
@@ -733,12 +734,14 @@ CREATE TABLE `contact` (
   `contact_autologin_key` varchar(255) DEFAULT NULL,
   `default_page` int(11) DEFAULT NULL,
   `show_deprecated_pages` enum('0','1') DEFAULT '0',
+  `show_deprecated_custom_views` enum('0','1') DEFAULT '0',
   `contact_charset` varchar(255) DEFAULT NULL,
   `contact_register` tinyint(6) NOT NULL DEFAULT '1',
   `contact_ldap_last_sync` int(11) NOT NULL DEFAULT 0,
   `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0',
   `login_attempts` INT(11) UNSIGNED DEFAULT NULL,
   `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL,
+  `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)',
   PRIMARY KEY (`contact_id`),
   KEY `name_index` (`contact_name`),
   KEY `alias_index` (`contact_alias`),
@@ -1488,12 +1491,7 @@ CREATE TABLE `hostgroup` (
   `hg_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host group',
   `hg_name` varchar(200) DEFAULT NULL COMMENT 'Name of the host group',
   `hg_alias` varchar(200) DEFAULT NULL COMMENT 'Alias of the host group',
-  `hg_notes` varchar(255) DEFAULT NULL COMMENT 'Notes about the host group',
-  `hg_notes_url` varchar(255) DEFAULT NULL COMMENT 'URL for notes about the host group',
-  `hg_action_url` varchar(255) DEFAULT NULL COMMENT 'URL for actions about the host group',
   `hg_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the icon image',
-  `hg_map_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the map icon image',
-  `hg_rrd_retention` int(11) DEFAULT NULL COMMENT 'RRD retention for the host group',
   `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates of the host group',
   `hg_comment` text COMMENT 'Comment about the host group',
   `hg_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Indicates whether the host group is active 1 or disabled 0',
@@ -2719,6 +2717,20 @@ CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `jwt_tokens` (
+    `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+    `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
+    `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
+    `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
+    `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
+    `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
+    `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
+    `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+    PRIMARY KEY (`token_name`),
+    CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

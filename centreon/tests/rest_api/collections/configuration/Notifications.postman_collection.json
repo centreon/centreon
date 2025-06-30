@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "9efeaf67-5990-4143-af99-527bff4249ee",
+		"_postman_id": "7bb2ab7d-ae69-4ca8-b74e-bf2ee32e0655",
 		"name": "Notifications",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-7bb2ab7d-ae69-4ca8-b74e-bf2ee32e0655?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1844,7 +1845,24 @@
 									"    });\r",
 									"    \r",
 									"});\r",
-									"\r"
+									"\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1901,7 +1919,24 @@
 									"        \"hosts\": []\r",
 									"    });\r",
 									"});\r",
-									""
+									"\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}

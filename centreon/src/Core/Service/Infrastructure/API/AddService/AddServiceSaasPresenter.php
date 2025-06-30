@@ -62,6 +62,8 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'severity_id' => $response->severityId,
+                        'check_command_id' => $response->commandId,
+                        'check_command_args' => $response->commandArguments,
                         'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
                         'event_handler_command_id' => $response->eventHandlerId,
                         'categories' => array_map(fn($category): array => [

@@ -101,7 +101,7 @@ jobs:
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
         with:
           php-version: 8.2
           coverage: none
@@ -115,7 +115,7 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
 

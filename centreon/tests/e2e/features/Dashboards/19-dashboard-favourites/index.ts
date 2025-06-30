@@ -2,7 +2,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import webPageWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithWebPageWidget.json';
 
 before(() => {
   cy.intercept({
@@ -74,7 +73,7 @@ Given('a dashboard having a configured web page widget', () => {
 });
 
 When('the dashboard administrator clicks on the favourite icon', () => {
-  cy.getByTestId({ testId: 'FavoriteIcon' }).click();
+  cy.getByTestId({ testId: 'FavoriteIconButton' }).click();
   cy.wait('@addFavorites');
   cy.contains('Show only dashboards added to favorites').click();
 
@@ -103,7 +102,7 @@ Given('a dashboard having another configured web page widget', () => {
 });
 
 When('the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list', () => {
-  cy.getByTestId({ testId: 'FavoriteIcon' }).eq(0).click();
+  cy.getByTestId({ testId: 'FavoriteIconButton' }).eq(0).click();
   cy.wait('@deleteFavorites');
   cy.contains('Show only dashboards added to favorites').click();
 

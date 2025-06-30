@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "d49e9fed-214c-4b25-8beb-1440b87263c1",
+		"_postman_id": "e3a1bf9d-7d4c-4e8d-be04-a45fb0ac97fe",
 		"name": "Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d49e9fed-214c-4b25-8beb-1440b87263c1?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-e3a1bf9d-7d4c-4e8d-be04-a45fb0ac97fe?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2691,7 +2691,25 @@
 									"        \"comment\": \"Hello world ! 1\",\r",
 									"        \"hosts\": []\r",
 									"    });\r",
-									"});\r"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: [\"string\", \"null\"] },\r",
+									"            icon_id: { type: [\"integer\", \"null\"] },\r",
+									"            geo_coords: { type: [\"string\", \"null\"] },\r",
+									"            comment: { type: [\"string\", \"null\"] },\r",
+									"            hosts: { type: \"array\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"icon_id\", \"geo_coords\", \"comment\", \"hosts\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}

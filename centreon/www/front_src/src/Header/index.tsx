@@ -26,9 +26,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   header: {
     alignItems: 'center',
-    backgroundColor: isDarkMode(theme)
-      ? theme.palette.common.black
-      : theme.palette.primary.dark,
     display: 'flex',
     maxHeight: theme.spacing(headerHeight),
     minHeight: theme.spacing(headerHeight),
@@ -77,7 +74,8 @@ const Header = (): JSX.Element => {
     <header
       className={cx(
         classes.header,
-        isFullscreenActivated && classes.fullscreenActivated
+        isFullscreenActivated && classes.fullscreenActivated,
+        'bg-primary-dark dark:bg-black'
       )}
       ref={headerRef}
     >
