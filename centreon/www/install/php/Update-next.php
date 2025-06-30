@@ -116,10 +116,35 @@ $addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage) {
     }
 };
 
+/** ------------------------------------------ Services as contacts ------------------------------------------ */
 try {
+$addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                ALTER TABLE `contact`
+                    ADD COLUMN `is_service_account` boolean DEFAULT 0 COMMENT 'Indicates if the contact is a service account (ex: centreon-gorgone)'
+                SQL
+        );
+    }
+};
 
+$flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to update contact table';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `contact`
+            SET `is_service_account` = 1
+            WHERE `contact_name` IN ('centreon-gorgone', 'CBIS', 'centreon-map')
+            SQL
+    );
+};
+
+try {
     $bbdoDefaultUpdate();
     $addDeprecateCustomViewsToContact();
+    $addServiceFlagToContacts();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -131,6 +156,7 @@ try {
     $updateCfgParameters();
     $bbdoCfgUpdate();
     $addResourceStatusSearchModeOption();
+    $flagContactsAsServiceAccount();
 
     $pearDB->commit();
 
