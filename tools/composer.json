@@ -11,6 +11,7 @@
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",
     "phpstan/phpstan-mockery": "1.1.*",
+    "phpstan/phpstan-phpunit": "^1.4",
     "rector/rector": "1.2.*"
   },
   "autoload": {

@@ -17,6 +17,8 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
@@ -33,9 +35,9 @@ class HealthcheckTest extends TestCase
 {
     /** @var FileSystem */
     public $fs;
-    /** @var ServiceContainer */
+    /** @var MockObject&ServiceContainer */
     public $container;
-    /** @var Healthcheck */
+    /** @var MockObject&Healthcheck */
     public $service;
 
     public function setUp(): void
@@ -67,7 +69,7 @@ class HealthcheckTest extends TestCase
                 })
             );
 
-        $this->service = $this->getMockBuilder(Module\Healthcheck::class)
+        $this->service = $this->getMockBuilder(Healthcheck::class)
             ->setConstructorArgs([
                 new Container($this->container),
             ])
@@ -101,16 +103,8 @@ class HealthcheckTest extends TestCase
         $criticalV = false,
         $licenseExpirationV = null
     ) {
-        $mock = $this
-            ->getMockBuilder(Module\Healthcheck::class)
-            ->setConstructorArgs([
-                new Container($this->container),
-            ])
-            ->onlyMethods([
-                'getRequirements',
-            ])
-            ->getMock();
-        $mock->method('getRequirements')
+        $this->service
+            ->method('getRequirements')
             ->will($this->returnCallback(function (
                     $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
                     ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
@@ -280,16 +274,9 @@ class HealthcheckTest extends TestCase
                 'Solution' => '',
             ],
         ];
-        $mock = $this
-            ->getMockBuilder(Module\Healthcheck::class)
-            ->setConstructorArgs([
-                new Container($this->container),
-            ])
-            ->onlyMethods([
-                'getRequirements',
-            ])
-            ->getMock();
-            $mock->method('getRequirements')
+
+        $this->service
+            ->method('getRequirements')
             ->will($this->returnCallback(function (
                     $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
                     ) use ($valueException): void {
@@ -297,7 +284,7 @@ class HealthcheckTest extends TestCase
                 }
         ));
 
-        $result = $mock->checkPrepareResponse($module);
+        $result = $this->service->checkPrepareResponse($module);
 
         $this->assertEquals($result, $value);
     }
