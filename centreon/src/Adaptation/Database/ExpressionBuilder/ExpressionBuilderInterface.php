@@ -38,6 +38,8 @@ interface ExpressionBuilderInterface
      * @example
      *         method : and("field1 = :value1", ["field2 = :value2","field3 = :value3"])
      *         return : "(field1 = :value1) AND (field2 = :value2) AND (field3 = :value3)"
+     *
+     * @param string[] $expressions
      */
     public function and(string $expression, string ...$expressions): string;
 
@@ -47,6 +49,8 @@ interface ExpressionBuilderInterface
      * @example
      *         method : or("field1 = :value1", ["field2 = :value2","field3 = :value3"])
      *         return : "(field1 = :value1) OR (field2 = :value2) OR (field3 = :value3)"
+     *
+     * @param string[] $expressions
      */
     public function or(string $expression, string ...$expressions): string;
 

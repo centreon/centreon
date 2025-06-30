@@ -47,9 +47,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
 {
     use ConnectionTrait;
 
-    /**
-     * By default, the queries are buffered.
-     */
+    /** By default, the queries are buffered. */
     private bool $isBufferedQueryActive = true;
 
     /**
