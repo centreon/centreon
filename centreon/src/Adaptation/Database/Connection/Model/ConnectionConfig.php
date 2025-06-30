@@ -26,24 +26,17 @@ namespace Adaptation\Database\Connection\Model;
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionConfig
- * @package Adaptation\Database\Connection\Model
  */
 final readonly class ConnectionConfig
 {
     /**
-     * ConnectionConfig constructor
+     * ConnectionConfig constructor.
      *
-     * @param string $host
-     * @param string $user
-     * @param string $password
      * @param string $databaseNameConfiguration Configuration database name of Centreon
      * @param string $databaseNameRealTime Real time database name of Centreon
-     * @param int $port
-     * @param string $charset
-     * @param ConnectionDriverEnum $driver
      */
     public function __construct(
         private string $host,
@@ -54,78 +47,52 @@ final readonly class ConnectionConfig
         private int $port = 3306,
         private string $charset = 'utf8mb4',
         private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
-    ) {}
+    ) {
+    }
 
-    /**
-     * @return string
-     */
     public function getHost(): string
     {
         return $this->host;
     }
 
-    /**
-     * @return string
-     */
     public function getUser(): string
     {
         return $this->user;
     }
 
-    /**
-     * @return string
-     */
     public function getPassword(): string
     {
         return $this->password;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseNameConfiguration(): string
     {
         return $this->databaseNameConfiguration;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseNameRealTime(): string
     {
         return $this->databaseNameRealTime;
     }
 
-    /**
-     * @return int
-     */
     public function getPort(): int
     {
         return $this->port;
     }
 
-    /**
-     * @return string
-     */
     public function getCharset(): string
     {
         return $this->charset;
     }
 
-    /**
-     * @return ConnectionDriverEnum
-     */
     public function getDriver(): ConnectionDriverEnum
     {
         return $this->driver;
     }
 
-    /**
-     * @return string
-     */
     public function getMysqlDsn(): string
     {
-        return sprintf(
+        return \sprintf(
             'mysql:dbname=%s;host=%s;port=%s;charset=%s',
             $this->getDatabaseNameConfiguration(),
             $this->getHost(),
@@ -134,12 +101,9 @@ final readonly class ConnectionConfig
         );
     }
 
-    /**
-     * @return string
-     */
     public function getOracleDsn(): string
     {
-        return sprintf(
+        return \sprintf(
             'oci:dbname=//%s:%s/%s',
             $this->getHost(),
             $this->getPort(),
@@ -147,12 +111,9 @@ final readonly class ConnectionConfig
         );
     }
 
-    /**
-     * @return string
-     */
     public function getPgsqlDsn(): string
     {
-        return sprintf(
+        return \sprintf(
             'pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s',
             $this->getHost(),
             $this->getPort(),

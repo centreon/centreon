@@ -28,18 +28,12 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionException
- * @package Adaptation\Database\Connection\Exception
  */
 class ConnectionException extends DatabaseException
 {
-    /**
-     * @param string $method
-     *
-     * @return ConnectionException
-     */
     public static function notImplemented(string $method): self
     {
         return new self(
@@ -49,10 +43,7 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     *
-     * @return ConnectionException
      */
     public static function connectionBadUsage(string $message, array $context = []): self
     {
@@ -63,30 +54,20 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ConnectionException
-     */
     public static function connectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while connecting to the database';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
         return new self($message, self::ERROR_CODE_DATABASE, [], $previous);
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ConnectionException
-     */
     public static function getNativeConnectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the native connection';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -97,26 +78,16 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ConnectionException
-     */
     public static function getDatabaseNameFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the database name';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
         return new self($message, self::ERROR_CODE_DATABASE);
     }
 
-    /**
-     * @param \Throwable $previous
-     *
-     * @return ConnectionException
-     */
     public static function getLastInsertFailed(\Throwable $previous): self
     {
         return new self(
@@ -128,9 +99,6 @@ class ConnectionException extends DatabaseException
 
     // --------------------------------------- CRUD METHODS -----------------------------------------
 
-    /**
-     * @return ConnectionException
-     */
     public static function notEmptyQuery(): self
     {
         return new self(
@@ -148,13 +116,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return self
-     */
     public static function executeStatementFailed(
         \Throwable $previous,
         string $query,
@@ -171,11 +132,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $query
-     *
-     * @return ConnectionException
-     */
     public static function insertQueryBadFormat(string $query): self
     {
         return new self(
@@ -185,13 +141,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function insertQueryFailed(
         \Throwable $previous,
         string $query,
@@ -208,11 +157,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $message
-     *
-     * @return ConnectionException
-     */
     public static function batchInsertQueryBadUsage(string $message): self
     {
         return new self(
@@ -222,13 +166,7 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable $previous
-     * @param string $tableName
      * @param array<string> $columns
-     * @param BatchInsertParameters $batchInsertParameters
-     * @param string $query
-     *
-     * @return ConnectionException
      */
     public static function batchInsertQueryFailed(
         \Throwable $previous,
@@ -250,11 +188,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $query
-     *
-     * @return ConnectionException
-     */
     public static function updateQueryBadFormat(string $query): self
     {
         return new self(
@@ -264,13 +197,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function updateQueryFailed(
         \Throwable $previous,
         string $query,
@@ -287,11 +213,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $query
-     *
-     * @return ConnectionException
-     */
     public static function deleteQueryBadFormat(string $query): self
     {
         return new self(
@@ -301,13 +222,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function deleteQueryFailed(
         \Throwable $previous,
         string $query,
@@ -324,11 +238,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $query
-     *
-     * @return ConnectionException
-     */
     public static function selectQueryBadFormat(string $query): self
     {
         return new self(
@@ -339,12 +248,7 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
      * @param array<string,mixed> $context
-     *
-     * @return ConnectionException
      */
     public static function selectQueryFailed(
         \Throwable $previous,
@@ -363,13 +267,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchNumericQueryFailed(
         \Throwable $previous,
         string $query,
@@ -386,13 +283,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
@@ -409,13 +299,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchOneQueryFailed(
         \Throwable $previous,
         string $query,
@@ -432,13 +315,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchFirstColumnQueryFailed(
         \Throwable $previous,
         string $query,
@@ -455,13 +331,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAllNumericQueryFailed(
         \Throwable $previous,
         string $query,
@@ -478,13 +347,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAllAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
@@ -501,13 +363,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAllKeyValueQueryFailed(
         \Throwable $previous,
         string $query,
@@ -524,13 +379,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAllAssociativeIndexedQueryFailed(
         \Throwable $previous,
         string $query,
@@ -547,13 +395,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function iterateNumericQueryFailed(
         \Throwable $previous,
         string $query,
@@ -570,13 +411,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function iterateAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
@@ -593,13 +427,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function iterateColumnQueryFailed(
         \Throwable $previous,
         string $query,
@@ -616,12 +443,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $query
-     * @param string $message
-     *
-     * @return self
-     */
     public static function iterateKeyValueQueryBadFormat(string $message, string $query): self
     {
         return new self(
@@ -631,13 +452,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function iterateKeyValueQueryFailed(
         \Throwable $previous,
         string $query,
@@ -654,13 +468,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function iterateAssociativeIndexedQueryFailed(
         \Throwable $previous,
         string $query,
@@ -679,15 +486,10 @@ class ConnectionException extends DatabaseException
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
-    /**
-     * @param \Throwable|null $exception
-     *
-     * @return self
-     */
     public static function setAutoCommitFailed(?\Throwable $exception = null): self
     {
         $message = 'Error while setting auto commit';
-        if (! is_null($exception) && ! empty($exception->getMessage())) {
+        if (null !== $exception && ! empty($exception->getMessage())) {
             $message .= " : {$exception->getMessage()}";
         }
 
@@ -698,11 +500,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable $previous
-     *
-     * @return ConnectionException
-     */
     public static function startTransactionFailed(\Throwable $previous): self
     {
         return new self(
@@ -712,15 +509,10 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ConnectionException
-     */
     public static function commitTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction commit';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -731,15 +523,10 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ConnectionException
-     */
     public static function rollbackTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction rollback';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -752,12 +539,6 @@ class ConnectionException extends DatabaseException
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
-    /**
-     * @param string $nativeConnectionClass
-     * @param string $currentDriverName
-     *
-     * @return ConnectionException
-     */
     public static function allowUnbufferedQueryFailed(
         string $nativeConnectionClass,
         string $currentDriverName
@@ -769,9 +550,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @return ConnectionException
-     */
     public static function startUnbufferedQueryFailed(): self
     {
         return new self(
@@ -780,11 +558,6 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    /**
-     * @param string $message
-     *
-     * @return ConnectionException
-     */
     public static function stopUnbufferedQueryFailed(
         string $message
     ): self {
@@ -796,12 +569,6 @@ class ConnectionException extends DatabaseException
 
     // ------------------------------------- BASE METHODS -----------------------------------------
 
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     *
-     * @return ConnectionException
-     */
     public static function closeQueryFailed(\Throwable $previous, string $query): self
     {
         return new self(

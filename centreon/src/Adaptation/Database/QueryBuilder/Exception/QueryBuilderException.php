@@ -25,36 +25,26 @@ namespace Adaptation\Database\QueryBuilder\Exception;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class QueryBuilderException
- * @package Adaptation\Database\QueryBuilder\Exception
  */
 class QueryBuilderException extends DatabaseException
 {
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return QueryBuilderException
-     */
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the query builder';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
         return new self($message, self::ERROR_CODE_QUERY_BUILDER, previous: $previous);
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return QueryBuilderException
-     */
-    public static function getExpressionBuilderFailed(?\Throwable $previous = null): self {
+    public static function getExpressionBuilderFailed(?\Throwable $previous = null): self
+    {
         $message = 'Error while getting the expression builder';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

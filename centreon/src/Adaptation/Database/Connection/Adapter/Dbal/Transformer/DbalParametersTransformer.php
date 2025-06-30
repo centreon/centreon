@@ -31,17 +31,15 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalParametersTransformer
- * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
 abstract readonly class DbalParametersTransformer
 {
     /**
-     * @param QueryParameters $queryParameters
-     *
      * @throws TransformerException
+     *
      * @return array{0: array<string, mixed>, 1: array<string, DbalParameterType>}
      */
     public static function transformFromQueryParameters(QueryParameters $queryParameters): array
@@ -55,7 +53,7 @@ abstract readonly class DbalParametersTransformer
                 $name = mb_substr($queryParameter->getName(), 1);
             }
             $params[$name] = $queryParameter->getValue();
-            if (! is_null($queryParameter->getType())) {
+            if (null !== $queryParameter->getType()) {
                 $types[$name] = DbalParameterTypeTransformer::transformFromQueryParameterType(
                     $queryParameter->getType()
                 );
@@ -70,7 +68,6 @@ abstract readonly class DbalParametersTransformer
      * @param array<string, DbalParameterType> $types
      *
      * @throws TransformerException
-     * @return QueryParameters
      */
     public static function reverseToQueryParameters(array $params, array $types): QueryParameters
     {
@@ -86,11 +83,7 @@ abstract readonly class DbalParametersTransformer
 
             return $queryParameters;
         } catch (CollectionException|ValueObjectException $exception) {
-            throw new TransformerException(
-                "Error while reversing to QueryParameters : {$exception->getMessage()}",
-                ['params' => $params, 'types' => $types],
-                $exception
-            );
+            throw new TransformerException("Error while reversing to QueryParameters : {$exception->getMessage()}", ['params' => $params, 'types' => $types], $exception);
         }
     }
 }
