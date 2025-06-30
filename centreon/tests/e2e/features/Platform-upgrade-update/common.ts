@@ -347,19 +347,12 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       switch (Cypress.env('WEB_IMAGE_OS')) {
         case 'alma8':
-          installCommands = [
-            ...installCommands,
-            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
-            `dnf module reset -y php`,
-            `dnf module install -y php:remi-8.2`,
-            `dnf install -y ${containerPackageDirectory}/*.rpm`
-          ];
-          break;
         case 'alma9':
           installCommands = [
             ...installCommands,
             `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             `dnf module reset -y php`,
+            `dnf module install -y php:8.2`,
             `dnf module enable -y php:8.2`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
