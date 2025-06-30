@@ -4,7 +4,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureSAML,
   initializeSAMLUser,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 } from '../common';
 import { configureProviderAcls } from '../../../../commons';
 
@@ -52,13 +53,11 @@ When(
     navigateToSAMLConfigPage();
 
     configureSAML();
-
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
   }
 );
 
 Then('the configuration is saved', () => {
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });
@@ -109,14 +108,23 @@ When('the administrator activates SAML authentication on the platform', () => {
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 
-  cy.getByLabel({
-    label: 'Enable SAMLv2 authentication',
-    tag: 'input'
-  }).check();
+  cy.wait('@getSAMLProvider')
+    .getByLabel({
+      label: 'Enable SAMLv2 authentication',
+      tag: 'input'
+    }).then(($input) => {
+      if ($input.is(":checked")) {
+        return;
+      }
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+      cy.wrap($input).check();
 
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+      cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+      cy.wait('@updateSAMLProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    });
 });
 
 Then(
