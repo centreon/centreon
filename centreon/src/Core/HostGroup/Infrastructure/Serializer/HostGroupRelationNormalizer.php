@@ -54,10 +54,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
          * @var array<string, bool|float|int|string> $data
          * @var array{groups?: string[],is_cloud_platform: bool} $context
          */
-        $data = $this->normalizer->normalize(
-            object: $object->getHostGroup(),
-            context: $context
-        );
+        $data = $this->normalizer->normalize($object->getHostGroup(), null, $context);
 
         if (isset($data['alias']) && $data['alias'] === '') {
             $data['alias'] = null;
@@ -74,10 +71,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
         if ($context['is_cloud_platform'] === true) {
             $data['resource_access_rules'] = [];
             foreach ($object->getResourceAccessRules() as $resourceAccessRule) {
-                $data['resource_access_rules'][] = $this->normalizer->normalize(
-                    object: $resourceAccessRule,
-                    context: $context
-                );
+                $data['resource_access_rules'][] = $this->normalizer->normalize($resourceAccessRule, null, $context);
             }
         }
 
