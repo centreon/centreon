@@ -95,7 +95,6 @@ const useApp = (): UseAppState => {
     isResourceStatusFullSearchEnabledAtom
   );
 
-
   const { getNavigation } = useNavigation();
 
   const logout = (): void => {

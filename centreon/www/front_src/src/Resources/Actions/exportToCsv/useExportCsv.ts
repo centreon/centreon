@@ -1,5 +1,8 @@
 import { buildListingEndpoint, useFetchQuery, useSnackbar } from '@centreon/ui';
-import { isResourceStatusFullSearchEnabledAtom, refreshIntervalAtom } from '@centreon/ui-context';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
@@ -105,7 +108,10 @@ const useExportCsv = ({
 
     const filtersParameters = {
       search: {
-        ...(getSearch({ searchCriteria: getCriteriaValue('search'), isResourceStatusFullSearchEnabled }) ?? {}),
+        ...(getSearch({
+          searchCriteria: getCriteriaValue('search'),
+          isResourceStatusFullSearchEnabled
+        }) ?? {}),
         conditions: [
           ...getListSearch({ array: names, field: 'name' }),
           ...getListSearch({ array: parentNames, field: 'parent_name' })
