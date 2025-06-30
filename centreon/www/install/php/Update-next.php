@@ -106,6 +106,26 @@ $bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
     $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
 };
 
+/**
+ * Add Column Encryption ready for poller configuration
+ */
+$addIsEncryptionReadyColumn = function() use ($pearDB, &$errorMessage) {
+    if ($pearDB->isColumnExist('nagios_server', 'is_encryption_ready') !== 1) {
+        $errorMessage = "Unable to add 'is_encryption_ready' column to 'nagios_server' table";
+        $pearDB->query("ALTER TABLE `nagios_server` ADD COLUMN `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1'");
+    }
+};
+
+/**
+ * Set encryption ready to false by default for all existing pollers to ensure retrocompatibility
+ */
+$setEncryptionReadyToFalseByDefault = function() use ($pearDB, &$errorMessage) {
+    $pearDB->executeQuery(<<<'SQL'
+        UPDATE nagios_server SET `is_encryption_ready` = '0';
+        SQL
+    );
+};
+
 /** ------------------------------------------ Services as contacts ------------------------------------------ */
 $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
@@ -134,6 +154,7 @@ try {
     $bbdoDefaultUpdate();
     $addDeprecateCustomViewsToContact();
     $addServiceFlagToContacts();
+    $addIsEncryptionReadyColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {

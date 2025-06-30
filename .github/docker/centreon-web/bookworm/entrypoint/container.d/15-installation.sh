@@ -17,6 +17,7 @@ else
   su www-data -s /bin/bash -c "php createDbUser.php"
   su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su www-data -s /bin/bash -c "php partitionTables.php"
+  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
   su www-data -s /bin/bash -c "php generationCache.php"
   cd -
 

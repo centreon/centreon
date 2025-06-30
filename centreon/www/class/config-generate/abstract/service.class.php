@@ -34,6 +34,7 @@
  *
  */
 
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -136,18 +137,38 @@ abstract class AbstractService extends AbstractObject
 
     /**
      * @param $service
-     *
+     * @param int|null $hostId
      * @return int
      */
-    protected function getMacros(&$service)
+    protected function getMacros(&$service, ?int $hostId = null)
     {
         if (isset($service['macros'])) {
             return 1;
         }
 
         $service['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getServiceMacroByServiceId($service['service_id']);
+            ->getServiceMacroByServiceId($service['service_id'], $hostId);
         return 0;
+    }
+
+    /**
+     * Format Macros for export.
+     *
+     * @param array<string, mixed> $service
+     * @param MacroDomain[] $serviceMacros
+     *
+     */
+    protected function formatMacros(array &$service, array $serviceMacros)
+    {
+            $service['macros'] = [];
+            foreach ($serviceMacros as $serviceMacro) {
+                if ($serviceMacro->getOwnerId() === $service['service_id']) {
+                    $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->shouldBeEncrypted()
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($serviceMacro->getValue())
+                        : 'raw::' . $serviceMacro->getValue();
+                }
+            }
+            $service['macros']['_SERVICE_ID'] = $service['service_id'];
     }
 
     /**
@@ -156,10 +177,10 @@ abstract class AbstractService extends AbstractObject
      * @return void
      * @throws PDOException
      */
-    protected function getServiceTemplates(&$service)
+    protected function getServiceTemplates(&$service, $serviceTemplateMacros = [])
     {
         $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
-            ->generateFromServiceId($service['service_template_model_stm_id'])];
+            ->generateFromServiceId($service['service_template_model_stm_id'], $serviceTemplateMacros)];
     }
 
     /**
