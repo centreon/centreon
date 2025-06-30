@@ -127,7 +127,7 @@ class PhpCsFixerRuleSet
             'operator_linebreak' => true,
             'ordered_class_elements' => true,
             'ordered_imports' => ['imports_order' => ['const', 'class', 'function'], 'sort_algorithm' => 'alpha'],
-            'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
+            'phpdoc_add_missing_param_annotation' => ['only_untyped' => true],
             'phpdoc_align' => ['align' => 'left'],
             'phpdoc_annotation_without_dot' => true,
             'phpdoc_indent' => true,
