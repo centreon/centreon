@@ -12,7 +12,6 @@ parameters:
     level: 8
     paths:
         - src/Core
-        - src/Adaptation
     ignoreErrors:
 
         - # [CENTREON-RULE]: (RepositoryNameCustomRule) Repository name must start with data storage prefix, which may be followed by 'Read' or 'Write' and context mention.
