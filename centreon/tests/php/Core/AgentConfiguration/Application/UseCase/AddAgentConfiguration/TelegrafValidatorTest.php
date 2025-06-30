@@ -59,9 +59,10 @@ foreach (
         '//fileName.crt',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
-    ] as $filename
+    ] as $index => $filename
 ) {
-    it("should throw an exception because of the filename for certificate {$filename} invalidity", function () use ($filename): void {
+    $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
+    it("Invalid certificate {$cleanFilename} #{$index}: should throw an exception because of the filename for certificate {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['conf_certificate'] = $filename;
         $this->expectException(AgentConfigurationException::class);
         $this->TelegrafValidator->validateParametersOrFail($this->request);
@@ -74,9 +75,10 @@ foreach (
         '/etc/pki/test.cer',
         'test.crt',
         'test.cer',
-    ] as $filename
+    ] as $index => $filename
 ) {
-    it("should not throw an exception when the filename for certificate {$filename} is valid", function () use ($filename): void {
+    $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
+    it("Valid certificate {$cleanFilename} #{$index}: should not throw an exception when the filename for certificate {$cleanFilename} is valid", function () use ($filename): void {
         $this->request->configuration['otel_ca_certificate'] = $filename;
         $this->TelegrafValidator->validateParametersOrFail($this->request);
     })->expectNotToPerformAssertions();
@@ -90,9 +92,10 @@ foreach (
         '//fileName.key',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
-    ] as $filename
+    ] as $index => $filename
 ) {
-    it("should throw an exception because of the filename for key {$filename} invalidity", function () use ($filename): void {
+    $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
+    it("Invalid key {$cleanFilename} #{$index}: should throw an exception because of the filename for key {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['conf_private_key'] = $filename;
         $this->expectException(AgentConfigurationException::class);
         $this->TelegrafValidator->validateParametersOrFail($this->request);
@@ -103,9 +106,10 @@ foreach (
     [
         '/etc/pki/test.key',
         'test.key',
-    ] as $filename
+    ] as $index => $filename
 ) {
-    it("should not throw an exception when the filename for key {$filename} is valid", function () use ($filename): void {
+    $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
+    it("Valid key {$cleanFilename} #{$index}: should not throw an exception when the filename for key {$cleanFilename} is valid", function () use ($filename): void {
         $this->request->configuration['otel_private_key'] = $filename;
         $this->TelegrafValidator->validateParametersOrFail($this->request);
     })->expectNotToPerformAssertions();
