@@ -1,0 +1,19 @@
+{
+    "centreonBroker": {
+        "cbd": [
+            {
+                "name": "central-broker-master",
+                "configuration_file": "/etc/centreon-broker/central-broker.json",
+                "run": true,
+                "reload": true
+            },
+            {
+                "name": "central-rrd-master",
+                "configuration_file": "/etc/centreon-broker/central-rrd.json",
+                "run": true,
+                "reload": true
+            }
+        ],
+        "log": "/var/log/centreon-broker/watchdog.log"
+    }
+}
