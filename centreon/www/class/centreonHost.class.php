@@ -2396,6 +2396,9 @@ class CentreonHost
         $rq .= (isset($ret['contact_additive_inheritance']) ? 1 : 0) . ', ';
         $rq .= "cg_additive_inheritance = ";
         $rq .= (isset($ret['cg_additive_inheritance']) ? 1 : 0) . ', ';
+        $rq .= "timeperiod_tp_id2 = ";
+        isset($ret["timeperiod_tp_id2"]) && $ret["timeperiod_tp_id2"] != null ?
+        $rq .= "'" . $ret["timeperiod_tp_id2"] . "', " : $rq .= "NULL, ";
         $rq .= "host_stalking_options = ";
         isset($ret["host_stalOpts"]) && $ret["host_stalOpts"] != null ?
             $rq .= "'" . implode(",", array_keys($ret["host_stalOpts"])) . "', " : $rq .= "NULL, ";

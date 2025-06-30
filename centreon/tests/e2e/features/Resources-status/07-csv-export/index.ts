@@ -247,14 +247,19 @@ When("the admin user clicks the Export button", () => {
 
 Then("a CSV file should be downloaded", () => {
   cy.waitUntil(
-    () => cy.task("isDownloadComplete", { downloadsFolder }),
-    {
-      timeout: 20000,
-      interval: 1000,
-      errorMsg: "File not downloaded within the allotted time",
-    }
-  );
+  () => cy.task("isDownloadComplete", { downloadsFolder }),
+  {
+    timeout: 20000,
+    interval: 1000,
+    errorMsg: "File not downloaded within the allotted time",
+  }
+  ).then(() => {
+    cy.waitForRequestCount('getServicesStatus', 1, 10, 5000).then(() => {
+      cy.log('Condition met: Request passed at least once');
+    });
+  });
 });
+
 
 Then("the CSV file should contain the correct headers and the expected data", () => {
   cy.task("getExportedFile", { downloadsFolder }).then((filePath) => {

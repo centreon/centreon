@@ -227,6 +227,13 @@ contents:
       group: "centreon"
       mode: 0755
 
+  - src: "../bin/console.new"
+    dst: "/usr/share/centreon/bin/console.new"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
   - src: "../bin/migration"
     dst: "/usr/share/centreon/bin/migration"
     file_info:
@@ -251,6 +258,11 @@ contents:
 
   - src: "../config"
     dst: "/usr/share/centreon/config"
+    file_info:
+      mode: 0664
+
+  - src: "../config.new"
+    dst: "/usr/share/centreon/config.new"
     file_info:
       mode: 0664
 
