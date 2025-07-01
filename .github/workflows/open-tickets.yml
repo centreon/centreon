@@ -48,6 +48,7 @@ jobs:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-open-tickets
       configuration_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+      widget_file: centreon-open-tickets/widgets/open-tickets/configs.xml
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -61,6 +62,12 @@ jobs:
         uses: ./.github/actions/check-version-consistency
         with:
           file: ${{ env.configuration_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.widget_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.widget_file }}
           version: ${{ env.version }}
 
   backend-lint:
