@@ -105,7 +105,6 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
-    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: true
