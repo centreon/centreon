@@ -117,7 +117,6 @@ $addResourceStatusSearchModeOption = function() use ($pearDB, &$errorMessage) {
 };
 
 /** ------------------------------------------ Services as contacts ------------------------------------------ */
-try {
 $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
     if (! $pearDB->isColumnExist('contact', 'is_service_account')) {
@@ -130,6 +129,9 @@ $addServiceFlagToContacts = function () use ($pearDB, &$errorMessage) {
     }
 };
 
+/*
+ * @var mixed $pearDB
+ */
 $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
     $errorMessage = 'Unable to update contact table';
     $pearDB->executeQuery(
