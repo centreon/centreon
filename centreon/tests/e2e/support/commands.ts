@@ -38,7 +38,9 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+Cypress.Commands.add('loginKeycloak', (jsonName): Cypress.Chainable => {
+  cy.url().should('include', '/realms/Centreon_SSO');
+
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
     cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
