@@ -59,7 +59,7 @@ jobs:
         if: env.enable_analysis  == 'true'
         uses: checkmarx/ast-github-action@88c60148b7b9689d67eb05bf66a65bbb871f2f2c # v.2.3.20
         with:
-          project_name: ${{ inputs.module_name }}-dev-23.10.x
+          project_name: ${{ inputs.module_name }}-dev-24.10.x
           base_uri: ${{ secrets.base_uri }}
           cx_tenant: ${{ secrets.cx_tenant }}
           cx_client_id: ${{ secrets.cx_client_id }}
