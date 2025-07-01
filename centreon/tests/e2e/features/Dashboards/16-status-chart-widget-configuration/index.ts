@@ -410,7 +410,8 @@ Then('only the contents of the other widget are displayed', () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '0', '0', '0']
+    ['100.0%', '0', '0', '0'],
+    ["66.7%", "33.3%", "0.0%", "0.0%"]
   );
   cy.verifyLegendItemStyle(
     1,
