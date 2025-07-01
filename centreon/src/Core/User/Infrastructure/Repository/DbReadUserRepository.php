@@ -46,6 +46,7 @@ use Utility\SqlConcatenator;
  *     contact_theme: string,
  *     user_interface_density: string,
  *     user_can_reach_frontend: string,
+ *     is_service_account: int,
  * }
  */
 class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepositoryInterface
@@ -74,6 +75,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                     contact_admin,
                     contact_theme,
                     user_interface_density,
+                    is_service_account,
                     contact_oreon AS `user_can_reach_frontend`
                 FROM `:db`.contact
                 SQL_WRAP
@@ -139,7 +141,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 SELECT /* Finds associated users in ACL group rules */
                     contact.contact_id, contact.contact_alias, contact.contact_name,
                     contact.contact_email, contact.contact_admin, contact.contact_theme,
-                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`
+                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`,
+                    contact.is_service_account
                 FROM `:db`.`contact`
                 INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
                     ON acl_c_rel.contact_contact_id = contact.contact_id
@@ -245,7 +248,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                     contact_admin,
                     contact_theme,
                     user_interface_density,
-                    contact_oreon AS `user_can_reach_frontend`
+                    contact_oreon AS `user_can_reach_frontend`,
+                    is_service_account
                 FROM `:db`.contact
                 WHERE contact.contact_register = '1'
                 AND contact_id = :userId
@@ -266,26 +270,6 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     }
 
     /**
-     * @inheritDoc
-     */
-    public function isServiceUser(int $userId): bool
-    {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                SELECT is_service_account
-                FROM `:db`.contact
-                WHERE contact_id = :userId
-                SQL
-        ));
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        $result = $statement->fetchColumn();
-
-        return $result === 1;
-    }
-
-    /**
      * @param _UserRecord $user
      *
      * @throws \Assert\AssertionFailedException
@@ -295,14 +279,15 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
     private function createFromRecord(array $user): User
     {
         return new User(
-            (int) $user['contact_id'],
-            $user['contact_alias'],
-            $user['contact_name'],
-            $user['contact_email'],
-            $user['contact_admin'] === '1',
-            $user['contact_theme'],
-            $user['user_interface_density'],
-            $user['user_can_reach_frontend'] === '1'
+            id: (int) $user['contact_id'],
+            alias: $user['contact_alias'],
+            name: $user['contact_name'],
+            email: $user['contact_email'],
+            isAdmin: $user['contact_admin'] === '1',
+            theme: $user['contact_theme'],
+            userInterfaceDensity: $user['user_interface_density'],
+            canReachFrontend: $user['user_can_reach_frontend'] === '1',
+            isServiceAccount: (bool) $user['is_service_account'] ?: false
         );
     }
 }

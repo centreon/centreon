@@ -92,7 +92,7 @@ final class FindUsers
                 // Filter out service users in cloud platform
                 $users = array_filter(
                     $users,
-                    fn(User $user): bool => ! $this->readUserRepository->isServiceUser($user->getId())
+                    fn(User $user): bool => ! $user->isServiceAccount()
                 );
             }
 
