@@ -79,7 +79,7 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    }).eq(1).type('{selectall}{backspace}centreon-editor');
+    }).eq(0).type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
