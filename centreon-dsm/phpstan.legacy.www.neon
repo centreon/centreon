@@ -4,3 +4,6 @@ parameters:
         - vendor/centreon/centreon/www/include/common/common-Func.php
     paths:
         - www
+    ignoreErrors:
+        - # Ignore path problems
+          message: '#is not a file or it does not exist.#'
