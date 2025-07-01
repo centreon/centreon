@@ -25,11 +25,11 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\Local\Api\UpdateCon
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
-use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfiguration;
-use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfigurationRequest;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\{
     UpdateConfigurationPresenterInterface
 };
+use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfiguration;
+use Core\Security\ProviderConfiguration\Application\Local\UseCase\UpdateConfiguration\UpdateConfigurationRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

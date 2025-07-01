@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +16,10 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Symfony;
 
@@ -48,11 +49,12 @@ final class Kernel extends BaseKernel
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $configDir = $this->getConfigDir();
+        $env = is_string($this->environment) ? $this->environment : 'prod';
 
         $container->import($configDir . '/{packages}/*.yaml');
-        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
+        $container->import($configDir . '/{packages}/' . $env . '/*.yaml');
         $container->import($configDir . '/{services}/*.php');
-        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
+        $container->import($configDir . '/{services}/' . $env . '/*.php');
     }
 
     private function getConfigDir(): string

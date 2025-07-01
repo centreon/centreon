@@ -25,7 +25,6 @@ namespace Core\Broker\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Broker\Application\Repository\ReadBrokerRepositoryInterface;
-use Core\Broker\Domain\Model\Broker;
 use Core\Broker\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 

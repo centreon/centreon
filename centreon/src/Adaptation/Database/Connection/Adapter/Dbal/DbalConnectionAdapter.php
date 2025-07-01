@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -721,10 +721,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         $nativeConnection = $this->getNativeConnection();
         if (\is_object($nativeConnection)) {
-            $driverName = match ($nativeConnection::class) {
-                \PDO::class => 'pdo_' . $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME),
-                default => '',
-            };
+            $driverName = '';
+            if ($nativeConnection instanceof \PDO) {
+                $driverNamePdo = $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                $driverName = is_string($driverNamePdo) ? 'pdo_' . $driverNamePdo : '';
+            }
             if (empty($driverName) || ! \in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
                 $this->writeDbLog(
                     message: 'Unbuffered queries are not allowed with this driver',

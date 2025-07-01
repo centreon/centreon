@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -121,13 +121,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing the statement : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -146,13 +146,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing the insert query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -202,13 +202,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing the update query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -227,13 +227,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing the delete query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -272,13 +272,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch numeric query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -288,13 +288,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch associative query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -304,13 +304,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch one query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -320,13 +320,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null,
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch first column query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -336,13 +336,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch all numeric query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -352,13 +352,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch all associative query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -368,13 +368,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch all key value query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -384,13 +384,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing fetch all associative indexed query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -400,13 +400,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing iterate numeric query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -416,13 +416,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing iterate associative query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -432,13 +432,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing iterate first column query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -457,13 +457,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing iterate key value query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }
@@ -473,13 +473,13 @@ class ConnectionException extends DatabaseException
         string $query,
         ?QueryParameters $queryParameters = null
     ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
         return new self(
             message: "Error while executing iterate associative indexed query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
-            context: $context,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
             previous: $previous
         );
     }

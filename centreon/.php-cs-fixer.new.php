@@ -16,6 +16,7 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -47,7 +48,8 @@ $rules = array_merge(
         '@Symfony:risky' => true,
         'concat_space' => ['spacing' => 'one'], // FIXME Why I need to do this? It should be erase by custom rules
     ],
-    PhpCsFixerRuleSet::getRules());
+    PhpCsFixerRuleSet::getRules()
+);
 
 return $config
     ->setRules($rules)

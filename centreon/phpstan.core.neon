@@ -102,7 +102,6 @@ parameters:
                 - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteMetaServiceRepository.php
                 - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceCategoryRepository.php
                 - src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceGroupRepository.php
-                - src/Core/Security/Authentication/Infrastructure/Repository/DbReadTokenRepositoryInterface.php
 
         - # Problem : block usage of Value Object.
           # Unsafe usage of new static().
