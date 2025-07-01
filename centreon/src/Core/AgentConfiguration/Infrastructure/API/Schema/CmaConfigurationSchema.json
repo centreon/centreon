@@ -11,7 +11,8 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-                "is_reverse",
+                "agent_initiated",
+                "poller_initiated",
                 "otel_public_certificate",
                 "otel_ca_certificate",
                 "otel_private_key",
@@ -19,7 +20,10 @@
                 "tokens"
             ],
             "properties": {
-                "is_reverse": {
+                "agent_initiated": {
+                    "type": "boolean"
+                },
+                "poller_initiated": {
                     "type": "boolean"
                 },
                 "otel_public_certificate": {
