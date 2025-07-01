@@ -92,8 +92,7 @@ jobs:
       [
         get-environment,
         check-version-consistency,
-        backend-lint,
-        backend-unit-test
+        backend-lint
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
