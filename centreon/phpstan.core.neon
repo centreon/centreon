@@ -5,7 +5,6 @@ includes:
 rules:
     - Tools\PhpStan\CustomRules\MiscRules\StringBackquotesCustomRule
     - Tools\PhpStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
-    - Tools\PhpStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
     - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
 
 parameters:

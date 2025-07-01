@@ -5,3 +5,10 @@ parameters:
     paths:
         - phpstan
         - php-cs-fixer
+
+    ignoreErrors:
+        # To fix the following errors, you need to update the custom rules:
+        # Although PHPStan\Node\ClassPropertyNode is covered by backward compatibility promise, this instanceof assumption
+        # might break because it's not guaranteed to always stay the same.
+        # https://phpstan.org/developing-extensions/backward-compatibility-promise
+        - "#Although PHPStan\\\\Node\\\\ClassPropertyNode is covered by backward compatibility promise#"

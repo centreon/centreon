@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,16 @@ declare(strict_types=1);
 
 namespace Tools\PhpStan\CustomRules;
 
+use PHPStan\Reflection\ReflectionProvider;
+
 /**
  * This trait implements checkIfInUseCase method to check if a file is
  * a Use Case.
  */
 trait CentreonRuleTrait
 {
+    public function __construct(private ReflectionProvider $reflectionProvider) {}
+
     /**
      * Tells whether the class FQCN extends an Exception.
      *
@@ -38,7 +42,10 @@ trait CentreonRuleTrait
      */
     private function extendsAnException(?string $classFqcn): bool
     {
-        return ! empty($classFqcn) && is_a($classFqcn, \Exception::class, true);
+        return ! empty($classFqcn)
+            && $this->reflectionProvider->hasClass($classFqcn)
+            && $this->reflectionProvider->getClass($classFqcn)
+                ->isSubclassOf(\Exception::class);
     }
 
     /**

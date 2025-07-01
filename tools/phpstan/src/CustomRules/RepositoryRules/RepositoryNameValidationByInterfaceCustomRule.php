@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,15 @@ class RepositoryNameValidationByInterfaceCustomRule implements Rule
         return Node\Stmt\Class_::class;
     }
 
+    /**
+     * @return list<\PHPStan\Rules\RuleError>
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         // This rule does not apply.
         if (
             ! str_contains($node->name->name ?? '', 'Repository')
-            || empty($node->implements)
+            || $node->implements === []
         ) {
             return [];
         }

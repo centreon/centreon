@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,9 @@ class VariableLengthCustomRule implements Rule
         return Node::class;
     }
 
+    /**
+     * @return list<\PHPStan\Rules\RuleError>
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         $varName = $this->getVariableNameFromNode($node);
@@ -81,11 +84,16 @@ class VariableLengthCustomRule implements Rule
      */
     private function getVariableNameFromNode(Node $node): ?string
     {
+        // FIXME Although PHPStan\Node\ClassPropertyNode is covered by backward compatibility promise, this instanceof assumption might break because it's not guaranteed to always stay the same.
+        // https://phpstan.org/developing-extensions/backward-compatibility-promise
+        if ($node instanceof \PHPStan\Node\ClassPropertyNode) {
+            return (string) $node->getName();
+        }
+
         return match (true) {
-            $node instanceof \PHPStan\Node\ClassPropertyNode => $node->getName(),
-            $node instanceof Node\Expr\PropertyFetch => $node->name->name ?? null,
-            $node instanceof Node\Expr\Variable => is_string($node->name) ? $node->name : ($node->name->name ?? null),
-            $node instanceof Node\Param => $node->var->name ?? null,
+            $node instanceof Node\Expr\PropertyFetch => is_string($node->name->name ?? null) ? $node->name->name : null,
+            $node instanceof Node\Expr\Variable => is_string($node->name) ? $node->name : null,
+            $node instanceof Node\Param => is_string($node->var->name ?? null) ? $node->var->name : null,
             default => null
         };
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,24 @@ use Tools\PhpStan\CustomRules\Collectors\UseUseCollector;
  *
  * @implements Rule<CollectedDataNode>
  */
-class DomainCallNamespacesCustomRule implements Rule
+final class DomainCallNamespacesCustomRule implements Rule
 {
+    /**
+     * @return class-string<CollectedDataNode>
+     */
     public function getNodeType(): string
     {
         return CollectedDataNode::class;
     }
 
+    /**
+     * @param CollectedDataNode $node
+     * @param Scope $scope
+     * @return list<\PHPStan\Rules\RuleError>
+     */
     public function processNode(Node $node, Scope $scope): array
     {
+        /** @var array<string, list<array{int, string}>> $useUseByFile */
         $useUseByFile = $node->get(UseUseCollector::class);
 
         $errors = [];

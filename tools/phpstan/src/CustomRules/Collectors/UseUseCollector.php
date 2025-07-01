@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,13 @@ use PHPStan\Collectors\Collector;
  * This class implements Collector interface to collect the information about
  * 'uses' in codebase.
  *
- * @implements Collector<Node\Stmt\UseUse, array{int, string}>
+ * @implements Collector<Node\UseItem, array{int, string}>
  */
 class UseUseCollector implements Collector
 {
     public function getNodeType(): string
     {
-        return Node\Stmt\UseUse::class;
+        return Node\UseItem::class;
     }
 
     public function processNode(Node $node, Scope $scope): ?array
