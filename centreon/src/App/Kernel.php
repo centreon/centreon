@@ -49,10 +49,10 @@ class Kernel extends BaseKernel
     public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
-        if (\defined('_CENTREON_LOG_') && is_string(_CENTREON_LOG_)) {
+        if (\defined('_CENTREON_LOG_')) {
             $this->logDir = _CENTREON_LOG_ . '/symfony';
         }
-        if (\defined('_CENTREON_CACHEDIR_') && is_string(_CENTREON_CACHEDIR_)) {
+        if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
     }

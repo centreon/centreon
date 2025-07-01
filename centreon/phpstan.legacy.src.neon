@@ -10,6 +10,7 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
     excludePaths:
         analyseAndScan:
+            - src/App
             - src/Core
             - src/Adaptation
     level: 4

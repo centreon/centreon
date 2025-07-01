@@ -172,6 +172,7 @@
     "stan:core": "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "stan:core:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
     "stan:test": "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G",
+    "stan:test:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.test.neon --memory-limit=1G",
     "stan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
     "php:check8.2": "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "../tools/vendor/bin/rector process --dry-run",

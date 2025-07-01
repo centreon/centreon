@@ -25,7 +25,6 @@ namespace Core\User\Application\UseCase\FindUserPermissions;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\NotEmptyString;
 use Core\User\Domain\Model\Permission;
 

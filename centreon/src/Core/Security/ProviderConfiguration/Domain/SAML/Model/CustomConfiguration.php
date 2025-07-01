@@ -445,6 +445,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             'logout_from',
         ];
 
+        $emptyParameters = [];
         foreach ($mandatoryFields as $key) {
             if (! array_key_exists($key, $json)) {
                 $emptyParameters[] = $key;

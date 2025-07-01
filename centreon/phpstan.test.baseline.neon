@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/CheckController/TestCase.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/Monitoring/CommentControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/Monitoring/MetricControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/Monitoring/SubmitResultControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/Monitoring/TimelineControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Application/Controller/PlatformTopologyControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Centreon/Domain/Gorgone/CommandServiceTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Core/Infrastructure/Configuration/User/Api/FindUsers/FindUsersControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/Local/Api/FindConfiguration/FindConfigurationControllerTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:withConsecutive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/Local/Api/UpdateConfiguration/UpdateConfigurationControllerTest.php
