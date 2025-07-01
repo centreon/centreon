@@ -608,12 +608,12 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
                     $bindedValues[':' . $configKey . '_' . $key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
                 }
             }
-            if (! empty($queryKeys)) {
+            if ($queryKeys !== []) {
                 $queryRows[] = '(' . implode(', ', $queryKeys) . ')';
             }
         }
 
-        if (! empty($queryRows) && $columnNames !== null) {
+        if ($queryRows !== [] && $columnNames !== null) {
             $query = "INSERT INTO cfg_centreonbroker_info ($columnNames) VALUES ";
             $query .= implode(', ', $queryRows);
 

@@ -133,7 +133,7 @@ class TimePeriod
     }
 
     /**
-     * @return ExtraTimePeriod[]
+     * @return list<ExtraTimePeriod>
      */
     public function getExtraTimePeriods(): array
     {

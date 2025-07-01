@@ -135,7 +135,7 @@ class ACLConditions
                 $missing[] = 'relations';
             }
 
-            if (! empty($missing)) {
+            if ($missing !== []) {
                 throw ACLConditionsException::missingFields($missing);
             }
         }

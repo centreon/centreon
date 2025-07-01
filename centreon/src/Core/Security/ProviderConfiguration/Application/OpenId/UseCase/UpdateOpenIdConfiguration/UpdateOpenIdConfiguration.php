@@ -492,7 +492,7 @@ class UpdateOpenIdConfiguration
             $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
         }
 
-        if (! empty($data)) {
+        if ($data !== []) {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $uuid,
                 $data

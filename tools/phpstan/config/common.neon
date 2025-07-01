@@ -33,4 +33,5 @@ parameters:
             paths:
                 - ../src/CustomRules
         - # To ignore : Call to function is_string() with 'defined_for_phpstan…' will always evaluate to true.
+            reportUnmatched: false
             message: "#defined_for_phpstan#"

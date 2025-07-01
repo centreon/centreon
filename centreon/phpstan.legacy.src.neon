@@ -1,3 +1,6 @@
+includes:
+    - phpstan.legacy.src.baseline.neon
+
 parameters:
     bootstrapFiles:
         - config/centreon.config.php.template
@@ -7,34 +10,11 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
     excludePaths:
         analyseAndScan:
-            - src/Centreon/Tests
             - src/Core
             - src/Adaptation
     level: 4
     paths:
         - src
-    ignoreErrors:
-        - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
-            reportUnmatched: false
-            message: "#Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.#"
-            paths:
-                - src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
-        - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
-            reportUnmatched: false
-            path: src/CentreonRemote/Infrastructure/Service/ExportService.php
-            message: '#^Trying to invoke int but it''s not a callable.$#'
-
-        - # Baseline: 👇 leting this code is not risky, but fixing it, is too risky to my point of view.
-            reportUnmatched: false
-            path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
-            messages:
-                - '#^Negated boolean expression is always false.$#'
-                - '#^Result of && is always false.$#'
-        - # Unsafe usage of new static(). Unblock usage of value object.
-            reportUnmatched: false
-            message: '#Unsafe usage of new static#'
-            paths:
-                - src/Core/Common/Domain/ValueObject
 
 services:
     errorFormatter.absolute:

@@ -176,7 +176,7 @@ try {
     $bindParams[':entriesPerPage'] = [$entriesPerPage, PDO::PARAM_INT];
 
     // Execute main query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $statement = $dbb->prepareQuery($query);
         $dbb->executePreparedQuery($statement, $bindParams, true);
     } else {

@@ -691,7 +691,7 @@ class CentreonACL
      */
     private function checkTopology(): void
     {
-        if (!empty($this->topology)) {
+        if ($this->topology !== []) {
             /**
              * Filter to keep the first child available per level.
              */
@@ -808,7 +808,7 @@ class CentreonACL
      */
     public function getACLStr(): void
     {
-        $this->topologyStr = empty($this->topology)
+        $this->topologyStr = $this->topology === []
             ? "''"
             : implode(',', array_keys($this->topology));
     }

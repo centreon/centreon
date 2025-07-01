@@ -46,7 +46,7 @@ class CentreonModuleService
      * @param bool|null $updated
      * @param array<mixed>|null $typeList
      *
-     * @return array<string|int,\CentreonModule\Infrastructure\Entity\Module[]>
+     * @return array<string|int,Module[]>
      */
     public function getList(
         ?string $search = null,
@@ -161,9 +161,9 @@ class CentreonModuleService
      * - To install (then by name)
      * - Installed (then by name)
      *
-     * @param \CentreonModule\Infrastructure\Entity\Module[] $list
+     * @param Module[] $list
      *
-     * @return \CentreonModule\Infrastructure\Entity\Module[]
+     * @return Module[]
      */
     protected function sortList(array $list): array
     {

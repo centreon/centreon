@@ -255,7 +255,6 @@ class User
     /**
      * @param string $userInterfaceDensity
      *
-     * @throws \Assert\AssertionFailedException
      * @throws \InvalidArgumentException
      *
      * @return self

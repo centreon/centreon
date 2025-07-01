@@ -443,12 +443,12 @@ if (!empty($output)) {
 $msgConditions = [];
 
 if ($notification == 'true') {
-    if (!empty($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
         $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN ($bindQuery))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
-    if (!empty($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
         $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN ($bindQuery))";
         $queryValues = array_merge($queryValues, $bindValues);
@@ -459,13 +459,13 @@ if ($alert == 'true') {
     $alertMsgTypesHost = [1, 10, 11];
     $alertMsgTypesSvc = [0, 10, 11];
 
-    if (!empty($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         [$bindValuesHost, $bindQueryHost] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
         [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesHost, ':alertMsgTypesHost_', \PDO::PARAM_INT);
         $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQueryHost))";
         $queryValues = array_merge($queryValues, $bindValuesHost, $bindValuesAlert);
     }
-    if (!empty($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         [$bindValuesSvc, $bindQuerySvc] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
         [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesSvc, ':alertMsgTypesSvc_', \PDO::PARAM_INT);
         $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQuerySvc))";
@@ -483,7 +483,7 @@ if ($alert == 'true') {
 if ($error == 'true') {
     $msgConditions[] = 'logs.msg_type IN (4, 5)';
 }
-if (!empty($msgConditions)) {
+if ($msgConditions !== []) {
     $whereClauses[] = '(' . implode(' OR ', $msgConditions) . ')';
 }
 
@@ -556,12 +556,12 @@ if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unkno
             $servicePlaceholdersString = implode(', ', $servicePlaceholders);
             $serviceConditions[] = "(logs.host_id = $hostParam AND logs.service_id IN ($servicePlaceholdersString))";
         }
-        if (!empty($serviceConditions)) {
+        if ($serviceConditions !== []) {
             $hostServiceConditions[] = '(' . implode(' OR ', $serviceConditions) . ')';
         }
     }
 
-    if (!empty($hostServiceConditions)) {
+    if ($hostServiceConditions !== []) {
         $whereClauses[] = '(' . implode(' OR ', $hostServiceConditions) . ')';
     }
 }

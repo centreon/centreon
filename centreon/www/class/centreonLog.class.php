@@ -358,7 +358,7 @@ class CentreonLog
         $pathLogFileName = '';
         $logFile = '';
         $explodeFileName = explode(DIRECTORY_SEPARATOR, $logFileName);
-        if (! empty($explodeFileName)) {
+        if ($explodeFileName !== []) {
             $logFile = $explodeFileName[count($explodeFileName) - 1];
             unset($explodeFileName[count($explodeFileName) - 1]);
             $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFileName);

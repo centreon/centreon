@@ -106,7 +106,7 @@ class PlatformTopologyServiceTest extends TestCase
     protected $monitoringServerService;
 
     /**
-     * @var MonitoringServer;
+     * @var MonitoringServer
      */
     protected $monitoringServer;
 

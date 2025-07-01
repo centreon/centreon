@@ -1,0 +1,255 @@
+# TODO - Fix issues in this file - Remove issue from baseline file when fixed
+
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_string\(\) with ''@CENTREON_CACHEDIR@'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/App/Kernel.php
+
+		-
+			message: '#^Call to function is_string\(\) with ''@CENTREON_LOG@'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/App/Kernel.php
+
+		-
+			message: '#^PHPDoc tag @var with type Centreon\\Domain\\Contact\\Interfaces\\ContactInterface is not subtype of native type Symfony\\Component\\Security\\Core\\User\\UserInterface\|null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Centreon/Application/Controller/Configuration/ProxyController.php
+
+		-
+			message: '#^Offset non\-falsy\-string on array\{\} in empty\(\) does not exist\.$#'
+			identifier: empty.offset
+			count: 1
+			path: src/Centreon/Application/DataRepresenter/Topology/NavigationList.php
+
+		-
+			message: '#^Offset non\-falsy\-string on array\{\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 2
+			path: src/Centreon/Application/DataRepresenter/Topology/NavigationList.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: src/Centreon/Application/DataRepresenter/Topology/NavigationList.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 2
+			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 2
+			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
+
+		-
+			message: '#^Expression "\(fn\(\?float \.\.\.\$items\)\: array \=\> \$items\)\(\.\.\.\$values\)" on a separate line does not do anything\.$#'
+			identifier: expr.resultUnused
+			count: 1
+			path: src/Centreon/Domain/Common/Assertion/Assertion.php
+
+		-
+			message: '#^Expression "\(fn\(\?int \.\.\.\$items\)\: array \=\> \$items\)\(\.\.\.\$values\)" on a separate line does not do anything\.$#'
+			identifier: expr.resultUnused
+			count: 1
+			path: src/Centreon/Domain/Common/Assertion/Assertion.php
+
+		-
+			message: '#^Expression "\(fn\(\?string \.\.\.\$items\)\: array \=\> \$items\)\(\.\.\.\$values\)" on a separate line does not do anything\.$#'
+			identifier: expr.resultUnused
+			count: 1
+			path: src/Centreon/Domain/Common/Assertion/Assertion.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Centreon\\Domain\\Annotation\\EntityDescriptor and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Centreon/Domain/Entity/EntityCreator.php
+
+		-
+			message: '#^PHPDoc tag @var with type SplFileInfo is not subtype of native type Symfony\\Component\\Finder\\SplFileInfo\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Centreon/Domain/Entity/EntityValidator.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<Symfony\\Component\\Validator\\ConstraintViolationInterface\> is not subtype of native type Symfony\\Component\\Validator\\ConstraintViolationListInterface\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Centreon/Domain/Entity/EntityValidator.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Domain/Entity/Task.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<int\|false\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Domain/HostConfiguration/Model/HostTemplate.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array\{list\<string\>, list\<non\-falsy\-string\>\} and array\{\} will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: src/Centreon/Domain/Monitoring/MonitoringService.php
+
+		-
+			message: '#^Instanceof between Centreon\\Domain\\Monitoring\\ResourceGroup and Centreon\\Domain\\Monitoring\\ResourceGroup will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Centreon/Domain/Monitoring/Resource.php
+
+		-
+			message: '#^Method Centreon\\Domain\\Monitoring\\Resource\:\:setGroups\(\) has InvalidArgumentException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Centreon/Domain/Monitoring/Resource.php
+
+		-
+			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: src/Centreon/Domain/Monitoring/ResourceFilter.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Centreon/Domain/PlatformInformation/UseCase/V20/UpdatePartiallyPlatformInformation.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between bool and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Centreon/Domain/Service/FrontendComponentService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Infrastructure/CentreonLegacyDB/CentreonDBAdapter.php
+
+		-
+			message: '#^Call to function is_null\(\) with null will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostConfigurationRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:299\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:95\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(int;\)\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 19 on line 2$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Centreon/Infrastructure/MonitoringServer/API/Model/RealTimeMonitoringServer.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MonitoringServer/Repository/RealTimeMonitoringServerRepositoryRDB\.php\:158\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/MonitoringServer/Repository/RealTimeMonitoringServerRepositoryRDB.php
+
+		-
+			message: '#^PHPDoc tag @var with type Centreon\\Domain\\PlatformInformation\\Model\\PlatformInformation is not subtype of native type null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Centreon/Infrastructure/PlatformInformation/Repository/PlatformInformationRepositoryRDB.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between bool and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Centreon/Infrastructure/PlatformInformation/Repository/PlatformInformationRepositoryRDB.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and int will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 6
+			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and int\|string will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 4
+			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
+
+		-
+			message: '#^Call to function is_array\(\) with non\-empty\-array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Infrastructure/RequestParameters/SqlRequestParametersTranslator.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\Service\\CentreonPaginationService\:\:setExtras\(\) has RuntimeException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Service/CentreonPaginationService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/CentreonLegacy/Core/Utils/Utils.php
+
+		-
+			message: '#^Method CentreonRemote\\Infrastructure\\Export\\ExportCommitment\:\:getMeta\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/CentreonRemote/Infrastructure/Export/ExportCommitment.php
+
+		-
+			message: '#^Trying to invoke int but it''s not a callable\.$#'
+			identifier: callable.nonCallable
+			count: 2
+			path: src/CentreonRemote/Infrastructure/Service/ExportService.php
+
+		-
+			message: '#^PHPDoc tag @var with type string\|null is not subtype of native type string\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Security/SessionAPIAuthenticator.php

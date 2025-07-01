@@ -98,7 +98,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return NewExtraTimePeriod[]
+     * @return list<NewExtraTimePeriod>
      */
     public function getExtraTimePeriods(): array
     {
@@ -114,7 +114,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return int[]
+     * @return list<int>
      */
     public function getTemplates(): array
     {

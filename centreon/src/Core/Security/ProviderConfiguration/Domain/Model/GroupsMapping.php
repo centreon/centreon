@@ -123,7 +123,7 @@ class GroupsMapping
             if (empty($attributePath)) {
                 $mandatoryParameters[] = 'attribute_path';
             }
-            if (! empty($mandatoryParameters)) {
+            if ($mandatoryParameters !== []) {
                 throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }

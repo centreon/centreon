@@ -38,7 +38,7 @@ final class FindUserPermissions
         'configuration_host_group_write' => Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
     ];
 
-    public function __invoke(ContactInterface $user): FindUserPermissionsResponse|ResponseStatusInterface
+    public function __invoke(ContactInterface $user): FindUserPermissionsResponse
     {
         return new FindUserPermissionsResponse($this->createPermissionsToReturn($user));
     }

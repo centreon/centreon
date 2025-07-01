@@ -451,7 +451,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
@@ -495,7 +495,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

@@ -263,7 +263,7 @@ it(
 
         ($this->useCase)($this->testedAddServiceGroupRequest, $this->presenter);
 
-        /** @var CreatedResponse<int, AddServiceGroupResponse>> $presentedData */
+        /** @var CreatedResponse<int, AddServiceGroupResponse> $presentedData */
         $presentedData = $this->presenter->getPresentedData();
 
         expect($presentedData)->toBeInstanceOf(CreatedResponse::class)

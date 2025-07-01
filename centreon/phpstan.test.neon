@@ -23,15 +23,6 @@ parameters:
     ignoreErrors:
         -
             reportUnmatched: false
-            path: src/Centreon/Tests
-            messages:
-                - '#^Access to an undefined property#'
-        -
-            reportUnmatched: false
-            path: src/Centreon/Tests/Resources/Mock/ClapiMock.php
-            message: '#^Constructor of class Centreon\\Tests\\Resources\\Mock\\ClapiMock has an unused parameter \$di.$#'
-        -
-            reportUnmatched: false
             path: tests/php
             messages:
                 - '#^Undefined variable: \$this$#'

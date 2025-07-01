@@ -217,7 +217,7 @@ class AuthenticationConditions
             if ($authorizedValues === []) {
                 $mandatoryParameters[] = 'authorized_values';
             }
-            if (! empty($mandatoryParameters)) {
+            if ($mandatoryParameters !== []) {
                 throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }
