@@ -58,22 +58,14 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
-    configureOpenIDConnect();
     cy.get('[data-testid="Roles mapping-header"]').click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).check();
+    }).scrollIntoView().check();
 
     configureOpenIDConnect();
 
-    cy.getByLabel({ label: 'Roles mapping' }).click();
-    cy.getByLabel({
-      label: 'Enable automatic management',
-      tag: 'input'
-    })
-      .eq(0)
-      .check();
     cy.getByLabel({
       label: 'Roles attribute path',
       tag: 'input'
@@ -120,7 +112,7 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    cy.contains('Login with openid').should('be.visible').click();
+    cy.get('[data-testid="Login with openid"').should('be.visible').click();
 
     cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
 
