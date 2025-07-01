@@ -119,7 +119,6 @@ Then('the informations are successfully saved', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-002');
   cy.contains('Connector-002').click();
   cy.url().should('match', /\/centreon\/configuration\/additional-connector-configurations\?mode=edit&id=\d+/);
-  cy.wait('@getConnectorDetail');
   cy.contains('Modify an additional configuration').should('exist');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
