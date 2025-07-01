@@ -35,6 +35,10 @@ beforeEach(() => {
     method: 'PUT',
     url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
   }).as('updateConnectorDetail');
+  cy.intercept({
+    method: 'GET',
+    url: 'centreon/api/internal.php?object=centreon_keepalive&action=keepAlive'
+  }).as('keepAlive');
 });
 
 after(() => {
@@ -112,6 +116,7 @@ When('the user clicks on Update', () => {
 
 Then('the form is closed', () => {
   cy.wait('@updateConnectorDetail');
+  cy.wait('@getConnectorPage');
   cy.contains('Modify an additional configuration').should('not.exist');
 });
 
@@ -120,6 +125,7 @@ Then('the informations are successfully saved', () => {
   cy.contains('Connector-002').click();
   cy.url().should('match', /\/centreon\/configuration\/additional-connector-configurations\?mode=edit&id=\d+/);
   cy.contains('Modify an additional configuration').should('exist');
+  cy.wait('@keepAlive');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
     'Connector-002'
