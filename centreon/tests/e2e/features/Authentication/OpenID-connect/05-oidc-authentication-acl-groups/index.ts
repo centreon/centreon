@@ -64,6 +64,10 @@ When(
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
+
+    configureOpenIDConnect();
+
+    cy.getByLabel({ label: 'Roles mapping' }).click();
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'

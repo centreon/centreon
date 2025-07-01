@@ -3,7 +3,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureSAML,
   initializeSAMLUser,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 } from '../common';
 import { configureProviderAcls, getUserContactId } from '../../../../commons';
 
@@ -89,9 +90,7 @@ When(
       tag: 'input'
     }).should('have.value', 'Supervisors');
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
-    cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+    saveSamlFormIfEnabled();
 
     cy.logout();
   }
