@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -59,23 +59,24 @@ class CentreonWidgetParamsConnectorHostgroup extends CentreonWidgetParamsList
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
         static $tab;
 
-        if (!isset($tab)) {
+        if (! isset($tab)) {
             $query = "SELECT hg_id, hg_name FROM hostgroup WHERE hg_activate = '1' ";
             $query .= $this->acl->queryBuilder('AND', 'hg_id', $this->acl->getHostGroupsString());
-            $query .= " ORDER BY hg_name ";
+            $query .= ' ORDER BY hg_name ';
             $res = $this->db->query($query);
             $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['hg_id']] = $row['hg_name'];
             }
         }
+
         return $tab;
     }
 }

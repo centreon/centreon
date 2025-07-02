@@ -28,7 +28,7 @@ use Symfony\Component\Yaml\Yaml;
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.04.0-beta.1: ';
 
 try {
@@ -37,7 +37,7 @@ try {
      */
     $errorMessage = "Unable to create 'password_expiration_excluded_users' table";
     $pearDB->query(
-        "CREATE TABLE IF NOT EXISTS `password_expiration_excluded_users` (
+        'CREATE TABLE IF NOT EXISTS `password_expiration_excluded_users` (
         `provider_configuration_id` int(11) NOT NULL,
         `user_id` int(11) NOT NULL,
         PRIMARY KEY (`provider_configuration_id`, `user_id`),
@@ -47,12 +47,12 @@ try {
         CONSTRAINT `password_expiration_excluded_users_provider_user_id_fk`
           FOREIGN KEY (`user_id`)
           REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8'
     );
 
     $errorMessage = "Unable to create table 'contact_password'";
     $pearDB->query(
-        "CREATE TABLE IF NOT EXISTS `contact_password` (
+        'CREATE TABLE IF NOT EXISTS `contact_password` (
         `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
         `password` varchar(255) NOT NULL,
         `contact_id` int(11) NOT NULL,
@@ -61,7 +61,7 @@ try {
         KEY `contact_password_contact_id_fk` (`contact_id`),
         INDEX `creation_date_index` (`creation_date`),
         CONSTRAINT `contact_password_contact_id_fk` FOREIGN KEY (`contact_id`)
-        REFERENCES `contact` (`contact_id`) ON DELETE CASCADE)"
+        REFERENCES `contact` (`contact_id`) ON DELETE CASCADE)'
     );
 
     /**
@@ -74,48 +74,48 @@ try {
         // Add login blocking mechanism to contact
         $errorMessage = 'Impossible to add "login_attempts" and "blocking_time" columns to "contact" table';
         $pearDB->query(
-            "ALTER TABLE `contact`
+            'ALTER TABLE `contact`
             ADD `login_attempts` INT(11) UNSIGNED DEFAULT NULL,
-            ADD `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL"
+            ADD `blocking_time` BIGINT(20) UNSIGNED DEFAULT NULL'
         );
     }
 
-    $errorMessage = "Unable to find constraint unique_index from security_token";
+    $errorMessage = 'Unable to find constraint unique_index from security_token';
     $constraintExistStatement = $pearDB->query(
         'SELECT CONSTRAINT_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
          WHERE TABLE_NAME="security_token" AND CONSTRAINT_NAME="unique_token"'
     );
     if ($constraintExistStatement->fetch() !== false) {
-        $errorMessage = "Unable to remove unique_index from security_token";
-        $pearDB->query("ALTER TABLE `security_token` DROP INDEX `unique_token`");
+        $errorMessage = 'Unable to remove unique_index from security_token';
+        $pearDB->query('ALTER TABLE `security_token` DROP INDEX `unique_token`');
     }
 
-    $errorMessage = "Unable to find key token_index from security_token";
+    $errorMessage = 'Unable to find key token_index from security_token';
     $tokenIndexKeyExistsStatement = $pearDB->query(
         <<<'SQL'
-        SHOW indexes
-            FROM security_token
-            WHERE Key_name='token_index'
-        SQL
+            SHOW indexes
+                FROM security_token
+                WHERE Key_name='token_index'
+            SQL
     );
     if ($tokenIndexKeyExistsStatement->fetch() !== false) {
-        $errorMessage = "Unable to remove key token_index from security_token";
+        $errorMessage = 'Unable to remove key token_index from security_token';
         $pearDB->query(
             <<<'SQL'
-            DROP INDEX token_index
-                ON security_token
-            SQL
+                DROP INDEX token_index
+                    ON security_token
+                SQL
         );
     }
 
-    $errorMessage = "Unable to alter table security_token";
-    $pearDB->query("ALTER TABLE `security_token` MODIFY `token` varchar(4096)");
+    $errorMessage = 'Unable to alter table security_token';
+    $pearDB->query('ALTER TABLE `security_token` MODIFY `token` varchar(4096)');
 
     if ($pearDB->isColumnExist('provider_configuration', 'custom_configuration') !== 1) {
         // Add custom_configuration to provider configurations
         $errorMessage = "Unable to add column 'custom_configuration' to table 'provider_configuration'";
         $pearDB->query(
-            "ALTER TABLE `provider_configuration` ADD COLUMN `custom_configuration` JSON NOT NULL AFTER `name`"
+            'ALTER TABLE `provider_configuration` ADD COLUMN `custom_configuration` JSON NOT NULL AFTER `name`'
         );
     }
 
@@ -127,29 +127,29 @@ try {
     $errorMessage = "Unable to select existing passwords from 'contact' table";
     if ($pearDB->isColumnExist('contact', 'contact_passwd') === 1) {
         $getPasswordResult = $pearDB->query(
-            "SELECT `contact_id`, `contact_passwd` FROM `contact` WHERE `contact_passwd` IS NOT NULL"
+            'SELECT `contact_id`, `contact_passwd` FROM `contact` WHERE `contact_passwd` IS NOT NULL'
         );
 
         // Move old password from contact to contact_password
         $errorMessage = "Unable to insert password in 'contact_password' table";
         $statement = $pearDB->prepare(
-            "INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
-            VALUES (:password, :contactId, :creationDate)"
+            'INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
+            VALUES (:password, :contactId, :creationDate)'
         );
         while ($row = $getPasswordResult->fetch()) {
-            $statement->bindValue(':password', $row['contact_passwd'], \PDO::PARAM_STR);
-            $statement->bindValue(':contactId', $row['contact_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':creationDate', time(), \PDO::PARAM_INT);
+            $statement->bindValue(':password', $row['contact_passwd'], PDO::PARAM_STR);
+            $statement->bindValue(':contactId', $row['contact_id'], PDO::PARAM_INT);
+            $statement->bindValue(':creationDate', time(), PDO::PARAM_INT);
             $statement->execute();
         }
     }
 
-    //Insert default providers configurations
-    $errorMessage = "Impossible to add default OpenID provider configuration";
+    // Insert default providers configurations
+    $errorMessage = 'Impossible to add default OpenID provider configuration';
     insertOpenIdConfiguration($pearDB);
-    $errorMessage = "Impossible to add default WebSSO provider configuration";
+    $errorMessage = 'Impossible to add default WebSSO provider configuration';
     insertWebSSOConfiguration($pearDB);
-    $errorMessage = "Unable to insert default local security policy configuration";
+    $errorMessage = 'Unable to insert default local security policy configuration';
     updateSecurityPolicyConfiguration($pearDB);
 
     /**
@@ -167,10 +167,10 @@ try {
 
     $errorMessage = "Unable to add 'unified_sql' broker configuration output";
     addNewUnifiedSqlOutput($pearDB);
-    $errorMessage = "Unable to migrate broker config to unified_sql";
+    $errorMessage = 'Unable to migrate broker config to unified_sql';
     migrateBrokerConfigOutputsToUnifiedSql($pearDB);
 
-    $errorMessage = "Unable to configure centreon-gorgone api user";
+    $errorMessage = 'Unable to configure centreon-gorgone api user';
     configureGorgoneApiUser($pearDB);
 
     $errorMessage = 'Unable to exclude Gorgone / MBI / MAP users from password policy';
@@ -179,22 +179,22 @@ try {
     $pearDB->commit();
     if ($pearDB->isColumnExist('contact', 'contact_passwd') === 1) {
         $errorMessage = "Unable to drop column 'contact_passwd' from 'contact' table";
-        $pearDB->query("ALTER TABLE `contact` DROP COLUMN `contact_passwd`");
+        $pearDB->query('ALTER TABLE `contact` DROP COLUMN `contact_passwd`');
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
 
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
 
 /**
@@ -206,47 +206,47 @@ try {
 function insertWebSSOConfiguration(CentreonDB $pearDB): void
 {
     $customConfiguration = [
-        "trusted_client_addresses" => [],
-        "blacklist_client_addresses" => [],
-        "login_header_attribute" => "HTTP_AUTH_USER",
-        "pattern_matching_login" => null,
-        "pattern_replace_login" => null
+        'trusted_client_addresses' => [],
+        'blacklist_client_addresses' => [],
+        'login_header_attribute' => 'HTTP_AUTH_USER',
+        'pattern_matching_login' => null,
+        'pattern_replace_login' => null,
     ];
     $isActive = false;
     $isForced = false;
     $statement = $pearDB->query("SELECT * FROM options WHERE `key` LIKE 'sso_%'");
-    $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    if (!empty($result)) {
+    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    if (! empty($result)) {
         foreach ($result as $configLine) {
             switch ($configLine['key']) {
                 case 'sso_enable':
                     $isActive = $configLine['value'] === '1';
                     break;
                 case 'sso_mode':
-                    $isForced = $configLine['value'] === '0'; //'0' SSO Only, '1' Mixed
+                    $isForced = $configLine['value'] === '0'; // '0' SSO Only, '1' Mixed
                     break;
                 case 'sso_trusted_clients':
-                    $customConfiguration['trusted_client_addresses'] = !empty($configLine['value'])
+                    $customConfiguration['trusted_client_addresses'] = ! empty($configLine['value'])
                         ? explode(',', $configLine['value'])
                         : [];
                     break;
                 case 'sso_blacklist_clients':
-                    $customConfiguration['blacklist_client_addresses'] = !empty($configLine['value'])
+                    $customConfiguration['blacklist_client_addresses'] = ! empty($configLine['value'])
                         ? explode(',', $configLine['value'])
                         : [];
                     break;
                 case 'sso_header_username':
-                    $customConfiguration['login_header_attribute'] = !empty($configLine['value'])
+                    $customConfiguration['login_header_attribute'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'sso_username_pattern':
-                    $customConfiguration['pattern_matching_login'] = !empty($configLine['value'])
+                    $customConfiguration['pattern_matching_login'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'sso_username_replace':
-                    $customConfiguration['pattern_replace_login'] = !empty($configLine['value'])
+                    $customConfiguration['pattern_replace_login'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
@@ -258,9 +258,9 @@ function insertWebSSOConfiguration(CentreonDB $pearDB): void
         "INSERT INTO provider_configuration (`type`,`name`,`custom_configuration`,`is_active`,`is_forced`)
         VALUES ('web-sso','web-sso', :customConfiguration, :isActive, :isForced)"
     );
-    $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration), \PDO::PARAM_STR);
-    $insertStatement->bindValue(':isActive', $isActive ? '1' : '0', \PDO::PARAM_STR);
-    $insertStatement->bindValue(':isForced', $isForced ? '1' : '0', \PDO::PARAM_STR);
+    $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration), PDO::PARAM_STR);
+    $insertStatement->bindValue(':isActive', $isActive ? '1' : '0', PDO::PARAM_STR);
+    $insertStatement->bindValue(':isForced', $isForced ? '1' : '0', PDO::PARAM_STR);
     $insertStatement->execute();
 }
 
@@ -272,87 +272,87 @@ function insertWebSSOConfiguration(CentreonDB $pearDB): void
 function insertOpenIdConfiguration(CentreonDB $pearDB): void
 {
     $customConfiguration = [
-        "trusted_client_addresses" => [],
-        "blacklist_client_addresses" => [],
-        "base_url" => null,
-        "authorization_endpoint" => null,
-        "token_endpoint" => null,
-        "introspection_token_endpoint" => null,
-        "userinfo_endpoint" => null,
-        "endsession_endpoint" => null,
-        "connection_scopes" => [],
-        "login_claim" => null,
-        "client_id" => null,
-        "client_secret" => null,
-        "authentication_type" => "client_secret_post",
-        "verify_peer" => true
+        'trusted_client_addresses' => [],
+        'blacklist_client_addresses' => [],
+        'base_url' => null,
+        'authorization_endpoint' => null,
+        'token_endpoint' => null,
+        'introspection_token_endpoint' => null,
+        'userinfo_endpoint' => null,
+        'endsession_endpoint' => null,
+        'connection_scopes' => [],
+        'login_claim' => null,
+        'client_id' => null,
+        'client_secret' => null,
+        'authentication_type' => 'client_secret_post',
+        'verify_peer' => true,
     ];
     $isActive = false;
     $isForced = false;
     $statement = $pearDB->query("SELECT * FROM options WHERE `key` LIKE 'openid_%'");
-    $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    if (!empty($result)) {
+    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    if (! empty($result)) {
         foreach ($result as $configLine) {
             switch ($configLine['key']) {
                 case 'openid_connect_enable':
                     $isActive = $configLine['value'] === '1';
                     break;
                 case 'openid_connect_mode':
-                    $isForced = $configLine['value'] === '0'; //'0' OpenId Connect Only, '1' Mixed
+                    $isForced = $configLine['value'] === '0'; // '0' OpenId Connect Only, '1' Mixed
                     break;
                 case 'openid_connect_trusted_clients':
-                    $customConfiguration['trusted_client_addresses'] = !empty($configLine['value'])
+                    $customConfiguration['trusted_client_addresses'] = ! empty($configLine['value'])
                         ? explode(',', $configLine['value'])
                         : [];
                     break;
                 case 'openid_connect_blacklist_clients':
-                    $customConfiguration['blacklist_client_addresses'] = !empty($configLine['value'])
+                    $customConfiguration['blacklist_client_addresses'] = ! empty($configLine['value'])
                         ? explode(',', $configLine['value'])
                         : [];
                     break;
                 case 'openid_connect_base_url':
-                    $customConfiguration['base_url'] = !empty($configLine['value'])
+                    $customConfiguration['base_url'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_authorization_endpoint':
-                    $customConfiguration['authorization_endpoint'] = !empty($configLine['value'])
+                    $customConfiguration['authorization_endpoint'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_token_endpoint':
-                    $customConfiguration['token_endpoint'] = !empty($configLine['value'])
+                    $customConfiguration['token_endpoint'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_introspection_endpoint':
-                    $customConfiguration['introspection_token_endpoint'] = !empty($configLine['value'])
+                    $customConfiguration['introspection_token_endpoint'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_userinfo_endpoint':
-                    $customConfiguration['userinfo_endpoint'] = !empty($configLine['value'])
+                    $customConfiguration['userinfo_endpoint'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_end_session_endpoint':
-                    $customConfiguration['endsession_endpoint'] = !empty($configLine['value'])
+                    $customConfiguration['endsession_endpoint'] = ! empty($configLine['value'])
                         ? $configLine['value']
                         : null;
                     break;
                 case 'openid_connect_scope':
-                    $customConfiguration['connection_scopes'] = !empty($configLine['value'])
+                    $customConfiguration['connection_scopes'] = ! empty($configLine['value'])
                         ? explode(' ', $configLine['value'])
                         : [];
                     break;
                 case 'openid_connect_login_claim':
-                    $customConfiguration['login_claim'] = !empty($configLine['value']) ? $configLine['value'] : null;
+                    $customConfiguration['login_claim'] = ! empty($configLine['value']) ? $configLine['value'] : null;
                     break;
                 case 'openid_connect_client_id':
-                    $customConfiguration['client_id'] = !empty($configLine['value']) ? $configLine['value'] : null;
+                    $customConfiguration['client_id'] = ! empty($configLine['value']) ? $configLine['value'] : null;
                     break;
                 case 'openid_connect_client_secret':
-                    $customConfiguration['client_secret'] = !empty($configLine['value']) ? $configLine['value'] : null;
+                    $customConfiguration['client_secret'] = ! empty($configLine['value']) ? $configLine['value'] : null;
                     break;
                 case 'openid_connect_client_basic_auth':
                     $customConfiguration['authentication_type'] = $configLine['value'] === '1'
@@ -371,9 +371,9 @@ function insertOpenIdConfiguration(CentreonDB $pearDB): void
         "INSERT INTO provider_configuration (`type`,`name`,`custom_configuration`,`is_active`,`is_forced`)
         VALUES ('openid','openid', :customConfiguration, :isActive, :isForced)"
     );
-    $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration), \PDO::PARAM_STR);
-    $insertStatement->bindValue(':isActive', $isActive ? '1' : '0', \PDO::PARAM_STR);
-    $insertStatement->bindValue(':isForced', $isForced ? '1' : '0', \PDO::PARAM_STR);
+    $insertStatement->bindValue(':customConfiguration', json_encode($customConfiguration), PDO::PARAM_STR);
+    $insertStatement->bindValue(':isActive', $isActive ? '1' : '0', PDO::PARAM_STR);
+    $insertStatement->bindValue(':isForced', $isForced ? '1' : '0', PDO::PARAM_STR);
     $insertStatement->execute();
 }
 
@@ -409,8 +409,8 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
     $tagId = $tag['cb_tag_id'];
 
     $stmt = $pearDB->prepare(
-        "INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`)
-        VALUES (:cb_tag_id, :cb_type_id, 0)"
+        'INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`)
+        VALUES (:cb_tag_id, :cb_type_id, 0)'
     );
     $stmt->bindValue(':cb_tag_id', $tagId, PDO::PARAM_INT);
     $stmt->bindValue(':cb_type_id', $typeId, PDO::PARAM_INT);
@@ -436,16 +436,16 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
     );
     $inputs = $statement->fetchAll();
     if (empty($inputs)) {
-        throw new Exception("Cannot find fields in cb_type_field_relation table");
+        throw new Exception('Cannot find fields in cb_type_field_relation table');
     }
 
     $inputs[] = ['cb_field_id' => $fieldId, 'is_required' => 1];
 
-    $query = "INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`, `order_display`)";
+    $query = 'INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`, `order_display`)';
     $bindedValues = [];
     foreach ($inputs as $key => $input) {
-        $query .= $key === 0 ? " VALUES " : ", ";
-        $query .= "(:cb_type_id_$key, :cb_field_id_$key, :is_required_$key, :order_display_$key)";
+        $query .= $key === 0 ? ' VALUES ' : ', ';
+        $query .= "(:cb_type_id_{$key}, :cb_field_id_{$key}, :is_required_{$key}, :order_display_{$key})";
 
         $bindedValues[':cb_type_id_' . $key] = $typeId;
         $bindedValues[':cb_field_id_' . $key] = $input['cb_field_id'];
@@ -467,17 +467,17 @@ function addNewUnifiedSqlOutput(CentreonDB $pearDB): void
 function updateSecurityPolicyConfiguration(CentreonDB $pearDB): void
 {
     $localProviderConfiguration = json_encode([
-        "password_security_policy" => [
-            "password_length" => 12,
-            "has_uppercase_characters" => true,
-            "has_lowercase_characters" => true,
-            "has_numbers" => true,
-            "has_special_characters" => true,
-            "attempts" => 5,
-            "blocking_duration" => 900,
-            "password_expiration_delay" => 15552000,
-            "delay_before_new_password" => null,
-            "can_reuse_passwords" => false,
+        'password_security_policy' => [
+            'password_length' => 12,
+            'has_uppercase_characters' => true,
+            'has_lowercase_characters' => true,
+            'has_numbers' => true,
+            'has_special_characters' => true,
+            'attempts' => 5,
+            'blocking_duration' => 900,
+            'password_expiration_delay' => 15552000,
+            'delay_before_new_password' => null,
+            'can_reuse_passwords' => false,
         ],
     ]);
     $statement = $pearDB->prepare(
@@ -485,7 +485,7 @@ function updateSecurityPolicyConfiguration(CentreonDB $pearDB): void
         SET `custom_configuration` = :localProviderConfiguration
         WHERE `name` = 'local'"
     );
-    $statement->bindValue(':localProviderConfiguration', $localProviderConfiguration, \PDO::PARAM_STR);
+    $statement->bindValue(':localProviderConfiguration', $localProviderConfiguration, PDO::PARAM_STR);
     $statement->execute();
 }
 
@@ -493,7 +493,7 @@ function updateSecurityPolicyConfiguration(CentreonDB $pearDB): void
  * Migrate broker outputs 'sql' and 'storage' to a unique output 'unified_sql'
  *
  * @param CentreonDB $pearDB
- * @throws \Exception
+ * @throws Exception
  * @return void
  */
 function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
@@ -502,9 +502,9 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
 
     // Determine blockIds for output of type sql and storage
     $dbResult = $pearDB->query("SELECT cb_type_id FROM cb_type WHERE type_shortname IN ('sql', 'storage')");
-    $typeIds = $dbResult->fetchAll(\PDO::FETCH_COLUMN, 0);
+    $typeIds = $dbResult->fetchAll(PDO::FETCH_COLUMN, 0);
     if (empty($typeIds) || count($typeIds) !== 2) {
-        throw new \Exception("Error while retrieving 'sql' and 'storage' in cb_type table");
+        throw new Exception("Error while retrieving 'sql' and 'storage' in cb_type table");
     }
     $blockIds = array_map(fn ($typeId) => "{$outputTag}_{$typeId}", $typeIds);
 
@@ -516,24 +516,24 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
     $stmt = $pearDB->prepare(
         "SELECT config_value, config_id FROM cfg_centreonbroker_info
         WHERE config_group = 'output' AND config_key = 'blockId'
-        AND config_value IN (" . implode(", ", array_keys($bindedValues)) . ")"
+        AND config_value IN (" . implode(', ', array_keys($bindedValues)) . ')'
     );
     foreach ($bindedValues as $param => $value) {
-        $stmt->bindValue($param, $value, \PDO::PARAM_STR);
+        $stmt->bindValue($param, $value, PDO::PARAM_STR);
     }
     $stmt->execute();
 
-    $configResults = $stmt->fetchAll(\PDO::FETCH_COLUMN|\PDO::FETCH_GROUP);
+    $configResults = $stmt->fetchAll(PDO::FETCH_COLUMN | PDO::FETCH_GROUP);
     $configIds = array_intersect($configResults[$blockIds[0]], $configResults[$blockIds[1]]);
     if ($configIds === []) {
-        throw new \Exception("Cannot find broker config ids to migrate");
+        throw new Exception('Cannot find broker config ids to migrate');
     }
 
     // Retrieve unified_sql type id
     $dbResult = $pearDB->query("SELECT cb_type_id FROM cb_type WHERE type_shortname = 'unified_sql'");
-    $unifiedSqlType = $dbResult->fetch(\PDO::FETCH_COLUMN, 0);
+    $unifiedSqlType = $dbResult->fetch(PDO::FETCH_COLUMN, 0);
     if (empty($unifiedSqlType)) {
-        throw new \Exception("Cannot find 'unified_sql' in cb_type table");
+        throw new Exception("Cannot find 'unified_sql' in cb_type table");
     }
     $unifiedSqlTypeId = (int) $unifiedSqlType;
 
@@ -541,11 +541,11 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
         // Find next config group id
         $dbResult = $pearDB->query(
             "SELECT MAX(config_group_id) as max_config_group_id FROM cfg_centreonbroker_info
-            WHERE config_id = $configId AND config_group = 'output'"
+            WHERE config_id = {$configId} AND config_group = 'output'"
         );
-        $maxConfigGroupId = $dbResult->fetch(\PDO::FETCH_COLUMN, 0);
+        $maxConfigGroupId = $dbResult->fetch(PDO::FETCH_COLUMN, 0);
         if (empty($maxConfigGroupId)) {
-            throw new \Exception("Cannot find max config group id in cfg_centreonbroker_info table");
+            throw new Exception('Cannot find max config group id in cfg_centreonbroker_info table');
         }
         $nextConfigGroupId = (int) $maxConfigGroupId + 1;
         $blockIdsQueryBinds = [];
@@ -556,15 +556,15 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
         // Find config group ids of outputs to replace
         $grpIdStatement = $pearDB->prepare("SELECT config_group_id FROM cfg_centreonbroker_info
             WHERE config_id = :configId AND config_key = 'blockId'
-            AND config_value IN ($blockIdBinds)");
+            AND config_value IN ({$blockIdBinds})");
         $grpIdStatement->bindValue(':configId', (int) $configId, PDO::PARAM_INT);
         foreach ($blockIdsQueryBinds as $key => $value) {
             $grpIdStatement->bindValue($key, $value, PDO::PARAM_STR);
         }
         $grpIdStatement->execute();
-        $configGroupIds = $grpIdStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $configGroupIds = $grpIdStatement->fetchAll(PDO::FETCH_COLUMN, 0);
         if (empty($configGroupIds)) {
-            throw new \Exception("Cannot find config group ids in cfg_centreonbroker_info table");
+            throw new Exception('Cannot find config group ids in cfg_centreonbroker_info table');
         }
 
         // Build unified sql output config from outputs to replace
@@ -581,7 +581,7 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
             }
         }
         if ($unifiedSqlOutput === []) {
-            throw new \Exception("Cannot find conf for unified sql from cfg_centreonbroker_info table");
+            throw new Exception('Cannot find conf for unified sql from cfg_centreonbroker_info table');
         }
 
         $unifiedSqlOutput['name']['config_value'] = str_replace(
@@ -597,15 +597,15 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
         $bindedValues = [];
         $columnNames = null;
         foreach ($unifiedSqlOutput as $configKey => $configInput) {
-            $columnNames ??= implode(", ", array_keys($configInput));
+            $columnNames ??= implode(', ', array_keys($configInput));
 
             $queryKeys = [];
             foreach ($configInput as $key => $value) {
-                $queryKeys[] = ":" . $configKey . '_' . $key;
+                $queryKeys[] = ':' . $configKey . '_' . $key;
                 if (in_array($key, ['config_key', 'config_value', 'config_group'])) {
-                    $bindedValues[':' . $configKey . '_' . $key] = ['value' => $value, 'type' => \PDO::PARAM_STR];
+                    $bindedValues[':' . $configKey . '_' . $key] = ['value' => $value, 'type' => PDO::PARAM_STR];
                 } else {
-                    $bindedValues[':' . $configKey . '_' . $key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
+                    $bindedValues[':' . $configKey . '_' . $key] = ['value' => $value, 'type' => PDO::PARAM_INT];
                 }
             }
             if ($queryKeys !== []) {
@@ -614,7 +614,7 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
         }
 
         if ($queryRows !== [] && $columnNames !== null) {
-            $query = "INSERT INTO cfg_centreonbroker_info ($columnNames) VALUES ";
+            $query = "INSERT INTO cfg_centreonbroker_info ({$columnNames}) VALUES ";
             $query .= implode(', ', $queryRows);
 
             $stmt = $pearDB->prepare($query);
@@ -632,12 +632,12 @@ function migrateBrokerConfigOutputsToUnifiedSql(CentreonDB $pearDB): void
 
         $stmt = $pearDB->prepare(
             "DELETE FROM cfg_centreonbroker_info
-            WHERE config_id = $configId
+            WHERE config_id = {$configId}
             AND config_group = 'output'
-            AND config_group_id IN (" . implode(', ', array_keys($bindedValues)) . ")"
+            AND config_group_id IN (" . implode(', ', array_keys($bindedValues)) . ')'
         );
         foreach ($bindedValues as $key => $value) {
-            $stmt->bindValue($key, $value, \PDO::PARAM_INT);
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
         }
         $stmt->execute();
     }
@@ -698,17 +698,17 @@ function createGorgoneUser(CentreonDB $pearDB, string $userAlias, string $hashed
         VALUES(1, 1, :gorgoneUser, :gorgoneUser, 'en_US.UTF-8', 'n', 'n', 'gorgone@localhost', NULL, NULL,
         '0', '1', 'txt', '1', 'local', NULL, '0')"
     );
-    $statementCreateUser->bindValue(":gorgoneUser", $userAlias, \PDO::PARAM_STR);
+    $statementCreateUser->bindValue(':gorgoneUser', $userAlias, PDO::PARAM_STR);
     $statementCreateUser->execute();
 
     $statementCreatePassword = $pearDB->prepare(
-        "INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
+        'INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
         SELECT :gorgonePassword, c.contact_id, (SELECT UNIX_TIMESTAMP(NOW()))
         FROM contact c
-        WHERE c.contact_alias = :gorgoneUser"
+        WHERE c.contact_alias = :gorgoneUser'
     );
-    $statementCreatePassword->bindValue(":gorgoneUser", $userAlias, \PDO::PARAM_STR);
-    $statementCreatePassword->bindValue(":gorgonePassword", $hashedPassword, \PDO::PARAM_STR);
+    $statementCreatePassword->bindValue(':gorgoneUser', $userAlias, PDO::PARAM_STR);
+    $statementCreatePassword->bindValue(':gorgonePassword', $hashedPassword, PDO::PARAM_STR);
     $statementCreatePassword->execute();
 }
 
@@ -721,7 +721,7 @@ function excludeUsersFromPasswordPolicy(CentreonDB $pearDB): void
 {
     $usersToExclude = [
         ':bi' => 'CBIS',
-        ':map' => 'centreon-map'
+        ':map' => 'centreon-map',
     ];
 
     $gorgoneUser = getGorgoneApiUser();
@@ -734,13 +734,13 @@ function excludeUsersFromPasswordPolicy(CentreonDB $pearDB): void
         SELECT pc.id, c.contact_id
         FROM `provider_configuration` pc, `contact` c
         WHERE pc.name = 'local'
-        AND c.contact_alias IN (" . implode(',', array_keys($usersToExclude)) . ")
+        AND c.contact_alias IN (" . implode(',', array_keys($usersToExclude)) . ')
         GROUP BY pc.id, c.contact_id
-        ON DUPLICATE KEY UPDATE provider_configuration_id = provider_configuration_id"
+        ON DUPLICATE KEY UPDATE provider_configuration_id = provider_configuration_id'
     );
 
     foreach ($usersToExclude as $userToExcludeParam => $usersToExcludeValue) {
-        $statement->bindValue($userToExcludeParam, $usersToExcludeValue, \PDO::PARAM_STR);
+        $statement->bindValue($userToExcludeParam, $usersToExcludeValue, PDO::PARAM_STR);
     }
 
     $statement->execute();

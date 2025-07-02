@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/webService.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/webService.class.php';
 
 /**
  * Class
@@ -56,34 +57,34 @@ class CentreonRealtimeBase extends CentreonWebService
     }
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     * @return array
      */
     public function getDefaultValues()
     {
         // Get Object targeted
-        if (isset($this->arguments['id']) && !empty($this->arguments['id'])) {
+        if (isset($this->arguments['id']) && ! empty($this->arguments['id'])) {
             $id = $this->arguments['id'];
         } else {
-            throw new RestBadRequestException("Bad parameters id");
+            throw new RestBadRequestException('Bad parameters id');
         }
 
         // Get Object targeted
         if (isset($this->arguments['field'])) {
             $field = $this->arguments['field'];
         } else {
-            throw new RestBadRequestException("Bad parameters field");
+            throw new RestBadRequestException('Bad parameters field');
         }
 
         // Get Object targeted
         if (isset($this->arguments['target'])) {
             $target = ucfirst($this->arguments['target']);
         } else {
-            throw new RestBadRequestException("Bad parameters target");
+            throw new RestBadRequestException('Bad parameters target');
         }
 
         $defaultValuesParameters = [];
-        $targetedFile = _CENTREON_PATH_ . "/www/class/centreon$target.class.php";
+        $targetedFile = _CENTREON_PATH_ . "/www/class/centreon{$target}.class.php";
         if (file_exists($targetedFile)) {
             require_once $targetedFile;
             $calledClass = 'Centreon' . $target;
@@ -91,7 +92,7 @@ class CentreonRealtimeBase extends CentreonWebService
         }
 
         if (count($defaultValuesParameters) == 0) {
-            throw new RestBadRequestException("Bad parameters count");
+            throw new RestBadRequestException('Bad parameters count');
         }
 
         if (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'simple') {
@@ -107,10 +108,10 @@ class CentreonRealtimeBase extends CentreonWebService
         } elseif (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'relation') {
             $selectedValues = $this->retrieveRelatedValues($defaultValuesParameters['relationObject'], $id);
         } else {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
-        # Manage final data
+        // Manage final data
         $finalDatas = [];
         if (count($selectedValues) > 0) {
             $finalDatas = $this->retrieveExternalObjectDatas(
@@ -126,8 +127,8 @@ class CentreonRealtimeBase extends CentreonWebService
      * @param $externalObject
      * @param $values
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
@@ -135,7 +136,7 @@ class CentreonRealtimeBase extends CentreonWebService
 
         if (isset($externalObject['object'])) {
             $classFile = $externalObject['object'] . '.class.php';
-            include_once _CENTREON_PATH_ . "/www/class/$classFile";
+            include_once _CENTREON_PATH_ . "/www/class/{$classFile}";
             $calledClass = ucfirst($externalObject['object']);
             $externalObjectInstance = new $calledClass($this->pearDB);
 
@@ -146,13 +147,13 @@ class CentreonRealtimeBase extends CentreonWebService
             try {
                 $tmpValues = $externalObjectInstance->getObjectForSelect2($values, $options);
             } catch (Exception $e) {
-                print $e->getMessage();
+                echo $e->getMessage();
             }
         } else {
             $explodedValues = '';
             $queryValues = [];
 
-            if (!empty($values)) {
+            if (! empty($values)) {
                 foreach ($values as $key => $value) {
                     $explodedValues .= ':object' . $key . ',';
                     $queryValues['object'][$key] = $value;
@@ -160,10 +161,10 @@ class CentreonRealtimeBase extends CentreonWebService
                 $explodedValues = rtrim($explodedValues, ',');
             }
 
-            $query = "SELECT $externalObject[id], $externalObject[name] " .
-                "FROM $externalObject[table] " .
-                "WHERE $externalObject[comparator] " .
-                "IN ($explodedValues)";
+            $query = "SELECT {$externalObject['id']}, {$externalObject['name']} "
+                . "FROM {$externalObject['table']} "
+                . "WHERE {$externalObject['comparator']} "
+                . "IN ({$explodedValues})";
             $stmt = $this->pearDB->prepare($query);
 
             if (isset($queryValues['object'])) {
@@ -177,6 +178,7 @@ class CentreonRealtimeBase extends CentreonWebService
                 $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
             }
         }
+
         return $tmpValues;
     }
 
@@ -197,9 +199,9 @@ class CentreonRealtimeBase extends CentreonWebService
         }
 
         // Getting Current Values
-        $queryValuesRetrieval = "SELECT " . implode(', ', $fields) . " " .
-            "FROM " . $currentObject['table'] . " " .
-            "WHERE " . $currentObject['id'] . " = :objectId";
+        $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
+            . 'FROM ' . $currentObject['table'] . ' '
+            . 'WHERE ' . $currentObject['id'] . ' = :objectId';
 
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':objectId', $id, PDO::PARAM_INT);
@@ -230,14 +232,14 @@ class CentreonRealtimeBase extends CentreonWebService
             $fields[] = $relationObject['additionalField'];
         }
 
-        $queryValuesRetrieval = "SELECT " . implode(', ', $fields) . " " .
-            "FROM " . $relationObject['table'] . " " .
-            "WHERE " . $relationObject['comparator'] . " = :comparatorId";
+        $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
+            . 'FROM ' . $relationObject['table'] . ' '
+            . 'WHERE ' . $relationObject['comparator'] . ' = :comparatorId';
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':comparatorId', $id, PDO::PARAM_INT);
 
         while ($row = $stmt->fetch()) {
-            if (!empty($row[$relationObject['field']])) {
+            if (! empty($row[$relationObject['field']])) {
                 $tmpValue = $row[$relationObject['field']];
                 if (isset($relationObject['additionalField'])) {
                     $tmpValue .= '-' . $row[$relationObject['additionalField']];
@@ -245,6 +247,7 @@ class CentreonRealtimeBase extends CentreonWebService
                 $tmpValues[] = $tmpValue;
             }
         }
+
         return $tmpValues;
     }
 
@@ -258,13 +261,9 @@ class CentreonRealtimeBase extends CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->hasAccessRestApiRealtime())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 }

@@ -39,7 +39,7 @@ $dataUN = [];
 $dataUP = [];
 $dataPEND = [];
 $dataList = [];
-$db = new CentreonDB("centstorage");
+$db = new CentreonDB('centstorage');
 
 /**
  * true: URIs will correspond to deprecated pages
@@ -56,9 +56,9 @@ $buildHostUri = function (array $states, array $statuses) use ($resourceControll
                         'resourceTypes' => [$buildParameter('host', 'Host')],
                         'states' => $states,
                         'statuses' => $statuses,
-                    ]
+                    ],
                 ]
-            )
+            ),
         ]
     );
 };
@@ -99,13 +99,13 @@ $res = $db->query(
         ) as down
     FROM hosts AS h " . (
         $centreon->user->admin == 0
-        ? "JOIN (
+        ? 'JOIN (
             SELECT acl.host_id, acl.service_id
             FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
+            WHERE acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')
             GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
+        ) x ON x.host_id = h.host_id AND x.service_id IS NULL' : ''
+    ) . ';'
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
@@ -156,13 +156,13 @@ $res = $db->query(
         ) as down
     FROM hosts AS h " . (
         $centreon->user->admin == 0
-        ? "JOIN (
+        ? 'JOIN (
             SELECT acl.host_id, acl.service_id
             FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
+            WHERE acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')
             GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
+        ) x ON x.host_id = h.host_id AND x.service_id IS NULL' : ''
+    ) . ';'
 );
 while ($row = $res->fetch()) {
     $row['un'] = $row['status'] - ($row['ack'] + $row['down']);
@@ -198,14 +198,14 @@ $res = $db->query(
             THEN 1 ELSE 0 END
         ) as status
     FROM hosts AS h " . (
-    $centreon->user->admin == 0
-        ? "JOIN (
+        $centreon->user->admin == 0
+        ? 'JOIN (
             SELECT acl.host_id, acl.service_id
             FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
+            WHERE acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')
             GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
+        ) x ON x.host_id = h.host_id AND x.service_id IS NULL' : ''
+    ) . ';'
 );
 while ($row = $res->fetch()) {
     $row['listing_uri'] = $useDeprecatedPages
@@ -226,13 +226,13 @@ $res = $db->query(
         ) as status
     FROM hosts AS h " . (
         $centreon->user->admin == 0
-        ? "JOIN (
+        ? 'JOIN (
             SELECT acl.host_id, acl.service_id
             FROM centreon_acl AS acl
-            WHERE acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")
+            WHERE acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')
             GROUP BY host_id
-        ) x ON x.host_id = h.host_id AND x.service_id IS NULL" : ""
-    ) . ";"
+        ) x ON x.host_id = h.host_id AND x.service_id IS NULL' : ''
+    ) . ';'
 );
 while ($row = $res->fetch()) {
     $row['listing_uri'] = $useDeprecatedPages
@@ -244,8 +244,8 @@ while ($row = $res->fetch()) {
 
 $numLine = 1;
 
-$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-    ? (int)$preferences['refresh_interval']
+$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+    ? (int) $preferences['refresh_interval']
     : 30;
 
 $template->assign('preferences', $preferences);

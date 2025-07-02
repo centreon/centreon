@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -53,9 +53,9 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -66,39 +66,39 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
         $aclMetaServices = '';
         $queryValues = [];
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
             $aclMetaServices .= 'AND meta_id IN (' . $acl->getMetaServiceString() . ') ';
         }
 
         // Check for select2 'q' argument
-        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
-        $queryMeta = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT meta_id, meta_name, meta_activate FROM meta_service ' .
-            'WHERE meta_name LIKE :name ' .
-            $aclMetaServices .
-            'ORDER BY meta_name ';
+        $queryMeta = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT meta_id, meta_name, meta_activate FROM meta_service '
+            . 'WHERE meta_name LIKE :name '
+            . $aclMetaServices
+            . 'ORDER BY meta_name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $queryMeta .= 'LIMIT :offset,:limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDB->prepare($queryMeta);
         $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $stmt->execute();
         $metaList = [];

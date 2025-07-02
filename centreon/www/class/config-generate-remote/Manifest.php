@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -32,10 +33,13 @@ class Manifest extends AbstractObject
 {
     /** @var string */
     protected $generateFilename = 'manifest.json';
+
     /** @var array */
     protected $manifest = [];
+
     /** @var string */
     protected $type = 'manifest';
+
     /** @var string */
     protected $subdir = '';
 
@@ -60,9 +64,9 @@ class Manifest extends AbstractObject
                 'lines_clause' => [
                     'terminated_by' => $this->lineSeparatorInfile,
                     'starting_by' => '',
-                ]
+                ],
             ],
-            'data' => []
+            'data' => [],
         ];
     }
 
@@ -122,7 +126,7 @@ class Manifest extends AbstractObject
             'filename' => $filename,
             'type' => $type,
             'table' => $table,
-            'columns' => $columns
+            'columns' => $columns,
         ];
     }
 

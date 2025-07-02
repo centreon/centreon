@@ -68,8 +68,8 @@ final class HostCategory extends AbstractObject
     /**
      * @param int $hostCategoryId
      *
-     * @return self
      * @throws PDOException
+     * @return self
      */
     private function addHostCategoryToList(int $hostCategoryId): self
     {
@@ -134,7 +134,7 @@ final class HostCategory extends AbstractObject
     {
         parent::reset();
         foreach ($this->hostCategories as &$value) {
-            if (!is_null($value)) {
+            if (! is_null($value)) {
                 $value['members'] = [];
             }
         }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2018 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,13 +35,13 @@
  *
  */
 
-/* Update index of centreon_acl */
+// Update index of centreon_acl
 if (isset($pearDBO)) {
-    $query = "SELECT count(*) AS number " .
-        "FROM INFORMATION_SCHEMA.STATISTICS " .
-        "WHERE table_schema = '" . $conf_centreon['dbcstg'] . "' " .
-        "AND table_name = 'centreon_acl' " .
-        "AND index_name='index2'";
+    $query = 'SELECT count(*) AS number '
+        . 'FROM INFORMATION_SCHEMA.STATISTICS '
+        . "WHERE table_schema = '" . $conf_centreon['dbcstg'] . "' "
+        . "AND table_name = 'centreon_acl' "
+        . "AND index_name='index2'";
     $res = $pearDBO->query($query);
     $data = $res->fetchRow();
     if ($data['number'] == 0) {

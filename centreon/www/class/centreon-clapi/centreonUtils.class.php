@@ -61,18 +61,18 @@ class CentreonUtils
      */
     public static function convertSpecialPattern($pattern)
     {
-        $pattern = str_replace("#S#", "/", $pattern);
-        $pattern = str_replace("#BS#", "\\", $pattern);
-        $pattern = str_replace("#BR#", "\n", $pattern);
-        return $pattern;
+        $pattern = str_replace('#S#', '/', $pattern);
+        $pattern = str_replace('#BS#', '\\', $pattern);
+
+        return str_replace('#BR#', "\n", $pattern);
     }
 
     /**
      * @param string $imagename
      * @param CentreonDB|null $db
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     public static function getImageId($imagename, $db = null)
     {
@@ -83,22 +83,23 @@ class CentreonUtils
         $dirname = $tab[0] ?? null;
         $imagename = $tab[1] ?? null;
 
-        if (!isset($imagename) || !isset($dirname)) {
+        if (! isset($imagename) || ! isset($dirname)) {
             return null;
         }
 
-        $query = "SELECT img.img_id FROM view_img_dir dir, view_img_dir_relation rel, view_img img " .
-            "WHERE dir.dir_id = rel.dir_dir_parent_id " .
-            "AND rel.img_img_id = img.img_id " .
-            "AND img.img_path = '" . $imagename . "' " .
-            "AND dir.dir_name = '" . $dirname . "' " .
-            "LIMIT 1";
+        $query = 'SELECT img.img_id FROM view_img_dir dir, view_img_dir_relation rel, view_img img '
+            . 'WHERE dir.dir_id = rel.dir_dir_parent_id '
+            . 'AND rel.img_img_id = img.img_id '
+            . "AND img.img_path = '" . $imagename . "' "
+            . "AND dir.dir_name = '" . $dirname . "' "
+            . 'LIMIT 1';
         $res = $db->query($query);
         $img_id = null;
         $row = $res->fetchRow();
         if (isset($row['img_id']) && $row['img_id']) {
-            $img_id = (int)$row['img_id'];
+            $img_id = (int) $row['img_id'];
         }
+
         return $img_id;
     }
 
@@ -110,9 +111,9 @@ class CentreonUtils
      */
     public static function convertLineBreak($str)
     {
-        $str = str_replace("\r\n", "<br/>", $str);
-        $str = str_replace("\n", "<br/>", $str);
-        return $str;
+        $str = str_replace("\r\n", '<br/>', $str);
+
+        return str_replace("\n", '<br/>', $str);
     }
 
     /**
@@ -121,15 +122,12 @@ class CentreonUtils
      */
     public static function validateGeoCoords($coords): bool
     {
-        if (
+        return (bool) (
             preg_match(
                 '/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/',
                 $coords
             )
-        ) {
-            return true;
-        }
-        return false;
+        );
     }
 
     /**

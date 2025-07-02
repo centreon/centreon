@@ -42,11 +42,11 @@ if (isset($_REQUEST['ar_id']) || isset($_REQUEST['new'])) {
     include _CENTREON_PATH_ . 'www/include/Administration/parameters/ldap/form.php';
 } else {
     $ldapAction = $_REQUEST['a'] ?? null;
-    if (!is_null($ldapAction) && isset($_REQUEST['select']) && is_array($_REQUEST['select'])) {
+    if (! is_null($ldapAction) && isset($_REQUEST['select']) && is_array($_REQUEST['select'])) {
         $select = $_REQUEST['select'];
         $ldapConf = new CentreonLdapAdmin($pearDB);
         switch ($ldapAction) {
-            case "d":
+            case 'd':
                 purgeOutdatedCSRFTokens();
                 if (isCSRFTokenValid()) {
                     purgeCSRFToken();
@@ -55,7 +55,7 @@ if (isset($_REQUEST['ar_id']) || isset($_REQUEST['new'])) {
                     unvalidFormMessage();
                 }
                 break;
-            case "ms":
+            case 'ms':
                 purgeOutdatedCSRFTokens();
                 if (isCSRFTokenValid()) {
                     purgeCSRFToken();
@@ -64,7 +64,7 @@ if (isset($_REQUEST['ar_id']) || isset($_REQUEST['new'])) {
                     unvalidFormMessage();
                 }
                 break;
-            case "mu":
+            case 'mu':
                 purgeOutdatedCSRFTokens();
                 if (isCSRFTokenValid()) {
                     purgeCSRFToken();

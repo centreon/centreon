@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -55,14 +56,14 @@ if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
                     AND sat.is_revoked = 0
                 SQL
         );
-        $contactStatement->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], \PDO::PARAM_STR);
+        $contactStatement->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
         $contactStatement->execute();
         if ($userInfos = $contactStatement->fetch()) {
-            $centreon = new \Centreon($userInfos);
+            $centreon = new Centreon($userInfos);
             $user = $centreon->user;
         }
-    } catch (\PDOException $e) {
-        CentreonWebService::sendResult("Database error", 500);
+    } catch (PDOException $e) {
+        CentreonWebService::sendResult('Database error', 500);
     }
 }
 

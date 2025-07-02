@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,8 +63,8 @@ class CentreonWidgetParamsText extends CentreonWidgetParams
     /**
      * @param array $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
+     * @return void
      */
     public function init($params): void
     {
@@ -73,7 +74,7 @@ class CentreonWidgetParamsText extends CentreonWidgetParams
                 'text',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                ["size" => 30]
+                ['size' => 30]
             );
         }
     }

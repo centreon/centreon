@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,7 +41,6 @@
  */
 class CentreonHook
 {
-
     /**
      * @param $category
      * @param $method
@@ -60,7 +60,7 @@ class CentreonHook
                 $hookClass = $hook['class'];
                 require_once $hookPath;
                 $object = new $hookClass();
-                $result[] = $object->$method($parameters);
+                $result[] = $object->{$method}($parameters);
             }
         }
 

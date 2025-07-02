@@ -37,10 +37,10 @@
 // using bootstrap.php to load the paths and the DB configurations
 require_once __DIR__ . '/../../../../../bootstrap.php';
 require_once _CENTREON_PATH_ . 'vendor/autoload.php';
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonLang.class.php";
-require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonLang.class.php';
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 
 const ACKNOWLEDGEMENT_ON_SERVICE = 70;
 const ACKNOWLEDGEMENT_ON_HOST = 72;
@@ -58,26 +58,26 @@ $centreonLang = new CentreonLang(_CENTREON_PATH_, $centreon);
 $centreonLang->bindLang();
 
 if (
-    !isset($centreon)
-    || !isset($_GET['o'])
-    || !isset($_GET['cmd'])
-    || !isset($_GET['p'])
+    ! isset($centreon)
+    || ! isset($_GET['o'])
+    || ! isset($_GET['cmd'])
+    || ! isset($_GET['p'])
 ) {
     exit();
 }
 if (session_id()) {
-    $res = $pearDB->prepare("SELECT * FROM `session` WHERE `session_id` = :sid");
-    $res->bindValue(':sid', session_id(), \PDO::PARAM_STR);
+    $res = $pearDB->prepare('SELECT * FROM `session` WHERE `session_id` = :sid');
+    $res->bindValue(':sid', session_id(), PDO::PARAM_STR);
     $res->execute();
-    if (!$session = $res->fetch()) {
+    if (! $session = $res->fetch()) {
         exit();
     }
 } else {
     exit;
 }
-$o = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']);
-$p = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['p']);
-$cmd = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['cmd']);
+$o = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']);
+$p = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['p']);
+$cmd = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['cmd']);
 
 if (
     (int) $cmd === ACKNOWLEDGEMENT_ON_SERVICE
@@ -90,4 +90,5 @@ if (
 ) {
     require_once _CENTREON_PATH_ . 'www/include/monitoring/external_cmd/popup/massive_downtime.php';
 }
+
 exit();

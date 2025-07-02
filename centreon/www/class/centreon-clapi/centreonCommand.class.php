@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -41,11 +42,10 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonUtils.class.php";
-require_once "Centreon/Object/Command/Command.php";
-require_once "Centreon/Object/Graph/Template/Template.php";
-
+require_once 'centreonObject.class.php';
+require_once 'centreonUtils.class.php';
+require_once 'Centreon/Object/Command/Command.php';
+require_once 'Centreon/Object/Graph/Template/Template.php';
 
 /**
  * Class
@@ -59,12 +59,13 @@ class CentreonCommand extends CentreonObject
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_TYPE = 1;
     public const ORDER_COMMAND = 2;
-    public const UNKNOWN_CMD_TYPE = "Unknown command type";
+    public const UNKNOWN_CMD_TYPE = 'Unknown command type';
 
     /** @var array[] */
     public $aTypeCommand = ['host' => ['key' => '$_HOST', 'preg' => '/\$_HOST(\w+)\$/'], 'service' => ['key' => '$_SERVICE', 'preg' => '/\$_SERVICE(\w+)\$/']];
+
     /** @var int[] */
-    protected $typeConversion = ["notif" => 1, "check" => 2, "misc" => 3, "discovery" => 4, 1 => "notif", 2 => "check", 3 => "misc", 4 => "discovery"];
+    protected $typeConversion = ['notif' => 1, 'check' => 2, 'misc' => 3, 'discovery' => 4, 1 => 'notif', 2 => 'check', 3 => 'misc', 4 => 'discovery'];
 
     /**
      * CentreonCommand constructor
@@ -78,12 +79,12 @@ class CentreonCommand extends CentreonObject
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Command($dependencyInjector);
         $this->params = [];
-        $this->insertParams = ["command_name", "command_type", "command_line"];
+        $this->insertParams = ['command_name', 'command_type', 'command_line'];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
-            [$this->object->getPrimaryKey(), "graph_id", "cmd_cat_id"]
+            [$this->object->getPrimaryKey(), 'graph_id', 'cmd_cat_id']
         );
-        $this->action = "CMD";
+        $this->action = 'CMD';
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
 
@@ -96,10 +97,10 @@ class CentreonCommand extends CentreonObject
     public function show($parameters = null, $filters = []): void
     {
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
         $params = ['command_id', 'command_name', 'command_type', 'command_line'];
-        $paramString = str_replace("command_", "", implode($this->delim, $params));
+        $paramString = str_replace('command_', '', implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
         foreach ($elements as $tab) {
@@ -126,11 +127,11 @@ class CentreonCommand extends CentreonObject
 
         $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
-        if (!isset($this->typeConversion[$params[self::ORDER_TYPE]])) {
-            throw new CentreonClapiException(self::UNKNOWN_CMD_TYPE . ":" . $params[self::ORDER_TYPE]);
+        if (! isset($this->typeConversion[$params[self::ORDER_TYPE]])) {
+            throw new CentreonClapiException(self::UNKNOWN_CMD_TYPE . ':' . $params[self::ORDER_TYPE]);
         }
-        $addParams['command_type'] =
-            is_numeric($params[self::ORDER_TYPE])
+        $addParams['command_type']
+            = is_numeric($params[self::ORDER_TYPE])
                 ? $params[self::ORDER_TYPE]
                 : $this->typeConversion[$params[self::ORDER_TYPE]];
         $addParams['command_line'] = $params[self::ORDER_COMMAND];
@@ -140,8 +141,8 @@ class CentreonCommand extends CentreonObject
 
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters)
     {
@@ -152,34 +153,35 @@ class CentreonCommand extends CentreonObject
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
 
         if ($objectId != 0) {
-            if (!preg_match("/^command_/", $params[1])) {
-                if (!in_array($params[1], ['graph', 'enable_shell', 'connector_id'])) {
-                    $params[1] = "command_" . $params[1];
-                } elseif ($params[1] == "graph") {
-                    $params[1] = "graph_id";
+            if (! preg_match('/^command_/', $params[1])) {
+                if (! in_array($params[1], ['graph', 'enable_shell', 'connector_id'])) {
+                    $params[1] = 'command_' . $params[1];
+                } elseif ($params[1] == 'graph') {
+                    $params[1] = 'graph_id';
                 }
             }
-            if ($params[1] == "command_type") {
-                if (!isset($this->typeConversion[$params[2]])) {
-                    throw new CentreonClapiException(self::UNKNOWN_CMD_TYPE . ":" . $params[2]);
+            if ($params[1] == 'command_type') {
+                if (! isset($this->typeConversion[$params[2]])) {
+                    throw new CentreonClapiException(self::UNKNOWN_CMD_TYPE . ':' . $params[2]);
                 }
-                if (!is_numeric($params[2])) {
+                if (! is_numeric($params[2])) {
                     $params[2] = $this->typeConversion[$params[2]];
                 }
-            } elseif ($params[1] == "graph_id") {
+            } elseif ($params[1] == 'graph_id') {
                 $graphObject = new Centreon_Object_Graph_Template($this->dependencyInjector);
                 $tmp = $graphObject->getIdByParameter($graphObject->getUniqueLabelField(), $params[2]);
-                if (!count($tmp)) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                if (! count($tmp)) {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
                 }
                 $params[2] = $tmp[0];
             }
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -200,32 +202,31 @@ class CentreonCommand extends CentreonObject
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $listParam = explode('|', $params[1]);
             $exportedFields = [];
-            $resultString = "";
+            $resultString = '';
             foreach ($listParam as $paramSearch) {
-                $paramString = !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
+                $paramString = ! $paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
-                if (!in_array($field, $authorizeParam)) {
+                if (! in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;
                 } else {
                     switch ($paramSearch) {
-                        case "graph":
-                            $field = "graph_id";
+                        case 'graph':
+                            $field = 'graph_id';
                             break;
-                        case "enable_shell":
+                        case 'enable_shell':
                             break;
                         default:
-                            if (!preg_match("/^command_/", $paramSearch)) {
-                                $field = "command_" . $paramSearch;
+                            if (! preg_match('/^command_/', $paramSearch)) {
+                                $field = 'command_' . $paramSearch;
                             }
                             break;
                     }
-
 
                     $ret = $this->object->getParameters($objectId, $field);
                     $ret = $ret[$field];
 
                     switch ($paramSearch) {
-                        case "graph":
+                        case 'graph':
                             $graphObj = new Centreon_Object_Graph_Template($this->dependencyInjector);
                             $field = $graphObj->getUniqueLabelField();
                             $ret = $graphObj->getParameters($ret, $field);
@@ -233,18 +234,18 @@ class CentreonCommand extends CentreonObject
                             break;
                     }
 
-                    if (!isset($exportedFields[$paramSearch])) {
+                    if (! isset($exportedFields[$paramSearch])) {
                         $resultString .= $this->csvEscape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
 
         if ($unknownParam !== []) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . implode('|', $unknownParam));
         }
         echo implode(';', array_unique(explode(';', $paramString))) . "\n";
         echo substr($resultString, 0, -1) . "\n";
@@ -260,16 +261,16 @@ class CentreonCommand extends CentreonObject
      */
     public function getargumentdesc($objUniqueName): void
     {
-        if ($objUniqueName != "" && ($objectId = $this->getObjectId($objUniqueName)) != 0) {
-            $sql = "SELECT macro_name, macro_description FROM command_arg_description WHERE cmd_id = ?";
+        if ($objUniqueName != '' && ($objectId = $this->getObjectId($objUniqueName)) != 0) {
+            $sql = 'SELECT macro_name, macro_description FROM command_arg_description WHERE cmd_id = ?';
             $res = $this->db->query($sql, [$objectId]);
 
-            echo "name" . $this->delim . "description" . "\n";
+            echo 'name' . $this->delim . 'description' . "\n";
             foreach ($res as $param) {
                 echo $param['macro_name'] . $this->delim . $param['macro_description'] . "\n";
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $objUniqueName);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $objUniqueName);
         }
     }
 
@@ -289,26 +290,25 @@ class CentreonCommand extends CentreonObject
         }
         $objUniqueName = array_shift($data);
         if (($objectId = $this->getObjectId($objUniqueName)) != 0) {
-            $sql = "DELETE FROM command_arg_description WHERE cmd_id = ?";
+            $sql = 'DELETE FROM command_arg_description WHERE cmd_id = ?';
             $this->db->query($sql, [$objectId]);
 
             foreach ($data as $description) {
                 [$arg, $desc] = explode(':', $description, 2);
-                $sql = "INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (?,?,?)";
+                $sql = 'INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (?,?,?)';
                 $this->db->query($sql, [$objectId, $arg, $desc]);
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $objUniqueName);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $objUniqueName);
         }
     }
-
 
     /**
      * Returns command id
      *
      * @param string $commandName
-     * @return int
      * @throws CentreonClapiException
+     * @return int
      */
     public function getId($commandName)
     {
@@ -317,25 +317,26 @@ class CentreonCommand extends CentreonObject
         if (count($tmp)) {
             $id = $tmp[0];
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $commandName);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $commandName);
         }
+
         return $id;
     }
 
     /**
      * @param null $filterName
-     * @return bool|void
      * @throws CentreonClapiException
+     * @return bool|void
      */
     public function export($filterName = null)
     {
-        if (!$this->canBeExported($filterName)) {
+        if (! $this->canBeExported($filterName)) {
             return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
         $filters = [];
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
         $elements = $this->object->getList(
@@ -347,7 +348,7 @@ class CentreonCommand extends CentreonObject
             $filters
         );
         foreach ($elements as $element) {
-            $addStr = $this->action . $this->delim . "ADD";
+            $addStr = $this->action . $this->delim . 'ADD';
             foreach ($this->insertParams as $param) {
                 $addStr .= $this->delim;
                 if ($param === 'command_line') {
@@ -362,29 +363,29 @@ class CentreonCommand extends CentreonObject
             echo $addStr;
 
             foreach ($element as $parameter => $value) {
-                if (!in_array($parameter, $this->exportExcludedParams)) {
-                    if (!is_null($value) && $value != "") {
+                if (! in_array($parameter, $this->exportExcludedParams)) {
+                    if (! is_null($value) && $value != '') {
                         $value = CentreonUtils::convertLineBreak($value);
                         echo $this->action . $this->delim
-                            . "setparam" . $this->delim
+                            . 'setparam' . $this->delim
                             . $element[$this->object->getUniqueLabelField()] . $this->delim
                             . $parameter . $this->delim
                             . $value . "\n";
                     }
                 }
-                if ($parameter == "graph_id" && !empty($value)) {
+                if ($parameter == 'graph_id' && ! empty($value)) {
                     $graphObject = new Centreon_Object_Graph_Template($this->dependencyInjector);
                     $tmp = $graphObject->getParameters($value, [$graphObject->getUniqueLabelField()]);
 
-                    if (!count($tmp)) {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $value);
+                    if (! count($tmp)) {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $value);
                     }
 
                     $v = $tmp[$graphObject->getUniqueLabelField()];
                     $v = CentreonUtils::convertLineBreak($v);
 
                     echo $this->action . $this->delim
-                        . "setparam" . $this->delim
+                        . 'setparam' . $this->delim
                         . $element[$this->object->getUniqueLabelField()] . $this->delim
                         . $this->getClapiActionName($parameter) . $this->delim
                         . $v . "\n";
@@ -394,7 +395,7 @@ class CentreonCommand extends CentreonObject
             $argDescriptions = $this->getArgsDescriptions($element['command_id']);
             if (sizeof($argDescriptions) > 0) {
                 echo $this->action . $this->delim
-                    . "setargumentdescr" . $this->delim
+                    . 'setargumentdescr' . $this->delim
                     . $element[$this->object->getUniqueLabelField()] . $this->delim
                     . implode(';', $argDescriptions) . "\n";
             }
@@ -411,12 +412,12 @@ class CentreonCommand extends CentreonObject
     {
         static $table;
 
-        if (!isset($table)) {
-            $table = ["graph_id" => "graph"];
+        if (! isset($table)) {
+            $table = ['graph_id' => 'graph'];
         }
+
         return $table[$columnName] ?? $columnName;
     }
-
 
     /**
      * This method gat the list of command containt a specific macro
@@ -425,18 +426,18 @@ class CentreonCommand extends CentreonObject
      * @param string $sType
      * @param int $iWithFormatData
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1)
     {
         $inputName = $sType;
-        if ($sType == "service") {
-            $inputName = "svc";
+        if ($sType == 'service') {
+            $inputName = 'svc';
         }
-        $macroToFilter = ["SNMPVERSION", "SNMPCOMMUNITY"];
+        $macroToFilter = ['SNMPVERSION', 'SNMPCOMMUNITY'];
 
-        if (empty($iIdCommand) || !array_key_exists($sType, $this->aTypeCommand)) {
+        if (empty($iIdCommand) || ! array_key_exists($sType, $this->aTypeCommand)) {
             return [];
         }
 
@@ -457,11 +458,11 @@ class CentreonCommand extends CentreonObject
             while ($row = $res->fetch()) {
                 preg_match_all($this->aTypeCommand[$sType]['preg'], $row['command_line'], $matches, PREG_SET_ORDER);
                 foreach ($matches as $match) {
-                    if (!in_array($match[1], $macroToFilter)) {
+                    if (! in_array($match[1], $macroToFilter)) {
                         $sName = $match[1];
-                        $sDesc = $aDescription[$sName]['description'] ?? "";
+                        $sDesc = $aDescription[$sName]['description'] ?? '';
                         $arr[$i][$inputName . '_macro_name'] = $sName;
-                        $arr[$i][$inputName . '_macro_value'] = "";
+                        $arr[$i][$inputName . '_macro_value'] = '';
                         $arr[$i]['is_password'] = null;
                         $arr[$i]['macroDescription'] = $sDesc;
                         $i++;
@@ -473,20 +474,20 @@ class CentreonCommand extends CentreonObject
                 $arr[$row['command_id']] = $row['command_name'];
             }
         }
+
         return $arr;
     }
-
 
     /**
      * @param $iIdCmd
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMacroDescription($iIdCmd)
     {
         $aReturn = [];
-        $sSql = "SELECT * FROM `on_demand_macro_command` WHERE `command_command_id` = " . (int)$iIdCmd;
+        $sSql = 'SELECT * FROM `on_demand_macro_command` WHERE `command_command_id` = ' . (int) $iIdCmd;
 
         $DBRESULT = $this->db->query($sSql);
         while ($row = $DBRESULT->fetch()) {
@@ -497,24 +498,24 @@ class CentreonCommand extends CentreonObject
 
             $aReturn[$row['command_macro_name']] = $arr;
         }
+
         return $aReturn;
     }
-
 
     /**
      * Export command_arg_description
      *
      * @param int $command_id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getArgsDescriptions($command_id)
     {
-        $sql = "SELECT macro_name, macro_description
+        $sql = 'SELECT macro_name, macro_description
         		FROM command_arg_description
         		WHERE cmd_id = ?
-        		ORDER BY macro_name";
+        		ORDER BY macro_name';
         $res = $this->db->query($sql, [$command_id]);
 
         $args_desc = [];
@@ -522,6 +523,7 @@ class CentreonCommand extends CentreonObject
             $args_desc[] = $row['macro_name'] . ':' . trim($row['macro_description']);
         }
         unset($res);
+
         return $args_desc;
     }
 }

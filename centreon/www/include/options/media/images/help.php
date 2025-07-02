@@ -17,6 +17,5 @@ $help['img_file'] = dgettext(
 /**
  * formDirectory.ihtml
  */
-
 $help['tip_destination_directory'] = dgettext('help', 'Destination directory.');
 $help['tip_images'] = dgettext('help', 'Images.');

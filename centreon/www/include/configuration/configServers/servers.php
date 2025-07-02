@@ -34,41 +34,39 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 $server_id = filter_var(
-    $_GET["server_id"] ?? $_POST["server_id"] ?? null,
+    $_GET['server_id'] ?? $_POST['server_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 
 $select = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $dupNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 // Path to the configuration dir
-$path = "./include/configuration/configServers/";
+$path = './include/configuration/configServers/';
 
 // PHP functions
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
-/*
- * Build poller listing for ACL
- */
-$serverResult =
-    $centreon->user->access->getPollerAclConf(
+// Build poller listing for ACL
+$serverResult
+    = $centreon->user->access->getPollerAclConf(
         [
             'fields' => ['id', 'name', 'last_restart'],
             'order' => ['name'],
@@ -104,10 +102,11 @@ $forbiddenIfRemote = [
     SERVER_ENABLE,
     SERVER_DISABLE,
     SERVER_DUPLICATE,
-    SERVER_DELETE
+    SERVER_DELETE,
 ];
 if ($isRemote && in_array($o, $forbiddenIfRemote)) {
-    require_once($path . "../../core/errors/alt_error.php");
+    require_once $path . '../../core/errors/alt_error.php';
+
     exit();
 }
 
@@ -115,7 +114,7 @@ switch ($o) {
     case SERVER_ADD:
     case SERVER_WATCH:
     case SERVER_MODIFY:
-        require_once($path . "formServers.php");
+        require_once $path . 'formServers.php';
         break;
     case SERVER_ENABLE:
         purgeOutdatedCSRFTokens();
@@ -127,7 +126,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServers.php");
+        require_once $path . 'listServers.php';
         break;
     case SERVER_DISABLE:
         purgeOutdatedCSRFTokens();
@@ -139,32 +138,33 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServers.php");
+        require_once $path . 'listServers.php';
         break;
     case SERVER_DUPLICATE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $select) && !in_array(false, $dupNbr)) {
+            if (! in_array(false, $select) && ! in_array(false, $dupNbr)) {
                 duplicateServer($select, $dupNbr);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServers.php");
+        require_once $path . 'listServers.php';
         break;
     case SERVER_DELETE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $select)) {
+            if (! in_array(false, $select)) {
                 deleteServerInDB($select);
             }
         } else {
             unvalidFormMessage();
         }
-    //then require the same file than default
+        // then require the same file than default
+        // no break
     default:
-        require_once($path . "listServers.php");
+        require_once $path . 'listServers.php';
         break;
 }

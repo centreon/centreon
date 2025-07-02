@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,9 +34,7 @@
  *
  */
 
-/*
-* Form Rules
-*/
+// Form Rules
 
 function isNum($value)
 {

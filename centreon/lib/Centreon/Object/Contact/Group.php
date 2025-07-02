@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -32,9 +33,8 @@
  * For more information : contact@centreon.com
  *
  */
- 
-require_once __DIR__ . "/../Object.php";
 
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Class
@@ -44,9 +44,11 @@ require_once __DIR__ . "/../Object.php";
 class Centreon_Object_Contact_Group extends Centreon_Object
 {
     /** @var string */
-    protected $table = "contactgroup";
+    protected $table = 'contactgroup';
+
     /** @var string */
-    protected $primaryKey = "cg_id";
+    protected $primaryKey = 'cg_id';
+
     /** @var string */
-    protected $uniqueLabelField = "cg_name";
+    protected $uniqueLabelField = 'cg_name';
 }

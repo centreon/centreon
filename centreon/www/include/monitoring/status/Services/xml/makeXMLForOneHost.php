@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,11 +37,11 @@
 /**
  * Require Centreon Config file
  */
-require_once realpath(__DIR__ . "/../../../../../../bootstrap.php");
-include_once $centreon_path . "www/class/centreonUtils.class.php";
-include_once $centreon_path . "www/class/centreonACL.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonLang.class.php";
+require_once realpath(__DIR__ . '/../../../../../../bootstrap.php');
+include_once $centreon_path . 'www/class/centreonUtils.class.php';
+include_once $centreon_path . 'www/class/centreonACL.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonXMLBGRequest.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonLang.class.php';
 
 // Create XML Request Objects
 CentreonSession::start(1);
@@ -50,8 +51,9 @@ $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 $centreon = $_SESSION['centreon'];
 
 // Check Security
-if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
-    print _("Bad Session ID");
+if (! isset($obj->session_id) || ! CentreonSession::checkSession($obj->session_id, $obj->DB)) {
+    echo _('Bad Session ID');
+
     exit();
 }
 
@@ -59,23 +61,23 @@ if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id,
 $centreonlang = new CentreonLang(_CENTREON_PATH_, $centreon);
 $centreonlang->bindLang();
 
-/*
- * Check Arguments From GET tab
- */
+// Check Arguments From GET tab
 $hostId = filter_input(INPUT_GET, 'host_id', FILTER_VALIDATE_INT, ['options' => ['default' =>  false]]);
 
 if ($hostId === false) {
-    print _("Bad host ID");
+    echo _('Bad host ID');
+
     exit();
 }
 
 // Check ACL if user is not admin
 $isAdmin = $centreon->user->admin;
-if (!$isAdmin) {
+if (! $isAdmin) {
     $userId = $centreon->user->user_id;
     $acl = new CentreonACL($userId, $isAdmin);
-    if (!$acl->checkHost($hostId)) {
-        print _("You don't have access to this resource");
+    if (! $acl->checkHost($hostId)) {
+        echo _("You don't have access to this resource");
+
         exit();
     }
 }
@@ -83,7 +85,7 @@ if (!$isAdmin) {
 /**
  * Get Host status
  */
-$rq1 = "SELECT 1 AS REALTIME, 
+$rq1 = 'SELECT 1 AS REALTIME, 
     h.state,
     h.address,
     h.name,
@@ -113,121 +115,118 @@ $rq1 = "SELECT 1 AS REALTIME,
     h.icon_image,
     h.timezone
     FROM hosts h, instances i
-    WHERE h.host_id = :hostId AND h.instance_id = i.instance_id LIMIT 1";
+    WHERE h.host_id = :hostId AND h.instance_id = i.instance_id LIMIT 1';
 $dbResult = $obj->DBC->prepare($rq1);
-$dbResult->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+$dbResult->bindValue(':hostId', $hostId, PDO::PARAM_INT);
 $dbResult->execute();
 
-/*
- * Start Buffer
- */
-$obj->XML->startElement("reponse");
+// Start Buffer
+$obj->XML->startElement('reponse');
 if ($data = $dbResult->fetch()) {
     // Split the plugin_output
     $outputLines = explode("\n", $data['output']);
     $pluginShortOuput = $outputLines[0];
 
-    $duration = "";
-    if ($data["last_state_change"] > 0) {
-        $duration = CentreonDuration::toString(time() - $data["last_state_change"]);
+    $duration = '';
+    if ($data['last_state_change'] > 0) {
+        $duration = CentreonDuration::toString(time() - $data['last_state_change']);
     }
 
-    $data["icon_image"] = $data["icon_image"] == "" ? "./img/icons/host.png" : "./img/media/" . $data["icon_image"];
+    $data['icon_image'] = $data['icon_image'] == '' ? './img/icons/host.png' : './img/media/' . $data['icon_image'];
 
-    $last_notification = "N/A";
-    if ($data["last_notification"] > 0) {
-        $last_notification = $data["last_notification"];
+    $last_notification = 'N/A';
+    if ($data['last_notification'] > 0) {
+        $last_notification = $data['last_notification'];
     }
 
-    $next_notification = "N/A";
-    if ($data["next_host_notification"] > 0) {
-        $next_notification = $data["next_host_notification"];
+    $next_notification = 'N/A';
+    if ($data['next_host_notification'] > 0) {
+        $next_notification = $data['next_host_notification'];
     }
 
-    $obj->XML->writeElement("hostname", CentreonUtils::escapeSecure($data["name"]), false);
-    $obj->XML->writeElement("hostalias", CentreonUtils::escapeSecure($data["alias"]), false);
-    $obj->XML->writeElement("address", CentreonUtils::escapeSecure($data["address"]));
-    $obj->XML->writeElement("poller_name", _("Polling instance"), 0);
-    $obj->XML->writeElement("poller", $data["poller"]);
-    $obj->XML->writeElement("color", $obj->backgroundHost[$data["state"]]);
-    $obj->XML->startElement("current_state");
-    $obj->XML->writeAttribute("color", $obj->colorHost[$data["state"]]);
-    $obj->XML->text(_($obj->statusHost[$data["state"]]), false);
+    $obj->XML->writeElement('hostname', CentreonUtils::escapeSecure($data['name']), false);
+    $obj->XML->writeElement('hostalias', CentreonUtils::escapeSecure($data['alias']), false);
+    $obj->XML->writeElement('address', CentreonUtils::escapeSecure($data['address']));
+    $obj->XML->writeElement('poller_name', _('Polling instance'), 0);
+    $obj->XML->writeElement('poller', $data['poller']);
+    $obj->XML->writeElement('color', $obj->backgroundHost[$data['state']]);
+    $obj->XML->startElement('current_state');
+    $obj->XML->writeAttribute('color', $obj->colorHost[$data['state']]);
+    $obj->XML->text(_($obj->statusHost[$data['state']]), false);
     $obj->XML->endElement();
-    $obj->XML->writeElement("current_state_name", _("Host Status"), 0);
-    $obj->XML->startElement("plugin_output");
-    $obj->XML->writeAttribute("name", _("Status Information"));
+    $obj->XML->writeElement('current_state_name', _('Host Status'), 0);
+    $obj->XML->startElement('plugin_output');
+    $obj->XML->writeAttribute('name', _('Status Information'));
     $obj->XML->text(CentreonUtils::escapeSecure($pluginShortOuput), 0);
     $obj->XML->endElement();
-    $obj->XML->startElement("current_attempt");
-    $obj->XML->writeAttribute("name", _("Current Attempt"));
-    $obj->XML->text($data["check_attempt"]);
+    $obj->XML->startElement('current_attempt');
+    $obj->XML->writeAttribute('name', _('Current Attempt'));
+    $obj->XML->text($data['check_attempt']);
     $obj->XML->endElement();
-    $obj->XML->writeElement("state_type", $obj->stateTypeFull[$data["state_type"]]);
-    $obj->XML->writeElement("state_type_name", _("State Type"), 0);
-    $obj->XML->writeElement("last_check", $data["last_check"]);
-    $obj->XML->writeElement("last_check_name", _("Last Check"), 0);
-    $obj->XML->writeElement("last_state_change", $data["last_state_change"]);
-    $obj->XML->writeElement("last_state_change_name", _("Last State Change"), 0);
-    $obj->XML->writeElement("duration", $duration);
-    $obj->XML->writeElement("duration_name", _("Current State Duration"), 0);
-    $obj->XML->writeElement("last_notification", $last_notification);
-    $obj->XML->writeElement("last_notification_name", _("Last Notification"), 0);
-    $obj->XML->writeElement("current_notification_number", $data["notification_number"]);
-    $obj->XML->writeElement("current_notification_number_name", _("Current Notification Number"), 0);
-    $obj->XML->writeElement("is_downtime", ($data["scheduled_downtime_depth"] > 0 ? $obj->en[1] : $obj->en[0]));
-    $obj->XML->writeElement("is_downtime_name", _("In Scheduled Downtime?"), 0);
-    $obj->XML->writeElement("last_update", time());
-    $obj->XML->writeElement("last_update_name", _("Last Update"), 0);
-    $obj->XML->writeElement("ico", $data["icon_image"]);
-    $obj->XML->writeElement("timezone_name", _("Timezone"));
-    $obj->XML->writeElement("timezone", str_replace(':', '', $data["timezone"]));
+    $obj->XML->writeElement('state_type', $obj->stateTypeFull[$data['state_type']]);
+    $obj->XML->writeElement('state_type_name', _('State Type'), 0);
+    $obj->XML->writeElement('last_check', $data['last_check']);
+    $obj->XML->writeElement('last_check_name', _('Last Check'), 0);
+    $obj->XML->writeElement('last_state_change', $data['last_state_change']);
+    $obj->XML->writeElement('last_state_change_name', _('Last State Change'), 0);
+    $obj->XML->writeElement('duration', $duration);
+    $obj->XML->writeElement('duration_name', _('Current State Duration'), 0);
+    $obj->XML->writeElement('last_notification', $last_notification);
+    $obj->XML->writeElement('last_notification_name', _('Last Notification'), 0);
+    $obj->XML->writeElement('current_notification_number', $data['notification_number']);
+    $obj->XML->writeElement('current_notification_number_name', _('Current Notification Number'), 0);
+    $obj->XML->writeElement('is_downtime', ($data['scheduled_downtime_depth'] > 0 ? $obj->en[1] : $obj->en[0]));
+    $obj->XML->writeElement('is_downtime_name', _('In Scheduled Downtime?'), 0);
+    $obj->XML->writeElement('last_update', time());
+    $obj->XML->writeElement('last_update_name', _('Last Update'), 0);
+    $obj->XML->writeElement('ico', $data['icon_image']);
+    $obj->XML->writeElement('timezone_name', _('Timezone'));
+    $obj->XML->writeElement('timezone', str_replace(':', '', $data['timezone']));
 
     // Last State Info
-    if ($data["state"] == 0) {
+    if ($data['state'] == 0) {
         $status = _('DOWN');
         $status_date = 0;
-        if (isset($data["last_time_down"]) && $status_date < $data["last_time_down"]) {
-            $status_date = $data["last_time_down"];
+        if (isset($data['last_time_down']) && $status_date < $data['last_time_down']) {
+            $status_date = $data['last_time_down'];
             $status = _('DOWN');
         }
-        if (isset($data["last_time_unreachable"]) && $status_date < $data["last_time_unreachable"]) {
-            $status_date = $data["last_time_unreachable"];
+        if (isset($data['last_time_unreachable']) && $status_date < $data['last_time_unreachable']) {
+            $status_date = $data['last_time_unreachable'];
             $status = _('UNREACHABLE');
         }
     } else {
         $status = _('OK');
         $status_date = 0;
-        if ($data["last_time_up"]) {
-            $status_date = $data["last_time_up"];
+        if ($data['last_time_up']) {
+            $status_date = $data['last_time_up'];
         }
     }
     if ($status_date == 0) {
         $status_date = '-';
     }
-    $obj->XML->writeElement("last_time_name", _("Last time in "), 0);
-    $obj->XML->writeElement("last_time", $status_date, 0);
-    $obj->XML->writeElement("last_time_status", $status, 0);
+    $obj->XML->writeElement('last_time_name', _('Last time in '), 0);
+    $obj->XML->writeElement('last_time', $status_date, 0);
+    $obj->XML->writeElement('last_time_status', $status, 0);
 
-    $obj->XML->startElement("notes");
-    $obj->XML->writeAttribute("name", _("Notes"));
+    $obj->XML->startElement('notes');
+    $obj->XML->writeAttribute('name', _('Notes'));
     $obj->XML->text(CentreonUtils::escapeSecure($data['notes']));
     $obj->XML->endElement();
 } else {
-    $obj->XML->writeElement("infos", "none");
+    $obj->XML->writeElement('infos', 'none');
 }
 $dbResult->closeCursor();
 
 // Translations
-$obj->XML->writeElement("tr1", _("Check information"), 0);
-$obj->XML->writeElement("tr2", _("Notification information"), 0);
-$obj->XML->writeElement("tr3", _("Last Status Change"), 0);
-$obj->XML->writeElement("tr4", _("Extended information"), 0);
-$obj->XML->writeElement("tr5", _("Status Information"), 0);
+$obj->XML->writeElement('tr1', _('Check information'), 0);
+$obj->XML->writeElement('tr2', _('Notification information'), 0);
+$obj->XML->writeElement('tr3', _('Last Status Change'), 0);
+$obj->XML->writeElement('tr4', _('Extended information'), 0);
+$obj->XML->writeElement('tr5', _('Status Information'), 0);
 
 // End buffer
 $obj->XML->endElement();
-
 
 // Send Header
 $obj->header();

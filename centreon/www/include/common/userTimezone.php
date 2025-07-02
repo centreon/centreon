@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,18 +34,18 @@
  *
  */
 
-ini_set("display_errors", "Off");
+ini_set('display_errors', 'Off');
 
-require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
+require_once realpath(__DIR__ . '/../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
 $pearDB = new CentreonDB();
 $buffer = new CentreonXML();
-$buffer->startElement("entry");
+$buffer->startElement('entry');
 
 session_start();
 session_write_close();
@@ -56,20 +57,22 @@ if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
     $currentTime = $centreon->CentreonGMT->getCurrentTime(time(), $centreon->user->getMyGMT());
 
-    $stmt = $pearDB->prepare("SELECT user_id FROM session WHERE session_id = ?");
+    $stmt = $pearDB->prepare('SELECT user_id FROM session WHERE session_id = ?');
     $stmt->execute([$sid]);
 
     if ($stmt->rowCount()) {
-        $buffer->writeElement("state", "ok");
+        $buffer->writeElement('state', 'ok');
     } else {
-        $buffer->writeElement("state", "nok");
+        $buffer->writeElement('state', 'nok');
     }
 } else {
     $currentTime = date_format(date_create(), '%c');
-    $buffer->writeElement("state", "nok");
+    $buffer->writeElement('state', 'nok');
 }
-$buffer->writeElement("time", $currentTime);
-$buffer->writeElement("timezone", $centreon !== null
+$buffer->writeElement('time', $currentTime);
+$buffer->writeElement(
+    'timezone',
+    $centreon !== null
     ? $centreon->CentreonGMT->getActiveTimezone($centreon->user->getMyGMT())
     : date_default_timezone_get()
 );

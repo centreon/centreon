@@ -47,8 +47,10 @@ final class ServiceCategory extends AbstractObject
 
     /** @var array<int,mixed> */
     private array $serviceCategories = [];
+
     /** @var array<int,int[]>|null */
     private array|null $serviceCategoriesRelationsCache = null;
+
     /** @var string */
     protected string $object_name = 'tag';
 
@@ -65,6 +67,7 @@ final class ServiceCategory extends AbstractObject
             'type',
         ];
     }
+
     /**
      * Build cache for service categories
      */
@@ -105,8 +108,8 @@ final class ServiceCategory extends AbstractObject
      *
      * @param int $serviceCategoryId
      *
-     * @return self
      * @throws PDOException
+     * @return self
      */
     private function addServiceCategoryToList(int $serviceCategoryId): self
     {
@@ -178,6 +181,7 @@ final class ServiceCategory extends AbstractObject
             }
         }
     }
+
     /**
      * @param int $serviceId
      * @return int[]

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 
 /**
  * Class
@@ -34,10 +35,13 @@ class TimePeriod extends AbstractObject
 {
     /** @var null */
     private $timeperiods = null;
+
     /** @var string */
     protected $table = 'timeperiod';
+
     /** @var string */
     protected $generateFilename = 'timeperiods.infile';
+
     /** @var string */
     protected $attributesSelect = '
         tp_id,
@@ -51,6 +55,7 @@ class TimePeriod extends AbstractObject
         tp_friday,
         tp_saturday
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'tp_id',
@@ -64,10 +69,11 @@ class TimePeriod extends AbstractObject
         'tp_friday',
         'tp_saturday',
     ];
+
     /** @var null[] */
     protected $stmtExtend = [
         'include' => null,
-        'exclude' => null
+        'exclude' => null,
     ];
 
     /**
@@ -77,7 +83,7 @@ class TimePeriod extends AbstractObject
      */
     public function getTimeperiods(): void
     {
-        $query = "SELECT $this->attributesSelect FROM timeperiod";
+        $query = "SELECT {$this->attributesSelect} FROM timeperiod";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -95,7 +101,7 @@ class TimePeriod extends AbstractObject
             return 1;
         }
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId";
+        $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId';
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->bindParam(':timeperiodId', $timeperiodId, PDO::PARAM_INT);
         $stmt->execute();
@@ -112,8 +118,8 @@ class TimePeriod extends AbstractObject
      *
      * @param null|int $timeperiodId
      *
-     * @return null|string
      * @throws Exception
+     * @return null|string
      */
     public function generateFromTimeperiodId(?int $timeperiodId)
     {
@@ -124,7 +130,7 @@ class TimePeriod extends AbstractObject
             $this->getTimeperiods();
         }
 
-        if (!isset($this->timeperiods[$timeperiodId])) {
+        if (! isset($this->timeperiods[$timeperiodId])) {
             return null;
         }
         if ($this->checkGenerate($timeperiodId)) {
@@ -135,6 +141,7 @@ class TimePeriod extends AbstractObject
 
         $this->timeperiods[$timeperiodId]['tp_id'] = $timeperiodId;
         $this->generateObjectInFile($this->timeperiods[$timeperiodId], $timeperiodId);
+
         return $this->timeperiods[$timeperiodId]['tp_name'];
     }
 }

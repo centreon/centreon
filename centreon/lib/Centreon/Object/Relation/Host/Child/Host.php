@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
+require_once 'Centreon/Object/Relation/Relation.php';
 
 /**
  * Class
@@ -29,24 +29,27 @@ require_once "Centreon/Object/Relation/Relation.php";
  */
 class Centreon_Object_Relation_Host_Child_Host extends Centreon_Object_Relation
 {
-
     /** @var Centreon_Object_Host */
     public $firstObject;
+
     /** @var Centreon_Object_Host */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "host_hostparent_relation";
+    protected $relationTable = 'host_hostparent_relation';
+
     /** @var string */
-    protected $firstKey = "host_host_id";
+    protected $firstKey = 'host_host_id';
+
     /** @var string */
-    protected $secondKey = "host_parent_hp_id";
+    protected $secondKey = 'host_parent_hp_id';
 
     /**
      * Centreon_Object_Relation_Host_Child_Host constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Host($dependencyInjector);

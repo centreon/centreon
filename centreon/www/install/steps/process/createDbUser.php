@@ -41,33 +41,34 @@ require_once '../functions.php';
 $return = [
     'id' => 'createuser',
     'result' => 1,
-    'msg' => ''
+    'msg' => '',
 ];
 
-$step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
+$step = new CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 
 try {
-    $link = new \PDO(
+    $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
         $parameters['root_password']
     );
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
+
     exit;
 }
 
-$host = "localhost";
+$host = 'localhost';
 // if database server is not on localhost...
-if ($parameters['address'] != "127.0.0.1" && $parameters['address'] != "localhost") {
+if ($parameters['address'] != '127.0.0.1' && $parameters['address'] != 'localhost') {
     $getIpQuery = $link->prepare(
         'SELECT host FROM information_schema.processlist WHERE ID = connection_id()'
     );
     $getIpQuery->execute();
     // The result example (172.17.0.1:38216), use the explode function to remove port
-    $host = explode(":", $getIpQuery->fetchAll(PDO::FETCH_COLUMN)[0])[0];
+    $host = explode(':', $getIpQuery->fetchAll(PDO::FETCH_COLUMN)[0])[0];
 }
 
 $queryValues = [
@@ -91,23 +92,23 @@ $mandatoryPrivileges = [
     'EVENT',
     'CREATE VIEW',
     'SHOW VIEW',
-    'REFERENCES'
+    'REFERENCES',
 ];
 $privilegesQuery = implode(', ', $mandatoryPrivileges);
-$query = "GRANT " . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
-$flushQuery = "FLUSH PRIVILEGES";
+$query = 'GRANT ' . $privilegesQuery . " ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
+$flushQuery = 'FLUSH PRIVILEGES';
 
 try {
-    $findUserStatement = $link->prepare("SELECT * FROM mysql.user WHERE User = :dbUser AND Host = :host");
-    $findUserStatement->bindValue(':dbUser', $queryValues[':dbUser'], \PDO::PARAM_STR);
-    $findUserStatement->bindValue(':host', $queryValues[':host'], \PDO::PARAM_STR);
+    $findUserStatement = $link->prepare('SELECT * FROM mysql.user WHERE User = :dbUser AND Host = :host');
+    $findUserStatement->bindValue(':dbUser', $queryValues[':dbUser'], PDO::PARAM_STR);
+    $findUserStatement->bindValue(':host', $queryValues[':host'], PDO::PARAM_STR);
     $findUserStatement->execute();
     // If user doesn't exist, create it
-    if ($result = $findUserStatement->fetch(\PDO::FETCH_ASSOC) === false) {
+    if ($result = $findUserStatement->fetch(PDO::FETCH_ASSOC) === false) {
         // creating the user - mandatory for MySQL DB
-        $prepareCreate = $link->prepare("CREATE USER :dbUser@:host IDENTIFIED BY :dbPass");
+        $prepareCreate = $link->prepare('CREATE USER :dbUser@:host IDENTIFIED BY :dbPass');
         foreach ($queryValues as $key => $value) {
-            $prepareCreate->bindValue($key, $value, \PDO::PARAM_STR);
+            $prepareCreate->bindValue($key, $value, PDO::PARAM_STR);
         }
         // creating the user
         $prepareCreate->execute();
@@ -115,22 +116,22 @@ try {
         // checking mysql version before trying to alter the password plugin
         // As ALTER USER won't work on a mariaDB < 10.2, we need to check it before trying this request
         $prepareCheckVersion = $link->query("SHOW VARIABLES WHERE Variable_name IN ('version', 'version_comment')");
-        $versionName = "";
-        $versionNumber = "";
+        $versionName = '';
+        $versionNumber = '';
         while ($row = $prepareCheckVersion->fetch()) {
-            if ($row['Variable_name'] === "version") {
+            if ($row['Variable_name'] === 'version') {
                 $versionNumber = $row['Value'];
-            } elseif ($row['Variable_name'] === "version_comment") {
+            } elseif ($row['Variable_name'] === 'version_comment') {
                 $versionName = $row['Value'];
             }
         }
-        if (str_contains($versionName, "MySQL") && version_compare($versionNumber, '8.0.0', '>=')) {
+        if (str_contains($versionName, 'MySQL') && version_compare($versionNumber, '8.0.0', '>=')) {
             // Compatibility adaptation for mysql 8 with php7.1 before 7.1.16, or php7.2 before 7.2.4.
             $prepareAlter = $link->prepare(
-                "ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass"
+                'ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass'
             );
             foreach ($queryValues as $key => $value) {
-                $prepareAlter->bindValue($key, $value, \PDO::PARAM_STR);
+                $prepareAlter->bindValue($key, $value, PDO::PARAM_STR);
             }
             // altering the mysql's password plugin using the ALTER USER request
             $prepareAlter->execute();
@@ -143,16 +144,16 @@ try {
         // enabling the new parameters
         $link->exec($flushQuery);
     } else {
-        //If he exists check the right
-        $privilegesStatement = $link->prepare("SHOW GRANTS FOR :dbUser@:host");
-        $privilegesStatement->bindValue(':dbUser', $queryValues[':dbUser'], \PDO::PARAM_STR);
-        $privilegesStatement->bindValue(':host', $queryValues[':host'], \PDO::PARAM_STR);
+        // If he exists check the right
+        $privilegesStatement = $link->prepare('SHOW GRANTS FOR :dbUser@:host');
+        $privilegesStatement->bindValue(':dbUser', $queryValues[':dbUser'], PDO::PARAM_STR);
+        $privilegesStatement->bindValue(':host', $queryValues[':host'], PDO::PARAM_STR);
         $privilegesStatement->execute();
 
         // If rights are found
         $foundPrivilegesForCentreonDatabase = false;
         $foundPrivilegesForCentreonStorageDatabase = false;
-        while ($result = $privilegesStatement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($result = $privilegesStatement->fetch(PDO::FETCH_ASSOC)) {
             foreach ($result as $grant) {
                 // Format Grant result to get privileges list, and concerned database.
                 if (preg_match('/^GRANT\s(?!USAGE)(.+)\sON\s?(.+)\.\*/', $grant, $matches)) {
@@ -171,16 +172,16 @@ try {
                     }
                     $resultPrivileges = explode(', ', $matches[1]);
 
-                    //Check that user has sufficient privileges to perform all needed actions.
+                    // Check that user has sufficient privileges to perform all needed actions.
                     $missingPrivileges = [];
                     if ($resultPrivileges[0] !== 'ALL PRIVILEGES') {
                         foreach ($mandatoryPrivileges as $mandatoryPrivilege) {
-                            if (!in_array($mandatoryPrivilege, $resultPrivileges)) {
+                            if (! in_array($mandatoryPrivilege, $resultPrivileges)) {
                                 $missingPrivileges[] = $mandatoryPrivilege;
                             }
                         }
                         if ($missingPrivileges !== []) {
-                            throw new \Exception(
+                            throw new Exception(
                                 sprintf(
                                     'Missing privileges %s on user %s',
                                     implode(', ', $missingPrivileges),
@@ -193,10 +194,10 @@ try {
             }
         }
         if ($foundPrivilegesForCentreonDatabase === false || $foundPrivilegesForCentreonStorageDatabase === false) {
-            throw new \Exception(
+            throw new Exception(
                 sprintf(
-                    'No privileges for \'%s\' or \'%s\' databases for \'%s\' user has been found, ' .
-                    'please check your MySQL configuration',
+                    'No privileges for \'%s\' or \'%s\' databases for \'%s\' user has been found, '
+                    . 'please check your MySQL configuration',
                     $parameters['db_configuration'],
                     $parameters['db_storage'],
                     $queryValues[':dbUser']
@@ -204,11 +205,13 @@ try {
             );
         }
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
+
     exit;
 }
 $return['result'] = 0;
 echo json_encode($return);
+
 exit;

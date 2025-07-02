@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 use Pimple\Container;
 
@@ -36,22 +37,28 @@ class ServiceCategory extends AbstractObject
 {
     /** @var int */
     private $useCache = 1;
+
     /** @var int */
     private $doneCache = 0;
 
     /** @var array */
     private $serviceSeverityCache = [];
+
     /** @var array */
     private $serviceSeverityByNameCache = [];
+
     /** @var array */
     private $serviceLinkedCache = [];
 
     /** @var string */
     protected $table = 'service_categories';
+
     /** @var string */
     protected $generateFilename = 'servicecategories.infile';
+
     /** @var PDOStatement */
     protected $stmtService = null;
+
     /** @var PDOStatement */
     protected $stmtHcName = null;
 
@@ -104,18 +111,18 @@ class ServiceCategory extends AbstractObject
     private function cacheServiceSeverityLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            'SELECT service_categories.sc_id, service_service_id ' .
-            'FROM service_categories, service_categories_relation ' .
-            'WHERE level IS NOT NULL ' .
-            'AND sc_activate = "1" ' .
-            'AND service_categories_relation.sc_id = service_categories.sc_id'
+            'SELECT service_categories.sc_id, service_service_id '
+            . 'FROM service_categories, service_categories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND sc_activate = "1" '
+            . 'AND service_categories_relation.sc_id = service_categories.sc_id'
         );
 
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if (isset($this->serviceLinkedCache[$value['service_service_id']])) {
-                if ($this->serviceSeverityCache[$value['sc_id']]['level'] <
-                    $this->serviceSeverityCache[$this->serviceLinkedCache[$value['service_service_id']]]
+                if ($this->serviceSeverityCache[$value['sc_id']]['level']
+                    < $this->serviceSeverityCache[$this->serviceLinkedCache[$value['service_service_id']]]
                 ) {
                     $this->serviceLinkedCache[$value['service_service_id']] = $value['sc_id'];
                 }
@@ -144,8 +151,8 @@ class ServiceCategory extends AbstractObject
      *
      * @param null|int $scId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateObject(?int $scId)
     {
@@ -153,7 +160,7 @@ class ServiceCategory extends AbstractObject
             return null;
         }
 
-        if (!isset($this->serviceSeverityCache[$scId])) {
+        if (! isset($this->serviceSeverityCache[$scId])) {
             return null;
         }
         $this->generateObjectInFile($this->serviceSeverityCache[$scId], $scId);
@@ -166,14 +173,14 @@ class ServiceCategory extends AbstractObject
      *
      * @param int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function getServiceSeverityByServiceId(int $serviceId)
     {
         // Get from the cache
         if (isset($this->serviceLinkedCache[$serviceId])) {
-            if (!$this->checkGenerate($this->serviceLinkedCache[$serviceId])) {
+            if (! $this->checkGenerate($this->serviceLinkedCache[$serviceId])) {
                 $this->generateObjectInFile(
                     $this->serviceSeverityCache[$this->serviceLinkedCache[$serviceId]],
                     $this->serviceLinkedCache[$serviceId]
@@ -181,6 +188,7 @@ class ServiceCategory extends AbstractObject
                 Media::getInstance($this->dependencyInjector)
                     ->getMediaPathFromId($this->serviceSeverityCache[$this->serviceLinkedCache[$serviceId]]['icon_id']);
             }
+
             return $this->serviceLinkedCache[$serviceId];
         }
         if ($this->doneCache == 1) {
@@ -205,6 +213,7 @@ class ServiceCategory extends AbstractObject
         $severity = array_pop($this->stmtService->fetchAll(PDO::FETCH_ASSOC));
         if (is_null($severity)) {
             $this->serviceLinkedCache[$serviceId] = null;
+
             return null;
         }
 
@@ -215,6 +224,7 @@ class ServiceCategory extends AbstractObject
         $this->generateObjectInFile($severity, $severity['sc_id']);
         Media::getInstance($this->dependencyInjector)
             ->getMediaPathFromId($this->serviceSeverityCache[$this->serviceLinkedCache[$serviceId]]['icon_id']);
+
         return $severity['sc_id'];
     }
 
@@ -229,7 +239,7 @@ class ServiceCategory extends AbstractObject
         if (is_null($scId)) {
             return null;
         }
-        if (!isset($this->serviceSeverityCache[$scId])) {
+        if (! isset($this->serviceSeverityCache[$scId])) {
             return null;
         }
 
@@ -265,6 +275,7 @@ class ServiceCategory extends AbstractObject
         $severity = array_pop($this->stmtHcName->fetchAll(PDO::FETCH_ASSOC));
         if (is_null($severity)) {
             $this->serviceSeverityByNameCache[$hcName] = null;
+
             return null;
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ViewImageDir extends AbstractObject
 {
     /** @var string */
     protected $table = 'view_img_dir';
+
     /** @var string */
     protected $generateFilename = 'view_image_dir.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'dir_id',
@@ -49,8 +52,8 @@ class ViewImageDir extends AbstractObject
      * @param array $object
      * @param int $dirId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(array $object, int $dirId)
     {

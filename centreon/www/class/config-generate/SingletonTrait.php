@@ -61,7 +61,7 @@ trait SingletonTrait
          */
         $calledClass = static::class;
 
-        if (!isset($instances[$calledClass])) {
+        if (! isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -57,8 +58,8 @@ class CentreonAclGroup
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
@@ -66,20 +67,20 @@ class CentreonAclGroup
 
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':group' . $v . ',';
-                $queryValues['group' . $v] = (int)$v;
+                $queryValues['group' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timeperiods
-        $query = "SELECT acl_group_id, acl_group_name FROM acl_groups " .
-            "WHERE acl_group_id IN (" . $listValues . ") " .
-            "ORDER BY acl_group_name ";
+        // get list of selected timeperiods
+        $query = 'SELECT acl_group_id, acl_group_name FROM acl_groups '
+            . 'WHERE acl_group_id IN (' . $listValues . ') '
+            . 'ORDER BY acl_group_name ';
         $stmt = $this->db->prepare($query);
 
         if ($queryValues !== []) {

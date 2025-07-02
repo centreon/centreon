@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -33,91 +34,87 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 require_once './class/centreonDuration.class.php';
-include_once "./include/monitoring/common-Func.php";
-include_once "./include/monitoring/external_cmd/cmd.php";
+include_once './include/monitoring/common-Func.php';
+include_once './include/monitoring/external_cmd/cmd.php';
 
-/*
- * Init Continue Value
- */
+// Init Continue Value
 $continue = true;
 
-$path = "./include/monitoring/status/Hosts/";
-$path_hg = "./include/monitoring/status/HostGroups/";
+$path = './include/monitoring/status/Hosts/';
+$path_hg = './include/monitoring/status/HostGroups/';
 
-$pathRoot = "./include/monitoring/";
-$pathDetails = "./include/monitoring/objectDetails/";
-$pathTools = "./include/tools/";
+$pathRoot = './include/monitoring/';
+$pathDetails = './include/monitoring/objectDetails/';
+$pathTools = './include/tools/';
 
-$param = !isset($_GET["cmd"]) && isset($_POST["cmd"]) ? $_POST : $_GET;
+$param = ! isset($_GET['cmd']) && isset($_POST['cmd']) ? $_POST : $_GET;
 
-if (isset($param["cmd"])
-    && $param["cmd"] == 14
-    && isset($param["author"])
-    && isset($param["en"])
-    && $param["en"] == 1
+if (isset($param['cmd'])
+    && $param['cmd'] == 14
+    && isset($param['author'], $param['en'])
+
+    && $param['en'] == 1
 ) {
-    if (!isset($param["sticky"])) {
-        $param["sticky"] = 0;
+    if (! isset($param['sticky'])) {
+        $param['sticky'] = 0;
     }
-    if (!isset($param["notify"])) {
-        $param["notify"] = 0;
+    if (! isset($param['notify'])) {
+        $param['notify'] = 0;
     }
-    if (!isset($param["persistent"])) {
-        $param["persistent"] = 0;
+    if (! isset($param['persistent'])) {
+        $param['persistent'] = 0;
     }
-    if (!isset($param["ackhostservice"])) {
-        $param["ackhostservice"] = 0;
+    if (! isset($param['ackhostservice'])) {
+        $param['ackhostservice'] = 0;
     }
     acknowledgeHost($param);
-} elseif (isset($param["cmd"])
-    && $param["cmd"] == 14
-    && isset($param["author"])
-    && isset($param["en"])
-    && $param["en"] == 0
+} elseif (isset($param['cmd'])
+    && $param['cmd'] == 14
+    && isset($param['author'], $param['en'])
+
+    && $param['en'] == 0
 ) {
     acknowledgeHostDisable();
 }
 
-if (isset($param["cmd"]) && $param["cmd"] == 16 && isset($param["output"])) {
+if (isset($param['cmd']) && $param['cmd'] == 16 && isset($param['output'])) {
     submitHostPassiveCheck();
 }
 
 if ($min) {
     switch ($o) {
         default:
-            require_once $pathTools . "tools.php";
+            require_once $pathTools . 'tools.php';
             break;
     }
 } elseif ($continue) {
-    /*
-     * Now route to pages or Actions
-     */
+    // Now route to pages or Actions
     switch ($o) {
-        case "h":
-            require_once $path . "host.php";
+        case 'h':
+            require_once $path . 'host.php';
             break;
-        case "hpb":
-            require_once $path . "host.php";
+        case 'hpb':
+            require_once $path . 'host.php';
             break;
-        case "h_unhandled":
-            require_once $path . "host.php";
+        case 'h_unhandled':
+            require_once $path . 'host.php';
             break;
-        case "hd":
-            require_once $pathDetails . "hostDetails.php";
+        case 'hd':
+            require_once $pathDetails . 'hostDetails.php';
             break;
-        case "hpc":
-            require_once "./include/monitoring/submitPassivResults/hostPassiveCheck.php";
+        case 'hpc':
+            require_once './include/monitoring/submitPassivResults/hostPassiveCheck.php';
             break;
-        case "hak":
-            require_once $pathRoot . "acknowlegement/hostAcknowledge.php";
+        case 'hak':
+            require_once $pathRoot . 'acknowlegement/hostAcknowledge.php';
             break;
         default:
-            require_once $path . "host.php";
+            require_once $path . 'host.php';
             break;
     }
 }

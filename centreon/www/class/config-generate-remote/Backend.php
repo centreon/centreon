@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -27,7 +28,7 @@ use PDOStatement;
 use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../../config/centreon.config.php');
 if ($configFile !== false) {
     require_once $configFile;
 }
@@ -45,12 +46,16 @@ class Backend
 
     /** @var string */
     public $generatePath;
+
     /** @var string */
     public $engine_sub;
+
     /** @var PDOStatement */
     public $stmtCentralPoller;
+
     /** @var CentreonDB|null */
     public $db = null;
+
     /** @var CentreonDB|null */
     public $dbCs = null;
 
@@ -59,6 +64,7 @@ class Backend
 
     /** @var string */
     private $fieldSeparatorInfile = '~~~';
+
     /** @var string */
     private $lineSeparatorInfile = '######';
 
@@ -67,12 +73,16 @@ class Backend
 
     /** @var string|null */
     private $tmpFile = null;
+
     /** @var string|null */
     private $tmpDir = null;
+
     /** @var string */
     private $tmpDirSuffix = '.d';
+
     /** @var string|null */
     private $fullPath = null;
+
     /** @var string */
     private $whoaim = 'unknown';
 
@@ -81,9 +91,9 @@ class Backend
 
     /** @var int|null */
     private $pollerId = null;
+
     /** @var int|null */
     private $centralPollerId = null;
-
 
     /**
      * Backend constructor
@@ -128,11 +138,11 @@ class Backend
                 $this->deleteDir(realpath($path) . '/' . $file);
             }
 
-            if (!$onlyContent) {
+            if (! $onlyContent) {
                 return rmdir($path);
-            } else {
-                return true;
             }
+
+            return true;
         } elseif (is_file($path)) {
             return unlink($path);
         }
@@ -145,8 +155,8 @@ class Backend
      *
      * @param array $paths
      *
-     * @return string created directory path
      * @throws Exception
+     * @return string created directory path
      */
     public function createDirectories(array $paths): string
     {
@@ -157,13 +167,13 @@ class Backend
             $dirAppend .= '/';
 
             if (file_exists($dir)) {
-                if (!is_dir($dir)) {
+                if (! is_dir($dir)) {
                     throw new Exception("Generation path '" . $dir . "' is not a directory.");
                 }
                 if (posix_getuid() === fileowner($dir)) {
                     chmod($dir, 0770);
                 }
-            } elseif (!mkdir($dir, 0770, true)) {
+            } elseif (! mkdir($dir, 0770, true)) {
                 throw new Exception("Cannot create directory '" . $dir . "'");
             }
         }
@@ -186,19 +196,19 @@ class Backend
      *
      * @param int $pollerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function initPath(int $pollerId): void
     {
         $this->createDirectories([$this->generatePath]);
         $this->fullPath = $this->generatePath;
 
-        if (!is_writable($this->fullPath)) {
+        if (! is_writable($this->fullPath)) {
             throw new Exception("Not writeable directory '" . $this->fullPath . "'");
         }
 
-        if (is_dir($this->fullPath . '/' . $pollerId) && !is_writable($this->fullPath . '/' . $pollerId)) {
+        if (is_dir($this->fullPath . '/' . $pollerId) && ! is_writable($this->fullPath . '/' . $pollerId)) {
             throw new Exception("Not writeable directory '" . $this->fullPath . '/' . $pollerId . "'");
         }
 
@@ -326,12 +336,12 @@ class Backend
     /**
      * Get id of central server
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function getCentralPollerId(): int
     {
-        if (!is_null($this->centralPollerId)) {
+        if (! is_null($this->centralPollerId)) {
             return $this->centralPollerId;
         }
         $this->stmtCentralPoller = $this->db->prepare("SELECT id
@@ -342,9 +352,10 @@ class Backend
         if ($this->stmtCentralPoller->rowCount()) {
             $row = $this->stmtCentralPoller->fetch(PDO::FETCH_ASSOC);
             $this->centralPollerId = $row['id'];
+
             return $this->centralPollerId;
-        } else {
-            throw new Exception("Cannot get central poller id");
         }
+
+        throw new Exception('Cannot get central poller id');
     }
 }

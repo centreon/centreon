@@ -48,12 +48,16 @@ class Resource extends AbstractObject
 
     /** @var null */
     private $connectors = null;
+
     /** @var string */
     protected $generate_filename = 'resource.cfg';
+
     /** @var string */
     protected string $object_name;
+
     /** @var null */
     protected $stmt = null;
+
     /** @var string[] */
     protected $attributes_hash = ['resources'];
 
@@ -79,8 +83,8 @@ class Resource extends AbstractObject
     /**
      * @param $poller_id
      *
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     public function generateFromPollerId($poller_id)
     {
@@ -89,9 +93,9 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $query = "SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource " .
-                "WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = " .
-                "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
+            $query = 'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource '
+                . 'WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = '
+                . "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
             $this->stmt = $this->backend_instance->db->prepare($query);
         }
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);

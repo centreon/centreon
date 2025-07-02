@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -57,27 +58,27 @@ class CentreonTimeperiod
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tp' . $v . ',';
-                $queryValues['tp' . $v] = (int)$v;
+                $queryValues['tp' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timeperiods
-        $query = 'SELECT tp_id, tp_name FROM timeperiod ' .
-            'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
+        // get list of selected timeperiods
+        $query = 'SELECT tp_id, tp_name FROM timeperiod '
+            . 'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
         $stmt = $this->db->prepare($query);
 
         if ($queryValues !== []) {
@@ -97,8 +98,8 @@ class CentreonTimeperiod
     /**
      * @param string $name
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function getTimperiodIdByName($name)
     {
@@ -107,7 +108,7 @@ class CentreonTimeperiod
 
         $res = $this->db->query($query);
 
-        if (!$res->rowCount()) {
+        if (! $res->rowCount()) {
             return null;
         }
         $row = $res->fetchRow();
@@ -118,19 +119,20 @@ class CentreonTimeperiod
     /**
      * @param int $tpId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function getTimeperiodException($tpId)
     {
-        $query = "SELECT `exception_id` FROM `timeperiod_exceptions`
-                WHERE `timeperiod_id` = " . (int)$tpId;
+        $query = 'SELECT `exception_id` FROM `timeperiod_exceptions`
+                WHERE `timeperiod_id` = ' . (int) $tpId;
         $res = $this->db->query($query);
-        if (!$res->rowCount()) {
+        if (! $res->rowCount()) {
             return null;
         }
 
         $row = $res->fetchRow();
+
         return $row['exception_id'];
     }
 
@@ -142,9 +144,9 @@ class CentreonTimeperiod
      */
     public function insert($parameters): void
     {
-        $sQuery = "INSERT INTO `timeperiod` "
-            . "(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, "
-            . "`tp_thursday`, `tp_friday`, `tp_saturday`) "
+        $sQuery = 'INSERT INTO `timeperiod` '
+            . '(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, '
+            . '`tp_thursday`, `tp_friday`, `tp_saturday`) '
             . "VALUES ('" . $parameters['name'] . "',"
             . "'" . $parameters['alias'] . "',"
             . "'" . $parameters['sunday'] . "',"
@@ -168,9 +170,8 @@ class CentreonTimeperiod
      * @param string|int $tp_id
      * @param array $parameters
      *
-     * @return void
-     *
      * @throws Exception
+     * @return void
      */
     public function update($tp_id, $parameters): void
     {
@@ -183,7 +184,7 @@ class CentreonTimeperiod
             . "`tp_thursday` = '" . $parameters['thursday'] . "',"
             . "`tp_friday` = '" . $parameters['friday'] . "',"
             . "`tp_saturday` = '" . $parameters['saturday'] . "'"
-            . " WHERE `tp_id` = " . $tp_id;
+            . ' WHERE `tp_id` = ' . $tp_id;
 
         try {
             $this->db->query($sQuery);
@@ -202,9 +203,9 @@ class CentreonTimeperiod
     public function setTimeperiodException($tpId, $parameters): void
     {
         foreach ($parameters as $exception) {
-            $sQuery = "INSERT INTO `timeperiod_exceptions` "
-                . "(`timeperiod_id`, `days`, `timerange`) "
-                . "VALUES (" . (int)$tpId . ","
+            $sQuery = 'INSERT INTO `timeperiod_exceptions` '
+                . '(`timeperiod_id`, `days`, `timerange`) '
+                . 'VALUES (' . (int) $tpId . ','
                 . "'" . $exception['days'] . "',"
                 . "'" . $exception['timerange'] . "')";
 
@@ -225,9 +226,9 @@ class CentreonTimeperiod
      */
     public function setTimeperiodDependency($timeperiodId, $depId): void
     {
-        $sQuery = "INSERT INTO `timeperiod_include_relations` "
-            . "(`timeperiod_id`,`timeperiod_include_id`) "
-            . "VALUES (" . (int)$timeperiodId . "," . (int)$depId . ")";
+        $sQuery = 'INSERT INTO `timeperiod_include_relations` '
+            . '(`timeperiod_id`,`timeperiod_include_id`) '
+            . 'VALUES (' . (int) $timeperiodId . ',' . (int) $depId . ')';
 
         try {
             $this->db->query($sQuery);
@@ -244,7 +245,7 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodException($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = ' . (int) $tpId;
 
         try {
             $res = $this->db->query($sQuery);
@@ -261,7 +262,7 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodInclude($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = ' . (int) $tpId;
 
         try {
             $this->db->query($sQuery);
@@ -294,8 +295,8 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedHostsByName($timeperiodName, $register = false)
     {
@@ -330,8 +331,8 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedServicesByName($timeperiodName, $register = false)
     {
@@ -364,8 +365,8 @@ class CentreonTimeperiod
      * Returns array of Contacts linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedContactsByName($timeperiodName)
     {
@@ -392,8 +393,8 @@ class CentreonTimeperiod
      * Returns array of Timeperiods linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedTimeperiodsByName($timeperiodName)
     {

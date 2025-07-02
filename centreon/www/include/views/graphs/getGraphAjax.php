@@ -43,14 +43,14 @@ require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 session_start();
 session_write_close();
 
-/* Initialize database connection */
+// Initialize database connection
 $pearDB = $dependencyInjector['configuration_db'];
 $pearDBO = $dependencyInjector['realtime_db'];
 
-/* Load session */
+// Load session
 $centreon = $_SESSION['centreon'];
 
-/* Validate session and get contact */
+// Validate session and get contact
 $sid = session_id();
 $contactId = check_session($sid, $pearDB);
 $isAdmin = isUserAdmin($sid);
@@ -59,7 +59,7 @@ $access = new CentreonACL($contactId, $isAdmin);
 
 $lca = $access->getHostsServices($pearDBO);
 
-/* Build list of services */
+// Build list of services
 $servicesReturn = [];
 
 /**
@@ -76,7 +76,7 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
     $listGraph = [];
     if (
         $isAdmin
-        || (!$isAdmin && isset($lca[$host]))
+        || (! $isAdmin && isset($lca[$host]))
     ) {
         $services =  getMyHostServices($host);
         foreach ($services as $svcId => $svcName) {
@@ -86,6 +86,7 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
             }
         }
     }
+
     return $listGraph;
 }
 
@@ -99,19 +100,21 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
  * @param string $svcName The service name
  * @param bool $isAdmin If the contact is admin
  * @param array $lca The ACL of the contact
+ * @param mixed $title
  */
 function getGraphByService($host, $svcId, $title, $isAdmin, $lca)
 {
     if (
         service_has_graph($host, $svcId)
-        && ($isAdmin || (!$isAdmin && isset($lca[$host][$svcId])))
+        && ($isAdmin || (! $isAdmin && isset($lca[$host][$svcId])))
     ) {
         return ['type' => 'service', 'hostId' => $host, 'serviceId' => $svcId, 'id' => $host . '_' . $svcId, 'title' => $title];
     }
+
     return false;
 }
 
-/* By hostgroups */
+// By hostgroups
 if (isset($_POST['host_group_filter'])) {
     foreach ($_POST['host_group_filter'] as $hgId) {
         $hosts = getMyHostGroupHosts($hgId);
@@ -120,14 +123,14 @@ if (isset($_POST['host_group_filter'])) {
         }
     }
 }
-/* By hosts */
+// By hosts
 if (isset($_POST['host_selector'])) {
     foreach ($_POST['host_selector'] as $host) {
         $servicesReturn = array_merge($servicesReturn, getServiceGraphByHost($host, $isAdmin, $lca));
     }
 }
 
-/* By servicegroups */
+// By servicegroups
 if (isset($_POST['service_group_filter'])) {
     foreach ($_POST['service_group_filter'] as $sgId) {
         $services = getMyServiceGroupServices($sgId);
@@ -138,7 +141,7 @@ if (isset($_POST['service_group_filter'])) {
     }
 }
 
-/* By service */
+// By service
 if (isset($_POST['service_selector'])) {
     foreach ($_POST['service_selector'] as $selectedService) {
         [$hostId, $svcId] = explode('-', $selectedService['id']);
@@ -149,8 +152,8 @@ if (isset($_POST['service_selector'])) {
     }
 }
 
-/* By metaservice */
+// By metaservice
 // @todo
 
 header('Content-type: application/json');
-print json_encode(array_unique($servicesReturn, SORT_REGULAR));
+echo json_encode(array_unique($servicesReturn, SORT_REGULAR));

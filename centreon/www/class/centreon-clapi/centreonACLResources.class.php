@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : command@centreon.com
- *
  */
 
 namespace CentreonClapi;
@@ -63,8 +63,8 @@ class CentreonACLResources
     /**
      * @param string $name
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function getACLResourceID($name)
     {
@@ -72,30 +72,31 @@ class CentreonACLResources
             . htmlentities($name, ENT_QUOTES) . "'";
         $DBRESULT = $this->_DB->query($request);
         $data = $DBRESULT->fetchRow();
-        if ($data["acl_group_id"]) {
-            return $data["acl_group_id"];
-        } else {
-            return 0;
+        if ($data['acl_group_id']) {
+            return $data['acl_group_id'];
         }
+
+        return 0;
     }
 
     /**
      * @param $contact_id
      * @param $aclid
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function addContact($contact_id, $aclid)
     {
-        $request = "DELETE FROM acl_group_contacts_relations "
-            . "WHERE acl_group_id = '$aclid' AND contact_contact_id = '$contact_id'";
+        $request = 'DELETE FROM acl_group_contacts_relations '
+            . "WHERE acl_group_id = '{$aclid}' AND contact_contact_id = '{$contact_id}'";
         $this->_DB->query($request);
 
-        $request = "INSERT INTO acl_group_contacts_relations "
-            . "(acl_group_id, contact_contact_id) "
+        $request = 'INSERT INTO acl_group_contacts_relations '
+            . '(acl_group_id, contact_contact_id) '
             . "VALUES ('" . $aclid . "', '" . $contact_id . "')";
         $this->_DB->query($request);
+
         return 0;
     }
 
@@ -103,25 +104,27 @@ class CentreonACLResources
      * @param $contact_id
      * @param $aclid
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function delContact($contact_id, $aclid)
     {
-        $request = "DELETE FROM acl_group_contacts_relations "
-            . "WHERE acl_group_id = '$aclid' AND contact_contact_id = '$contact_id'";
+        $request = 'DELETE FROM acl_group_contacts_relations '
+            . "WHERE acl_group_id = '{$aclid}' AND contact_contact_id = '{$contact_id}'";
         $this->_DB->query($request);
+
         return 0;
     }
 
     /**
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function updateACL()
     {
         $request = "UPDATE `acl_resources` SET `changed` = '1'";
         $this->_DB->query($request);
+
         return 0;
     }
 }

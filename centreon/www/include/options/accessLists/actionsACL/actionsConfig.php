@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,27 +44,25 @@ $aclActionId = filter_var(
 ) ?: null;
 
 $select = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $dupNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
-/*
- * PHP functions
- */
-require_once __DIR__ .  "/DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once __DIR__ . '/DB-Func.php';
+require_once './include/common/common-Func.php';
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
+if (isset($_POST['o1'], $_POST['o2'])) {
+    if ($_POST['o1'] != '') {
+        $o = $_POST['o1'];
     }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
+    if ($_POST['o2'] != '') {
+        $o = $_POST['o2'];
     }
 }
 
@@ -82,8 +80,8 @@ switch ($o) {
     case ACL_ACTION_ADD:
     case ACL_ACTION_WATCH:
     case ACL_ACTION_MODIFY:
-        require_once(__DIR__ .  "/formActionsAccess.php");
-        break; #Modify an Actions Access
+        require_once __DIR__ . '/formActionsAccess.php';
+        break; // Modify an Actions Access
     case ACL_ACTION_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -92,8 +90,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Activate an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Activate an Actions Access
     case ACL_ACTION_MASSIVE_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -102,8 +100,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Activate an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Activate an Actions Access
     case ACL_ACTION_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -112,8 +110,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Desactivate an an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Desactivate an an Actions Access
     case ACL_ACTION_MASSIVE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -122,8 +120,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Desactivate n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Desactivate n Actions Access
     case ACL_ACTION_DUPLICATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -132,8 +130,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Duplicate n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Duplicate n Actions Access
     case ACL_ACTION_DELETION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -142,9 +140,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Delete n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Delete n Actions Access
     default:
-        require_once(__DIR__ .  "/listsActionsAccess.php");
+        require_once __DIR__ . '/listsActionsAccess.php';
         break;
 }

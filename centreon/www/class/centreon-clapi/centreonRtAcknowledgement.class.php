@@ -43,17 +43,17 @@ use CentreonGMT;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonHost.class.php";
-require_once "centreonService.class.php";
-require_once "Centreon/Object/Acknowledgement/RtAcknowledgement.php";
-require_once "Centreon/Object/Host/Host.php";
-require_once "Centreon/Object/Service/Service.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonHost.class.php';
+require_once 'centreonService.class.php';
+require_once 'Centreon/Object/Acknowledgement/RtAcknowledgement.php';
+require_once 'Centreon/Object/Host/Host.php';
+require_once 'Centreon/Object/Service/Service.php';
 require_once dirname(__FILE__, 2) . '/centreonExternalCommand.class.php';
 require_once dirname(__FILE__, 2) . '/centreonDB.class.php';
 require_once dirname(__FILE__, 2) . '/centreonUser.class.php';
 require_once dirname(__FILE__, 2) . '/centreonGMT.class.php';
-require_once __DIR__ . "/Validator/RtValidator.php";
+require_once __DIR__ . '/Validator/RtValidator.php';
 
 /**
  * Class
@@ -69,18 +69,25 @@ class CentreonRtAcknowledgement extends CentreonObject
 
     /** @var array */
     protected $aHosts;
+
     /** @var array */
     protected $aServices;
+
     /** @var CentreonHost */
     protected $hostObject;
+
     /** @var CentreonService */
     protected $serviceObject;
+
     /** @var CentreonGMT */
     protected $GMTObject;
+
     /** @var CentreonExternalCommand */
     protected $externalCmdObj;
+
     /** @var string */
     protected $author;
+
     /** @var RtValidator */
     protected $rtValidator;
 
@@ -99,7 +106,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $this->serviceObject = new CentreonService($dependencyInjector);
         $this->GMTObject = new CentreonGMT();
         $this->externalCmdObj = new CentreonExternalCommand();
-        $this->action = "RTACKNOWLEDGEMENT";
+        $this->action = 'RTACKNOWLEDGEMENT';
         $this->author = CentreonUtils::getUserName();
         $this->rtValidator = new RtValidator($this->hostObject, $this->serviceObject);
 
@@ -109,8 +116,8 @@ class CentreonRtAcknowledgement extends CentreonObject
 
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     private function parseParameters($parameters)
     {
@@ -118,22 +125,22 @@ class CentreonRtAcknowledgement extends CentreonObject
         [$type, $resource, $comment, $sticky, $notify, $persistent] = explode(';', $parameters);
 
         // Check if object type is supported
-        if (!in_array(strtoupper($type), $this->acknowledgementType)) {
+        if (! in_array(strtoupper($type), $this->acknowledgementType)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
         // Check if sticky is 0 or 2
-        if (!preg_match('/^(0|1|2)$/', $sticky)) {
+        if (! preg_match('/^(0|1|2)$/', $sticky)) {
             throw new CentreonClapiException('Bad sticky parameter (0 or 1/2)');
         }
 
         // Check if notify is 0 or 1
-        if (!preg_match('/^(0|1)$/', $notify)) {
+        if (! preg_match('/^(0|1)$/', $notify)) {
             throw new CentreonClapiException('Bad notify parameter (0 or 1)');
         }
 
         // Check if fixed is 0 or 1
-        if (!preg_match('/^(0|1)$/', $persistent)) {
+        if (! preg_match('/^(0|1)$/', $persistent)) {
             throw new CentreonClapiException('Bad persistent parameter (0 or 1)');
         }
 
@@ -146,8 +153,8 @@ class CentreonRtAcknowledgement extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     private function parseShowParameters($parameters)
     {
@@ -182,19 +189,19 @@ class CentreonRtAcknowledgement extends CentreonObject
                 throw new CentreonClapiException(self::UNKNOWNPARAMETER . ' : ' . $parsedParameters['type']);
             }
             $method = 'show' . ucfirst($parsedParameters['type']);
-            $this->$method($parsedParameters['resource']);
+            $this->{$method}($parsedParameters['resource']);
         } else {
             $this->aHosts = $this->object->getLastHostAcknowledgement();
             $this->aServices = $this->object->getLastSvcAcknowledgement();
             $list = '';
-            //all host
+            // all host
             if (count($this->aHosts) !== 0) {
                 foreach ($this->aHosts as $host) {
                     $list .= $host['name'] . ";\n";
                 }
             }
 
-            //all service
+            // all service
             if (count($this->aServices) !== 0) {
                 foreach ($this->aServices as $service) {
                     $list .= $service['name'] . ';' . $service['description'] . " \n";
@@ -213,7 +220,7 @@ class CentreonRtAcknowledgement extends CentreonObject
     {
         $fields = ['id', 'host_name', 'entry_time', 'author', 'comment_data', 'sticky', 'notify_contacts', 'persistent_comment'];
 
-        if (!empty($hostList)) {
+        if (! empty($hostList)) {
             $hostList = array_filter(explode('|', $hostList));
             $db = $this->db;
             $hostList = array_map(
@@ -235,6 +242,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             }
             if ($unknownHost !== []) {
                 echo "\n";
+
                 throw new CentreonClapiException(
                     self::OBJECT_NOT_FOUND . ' : Host : ' . implode('|', $unknownHost) . "\n"
                 );
@@ -249,7 +257,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $this->GMTObject->getMyGTMFromUser(CentreonUtils::getuserId());
 
         echo implode($this->delim, $fields) . "\n";
-        //Separates hosts
+        // Separates hosts
         if (count($hostAcknowledgementList)) {
             foreach ($hostAcknowledgementList as $hostAcknowledgement) {
                 $hostAcknowledgement['entry_time'] = $this->GMTObject->getDate(
@@ -279,7 +287,7 @@ class CentreonRtAcknowledgement extends CentreonObject
 
         $fields = ['id', 'host_name', 'service_name', 'entry_time', 'author', 'comment_data', 'sticky', 'notify_contacts', 'persistent_comment'];
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $svcList = array_filter(explode('|', $svcList));
             $db = $this->db;
             $svcList = array_map(
@@ -303,7 +311,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             if ($existingService !== []) {
                 foreach ($existingService as $svc) {
                     $tmpAcknowledgement = $this->object->getLastSvcAcknowledgement($svc);
-                    if (!empty($tmpAcknowledgement)) {
+                    if (! empty($tmpAcknowledgement)) {
                         $serviceAcknowledgementList[] = array_pop($tmpAcknowledgement);
                     }
                 }
@@ -315,7 +323,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         // Init user timezone
         $this->GMTObject->getMyGTMFromUser(CentreonUtils::getuserId());
 
-        //Separates hosts and services
+        // Separates hosts and services
         echo implode($this->delim, $fields) . "\n";
 
         if (count($serviceAcknowledgementList)) {
@@ -336,6 +344,7 @@ class CentreonRtAcknowledgement extends CentreonObject
 
         if ($unknownService !== []) {
             echo "\n";
+
             throw new CentreonClapiException(
                 self::OBJECT_NOT_FOUND . ' : Service : ' . implode('|', $unknownService) . "\n"
             );
@@ -346,8 +355,8 @@ class CentreonRtAcknowledgement extends CentreonObject
      * redirect on SVC or HOST
      *
      * @param null $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function add($parameters = null): void
     {
@@ -356,7 +365,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         // to choose the best add (addHostAcknowledgement, addSvcAcknowledgement.)
         $method = 'add' . ucfirst($parsedParameters['type']) . 'Acknowledgement';
 
-        $this->$method(
+        $this->{$method}(
             $parsedParameters['resource'],
             $parsedParameters['comment'],
             $parsedParameters['sticky'],
@@ -382,7 +391,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $notify,
         $persistent
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $unknownHost = [];
@@ -425,7 +434,7 @@ class CentreonRtAcknowledgement extends CentreonObject
         $notify,
         $persistent
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $unknownService = [];
@@ -461,7 +470,6 @@ class CentreonRtAcknowledgement extends CentreonObject
         }
     }
 
-
     /**
      * @param mixed $parameters
      *
@@ -480,7 +488,7 @@ class CentreonRtAcknowledgement extends CentreonObject
             [$hostName, $serviceName] = explode(',', $acknowledgement);
 
             if ($serviceName) {
-                $serviceId = $this->serviceObject->getObjectId($hostName . ";" . $serviceName);
+                $serviceId = $this->serviceObject->getObjectId($hostName . ';' . $serviceName);
                 if (
                     $this->rtValidator->isServiceNameValid($hostName, $serviceName)
                     && $this->object->svcIsAcknowledged($serviceId)

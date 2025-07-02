@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -56,7 +57,7 @@ class CentreonVersion
     {
         $this->db = $db;
 
-        if (!is_null($dbStorage)) {
+        if (! is_null($dbStorage)) {
             $this->dbStorage = $dbStorage;
         }
     }
@@ -64,35 +65,35 @@ class CentreonVersion
     /**
      * Get Centreon core version
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getCore()
     {
         $data = [];
 
         // Get version of the centreon-web
-        $query = 'SELECT i.value FROM informations i ' .
-            'WHERE i.key = "version"';
+        $query = 'SELECT i.value FROM informations i '
+            . 'WHERE i.key = "version"';
         $result = $this->db->query($query);
         if ($row = $result->fetch()) {
             $data['centreon-web'] = $row['value'];
         }
 
         // Get version of the centreon-broker
-        $cmd = shell_exec("cbd -v");
+        $cmd = shell_exec('cbd -v');
 
         if (preg_match('/^.*(.\d+\.\d+\.\d+)$/', $cmd, $matches)) {
             $data['centreon-broker'] = $matches[1];
         }
 
         // Get version of the centreon-engine
-        $queryProgram = "SELECT DISTINCT instance_id, version AS program_version, engine AS program_name, " .
-            "`name` AS instance_name FROM instances WHERE deleted = 0 ";
+        $queryProgram = 'SELECT DISTINCT instance_id, version AS program_version, engine AS program_name, '
+            . '`name` AS instance_name FROM instances WHERE deleted = 0 ';
         $result = $this->dbStorage->query($queryProgram);
 
         while ($info = $result->fetch()) {
-            $data['centreon-engine'] = $info["program_version"];
+            $data['centreon-engine'] = $info['program_version'];
         }
 
         return $data;
@@ -101,8 +102,8 @@ class CentreonVersion
     /**
      * Get all Centreon modules
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getModules()
     {
@@ -113,14 +114,15 @@ class CentreonVersion
         while ($row = $result->fetch()) {
             $data[$row['name']] = $row['mod_release'];
         }
+
         return $data;
     }
 
     /**
      * Get all Centreon widgets
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getWidgets()
     {
@@ -131,14 +133,15 @@ class CentreonVersion
         while ($row = $result->fetch()) {
             $data[$row['title']] = $row['version'];
         }
+
         return $data;
     }
 
     /**
      * Get versions of the system processus
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getSystem()
     {
@@ -162,7 +165,7 @@ class CentreonVersion
     {
         $data = [];
 
-        if (function_exists("shell_exec") && is_readable("/etc/os-release")) {
+        if (function_exists('shell_exec') && is_readable('/etc/os-release')) {
             $result = shell_exec('cat /etc/os-release');
 
             preg_match_all('/(.*)="?(.*)"?/', $result, $matches, PREG_PATTERN_ORDER);
@@ -178,8 +181,8 @@ class CentreonVersion
     /**
      * Get all Centreon widgets
      *
-     * @return array $data Widgets statistics
      * @throws PDOException
+     * @return array $data Widgets statistics
      */
     public function getWidgetsUsage()
     {
@@ -193,6 +196,7 @@ class CentreonVersion
         while ($row = $result->fetch()) {
             $data[] = ['name' => $row['name'], 'version' => $row['version'], 'used' => $row['count']];
         }
+
         return $data;
     }
 }

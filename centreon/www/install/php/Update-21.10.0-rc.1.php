@@ -19,10 +19,10 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 21.10.0-rc.1: ';
 
 /**
@@ -56,14 +56,14 @@ try {
     $result = $pearDB->query("SELECT * FROM `options` WHERE options.key LIKE 'openid%'");
     $generalOptions = [];
     while ($row = $result->fetch()) {
-        $generalOptions[$row["key"]] = $row["value"];
+        $generalOptions[$row['key']] = $row['value'];
     }
 
     foreach ($defaultValues as $defaultValueName => $defautValue) {
-        if (!isset($generalOptions[$defaultValueName])) {
+        if (! isset($generalOptions[$defaultValueName])) {
             $statement = $pearDB->prepare('INSERT INTO `options` (`key`, `value`) VALUES (:option_key, :option_value)');
-            $statement->bindValue(':option_key', $defaultValueName, \PDO::PARAM_STR);
-            $statement->bindValue(':option_value', $defautValue, \PDO::PARAM_STR);
+            $statement->bindValue(':option_key', $defaultValueName, PDO::PARAM_STR);
+            $statement->bindValue(':option_value', $defautValue, PDO::PARAM_STR);
             $statement->execute();
         }
     }
@@ -81,7 +81,7 @@ try {
      * Sort filter criteria was not correctly added during the 21.04.0
      * upgrade. It should be an array and not an object
      */
-    $errorMessage = "Cannot parse filter values in user_filter table.";
+    $errorMessage = 'Cannot parse filter values in user_filter table.';
     while ($filter = $statement->fetch()) {
         $id = $filter['id'];
         $decodedCriterias = json_decode($filter['criterias'], true);
@@ -91,7 +91,7 @@ try {
                 && is_array($criteria['value'])
                 && count($criteria['value']) === 2
                 && $criteria['value'][0] === 'status_severity_code'
-                && !in_array($criteria['value'][1], ['asc', 'desc'])
+                && ! in_array($criteria['value'][1], ['asc', 'desc'])
             ) {
                 $decodedCriterias[$criteriaKey]['value'][1] = 'desc';
             }
@@ -103,27 +103,27 @@ try {
     /**
      * UPDATE SQL request on filters
      */
-    $errorMessage = "Unable to update filter sort values in user_filter table.";
+    $errorMessage = 'Unable to update filter sort values in user_filter table.';
     foreach ($fixedCriteriaFilters as $id => $criterias) {
         $statement = $pearDB->prepare(
-            "UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id"
+            'UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id'
         );
-        $statement->bindValue(':id', (int) $id, \PDO::PARAM_INT);
-        $statement->bindValue(':criterias', $criterias, \PDO::PARAM_STR);
+        $statement->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $statement->bindValue(':criterias', $criterias, PDO::PARAM_STR);
         $statement->execute();
     }
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $pearDB->rollBack();
 
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . "/webService.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonRestHttp.class.php";
+require_once __DIR__ . '/webService.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonRestHttp.class.php';
 
 /**
  * Class

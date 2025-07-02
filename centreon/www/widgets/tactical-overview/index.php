@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -46,7 +46,7 @@ require_once $centreon_path . 'bootstrap.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -64,21 +64,22 @@ try {
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-        ? (int)$preferences['refresh_interval']
+    $autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+        ? (int) $preferences['refresh_interval']
         : 30;
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/tactical-overview/src/";
+$path = $centreon_path . 'www/widgets/tactical-overview/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $template->assign(
@@ -88,9 +89,9 @@ $template->assign(
         : $variablesThemeCSS
 );
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 $buildParameter = function (string $id, string $name) {
@@ -102,9 +103,9 @@ $buildParameter = function (string $id, string $name) {
 
 if (
     isset($preferences['object_type'])
-    && ($preferences['object_type'] === "hosts" || $preferences['object_type'] == "")
+    && ($preferences['object_type'] === 'hosts' || $preferences['object_type'] == '')
 ) {
     require_once 'src/hosts_status.php';
-} elseif (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
+} elseif (isset($preferences['object_type']) && $preferences['object_type'] === 'services') {
     require_once 'src/services_status.php';
 }

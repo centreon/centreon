@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -51,6 +52,7 @@ class CentreonFeature
 {
     /** @var CentreonDB */
     protected $db;
+
     /** @var array */
     protected static $availableFeatures = [];
 
@@ -69,12 +71,12 @@ class CentreonFeature
      *
      * @param int $userId - The user id
      *
-     * @return array - The list of new feature to ask at the user
      * @throws PDOException
+     * @return array - The list of new feature to ask at the user
      */
     public function toAsk($userId)
     {
-        if (!is_numeric($userId)) {
+        if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
         $result = [];
@@ -96,6 +98,7 @@ class CentreonFeature
                 $result[] = $feature;
             }
         }
+
         return $result;
     }
 
@@ -121,12 +124,12 @@ class CentreonFeature
      *
      * @param int $userId - The user id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function userFeaturesValue($userId)
     {
-        if (!is_numeric($userId)) {
+        if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
         $query = 'SELECT feature, feature_version, feature_enabled FROM contact_feature WHERE contact_id = ' . $userId;
@@ -135,6 +138,7 @@ class CentreonFeature
         while ($row = $res->fetchRow()) {
             $result[] = ['name' => $row['feature'], 'version' => $row['feature_version'], 'enabled' => $row['feature_enabled']];
         }
+
         return $result;
     }
 
@@ -148,16 +152,16 @@ class CentreonFeature
      */
     public function saveUserFeaturesValue($userId, $features): void
     {
-        if (!is_numeric($userId)) {
+        if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
         foreach ($features as $name => $versions) {
             foreach ($versions as $version => $value) {
-                $query = 'DELETE FROM contact_feature WHERE contact_id = ' . $userId . ' AND feature = "' .
-                    $this->db->escape($name) . '" AND feature_version = "' . $this->db->escape($version) . '"';
+                $query = 'DELETE FROM contact_feature WHERE contact_id = ' . $userId . ' AND feature = "'
+                    . $this->db->escape($name) . '" AND feature_version = "' . $this->db->escape($version) . '"';
                 $this->db->query($query);
-                $query = 'INSERT INTO contact_feature VALUES (' . $userId . ', "' . $this->db->escape($name) . '", "' .
-                    $this->db->escape($version) . '", ' . (int)$value . ')';
+                $query = 'INSERT INTO contact_feature VALUES (' . $userId . ', "' . $this->db->escape($name) . '", "'
+                    . $this->db->escape($version) . '", ' . (int) $value . ')';
                 $this->db->query($query);
             }
         }
@@ -170,20 +174,20 @@ class CentreonFeature
      * @param string $version - The feature version
      * @param null $userId - The user id if check for an user
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function featureActive($name, $version, $userId = null)
     {
         foreach (self::$availableFeatures as $feature) {
-            if ($feature['name'] === $name && $feature['version'] === $version && !$feature['visible']) {
+            if ($feature['name'] === $name && $feature['version'] === $version && ! $feature['visible']) {
                 return false;
             }
         }
         if (is_null($userId)) {
             return true;
         }
-        if (!is_numeric($userId)) {
+        if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
         }
         $query = 'SELECT feature_enabled FROM contact_feature
@@ -191,13 +195,14 @@ class CentreonFeature
                 AND feature_version = "' . $this->db->escape($version) . '"';
         try {
             $res = $this->db->query($query);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
         if ($res->rowCount() === 0) {
             return false;
         }
         $row = $res->fetch();
+
         return $row['feature_enabled'] == 1;
     }
 }

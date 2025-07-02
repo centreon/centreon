@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,8 +63,8 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
+     * @return void
      */
     public function init($params): void
     {
@@ -74,13 +75,13 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
                 'text',
                 'from_' . $params['parameter_id'],
                 _('From'),
-                ["size" => 10, "class" => "datepicker"]
+                ['size' => 10, 'class' => 'datepicker']
             );
             $elems[] = $this->quickform->addElement(
                 'text',
                 'to_' . $params['parameter_id'],
                 _('To'),
-                ["size" => 10, "class" => "datepicker"]
+                ['size' => 10, 'class' => 'datepicker']
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -94,22 +95,22 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws CentreonWidgetParamsException
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
             $target = $userPref;
-        } elseif (isset($params['default_value']) && $params['default_value'] != "") {
+        } elseif (isset($params['default_value']) && $params['default_value'] != '') {
             $target = $params['default_value'];
         }
         if (isset($target)) {
             $tab = explode(',', $target);
-            if (!isset($tab[0]) || !isset($tab[1])) {
+            if (! isset($tab[0]) || ! isset($tab[1])) {
                 throw new CentreonWidgetParamsException('Incorrect date format found in database');
             }
             $this->quickform->setDefaults(['from_' . $params['parameter_id'] => $tab[0], 'to_' . $params['parameter_id'] => $tab[1]]);

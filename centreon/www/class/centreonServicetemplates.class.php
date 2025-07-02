@@ -94,8 +94,8 @@ class CentreonServicetemplates extends CentreonService
      * @param array $options
      * @param string $register
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
@@ -106,17 +106,17 @@ class CentreonServicetemplates extends CentreonService
             $selectedServices = '';
             $listValues = '';
             $queryValues = [];
-            if (!empty($values)) {
+            if (! empty($values)) {
                 foreach ($values as $k => $v) {
                     $listValues .= ':service' . $v . ',';
-                    $queryValues['service' . $v] = (int)$v;
+                    $queryValues['service' . $v] = (int) $v;
                 }
                 $listValues = rtrim($listValues, ',');
-                $selectedServices .= "AND s.service_id IN ($listValues) ";
+                $selectedServices .= "AND s.service_id IN ({$listValues}) ";
             }
 
-            $queryService = 'SELECT DISTINCT s.service_id, s.service_description FROM service s ' .
-                'WHERE s.service_register = "0" ' . $selectedServices . 'ORDER BY s.service_description ';
+            $queryService = 'SELECT DISTINCT s.service_id, s.service_description FROM service s '
+                . 'WHERE s.service_register = "0" ' . $selectedServices . 'ORDER BY s.service_description ';
 
             $stmt = $this->db->prepare($queryService);
             if ($queryValues !== []) {
@@ -137,8 +137,8 @@ class CentreonServicetemplates extends CentreonService
     /**
      * @param $serviceTemplateName
      * @param bool $checkTemplates
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedServicesByName($serviceTemplateName, $checkTemplates = true)
     {
@@ -154,8 +154,8 @@ class CentreonServicetemplates extends CentreonService
 
         try {
             $result = $this->db->query($query);
-        } catch (\PDOException $e) {
-            throw new \Exception('Error while getting linked services of ' . $serviceTemplateName);
+        } catch (PDOException $e) {
+            throw new Exception('Error while getting linked services of ' . $serviceTemplateName);
         }
 
         while ($row = $result->fetchRow()) {
@@ -169,8 +169,8 @@ class CentreonServicetemplates extends CentreonService
      * @param string $serviceTemplateName linked service template
      * @param string $hostTemplateName linked host template
      *
-     * @return array service ids
      * @throws PDOException
+     * @return array service ids
      */
     public function getServiceIdsLinkedToSTAndCreatedByHT($serviceTemplateName, $hostTemplateName)
     {
@@ -206,19 +206,19 @@ class CentreonServicetemplates extends CentreonService
     {
         $serviceTemplates = [];
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT service_id, service_description "
-            . "FROM service "
+        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT service_id, service_description '
+            . 'FROM service '
             . "WHERE service_register = '0' ";
 
         if ($enable) {
             $query .= "AND service_activate = '1' ";
         }
 
-        $query .= "ORDER BY service_description ";
+        $query .= 'ORDER BY service_description ';
 
         try {
             $res = $this->db->query($query);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return [];
         }
 

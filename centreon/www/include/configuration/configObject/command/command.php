@@ -34,20 +34,16 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/command/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/command/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $command_id = filter_var(
     $_GET['command_id'] ?? $_POST['command_id'] ?? null,
@@ -55,7 +51,7 @@ $command_id = filter_var(
 );
 
 $type = filter_var(
-    $_POST["command_type"]["command_type"] ?? $_GET['type'] ?? $_POST['type'] ?? 2,
+    $_POST['command_type']['command_type'] ?? $_GET['type'] ?? $_POST['type'] ?? 2,
     FILTER_VALIDATE_INT
 );
 
@@ -69,17 +65,17 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
+if (isset($_POST['o1'], $_POST['o2'])) {
+    if ($_POST['o1'] != '') {
+        $o = $_POST['o1'];
     }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
+    if ($_POST['o2'] != '') {
+        $o = $_POST['o2'];
     }
 }
 
 // For inline action
-if (($o === "m" || $o === "d") && count($select) == 0 && $command_id) {
+if (($o === 'm' || $o === 'd') && count($select) == 0 && $command_id) {
     $select[$command_id] = 1;
 }
 
@@ -89,26 +85,26 @@ $isCloudPlatform = isCloudPlatform();
 $commandObj = new CentreonCommand($pearDB);
 $lockedElements = $commandObj->getLockedCommands();
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 if ($min) {
     switch ($o) {
-        case "h": // Show Help Command
+        case 'h': // Show Help Command
         default:
-            require_once($path . "minHelpCommand.php");
+            require_once $path . 'minHelpCommand.php';
             break;
     }
 } else {
     switch ($o) {
-        case "a": // Add a Command
-        case "w": // Watch a Command
-        case "c": // Modify a Command
-            require_once($path . "formCommand.php");
+        case 'a': // Add a Command
+        case 'w': // Watch a Command
+        case 'c': // Modify a Command
+            require_once $path . 'formCommand.php';
             break;
-        case "m": // Duplicate n Commands
+        case 'm': // Duplicate n Commands
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -119,9 +115,9 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
-        case "d": // Delete n Commands
+        case 'd': // Delete n Commands
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -129,9 +125,9 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
-        case "me":
+        case 'me':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -139,9 +135,9 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
-        case "md":
+        case 'md':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -149,9 +145,9 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
-        case "en":
+        case 'en':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -161,9 +157,9 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
-        case "di":
+        case 'di':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -173,10 +169,10 @@ if ($min) {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
         default:
-            require_once($path . "listCommand.php");
+            require_once $path . 'listCommand.php';
             break;
     }
 }

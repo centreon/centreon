@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,6 @@
  *
  */
 
-
 /**
  * Get the version of rrdtool
  *
@@ -42,7 +42,7 @@
  */
 function getRrdtoolVersion($rrdtoolBin = null)
 {
-    if (is_null($rrdtoolBin) || !is_executable($rrdtoolBin)) {
+    if (is_null($rrdtoolBin) || ! is_executable($rrdtoolBin)) {
         return '';
     }
     $output = [];
@@ -55,6 +55,7 @@ function getRrdtoolVersion($rrdtoolBin = null)
     if ($ret === false || $ret === 0) {
         return '';
     }
+
     return $matches[1];
 }
 
@@ -66,10 +67,7 @@ function getRrdtoolVersion($rrdtoolBin = null)
  */
 function rrdcached_valid($values)
 {
-    if (trim($values[0]) != '' && trim($values[1]) != '') {
-        return false;
-    }
-    return true;
+    return ! (trim($values[0]) != '' && trim($values[1]) != '');
 }
 
 function rrdcached_has_option($values)
@@ -79,5 +77,6 @@ function rrdcached_has_option($values)
             return false;
         }
     }
+
     return true;
 }

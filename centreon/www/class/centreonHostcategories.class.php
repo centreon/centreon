@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2019 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -89,22 +89,22 @@ class CentreonHostcategories
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
         $items = [];
 
-        # get list of authorized host categories
-        if (!$centreon->user->access->admin) {
+        // get list of authorized host categories
+        if (! $centreon->user->access->admin) {
             $hcAcl = $centreon->user->access->getHostCategories();
         }
 
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $v) {
                 // As it happens that $v could be like "X,Y" when two hostgroups are selected, we added a second foreach
                 $multiValues = explode(',', $v);
@@ -118,9 +118,9 @@ class CentreonHostcategories
             $listValues .= '""';
         }
 
-        # get list of selected host categories
-        $query = 'SELECT hc_id, hc_name FROM hostcategories ' .
-            'WHERE hc_id IN (' . $listValues . ') ORDER BY hc_name ';
+        // get list of selected host categories
+        $query = 'SELECT hc_id, hc_name FROM hostcategories '
+            . 'WHERE hc_id IN (' . $listValues . ') ORDER BY hc_name ';
 
         $stmt = $this->db->prepare($query);
 
@@ -132,9 +132,9 @@ class CentreonHostcategories
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            # hide unauthorized host categories
+            // hide unauthorized host categories
             $hide = false;
-            if (!$centreon->user->access->admin && count($hcAcl) && !in_array($row['hc_id'], array_keys($hcAcl))) {
+            if (! $centreon->user->access->admin && count($hcAcl) && ! in_array($row['hc_id'], array_keys($hcAcl))) {
                 $hide = true;
             }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once(realpath(__DIR__ . '/../config/centreon.config.php'));
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonPurgeEngine.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/partEngine.class.php';
@@ -41,24 +42,25 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-partition/config.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/mysqlTable.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-partition/options.class.php';
 
-/* Create partitioned tables */
+// Create partitioned tables
 $centreonDb = new CentreonDB('centreon');
 $centstorageDb = new CentreonDB('centstorage', 3);
 $partEngine = new PartEngine();
 
-if (!$partEngine->isCompatible($centstorageDb)) {
-    echo "[" . date(DATE_RFC822) . "] "
+if (! $partEngine->isCompatible($centstorageDb)) {
+    echo '[' . date(DATE_RFC822) . '] '
          . "CRITICAL: MySQL server is not compatible with partitionning. MySQL version must be greater or equal to 5.1\n";
+
     exit(1);
 }
 
-echo "[" . date(DATE_RFC822) . "] PARTITIONING STARTED\n";
+echo '[' . date(DATE_RFC822) . "] PARTITIONING STARTED\n";
 
 $tables = [
     'data_bin',
     'logs',
     'log_archive_host',
-    'log_archive_service'
+    'log_archive_service',
 ];
 
 try {
@@ -71,10 +73,12 @@ try {
         $mysqlTable = $config->getTable($table);
         $partEngine->updateParts($mysqlTable, $centstorageDb);
     }
-} catch (\Exception $e) {
-    echo "[" . date(DATE_RFC822) . "] " . $e->getMessage();
+} catch (Exception $e) {
+    echo '[' . date(DATE_RFC822) . '] ' . $e->getMessage();
+
     exit(1);
 }
 
-echo "[" . date(DATE_RFC822) . "] PARTITIONING COMPLETED\n";
+echo '[' . date(DATE_RFC822) . "] PARTITIONING COMPLETED\n";
+
 exit(0);

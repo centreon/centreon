@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-if (!(class_exists('centreonDB') || class_exists('\\centreonDB')) && defined('_CENTREON_PATH_')) {
-    require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+if (! (class_exists('centreonDB') || class_exists('\\centreonDB')) && defined('_CENTREON_PATH_')) {
+    require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 }
 
 use Centreon\Infrastructure\Webservice\WebserviceAutorizePublicInterface;
@@ -93,8 +94,8 @@ class CentreonWebService
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 $httpParams = $_GET;
-                unset($httpParams['action']);
-                unset($httpParams['object']);
+                unset($httpParams['action'], $httpParams['object']);
+
                 $this->arguments = $httpParams;
                 break;
             case 'POST':
@@ -105,7 +106,7 @@ class CentreonWebService
             case 'DELETE':
                 break;
             default:
-                static::sendResult("Bad request", 400);
+                static::sendResult('Bad request', 400);
                 break;
         }
     }
@@ -120,8 +121,9 @@ class CentreonWebService
         try {
             $httpParams = json_decode(file_get_contents('php://input'), true);
         } catch (Exception $e) {
-            static::sendResult("Bad parameters", 400);
+            static::sendResult('Bad parameters', 400);
         }
+
         return $httpParams;
     }
 
@@ -147,11 +149,7 @@ class CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if ($isInternal || ($user && $user->admin)) {
-            return true;
-        }
-
-        return false;
+        return (bool) ($isInternal || ($user && $user->admin));
     }
 
     /**
@@ -161,14 +159,14 @@ class CentreonWebService
      *
      * @return array|mixed
      */
-    protected static function webservicePath($object = "")
+    protected static function webservicePath($object = '')
     {
         $webServiceClass = [];
         foreach (self::$webServicePaths as $webServicePath) {
             if (str_contains($webServicePath, $object . '.class.php')) {
                 require_once $webServicePath;
                 $explodedClassName = explode('_', $object);
-                $className = "";
+                $className = '';
                 foreach ($explodedClassName as $partClassName) {
                     $className .= ucfirst(strtolower($partClassName));
                 }
@@ -179,7 +177,7 @@ class CentreonWebService
         }
 
         if ($webServiceClass === []) {
-            static::sendResult("Method not found", 404);
+            static::sendResult('Method not found', 404);
         }
 
         return $webServiceClass;
@@ -198,37 +196,37 @@ class CentreonWebService
     {
         switch ($code) {
             case 500:
-                header("HTTP/1.1 500 Internal Server Error");
+                header('HTTP/1.1 500 Internal Server Error');
                 break;
             case 502:
-                header("HTTP/1.1 502 Bad Gateway");
+                header('HTTP/1.1 502 Bad Gateway');
                 break;
             case 503:
-                header("HTTP/1.1 503 Service Unavailable");
+                header('HTTP/1.1 503 Service Unavailable');
                 break;
             case 504:
-                header("HTTP/1.1 504 Gateway Time-out");
+                header('HTTP/1.1 504 Gateway Time-out');
                 break;
             case 400:
-                header("HTTP/1.1 400 Bad Request");
+                header('HTTP/1.1 400 Bad Request');
                 break;
             case 401:
-                header("HTTP/1.1 401 Unauthorized");
+                header('HTTP/1.1 401 Unauthorized');
                 break;
             case 403:
-                header("HTTP/1.1 403 Forbidden");
+                header('HTTP/1.1 403 Forbidden');
                 break;
             case 404:
-                header("HTTP/1.1 404 Object not found");
+                header('HTTP/1.1 404 Object not found');
                 break;
             case 405:
-                header("HTTP/1.1 405 Method not allowed");
+                header('HTTP/1.1 405 Method not allowed');
                 break;
             case 409:
-                header("HTTP/1.1 409 Conflict");
+                header('HTTP/1.1 409 Conflict');
                 break;
             case 206:
-                header("HTTP/1.1 206 Partial content");
+                header('HTTP/1.1 206 Partial content');
                 $data = json_decode($data, true);
                 break;
         }
@@ -236,12 +234,12 @@ class CentreonWebService
         switch ($format) {
             case static::RESULT_HTML:
                 header('Content-type: text/html');
-                print $data;
+                echo $data;
                 break;
             case static::RESULT_JSON:
             case null:
                 header('Content-type: application/json;charset=utf-8');
-                print json_encode($data, JSON_UNESCAPED_UNICODE);
+                echo json_encode($data, JSON_UNESCAPED_UNICODE);
                 break;
         }
 
@@ -271,7 +269,7 @@ class CentreonWebService
                 $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();
             } catch (Exception $e) {
-                static::sendResult("Internal error", 500);
+                static::sendResult('Internal error', 500);
             }
         }
     }
@@ -289,9 +287,9 @@ class CentreonWebService
     {
         global $pearDB;
 
-        /* Test if route is defined */
+        // Test if route is defined
         if (false === isset($_GET['object']) || false === isset($_GET['action'])) {
-            static::sendResult("Bad parameters", 400);
+            static::sendResult('Bad parameters', 400);
         }
 
         $resultFormat = 'json';
@@ -303,7 +301,7 @@ class CentreonWebService
         $object = $_GET['object'];
         $action = $methodPrefix . ucfirst($_GET['action']);
 
-        /* Generate path for WebService */
+        // Generate path for WebService
         self::$webServicePaths = glob(_CENTREON_PATH_ . '/www/api/class/*.class.php');
         $res = $pearDB->query('SELECT name FROM modules_informations');
         while ($row = $res->fetch()) {
@@ -321,7 +319,7 @@ class CentreonWebService
 
         if ($isService === true) {
             $webService = [
-                'class' => $dependencyInjector['centreon.webservice']->get($object)
+                'class' => $dependencyInjector['centreon.webservice']->get($object),
             ];
 
             // Initialize the language translator
@@ -344,8 +342,8 @@ class CentreonWebService
             if (isset($dependencyInjector[$webService['class']])) {
                 $wsObj = $dependencyInjector[$webService['class']];
             } else {
-                /* Initialize the webservice */
-                require_once($webService['path']);
+                // Initialize the webservice
+                require_once $webService['path'];
                 $wsObj = new $webService['class']();
             }
         }
@@ -355,17 +353,17 @@ class CentreonWebService
         }
 
         if (false === method_exists($wsObj, $action)) {
-            static::sendResult("Method not found", 404);
+            static::sendResult('Method not found', 404);
         }
 
-        /* Execute the action */
+        // Execute the action
         try {
-            if (!static::isWebserviceAllowed($wsObj, $action, $user, $isInternal)) {
+            if (! static::isWebserviceAllowed($wsObj, $action, $user, $isInternal)) {
                 static::sendResult('Forbidden', 403, static::RESULT_JSON);
             }
 
             static::updateTokenTtl();
-            $data = $wsObj->$action();
+            $data = $wsObj->{$action}();
             $wsObj::sendResult($data, 200, $resultFormat);
         } catch (RestException $e) {
             $wsObj::sendResult($e->getMessage(), $e->getCode());

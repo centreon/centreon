@@ -34,21 +34,19 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
 
-include "./include/common/autoNumLimit.php";
+include './include/common/autoNumLimit.php';
 
-/*
- * nagios servers comes from DB
- */
+// nagios servers comes from DB
 $nagios_servers = [];
-$dbResult = $pearDB->query("SELECT * FROM nagios_server ORDER BY name");
+$dbResult = $pearDB->query('SELECT * FROM nagios_server ORDER BY name');
 while ($nagios_server = $dbResult->fetch()) {
-    $nagios_servers[$nagios_server["id"]] = $nagios_server["name"];
+    $nagios_servers[$nagios_server['id']] = $nagios_server['name'];
 }
 $dbResult->closeCursor();
 
@@ -60,128 +58,126 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("Requester"));
-$tpl->assign("headerMenu_outputs", _("Outputs"));
-$tpl->assign("headerMenu_inputs", _("Inputs"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('Requester'));
+$tpl->assign('headerMenu_outputs', _('Outputs'));
+$tpl->assign('headerMenu_inputs', _('Inputs'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-/*
- * Centreon Broker config list
- */
+// Centreon Broker config list
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchCB'] ?? $_GET['searchCB'] ?? null,
 );
 
 if (isset($_POST['searchCB']) || isset($_GET['searchCB'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
+    // restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-$aclCond = "";
-if (!$centreon->user->admin && count($allowedBrokerConf)) {
-    $aclCond = $search !== '' ? " AND " : " WHERE ";
-    $aclCond .= "config_id IN (" . implode(',', array_keys($allowedBrokerConf)) . ") ";
+$aclCond = '';
+if (! $centreon->user->admin && count($allowedBrokerConf)) {
+    $aclCond = $search !== '' ? ' AND ' : ' WHERE ';
+    $aclCond .= 'config_id IN (' . implode(',', array_keys($allowedBrokerConf)) . ') ';
 }
 
 if ($search !== '') {
     $cfgBrokerStmt = $pearDB->prepare(
-        "SELECT SQL_CALC_FOUND_ROWS config_id, config_name, ns_nagios_server, config_activate " .
-        "FROM cfg_centreonbroker " .
-        "WHERE config_name LIKE :search" . $aclCond .
-        " ORDER BY config_name " .
-        "LIMIT :scoop, :limit"
+        'SELECT SQL_CALC_FOUND_ROWS config_id, config_name, ns_nagios_server, config_activate '
+        . 'FROM cfg_centreonbroker '
+        . 'WHERE config_name LIKE :search' . $aclCond
+        . ' ORDER BY config_name '
+        . 'LIMIT :scoop, :limit'
     );
-    $cfgBrokerStmt->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+    $cfgBrokerStmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
 } else {
     $cfgBrokerStmt = $pearDB->prepare(
-        "SELECT SQL_CALC_FOUND_ROWS config_id, config_name, ns_nagios_server, config_activate " .
-        "FROM cfg_centreonbroker " . $aclCond .
-        " ORDER BY config_name " .
-        "LIMIT :scoop, :limit"
+        'SELECT SQL_CALC_FOUND_ROWS config_id, config_name, ns_nagios_server, config_activate '
+        . 'FROM cfg_centreonbroker ' . $aclCond
+        . ' ORDER BY config_name '
+        . 'LIMIT :scoop, :limit'
     );
 }
 
-$cfgBrokerStmt->bindValue(':scoop', (int) $num * (int) $limit, \PDO::PARAM_INT);
-$cfgBrokerStmt->bindValue(':limit', (int) $limit, \PDO::PARAM_INT);
+$cfgBrokerStmt->bindValue(':scoop', (int) $num * (int) $limit, PDO::PARAM_INT);
+$cfgBrokerStmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
 $cfgBrokerStmt->execute();
 
 // Get results numbers
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
 $statementBrokerInfo = $pearDB->prepare(
-    "SELECT COUNT(DISTINCT(config_group_id)) as num " .
-    "FROM cfg_centreonbroker_info " .
-    "WHERE config_group = :config_group " .
-    "AND config_id = :config_id"
+    'SELECT COUNT(DISTINCT(config_group_id)) as num '
+    . 'FROM cfg_centreonbroker_info '
+    . 'WHERE config_group = :config_group '
+    . 'AND config_id = :config_id'
 );
 
 for ($i = 0; $config = $cfgBrokerStmt->fetch(); $i++) {
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $config['config_id'] . "]");
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $config['config_id'] . ']');
 
-    if ($config["config_activate"]) {
-        $moptions .= "<a href='main.php?p=" . $p . "&id=" . $config['config_id'] . "&o=u&limit=" . $limit . "&num="
-            . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14' border='0' alt='"
-            . _("Disabled") . "'></a>&nbsp;&nbsp;";
+    if ($config['config_activate']) {
+        $moptions .= "<a href='main.php?p=" . $p . '&id=' . $config['config_id'] . '&o=u&limit=' . $limit . '&num='
+            . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' class='ico-14' border='0' alt='"
+            . _('Disabled') . "'></a>&nbsp;&nbsp;";
     } else {
-        $moptions .= "<a href='main.php?p=" . $p . "&id=" . $config['config_id'] . "&o=s&limit=" . $limit . "&num=" .
-            $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' class='ico-14' border='0' alt='"
-            . _("Enabled") . "'></a>&nbsp;&nbsp;";
+        $moptions .= "<a href='main.php?p=" . $p . '&id=' . $config['config_id'] . '&o=s&limit=' . $limit . '&num='
+            . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/enabled.png' class='ico-14' border='0' alt='"
+            . _('Enabled') . "'></a>&nbsp;&nbsp;";
     }
-    $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 "
-        . "&& (event.keyCode < 45 || event.keyCode > 57)) event.returnValue = false; "
-        . "if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;\""
+    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 '
+        . '&& (event.keyCode < 45 || event.keyCode > 57)) event.returnValue = false; '
+        . 'if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;"'
         . "  maxlength=\"3\" size=\"3\" value='1' "
         . "style=\"margin-bottom:0px;\" name='dupNbr[" . $config['config_id'] . "]'></input>";
 
     // Number of output
-    $statementBrokerInfo->bindValue(':config_id', (int) $config['config_id'], \PDO::PARAM_INT);
-    $statementBrokerInfo->bindValue(':config_group', 'output', \PDO::PARAM_STR);
+    $statementBrokerInfo->bindValue(':config_id', (int) $config['config_id'], PDO::PARAM_INT);
+    $statementBrokerInfo->bindValue(':config_group', 'output', PDO::PARAM_STR);
     $statementBrokerInfo->execute();
-    $row = $statementBrokerInfo->fetch(\PDO::FETCH_ASSOC);
-    $outputNumber = $row["num"];
+    $row = $statementBrokerInfo->fetch(PDO::FETCH_ASSOC);
+    $outputNumber = $row['num'];
 
     // Number of input
-    $statementBrokerInfo->bindValue(':config_group', 'input', \PDO::PARAM_STR);
+    $statementBrokerInfo->bindValue(':config_group', 'input', PDO::PARAM_STR);
     $statementBrokerInfo->execute();
-    $row = $statementBrokerInfo->fetch(\PDO::FETCH_ASSOC);
-    $inputNumber = $row["num"];
+    $row = $statementBrokerInfo->fetch(PDO::FETCH_ASSOC);
+    $inputNumber = $row['num'];
 
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => htmlentities($config["config_name"], ENT_QUOTES, 'UTF-8'), "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $config['config_id'], "RowMenu_desc" => CentreonUtils::escapeSecure(
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => htmlentities($config['config_name'], ENT_QUOTES, 'UTF-8'), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&id=' . $config['config_id'], 'RowMenu_desc' => CentreonUtils::escapeSecure(
         substr(
-            $nagios_servers[$config["ns_nagios_server"]],
+            $nagios_servers[$config['ns_nagios_server']],
             0,
             40
         )
-    ), "RowMenu_inputs" => $inputNumber, "RowMenu_outputs" => $outputNumber, "RowMenu_status" => $config["config_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $config["config_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    ), 'RowMenu_inputs' => $inputNumber, 'RowMenu_outputs' => $outputNumber, 'RowMenu_status' => $config['config_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $config['config_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "addWizard" => _('Add with wizard'), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'addWizard' => _('Add with wizard'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 ?>
 <script type="text/javascript">
@@ -190,48 +186,48 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    ""];
+$attrs = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs
 );
 $form->setDefaults(['o1' => null]);
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    ""];
+$attrs = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs
 );
 $form->setDefaults(['o2' => null]);
@@ -245,4 +241,4 @@ $tpl->assign('searchCB', $search);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listCentreonBroker.ihtml");
+$tpl->display('listCentreonBroker.ihtml');

@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,19 +44,16 @@ const MODIFY_COMPONENT_TEMPLATE = 'c';
 const DUPLICATE_COMPONENT_TEMPLATE = 'm';
 const DELETE_COMPONENT_TEMPLATE = 'd';
 
-
 $duplicationNumbers = [];
 $selectedCurveTemplates = [];
 
-/*
- * id of the curve template
- */
+// id of the curve template
 $compo_id = filter_var(
     $_GET['compo_id'] ?? $_POST['compo_id'] ?? false,
     FILTER_VALIDATE_INT
 );
 
-if (!empty($_POST['select'])) {
+if (! empty($_POST['select'])) {
     foreach ($_POST['select'] as $curveIdSelected => $dupFactor) {
         if (
             filter_var($dupFactor, FILTER_VALIDATE_INT) !== false
@@ -67,7 +64,7 @@ if (!empty($_POST['select'])) {
     }
 }
 
-if (!empty($_POST['dupNbr'])) {
+if (! empty($_POST['dupNbr'])) {
     foreach ($_POST['dupNbr'] as $curveId => $dupFactor) {
         if (
             filter_var($dupFactor, FILTER_VALIDATE_INT) !== false
@@ -78,14 +75,10 @@ if (!empty($_POST['dupNbr'])) {
     }
 }
 
-/*
- * Path to the configuration dir
- */
+// Path to the configuration dir
 $path = './include/views/componentTemplates/';
 
-/*
- * PHP functions
- */
+// PHP functions
 require_once $path . 'DB-Func.php';
 require_once './include/common/common-Func.php';
 

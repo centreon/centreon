@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,19 +34,17 @@
  *
  * SVN : $URL$
  * SVN : $Id$
- *
  */
-
 header('Content-Type: application/json');
 header('Cache-Control: no-cache');
 
-require_once __DIR__ . "/../../../../config/centreon.config.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonDowntime.class.php";
+require_once __DIR__ . '/../../../../config/centreon.config.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.class.php';
 
 $downtimeId = filter_input(INPUT_GET, 'dt_id', FILTER_VALIDATE_INT);
 
-if (!empty($downtimeId)) {
+if (! empty($downtimeId)) {
     $pearDB = new CentreonDB();
     $downtime = new CentreonDowntime($pearDB);
     $periods = $downtime->getPeriods($downtimeId);
@@ -53,4 +52,4 @@ if (!empty($downtimeId)) {
     $periods = [];
 }
 
-print json_encode($periods);
+echo json_encode($periods);

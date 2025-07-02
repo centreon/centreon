@@ -68,18 +68,18 @@ class ServicegroupMonitoring
                 AND h.enabled = 1
                 AND ssg.servicegroup_id = sg.servicegroup_id
                 AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+        if (! $admin) {
+            $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $this->dbb));
         }
-        $query .= " ORDER BY h.name ";
+        $query .= ' ORDER BY h.name ';
         $res = $this->dbb->query($query);
         $tab = [];
         $detailTab = [];
         while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
+            if (! isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
-            if (!isset($detailTab[$row['name']])) {
+            if (! isset($detailTab[$row['name']])) {
                 $detailTab[$row['name']] = [];
             }
             foreach ($row as $key => $val) {
@@ -90,6 +90,7 @@ class ServicegroupMonitoring
         if ($detailFlag == true) {
             return $detailTab;
         }
+
         return $tab;
     }
 
@@ -105,10 +106,10 @@ class ServicegroupMonitoring
      */
     public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false): array
     {
-        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
-            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
-        if (!$admin) {
-            $query .= ", centreon_acl acl ";
+        $query = 'SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
+            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ';
+        if (! $admin) {
+            $query .= ', centreon_acl acl ';
         }
         $query .= "WHERE h.host_id = s.host_id
                 AND h.name NOT LIKE '_Module_%'
@@ -117,23 +118,23 @@ class ServicegroupMonitoring
                 AND ssg.service_id = s.service_id
                 AND ssg.servicegroup_id = sg.servicegroup_id
                 AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= " AND h.host_id = acl.host_id
+        if (! $admin) {
+            $query .= ' AND h.host_id = acl.host_id
                 AND acl.service_id = s.service_id
-                AND acl.group_id IN (" . $aclObj->getAccessGroupsString() . ") ";
+                AND acl.group_id IN (' . $aclObj->getAccessGroupsString() . ') ';
         }
-        $query .= " ORDER BY h.name ";
+        $query .= ' ORDER BY h.name ';
         $res = $this->dbb->query($query);
         $tab = [];
         $detailTab = [];
         while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
+            if (! isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
-            if (!isset($detailTab[$row['host_id']])) {
+            if (! isset($detailTab[$row['host_id']])) {
                 $detailTab[$row['host_id']] = [];
             }
-            if (isset($detailTab[$row['name']]) && !isset($detailTab[$row['name']][$row['service_id']])) {
+            if (isset($detailTab[$row['name']]) && ! isset($detailTab[$row['name']][$row['service_id']])) {
                 $detailTab[$row['host_id']][$row['service_id']] = [];
             }
             foreach ($row as $key => $val) {
@@ -144,6 +145,7 @@ class ServicegroupMonitoring
         if ($detailFlag == true) {
             return $detailTab;
         }
+
         return $tab;
     }
 }

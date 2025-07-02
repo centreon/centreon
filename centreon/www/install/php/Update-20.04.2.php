@@ -30,9 +30,7 @@ $errorMessage = '';
  * Queries needing exception management BUT no rollback if failing
  */
 try {
-    /*
-     * Get timezones and add "Asia/Yangon" if doesn't exist
-     */
+    // Get timezones and add "Asia/Yangon" if doesn't exist
     $errorMessage = 'Cannot retrieve timezone list';
     $res = $pearDB->query(
         "SELECT timezone_name FROM timezone
@@ -46,13 +44,14 @@ try {
             VALUE ("Asia/Yangon", "+06:30", "+06:30", NULL)'
         );
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . $e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, $e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, $e->getCode(), $e);
 }

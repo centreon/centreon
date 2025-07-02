@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,7 +35,7 @@
  *
  */
 
-/* Update Wiki url  */
+// Update Wiki url
 if (isset($pearDB)) {
     $res = $pearDB->query('SELECT * FROM `options` WHERE `key` = "kb_wiki_url"');
     if ($res->rowCount() == 0) {

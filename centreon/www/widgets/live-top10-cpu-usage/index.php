@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -46,7 +46,7 @@ require_once $centreon_path . 'bootstrap.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -75,21 +75,22 @@ try {
         $autoRefresh = 30;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
-//configure smarty
+// configure smarty
 
 if ($centreon->user->admin == 0) {
     $access = new CentreonACL($centreon->user->get_id());
@@ -98,13 +99,13 @@ if ($centreon->user->admin == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
+$path = $centreon_path . 'www/widgets/live-top10-cpu-usage/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $data = [];
 
 try {
-    $query = "SELECT
+    $query = 'SELECT
             1 AS REALTIME,
             i.host_name,
             i.service_description,
@@ -114,24 +115,24 @@ try {
             s.state AS status
         FROM
             metrics m,
-            hosts h "
-        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-        . " , index_data i
+            hosts h '
+        . ($preferences['host_group'] ? ', hosts_hostgroups hg ' : '')
+        . ($centreon->user->admin == 0 ? ', centreon_acl acl ' : '')
+        . ' , index_data i
         LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
         WHERE i.service_description LIKE :service_description
         AND i.id = m.index_id
         AND m.metric_name LIKE :metric_name
         AND current_value <= 100
-        AND i.host_id = h.host_id "
+        AND i.host_id = h.host_id '
         . ($preferences['host_group']
-            ? "AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id " : "");
+            ? 'AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id ' : '');
     if ($centreon->user->admin == 0) {
-        $query .= "AND i.host_id = acl.host_id
+        $query .= 'AND i.host_id = acl.host_id
             AND i.service_id = acl.service_id
-            AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
+            AND acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')';
     }
-    $query .= "AND s.enabled = 1
+    $query .= 'AND s.enabled = 1
             AND h.enabled = 1
         GROUP BY i.host_id,
             i.service_id,
@@ -139,7 +140,7 @@ try {
             i.service_description,
             s.state
         ORDER BY current_value DESC
-        LIMIT :nb_lin;";
+        LIMIT :nb_lin;';
 
     $numLine = 1;
 
@@ -175,7 +176,7 @@ try {
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error fetching cpu usage data: " . $e->getMessage(),
+        message: 'Error fetching cpu usage data: ' . $e->getMessage(),
         exception: $e
     );
 

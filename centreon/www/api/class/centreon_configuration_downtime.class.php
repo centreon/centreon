@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,9 +34,9 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonDowntime.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -60,32 +61,33 @@ class CentreonConfigurationDowntime extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getList()
     {
         $queryValues = [];
         // Check for select2 'q' argument
-        $queryValues['dtName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
+        $queryValues['dtName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string) $this->arguments['q'] . '%';
 
-        $queryDowntime = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dt.dt_name, dt.dt_id ' .
-            'FROM downtime dt ' .
-            'WHERE dt.dt_name LIKE :dtName ' .
-            'ORDER BY dt.dt_name';
+        $queryDowntime = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dt.dt_name, dt.dt_id '
+            . 'FROM downtime dt '
+            . 'WHERE dt.dt_name LIKE :dtName '
+            . 'ORDER BY dt.dt_name';
 
         $stmt = $this->pearDB->prepare($queryDowntime);
-        $stmt->bindParam(':dtName', $queryValues["dtName"], PDO::PARAM_STR);
+        $stmt->bindParam(':dtName', $queryValues['dtName'], PDO::PARAM_STR);
         $dbResult = $stmt->execute();
 
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $downtimeList = [];
         while ($data = $stmt->fetch()) {
             $downtimeList[] = ['id' => htmlentities($data['dt_id']), 'text' => $data['dt_name']];
         }
+
         return ['items' => $downtimeList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

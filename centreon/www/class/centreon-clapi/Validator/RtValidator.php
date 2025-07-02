@@ -28,7 +28,6 @@ use CentreonClapi\CentreonService;
 use PDOException;
 
 /**
- *
  * Class
  *
  * @class RtValidator
@@ -65,8 +64,8 @@ class RtValidator
      * @param string $host
      * @param string $service
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function isServiceNameValid(string $host, string $service): bool
     {

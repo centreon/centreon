@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,19 +35,19 @@
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../config/centreon.config.php');
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(__DIR__ . "/centreonDB.class.php");
+require_once realpath(__DIR__ . '/centreonDB.class.php');
 
 /**
  * Class
  *
  * @class CentreonDBStatement
  */
-class CentreonDBStatement extends \PDOStatement
+class CentreonDBStatement extends PDOStatement
 {
     /**
      * When data is retrieved from `numRows()` method, it is stored in `allFetched`
@@ -64,7 +65,7 @@ class CentreonDBStatement extends \PDOStatement
      *
      * @param CentreonLog|null $log
      */
-    protected function __construct(CentreonLog $log = null)
+    protected function __construct(?CentreonLog $log = null)
     {
         $this->log = $log;
     }
@@ -80,17 +81,18 @@ class CentreonDBStatement extends \PDOStatement
      * @return mixed
      */
     public function fetch(
-        int $mode = \PDO::FETCH_DEFAULT,
-        int $cursorOrientation = \PDO::FETCH_ORI_NEXT,
+        int $mode = PDO::FETCH_DEFAULT,
+        int $cursorOrientation = PDO::FETCH_ORI_NEXT,
         int $cursorOffset = 0
     ): mixed {
         if (is_null($this->allFetched)) {
             return parent::fetch($mode, $cursorOrientation, $cursorOffset);
-        } elseif (count($this->allFetched) <= 0) {
-            return false;
-        } else {
-            return array_shift($this->allFetched);
         }
+        if (count($this->allFetched) <= 0) {
+            return false;
+        }
+
+        return array_shift($this->allFetched);
     }
 
     /**
@@ -124,6 +126,7 @@ class CentreonDBStatement extends \PDOStatement
         if (is_null($this->allFetched)) {
             $this->allFetched = $this->fetchAll();
         }
+
         return count($this->allFetched);
     }
 
@@ -132,8 +135,8 @@ class CentreonDBStatement extends \PDOStatement
      *
      * @param $parameters
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function execute($parameters = null): bool
     {
@@ -141,10 +144,10 @@ class CentreonDBStatement extends \PDOStatement
 
         try {
             $result = parent::execute($parameters);
-        } catch (\PDOException $e) {
-            $string = str_replace("`", "", $this->queryString);
+        } catch (PDOException $e) {
+            $string = str_replace('`', '', $this->queryString);
             $string = str_replace('*', "\*", $string);
-            $this->log->insertLog(2, $e->getMessage() . " QUERY : " . $string . ", " . json_encode($parameters));
+            $this->log->insertLog(2, $e->getMessage() . ' QUERY : ' . $string . ', ' . json_encode($parameters));
 
             throw $e;
         }

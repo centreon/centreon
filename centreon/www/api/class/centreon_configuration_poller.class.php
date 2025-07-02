@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -57,9 +57,9 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -69,27 +69,27 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
         $isAdmin = $centreon->user->admin;
         $queryValues = [];
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
         }
 
         // Check for select2 'q' argument
-        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
         $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ns.id, ns.name FROM nagios_server ns ';
 
         if (isset($this->arguments['t'])) {
             if ($this->arguments['t'] == 'remote') {
-                $queryPoller .= "JOIN remote_servers rs ON ns.id = rs.server_id ";
+                $queryPoller .= 'JOIN remote_servers rs ON ns.id = rs.server_id ';
                 // Exclude selected master Remote Server
                 if (isset($this->arguments['e'])) {
                     $queryPoller .= 'WHERE ns.id <> :masterId ';
-                    $queryValues['masterId'] = (int)$this->arguments['e'];
+                    $queryValues['masterId'] = (int) $this->arguments['e'];
                 }
             } elseif ($this->arguments['t'] == 'poller') {
-                $queryPoller .= "LEFT JOIN remote_servers rs ON  ns.id = rs.server_id "
-                    . "WHERE rs.ip IS NULL "
+                $queryPoller .= 'LEFT JOIN remote_servers rs ON  ns.id = rs.server_id '
+                    . 'WHERE rs.ip IS NULL '
                     . "AND ns.localhost = '0' ";
             } elseif ($this->arguments['t'] == 'central') {
                 $queryPoller .= "WHERE ns.localhost = '0' ";
@@ -105,42 +105,43 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
         }
         $queryPoller .= 'AND ns.ns_activate = "1" ';
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $queryPoller .= $acl->queryBuilder('AND', 'id', $acl->getPollerString('ID', $this->pearDB));
         }
         $queryPoller .= 'ORDER BY name ';
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $queryPoller .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDB->prepare($queryPoller);
         $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         // bind exluded master Remote Server
-        if (isset($this->arguments['t']) 
-            && $this->arguments['t'] == 'remote' 
+        if (isset($this->arguments['t'])
+            && $this->arguments['t'] == 'remote'
             && isset($this->arguments['e'])
         ) {
             $stmt->bindParam(':masterId', $queryValues['masterId'], PDO::PARAM_STR);
         }
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $stmt->execute();
         $pollerList = [];
         while ($data = $stmt->fetch()) {
             $pollerList[] = ['id' => $data['id'], 'text' => $data['name']];
         }
+
         return ['items' => $pollerList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

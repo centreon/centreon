@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.04.0-beta.2: ';
 $errorMessage = '';
 
@@ -34,16 +34,16 @@ try {
         && $pearDB->isColumnExist('cfg_nagios', 'log_rotation_method') === 1
         && $pearDB->isColumnExist('cfg_nagios', 'daemon_dumps_core') === 1
     ) {
-        $errorMessage = "Unable to remove log_archive_path,log_rotation_method,daemon_dumps_core from cfg_nagios table";
+        $errorMessage = 'Unable to remove log_archive_path,log_rotation_method,daemon_dumps_core from cfg_nagios table';
         $pearDB->query(
-            "ALTER TABLE `cfg_nagios`
+            'ALTER TABLE `cfg_nagios`
             DROP COLUMN `log_archive_path`,
             DROP COLUMN `log_rotation_method`,
-            DROP COLUMN `daemon_dumps_core`"
+            DROP COLUMN `daemon_dumps_core`'
         );
     }
     if ($pearDB->isColumnExist('cfg_nagios', 'logger_version') !== 1) {
-        $errorMessage = "Unable to add logger_version to cfg_nagios table";
+        $errorMessage = 'Unable to add logger_version to cfg_nagios table';
         $pearDB->query(
             "ALTER TABLE `cfg_nagios`
             ADD COLUMN `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled'"
@@ -54,7 +54,7 @@ try {
     if ($pearDB->isColumnExist('contact', 'contact_theme') !== 1) {
         $errorMessage = "Unable to add column 'contact_theme' to table 'contact'";
         $pearDB->query(
-            "ALTER TABLE `contact` ADD COLUMN "
+            'ALTER TABLE `contact` ADD COLUMN '
             . "`contact_theme` enum('light','dark') DEFAULT 'light' AFTER `contact_js_effects`"
         );
     }
@@ -64,18 +64,18 @@ try {
         $pearDB->query('ALTER TABLE `cfg_centreonbroker` ADD `bbdo_version` VARCHAR(50) DEFAULT "3.0.0"');
     }
 
-    $errorMessage = "Unable to update logger_version from cfg_nagios table";
+    $errorMessage = 'Unable to update logger_version from cfg_nagios table';
     $pearDB->query(
         "UPDATE `cfg_nagios` set logger_version = 'log_legacy_enabled'"
     );
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

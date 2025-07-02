@@ -37,7 +37,7 @@
 header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="hostgroups-monitoring.csv"');
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -49,7 +49,7 @@ require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $db = new CentreonDB();
@@ -58,7 +58,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/hostgroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -73,9 +73,9 @@ $sgMonObj = new HostgroupMonitoring($dbb);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
+$hostStateLabels = [0 => 'Up', 1 => 'Down', 2 => 'Unreachable', 4 => 'Pending'];
 
-$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+$serviceStateLabels = [0 => 'Ok', 1 => 'Warning', 2 => 'Critical', 3 => 'Unknown', 4 => 'Pending'];
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
@@ -86,7 +86,7 @@ try {
 
     $bindParams = [];
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
-        $tab = explode(" ", $preferences['hg_name_search']);
+        $tab = explode(' ', $preferences['hg_name_search']);
         $op = $tab[0];
         if (isset($tab[1])) {
             $search = $tab[1];
@@ -94,19 +94,18 @@ try {
         if ($op && isset($search) && trim($search) !== '') {
             $baseQuery = CentreonUtils::conditionBuilder(
                 $baseQuery,
-                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+                'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
             );
             $bindParams[':search'] = [$search, PDO::PARAM_STR];
         }
     }
 
-    if (!$centreon->user->admin) {
+    if (! $centreon->user->admin) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ({$bindQuery})");
         $bindParams = array_merge($bindParams, $bindValues);
     }
-    $orderby = "name " . ORDER_DIRECTION_ASC;
-
+    $orderby = 'name ' . ORDER_DIRECTION_ASC;
 
     $allowedOrderColumns = ['name'];
     $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
@@ -117,7 +116,7 @@ try {
         : null;
 
     if ($orderByToAnalyse !== null) {
-        $orderByToAnalyse .= " $defaultDirection";
+        $orderByToAnalyse .= " {$defaultDirection}";
         [$column, $direction] = explode(' ', $orderByToAnalyse);
 
         if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -126,18 +125,18 @@ try {
     }
 
     // Query to count total rows
-    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    $countQuery = 'SELECT COUNT(*) ' . $baseQuery;
 
     // Main SELECT query
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderby";
+    $query .= " ORDER BY {$orderby}";
 
     // Execute count query
     if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
     } else {
-        $countStatement= $dbb->executeQuery($countQuery);
+        $countStatement = $dbb->executeQuery($countQuery);
     }
 
     $nbRows = (int) $dbb->fetchColumn($countStatement);
@@ -162,11 +161,11 @@ try {
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error fetching hostgroup monitoring usage data for export: " . $e->getMessage(),
+        message: 'Error fetching hostgroup monitoring usage data for export: ' . $e->getMessage(),
         exception: $e
     );
 
-    throw new \Exception("Error fetching hostgroup monitoring usage data for export: " . $e->getMessage());
+    throw new Exception('Error fetching hostgroup monitoring usage data for export: ' . $e->getMessage());
 }
 
 $sgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);

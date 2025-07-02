@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 $stateType = 'service';
-require_once realpath(__DIR__ . "/initXmlFeed.php");
+require_once realpath(__DIR__ . '/initXmlFeed.php');
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
@@ -44,8 +45,8 @@ if (isset($_SESSION['centreon'])) {
 $color = array_filter($_GET['color'] ?? [], function ($oneColor) {
     return filter_var($oneColor, FILTER_VALIDATE_REGEXP, [
         'options' => [
-            'regexp' => "/^#[[:xdigit:]]{6}$/"
-        ]
+            'regexp' => '/^#[[:xdigit:]]{6}$/',
+        ],
     ]);
 });
 if (empty($color) || count($_GET['color']) !== count($color)) {
@@ -53,6 +54,7 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
     $buffer->endElement();
     header('Content-Type: text/xml');
     $buffer->output();
+
     exit;
 }
 
@@ -62,19 +64,19 @@ if (
     && ($startDate = filter_var($_GET['startDate'] ?? false, FILTER_VALIDATE_INT)) !== false
     && ($endDate = filter_var($_GET['endDate'] ?? false, FILTER_VALIDATE_INT)) !== false
 ) {
-    /* Get ACL if user is not admin */
+    // Get ACL if user is not admin
     $isAdmin = $centreon->user->admin;
     $accessService = true;
-    if (!$isAdmin) {
+    if (! $isAdmin) {
         $userId = $centreon->user->user_id;
         $acl = new CentreonACL($userId, $isAdmin);
-        if (!$acl->checkService($id)) {
+        if (! $acl->checkService($id)) {
             $accessService = false;
         }
     }
 
     if ($accessService) {
-        /* Use "like" instead of "=" to avoid mysql bug on partitioned tables */
+        // Use "like" instead of "=" to avoid mysql bug on partitioned tables
         $query = 'SELECT *
             FROM `log_archive_service`
             WHERE host_id LIKE :host_id
@@ -92,7 +94,7 @@ if (
             fillBuffer($statesTab, $row, $color);
         }
     } else {
-        $buffer->writeElement("error", "Cannot access to host information");
+        $buffer->writeElement('error', 'Cannot access to host information');
     }
 } else {
     $buffer->writeElement('error', 'Bad id format');

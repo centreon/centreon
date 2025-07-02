@@ -34,13 +34,13 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 require_once _CENTREON_PATH_ . 'www/class/centreonConnector.class.php';
 $path = _CENTREON_PATH_ . 'www/include/configuration/configObject/connector/';
-require_once $path . "DB-Func.php";
+require_once $path . 'DB-Func.php';
 
 $connectorObj = new CentreonConnector($pearDB);
 
@@ -56,27 +56,24 @@ if (isset($_REQUEST['options'])) {
     $options = $_REQUEST['options'];
 }
 
-/* Access level */
+// Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 
 switch ($o) {
-    case "a":
-        require_once($path . 'formConnector.php');
+    case 'a':
+        require_once $path . 'formConnector.php';
         break;
-
-    case "w":
-        require_once($path . 'formConnector.php');
+    case 'w':
+        require_once $path . 'formConnector.php';
         break;
-
-    case "c":
-        require_once($path . 'formConnector.php');
+    case 'c':
+        require_once $path . 'formConnector.php';
         break;
-
-    case "s":
+    case 's':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if ($lvl_access == "w") {
+            if ($lvl_access == 'w') {
                 $myConnector = $connectorObj->read($connector_id);
                 $myConnector['enabled'] = '1';
                 $connectorObj->update((int) $connector_id, $myConnector);
@@ -84,14 +81,13 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . 'listConnector.php');
+        require_once $path . 'listConnector.php';
         break;
-
-    case "u":
+    case 'u':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if ($lvl_access == "w") {
+            if ($lvl_access == 'w') {
                 $myConnector = $connectorObj->read($connector_id);
                 $myConnector['enabled'] = '0';
                 $connectorObj->update((int) $connector_id, $myConnector);
@@ -99,30 +95,28 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . 'listConnector.php');
+        require_once $path . 'listConnector.php';
         break;
-
-    case "m":
+    case 'm':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if ($lvl_access == "w") {
+            if ($lvl_access == 'w') {
                 $selectedConnectors = array_keys($select);
                 foreach ($selectedConnectors as $connectorId) {
-                    $connectorObj->copy($connectorId, (int)$options[$connectorId]);
+                    $connectorObj->copy($connectorId, (int) $options[$connectorId]);
                 }
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . 'listConnector.php');
+        require_once $path . 'listConnector.php';
         break;
-
-    case "d":
+    case 'd':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if ($lvl_access == "w") {
+            if ($lvl_access == 'w') {
                 $selectedConnectors = array_keys($select);
                 foreach ($selectedConnectors as $connectorId) {
                     $connectorObj->delete($connectorId);
@@ -131,10 +125,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . 'listConnector.php');
+        require_once $path . 'listConnector.php';
         break;
-
     default:
-        require_once($path . 'listConnector.php');
+        require_once $path . 'listConnector.php';
         break;
 }

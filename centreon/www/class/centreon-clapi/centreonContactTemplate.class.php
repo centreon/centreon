@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -38,7 +39,7 @@ namespace CentreonClapi;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonContact.class.php";
+require_once 'centreonContact.class.php';
 
 /**
  * Class
@@ -72,7 +73,7 @@ class CentreonContactTemplate extends CentreonContact
         parent::__construct($dependencyInjector);
         $this->params['contact_register'] = 0;
         $this->register = 0;
-        $this->action = "CONTACTTPL";
+        $this->action = 'CONTACTTPL';
         $this->insertParams = [
             'contact_name',
             'contact_alias',
@@ -80,7 +81,7 @@ class CentreonContactTemplate extends CentreonContact
             'contact_admin',
             'contact_oreon',
             'contact_lang',
-            'contact_auth_type'
+            'contact_auth_type',
         ];
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }

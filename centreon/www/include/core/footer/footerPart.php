@@ -33,13 +33,13 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit;
 }
 
-require_once("./class/centreonData.class.php");
+require_once './class/centreonData.class.php';
 
-if (!$min) {
+if (! $min) {
     ?>
     <!-- Footer -->
     <?php
@@ -49,8 +49,8 @@ if (!$min) {
 <script type="text/javascript">
     // Centreon ToolTips
     var centreonTooltip = new CentreonToolTip();
-    centreonTooltip.setTitle('<?php echo _("Help"); ?>');
-    var svg = "<?php displaySvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18); ?>"
+    centreonTooltip.setTitle('<?php echo _('Help'); ?>');
+    var svg = "<?php displaySvg('www/img/icons/question.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18); ?>"
     centreonTooltip.setSource(svg);
     centreonTooltip.render();
 
@@ -132,30 +132,28 @@ if (!$min) {
 </script>
 <?php
 
-if ((isset($_GET["mini"]) && $_GET["mini"] == 1)
-|| (isset($_SESSION['fullScreen']) && isset($_SESSION['fullScreen']['value']) && $_SESSION['fullScreen']['value'])) {
+if ((isset($_GET['mini']) && $_GET['mini'] == 1)
+|| (isset($_SESSION['fullScreen'], $_SESSION['fullScreen']['value'])   && $_SESSION['fullScreen']['value'])) {
     ?>
     <script type="text/javascript">
         myToggleAll(0, false);
     </script>
-    <?php 
-} elseif (!$centreon->user->showDiv("footer")) {
+    <?php
+} elseif (! $centreon->user->showDiv('footer')) {
     ?>
         <script type="text/javascript">
             new Effect.toggle('footer', 'blind', {
                 duration: 0
             });
         </script>
-        <?php 
+        <?php
 }
 
-/*
- * Create Data Flow
- */
+// Create Data Flow
 $cdata = CentreonData::getInstance();
 $jsdata = $cdata->getJsData();
 foreach ($jsdata as $k => $val) {
-    echo "<span class=\"data hide\" id=\"" . $k . "\" data-" . $k . "=\"" . $val . "\"></span>";
+    echo '<span class="data hide" id="' . $k . '" data-' . $k . '="' . $val . '"></span>';
 }
 
 ?>
@@ -177,7 +175,7 @@ foreach ($jsdata as $k => $val) {
     function initWholePage() {
         setQuickSearchPosition();
         jQuery().centreon_notify({
-            refresh_rate: <?php echo ($centreon->optGen['AjaxTimeReloadMonitoring'] * 1000); ?>
+            refresh_rate: <?php echo $centreon->optGen['AjaxTimeReloadMonitoring'] * 1000; ?>
         });
     }
 
@@ -202,8 +200,8 @@ foreach ($jsdata as $k => $val) {
 
     <?php
     $featureToAsk = $centreonFeature->toAsk($centreon->user->get_id());
-    if (count($featureToAsk) === 1) {
-        ?>
+if (count($featureToAsk) === 1) {
+    ?>
         var testingFeature = jQuery('<div/>')
             .html(
                 '<h3>Feature testing</h3>' +
@@ -262,8 +260,8 @@ foreach ($jsdata as $k => $val) {
             open: true
         })
         <?php
-    }
-    ?>
+}
+?>
 
     // send an event to parent for change in iframe URL
     function parentHrefUpdate(href) {
@@ -348,9 +346,7 @@ foreach ($jsdata as $k => $val) {
 </html>
 <?php
 
-/*
- * Close all DB handler
- */
+// Close all DB handler
 if (isset($pearDB) && is_object($pearDB)) {
     $pearDB = null;
 }

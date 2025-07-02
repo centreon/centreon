@@ -33,18 +33,18 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$tS = $centreon->optGen["AjaxTimeReloadStatistic"] * 1000;
-$tM = $centreon->optGen["AjaxTimeReloadMonitoring"] * 1000;
-if (!isset($centreon->optGen["AjaxFirstTimeReloadMonitoring"]) ||
-    $centreon->optGen["AjaxFirstTimeReloadMonitoring"] == 0
+$tS = $centreon->optGen['AjaxTimeReloadStatistic'] * 1000;
+$tM = $centreon->optGen['AjaxTimeReloadMonitoring'] * 1000;
+if (! isset($centreon->optGen['AjaxFirstTimeReloadMonitoring'])
+    || $centreon->optGen['AjaxFirstTimeReloadMonitoring'] == 0
 ) {
     $tFM = 10;
 } else {
-    $tFM = $centreon->optGen["AjaxFirstTimeReloadMonitoring"] * 1000;
+    $tFM = $centreon->optGen['AjaxFirstTimeReloadMonitoring'] * 1000;
 }
 
 $sid = session_id();
@@ -57,7 +57,7 @@ $time = time();
     var _addrXML = "./include/monitoring/status/HostGroups/xml/hostGroupXML.php?";
     var _addrXSL = "./include/monitoring/status/HostGroups/xsl/hostGroup.xsl";
 
-    <?php include_once "./include/monitoring/status/Common/commonJS.php"; ?>
+    <?php include_once './include/monitoring/status/Common/commonJS.php'; ?>
 
     function set_header_title() {
         var _img_asc = mk_imgOrder('./img/icones/7x7/sort_asc.gif', "asc");
@@ -65,7 +65,7 @@ $time = time();
 
         if (document.getElementById('hostGroup_name')) {
             var h = document.getElementById('hostGroup_name');
-            h.innerHTML = "<?php echo _("Host Group")?>";
+            h.innerHTML = "<?php echo _('Host Group'); ?>";
             h.indice = 'hostGroup_name';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -73,11 +73,11 @@ $time = time();
             h.style.cursor = "pointer";
 
             var h = document.getElementById('host_status');
-            h.innerHTML = '<?php echo addslashes(_("Hosts Status"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Hosts Status')); ?>';
             h.indice = 'host_status';
 
             var h = document.getElementById('service_status');
-            h.innerHTML = '<?php echo addslashes(_("Services Status"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Services Status')); ?>';
             h.indice = 'service_status';
 
             var h = document.getElementById(_sort_type);
@@ -101,7 +101,7 @@ $time = time();
         var _search = jQuery('input[name="searchHG"]').val();
         proc.setXml(_addrXML + 'search=' + _search + '&num=' + _num + '&limit=' + _limit + '&sort_type=' +
             _sort_type + '&order=' + _order + '&date_time_format_status=' + _date_time_format_status +
-            '&o=' + _o + '&p=' + _p + '&instance=' + _instance + '&time=<?php print time(); ?>')
+            '&o=' + _o + '&p=' + _p + '&instance=' + _instance + '&time=<?php echo time(); ?>')
         proc.setXslt(_addrXSL);
         proc.setCallback(function(t){monitoringCallBack(t); proc = null;});
         if (handleVisibilityChange()) {

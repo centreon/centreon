@@ -25,7 +25,6 @@ require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 require_once __DIR__ . '/centreon_realtime_base.class.php';
 
-
 /**
  * Class
  *
@@ -52,28 +51,28 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     /** @var array|null */
     protected $hostgroup;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $search;
 
     /** @var */
     protected $searchHost;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $viewType;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $sortType;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $order;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $instance;
 
-    /** @var string|null*/
+    /** @var string|null */
     protected $criticality;
 
-    /** @var string*/
+    /** @var string */
     protected $fieldList;
 
     /**
@@ -95,9 +94,9 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -108,9 +107,9 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getHostState()
     {
@@ -172,7 +171,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
             $explodedValues = '';
             foreach (explode(',', $this->hostgroup) as $hgId => $hgValue) {
                 if (! is_numeric($hgValue)) {
-                    throw new \RestBadRequestException('Error, host group id must be numerical');
+                    throw new RestBadRequestException('Error, host group id must be numerical');
                 }
                 $explodedValues .= ':hostgroup' . $hgId . ',';
                 $queryValues['hostgroup'][$hgId] = (int) $hgValue;
@@ -189,7 +188,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         $instanceConditions = '';
         if ($this->instance !== -1 && ! empty($this->instance)) {
             if (! is_numeric($this->instance)) {
-                throw new \RestBadRequestException('Error, instance id must be numerical');
+                throw new RestBadRequestException('Error, instance id must be numerical');
             }
             $instanceConditions = ' AND h.instance_id = :instanceId ';
             $queryValues['instanceId'] = (int) $this->instance;
@@ -323,7 +322,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         $this->limit = $this->arguments['limit'] ?? 30;
         $this->number = $this->arguments['number'] ?? 0;
         if (! is_numeric($this->number) || ! is_numeric($this->limit)) {
-            throw new \RestBadRequestException('Error, limit must be numerical');
+            throw new RestBadRequestException('Error, limit must be numerical');
         }
 
         // Filters
@@ -332,7 +331,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
             if (in_array(mb_strtolower($this->arguments['status']), $statusList, true)) {
                 $this->status = $this->arguments['status'];
             } else {
-                throw new \RestBadRequestException('Bad status parameter');
+                throw new RestBadRequestException('Bad status parameter');
             }
         } else {
             $this->status = null;
@@ -351,7 +350,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
             ) {
                 $this->order = $this->arguments['order'];
             } else {
-                throw new \RestBadRequestException('Bad order parameter');
+                throw new RestBadRequestException('Bad order parameter');
             }
         } else {
             $this->order = null;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,6 @@
  *
  */
 
-
 /**
  * Class
  *
@@ -45,33 +45,37 @@ class CentreonBase
     /** @var string */
     public $index;
 
-    /*
-	 * Objects
-	 */
+    // Objects
 
     /** @var CentreonDB */
     protected $DB;
+
     /** @var CentreonDB */
     protected $DBC;
+
     /** @var CentreonGMT */
     protected $GMT;
+
     /** @var CentreonHost */
     protected $hostObj;
+
     /** @var CentreonService */
     protected $serviceObj;
+
     /** @var string */
     protected $sessionId;
 
-    /*
-	 * Variables
-	 */
+    // Variables
 
     /** @var int */
     protected $debug;
+
     /** @var int|mixed */
     protected $compress;
+
     /** @var */
     protected $userId;
+
     /** @var */
     protected $general_opt;
 
@@ -91,36 +95,30 @@ class CentreonBase
      */
     public function __construct($sessionId, $index, $debug, $compress = null)
     {
-        if (!isset($debug)) {
+        if (! isset($debug)) {
             $this->debug = 0;
         }
 
-        (!isset($compress)) ? $this->compress = 1 : $this->compress = $compress;
+        (! isset($compress)) ? $this->compress = 1 : $this->compress = $compress;
 
-        if (!isset($sessionId)) {
-            print "Your must check your session id";
+        if (! isset($sessionId)) {
+            echo 'Your must check your session id';
+
             exit(1);
-        } else {
-            $this->sessionId = htmlentities($sessionId, ENT_QUOTES, "UTF-8");
         }
+        $this->sessionId = htmlentities($sessionId, ENT_QUOTES, 'UTF-8');
 
-        $this->index = htmlentities($index, ENT_QUOTES, "UTF-8");
+        $this->index = htmlentities($index, ENT_QUOTES, 'UTF-8');
 
-        /*
-		 * Enable Database Connexions
-		 */
+        // Enable Database Connexions
         $this->DB = new CentreonDB();
-        $this->DBC = new CentreonDB("centstorage");
+        $this->DBC = new CentreonDB('centstorage');
 
-        /*
-		 * Init Objects
-		 */
+        // Init Objects
         $this->hostObj = new CentreonHost($this->DB);
         $this->serviceObj = new CentreonService($this->DB);
 
-        /*
-		 * Timezone management
-		 */
+        // Timezone management
         $this->GMT = new CentreonGMT($this->DB);
         $this->GMT->getMyGMTFromSession($this->sessionId);
     }

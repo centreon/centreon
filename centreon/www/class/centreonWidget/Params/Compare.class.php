@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -42,7 +43,6 @@ require_once __DIR__ . "/../Params.class.php";
  */
 class CentreonWidgetParamsCompare extends CentreonWidgetParams
 {
-
     /** @var HTML_QuickForm_element */
     public $element;
 
@@ -63,21 +63,21 @@ class CentreonWidgetParamsCompare extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
+     * @return void
      */
     public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
             $elems = [];
-            $operands = [null => null, "gt" => ">", "lt" => "<", "gte" => ">=", "lte" => "<=", "eq" => "=", "ne" => "!=", "like" => "LIKE", "notlike" => "NOT LIKE", "regex" => "REGEXP", "notregex" => "NOT REGEXP"];
+            $operands = [null => null, 'gt' => '>', 'lt' => '<', 'gte' => '>=', 'lte' => '<=', 'eq' => '=', 'ne' => '!=', 'like' => 'LIKE', 'notlike' => 'NOT LIKE', 'regex' => 'REGEXP', 'notregex' => 'NOT REGEXP'];
             $elems[] = $this->quickform->addElement('select', 'op_' . $params['parameter_id'], '', $operands);
             $elems[] = $this->quickform->addElement(
                 'text',
                 'cmp_' . $params['parameter_id'],
                 $params['parameter_name'],
-                ["size" => 30]
+                ['size' => 30]
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -91,24 +91,24 @@ class CentreonWidgetParamsCompare extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
             $target = $userPref;
-        } elseif (isset($params['default_value']) && $params['default_value'] != "") {
+        } elseif (isset($params['default_value']) && $params['default_value'] != '') {
             $target = $params['default_value'];
         }
         if (isset($target)) {
-            if (preg_match("/(gt |lt |gte |lte |eq |ne |like |notlike |regex |notregex )(.+)/", $target, $matches)) {
+            if (preg_match('/(gt |lt |gte |lte |eq |ne |like |notlike |regex |notregex )(.+)/', $target, $matches)) {
                 $op = trim($matches[1]);
                 $val = trim($matches[2]);
             }
-            if (isset($op) && isset($val)) {
+            if (isset($op, $val)) {
                 $this->quickform->setDefaults(['op_' . $params['parameter_id'] => $op, 'cmp_' . $params['parameter_id'] => $val]);
             }
         }

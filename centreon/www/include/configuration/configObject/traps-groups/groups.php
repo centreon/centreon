@@ -34,45 +34,45 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$trapGroupG = $_GET["id"] ?? null;
-$trapGroupP = $_POST["id"] ?? null;
+$trapGroupG = $_GET['id'] ?? null;
+$trapGroupP = $_POST['id'] ?? null;
 $id = $trapGroupG ?: $trapGroupP;
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = $_GET['select'] ?? null;
+$cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = $_GET['dupNbr'] ?? null;
+$cP = $_POST['dupNbr'] ?? null;
 $dupNbr = $cG ?: $cP;
 
-#Path to the configuration dir
-$path = "./include/configuration/configObject/traps-groups/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/traps-groups/';
 
-#PHP functions
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 switch ($o) {
-    case "a":
-        require_once($path . "formGroups.php");
-        break; #Add a Trap
-    case "w":
-        require_once($path . "formGroups.php");
-        break; #Watch a Trap
-    case "c":
-        require_once($path . "formGroups.php");
-        break; #Modify a Trap
-    case "m":
+    case 'a':
+        require_once $path . 'formGroups.php';
+        break; // Add a Trap
+    case 'w':
+        require_once $path . 'formGroups.php';
+        break; // Watch a Trap
+    case 'c':
+        require_once $path . 'formGroups.php';
+        break; // Modify a Trap
+    case 'm':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -80,9 +80,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listGroups.php");
-        break; #Duplicate n Traps
-    case "d":
+        require_once $path . 'listGroups.php';
+        break; // Duplicate n Traps
+    case 'd':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -90,9 +90,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listGroups.php");
-        break; #Delete n Traps
+        require_once $path . 'listGroups.php';
+        break; // Delete n Traps
     default:
-        require_once($path . "listGroups.php");
+        require_once $path . 'listGroups.php';
         break;
 }

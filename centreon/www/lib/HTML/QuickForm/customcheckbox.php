@@ -1,5 +1,6 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+// vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 
 /**
  * HTML class for a checkbox type field
@@ -20,7 +21,7 @@
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
  * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
+ * @see        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -36,9 +37,7 @@
  */
 class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
 {
-
     public $checkboxTemplate;
-
 
     /**
      * @return string
@@ -48,6 +47,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
         $oldHtml = parent::toHtml();
         $matches = ['{element}', '{id}'];
         $replacements = [$oldHtml, $this->getAttribute('id')];
+
         return str_replace($matches, $replacements, $this->checkboxTemplate);
     }
 
@@ -58,7 +58,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
 }
 
 if (class_exists('HTML_QuickForm')) {
-    (new HTML_QuickForm)->registerElementType(
+    (new HTML_QuickForm())->registerElementType(
         'customcheckbox',
         'HTML/QuickForm/customcheckbox.php',
         'HTML_QuickForm_customcheckbox'

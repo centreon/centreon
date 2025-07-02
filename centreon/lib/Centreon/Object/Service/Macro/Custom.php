@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -32,8 +33,8 @@
  * For more information : contact@centreon.com
  *
  */
- 
-require_once "Centreon/Object/Object.php";
+
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with service custom macros
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Service_Macro_Custom extends Centreon_Object
 {
-    protected $table = "on_demand_macro_service";
-    protected $primaryKey = "svc_macro_id";
-    protected $uniqueLabelField = "svc_macro_name";
+    protected $table = 'on_demand_macro_service';
+
+    protected $primaryKey = 'svc_macro_id';
+
+    protected $uniqueLabelField = 'svc_macro_name';
 }

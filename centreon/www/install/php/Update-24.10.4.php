@@ -78,16 +78,16 @@ $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): vo
     $errorMessage = 'Unable to add table user_profile';
     $pearDB->exec(
         <<<'SQL'
-        CREATE TABLE IF NOT EXISTS `user_profile` (
-          `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-          `contact_id` INT(11) NOT NULL,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
-          CONSTRAINT `fk_user_profile_contact_id`
-            FOREIGN KEY (`contact_id`)
-            REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        SQL
+            CREATE TABLE IF NOT EXISTS `user_profile` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `contact_id` INT(11) NOT NULL,
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+              CONSTRAINT `fk_user_profile_contact_id`
+                FOREIGN KEY (`contact_id`)
+                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SQL
     );
 };
 
@@ -101,17 +101,17 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
     $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
     $pearDB->exec(
         <<<'SQL'
-        CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
-          `profile_id` INT UNSIGNED NOT NULL,
-          `dashboard_id` INT UNSIGNED NOT NULL,
-          CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
-            FOREIGN KEY (`profile_id`)
-            REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
-          CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
-            FOREIGN KEY (`dashboard_id`)
-            REFERENCES `dashboard` (`id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        SQL
+            CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+              `profile_id` INT UNSIGNED NOT NULL,
+              `dashboard_id` INT UNSIGNED NOT NULL,
+              CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+                FOREIGN KEY (`profile_id`)
+                REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+              CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+                FOREIGN KEY (`dashboard_id`)
+                REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SQL
     );
 };
 
@@ -128,9 +128,9 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     if (! $pearDBO->isColumnExist('resources', 'flapping')) {
         $pearDBO->exec(
             <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
-            SQL
+                    ALTER TABLE `resources`
+                    ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+                SQL
         );
     }
 
@@ -138,9 +138,9 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
         $pearDBO->exec(
             <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
-            SQL
+                    ALTER TABLE `resources`
+                    ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+                SQL
         );
     }
 };
@@ -163,7 +163,7 @@ try {
     $fixNamingOfAccTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();

@@ -40,8 +40,8 @@ require_once __DIR__ . '/../../../class/centreonAuth.class.php';
 
 $err = ['required' => [], 'email' => true, 'password' => true, 'password_security_policy' => true];
 
-$emailRegexp = "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?" .
-    "(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
+$emailRegexp = "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+    . "(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
 
 $parameters = filter_input_array(INPUT_POST);
 foreach ($parameters as $name => $value) {
@@ -50,20 +50,20 @@ foreach ($parameters as $name => $value) {
     }
 }
 
-if (!in_array('email', $err['required']) && !preg_match($emailRegexp, $parameters['email'])) {
+if (! in_array('email', $err['required']) && ! preg_match($emailRegexp, $parameters['email'])) {
     $err['email'] = false;
 }
 
 if (
-    !in_array('admin_password', $err['required'])
-    && !in_array('confirm_password', $err['required'])
+    ! in_array('admin_password', $err['required'])
+    && ! in_array('confirm_password', $err['required'])
     && $parameters['admin_password'] !== $parameters['confirm_password']
 ) {
     $err['password'] = false;
 }
 
 if (
-    !preg_match(
+    ! preg_match(
         '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/',
         $parameters['admin_password']
     )
@@ -72,12 +72,12 @@ if (
 } else {
     $parameters['admin_password'] = password_hash(
         $parameters['admin_password'],
-        \CentreonAuth::PASSWORD_HASH_ALGORITHM
+        CentreonAuth::PASSWORD_HASH_ALGORITHM
     );
 }
 
 if ($err['required'] === [] && $err['password'] && $err['email'] && $err['password_security_policy']) {
-    $step = new \CentreonLegacy\Core\Install\Step\Step5($dependencyInjector);
+    $step = new CentreonLegacy\Core\Install\Step\Step5($dependencyInjector);
     $step->setAdminConfiguration($parameters);
 }
 

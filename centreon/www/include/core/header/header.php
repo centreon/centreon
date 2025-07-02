@@ -34,17 +34,16 @@
  *
  */
 
-if (!defined('SMARTY_DIR')) {
+if (! defined('SMARTY_DIR')) {
     define('SMARTY_DIR', realpath('../vendor/smarty/smarty/libs/') . '/');
 }
 
-/*
- * Bench
- */
+// Bench
 function microtime_float(): bool
 {
-    [$usec, $sec] = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
+    [$usec, $sec] = explode(' ', microtime());
+
+    return (float) $usec + (float) $sec;
 }
 
 set_time_limit(60);
@@ -52,16 +51,14 @@ $time_start = microtime_float();
 
 $advanced_search = 0;
 
-/*
- * Include
- */
-include_once(realpath(__DIR__ . "/../../../../bootstrap.php"));
+// Include
+include_once realpath(__DIR__ . '/../../../../bootstrap.php');
 
-require_once "$classdir/centreonDB.class.php";
-require_once "$classdir/centreonLang.class.php";
-require_once "$classdir/centreonSession.class.php";
-require_once "$classdir/centreon.class.php";
-require_once "$classdir/centreonFeature.class.php";
+require_once "{$classdir}/centreonDB.class.php";
+require_once "{$classdir}/centreonLang.class.php";
+require_once "{$classdir}/centreonSession.class.php";
+require_once "{$classdir}/centreon.class.php";
+require_once "{$classdir}/centreonFeature.class.php";
 
 /*
  * Create DB Connection
@@ -69,58 +66,54 @@ require_once "$classdir/centreonFeature.class.php";
  *  - centstorage
  */
 $pearDB = new CentreonDB();
-$pearDBO = new CentreonDB("centstorage");
+$pearDBO = new CentreonDB('centstorage');
 
 $centreonSession = new CentreonSession();
 
 CentreonSession::start();
 
 // Check session and drop all expired sessions
-if (!$centreonSession->updateSession($pearDB)) {
+if (! $centreonSession->updateSession($pearDB)) {
     CentreonSession::stop();
 }
 
-$args = "&redirect=" . urlencode(http_build_query($_GET));
+$args = '&redirect=' . urlencode(http_build_query($_GET));
 
 // check centreon session
 // if session is not valid and autologin token is not given, then redirect to login page
-if (!isset($_SESSION["centreon"])) {
-    if (!isset($_GET['autologin'])) {
+if (! isset($_SESSION['centreon'])) {
+    if (! isset($_GET['autologin'])) {
         include __DIR__ . '/../../../index.html';
     } else {
         $args = null;
         foreach ($_GET as $key => $value) {
-            $args ? $args .= "&" . $key . "=" . $value : $args = $key . "=" . $value;
+            $args ? $args .= '&' . $key . '=' . $value : $args = $key . '=' . $value;
         }
-        header("Location: index.php?" . $args . "");
+        header('Location: index.php?' . $args . '');
     }
 }
 
-/*
- * Define Oreon var alias
- */
-if (isset($_SESSION["centreon"])) {
-    $oreon = $_SESSION["centreon"];
-    $centreon = $_SESSION["centreon"];
+// Define Oreon var alias
+if (isset($_SESSION['centreon'])) {
+    $oreon = $_SESSION['centreon'];
+    $centreon = $_SESSION['centreon'];
 }
-if (!isset($centreon) || !is_object($centreon)) {
+if (! isset($centreon) || ! is_object($centreon)) {
     exit();
 }
 
-/*
- * Init different elements we need in a lot of pages
- */
+// Init different elements we need in a lot of pages
 unset($centreon->optGen);
 $centreon->initOptGen($pearDB);
 
-if (!$p) {
+if (! $p) {
     $rootMenu = getFirstAllowedMenu($centreon->user->access->topologyStr, $centreon->user->default_page);
 
     if ($rootMenu && $rootMenu['topology_url'] && $rootMenu['is_react']) {
         header("Location: .{$rootMenu['topology_url']}");
     } elseif ($rootMenu) {
-        $p = $rootMenu["topology_page"];
-        $tab = preg_split("/\=/", $rootMenu["topology_url_opt"]);
+        $p = $rootMenu['topology_page'];
+        $tab = preg_split("/\=/", $rootMenu['topology_url_opt']);
 
         if (isset($tab[1])) {
             $o = $tab[1];
@@ -128,9 +121,7 @@ if (!$p) {
     }
 }
 
-/*
- * Cut Page ID
- */
+// Cut Page ID
 $level1 = null;
 $level2 = null;
 $level3 = null;
@@ -165,21 +156,21 @@ switch (strlen($p)) {
         break;
 }
 
-//Update Session Table For last_reload and current_page row
+// Update Session Table For last_reload and current_page row
 $page = '' . $level1 . $level2 . $level3 . $level4;
 if (empty($page)) {
     $page = null;
 }
 $sessionStatement = $pearDB->prepare(
-    "UPDATE `session`
+    'UPDATE `session`
     SET `current_page` = :currentPage
-    WHERE `session_id` = :sessionId"
+    WHERE `session_id` = :sessionId'
 );
-$sessionStatement->bindValue(':currentPage', $page, \PDO::PARAM_INT);
-$sessionStatement->bindValue(':sessionId', session_id(), \PDO::PARAM_STR);
+$sessionStatement->bindValue(':currentPage', $page, PDO::PARAM_INT);
+$sessionStatement->bindValue(':sessionId', session_id(), PDO::PARAM_STR);
 $sessionStatement->execute();
 
-//Init Language
+// Init Language
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $centreon);
 $centreonLang->bindLang();
 $centreonLang->bindLang('help');

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../../Relation.php";
+require_once __DIR__ . '/../../Relation.php';
 
 /**
  * Class
@@ -42,24 +43,27 @@ require_once __DIR__ . "/../../Relation.php";
  */
 class Centreon_Object_Relation_Contact_Group_Contact extends Centreon_Object_Relation
 {
-
     /** @var Centreon_Object_Contact_Group */
     public $firstObject;
+
     /** @var Centreon_Object_Contact */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "contactgroup_contact_relation";
+    protected $relationTable = 'contactgroup_contact_relation';
+
     /** @var string */
-    protected $firstKey = "contactgroup_cg_id";
+    protected $firstKey = 'contactgroup_cg_id';
+
     /** @var string */
-    protected $secondKey = "contact_contact_id";
+    protected $secondKey = 'contact_contact_id';
 
     /**
      * Centreon_Object_Relation_Contact_Group_Contact constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Contact_Group($dependencyInjector);

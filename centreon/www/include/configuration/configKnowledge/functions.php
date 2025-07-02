@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CENTREON
  *
@@ -8,7 +9,6 @@
  * are not allowed.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -16,8 +16,7 @@
  */
 function getLineTemplate(string $evenCssClass, string $oddCssClass): object
 {
-    return new class($evenCssClass, $oddCssClass)
-    {
+    return new class ($evenCssClass, $oddCssClass) {
         private int $counter = 0;
 
         public function __construct(private string $evenCssClass, private string $oddCssClass)
@@ -32,6 +31,7 @@ function getLineTemplate(string $evenCssClass, string $oddCssClass): object
         public function reset(): string
         {
             $this->counter = 0;
+
             return '';
         }
     };
@@ -40,13 +40,13 @@ function getLineTemplate(string $evenCssClass, string $oddCssClass): object
 function versionCentreon($pearDB)
 {
     if (is_null($pearDB)) {
-        throw new \Exception('No Database connect available');
+        throw new Exception('No Database connect available');
     }
 
     $query = 'SELECT `value` FROM `informations` WHERE `key` = "version"';
     $dbResult = $pearDB->query($query);
-    if (!$dbResult) {
-        throw new \Exception("An error occured");
+    if (! $dbResult) {
+        throw new Exception('An error occured');
     }
     $row = $dbResult->fetch();
 
@@ -55,42 +55,40 @@ function versionCentreon($pearDB)
 
 function getWikiConfig($pearDB)
 {
-    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the ' .
-        '<a href="https://documentation.centreon.com/docs/centreon/en/latest/administration_guide/knowledge_base/index.html" target="_blank" >' .
-        'documentation.</a>';
+    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the '
+        . '<a href="https://documentation.centreon.com/docs/centreon/en/latest/administration_guide/knowledge_base/index.html" target="_blank" >'
+        . 'documentation.</a>';
 
     if (is_null($pearDB)) {
-        throw new \Exception($errorMsg);
+        throw new Exception($errorMsg);
     }
 
     $res = $pearDB->query("SELECT * FROM `options` WHERE options.key LIKE 'kb_wiki_url'");
 
     if ($res->rowCount() == 0) {
-        throw new \Exception($errorMsg);
+        throw new Exception($errorMsg);
     }
 
     $gopt = [];
     $opt = $res->fetchRow();
 
-
-    if (empty($opt["value"])) {
-        throw new \Exception($errorMsg);
-    } else {
-        $gopt[$opt["key"]] = html_entity_decode($opt["value"], ENT_QUOTES, "UTF-8");
+    if (empty($opt['value'])) {
+        throw new Exception($errorMsg);
     }
+    $gopt[$opt['key']] = html_entity_decode($opt['value'], ENT_QUOTES, 'UTF-8');
 
     $pattern = '#^http://|https://#';
     $WikiURL = $gopt['kb_wiki_url'];
     $checkWikiUrl = preg_match($pattern, $WikiURL);
 
-    if (!$checkWikiUrl) {
+    if (! $checkWikiUrl) {
         $gopt['kb_wiki_url'] = 'http://' . $WikiURL;
     }
 
     $res->closeCursor();
+
     return $gopt;
 }
-
 
 function getWikiVersion($apiWikiURL)
 {
@@ -106,7 +104,7 @@ function getWikiVersion($apiWikiURL)
 
     $data = http_build_query($post);
 
-    /* Get contents */
+    // Get contents
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $apiWikiURL);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -119,7 +117,6 @@ function getWikiVersion($apiWikiURL)
 
     $wikiStringVersion = $content->query->general->generator;
     $wikiDataVersion = explode(' ', $wikiStringVersion);
-    $wikiVersion = (float)$wikiDataVersion[1];
 
-    return $wikiVersion;
+    return (float) $wikiDataVersion[1];
 }

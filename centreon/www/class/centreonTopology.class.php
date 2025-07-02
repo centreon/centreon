@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2017 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -56,8 +56,8 @@ class CentreonTopology
     /**
      * @param string $key
      * @param $value
-     * @return mixed
      * @throws Exception
+     * @return mixed
      */
     public function getTopology($key, $value)
     {
@@ -65,8 +65,8 @@ class CentreonTopology
         $stmt = $this->db->prepare($queryTopologyPage);
         $stmt->bindParam(':keyTopo', $value);
         $stmt->execute();
-        $row = $stmt->fetch();
-        return $row;
+
+        return $stmt->fetch();
     }
 
     /**
@@ -74,15 +74,15 @@ class CentreonTopology
      * @param string $topologyName
      * @param string $breadCrumbDelimiter
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getBreadCrumbFromTopology($topologyPage, $topologyName, $breadCrumbDelimiter = ' > ')
     {
         $breadCrumb = $topologyName;
         $currentTopology = $this->getTopology('page', $topologyPage);
 
-        while (!empty($currentTopology['topology_parent'])) {
+        while (! empty($currentTopology['topology_parent'])) {
             $parentTopology = $this->getTopology('page', $currentTopology['topology_parent']);
             $breadCrumb = $parentTopology['topology_name'] . $breadCrumbDelimiter . $breadCrumb;
             $currentTopology = $parentTopology;

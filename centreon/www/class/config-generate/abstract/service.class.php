@@ -48,6 +48,7 @@ abstract class AbstractService extends AbstractObject
 {
     /** @var array */
     protected $service_cache;
+
     // no flap_detection_options attribute
     /** @var string */
     protected $attributes_select = '
@@ -96,39 +97,48 @@ abstract class AbstractService extends AbstractObject
         esi_icon_image_alt as icon_image_alt,
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributes_write = ['host_name', 'service_description', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
+
     /** @var string[] */
     protected $attributes_default = ['is_volatile', 'active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_service', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
+
     /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
         'group_tags',
     ];
+
     /** @var string[] */
     protected $attributes_hash = ['macros'];
+
     /** @var array */
-    protected $loop_stpl = []; # To be reset
+    protected $loop_stpl = []; // To be reset
+
     /** @var CentreonDBStatement|null */
     protected $stmt_macro = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_stpl = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_contact = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_service = null;
 
     /**
      * @param $service
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getImages(&$service)
     {
         $media = Media::getInstance($this->dependencyInjector);
-        if (!isset($service['icon_image'])) {
+        if (! isset($service['icon_image'])) {
             $service['icon_image'] = $media->getMediaPathFromId($service['icon_image_id']);
             $service['icon_id'] = $service['icon_image_id'];
         }
@@ -147,14 +157,15 @@ abstract class AbstractService extends AbstractObject
 
         $service['macros'] = Macro::getInstance($this->dependencyInjector)
             ->getServiceMacroByServiceId($service['service_id']);
+
         return 0;
     }
 
     /**
      * @param $service
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getServiceTemplates(&$service)
     {
@@ -169,7 +180,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getContacts(array &$service): void
     {
-        if (!isset($service['contacts_cache'])) {
+        if (! isset($service['contacts_cache'])) {
             $contact = Contact::getInstance($this->dependencyInjector);
             $service['contacts_cache'] = $contact->getContactForService($service['service_id']);
         }
@@ -182,7 +193,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getContactGroups(array &$service): void
     {
-        if (!isset($service['contact_groups_cache'])) {
+        if (! isset($service['contact_groups_cache'])) {
             $cg = Contactgroup::getInstance($this->dependencyInjector);
             $service['contact_groups_cache'] = $cg->getCgForService($service['service_id']);
         }
@@ -200,13 +211,13 @@ abstract class AbstractService extends AbstractObject
 
         $services_tpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
         $service_id = $this->service_cache[$service_id]['service_template_model_stm_id'] ?? null;
-        while (!is_null($service_id)) {
+        while (! is_null($service_id)) {
             if (isset($loop[$service_id])) {
                 break;
             }
             $loop[$service_id] = 1;
-            if (isset($services_tpl[$service_id][$command_label]) &&
-                !is_null($services_tpl[$service_id][$command_label])
+            if (isset($services_tpl[$service_id][$command_label])
+                && ! is_null($services_tpl[$service_id][$command_label])
             ) {
                 return $services_tpl[$service_id][$command_label];
             }
@@ -222,11 +233,11 @@ abstract class AbstractService extends AbstractObject
      * @param $command_id_label
      * @param $command_arg_label
      *
-     * @return int
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int
      */
     protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
     {
@@ -238,16 +249,16 @@ abstract class AbstractService extends AbstractObject
             return 1;
         }
         $service[$result_name] = $command_name;
-        if (isset($service[$command_arg_label]) &&
-            !is_null($service[$command_arg_label]) &&
-            $service[$command_arg_label] != ''
+        if (isset($service[$command_arg_label])
+            && ! is_null($service[$command_arg_label])
+            && $service[$command_arg_label] != ''
         ) {
             $command_arg = $service[$command_arg_label];
             if (is_null($command_name)) {
-                # Find Command Name in templates
+                // Find Command Name in templates
                 $command_name = $this->findCommandName($service['service_id'], $result_name);
-                # Can have 'args after'. We replace
-                if (!is_null($command_name)) {
+                // Can have 'args after'. We replace
+                if (! is_null($command_name)) {
                     $command_name = preg_replace('/!.*/', '', $command_name);
                     $service[$result_name] = $command_name . $command_arg;
                 }
@@ -262,11 +273,11 @@ abstract class AbstractService extends AbstractObject
     /**
      * @param $service
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     protected function getServiceCommands(&$service)
     {
@@ -277,8 +288,8 @@ abstract class AbstractService extends AbstractObject
     /**
      * @param $service
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getServicePeriods(&$service)
     {
@@ -308,8 +319,8 @@ abstract class AbstractService extends AbstractObject
      */
     protected function insertServiceInServiceCategoryMembers(ServiceCategory $serviceCategory, int $serviceId): void
     {
-        $this->service_cache[$serviceId]['serviceCategories'] =
-            $serviceCategory->getServiceCategoriesByServiceId($serviceId);
+        $this->service_cache[$serviceId]['serviceCategories']
+            = $serviceCategory->getServiceCategoriesByServiceId($serviceId);
 
         foreach ($this->service_cache[$serviceId]['serviceCategories'] as $serviceCategoryId) {
             if (! is_null($serviceCategoryId)) {

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,12 +21,12 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use Exception;
+use PDO;
 use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../../config/centreon.config.php');
 if ($configFile !== false) {
     require_once $configFile;
 }
@@ -92,14 +93,19 @@ class Generate
 {
     /** @var array */
     private $pollerCache = [];
+
     /** @var Backend|null */
     private $backendInstance = null;
+
     /** @var array|null */
     private $currentPoller = null;
+
     /** @var array|null */
     private $installedModules = null;
+
     /** @var array|null */
     private $moduleObjects = null;
+
     /** @var Container|null */
     protected $dependencyInjector = null;
 
@@ -128,6 +134,7 @@ class Generate
         foreach (explode($delimiters[0], $string) as $value) {
             $result .= ucfirst($value);
         }
+
         return $result;
     }
 
@@ -136,14 +143,14 @@ class Generate
      *
      * @param int $pollerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function getPollerFromId(int $pollerId): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT * FROM nagios_server
-            WHERE id = :poller_id"
+            'SELECT * FROM nagios_server
+            WHERE id = :poller_id'
         );
         $stmt->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
         $stmt->execute();
@@ -163,7 +170,7 @@ class Generate
     private function getPollersFromRemote(int $remoteId)
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT ns1.*
+            'SELECT ns1.*
             FROM nagios_server AS ns1
             WHERE ns1.remote_id = :remote_id
             GROUP BY ns1.id
@@ -172,7 +179,7 @@ class Generate
             FROM nagios_server AS ns2
             INNER JOIN rs_poller_relation AS rspr ON rspr.poller_server_id = ns2.id
             AND rspr.remote_server_id = :remote_id
-            GROUP BY ns2.id"
+            GROUP BY ns2.id'
         );
         $stmt->bindParam(':remote_id', $remoteId, PDO::PARAM_INT);
         $stmt->execute();
@@ -220,8 +227,8 @@ class Generate
      * @param int $remoteServerId
      * @param string $username
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function configRemoteServerFromId(int $remoteServerId, $username = 'unknown'): void
     {
@@ -258,9 +265,10 @@ class Generate
         } catch (Exception $e) {
             $this->resetObjects();
             $this->backendInstance->cleanPath();
+
             throw new Exception(
-                'Exception received : ' . $e->getMessage() . ' [file: ' . $e->getFile() .
-                '] [line: ' . $e->getLine() . "]\n"
+                'Exception received : ' . $e->getMessage() . ' [file: ' . $e->getFile()
+                . '] [line: ' . $e->getLine() . "]\n"
             );
         }
     }
@@ -272,11 +280,11 @@ class Generate
      */
     public function getInstalledModules()
     {
-        if (!is_null($this->installedModules)) {
+        if (! is_null($this->installedModules)) {
             return $this->installedModules;
         }
         $this->installedModules = [];
-        $stmt = $this->backendInstance->db->prepare("SELECT name FROM modules_informations");
+        $stmt = $this->backendInstance->db->prepare('SELECT name FROM modules_informations');
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $this->installedModules[] = $value['name'];
@@ -299,7 +307,7 @@ class Generate
             if (file_exists($generateFile)) {
                 require_once $generateFile;
                 $module = $this->ucFirst(['-', '_', ' '], $module);
-                $class = sprintf('\\%s\%s', $module, \ConfigGenerateRemote\Generate::class);
+                $class = sprintf('\\%s\%s', $module, Generate::class);
                 if (class_exists($class)) {
                     $this->moduleObjects[] = $class;
                 }

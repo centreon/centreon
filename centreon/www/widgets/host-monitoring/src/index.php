@@ -52,7 +52,7 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 
@@ -62,11 +62,11 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 }
 
 /**
- * @var $dbb CentreonDB
+ * @var CentreonDB $dbb
  */
 $dbb = $dependencyInjector['realtime_db'];
 
-/* Init Objects */
+// Init Objects
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
@@ -101,6 +101,7 @@ try {
         ['widget_id' => $widgetId],
         $e
     );
+
     throw $e;
 }
 
@@ -164,10 +165,10 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
 }
 
 if (isset($preferences['notification_filter']) && $preferences['notification_filter']) {
-    if ($preferences['notification_filter'] == "enabled") {
-        $query = CentreonUtils::conditionBuilder($query, " notify = 1");
-    } elseif ($preferences['notification_filter'] == "disabled") {
-        $query = CentreonUtils::conditionBuilder($query, " notify = 0");
+    if ($preferences['notification_filter'] == 'enabled') {
+        $query = CentreonUtils::conditionBuilder($query, ' notify = 1');
+    } elseif ($preferences['notification_filter'] == 'disabled') {
+        $query = CentreonUtils::conditionBuilder($query, ' notify = 0');
     }
 }
 
@@ -218,11 +219,11 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         if ($queryHg != '') {
             $queryHg .= ', ';
         }
-        $queryHg .= ":id_" . $result;
+        $queryHg .= ':id_' . $result;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $result,
-            'value' => (int)$result,
-            'type' => PDO::PARAM_INT
+            'value' => (int) $result,
+            'type' => PDO::PARAM_INT,
         ];
     }
     $hostgroupHgIdCondition = <<<SQL
@@ -233,24 +234,24 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         SQL;
     $query = CentreonUtils::conditionBuilder($query, $hostgroupHgIdCondition);
 }
-if (!empty($preferences['criticality_filter'])) {
+if (! empty($preferences['criticality_filter'])) {
     $tab = explode(',', $preferences['criticality_filter']);
     $labels = '';
     foreach ($tab as $p) {
         if ($labels != '') {
             $labels .= ',';
         }
-        $labels .= ":severity_id_" . $p;
+        $labels .= ':severity_id_' . $p;
         $mainQueryParameters[] = [
-            'parameter' => ":severity_id_" . $p,
-            'value' => (int)$p,
-            'type' => PDO::PARAM_INT
+            'parameter' => ':severity_id_' . $p,
+            'value' => (int) $p,
+            'type' => PDO::PARAM_INT,
         ];
     }
     $severityIdCondition = 'cv2.value IN (' . $labels . ')';
     $query = CentreonUtils::conditionBuilder($query, $severityIdCondition);
 }
-if (!$centreon->user->admin) {
+if (! $centreon->user->admin) {
     $pearDB = $db;
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
     $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
@@ -275,7 +276,7 @@ $allowedOrderColumns = [
     'acknowledged',
     'notify',
     'active_checks',
-    'passive_checks'
+    'passive_checks',
 ];
 
 const ORDER_DIRECTION_ASC = 'ASC';
@@ -289,7 +290,7 @@ $orderByToAnalyse = isset($preferences['order_by'])
     : null;
 
 if ($orderByToAnalyse !== null) {
-    $orderByToAnalyse .= " $defaultDirection";
+    $orderByToAnalyse .= " {$defaultDirection}";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -298,18 +299,18 @@ if ($orderByToAnalyse !== null) {
 }
 
 // concatenate order by + limit + offset  to the query
-$query .= "ORDER BY " . $orderBy . " LIMIT :limit OFFSET :offset";
+$query .= 'ORDER BY ' . $orderBy . ' LIMIT :limit OFFSET :offset';
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
 $mainQueryParameters[] = [
-    'parameter' => "limit",
+    'parameter' => 'limit',
     'value' => $num,
-    'type' => PDO::PARAM_INT
+    'type' => PDO::PARAM_INT,
 ];
 $mainQueryParameters[] = [
-    'parameter' => "offset",
+    'parameter' => 'offset',
     'value' => ($page * $num),
-    'type' => PDO::PARAM_INT
+    'type' => PDO::PARAM_INT,
 ];
 
 try {
@@ -325,11 +326,11 @@ try {
         ['pdo_info' => $e->errorInfo, 'query_parameters' => $mainQueryParameters],
         $e
     );
+
     throw $e;
 }
 
 unset($mainQueryParameters);
-
 
 try {
     $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
@@ -340,6 +341,7 @@ try {
         ['pdo_info' => $e->errorInfo],
         $e
     );
+
     throw $e;
 }
 
@@ -356,6 +358,7 @@ try {
         ['pdo_info' => $e->errorInfo],
         $e
     );
+
     throw $e;
 }
 
@@ -371,7 +374,7 @@ while ($row = $res->fetch()) {
     }
 
     // last_check
-    $valueLastCheck = (int)$row['last_check'];
+    $valueLastCheck = (int) $row['last_check'];
     $valueLastCheckTimestamp = time() - $valueLastCheck;
     if (
         $valueLastCheckTimestamp > 0
@@ -382,7 +385,7 @@ while ($row = $res->fetch()) {
     $data[$row['host_id']]['last_check'] = $valueLastCheck;
 
     // last_state_change
-    $valueLastState = (int)$row['last_state_change'];
+    $valueLastState = (int) $row['last_state_change'];
     if ($valueLastState > 0) {
         $valueLastStateTimestamp = time() - $valueLastState;
         $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
@@ -392,7 +395,7 @@ while ($row = $res->fetch()) {
     $data[$row['host_id']]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
-    $valueLastHardState = (int)$row['last_hard_state_change'];
+    $valueLastHardState = (int) $row['last_hard_state_change'];
     if ($valueLastHardState > 0) {
         $valueLastHardStateTimestamp = time() - $valueLastHardState;
         $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
@@ -414,7 +417,6 @@ while ($row = $res->fetch()) {
     // output
     $data[$row['host_id']]['output'] = substr($row['output'], 0, $outputLength);
 
-
     $resourceController = $kernel->getContainer()->get(MonitoringResourceController::class);
     $data[$row['host_id']]['details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20202&o=hd&host_name=' . $row['host_name']
@@ -422,10 +424,10 @@ while ($row = $res->fetch()) {
 
     // action_url
     $valueActionUrl = $row['action_url'];
-    if (!empty($valueActionUrl)) {
+    if (! empty($valueActionUrl)) {
         if (preg_match('#^\./(.+)#', $valueActionUrl, $matches)) {
             $valueActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueActionUrl)) {
             $valueActionUrl = '//' . $valueActionUrl;
         }
 
@@ -437,10 +439,10 @@ while ($row = $res->fetch()) {
 
     // notes_url
     $valueNotesUrl = $row['notes_url'];
-    if (!empty($valueNotesUrl)) {
+    if (! empty($valueNotesUrl)) {
         if (preg_match('#^\./(.+)#', $valueNotesUrl, $matches)) {
             $valueNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueNotesUrl)) {
             $valueNotesUrl = '//' . $valueNotesUrl;
         }
 
@@ -454,18 +456,18 @@ while ($row = $res->fetch()) {
     // criticality
     $valueCriticality = $row['criticality'];
     if ($valueCriticality != '') {
-        $critData = $criticality->getData($row["criticality_id"]);
-        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
-            "' title='" . $critData["hc_name"] . "' width='16' height='16'>";
+        $critData = $criticality->getData($row['criticality_id']);
+        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id'])
+            . "' title='" . $critData['hc_name'] . "' width='16' height='16'>";
         $data[$row['host_id']]['criticality'] = $valueCriticality;
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
         try {
-            $query = <<<SQL
-                SELECT data FROM comments where host_id = :hostId
-                AND service_id = 0 ORDER BY entry_time DESC LIMIT 1
-            SQL;
+            $query = <<<'SQL'
+                    SELECT data FROM comments where host_id = :hostId
+                    AND service_id = 0 ORDER BY entry_time DESC LIMIT 1
+                SQL;
             $res2 = $dbb->prepare($query);
             $res2->bindValue(':hostId', $row['host_id'], PDO::PARAM_INT);
             $res2->execute();
@@ -478,6 +480,7 @@ while ($row = $res->fetch()) {
                 ['pdo_info' => $e->errorInfo, 'host_id' => $row['host_id'] ?? null],
                 $e
             );
+
             throw $e;
         }
     }
@@ -501,11 +504,11 @@ $aColorHost = [
     0 => 'host_up',
     1 => 'host_down',
     2 => 'host_unreachable',
-    4 => 'host_pending'
+    4 => 'host_pending',
 ];
 
-$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-    ? (int)$preferences['refresh_interval']
+$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+    ? (int) $preferences['refresh_interval']
     : 30;
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
@@ -532,13 +535,14 @@ try {
     $template->display('table.ihtml');
 } catch (Exception $e) {
     $logger->error(
-        "Error while displaying the host monitoring custom view",
+        'Error while displaying the host monitoring custom view',
         [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
             'exception_type' => $e::class,
-            'exception_message' => $e->getMessage()
+            'exception_message' => $e->getMessage(),
         ]
     );
+
     throw $e;
 }

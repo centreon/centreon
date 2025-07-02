@@ -1,6 +1,6 @@
 <?php
 
-$installFactory = new \CentreonLegacy\Core\Install\Factory($dependencyInjector);
+$installFactory = new CentreonLegacy\Core\Install\Factory($dependencyInjector);
 $information = $installFactory->newInformation();
 
 $step = $information->getStep();

@@ -34,43 +34,39 @@
 *
 */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/views/graphs/";
+// Path to the configuration dir
+$path = './include/views/graphs/';
 
-/*
- * Include Pear Lib
- */
+// Include Pear Lib
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-$chartId = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
+$chartId = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
 
 if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
-    $hostId = (int)$matches[1];
-    $serviceId = (int)$matches[2];
+    $hostId = (int) $matches[1];
+    $serviceId = (int) $matches[2];
 } else {
-    throw new \InvalidArgumentException('chartId must be a combination of integers');
+    throw new InvalidArgumentException('chartId must be a combination of integers');
 }
 
-/* Get host and service name */
+// Get host and service name
 $serviceName = '';
 
 $query = 'SELECT h.name, s.description FROM hosts h, services s
     WHERE h.host_id = :hostId AND s.service_id = :serviceId AND h.host_id = s.host_id';
 
 $stmt = $pearDBO->prepare($query);
-$stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
-$stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+$stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
+$stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
 $stmt->execute();
 
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $serviceName = $row['name'] . ' - ' . $row['description'];
 }
 

@@ -43,7 +43,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 (new Dotenv())->bootEnv('/usr/share/centreon/.env');
 $isCloudPlatform = false;
-if (array_key_exists("IS_CLOUD_PLATFORM", $_ENV) && $_ENV["IS_CLOUD_PLATFORM"]) {
+if (array_key_exists('IS_CLOUD_PLATFORM', $_ENV) && $_ENV['IS_CLOUD_PLATFORM']) {
     $isCloudPlatform = true;
 }
 $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');

@@ -34,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/ObjectRt.php";
+require_once 'Centreon/Object/ObjectRt.php';
 
 /**
  * Class
@@ -44,11 +44,13 @@ require_once "Centreon/Object/ObjectRt.php";
 class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
 {
     /** @var string */
-    protected $table = "acknowledgements";
+    protected $table = 'acknowledgements';
+
     /** @var string */
-    protected $primaryKey = "acknowledgement_id";
+    protected $primaryKey = 'acknowledgement_id';
+
     /** @var string */
-    protected $uniqueLabelField = "comment_data";
+    protected $uniqueLabelField = 'comment_data';
 
     /**
      * @param int[] $hostIds
@@ -57,8 +59,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function getLastHostAcknowledgement($hostIds = [])
     {
         $hostFilter = '';
-        if (!empty($hostIds)) {
-            $hostFilter = "AND hosts.host_id IN (" . implode(",", $hostIds) . ")";
+        if (! empty($hostIds)) {
+            $hostFilter = 'AND hosts.host_id IN (' . implode(',', $hostIds) . ')';
         }
 
         return $this->getResult(
@@ -95,7 +97,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     {
         $serviceFilter = '';
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
@@ -147,12 +149,9 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      */
     public function svcIsAcknowledged($serviceId)
     {
-        $query = "SELECT acknowledged FROM services WHERE service_id = ? ";
-        if ($this->getResult($query, [$serviceId], 'fetch')['acknowledged'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        $query = 'SELECT acknowledged FROM services WHERE service_id = ? ';
+
+        return (bool) ($this->getResult($query, [$serviceId], 'fetch')['acknowledged'] == 1);
     }
 
     /**
@@ -161,11 +160,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      */
     public function hostIsAcknowledged($hostId)
     {
-        $query = "SELECT acknowledged FROM hosts WHERE host_id = ? ";
-        if ($this->getResult($query, [$hostId], 'fetch')['acknowledged'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        $query = 'SELECT acknowledged FROM hosts WHERE host_id = ? ';
+
+        return (bool) ($this->getResult($query, [$hostId], 'fetch')['acknowledged'] == 1);
     }
 }

@@ -50,16 +50,16 @@ session_write_close();
 $oreon = $_SESSION['centreon'];
 
 $db = new CentreonDB();
-$dbb = new CentreonDB("centstorage");
+$dbb = new CentreonDB('centstorage');
 
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $oreon);
 $centreonLang->bindLang();
 $sid = session_id();
 if (isset($sid)) {
     $res = $db->prepare('SELECT * FROM session WHERE session_id = :id');
-    $res->bindValue(':id', $sid, \PDO::PARAM_STR);
+    $res->bindValue(':id', $sid, PDO::PARAM_STR);
     $res->execute();
-    if (!$session = $res->fetch()) {
+    if (! $session = $res->fetch()) {
         get_error('bad session id');
     }
 } else {
@@ -81,8 +81,8 @@ $centreonGMT->getMyGMTFromSession($sid);
 
 // Start Buffer
 $xml = new CentreonXML();
-$xml->startElement("response");
-$xml->startElement("label");
+$xml->startElement('response');
+$xml->startElement('label');
 $xml->writeElement('author', _('Author'));
 $xml->writeElement('fixed', _('Fixed'));
 $xml->writeElement('start', _('Start Time'));
@@ -102,7 +102,7 @@ if (false === $svcId) {
         AND end_time > UNIX_TIMESTAMP(NOW())
         ORDER BY actual_start_time'
     );
-    $res->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $res->bindValue(':hostId', $hostId, PDO::PARAM_INT);
     $res->execute();
 } else {
     $res = $dbb->prepare(
@@ -116,20 +116,20 @@ if (false === $svcId) {
         AND end_time > UNIX_TIMESTAMP(NOW())
         ORDER BY actual_start_time'
     );
-    $res->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-    $res->bindValue(':svcId', $svcId, \PDO::PARAM_INT);
+    $res->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+    $res->bindValue(':svcId', $svcId, PDO::PARAM_INT);
     $res->execute();
 }
 
-$rowClass = "list_one";
+$rowClass = 'list_one';
 while ($row = $res->fetch()) {
     $row['comment_data'] = strip_tags($row['comment_data']);
     $xml->startElement('dwt');
     $xml->writeAttribute('class', $rowClass);
     $xml->writeElement('author', $row['author']);
     $xml->writeElement('start', $row['actual_start_time']);
-    if (!$row['fixed']) {
-        $row['end_time'] = (int)$row['actual_start_time'] + (int)$row['duration'];
+    if (! $row['fixed']) {
+        $row['end_time'] = (int) $row['actual_start_time'] + (int) $row['duration'];
     }
     $xml->writeElement('end', $row['end_time']);
     $xml->writeElement('comment', $row['comment_data']);

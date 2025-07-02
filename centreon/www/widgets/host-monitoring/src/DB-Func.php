@@ -36,13 +36,10 @@
 
 function getColors($db): array
 {
-    $stateColors = [0 => "#88b917", 1 => "#e00b3d", 2 => "#82CFD8", 4 => "#2ad1d4"];
-
-
-    return $stateColors;
+    return [0 => '#88b917', 1 => '#e00b3d', 2 => '#82CFD8', 4 => '#2ad1d4'];
 }
 
 function getLabels(): array
 {
-    return [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
+    return [0 => 'Up', 1 => 'Down', 2 => 'Unreachable', 4 => 'Pending'];
 }

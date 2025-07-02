@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -34,7 +35,7 @@
  *
  */
 
-/* Update comments unique key */
+// Update comments unique key
 if (isset($pearDBO)) {
     $query = "SELECT count(*) AS number
                 FROM INFORMATION_SCHEMA.COLUMNS 

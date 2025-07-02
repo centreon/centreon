@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class TimePeriodExceptions extends AbstractObject
 {
     /** @var string */
     protected $table = 'timeperiod_exceptions';
+
     /** @var string */
     protected $generateFilename = 'timeperiod_exceptions.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'timeperiod_id',
@@ -48,8 +51,8 @@ class TimePeriodExceptions extends AbstractObject
      * @param array $object
      * @param int $tpId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(array $object, int $tpId): void
     {

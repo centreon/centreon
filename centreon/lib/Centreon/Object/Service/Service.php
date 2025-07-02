@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with services
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Service extends Centreon_Object
 {
-    protected $table = "service";
-    protected $primaryKey = "service_id";
-    protected $uniqueLabelField = "service_description";
+    protected $table = 'service';
+
+    protected $primaryKey = 'service_id';
+
+    protected $uniqueLabelField = 'service_description';
 }

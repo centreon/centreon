@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class Media extends AbstractObject
 {
     /** @var array|null */
     private $medias = null;
+
     /** @var string */
     protected $table = 'view_img';
+
     /** @var string */
     protected $generateFilename = 'view_img.infile';
+
     /** @var string */
     protected $attributesSelect = '
         img_id,
@@ -48,6 +52,7 @@ class Media extends AbstractObject
         dir_alias,
         dir_comment
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'img_id',
@@ -55,6 +60,7 @@ class Media extends AbstractObject
         'img_path',
         'img_comment',
     ];
+
     /** @var string|null */
     protected $pathImg = null;
 
@@ -66,7 +72,7 @@ class Media extends AbstractObject
     private function getMedias(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
+            "SELECT {$this->attributesSelect}
             FROM view_img, view_img_dir_relation, view_img_dir
             WHERE view_img.img_id = view_img_dir_relation.img_img_id
             AND view_img_dir_relation.dir_dir_parent_id = view_img_dir.dir_id"
@@ -83,8 +89,8 @@ class Media extends AbstractObject
      * @param string $dir
      * @param string $file
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     protected function copyMedia(string $dir, string $file)
     {
@@ -100,8 +106,8 @@ class Media extends AbstractObject
      *
      * @param int|null $mediaId
      *
-     * @return null|string
      * @throws \Exception
+     * @return null|string
      */
     public function getMediaPathFromId(?int $mediaId)
     {
@@ -110,7 +116,7 @@ class Media extends AbstractObject
         }
 
         $result = null;
-        if (!is_null($mediaId) && isset($this->medias[$mediaId])) {
+        if (! is_null($mediaId) && isset($this->medias[$mediaId])) {
             $result = $this->medias[$mediaId]['dir_name'] . '/' . $this->medias[$mediaId]['img_path'];
             if ($this->checkGenerate($mediaId)) {
                 return $result;

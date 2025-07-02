@@ -34,16 +34,16 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-//Path to the configuration dir
-$path = "./include/configuration/configObject/timeperiod/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/timeperiod/';
 
-//PHP functions
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $tp_id = filter_var(
     $_GET['tp_id'] ?? $_POST['tp_id'] ?? null,
@@ -60,21 +60,21 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 switch ($o) {
-    case "a": // Add a Timeperiod
-    case "w": // Watch a Timeperiod
-    case "c": // Modify a Timeperiod
-        require_once($path . "formTimeperiod.php");
+    case 'a': // Add a Timeperiod
+    case 'w': // Watch a Timeperiod
+    case 'c': // Modify a Timeperiod
+        require_once $path . 'formTimeperiod.php';
         break;
-    case "s": // Show Timeperiod
-        require_once($path . "renderTimeperiod.php");
+    case 's': // Show Timeperiod
+        require_once $path . 'renderTimeperiod.php';
         break;
-    case "m": // Duplicate n Timeperiods
+    case 'm': // Duplicate n Timeperiods
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -85,9 +85,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listTimeperiod.php");
+        require_once $path . 'listTimeperiod.php';
         break;
-    case "d": // Delete n Timeperiods
+    case 'd': // Delete n Timeperiods
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -95,9 +95,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listTimeperiod.php");
+        require_once $path . 'listTimeperiod.php';
         break;
     default:
-        require_once($path . "listTimeperiod.php");
+        require_once $path . 'listTimeperiod.php';
         break;
 }

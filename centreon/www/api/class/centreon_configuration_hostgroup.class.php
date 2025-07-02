@@ -57,9 +57,9 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -113,15 +113,15 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         }
 
         $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                hg.hg_name,
-                hg.hg_id,
-                hg.hg_activate
-            FROM hostgroup hg
-            WHERE hg.hg_name LIKE :hostGroupName $aclHostGroups
-            ORDER BY hg.hg_name
-            $range
-        SQL;
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    hg.hg_name,
+                    hg.hg_id,
+                    hg.hg_activate
+                FROM hostgroup hg
+                WHERE hg.hg_name LIKE :hostGroupName {$aclHostGroups}
+                ORDER BY hg.hg_name
+                {$range}
+            SQL;
 
         $statement = $this->pearDB->prepare($request);
 
@@ -151,9 +151,9 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getHostList()
     {
@@ -238,7 +238,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         $statement = $this->pearDB->prepare($request);
 
         foreach ($queryValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
         }
 
         $statement->execute();

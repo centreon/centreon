@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -32,7 +33,7 @@
  * For more information : contact@centreon.com
  *
  */
-require_once(__DIR__ . '/centreonAuth.class.php');
+require_once __DIR__ . '/centreonAuth.class.php';
 
 /**
  * Class
@@ -49,6 +50,7 @@ class CentreonLogAction
 
     /** @var CentreonUser */
     protected $logUser;
+
     /** @var array */
     protected $uselessKey = [];
 
@@ -73,21 +75,21 @@ class CentreonLogAction
      * @param string|int $logId
      * @param array $fields
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function insertFieldsNameValue($logId, $fields): void
     {
         global $pearDBO;
 
-        $query = "INSERT INTO `log_action_modification` (field_name, field_value, action_log_id) VALUES ";
+        $query = 'INSERT INTO `log_action_modification` (field_name, field_value, action_log_id) VALUES ';
         $values = [];
         $index = 0;
         foreach ($fields as $field_key => $field_value) {
-            $values[] = "(:field_key_" . $index . ", :field_value_" . $index . ", :logId)";
+            $values[] = '(:field_key_' . $index . ', :field_value_' . $index . ', :logId)';
             $index++;
         }
-        $query .= implode(", ", $values);
+        $query .= implode(', ', $values);
         $statement = $pearDBO->prepare($query);
         $index = 0;
         foreach ($fields as $field_key => $field_value) {
@@ -110,15 +112,15 @@ class CentreonLogAction
      * @param $action_type
      * @param $fields
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null): void
     {
         global $pearDBO;
 
         // Check if audit log option is activated
-        $optLogs = $pearDBO->query("SELECT 1 AS REALTIME, audit_log_option FROM `config`");
+        $optLogs = $pearDBO->query('SELECT 1 AS REALTIME, audit_log_option FROM `config`');
         $auditLog = $optLogs->fetchRow();
 
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {
@@ -132,11 +134,11 @@ class CentreonLogAction
             $statement1->bindValue(':action_type', $action_type);
             $statement1->bindValue(':user_id', $this->logUser->user_id, PDO::PARAM_INT);
             $statement1->execute();
-            $statement2 = $pearDBO->prepare("SELECT MAX(action_log_id) FROM `log_action`");
+            $statement2 = $pearDBO->prepare('SELECT MAX(action_log_id) FROM `log_action`');
             $statement2->execute();
             $logId = $statement2->fetch(PDO::FETCH_ASSOC);
             if ($fields) {
-                $this->insertFieldsNameValue($logId["MAX(action_log_id)"], $fields);
+                $this->insertFieldsNameValue($logId['MAX(action_log_id)'], $fields);
             }
         }
     }
@@ -144,23 +146,24 @@ class CentreonLogAction
     /**
      * @param $id
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getContactname($id): mixed
     {
         global $pearDB;
 
         $DBRESULT = $pearDB->prepare(
-            "SELECT contact_name FROM `contact` WHERE contact_id = :contact_id LIMIT 1"
+            'SELECT contact_name FROM `contact` WHERE contact_id = :contact_id LIMIT 1'
         );
         $DBRESULT->bindValue(':contact_id', $id, PDO::PARAM_INT);
         $DBRESULT->execute();
-        /** @var  $name */
+        /** @var $name */
         while ($data = $DBRESULT->fetch(PDO::FETCH_ASSOC)) {
-            $name = $data["contact_name"];
+            $name = $data['contact_name'];
         }
         $DBRESULT->closeCursor();
+
         return $name;
     }
 
@@ -170,8 +173,8 @@ class CentreonLogAction
      * @param $id
      * @param $object_type
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function listAction($id, $object_type): array
     {
@@ -180,30 +183,31 @@ class CentreonLogAction
         $i = 0;
 
         $statement = $pearDBO->prepare(
-            "SELECT *
+            'SELECT *
                 FROM log_action
                 WHERE object_id =:id
-                AND object_type = :object_type ORDER BY action_log_date DESC"
+                AND object_type = :object_type ORDER BY action_log_date DESC'
         );
         $statement->bindValue(':id', $id, PDO::PARAM_INT);
         $statement->bindValue(':object_type', $object_type);
         $statement->execute();
         while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-            $list_actions[$i]["action_log_id"] = $data["action_log_id"];
-            $list_actions[$i]["action_log_date"] = date("Y/m/d H:i", $data["action_log_date"]);
-            $list_actions[$i]["object_type"] = $data["object_type"];
-            $list_actions[$i]["object_id"] = $data["object_id"];
-            $list_actions[$i]["object_name"] = HtmlSanitizer::createFromString($data["object_name"])->sanitize()->getString();
-            $list_actions[$i]["action_type"] = $this->replaceActiontype($data["action_type"]);
-            if ($data["log_contact_id"] != 0) {
-                $list_actions[$i]["log_contact_id"] = $this->getContactname($data["log_contact_id"]);
+            $list_actions[$i]['action_log_id'] = $data['action_log_id'];
+            $list_actions[$i]['action_log_date'] = date('Y/m/d H:i', $data['action_log_date']);
+            $list_actions[$i]['object_type'] = $data['object_type'];
+            $list_actions[$i]['object_id'] = $data['object_id'];
+            $list_actions[$i]['object_name'] = HtmlSanitizer::createFromString($data['object_name'])->sanitize()->getString();
+            $list_actions[$i]['action_type'] = $this->replaceActiontype($data['action_type']);
+            if ($data['log_contact_id'] != 0) {
+                $list_actions[$i]['log_contact_id'] = $this->getContactname($data['log_contact_id']);
             } else {
-                $list_actions[$i]["log_contact_id"] = "System";
+                $list_actions[$i]['log_contact_id'] = 'System';
             }
             $i++;
         }
         $statement->closeCursor();
         unset($data);
+
         return $list_actions;
     }
 
@@ -212,14 +216,14 @@ class CentreonLogAction
      *
      * @param $service_id
      *
-     * @return array|int
      * @throws PDOException
+     * @return array|int
      */
     public function getHostId($service_id): array|int
     {
         global $pearDBO;
 
-        /* Get Hosts */
+        // Get Hosts
         $query = <<<'SQL'
             SELECT a.action_log_id,
                 m.field_value
@@ -241,7 +245,7 @@ class CentreonLogAction
             return ['h' => $info['field_value']];
         }
 
-        /* Get hostgroups */
+        // Get hostgroups
         $query = "SELECT a.action_log_id, field_value 
                     FROM log_action a, log_action_modification m 
                     WHERE m.action_log_id = a.action_log_id 
@@ -258,14 +262,15 @@ class CentreonLogAction
         if (isset($info['field_value']) && $info['field_value'] != '') {
             return ['hg' => $info['field_value']];
         }
+
         return -1;
     }
 
     /**
      * @param $host_id
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getHostName($host_id): mixed
     {
@@ -295,7 +300,7 @@ class CentreonLogAction
             return $info['object_name'];
         }
 
-        $statement = $pearDBO->prepare("SELECT name FROM hosts WHERE host_id = :host_id");
+        $statement = $pearDBO->prepare('SELECT name FROM hosts WHERE host_id = :host_id');
         $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
@@ -306,14 +311,14 @@ class CentreonLogAction
     /**
      * @param $hg_id
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getHostGroupName($hg_id): mixed
     {
         global $pearDB, $pearDBO;
 
-        $query = "SELECT hg_name FROM hostgroup WHERE hg_id = :hg_id";
+        $query = 'SELECT hg_name FROM hostgroup WHERE hg_id = :hg_id';
         $DBRESULT2 = $pearDB->prepare($query);
         $DBRESULT2->bindValue(':hg_id', $hg_id, PDO::PARAM_INT);
         $DBRESULT2->execute();
@@ -327,6 +332,7 @@ class CentreonLogAction
         $DBRESULT2->bindValue(':hg_id', $hg_id, PDO::PARAM_INT);
         $DBRESULT2->execute();
         $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
+
         return $info['object_name'] ?? -1;
     }
 
@@ -336,8 +342,8 @@ class CentreonLogAction
      * @param int $id
      * @param string $objectType
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function listModification(int $id, string $objectType): array
     {
@@ -346,21 +352,21 @@ class CentreonLogAction
         $ref = [];
         $i = 0;
 
-        $objectType = \HtmlAnalyzer::sanitizeAndRemoveTags($objectType);
+        $objectType = HtmlAnalyzer::sanitizeAndRemoveTags($objectType);
 
-        $statement1 = $pearDBO->prepare("
+        $statement1 = $pearDBO->prepare('
             SELECT action_log_id, action_log_date, action_type FROM log_action
             WHERE object_id = :object_id
             AND object_type = :object_type ORDER BY action_log_date ASC
-        ");
+        ');
         $statement1->bindValue(':object_id', $id, PDO::PARAM_INT);
         $statement1->bindValue(':object_type', $objectType);
         $statement1->execute();
         while ($row = $statement1->fetch(PDO::FETCH_ASSOC)) {
             $DBRESULT2 = $pearDBO->prepare(
-                "SELECT action_log_id,field_name,field_value
+                'SELECT action_log_id,field_name,field_value
                 FROM `log_action_modification`
-                WHERE action_log_id = :action_log_id"
+                WHERE action_log_id = :action_log_id'
             );
             $DBRESULT2->bindValue(':action_log_id', $row['action_log_id'], PDO::PARAM_INT);
             $DBRESULT2->execute();
@@ -385,7 +391,7 @@ class CentreonLogAction
                          */
                         $macroValueArray = explode(',', $field['field_value']);
                         foreach ($macroPasswordRef as $macroIdPassword) {
-                            if (!empty($macroValueArray[$macroIdPassword])) {
+                            if (! empty($macroValueArray[$macroIdPassword])) {
                                 $macroValueArray[$macroIdPassword] = self::PASSWORD_AFTER;
                             }
                         }
@@ -395,50 +401,51 @@ class CentreonLogAction
                          * and don't change anything if the 'macroValue' string only contains commas
                          */
                         if (
-                            isset($ref[$field["field_name"]])
-                            && !empty(str_replace(',', '', $ref[$field["field_name"]]))
+                            isset($ref[$field['field_name']])
+                            && ! empty(str_replace(',', '', $ref[$field['field_name']]))
                         ) {
                             foreach ($macroPasswordRef as $macroIdPassword) {
                                 $macroValueArray[$macroIdPassword] = self::PASSWORD_BEFORE;
                             }
-                            $ref[$field["field_name"]] = implode(',', $macroValueArray);
+                            $ref[$field['field_name']] = implode(',', $macroValueArray);
                         }
                         break;
                     case 'contact_passwd':
                     case 'contact_passwd2':
                         $field['field_value'] = self::PASSWORD_AFTER;
-                        if (isset($ref[$field["field_name"]])) {
-                            $ref[$field["field_name"]] = self::PASSWORD_BEFORE;
+                        if (isset($ref[$field['field_name']])) {
+                            $ref[$field['field_name']] = self::PASSWORD_BEFORE;
                         }
                 }
-                if (!isset($ref[$field["field_name"]]) && $field["field_value"] != "") {
-                    $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
-                    $list_modifications[$i]["field_name"] = $field["field_name"];
-                    $list_modifications[$i]["field_value_before"] = "";
-                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
+                if (! isset($ref[$field['field_name']]) && $field['field_value'] != '') {
+                    $list_modifications[$i]['action_log_id'] = $field['action_log_id'];
+                    $list_modifications[$i]['field_name'] = $field['field_name'];
+                    $list_modifications[$i]['field_value_before'] = '';
+                    $list_modifications[$i]['field_value_after'] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n while nothing was set before
-                        if (str_contains($field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
-                            $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
+                        if (str_contains($field['field_name'], 'macroOldValue_' . $macroPasswordId)) {
+                            $list_modifications[$i]['field_value_after'] = self::PASSWORD_AFTER;
                         }
                     }
-                } elseif (isset($ref[$field["field_name"]]) && $ref[$field["field_name"]] != $field["field_value"]) {
-                    $list_modifications[$i]["action_log_id"] = $field["action_log_id"];
-                    $list_modifications[$i]["field_name"] = $field["field_name"];
-                    $list_modifications[$i]["field_value_before"] = HtmlSanitizer::createFromString($ref[$field["field_name"]])->sanitize()->getString();
-                    $list_modifications[$i]["field_value_after"] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
+                } elseif (isset($ref[$field['field_name']]) && $ref[$field['field_name']] != $field['field_value']) {
+                    $list_modifications[$i]['action_log_id'] = $field['action_log_id'];
+                    $list_modifications[$i]['field_name'] = $field['field_name'];
+                    $list_modifications[$i]['field_value_before'] = HtmlSanitizer::createFromString($ref[$field['field_name']])->sanitize()->getString();
+                    $list_modifications[$i]['field_value_after'] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
                     foreach ($macroPasswordRef as $macroPasswordId) {
                         // handle the display modification for the fields macroOldValue_n for "Before" and "After" value
-                        if (str_contains($field["field_name"], 'macroOldValue_' . $macroPasswordId)) {
-                            $list_modifications[$i]["field_value_before"] = self::PASSWORD_BEFORE;
-                            $list_modifications[$i]["field_value_after"] = self::PASSWORD_AFTER;
+                        if (str_contains($field['field_name'], 'macroOldValue_' . $macroPasswordId)) {
+                            $list_modifications[$i]['field_value_before'] = self::PASSWORD_BEFORE;
+                            $list_modifications[$i]['field_value_after'] = self::PASSWORD_AFTER;
                         }
                     }
                 }
-                $ref[$field["field_name"]] = HtmlSanitizer::createFromString($field["field_value"])->sanitize()->getString();
+                $ref[$field['field_name']] = HtmlSanitizer::createFromString($field['field_value'])->sanitize()->getString();
                 $i++;
             }
         }
+
         return $list_modifications;
     }
 
@@ -452,18 +459,19 @@ class CentreonLogAction
     public function replaceActiontype($action): mixed
     {
         $actionList = [];
-        $actionList["d"] = "Delete";
-        $actionList["c"] = "Change";
-        $actionList["a"] = "Create";
-        $actionList["disable"] = "Disable";
-        $actionList["enable"] = "Enable";
-        $actionList["mc"] = "Mass change";
+        $actionList['d'] = 'Delete';
+        $actionList['c'] = 'Change';
+        $actionList['a'] = 'Create';
+        $actionList['disable'] = 'Disable';
+        $actionList['enable'] = 'Enable';
+        $actionList['mc'] = 'Mass change';
 
         foreach ($actionList as $key => $value) {
             if ($action == $key) {
                 $action = $value;
             }
         }
+
         return $action;
     }
 
@@ -473,32 +481,32 @@ class CentreonLogAction
     public function listObjecttype(): array
     {
         return [
-            0 => _("All"),
-            1 => "command",
-            2 => "timeperiod",
-            3 => "contact",
-            4 => "contactgroup",
-            5 => "host",
-            6 => "hostgroup",
-            7 => "service",
-            8 => "servicegroup",
-            9 => "traps",
-            10 => "escalation",
-            11 => "host dependency",
-            12 => "hostgroup dependency",
-            13 => "service dependency",
-            14 => "servicegroup dependency",
-            15 => "poller",
-            16 => "engine",
-            17 => "broker",
-            18 => "resources",
-            19 => "meta",
-            20 => "access group",
-            21 => "menu access",
-            22 => "resource access",
-            23 => "action access",
-            24 => "manufacturer",
-            25 => "hostcategories"
+            0 => _('All'),
+            1 => 'command',
+            2 => 'timeperiod',
+            3 => 'contact',
+            4 => 'contactgroup',
+            5 => 'host',
+            6 => 'hostgroup',
+            7 => 'service',
+            8 => 'servicegroup',
+            9 => 'traps',
+            10 => 'escalation',
+            11 => 'host dependency',
+            12 => 'hostgroup dependency',
+            13 => 'service dependency',
+            14 => 'servicegroup dependency',
+            15 => 'poller',
+            16 => 'engine',
+            17 => 'broker',
+            18 => 'resources',
+            19 => 'meta',
+            20 => 'access group',
+            21 => 'menu access',
+            22 => 'resource access',
+            23 => 'action access',
+            24 => 'manufacturer',
+            25 => 'hostcategories',
         ];
     }
 
@@ -517,41 +525,42 @@ class CentreonLogAction
         $uselessKey['initialValues'] = 1;
         $uselessKey['centreon_token'] = 1;
 
-        if (!isset($ret)) {
+        if (! isset($ret)) {
             return [];
-        } else {
-            $info = [];
-            $oldMacroPassword = [];
-            foreach ($ret as $key => $value) {
-                if (!isset($uselessKey[trim($key)])) {
-                    if (is_array($value)) {
-                        /*
-                         * Set a new refMacroPassword value to be able to find which macro index is a password
-                         * in the listModification method and hash password in log_action_modification table
-                         */
-                        if ($key === 'macroValue' && isset($ret['macroPassword'])) {
-                            foreach ($value as $macroId => $macroValue) {
-                                if (array_key_exists($macroId, $ret['macroPassword'])) {
-                                    $info['refMacroPassword'] = implode(",", array_keys($ret['macroPassword']));
-                                    $value[$macroId] = md5($macroValue);
-                                    if (!empty($ret['macroOldValue_' . $macroId])) {
-                                        $oldMacroPassword['macroOldValue_' . $macroId] = md5(
-                                            $ret['macroOldValue_' . $macroId]
-                                        );
-                                    }
+        }
+        $info = [];
+        $oldMacroPassword = [];
+        foreach ($ret as $key => $value) {
+            if (! isset($uselessKey[trim($key)])) {
+                if (is_array($value)) {
+                    /*
+                     * Set a new refMacroPassword value to be able to find which macro index is a password
+                     * in the listModification method and hash password in log_action_modification table
+                     */
+                    if ($key === 'macroValue' && isset($ret['macroPassword'])) {
+                        foreach ($value as $macroId => $macroValue) {
+                            if (array_key_exists($macroId, $ret['macroPassword'])) {
+                                $info['refMacroPassword'] = implode(',', array_keys($ret['macroPassword']));
+                                $value[$macroId] = md5($macroValue);
+                                if (! empty($ret['macroOldValue_' . $macroId])) {
+                                    $oldMacroPassword['macroOldValue_' . $macroId] = md5(
+                                        $ret['macroOldValue_' . $macroId]
+                                    );
                                 }
                             }
                         }
-                        $info[$key] = $value[$key] ?? implode(",", $value);
-                    } else {
-                        $info[$key] = CentreonDB::escape($value);
                     }
+                    $info[$key] = $value[$key] ?? implode(',', $value);
+                } else {
+                    $info[$key] = CentreonDB::escape($value);
                 }
             }
         }
+
         foreach ($oldMacroPassword as $oldMacroPasswordName => $oldMacroPasswordValue) {
             $info[$oldMacroPasswordName] = $oldMacroPasswordValue;
         }
+
         return $info;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-use Pimple\Container;
 use CentreonLegacy\Core\Utils\Factory;
+use Pimple\Container;
 
 /**
  * Trait
@@ -43,14 +44,10 @@ use CentreonLegacy\Core\Utils\Factory;
  */
 trait CentreonWebServiceDiAndUtilisTrait
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private $dependencyInjector;
 
-    /**
-     * @var Factory
-     */
+    /** @var Factory */
     private $utils;
 
     /**

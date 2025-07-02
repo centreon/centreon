@@ -1,29 +1,29 @@
 <?php
 
-
 declare(strict_types=1);
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 // If user isn’t admin, check ACL
-if (!$oreon->user->admin) {
+if (! $oreon->user->admin) {
     if ($hc_id
         && $hcString !== "''"
-        && ! str_contains($hcString, "'$hc_id'")
+        && ! str_contains($hcString, "'{$hc_id}'")
     ) {
         $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
         $msg->setText(_('You are not allowed to access this host category'));
+
         return;
     }
 }
@@ -31,7 +31,7 @@ if (!$oreon->user->admin) {
 // Load initial values if editing or viewing
 $initialValues = [];
 $hc = [];
-if (in_array($o, ['c','w'], true) && $hc_id) {
+if (in_array($o, ['c', 'w'], true) && $hc_id) {
     try {
         $queryBuilder = $pearDB->createQueryBuilder();
         $query = $queryBuilder->select('*')
@@ -42,7 +42,7 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
         $hc = $pearDB->fetchAssociative(
             $query,
             QueryParameters::create([
-                QueryParameter::int('hc_id', (int) $hc_id)
+                QueryParameter::int('hc_id', (int) $hc_id),
             ])
         ) ?: [];
         // map old field names for the form
@@ -56,9 +56,9 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
             $exception
         );
         $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
-        $msg->setText("Unable to load host category : hcId = $hc_id");
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
+        $msg->setText("Unable to load host category : hcId = {$hc_id}");
     }
 }
 
@@ -66,9 +66,7 @@ if (in_array($o, ['c','w'], true) && $hc_id) {
 $extImg = return_image_list(1);
 $extImgStatusmap = return_image_list(2);
 
-/*
- * Define Templatse
- */
+// Define Templatse
 $attrsText = ['size' => '30'];
 $attrsTextLong = ['size' => '50'];
 $attrsAdvSelect = ['style' => 'width: 220px; height: 220px;'];
@@ -80,61 +78,55 @@ $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostRout
 $hostTplRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hosttemplate&action=list';
 $attrHosttemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostTplRoute, 'multiple' => true, 'linkedObject' => 'centreonHosttemplates'];
 
-/*
- * Create formulary
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=$p");
+// Create formulary
+$form = new HTML_QuickFormCustom('Form', 'post', "?p={$p}");
 
 switch ($o) {
     case 'a':
-        $form->addElement('header', 'title',_('Add a host category'));
+        $form->addElement('header', 'title', _('Add a host category'));
         break;
     case 'c':
-        $form->addElement('header', 'title',_('Modify a  host category'));
+        $form->addElement('header', 'title', _('Modify a  host category'));
         break;
     case 'w':
-        $form->addElement('header', 'title',_('View a  host category'));
+        $form->addElement('header', 'title', _('View a  host category'));
         break;
 }
 
-/*
- * Catrgorie basic information
- */
+// Catrgorie basic information
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('text', 'hc_name', _('Name'), $attrsText);
 $form->addElement('text', 'hc_alias', _('Alias'), $attrsText);
 
-/*
- * Severity
- */
+// Severity
 $form->addElement('header', 'relation', _('Relation'));
 $hctype = $form->addElement('checkbox', 'hc_type', _('Severity type'), null, ['id' => 'hc_type']);
-if (isset($hc_id) && isset($hc['level']) && $hc['level'] != "") {
+if (isset($hc_id, $hc['level'])   && $hc['level'] != '') {
     $hctype->setValue('1');
 }
 $form->addElement('text', 'hc_severity_level', _('Level'), ['size' => '10']);
 $form->addElement(
-    'select', 'hc_severity_icon', _('Icon'),
+    'select',
+    'hc_severity_icon',
+    _('Icon'),
     return_image_list(1),
     ['id' => 'icon_id', 'onChange' => "showLogo('icon_id_ctn', this.value)"]
 );
 
 // Linked hosts / templates
 $defHosts = './include/common/webServices/rest/internal.php?object=centreon_configuration_host'
-          . "&action=defaultValues&target=hostcategories&field=hc_hosts&id=$hc_id";
-$form->addElement('select2', 'hc_hosts', _('Linked Hosts'), [], array_merge($attrHosts,['defaultDatasetRoute'=>$defHosts]));
+          . "&action=defaultValues&target=hostcategories&field=hc_hosts&id={$hc_id}";
+$form->addElement('select2', 'hc_hosts', _('Linked Hosts'), [], array_merge($attrHosts, ['defaultDatasetRoute' => $defHosts]));
 
 $defTpls = './include/common/webServices/rest/internal.php?object=centreon_configuration_hosttemplate'
          . "&action=defaultValues&target=hostcategories&field=hc_hostsTemplate&id={$hc_id}";
-$ams1 = $form->addElement('select2', 'hc_hostsTemplate', _('Linked Host Template'), [], array_merge($attrHosttemplates,['defaultDatasetRoute'=>$defTpls]));
+$ams1 = $form->addElement('select2', 'hc_hostsTemplate', _('Linked Host Template'), [], array_merge($attrHosttemplates, ['defaultDatasetRoute' => $defTpls]));
 if (! $oreon->user->admin) {
     $ams1->setPersistantFreeze(true);
     $ams1->freeze();
 }
 
-/*
- * Further informations
- */
+// Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
 $form->addElement('textarea', 'hc_comment', _('Comments'), $attrsTextarea);
 $hcActivation[] = $form->createElement('radio', 'hc_activate', null, _('Enabled'), '1');
@@ -150,13 +142,13 @@ $redirect->setValue($o);
 $init = $form->addElement('hidden', 'initialValues');
 $init->setValue(serialize($initialValues));
 
-/*
- * Form Rules
- */
-function myReplace() {
+// Form Rules
+function myReplace()
+{
     global $form;
     $name = $form->getSubmitValues()['hc_name'] ?? '';
-    return str_replace(' ', '_',$name);
+
+    return str_replace(' ', '_', $name);
 }
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('hc_name', 'myReplace');
@@ -184,28 +176,26 @@ $tpl->assign(
   . 'CLOSEBTNCOLORS, ["","black", "white", "red"], WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
 $helptext = '';
-include_once("help.php");
+include_once 'help.php';
 foreach ($help as $key => $text) {
-    $helptext .= "<span style=\"display:none\" id=\"help:$key\">$text</span>\n";
+    $helptext .= "<span style=\"display:none\" id=\"help:{$key}\">{$text}</span>\n";
 }
 $tpl->assign('helptext', $helptext);
 
 if ($o === 'w') {
-    /*
-     * Just watch a HostCategorie information
-     */
+    // Just watch a HostCategorie information
     if ($centreon->user->access->page($p) != 2) {
         $form->addElement(
-            'button', 'change', _('Modify'),
-            ['onClick' => "window.location.href='?p=$p&o=c&hc_id=$hc_id'"]
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "window.location.href='?p={$p}&o=c&hc_id={$hc_id}'"]
         );
     }
     $form->setDefaults($hc);
     $form->freeze();
 } elseif ($o === 'c') {
-    /*
-     * Modify a HostCategorie information
-     */
+    // Modify a HostCategorie information
     $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
     $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($hc);
@@ -228,16 +218,15 @@ if ($form->validate()) {
         } catch (RepositoryException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
-                "Error while inserting host category: " . $exception->getMessage(),
+                'Error while inserting host category: ' . $exception->getMessage(),
                 exception: $exception
             );
             $msg = new CentreonMsg();
-            $msg->setImage("./img/icons/warning.png");
-            $msg->setTextStyle("bold");
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
             $msg->setText('Error while inserting host category');
         }
-    }
-    elseif ($form->getSubmitValue('submitC')) {
+    } elseif ($form->getSubmitValue('submitC')) {
         try {
             // Update existing record
             updateHostCategoriesInDB((int) $hcObj->getValue());
@@ -245,23 +234,21 @@ if ($form->validate()) {
         } catch (RepositoryException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
-                "Error while updating host category: " . $exception->getMessage(),
+                'Error while updating host category: ' . $exception->getMessage(),
                 exception: $exception
             );
             $msg = new CentreonMsg();
-            $msg->setImage("./img/icons/warning.png");
-            $msg->setTextStyle("bold");
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
             $msg->setText('Error while updating host category');
         }
     }
 }
 
 if ($valid) {
-    require_once($path . "listHostCategories.php");
+    require_once $path . 'listHostCategories.php';
 } else {
-    /*
-     * Apply a template definition
-     */
+    // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');

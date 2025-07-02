@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.04.6: ';
 $errorMessage = '';
 
@@ -30,28 +30,28 @@ try {
     $errorMessage = "Impossible to update 'hosts' table";
     if (! str_contains(strtolower($pearDBO->getColumnType('hosts', 'notification_number')), 'bigint')) {
         $pearDBO->beginTransaction();
-        $pearDBO->query("UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0");
-        $pearDBO->query("ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+        $pearDBO->query('UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0');
+        $pearDBO->query('ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL');
     }
 
     $errorMessage = "Impossible to update 'services' table";
     if (! str_contains(strtolower($pearDBO->getColumnType('services', 'notification_number')), 'bigint')) {
         $pearDBO->beginTransaction();
-        $pearDBO->query("UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0");
-        $pearDBO->query("ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+        $pearDBO->query('UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0');
+        $pearDBO->query('ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL');
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDBO->inTransaction()) {
         $pearDBO->rollBack();
     }
 
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

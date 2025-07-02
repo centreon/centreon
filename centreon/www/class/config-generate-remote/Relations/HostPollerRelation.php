@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -32,7 +33,9 @@ use Exception;
 class HostPollerRelation extends AbstractObject
 {
     protected $table = 'ns_host_relation';
+
     protected $generateFilename = 'ns_host_relation.infile';
+
     protected $attributesWrite = [
         'nagios_server_id',
         'host_host_id',
@@ -44,8 +47,8 @@ class HostPollerRelation extends AbstractObject
      * @param int $pollerId
      * @param int $hostId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $pollerId, int $hostId): void
     {

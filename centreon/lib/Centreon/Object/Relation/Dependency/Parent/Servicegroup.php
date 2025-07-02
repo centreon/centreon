@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,9 +34,9 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
-require_once "Centreon/Object/Dependency/Dependency.php";
-require_once "Centreon/Object/Service/Group.php";
+require_once 'Centreon/Object/Relation/Relation.php';
+require_once 'Centreon/Object/Dependency/Dependency.php';
+require_once 'Centreon/Object/Service/Group.php';
 
 /**
  * Class
@@ -44,24 +45,27 @@ require_once "Centreon/Object/Service/Group.php";
  */
 class Centreon_Object_Relation_Dependency_Parent_Servicegroup extends Centreon_Object_Relation
 {
-
     /** @var Centreon_Object_Dependency */
     public $firstObject;
+
     /** @var Centreon_Object_Service_Group */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "dependency_servicegroupParent_relation";
+    protected $relationTable = 'dependency_servicegroupParent_relation';
+
     /** @var string */
-    protected $firstKey = "dependency_dep_id";
+    protected $firstKey = 'dependency_dep_id';
+
     /** @var string */
-    protected $secondKey = "servicegroup_sg_id";
+    protected $secondKey = 'servicegroup_sg_id';
 
     /**
      * Centreon_Object_Relation_Dependency_Parent_Servicegroup constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Dependency($dependencyInjector);

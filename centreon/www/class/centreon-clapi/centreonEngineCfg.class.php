@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -43,11 +44,11 @@ use PDO;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonInstance.class.php";
-require_once "Centreon/Object/Engine/Engine.php";
-require_once "Centreon/Object/Engine/Engine_Broker_Module.php";
-require_once "Centreon/Object/Command/Command.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonInstance.class.php';
+require_once 'Centreon/Object/Engine/Engine.php';
+require_once 'Centreon/Object/Engine/Engine_Broker_Module.php';
+require_once 'Centreon/Object/Command/Command.php';
 
 /**
  * Class
@@ -63,10 +64,13 @@ class CentreonEngineCfg extends CentreonObject
 
     /** @var string[] */
     public static $aDepends = ['INSTANCE'];
+
     /** @var Centreon_Object_Command */
     public $commandObj;
+
     /** @var Centreon_Object_Engine_Broker_Module */
     public $brokerModuleObj;
+
     /** @var CentreonInstance */
     protected $instanceObj;
 
@@ -149,7 +153,7 @@ class CentreonEngineCfg extends CentreonObject
             'logger_version' => 'log_v2_enabled',
         ];
         $this->nbOfCompulsoryParams = 3;
-        $this->activateField = "nagios_activate";
+        $this->activateField = 'nagios_activate';
         $this->action = 'ENGINECFG';
         $this->insertParams = [$this->object->getUniqueLabelField(), 'nagios_server_id', 'nagios_comment'];
         $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
@@ -161,18 +165,18 @@ class CentreonEngineCfg extends CentreonObject
      * @param int $objectId
      * @param string $brokerModule
      *
-     * @return void
      * @throws PDOException
+     * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
     protected function setBrokerModule($objectId, $brokerModule)
     {
-        $query = "DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ?";
+        $query = 'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ?';
         $this->db->query($query, [$objectId]);
-        $brokerModuleArray = explode("|", $brokerModule);
+        $brokerModuleArray = explode('|', $brokerModule);
         foreach ($brokerModuleArray as $bkModule) {
             $this->db->query(
-                "INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)",
+                'INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)',
                 [$objectId, $bkModule]
             );
         }
@@ -180,8 +184,8 @@ class CentreonEngineCfg extends CentreonObject
 
     /**
      * @param $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -200,9 +204,9 @@ class CentreonEngineCfg extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return array
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return array
      */
     public function initUpdateParameters($parameters)
     {
@@ -231,10 +235,10 @@ class CentreonEngineCfg extends CentreonObject
                 'log_level_runtime',
             ];
             $canUpdateParams = true;
-            if ($params[1] == "instance" || $params[1] == "nagios_server_id") {
-                $params[1] = "nagios_server_id";
+            if ($params[1] == 'instance' || $params[1] == 'nagios_server_id') {
+                $params[1] = 'nagios_server_id';
                 $params[2] = $this->instanceObj->getInstanceId($params[2]);
-            } elseif ($params[1] == "broker_module") {
+            } elseif ($params[1] == 'broker_module') {
                 $this->setBrokerModule($objectId, $params[2]);
                 $canUpdateParams = false;
             } elseif (preg_match('/(' . implode('|', $commandColumns) . ')/', $params[1], $matches)) {
@@ -244,7 +248,7 @@ class CentreonEngineCfg extends CentreonObject
                     if (count($res)) {
                         $params[2] = $res[0];
                     } else {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
                     }
                 } else {
                     $params[2] = null;
@@ -257,15 +261,16 @@ class CentreonEngineCfg extends CentreonObject
             }
             if ($canUpdateParams) {
                 $p = strtolower($params[1]);
-                if ($params[2] == "") {
+                if ($params[2] == '') {
                     $params[2] = isset($this->params[$p]) && $this->params[$p] == 2 ? $this->params[$p] : null;
                 }
                 $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
+
                 return $updateParams;
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
     }
 
@@ -279,17 +284,17 @@ class CentreonEngineCfg extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
-        $params = ["nagios_id", "nagios_name", "nagios_server_id", "nagios_comment"];
-        $paramString = str_replace("_", " ", implode($this->delim, $params));
-        $paramString = str_replace("nagios server id", "instance", $paramString);
+        $params = ['nagios_id', 'nagios_name', 'nagios_server_id', 'nagios_comment'];
+        $paramString = str_replace('_', ' ', implode($this->delim, $params));
+        $paramString = str_replace('nagios server id', 'instance', $paramString);
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
         foreach ($elements as $tab) {
-            $str = "";
+            $str = '';
             foreach ($tab as $key => $value) {
-                if ($key == "nagios_server_id") {
+                if ($key == 'nagios_server_id') {
                     $value = $this->instanceObj->getInstanceName($value);
                 }
                 $str .= $value . $this->delim;
@@ -304,18 +309,18 @@ class CentreonEngineCfg extends CentreonObject
      *
      * @param null $filterName
      *
-     * @return bool|void
      * @throws Exception
+     * @return bool|void
      */
     public function export($filterName = null)
     {
-        if (!$this->canBeExported($filterName)) {
+        if (! $this->canBeExported($filterName)) {
             return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
         $filters = [];
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
 
@@ -326,14 +331,14 @@ class CentreonEngineCfg extends CentreonObject
             $labelField,
             'ASC',
             $filters,
-            "AND"
+            'AND'
         );
 
         foreach ($elements as $element) {
             $element = array_merge($element, $this->getLoggerV2Cfg($element['nagios_id']));
 
-            /* ADD action */
-            $addStr = $this->action . $this->delim . "ADD";
+            // ADD action
+            $addStr = $this->action . $this->delim . 'ADD';
             foreach ($this->insertParams as $param) {
                 if ($param == 'nagios_server_id') {
                     $element[$param] = $this->instanceObj->getInstanceName($element[$param]);
@@ -343,9 +348,9 @@ class CentreonEngineCfg extends CentreonObject
             $addStr .= "\n";
             echo $addStr;
 
-            /* SETPARAM action */
+            // SETPARAM action
             foreach ($element as $parameter => $value) {
-                if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
+                if (! in_array($parameter, $this->exportExcludedParams) && ! is_null($value) && $value != '') {
                     if (
                         $parameter === 'global_host_event_handler'
                         || $parameter === 'global_service_event_handler'
@@ -354,30 +359,30 @@ class CentreonEngineCfg extends CentreonObject
                         $value = $tmp[$this->commandObj->getUniqueLabelField()];
                     }
 
-                    $value = str_replace("\n", "<br/>", $value);
+                    $value = str_replace("\n", '<br/>', $value);
                     $value = CentreonUtils::convertLineBreak($value);
                     echo $this->action . $this->delim
-                        . "setparam" . $this->delim
+                        . 'setparam' . $this->delim
                         . $element[$this->object->getUniqueLabelField()] . $this->delim
                         . $parameter . $this->delim
                         . $value . "\n";
                 }
             }
             $modules = $this->brokerModuleObj->getList(
-                "broker_module",
+                'broker_module',
                 -1,
                 0,
                 null,
-                "ASC",
+                'ASC',
                 ['cfg_nagios_id' => $element[$this->object->getPrimaryKey()]],
-                "AND"
+                'AND'
             );
             $moduleList = [];
             foreach ($modules as $module) {
                 array_push($moduleList, $module['broker_module']);
             }
             echo $this->action . $this->delim
-                . "setparam" . $this->delim
+                . 'setparam' . $this->delim
                 . $element[$this->object->getUniqueLabelField()] . $this->delim
                 . 'broker_module' . $this->delim
                 . implode('|', $moduleList) . "\n";
@@ -399,7 +404,7 @@ class CentreonEngineCfg extends CentreonObject
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $this->addBkModule($objectId, $params[1]);
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
     }
 
@@ -409,29 +414,29 @@ class CentreonEngineCfg extends CentreonObject
      * @param int $objectId
      * @param string $brokerModule
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
     protected function addBkModule($objectId, $brokerModule)
     {
-        $brokerModuleArray = explode("|", $brokerModule);
+        $brokerModuleArray = explode('|', $brokerModule);
         foreach ($brokerModuleArray as $bkModule) {
             $res = $this->db->query(
-                'SELECT COUNT(*) as nbBroker FROM cfg_nagios_broker_module ' .
-                'WHERE cfg_nagios_id = ? AND broker_module = ?',
+                'SELECT COUNT(*) as nbBroker FROM cfg_nagios_broker_module '
+                . 'WHERE cfg_nagios_id = ? AND broker_module = ?',
                 [$objectId, $bkModule]
             );
             $row = $res->fetch();
             if ($row['nbBroker'] > 0) {
-                throw new CentreonClapiException(self::OBJECTALREADYEXISTS . ":" . $bkModule);
-            } else {
-                $this->db->query(
-                    "INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)",
-                    [$objectId, $bkModule]
-                );
+                throw new CentreonClapiException(self::OBJECTALREADYEXISTS . ':' . $bkModule);
             }
+            $this->db->query(
+                'INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)',
+                [$objectId, $bkModule]
+            );
+
         }
     }
 
@@ -450,7 +455,7 @@ class CentreonEngineCfg extends CentreonObject
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $this->delBkModule($objectId, $params[1]);
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
     }
 
@@ -460,25 +465,25 @@ class CentreonEngineCfg extends CentreonObject
      * @param int $objectId
      * @param string $brokerModule
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
     protected function delBkModule($objectId, $brokerModule)
     {
-        $brokerModuleArray = explode("|", $brokerModule);
+        $brokerModuleArray = explode('|', $brokerModule);
 
         foreach ($brokerModuleArray as $bkModule) {
             $tab = $this->brokerModuleObj->getIdByParameter('broker_module', [$bkModule]);
 
             if (count($tab)) {
                 $this->db->query(
-                    "DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ? and broker_module = ?",
+                    'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ? and broker_module = ?',
                     [$objectId, $bkModule]
                 );
             } else {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $bkModule);
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $bkModule);
             }
         }
     }
@@ -498,8 +503,8 @@ class CentreonEngineCfg extends CentreonObject
     /**
      * @param int $nagiosId
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     private function doesLoggerV2CfgExist(int $nagiosId): bool
     {
@@ -529,8 +534,8 @@ class CentreonEngineCfg extends CentreonObject
     /**
      * @param int $nagiosId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     private function getLoggerV2Cfg(int $nagiosId): array
     {
@@ -539,8 +544,8 @@ class CentreonEngineCfg extends CentreonObject
         $statement->execute();
 
         if ($result = $statement->fetch()) {
-            unset($result['cfg_nagios_id']);
-            unset($result['id']);
+            unset($result['cfg_nagios_id'], $result['id']);
+
         }
 
         return empty($result) ? [] : $result;
@@ -558,7 +563,7 @@ class CentreonEngineCfg extends CentreonObject
     private function updateLoggerV2Param(int $nagiosId, array $params): void
     {
         if (! $this->doesLoggerV2CfgExist($nagiosId)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
 
         $statement = $this->db->prepare(

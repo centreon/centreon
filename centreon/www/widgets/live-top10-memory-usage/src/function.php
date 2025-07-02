@@ -39,24 +39,23 @@
  * @param $in int
  * @return string
  */
-
 function getUnit($in)
 {
     switch ($in) {
         case 0:
-            $return = "B";
+            $return = 'B';
             break;
         case 1:
-            $return = "KB";
+            $return = 'KB';
             break;
         case 2:
-            $return = "MB";
+            $return = 'MB';
             break;
         case 3:
-            $return = "GB";
+            $return = 'GB';
             break;
         case 4:
-            $return = "TB";
+            $return = 'TB';
             break;
         default:
             $return = null;

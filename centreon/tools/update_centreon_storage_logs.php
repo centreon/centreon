@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -39,7 +40,7 @@
  */
 ini_set('max_execution_time', 0);
 
-require_once(realpath(__DIR__ . '/../config/centreon.config.php'));
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
 define('TEMP_DIRECTORY', '/tmp/');
@@ -62,16 +63,16 @@ $temporaryPath = null;
  *
  * @param string &$temporaryPath Path to check
  *
- * @throws \Exception
+ * @throws Exception
  */
 function checkTemporaryDirectory(&$temporaryPath)
 {
     if (is_dir($temporaryPath) === false) {
-        throw new \Exception(
+        throw new Exception(
             'This path for temporary files (' . $temporaryPath . ') does not exist'
         );
     }
-    if (!str_ends_with($temporaryPath, '/')) {
+    if (! str_ends_with($temporaryPath, '/')) {
         $temporaryPath .= '/';
     }
 }
@@ -86,11 +87,12 @@ function checkTemporaryDirectory(&$temporaryPath)
 function askYesOrNoQuestion($question, $trueByDefault = true)
 {
     $defaultResponse = $trueByDefault ? 'Y' : 'N';
-    printf("%s [%s] ", $question, $defaultResponse);
-    $handle = fopen("php://stdin", "r");
+    printf('%s [%s] ', $question, $defaultResponse);
+    $handle = fopen('php://stdin', 'r');
     $response = trim(fgets($handle));
     $response = $response ?: $defaultResponse;
     fclose($handle);
+
     return strtolower($response) === 'y';
 }
 
@@ -104,16 +106,17 @@ function askYesOrNoQuestion($question, $trueByDefault = true)
 function askQuestion($question, $hidden = false)
 {
     if ($hidden) {
-        system("stty -echo");
+        system('stty -echo');
     }
-    printf("%s", $question);
-    $handle = fopen("php://stdin", "r");
+    printf('%s', $question);
+    $handle = fopen('php://stdin', 'r');
     $response = trim(fgets($handle));
     fclose($handle);
     if ($hidden) {
-        system("stty echo");
+        system('stty echo');
     }
     printf("\n");
+
     return $response;
 }
 
@@ -123,8 +126,7 @@ function askQuestion($question, $hidden = false)
  * @param string $message Message to show
  * @param bool $showStep Set to true if you want showing steps
  */
-$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName): void
-{
+$logs = function ($message, $showStep = true) use (&$currentStep, &$partitionName): void {
     if ($showStep && $currentStep) {
         if (! empty($partitionName)) {
             printf(
@@ -166,6 +168,7 @@ function mySysLog($message)
 function stopBroker()
 {
     exec('systemctl stop cbd', $output, $status);
+
     return $output === [] ? $status : -1;
 }
 
@@ -189,24 +192,26 @@ function startBroker()
 function isBrokerRunning()
 {
     exec('systemctl status cbd', $output, $status);
+
     return ((int) $status) === 0;
 }
 
 /**
  * Get all partitions that are not empty
  *
- * @param \PDO $db
+ * @param PDO $db
+ * @param mixed $isMigrationRecovery
  * @return array Return a list of partition name [0 => partition1, 1 => partition2, ...)
  */
 function getNotEmptyPartitions($db, $isMigrationRecovery = false)
 {
     $tableName = $isMigrationRecovery ? 'logs_old' : 'logs';
     $result = $db->query(
-        "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS "
+        'SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS '
         . "WHERE TABLE_NAME='{$tableName}'"
     );
     $partitions = [];
-    while (($row = $result->fetch(\PDO::FETCH_ASSOC))) {
+    while (($row = $result->fetch(PDO::FETCH_ASSOC))) {
         $partitions[] = $row['PARTITION_NAME'];
     }
     ksort($partitions);
@@ -215,18 +220,18 @@ function getNotEmptyPartitions($db, $isMigrationRecovery = false)
     foreach (array_keys($partitions) as $partition) {
         $countResult = $db->query(
             "SELECT COUNT(*) AS is_empty FROM (
-                SELECT ctime FROM $tableName PARTITION ($partition) LIMIT 0,1
+                SELECT ctime FROM {$tableName} PARTITION ({$partition}) LIMIT 0,1
             ) AS s"
         );
-        $result = $countResult->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $countResult->fetchAll(PDO::FETCH_ASSOC);
         $isEmptyPartition = $result[0]['is_empty'] === 0;
 
         if ($isEmptyPartition) {
             unset($partitions[$partition]);
         }
     }
-    $partitions = array_flip($partitions);
-    return $partitions;
+
+    return array_flip($partitions);
 }
 
 /**
@@ -238,46 +243,44 @@ function getNotEmptyPartitions($db, $isMigrationRecovery = false)
  * @param PDO $db
  * @return bool Return TRUE if in compatible mode
  */
-function isInCompatibleMode(\PDO $db)
+function isInCompatibleMode(PDO $db)
 {
-    $statement = $db->query("SELECT VERSION() AS version");
-    $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+    $statement = $db->query('SELECT VERSION() AS version');
+    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     [$version, $dbType] = explode('-', $result[0]['version']);
     [$majorVersion, $minorVersion, $revision] = explode('.', $version);
     if ($dbType === 'MariaDB' && $majorVersion >= 10) {
         return false;
-    } elseif ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6) {
-        return false;
-    } else {
-        return true;
     }
+
+    return ! ($dbType === 'standard' && $majorVersion >= 5 && $minorVersion >= 6);
 }
 
 $loadDataInfileQuery = <<<'QUERY'
-LOAD DATA INFILE '{{DATA_FILE}}'
-INTO TABLE logs 
-FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'
-LINES TERMINATED BY '\n'
-(log_id, ctime, @host_id, host_name, instance_name, @issue_id, msg_type, notification_cmd, 
-notification_contact, output, retry, @service_description, @service_id, status, type)
-set host_id = if(@host_id = '', NULL, @host_id),
-    issue_id = if(@issue_id = '', NULL, @issue_id),
-    service_id = if(@service_id = '', NULL, @service_id),
-    service_description = if(@service_description = '', NULL, @service_description)
-QUERY;
+    LOAD DATA INFILE '{{DATA_FILE}}'
+    INTO TABLE logs 
+    FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'
+    LINES TERMINATED BY '\n'
+    (log_id, ctime, @host_id, host_name, instance_name, @issue_id, msg_type, notification_cmd, 
+    notification_contact, output, retry, @service_description, @service_id, status, type)
+    set host_id = if(@host_id = '', NULL, @host_id),
+        issue_id = if(@issue_id = '', NULL, @issue_id),
+        service_id = if(@service_id = '', NULL, @service_id),
+        service_description = if(@service_description = '', NULL, @service_description)
+    QUERY;
 
 $mainExplanation = <<<TEXT
-Before starting, we inform you that we will create a new %s.logs table and rename the older.
-Then, we will copy the data from the old table into the new one.\n\n
-TEXT;
+    Before starting, we inform you that we will create a new %s.logs table and rename the older.
+    Then, we will copy the data from the old table into the new one.\n\n
+    TEXT;
 
 $mainExplanation = sprintf($mainExplanation, dbcstg);
 
 $recoveryExplanation = <<<TEXT
-Recovery mode.
-We consider that the old 'logs' table has already been renamed and the new one has been created.
-Now we will continue to copy the data from the old table to the new one.\n\n
-TEXT;
+    Recovery mode.
+    We consider that the old 'logs' table has already been renamed and the new one has been created.
+    Now we will continue to copy the data from the old table to the new one.\n\n
+    TEXT;
 
 $dbUser = 'root';
 $currentStep = 1;
@@ -311,7 +314,7 @@ try {
             $temporaryPath = __DIR__;
         }
         $pathDirectory = askQuestion(
-            "Please to give the directory for temporary files [$temporaryPath]\n",
+            "Please to give the directory for temporary files [{$temporaryPath}]\n",
             false
         );
         $temporaryPath = empty($pathDirectory) ? $temporaryPath : $pathDirectory;
@@ -319,15 +322,15 @@ try {
 
     checkTemporaryDirectory($temporaryPath);
 
-    if (!isset($shouldDeleteOldData)) {
+    if (! isset($shouldDeleteOldData)) {
         // We display explanations according to the recovery mode
         printf($isMigrationRecovery ? $recoveryExplanation : $mainExplanation);
 
         // We ask to user if he want to keep old data otherwise we will delete the old logs table
-        $shouldDeleteOldData =
-            askYesOrNoQuestion(
+        $shouldDeleteOldData
+            = askYesOrNoQuestion(
                 "Do you want to delete the partition data from the old log table after each copy?\n"
-                . "If not, be careful with your disk space: ",
+                . 'If not, be careful with your disk space: ',
                 false
             );
     }
@@ -336,9 +339,9 @@ try {
     if (defined('port')) {
         $dbPort = port;
     } else {
-        $port = askQuestion("Please enter the port of the Centreon database: ");
+        $port = askQuestion('Please enter the port of the Centreon database: ');
         if (! is_numeric($port)) {
-            throw new Exception("The port given ($port) is not valid");
+            throw new Exception("The port given ({$port}) is not valid");
         }
         $dbPort = (int) $port;
     }
@@ -347,33 +350,33 @@ try {
     if (defined('hostCentstorage')) {
         $dbHost = hostCentstorage;
     } else {
-        $dbHost = askQuestion("Please enter the host or IP address of the Centreon database: ");
+        $dbHost = askQuestion('Please enter the host or IP address of the Centreon database: ');
     }
 
     if (! isset($dbPassword)) {
         // We need a root access
-        $dbPassword = askQuestion("Please enter the root password of database: ", true);
+        $dbPassword = askQuestion('Please enter the root password of database: ', true);
     }
 
     // We create a .lock file to avoid to start this script while it is already running
     if (file_exists($lockFileName)) {
         mySysLog('Process ' . __FILE__ . ' already running');
+
         exit();
     }
     touch($lockFileName);
 
     // Connection to database
     $dsn = sprintf(
-        "mysql:dbname=%s;host=%s;port=%d",
+        'mysql:dbname=%s;host=%s;port=%d',
         dbcstg,
         $dbHost,
         $dbPort
     );
-    $db = new \PDO($dsn, $dbUser, $dbPassword);
-    $db->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-    $db->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
-    $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
+    $db = new PDO($dsn, $dbUser, $dbPassword);
+    $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+    $db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // We will process partitions that are not empty
     $partitions = getNotEmptyPartitions($db, $isMigrationRecovery);
@@ -390,51 +393,51 @@ try {
             WHERE TABLE_SCHEMA = :db_storage
             AND TABLE_NAME = 'logs' AND COLUMN_NAME = 'log_id'"
         );
-        $statement->bindValue(':db_storage', dbcstg, \PDO::PARAM_STR);
+        $statement->bindValue(':db_storage', dbcstg, PDO::PARAM_STR);
         $statement->execute();
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
         $shouldBeContinue = $result[0]['is_present'] == '1';
         if (! $shouldBeContinue) {
-            throw new Exception("The current log table does not have the log_id column");
+            throw new Exception('The current log table does not have the log_id column');
         }
         // For consistency consideration, we stop broker before creating the new table
         if ($isBrokerAlreadyStarted) {
-            $logs("For consistency consideration, we stop broker before creating the new table");
+            $logs('For consistency consideration, we stop broker before creating the new table');
             if (stopBroker() !== 0 && isBrokerRunning() === true) {
-                throw new Exception("Error stopping Broker");
+                throw new Exception('Error stopping Broker');
             }
         } else {
-            $logs("Broker is not started, no need to stop it");
+            $logs('Broker is not started, no need to stop it');
         }
         $currentStep++;
         // We create the new logs table and rename the older
-        $logs("We create the new logs table and rename the older");
-        $db->query("CREATE TABLE logs_new LIKE logs");
+        $logs('We create the new logs table and rename the older');
+        $db->query('CREATE TABLE logs_new LIKE logs');
         $currentStep++;
         // Next we change the column log_id from the new logs table into BIGINT
-        $logs("Next we modify the log_id column of the new logs table with the type BIGINT");
-        $db->query("ALTER TABLE logs_new MODIFY log_id BIGINT(20) NOT NULL AUTO_INCREMENT");
+        $logs('Next we modify the log_id column of the new logs table with the type BIGINT');
+        $db->query('ALTER TABLE logs_new MODIFY log_id BIGINT(20) NOT NULL AUTO_INCREMENT');
         $currentStep++;
         // Finally we rename the current table 'logs' to 'logs_old'
         $logs("Finally we rename the current table 'logs' to 'logs_old'");
-        $db->query("ALTER TABLE logs RENAME TO logs_old");
+        $db->query('ALTER TABLE logs RENAME TO logs_old');
         $currentStep++;
         // And we rename the new table 'logs_new' to 'logs'
         $logs("And we rename the new table 'logs_new' to 'logs'");
-        $db->query("ALTER TABLE logs_new RENAME TO logs");
+        $db->query('ALTER TABLE logs_new RENAME TO logs');
         $currentStep++;
         // We start Broker if it was previously started
         if ($isBrokerAlreadyStarted) {
             // Now we can restart Broker
-            $logs("Now we can restart Broker");
+            $logs('Now we can restart Broker');
             if (startBroker() !== 0 && isBrokerRunning() === false) {
-                throw new Exception("Error starting Broker");
+                throw new Exception('Error starting Broker');
             }
         } else {
-            $logs("Broker was not started at the beginning of this script, we do not start it");
+            $logs('Broker was not started at the beginning of this script, we do not start it');
         }
         $currentStep++;
-    } elseif (!empty($partitions) && empty($firstRecoveryPartitionName)) {
+    } elseif (! empty($partitions) && empty($firstRecoveryPartitionName)) {
         /**
          * Migration recovery mode
          */
@@ -452,16 +455,17 @@ try {
         // If the name of the first recovery partition is defined, we will start copying from it
         if (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName !== $partitionName) {
             continue;
-        } elseif (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName === $partitionName) {
+        }
+        if (isset($firstRecoveryPartitionName) && $firstRecoveryPartitionName === $partitionName) {
             unset($firstRecoveryPartitionName);
         }
         $currentStep = 1;
 
         // We copy data from old table into temporary csv file for the current partition
-        $logs("Copying records from old table into csv file for the partition $partitionName");
+        $logs("Copying records from old table into csv file for the partition {$partitionName}");
         $pathPartition = TEMP_DIRECTORY . $partitionName . '.csv';
         if (! $fp = fopen($pathPartition, 'w')) {
-            throw new Exception("Error creating the temporary csv file $pathPartition");
+            throw new Exception("Error creating the temporary csv file {$pathPartition}");
         }
 
         if ($isInCompatibleMode) {
@@ -474,16 +478,16 @@ try {
             $date->setTime(0, 0, 0);
             $end = (int) $date->format('U');
 
-            $date->setTime(-24, 0 , 0);
+            $date->setTime(-24, 0, 0);
             $start = (int) $date->format('U');
 
-            $result = $db->query("SELECT * FROM logs_old WHERE ctime >= $start AND ctime < $end");
+            $result = $db->query("SELECT * FROM logs_old WHERE ctime >= {$start} AND ctime < {$end}");
         } else {
-            $result = $db->query("SELECT * FROM logs_old PARTITION ($partitionName)");
+            $result = $db->query("SELECT * FROM logs_old PARTITION ({$partitionName})");
         }
 
         $nbrRecords = 0;
-        while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             fputcsv($fp, $row);
             $nbrRecords++;
         }
@@ -491,7 +495,7 @@ try {
         $currentStep++;
 
         // We copy data from the csv partition file into the new table 'logs'
-        $logs("Copying of $nbrRecords records from the csv file $partitionName into the new table");
+        $logs("Copying of {$nbrRecords} records from the csv file {$partitionName} into the new table");
         $query = str_replace('{{DATA_FILE}}', realpath($pathPartition), $loadDataInfileQuery);
         if ($db->beginTransaction()) {
             // LOAD DATA INFILE ...
@@ -500,23 +504,24 @@ try {
 
             // We delete the temporary csv file
             if (unlink($pathPartition)) {
-                $logs("We delete the temporary csv file $partitionName");
+                $logs("We delete the temporary csv file {$partitionName}");
                 $currentStep++;
 
                 // If asked, we delete the old data from the old logs table
                 if ($shouldDeleteOldData) {
-                    $logs("We delete the old data from the partition $partitionName of the old log table");
-                    $db->query("DELETE FROM logs_old PARTITION ($partitionName)");
+                    $logs("We delete the old data from the partition {$partitionName} of the old log table");
+                    $db->query("DELETE FROM logs_old PARTITION ({$partitionName})");
                 } else {
-                    $logs("We do not delete the old data from the partition $partitionName of the old logs table");
+                    $logs("We do not delete the old data from the partition {$partitionName} of the old logs table");
                 }
                 $db->commit();
             } else {
                 $db->rollBack();
-                throw new Exception("Error deleting the temporary csv file $partitionName");
+
+                throw new Exception("Error deleting the temporary csv file {$partitionName}");
             }
         } else {
-            throw new Exception("Error getting a database transaction");
+            throw new Exception('Error getting a database transaction');
         }
     }
     $currentStep = $globalStep;
@@ -524,10 +529,10 @@ try {
 
     // If asked, we delete the old log table
     if ($shouldDeleteOldData) {
-        $logs("We delete the old logs table");
-        $db->query("DROP TABLE logs_old");
+        $logs('We delete the old logs table');
+        $db->query('DROP TABLE logs_old');
     } else {
-        $logs("We do not delete the old log table");
+        $logs('We do not delete the old log table');
     }
 } catch (Exception $ex) {
     mySysLog("ERROR: {$ex->getMessage()}");
@@ -537,4 +542,4 @@ if (file_exists($lockFileName)) {
     unlink($lockFileName);
 }
 
-mySysLog(sprintf("End of %s", __FILE__));
+mySysLog(sprintf('End of %s', __FILE__));

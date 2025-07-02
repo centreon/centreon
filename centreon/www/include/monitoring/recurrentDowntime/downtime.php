@@ -31,10 +31,8 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,51 +41,49 @@ $downtime_id = filter_var(
     FILTER_VALIDATE_INT
 );
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = $_GET['select'] ?? null;
+$cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = $_GET['dupNbr'] ?? null;
+$cP = $_POST['dupNbr'] ?? null;
 $dupNbr = $cG ?: $cP;
 
-$path = "./include/monitoring/recurrentDowntime/";
+$path = './include/monitoring/recurrentDowntime/';
 
-require_once "./class/centreonDowntime.class.php";
+require_once './class/centreonDowntime.class.php';
 $downtime = new CentreonDowntime($pearDB);
 
-require_once "./include/common/common-Func.php";
+require_once './include/common/common-Func.php';
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
+if (isset($_POST['o1'], $_POST['o2'])) {
+    if ($_POST['o1'] != '') {
+        $o = $_POST['o1'];
     }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
+    if ($_POST['o2'] != '') {
+        $o = $_POST['o2'];
     }
 }
 
-/*
- * Set the real page
- */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
-if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
-    require_once $path . "ajaxForms.php";
+if (isset($_GET['period_form']) || isset($_GET['period']) && $o == '') {
+    require_once $path . 'ajaxForms.php';
 } else {
     switch ($o) {
-        case "a":
-            require_once($path . "formDowntime.php");
-            break; #Add a downtime
-        case "w":
-            require_once($path . "formDowntime.php");
-            break; #Watch a downtime
-        case "c":
-            require_once($path . "formDowntime.php");
-            break; #Modify a downtime
-        case "e":
+        case 'a':
+            require_once $path . 'formDowntime.php';
+            break; // Add a downtime
+        case 'w':
+            require_once $path . 'formDowntime.php';
+            break; // Watch a downtime
+        case 'c':
+            require_once $path . 'formDowntime.php';
+            break; // Modify a downtime
+        case 'e':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -97,9 +93,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
-            break; #Activate a service
-        case "ms":
+            require_once $path . 'listDowntime.php';
+            break; // Activate a service
+        case 'ms':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -107,9 +103,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
+            require_once $path . 'listDowntime.php';
             break;
-        case "u":
+        case 'u':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -119,9 +115,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
-            break; #Desactivate a service
-        case "mu":
+            require_once $path . 'listDowntime.php';
+            break; // Desactivate a service
+        case 'mu':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -129,9 +125,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
+            require_once $path . 'listDowntime.php';
             break;
-        case "m":
+        case 'm':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -139,9 +135,9 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
-            break; #Duplicate n services
-        case "d":
+            require_once $path . 'listDowntime.php';
+            break; // Duplicate n services
+        case 'd':
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
@@ -149,10 +145,10 @@ if (isset($_GET["period_form"]) || isset($_GET["period"]) && $o == "") {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listDowntime.php");
-            break; #Delete n services
+            require_once $path . 'listDowntime.php';
+            break; // Delete n services
         default:
-            require_once($path . "listDowntime.php");
+            require_once $path . 'listDowntime.php';
             break;
     }
 }

@@ -48,7 +48,7 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -60,7 +60,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 
 $dbb = $dependencyInjector['realtime_db'];
 
-/* Init Objects */
+// Init Objects
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
@@ -114,7 +114,7 @@ foreach ($tabStatusHost as $key => $statusHost) {
 
 $hgName = false;
 // get hostgroup name if defined in preferences
-if (!empty($preferences['hostgroup'])) {
+if (! empty($preferences['hostgroup'])) {
     $sql = 'select hg.hg_name from hostgroup hg where hg.hg_id = :hostgroup_id';
     $stmt = $db->prepare($sql);
     $stmt->bindValue(':hostgroup_id', $preferences['hostgroup'], PDO::PARAM_INT);
@@ -127,19 +127,19 @@ if (!empty($preferences['hostgroup'])) {
 if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'hosts') {
     $innerJoinGroup = '';
     if ($hgName) {
-        $innerJoinGroup = ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
-            ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
+        $innerJoinGroup = ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id '
+            . ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
-    $rq1 = ' SELECT 1 AS REALTIME, count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, ' .
-        'SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime ' .
-        'FROM `hosts` h ' .
-        $innerJoinGroup .
-        'WHERE h.enabled = 1 ' .
-        $oreon->user->access->queryBuilder('AND', 'h.name', $oreon->user->access->getHostsString('NAME', $dbb)) .
-        ' AND h.name NOT LIKE \'_Module_%\' ' .
-        ' GROUP BY h.state ' .
-        ' ORDER BY h.state';
+    $rq1 = ' SELECT 1 AS REALTIME, count(DISTINCT h.name) cnt, h.state, SUM(h.acknowledged) as acknowledged, '
+        . 'SUM(CASE WHEN h.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime '
+        . 'FROM `hosts` h '
+        . $innerJoinGroup
+        . 'WHERE h.enabled = 1 '
+        . $oreon->user->access->queryBuilder('AND', 'h.name', $oreon->user->access->getHostsString('NAME', $dbb))
+        . ' AND h.name NOT LIKE \'_Module_%\' '
+        . ' GROUP BY h.state '
+        . ' ORDER BY h.state';
     $dbResult = $dbb->query($rq1);
     $data = [];
     $color = [];
@@ -166,7 +166,7 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
     $template->display('global_health_host.ihtml');
 } elseif (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'services') {
     $sgName = false;
-    if (!empty($preferences['servicegroup'])) {
+    if (! empty($preferences['servicegroup'])) {
         $sql = 'select sg.sg_name from servicegroup sg where sg.sg_id = ' . $dbb->escape($preferences['servicegroup']);
         $dbResult = $db->query($sql);
         $row = $dbResult->fetchRow();
@@ -175,14 +175,14 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
 
     $innerJoinGroup = '';
     if ($sgName) {
-        $innerJoinGroup = ' INNER JOIN services_servicegroups ssg ON ssg.service_id = s.service_id ' .
-            'and ssg.host_id = s.host_id INNER JOIN servicegroups sg ON ssg.servicegroup_id = sg.servicegroup_id ' .
-            'and sg.name = \'' . $sgName . '\' ';
+        $innerJoinGroup = ' INNER JOIN services_servicegroups ssg ON ssg.service_id = s.service_id '
+            . 'and ssg.host_id = s.host_id INNER JOIN servicegroups sg ON ssg.servicegroup_id = sg.servicegroup_id '
+            . 'and sg.name = \'' . $sgName . '\' ';
     }
 
     if ($hgName) {
-        $innerJoinGroup .= ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id ' .
-            ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
+        $innerJoinGroup .= ' INNER JOIN hosts_hostgroups hhg ON  h.host_id = hhg.host_id '
+            . ' INNER JOIN hostgroups hg ON hhg.hostgroup_id = hg.hostgroup_id and hg.name = \'' . $hgName . '\' ';
     }
 
     global $is_admin;
@@ -193,30 +193,30 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
     /**
      * Get DB informations for creating Flash
      */
-    if (!$is_admin) {
-        $rq2 = ' SELECT 1 AS REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
-            ' SUM(s.acknowledged) as acknowledged, ' .
-            ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  ' .
-            ' FROM services s ' .
-            ' INNER JOIN centreon_acl acl ON s.host_id  = acl.host_id AND s.service_id = acl.service_id ' .
-            ' INNER JOIN hosts h ON s.host_id = h.host_id ' .
-            $innerJoinGroup .
-            ' WHERE h.name NOT LIKE \'_Module_%\' ' .
-            ' AND h.enabled = 1 ' .
-            ' AND s.enabled = 1 ' .
-            ' AND acl.group_id IN (' . $grouplistStr . ') ' .
-            ' GROUP BY s.state ORDER by s.state';
+    if (! $is_admin) {
+        $rq2 = ' SELECT 1 AS REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, '
+            . ' SUM(s.acknowledged) as acknowledged, '
+            . ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  '
+            . ' FROM services s '
+            . ' INNER JOIN centreon_acl acl ON s.host_id  = acl.host_id AND s.service_id = acl.service_id '
+            . ' INNER JOIN hosts h ON s.host_id = h.host_id '
+            . $innerJoinGroup
+            . ' WHERE h.name NOT LIKE \'_Module_%\' '
+            . ' AND h.enabled = 1 '
+            . ' AND s.enabled = 1 '
+            . ' AND acl.group_id IN (' . $grouplistStr . ') '
+            . ' GROUP BY s.state ORDER by s.state';
     } else {
-        $rq2 = ' SELECT 1 AS REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, ' .
-            ' SUM(s.acknowledged) as acknowledged, ' .
-            ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  ' .
-            ' FROM services s' .
-            ' INNER JOIN hosts h ON s.host_id = h.host_id ' .
-            $innerJoinGroup .
-            ' WHERE h.name NOT LIKE \'_Module_%\' ' .
-            ' AND h.enabled = 1 ' .
-            ' AND s.enabled = 1 ' .
-            ' GROUP BY s.state ORDER by s.state';
+        $rq2 = ' SELECT 1 AS REALTIME, count(DISTINCT s.state, s.host_id, s.service_id) count, s.state state, '
+            . ' SUM(s.acknowledged) as acknowledged, '
+            . ' SUM(CASE WHEN s.scheduled_downtime_depth >= 1 THEN 1 ELSE 0 END) AS downtime  '
+            . ' FROM services s'
+            . ' INNER JOIN hosts h ON s.host_id = h.host_id '
+            . $innerJoinGroup
+            . ' WHERE h.name NOT LIKE \'_Module_%\' '
+            . ' AND h.enabled = 1 '
+            . ' AND s.enabled = 1 '
+            . ' GROUP BY s.state ORDER by s.state';
     }
     $dbResult = $dbb->query($rq2);
 

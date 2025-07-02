@@ -82,7 +82,7 @@ $linkType = '';
 if ($service_id !== false) {
     // Check if a service is a service by hostgroup or not
     $statement = $pearDB->prepare('SELECT * FROM host_service_relation WHERE service_service_id = :service_id');
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     while ($data = $statement->fetch()) {
         if (isset($data['hostgroup_hg_id']) && $data['hostgroup_hg_id'] !== '') {

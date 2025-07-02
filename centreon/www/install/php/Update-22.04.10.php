@@ -72,9 +72,9 @@ try {
                     SQL
             );
 
-            $preparedUpdate->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
-            $preparedUpdate->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
-            $preparedUpdate->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+            $preparedUpdate->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':nagios_id', $modified['nagios_id'], PDO::PARAM_INT);
             $preparedUpdate->execute();
         }
     })(
@@ -82,7 +82,7 @@ try {
     );
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -95,5 +95,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

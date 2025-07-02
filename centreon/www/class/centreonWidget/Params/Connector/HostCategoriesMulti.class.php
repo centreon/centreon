@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../Select2.class.php";
+require_once __DIR__ . '/../Select2.class.php';
 
 /**
  * Class
@@ -62,6 +62,7 @@ class CentreonWidgetParamsConnectorHostCategoriesMulti extends CentreonWidgetPar
     public function getParameters()
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostcategory&action=list';
+
         return ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $path, 'multiple' => true, 'linkedObject' => 'centreonHostcategories'];
     }
 }

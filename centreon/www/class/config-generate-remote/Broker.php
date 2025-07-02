@@ -21,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 
 /**
@@ -36,8 +36,10 @@ class Broker extends AbstractObject
 {
     /** @var PDOStatement|null */
     public $stmtEngine;
+
     /** @var string */
     protected $table = 'cfg_centreonbroker';
+
     /** @var string */
     protected $generateFilename = 'cfg_centreonbroker.infile';
 
@@ -58,6 +60,7 @@ class Broker extends AbstractObject
         daemon,
         pool_size
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'config_id',
@@ -75,6 +78,7 @@ class Broker extends AbstractObject
         'daemon',
         'pool_size',
     ];
+
     /** @var PDOStatement|null */
     protected $stmtBroker = null;
 
@@ -83,15 +87,15 @@ class Broker extends AbstractObject
      *
      * @param int $pollerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function generate(int $pollerId): void
     {
         if (is_null($this->stmtEngine)) {
             $this->stmtBroker = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect FROM cfg_centreonbroker " .
-                "WHERE ns_nagios_server = :poller_id AND config_activate = '1'"
+                "SELECT {$this->attributesSelect} FROM cfg_centreonbroker "
+                . "WHERE ns_nagios_server = :poller_id AND config_activate = '1'"
             );
         }
         $this->stmtBroker->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
@@ -112,8 +116,8 @@ class Broker extends AbstractObject
      *
      * @param array $poller
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateFromPoller(array $poller): void
     {

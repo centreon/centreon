@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 require_once _CENTREON_PATH_ . 'www/class/centreonDowntime.class.php';
@@ -95,12 +95,13 @@ class CentreonDowntimeBroker extends CentreonDowntime
             return false;
         }
         while ($row = $res->fetch()) {
-            if (isset($row['name2']) && $row['name2'] != "") {
+            if (isset($row['name2']) && $row['name2'] != '') {
                 $list['services'] = ['host_name' => $row['name1'], 'service_name' => $row['name2']];
-            } elseif (isset($row['name1']) && $row['name1'] != "") {
+            } elseif (isset($row['name1']) && $row['name1'] != '') {
                 $list['hosts'] = ['host_name' => $row['name1']];
             }
         }
+
         return $list;
     }
 
@@ -115,17 +116,17 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function getDowntimeInternalId($oname1, $start_time, $dt_id, $oname2 = null)
     {
-        $query = "SELECT d.internal_id as internal_downtime_id
-        		  FROM downtimes d, hosts h ";
-        if (isset($oname2) && $oname2 != "") {
-            $query .= ", services s ";
+        $query = 'SELECT d.internal_id as internal_downtime_id
+        		  FROM downtimes d, hosts h ';
+        if (isset($oname2) && $oname2 != '') {
+            $query .= ', services s ';
         }
-        $query .= "WHERE d.host_id = h.host_id
-        		  AND d.start_time = " . $this->dbb->escape($start_time) . "
+        $query .= 'WHERE d.host_id = h.host_id
+        		  AND d.start_time = ' . $this->dbb->escape($start_time) . "
         		  AND d.comment_data = '[Downtime cycle #" . $dt_id . "]'
         		  AND h.name = '" . $this->dbb->escape($oname1) . "' ";
-        if (isset($oname2) && $oname2 != "") {
-            $query .= " AND h.host_id = s.host_id ";
+        if (isset($oname2) && $oname2 != '') {
+            $query .= ' AND h.host_id = s.host_id ';
             $query .= " AND s.description = '" . $this->dbb->escape($oname2) . "' ";
         }
         try {
@@ -134,6 +135,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             return false;
         }
         $row = $res->fetch();
+
         return $row['internal_downtime_id'];
     }
 
@@ -199,8 +201,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param $cycle
      * @param $tomorrow
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function isSpecificDateDowntime($startDelay, $endDelay, $dayOfWeek, $cycle, $tomorrow)
     {
@@ -238,14 +240,14 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param $now
      * @param $delay
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     private function isTomorrow($downtimeStartTime, $now, $delay)
     {
         $tomorrow = false;
 
-        # startDelay must be between midnight - delay and midnight - 1 second
+        // startDelay must be between midnight - delay and midnight - 1 second
         $nowTimestamp = strtotime($now->format('H:i'));
         $midnightMoins1SecondDate = new DateTime('midnight -1seconds');
         $midnightMoins1SecondTimestamp = strtotime($midnightMoins1SecondDate->format('H:i:s'));
@@ -254,22 +256,22 @@ class CentreonDowntimeBroker extends CentreonDowntime
 
         $downtimeStartTimeTimestamp = strtotime($downtimeStartTime);
 
-        # YYYY-MM-DD 00:00:00
+        // YYYY-MM-DD 00:00:00
         $midnightDate = new DateTime('midnight');
-        # 00:00
+        // 00:00
         $midnight = $midnightDate->format('H:i');
         $midnightTimestamp = strtotime($midnight);
 
-        # YYYY-MM-DD 00:00:10 (for 600 seconds delay)
+        // YYYY-MM-DD 00:00:10 (for 600 seconds delay)
         $midnightPlusDelayDate = new DateTime('midnight +' . $delay . 'seconds');
-        # 00:10 (for 600 seconds delay)
+        // 00:10 (for 600 seconds delay)
         $midnightPlusDelay = $midnightPlusDelayDate->format('H:i');
         $midnightPlusDelayTimestamp = strtotime($midnightPlusDelay);
 
-        if ($downtimeStartTimeTimestamp >= $midnightTimestamp &&
-            $downtimeStartTimeTimestamp <= $midnightPlusDelayTimestamp &&
-            $nowTimestamp <= $midnightMoins1SecondTimestamp &&
-            $nowTimestamp >= $midnightMoinsDelayTimestamp
+        if ($downtimeStartTimeTimestamp >= $midnightTimestamp
+            && $downtimeStartTimeTimestamp <= $midnightPlusDelayTimestamp
+            && $nowTimestamp <= $midnightMoins1SecondTimestamp
+            && $nowTimestamp >= $midnightMoinsDelayTimestamp
         ) {
             $tomorrow = true;
         }
@@ -309,7 +311,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     private function manageWinterToSummerTimestamp(DateTime $datetime, string $time): int
     {
         $hour = explode(':', $time)[0];
-        if ((int)$datetime->format('H') > (int)$hour) {
+        if ((int) $datetime->format('H') > (int) $hour) {
             $datetime->setTime($hour, '00');
         }
 
@@ -335,8 +337,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
     /**
      * @param $delay
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getApproachingDowntimes($delay)
     {
@@ -347,7 +349,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
         $gmtObj = new CentreonGMT($this->db);
 
         foreach ($downtimes as $downtime) {
-            /* Convert HH::mm::ss to HH:mm */
+            // Convert HH::mm::ss to HH:mm
             $downtime['dtp_start_time'] = substr(
                 $downtime['dtp_start_time'],
                 0,
@@ -370,7 +372,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
                 $downtimeEndDate->add(new DateInterval('P1D'));
             }
 
-            # Check if we jump an hour
+            // Check if we jump an hour
             $startTimestamp = $this->manageWinterToSummerTimestamp($downtimeStartDate, $downtime['dtp_start_time']);
             $endTimestamp = $this->manageWinterToSummerTimestamp($downtimeEndDate, $downtime['dtp_end_time']);
 
@@ -378,12 +380,12 @@ class CentreonDowntimeBroker extends CentreonDowntime
                 continue;
             }
 
-            # Check if HH:mm time is approaching
-            if (!$this->isApproachingTime($startTimestamp, $startDelay->getTimestamp(), $endDelay->getTimestamp())) {
+            // Check if HH:mm time is approaching
+            if (! $this->isApproachingTime($startTimestamp, $startDelay->getTimestamp(), $endDelay->getTimestamp())) {
                 continue;
             }
 
-            # check backward of one hour
+            // check backward of one hour
             $startTimestamp = $this->manageSummerToWinterTimestamp($downtimeStartDate);
 
             $approaching = false;
@@ -428,8 +430,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
     /**
      * @param $downtime
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function insertCache($downtime): void
     {
@@ -450,8 +452,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function purgeCache(): void
     {
@@ -462,8 +464,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
     /**
      * @param $downtime
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function isScheduled($downtime)
     {
@@ -493,8 +495,8 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param int $host_id The host id for command
      * @param string $cmd The command to send
      *
-     * @return void The command return code
      * @throws PDOException
+     * @return void The command return code
      */
     public function setCommand($host_id, $cmd): void
     {
@@ -515,7 +517,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             }
         }
 
-        if (!isset($cmdData[$host_id])) {
+        if (! isset($cmdData[$host_id])) {
             return;
         }
 
@@ -531,7 +533,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     {
         $remoteCommands = implode(PHP_EOL, $this->remoteCommands);
         if ($remoteCommands) {
-            file_put_contents($this->remoteCmdDir . "/" . time() . "-downtimes", $remoteCommands, FILE_APPEND);
+            file_put_contents($this->remoteCmdDir . '/' . time() . '-downtimes', $remoteCommands, FILE_APPEND);
         }
     }
 }

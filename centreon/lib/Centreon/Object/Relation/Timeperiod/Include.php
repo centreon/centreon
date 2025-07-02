@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,11 +34,13 @@
  *
  */
 
-require_once __DIR__ . "/../Relation.php";
+require_once __DIR__ . '/../Relation.php';
 
 class Centreon_Object_Relation_Timeperiod_Include extends Centreon_Object_Relation
 {
-    protected $relationTable = "timeperiod_include_relations";
-    protected $firstKey = "timeperiod_id";
-    protected $secondKey = "timeperiod_include_id";
+    protected $relationTable = 'timeperiod_include_relations';
+
+    protected $firstKey = 'timeperiod_id';
+
+    protected $secondKey = 'timeperiod_include_id';
 }

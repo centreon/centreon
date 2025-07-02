@@ -34,21 +34,21 @@
  *
  */
 
-ini_set("display_errors", "Off");
+ini_set('display_errors', 'Off');
 
-require_once realpath(__DIR__ . "/../../../../../../bootstrap.php");
-include_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
-include_once _CENTREON_PATH_ . "www/include/monitoring/status/Common/common-Func.php";
-include_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
+require_once realpath(__DIR__ . '/../../../../../../bootstrap.php');
+include_once _CENTREON_PATH_ . 'www/class/centreonUtils.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonXMLBGRequest.class.php';
+include_once _CENTREON_PATH_ . 'www/include/monitoring/status/Common/common-Func.php';
+include_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 
 // Create XML Request Objects
 CentreonSession::start(1);
 $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
+if (! isset($obj->session_id) || ! CentreonSession::checkSession($obj->session_id, $obj->DB)) {
+    echo 'Bad Session ID';
 
-if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
-    print "Bad Session ID";
     exit();
 }
 
@@ -64,23 +64,23 @@ $centreon = $_SESSION['centreon'];
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
 // Check Arguments From GET tab
-$o = isset($_GET['o']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
+$o = isset($_GET['o']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
 $p = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT, ['options' => ['default' => 2]]);
 $num = filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => 20]]);
-//if instance value is not set, displaying all active pollers linked resources
+// if instance value is not set, displaying all active pollers linked resources
 $instance = filter_var($obj->defaultPoller ?? -1, FILTER_VALIDATE_INT);
 $hostgroups = filter_var($obj->defaultHostgroups ?? 0, FILTER_VALIDATE_INT);
-$search = isset($_GET['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
-$sortType = isset($_GET['sort_type']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'host_name';
-$order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
+$search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
+$sortType = isset($_GET['sort_type']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'host_name';
+$order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
 // Backup poller selection
 $obj->setInstanceHistory($instance);
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 $service = [];
@@ -90,69 +90,69 @@ $host_services = [];
 $metaService_status = [];
 $tab_host_service = [];
 $tabIcone = [];
-//saving bound values
+// saving bound values
 $queryValues = [];
 
 /**
  * Get status
  */
-$rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id FROM hosts ";
+$rq1 = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hosts.name, hosts.state, hosts.icon_image, hosts.host_id FROM hosts ';
 if ($hostgroups) {
-    $rq1 .= ", hosts_hostgroups hg, hostgroups hg2 ";
+    $rq1 .= ', hosts_hostgroups hg, hostgroups hg2 ';
 }
 
-if (!$obj->is_admin) {
-    $rq1 .= ", centreon_acl ";
+if (! $obj->is_admin) {
+    $rq1 .= ', centreon_acl ';
 }
 
 $rq1 .= "WHERE hosts.name NOT LIKE '\_Module\_%' AND hosts.enabled = 1 "
-    . $obj->access->queryBuilder("AND", "hosts.host_id", "centreon_acl.host_id") . " "
-    . $obj->access->queryBuilder("AND", "group_id", $obj->grouplistStr) . " ";
+    . $obj->access->queryBuilder('AND', 'hosts.host_id', 'centreon_acl.host_id') . ' '
+    . $obj->access->queryBuilder('AND', 'group_id', $obj->grouplistStr) . ' ';
 
 if (str_ends_with($o, '_pb') || str_ends_with($o, '_ack_0')) {
-    $rq1 .= "AND hosts.host_id IN ( "
-        . "SELECT s.host_id FROM services s "
-        . "WHERE s.state != 0 "
-        . "AND s.state != 4 "
-        . "AND s.enabled = 1) ";
+    $rq1 .= 'AND hosts.host_id IN ( '
+        . 'SELECT s.host_id FROM services s '
+        . 'WHERE s.state != 0 '
+        . 'AND s.state != 4 '
+        . 'AND s.enabled = 1) ';
 } elseif (str_ends_with($o, '_ack_1')) {
-    $rq1 .= "AND hosts.host_id IN ( "
-        . "SELECT s.host_id FROM services s "
+    $rq1 .= 'AND hosts.host_id IN ( '
+        . 'SELECT s.host_id FROM services s '
         . "WHERE s.acknowledged = '1' "
-        . "AND s.enabled = 1) ";
+        . 'AND s.enabled = 1) ';
 }
 
-if ($search != "") {
-    $rq1 .= "AND hosts.name like :search ";
-    $queryValues['search'] = [\PDO::PARAM_STR => '%' . $search . '%'];
+if ($search != '') {
+    $rq1 .= 'AND hosts.name like :search ';
+    $queryValues['search'] = [PDO::PARAM_STR => '%' . $search . '%'];
 }
 
 if ($instance != -1) {
-    $rq1 .= "AND hosts.instance_id = :instance ";
-    $queryValues['instance'] = [\PDO::PARAM_INT => $instance];
+    $rq1 .= 'AND hosts.instance_id = :instance ';
+    $queryValues['instance'] = [PDO::PARAM_INT => $instance];
 }
 
 if ($hostgroups) {
-    $rq1 .= " AND hosts.host_id = hg.host_id
+    $rq1 .= ' AND hosts.host_id = hg.host_id
         AND hg.hostgroup_id = :hostGroup
-        AND hg.hostgroup_id = hg2.hostgroup_id ";
-    $queryValues['hostGroup'] = [\PDO::PARAM_INT => $hostgroups];
+        AND hg.hostgroup_id = hg2.hostgroup_id ';
+    $queryValues['hostGroup'] = [PDO::PARAM_INT => $hostgroups];
 }
 
 // Sort order
 switch ($sortType) {
     case 'current_state':
-        $rq1 .= "ORDER BY hosts.state " . $order . ",hosts.name ";
+        $rq1 .= 'ORDER BY hosts.state ' . $order . ',hosts.name ';
         break;
     default:
-        $rq1 .= "ORDER BY hosts.name " . $order . " ";
+        $rq1 .= 'ORDER BY hosts.name ' . $order . ' ';
         break;
 }
 
 // Limit
-$rq1 .= " LIMIT :numLimit, :limit";
-$queryValues['numLimit'] = [\PDO::PARAM_INT => ($num * $limit)];
-$queryValues['limit'] = [\PDO::PARAM_INT => $limit];
+$rq1 .= ' LIMIT :numLimit, :limit';
+$queryValues['numLimit'] = [PDO::PARAM_INT => ($num * $limit)];
+$queryValues['limit'] = [PDO::PARAM_INT => $limit];
 
 $dbResult = $obj->DBC->prepare($rq1);
 foreach ($queryValues as $bindId => $bindData) {
@@ -165,12 +165,12 @@ $dbResult->execute();
 $numRows = (int) $obj->DBC->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 // Info / Pagination
-$obj->XML->startElement("reponse");
-$obj->XML->startElement("i");
-$obj->XML->writeElement("numrows", $numRows);
-$obj->XML->writeElement("num", $num);
-$obj->XML->writeElement("limit", $limit);
-$obj->XML->writeElement("p", $p);
+$obj->XML->startElement('reponse');
+$obj->XML->startElement('i');
+$obj->XML->writeElement('numrows', $numRows);
+$obj->XML->writeElement('num', $num);
+$obj->XML->writeElement('limit', $limit);
+$obj->XML->writeElement('p', $p);
 $obj->XML->endElement();
 
 $buildParameter = function (string $id, string $name) {
@@ -201,61 +201,61 @@ $pendingStatus = $buildParameter('PENDING', 'Pending');
 $ct = 0;
 $tabFinal = [];
 while ($ndo = $dbResult->fetch()) {
-    $tabFinal[$ndo["name"]]["nb_service_k"] = 0;
-    $tabFinal[$ndo["name"]]["host_id"] = $ndo["host_id"];
-    if (!str_starts_with($o, 'svcSum')) {
-        $tabFinal[$ndo["name"]]["nb_service_k"] = $obj->monObj->getServiceStatusCount(
-            $ndo["name"],
+    $tabFinal[$ndo['name']]['nb_service_k'] = 0;
+    $tabFinal[$ndo['name']]['host_id'] = $ndo['host_id'];
+    if (! str_starts_with($o, 'svcSum')) {
+        $tabFinal[$ndo['name']]['nb_service_k'] = $obj->monObj->getServiceStatusCount(
+            $ndo['name'],
             $obj,
             $o,
             CentreonMonitoring::SERVICE_STATUS_OK
         );
     }
-    $tabFinal[$ndo["name"]]["nb_service_w"] = 0 + $obj->monObj->getServiceStatusCount(
-        $ndo["name"],
+    $tabFinal[$ndo['name']]['nb_service_w'] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo['name'],
         $obj,
         $o,
         CentreonMonitoring::SERVICE_STATUS_WARNING
     );
-    $tabFinal[$ndo["name"]]["nb_service_c"] = 0 + $obj->monObj->getServiceStatusCount(
-        $ndo["name"],
+    $tabFinal[$ndo['name']]['nb_service_c'] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo['name'],
         $obj,
         $o,
         CentreonMonitoring::SERVICE_STATUS_CRITICAL
     );
-    $tabFinal[$ndo["name"]]["nb_service_u"] = 0 + $obj->monObj->getServiceStatusCount(
-        $ndo["name"],
+    $tabFinal[$ndo['name']]['nb_service_u'] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo['name'],
         $obj,
         $o,
         CentreonMonitoring::SERVICE_STATUS_UNKNOWN
     );
-    $tabFinal[$ndo["name"]]["nb_service_p"] = 0 + $obj->monObj->getServiceStatusCount(
-        $ndo["name"],
+    $tabFinal[$ndo['name']]['nb_service_p'] = 0 + $obj->monObj->getServiceStatusCount(
+        $ndo['name'],
         $obj,
         $o,
         CentreonMonitoring::SERVICE_STATUS_PENDING
     );
-    $tabFinal[$ndo["name"]]["cs"] = $ndo["state"];
+    $tabFinal[$ndo['name']]['cs'] = $ndo['state'];
 
-    $tabIcone[$ndo["name"]] = isset($ndo["icon_image"]) && $ndo["icon_image"] != "" ? $ndo["icon_image"] : "none";
+    $tabIcone[$ndo['name']] = isset($ndo['icon_image']) && $ndo['icon_image'] != '' ? $ndo['icon_image'] : 'none';
 }
 
 foreach ($tabFinal as $host_name => $tab) {
-    $obj->XML->startElement("l");
-    $obj->XML->writeAttribute("class", $obj->getNextLineClass());
-    $obj->XML->writeElement("o", $ct++);
-    $obj->XML->writeElement("hn", CentreonUtils::escapeSecure($host_name), false);
-    $obj->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($host_name)));
-    $obj->XML->writeElement("hid", $tab["host_id"], false);
+    $obj->XML->startElement('l');
+    $obj->XML->writeAttribute('class', $obj->getNextLineClass());
+    $obj->XML->writeElement('o', $ct++);
+    $obj->XML->writeElement('hn', CentreonUtils::escapeSecure($host_name), false);
+    $obj->XML->writeElement('hnl', CentreonUtils::escapeSecure(urlencode($host_name)));
+    $obj->XML->writeElement('hid', $tab['host_id'], false);
     $obj->XML->writeElement(
-        "h_details_uri",
+        'h_details_uri',
         $useDeprecatedPages
             ? 'main.php?p=20202&o=hd&host_name=' . $host_name
-            : $resourceController->buildHostDetailsUri($tab["host_id"])
+            : $resourceController->buildHostDetailsUri($tab['host_id'])
     );
     $serviceListingDeprecatedUri = 'main.php?p=20201&o=svc&host_search=' . $host_name;
     $obj->XML->writeElement(
-        "s_listing_uri",
+        's_listing_uri',
         $useDeprecatedPages
             ? 'main.php?o=svc&p=20201&statusFilter=&host_search=' . $host_name
             : $resourceController->buildListingUri([
@@ -266,56 +266,56 @@ foreach ($tabFinal as $host_name => $tab) {
                 ]),
             ])
     );
-    $obj->XML->writeElement("ico", $tabIcone[$host_name]);
-    $obj->XML->writeElement("hs", _($obj->statusHost[$tab["cs"]]), false);
-    $obj->XML->writeElement("hc", $obj->colorHost[$tab["cs"]]);
-    $obj->XML->writeElement("sc", $tab["nb_service_c"]);
-    $obj->XML->writeElement("scc", $obj->colorService[2]);
-    $obj->XML->writeElement("sw", $tab["nb_service_w"]);
-    $obj->XML->writeElement("swc", $obj->colorService[1]);
-    $obj->XML->writeElement("su", $tab["nb_service_u"]);
-    $obj->XML->writeElement("suc", $obj->colorService[3]);
-    $obj->XML->writeElement("sk", $tab["nb_service_k"]);
-    $obj->XML->writeElement("skc", $obj->colorService[0]);
-    $obj->XML->writeElement("sp", $tab["nb_service_p"]);
-    $obj->XML->writeElement("spc", $obj->colorService[4]);
+    $obj->XML->writeElement('ico', $tabIcone[$host_name]);
+    $obj->XML->writeElement('hs', _($obj->statusHost[$tab['cs']]), false);
+    $obj->XML->writeElement('hc', $obj->colorHost[$tab['cs']]);
+    $obj->XML->writeElement('sc', $tab['nb_service_c']);
+    $obj->XML->writeElement('scc', $obj->colorService[2]);
+    $obj->XML->writeElement('sw', $tab['nb_service_w']);
+    $obj->XML->writeElement('swc', $obj->colorService[1]);
+    $obj->XML->writeElement('su', $tab['nb_service_u']);
+    $obj->XML->writeElement('suc', $obj->colorService[3]);
+    $obj->XML->writeElement('sk', $tab['nb_service_k']);
+    $obj->XML->writeElement('skc', $obj->colorService[0]);
+    $obj->XML->writeElement('sp', $tab['nb_service_p']);
+    $obj->XML->writeElement('spc', $obj->colorService[4]);
     $obj->XML->writeElement(
-        "s_listing_ok",
+        's_listing_ok',
         $useDeprecatedPages
             ? $serviceListingDeprecatedUri . '&statusFilter=ok'
             : $buildServicesUri($host_name, [$okStatus])
     );
     $obj->XML->writeElement(
-        "s_listing_warning",
+        's_listing_warning',
         $useDeprecatedPages
             ? $serviceListingDeprecatedUri . '&statusFilter=warning'
             : $buildServicesUri($host_name, [$warningStatus])
     );
     $obj->XML->writeElement(
-        "s_listing_critical",
+        's_listing_critical',
         $useDeprecatedPages
             ? $serviceListingDeprecatedUri . '&statusFilter=critical'
             : $buildServicesUri($host_name, [$criticalStatus])
     );
     $obj->XML->writeElement(
-        "s_listing_unknown",
+        's_listing_unknown',
         $useDeprecatedPages
             ? $serviceListingDeprecatedUri . '&statusFilter=unknown'
             : $buildServicesUri($host_name, [$unknownStatus])
     );
     $obj->XML->writeElement(
-        "s_listing_pending",
+        's_listing_pending',
         $useDeprecatedPages
             ? $serviceListingDeprecatedUri . '&statusFilter=pending'
             : $buildServicesUri($host_name, [$pendingStatus])
     );
-    $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
-    $obj->XML->writeElement("viewIcon", returnSvg("www/img/icons/view.svg", "var(--icons-fill-color)", 18, 18));
+    $obj->XML->writeElement('chartIcon', returnSvg('www/img/icons/chart.svg', 'var(--icons-fill-color)', 18, 18));
+    $obj->XML->writeElement('viewIcon', returnSvg('www/img/icons/view.svg', 'var(--icons-fill-color)', 18, 18));
     $obj->XML->endElement();
 }
 
-if (!$ct) {
-    $obj->XML->writeElement("infos", "none");
+if (! $ct) {
+    $obj->XML->writeElement('infos', 'none');
 }
 $obj->XML->endElement();
 

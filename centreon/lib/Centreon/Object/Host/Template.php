@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with hosts
@@ -42,11 +42,12 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Host_Template extends Centreon_Object
 {
-    protected $table = "host";
-    protected $primaryKey = "host_id";
-    protected $uniqueLabelField = "host_name";
-    
-    
+    protected $table = 'host';
+
+    protected $primaryKey = 'host_id';
+
+    protected $uniqueLabelField = 'host_name';
+
     /**
      * Generic method that allows to retrieve object ids
      * from another object parameter
@@ -57,27 +58,29 @@ class Centreon_Object_Host_Template extends Centreon_Object
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
-        $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
-        $condition = "";
-        if (!is_array($paramValues)) {
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
+        $condition = '';
+        if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
-            if ($condition != "") {
-                $condition .= " OR ";
+            if ($condition != '') {
+                $condition .= ' OR ';
             }
-            $condition .= $paramName . " = ? ";
+            $condition .= $paramName . ' = ? ';
         }
         if ($condition) {
             $sql .= $condition;
-            $sql .= " AND ".$this->table.".host_register = '0' ";
-            $rows = $this->getResult($sql, $paramValues, "fetchAll");
+            $sql .= ' AND ' . $this->table . ".host_register = '0' ";
+            $rows = $this->getResult($sql, $paramValues, 'fetchAll');
             $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
+
             return $tab;
         }
+
         return [];
     }
 }

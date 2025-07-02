@@ -37,7 +37,7 @@
 header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="servicegroups-monitoring.csv"');
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -48,7 +48,7 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/ServicegroupMonitoring.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $db = $dependencyInjector['configuration_db'];
@@ -57,7 +57,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/servicegroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -69,24 +69,24 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $pearDB = $db;
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
+$hostStateLabels = [0 => 'Up', 1 => 'Down', 2 => 'Unreachable', 4 => 'Pending'];
 
-$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+$serviceStateLabels = [0 => 'Ok', 1 => 'Warning', 2 => 'Critical', 3 => 'Unknown', 4 => 'Pending'];
 
-$baseQuery = "FROM servicegroups ";
+$baseQuery = 'FROM servicegroups ';
 
 $bindParams = [];
 
-if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']) != "") {
-    $tab = explode(" ", $preferences['sg_name_search']);
+if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']) != '') {
+    $tab = explode(' ', $preferences['sg_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
     }
-    if ($op && isset($search) && trim($search) != "") {
+    if ($op && isset($search) && trim($search) != '') {
         $baseQuery = CentreonUtils::conditionBuilder(
             $baseQuery,
-            "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+            'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
         );
         $bindParams[':search'] = [$search, PDO::PARAM_STR];
     }
@@ -94,11 +94,11 @@ if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']
 
 if (! $centreon->user->admin) {
     [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getServiceGroups(), ':servicegroup_name_', PDO::PARAM_STR);
-    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ({$bindQuery})");
     $bindParams = array_merge($bindParams, $bindValues);
 }
 
-$orderBy = "name ASC";
+$orderBy = 'name ASC';
 
 $allowedOrderColumns = ['name'];
 
@@ -116,7 +116,7 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
 
 try {
     // Query to count total rows
-    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    $countQuery = 'SELECT COUNT(*) ' . $baseQuery;
     if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
@@ -126,8 +126,8 @@ try {
     $nbRows = (int) $dbb->fetchColumn($countStatement);
 
     // Main SELECT query
-    $query = "SELECT DISTINCT 1 AS REALTIME, name, servicegroup_id " . $baseQuery;
-    $query .= " ORDER BY $orderBy";
+    $query = 'SELECT DISTINCT 1 AS REALTIME, name, servicegroup_id ' . $baseQuery;
+    $query .= " ORDER BY {$orderBy}";
 
     // Prepare the query
     $statement = $dbb->prepareQuery($query);
@@ -157,17 +157,17 @@ try {
             $detailMode
         );
     }
-} catch (CentreonDbException $e){
+} catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
-        "Error while exporting service group monitoring",
+        'Error while exporting service group monitoring',
         [
             'message' => $e->getMessage(),
             'parameters' => [
                 'entries_per_page' => $entriesPerPage,
                 'page' => $page,
-                'orderby' => $orderby
-            ]
+                'orderby' => $orderby,
+            ],
         ],
         $e
     );

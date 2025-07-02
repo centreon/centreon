@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -59,24 +59,25 @@ class CentreonWidgetParamsConnectorHostCategory extends CentreonWidgetParamsList
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
         static $tab;
 
-        if (!isset($tab)) {
-            $query = "SELECT hc_id AS id, hc_name AS name " .
-                "FROM hostcategories " .
-                "WHERE hc_activate = '1' " .
-                "ORDER BY name";
+        if (! isset($tab)) {
+            $query = 'SELECT hc_id AS id, hc_name AS name '
+                . 'FROM hostcategories '
+                . "WHERE hc_activate = '1' "
+                . 'ORDER BY name';
             $res = $this->db->query($query);
             $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['id']] = $row['name'];
             }
         }
+
         return $tab;
     }
 }

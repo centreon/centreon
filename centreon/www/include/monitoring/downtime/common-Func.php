@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -52,27 +52,27 @@ function deleteDowntimeInDb($downtimeInternalId = null)
 function getDowntimes($internalId)
 {
     $db = CentreonDBInstance::getDbCentreonStorageInstance();
-    $statement = $db->prepare(<<<SQL
-        SELECT host_id, service_id
-        FROM downtimes
-        WHERE internal_id = :internal_id
-        ORDER BY downtime_id DESC LIMIT 0,1
-        SQL
+    $statement = $db->prepare(
+        <<<'SQL'
+            SELECT host_id, service_id
+            FROM downtimes
+            WHERE internal_id = :internal_id
+            ORDER BY downtime_id DESC LIMIT 0,1
+            SQL
     );
     $statement->bindValue(':internal_id', $internalId, PDO::PARAM_INT);
     $statement->execute();
     $row = $statement->fetchRow();
-    if (!empty($row)) {
+    if (! empty($row)) {
         return $row;
     }
+
     return false;
 }
 
 function isDownTimeHost($internalId)
 {
     $downtime = getDowntimes($internalId);
-    if (!empty($downtime['host_id']) && !empty($downtime['service_id'])) {
-        return false;
-    }
-    return true;
+
+    return ! (! empty($downtime['host_id']) && ! empty($downtime['service_id']));
 }

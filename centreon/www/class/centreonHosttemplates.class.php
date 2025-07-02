@@ -51,8 +51,8 @@ class CentreonHosttemplates extends CentreonHost
      * @param array $options
      * @param string $register
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
@@ -63,10 +63,10 @@ class CentreonHosttemplates extends CentreonHost
      * Returns array of host linked to the template
      *
      * @param string $hostTemplateName
-     * @param bool   $checkTemplates
+     * @param bool $checkTemplates
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedHostsByName($hostTemplateName, $checkTemplates = true)
     {

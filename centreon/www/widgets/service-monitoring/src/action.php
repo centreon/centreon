@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -49,9 +49,9 @@ session_start();
 
 try {
     if (
-        !isset($_SESSION['centreon']) ||
-        !isset($_REQUEST['cmd']) ||
-        !isset($_REQUEST['selection'])
+        ! isset($_SESSION['centreon'])
+        || ! isset($_REQUEST['cmd'])
+        || ! isset($_REQUEST['selection'])
     ) {
         throw new Exception('Missing data');
     }
@@ -63,104 +63,104 @@ try {
     $oreon = $centreon;
     $cmd = filter_input(INPUT_GET, 'cmd', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
     $wId = filter_input(INPUT_GET, 'wid', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
-    $selections = explode(",", $_REQUEST['selection']);
+    $selections = explode(',', $_REQUEST['selection']);
     $externalCmd = new CentreonExternalCommand($centreon);
 
     $hostObj = new CentreonHost($db);
     $svcObj = new CentreonService($db);
-    $successMsg = _("External Command successfully submitted... Exiting window...");
+    $successMsg = _('External Command successfully submitted... Exiting window...');
     $result = 0;
 
     $defaultDuration = 7200;
     $defaultScale = 's';
-    if (!empty($centreon->optGen['monitoring_dwt_duration'])) {
+    if (! empty($centreon->optGen['monitoring_dwt_duration'])) {
         $defaultDuration = $centreon->optGen['monitoring_dwt_duration'];
-        if (!empty($centreon->optGen['monitoring_dwt_duration_scale'])) {
+        if (! empty($centreon->optGen['monitoring_dwt_duration_scale'])) {
             $defaultScale = $centreon->optGen['monitoring_dwt_duration_scale'];
         }
     }
 
     if ($cmd == 72 || $cmd == 75 || $cmd == 70 || $cmd == 74) {
         // Smarty template initialization
-        $path = $centreon_path . "www/widgets/service-monitoring/src/";
+        $path = $centreon_path . 'www/widgets/service-monitoring/src/';
         $template = SmartyBC::createSmartyTemplate($path, './');
 
-        $template->assign('stickyLabel', _("Sticky"));
-        $template->assign('persistentLabel', _("Persistent"));
-        $template->assign('authorLabel', _("Author"));
-        $template->assign('notifyLabel', _("Notify"));
-        $template->assign('commentLabel', _("Comment"));
+        $template->assign('stickyLabel', _('Sticky'));
+        $template->assign('persistentLabel', _('Persistent'));
+        $template->assign('authorLabel', _('Author'));
+        $template->assign('notifyLabel', _('Notify'));
+        $template->assign('commentLabel', _('Comment'));
         $template->assign('forceCheckLabel', _('Force active checks'));
-        $template->assign('fixedLabel', _("Fixed"));
-        $template->assign('durationLabel', _("Duration"));
-        $template->assign('startLabel', _("Start"));
-        $template->assign('endLabel', _("End"));
+        $template->assign('fixedLabel', _('Fixed'));
+        $template->assign('durationLabel', _('Duration'));
+        $template->assign('startLabel', _('Start'));
+        $template->assign('endLabel', _('End'));
         $template->assign('selection', $_REQUEST['selection']);
         $template->assign('author', $centreon->user->alias);
         $template->assign('cmd', $cmd);
         if ($cmd == 72 || $cmd == 70) {
-            $template->assign('ackHostSvcLabel', _("Acknowledge services of hosts"));
-            $title = $cmd == 72 ? _("Host Acknowledgement") : _("Service Acknowledgement");
+            $template->assign('ackHostSvcLabel', _('Acknowledge services of hosts'));
+            $title = $cmd == 72 ? _('Host Acknowledgement') : _('Service Acknowledgement');
 
             $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
 
-            /* Default ack options */
+            // Default ack options
             $persistent_checked = '';
-            if (!empty($centreon->optGen['monitoring_ack_persistent'])) {
+            if (! empty($centreon->optGen['monitoring_ack_persistent'])) {
                 $persistent_checked = 'checked';
             }
             $template->assign('persistent_checked', $persistent_checked);
 
             $sticky_checked = '';
-            if (!empty($centreon->optGen['monitoring_ack_sticky'])) {
+            if (! empty($centreon->optGen['monitoring_ack_sticky'])) {
                 $sticky_checked = 'checked';
             }
             $template->assign('sticky_checked', $sticky_checked);
 
             $notify_checked = '';
-            if (!empty($centreon->optGen['monitoring_ack_notify'])) {
+            if (! empty($centreon->optGen['monitoring_ack_notify'])) {
                 $notify_checked = 'checked';
             }
             $template->assign('notify_checked', $notify_checked);
 
             $process_service_checked = '';
-            if (!empty($centreon->optGen['monitoring_ack_svc'])) {
+            if (! empty($centreon->optGen['monitoring_ack_svc'])) {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
 
             $force_active_checked = '';
-            if (!empty($centreon->optGen['monitoring_ack_active_checks'])) {
+            if (! empty($centreon->optGen['monitoring_ack_active_checks'])) {
                 $force_active_checked = 'checked';
             }
             $template->assign('force_active_checked', $force_active_checked);
 
             $template->assign('titleLabel', $title);
-            $template->assign('submitLabel', _("Acknowledge"));
+            $template->assign('submitLabel', _('Acknowledge'));
             $template->display('acknowledge.ihtml');
         } elseif ($cmd == 75 || $cmd == 74) {
-            $template->assign('downtimeHostSvcLabel', _("Set downtime on services of hosts"));
-            $title = $cmd == 75 ? _("Host Downtime") : _("Service Downtime");
+            $template->assign('downtimeHostSvcLabel', _('Set downtime on services of hosts'));
+            $title = $cmd == 75 ? _('Host Downtime') : _('Service Downtime');
 
-            /* Default downtime options */
+            // Default downtime options
             $process_service_checked = '';
             $fixed_checked = '';
-            if (!empty($centreon->optGen['monitoring_dwt_fixed'])) {
+            if (! empty($centreon->optGen['monitoring_dwt_fixed'])) {
                 $fixed_checked = 'checked';
             }
             $template->assign('fixed_checked', $fixed_checked);
 
-            if (!empty($centreon->optGen['monitoring_dwt_svc'])) {
+            if (! empty($centreon->optGen['monitoring_dwt_svc'])) {
                 $process_service_checked = 'checked';
             }
             $template->assign('process_service_checked', $process_service_checked);
             $template->assign('defaultMessage', sprintf(_('Downtime set by %s'), $centreon->user->alias));
             $template->assign('titleLabel', $title);
-            $template->assign('submitLabel', _("Set Downtime"));
-            $template->assign('sDurationLabel', _("seconds"));
-            $template->assign('mDurationLabel', _("minutes"));
-            $template->assign('hDurationLabel', _("hours"));
-            $template->assign('dDurationLabel', _("days"));
+            $template->assign('submitLabel', _('Set Downtime'));
+            $template->assign('sDurationLabel', _('seconds'));
+            $template->assign('mDurationLabel', _('minutes'));
+            $template->assign('hDurationLabel', _('hours'));
+            $template->assign('dDurationLabel', _('days'));
             $template->assign('defaultDuration', $defaultDuration);
             $template->assign($defaultScale . 'DefaultScale', 'selected');
             $template->display('downtime.ihtml');
@@ -169,60 +169,60 @@ try {
         $command = '';
         $isSvcCommand = false;
         switch ($cmd) {
-            /* service: schedule check */
+            // service: schedule check
             case 3:
-                $command = "SCHEDULE_SVC_CHECK;%s;" . time();
+                $command = 'SCHEDULE_SVC_CHECK;%s;' . time();
                 $isSvcCommand = true;
                 break;
-            /* service: schedule forced check */
+                // service: schedule forced check
             case 4:
-                $command = "SCHEDULE_FORCED_SVC_CHECK;%s;" . time();
+                $command = 'SCHEDULE_FORCED_SVC_CHECK;%s;' . time();
                 $isSvcCommand = true;
                 break;
-            /* service: remove ack */
+                // service: remove ack
             case 71:
-                $command = "REMOVE_SVC_ACKNOWLEDGEMENT;%s";
+                $command = 'REMOVE_SVC_ACKNOWLEDGEMENT;%s';
                 $isSvcCommand = true;
                 break;
-            /* service: enable notif */
+                // service: enable notif
             case 80:
-                $command = "ENABLE_SVC_NOTIFICATIONS;%s";
+                $command = 'ENABLE_SVC_NOTIFICATIONS;%s';
                 $isSvcCommand = true;
                 break;
-            /* service: enable notif */
+                // service: enable notif
             case 81:
-                $command = "DISABLE_SVC_NOTIFICATIONS;%s";
+                $command = 'DISABLE_SVC_NOTIFICATIONS;%s';
                 $isSvcCommand = true;
                 break;
-            /* service: enable check */
+                // service: enable check
             case 90:
-                $command = "ENABLE_SVC_CHECK;%s";
+                $command = 'ENABLE_SVC_CHECK;%s';
                 $isSvcCommand = true;
                 break;
-            /* service: disable check */
+                // service: disable check
             case 91:
-                $command = "DISABLE_SVC_CHECK;%s";
+                $command = 'DISABLE_SVC_CHECK;%s';
                 $isSvcCommand = true;
                 break;
-            /* host: remove ack */
+                // host: remove ack
             case 73:
-                $command = "REMOVE_HOST_ACKNOWLEDGEMENT;%s";
+                $command = 'REMOVE_HOST_ACKNOWLEDGEMENT;%s';
                 break;
-            /* host: enable notif */
+                // host: enable notif
             case 82:
-                $command = "ENABLE_HOST_NOTIFICATIONS;%s";
+                $command = 'ENABLE_HOST_NOTIFICATIONS;%s';
                 break;
-            /* host: disable notif */
+                // host: disable notif
             case 83:
-                $command = "DISABLE_HOST_NOTIFICATIONS;%s";
+                $command = 'DISABLE_HOST_NOTIFICATIONS;%s';
                 break;
-            /* host: enable check */
+                // host: enable check
             case 92:
-                $command = "ENABLE_HOST_CHECK;%s";
+                $command = 'ENABLE_HOST_CHECK;%s';
                 break;
-            /* host: disable check */
+                // host: disable check
             case 93:
-                $command = "DISABLE_HOST_CHECK;%s";
+                $command = 'DISABLE_HOST_CHECK;%s';
                 break;
             default:
                 throw new Exception('Unknown command');
@@ -235,7 +235,7 @@ try {
             }
             $hostArray = [];
             foreach ($selections as $selection) {
-                $tmp = explode(";", $selection);
+                $tmp = explode(';', $selection);
                 if (count($tmp) != 2) {
                     throw new Exception('Incorrect id format');
                 }
@@ -245,7 +245,7 @@ try {
                     $hostname = $hostObj->getHostName($hostId);
                     $svcDesc = $svcObj->getServiceDesc($svcId);
                     $cmdParam = $isSvcCommand === true ? $hostname . ';' . $svcDesc : $hostname;
-                    $externalCmd->$externalCommandMethod(
+                    $externalCmd->{$externalCommandMethod}(
                         sprintf(
                             $command,
                             $cmdParam

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,30 +34,29 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
-require_once _CENTREON_PATH_."www/class/centreonCommand.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonCommand.class.php';
 
-/*
- * Validate the session
- */
+// Validate the session
 session_start();
 session_write_close();
 
 $db = new CentreonDB();
 
 try {
-    if (!CentreonSession::checkSession(session_id(), $db)) {
+    if (! CentreonSession::checkSession(session_id(), $db)) {
         sendError('bad session id', 401);
     }
-} catch (\Exception $ex) {
+} catch (Exception $ex) {
     sendError('Internal error', 500);
 }
 
 $macros = (new CentreonHost($db))->ajaxMacroControl($_POST);
 header('Content-Type: application/json');
 echo json_encode(['macros' => $macros, 'count' => count($macros)]);
-die;
+
+exit;

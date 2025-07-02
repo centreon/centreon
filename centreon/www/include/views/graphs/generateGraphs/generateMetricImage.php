@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,15 +31,14 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
  * Include config file
  */
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once "$centreon_path/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_."/www/class/centreonGraph.class.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once "{$centreon_path}/www/class/centreonDB.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonGraph.class.php';
 
 /**
  * Create XML Request Objects
@@ -50,7 +50,7 @@ $sid = session_id();
 $pearDB = new CentreonDB();
 $pearDBO = new CentreonDB('centstorage');
 
-if (!CentreonSession::checkSession($sid, $pearDB)) {
+if (! CentreonSession::checkSession($sid, $pearDB)) {
     CentreonGraph::displayError();
 }
 
@@ -71,18 +71,17 @@ if (isset($_GET['index'])) {
     $query = 'SELECT id FROM index_data
         WHERE host_id = ' . $hostId . ' AND service_id = ' . $svcId;
     $res = $pearDBO->query($query);
-    if (!$res) {
+    if (! $res) {
         CentreonGraph::displayError();
     }
     $row = $res->fetch();
-    if (!$row) {
+    if (! $row) {
         CentreonGraph::displayError();
     }
     $index = $row['id'];
 }
 
-
-require_once _CENTREON_PATH_."www/include/common/common-Func.php";
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 $contactId = CentreonSession::getUser($sid, $pearDB);
 $obj = new CentreonGraph($contactId, $index, 0, 1);
 
@@ -94,30 +93,30 @@ $obj->onecurve = true;
 /**
  * Set metric id
  */
-if (isset($_GET["metric"])) {
-    $obj->setMetricList($_GET["metric"]);
+if (isset($_GET['metric'])) {
+    $obj->setMetricList($_GET['metric']);
 }
 
 /**
  * Set arguments from GET
  */
-$obj->setRRDOption("start", $obj->checkArgument("start", $_GET, time() - (60*60*48)));
-$obj->setRRDOption("end", $obj->checkArgument("end", $_GET, time()));
+$obj->setRRDOption('start', $obj->checkArgument('start', $_GET, time() - (60 * 60 * 48)));
+$obj->setRRDOption('end', $obj->checkArgument('end', $_GET, time()));
 
-//$obj->GMT->getMyGMTFromSession($obj->session_id, $pearDB);
+// $obj->GMT->getMyGMTFromSession($obj->session_id, $pearDB);
 
 /**
  * Template Management
  */
-if (isset($_GET["template_id"])) {
-    $obj->setTemplate($_GET["template_id"]);
+if (isset($_GET['template_id'])) {
+    $obj->setTemplate($_GET['template_id']);
 } else {
     $obj->setTemplate();
 }
 
 $obj->init();
-if (isset($_GET["flagperiod"])) {
-    $obj->setCommandLineTimeLimit($_GET["flagperiod"]);
+if (isset($_GET['flagperiod'])) {
+    $obj->setCommandLineTimeLimit($_GET['flagperiod']);
 }
 
 $obj->initCurveList();
@@ -125,7 +124,7 @@ $obj->initCurveList();
 /**
  * Comment time
  */
-$obj->setOption("comment_time");
+$obj->setOption('comment_time');
 
 /**
  * Create Legende

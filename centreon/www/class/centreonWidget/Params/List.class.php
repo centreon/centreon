@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,8 +63,8 @@ class CentreonWidgetParamsList extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error|PDOException
+     * @return void
      */
     public function init($params): void
     {

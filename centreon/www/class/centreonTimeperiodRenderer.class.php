@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -43,20 +44,28 @@ class CentreonTimeperiodRenderer
 {
     /** @var CentreonDB|null */
     protected $db;
+
     /** @var int */
     protected $tpid;
+
     /** @var mixed */
     protected $tpname;
+
     /** @var mixed */
     protected $tpalias;
+
     /** @var array[] */
     protected $timerange;
+
     /** @var array[] */
     protected $timeline;
+
     /** @var array */
     protected $includedTp = [];
+
     /** @var array */
     protected $excludedTp = [];
+
     /** @var array */
     protected $exceptionList = [];
 
@@ -71,7 +80,7 @@ class CentreonTimeperiodRenderer
      */
     public function __construct($db, $tpid, $inex)
     {
-        $dayTab = ["tp_sunday" => [], "tp_monday" => [], "tp_tuesday" => [], "tp_wednesday" => [], "tp_thursday" => [], "tp_friday" => [], "tp_saturday" => []];
+        $dayTab = ['tp_sunday' => [], 'tp_monday' => [], 'tp_tuesday' => [], 'tp_wednesday' => [], 'tp_thursday' => [], 'tp_friday' => [], 'tp_saturday' => []];
         $this->timerange = $dayTab;
         $this->timeline = $dayTab;
         $this->db = $db;
@@ -81,15 +90,15 @@ class CentreonTimeperiodRenderer
             FROM timeperiod
             WHERE tp_id = '" . $tpid . "'";
         $res = $this->db->query($query);
-        if (!$res->rowCount()) {
-            throw new Exception("Timeperiod not found");
+        if (! $res->rowCount()) {
+            throw new Exception('Timeperiod not found');
         }
         $row = $res->fetchRow();
-        $this->tpname = $row["tp_name"];
-        $this->tpalias = $row["tp_alias"];
+        $this->tpname = $row['tp_name'];
+        $this->tpalias = $row['tp_alias'];
         foreach ($this->timerange as $key => $val) {
             if ($row[$key]) {
-                $tmparr = explode(",", $row[$key]);
+                $tmparr = explode(',', $row[$key]);
                 foreach ($tmparr as $tr) {
                     $tmptr = $this->getTimeRange($this->tpid, $this->tpname, $inex, $tr);
                     $this->timerange[$key][] = $tmptr;
@@ -111,74 +120,74 @@ class CentreonTimeperiodRenderer
     {
         $coef = 4;
         foreach ($this->timerange as $day => $ranges) {
-            $timeindex=0;
-            $timeline[0]=["start"    => 0, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "init", "From"     => "", "Textual"  => ""];
+            $timeindex = 0;
+            $timeline[0] = ['start'    => 0, 'style'    => 'unset', 'end'      => 0, 'size'     => 0, 'Text'     => 'init', 'From'     => '', 'Textual'  => ''];
             if (isset($ranges[0])) {
-                $last["in"] = "";
-                $last["nb"] = 0;
+                $last['in'] = '';
+                $last['nb'] = 0;
                 for ($i = 0; $i <= 1440; $i++) {
-                    $actual["in"] = "";
-                    $actual["nb"] = 0;
+                    $actual['in'] = '';
+                    $actual['nb'] = 0;
                     foreach ($ranges as $k => $r) {
                         if ($r['tstart'] <= $i && $i <= $r['tend']) {
-                            $actual["in"] .= $actual["in"] != "" ? "," . $k : $k;
-                            $actual["nb"]++;
+                            $actual['in'] .= $actual['in'] != '' ? ',' . $k : $k;
+                            $actual['nb']++;
                         }
                     }
-                    if ($actual["in"] != $last["in"] || $i == 1440) {
+                    if ($actual['in'] != $last['in'] || $i == 1440) {
                         if ($i == 0) {
                             $last = $actual;
                         }
-                        $timeline[$timeindex]["end"] = $i;
-                        $timeline[$timeindex]["size"] = round(($i - $timeline[$timeindex]["start"]) / $coef);
-                        switch ($last["nb"]) {
+                        $timeline[$timeindex]['end'] = $i;
+                        $timeline[$timeindex]['size'] = round(($i - $timeline[$timeindex]['start']) / $coef);
+                        switch ($last['nb']) {
                             case 0:
-                                $ts = $timeline[$timeindex]["start"];
-                                $timeline[$timeindex]["style"] = "unset";
-                                $timeline[$timeindex]["Textual"] = sprintf("%02d", intval($ts / 60)) . ":" .
-                                    sprintf("%02d", $ts % 60) . "-" . sprintf("%02d", intval($i / 60)) . ":" .
-                                    sprintf("%02d", $i % 60);
-                                $timeline[$timeindex]["From"] = "No timeperiod covering " .
-                                    $timeline[$timeindex]["Textual"];
+                                $ts = $timeline[$timeindex]['start'];
+                                $timeline[$timeindex]['style'] = 'unset';
+                                $timeline[$timeindex]['Textual'] = sprintf('%02d', intval($ts / 60)) . ':'
+                                    . sprintf('%02d', $ts % 60) . '-' . sprintf('%02d', intval($i / 60)) . ':'
+                                    . sprintf('%02d', $i % 60);
+                                $timeline[$timeindex]['From'] = 'No timeperiod covering '
+                                    . $timeline[$timeindex]['Textual'];
                                 break;
                             default:
-                                $idlist = explode(",", $last["in"]);
+                                $idlist = explode(',', $last['in']);
                                 foreach ($idlist as $v) {
                                     if ($ranges[$v]['inex'] == 0) {
-                                        $timeline[$timeindex]["style"] = "excluded";
+                                        $timeline[$timeindex]['style'] = 'excluded';
                                     }
                                     $txt = $ranges[$v]['textual'];
-                                    $inex = $ranges[$v]['inex'] ? "include" : "exclude";
-                                    $from = $ranges[$v]['fromTpName'] . " " . $inex . " " . $txt;
-                                    $timeline[$timeindex]["From"] .= $timeline[$timeindex]["From"] != "" ?
-                                        "," . $from : $from;
-                                    $timeline[$timeindex]["Textual"] .= $timeline[$timeindex]["Textual"] != "" ?
-                                        "," . $txt : $txt;
+                                    $inex = $ranges[$v]['inex'] ? 'include' : 'exclude';
+                                    $from = $ranges[$v]['fromTpName'] . ' ' . $inex . ' ' . $txt;
+                                    $timeline[$timeindex]['From'] .= $timeline[$timeindex]['From'] != ''
+                                        ? ',' . $from : $from;
+                                    $timeline[$timeindex]['Textual'] .= $timeline[$timeindex]['Textual'] != ''
+                                        ? ',' . $txt : $txt;
                                 }
                         }
-                        switch ($last["nb"]) {
+                        switch ($last['nb']) {
                             case 0:
                                 break;
                             case 1:
-                                $timeline[$timeindex]["style"] = ($ranges[$last["in"]]['inex'] == 1) ?
-                                    "included" : "excluded";
+                                $timeline[$timeindex]['style'] = ($ranges[$last['in']]['inex'] == 1)
+                                    ? 'included' : 'excluded';
                                 break;
                             default:
-                                $timeline[$timeindex]["style"] = "warning";
-                                $timeline[$timeindex]["From"] = "OVERLAPS: " . $timeline[$timeindex]["From"];
+                                $timeline[$timeindex]['style'] = 'warning';
+                                $timeline[$timeindex]['From'] = 'OVERLAPS: ' . $timeline[$timeindex]['From'];
                                 break;
                         }
                         if ($i < 1440) {
-                            $timeline[++$timeindex] = ["start"    => $i, "style"    => "unset", "end"      => 0, "size"     => 0, "Text"     => "New in loop", "From"     => "", "Textual"  => ""];
+                            $timeline[++$timeindex] = ['start'    => $i, 'style'    => 'unset', 'end'      => 0, 'size'     => 0, 'Text'     => 'New in loop', 'From'     => '', 'Textual'  => ''];
                         }
                     }
                     $last = $actual;
                 }
             }
-            $endtime = $timeline[$timeindex]["end"];
+            $endtime = $timeline[$timeindex]['end'];
             if ($endtime < 1440) {
-                $textual = sprintf("%02d", intval($endtime/60)).":".sprintf("%02d", $endtime%60)."-24:00";
-                $timeline[$timeindex] = ["start"    => $endtime, "style"    => "unset", "end"      => 1440, "size"     => (1440 - $endtime) / $coef, "Text"     => "No Timeperiod covering ".$textual, "From"     => "No Timeperiod covering ".$textual, "Textual"  => $textual];
+                $textual = sprintf('%02d', intval($endtime / 60)) . ':' . sprintf('%02d', $endtime % 60) . '-24:00';
+                $timeline[$timeindex] = ['start'    => $endtime, 'style'    => 'unset', 'end'      => 1440, 'size'     => (1440 - $endtime) / $coef, 'Text'     => 'No Timeperiod covering ' . $textual, 'From'     => 'No Timeperiod covering ' . $textual, 'Textual'  => $textual];
             }
             $this->timeline[$day] = $timeline;
             unset($timeline);
@@ -200,6 +209,7 @@ class CentreonTimeperiodRenderer
         if ($a['tstart'] < $b['tstart']) {
             return -1;
         }
+
         return 1;
     }
 
@@ -211,7 +221,7 @@ class CentreonTimeperiodRenderer
     protected function orderTimeRanges()
     {
         foreach ($this->timerange as $key => $val) {
-            usort($val, ["CentreonTimeperiodRenderer", "startCompare"]);
+            usort($val, ['CentreonTimeperiodRenderer', 'startCompare']);
             $this->timerange[$key] = $val;
         }
     }
@@ -236,17 +246,17 @@ class CentreonTimeperiodRenderer
     /**
      * Update Inclusions
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function updateInclusions()
     {
         $query = "SELECT timeperiod_include_id
         		  FROM timeperiod_include_relations
-        		  WHERE timeperiod_id= '". $this->tpid. "'";
+        		  WHERE timeperiod_id= '" . $this->tpid . "'";
         $res = $this->db->query($query);
         while ($row = $res->fetchRow()) {
-            $inctp = new CentreonTimeperiodRenderer($this->db, $row["timeperiod_include_id"], 1);
+            $inctp = new CentreonTimeperiodRenderer($this->db, $row['timeperiod_include_id'], 1);
             $this->updateTimeRange($inctp->timerange);
             foreach ($inctp->exceptionList as $key => $val) {
                 $this->exceptionList[] = $val;
@@ -257,21 +267,21 @@ class CentreonTimeperiodRenderer
     /**
      * Update Exclusions
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function updateExclusions()
     {
-        $query = "SELECT * FROM timeperiod_exceptions WHERE timeperiod_id='".$this->tpid."'";
+        $query = "SELECT * FROM timeperiod_exceptions WHERE timeperiod_id='" . $this->tpid . "'";
         $DBRESULT = $this->db->query($query);
         while ($row = $DBRESULT->fetchRow()) {
-            $excep = $this->getException($row["timeperiod_id"], $this->tpname, $row["days"], $row["timerange"]);
+            $excep = $this->getException($row['timeperiod_id'], $this->tpname, $row['days'], $row['timerange']);
             $this->exceptionList[] = $excep;
         }
-        $query = "SELECT timeperiod_exclude_id FROM timeperiod_exclude_relations WHERE timeperiod_id='".$this->tpid."'";
+        $query = "SELECT timeperiod_exclude_id FROM timeperiod_exclude_relations WHERE timeperiod_id='" . $this->tpid . "'";
         $DBRESULT = $this->db->query($query);
         while ($row = $DBRESULT->fetchRow()) {
-            $extp = new CentreonTimePeriodRenderer($this->db, $row["timeperiod_exclude_id"], 0);
+            $extp = new CentreonTimePeriodRenderer($this->db, $row['timeperiod_exclude_id'], 0);
             $this->updateTimeRange($extp->timerange);
         }
     }
@@ -292,7 +302,7 @@ class CentreonTimeperiodRenderer
         $timeRange['fromTpName'] = $name;
         $timeRange['inex'] = $in;
         $timeRange['textual'] = $range;
-        if (!preg_match("/([0-9]+):([0-9]+)-([0-9]+)+:([0-9]+)/", $range, $trange)) {
+        if (! preg_match('/([0-9]+):([0-9]+)-([0-9]+)+:([0-9]+)/', $range, $trange)) {
             return null;
         }
         if ($id < 1) {
@@ -317,7 +327,6 @@ class CentreonTimeperiodRenderer
     {
         return ['fromTpId' => $id, 'fromTpName' => $name, 'day' => $day, 'range' => $range];
     }
-
 
     /**
      * Get Time Period Name
@@ -358,7 +367,7 @@ class CentreonTimeperiodRenderer
     {
         return $this->exceptionList;
     }
-    
+
     /**
      * @param string $field
      *
@@ -394,7 +403,7 @@ class CentreonTimeperiodRenderer
                 $parameters['relationObject']['comparator'] = 'timeperiod_id';
                 break;
         }
-        
+
         return $parameters;
     }
 }

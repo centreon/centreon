@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -47,7 +47,7 @@ require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 $db = $dependencyInjector['configuration_db'];
@@ -56,7 +56,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/hostgroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -78,11 +78,12 @@ try {
     }
 } catch (InvalidArgumentException $e) {
     echo $e->getMessage();
+
     exit;
 }
 
 /**
- * @var $dbb CentreonDB
+ * @var CentreonDB $dbb
  */
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
@@ -93,14 +94,13 @@ $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $aColorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending'];
 $aColorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
+$hostStateLabels = [0 => 'Up', 1 => 'Down', 2 => 'Unreachable', 4 => 'Pending'];
 
-$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
-
-$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+$serviceStateLabels = [0 => 'Ok', 1 => 'Warning', 2 => 'Critical', 3 => 'Unknown', 4 => 'Pending'];
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
-const DEFAULT_ENTRIES_PER_PAGE= 10;
+const DEFAULT_ENTRIES_PER_PAGE = 10;
 
 try {
     $columns = 'SELECT DISTINCT 1 AS REALTIME, name, hostgroup_id ';
@@ -108,7 +108,7 @@ try {
 
     $bindParams = [];
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
-        $tab = explode(" ", $preferences['hg_name_search']);
+        $tab = explode(' ', $preferences['hg_name_search']);
         $op = $tab[0];
         if (isset($tab[1])) {
             $search = $tab[1];
@@ -116,19 +116,19 @@ try {
         if ($op && isset($search) && trim($search) !== '') {
             $baseQuery = CentreonUtils::conditionBuilder(
                 $baseQuery,
-                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+                'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
             );
             $bindParams[':search'] = [$search, PDO::PARAM_STR];
         }
     }
 
-    if (!$centreon->user->admin) {
+    if (! $centreon->user->admin) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ({$bindQuery})");
         $bindParams = array_merge($bindParams, $bindValues);
     }
 
-    $orderby = "name " . ORDER_DIRECTION_ASC;
+    $orderby = 'name ' . ORDER_DIRECTION_ASC;
 
     $allowedOrderColumns = ['name'];
     $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
@@ -139,7 +139,7 @@ try {
         : null;
 
     if ($orderByToAnalyse !== null) {
-        $orderByToAnalyse .= " $defaultDirection";
+        $orderByToAnalyse .= " {$defaultDirection}";
         [$column, $direction] = explode(' ', $orderByToAnalyse);
 
         if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -155,19 +155,19 @@ try {
     $offset = max(0, $page) * $entriesPerPage;
 
     // Query to count total rows
-    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    $countQuery = 'SELECT COUNT(*) ' . $baseQuery;
 
     // Main SELECT query with LIMIT
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderby";
-    $query .= " LIMIT :offset, :entriesPerPage";
+    $query .= " ORDER BY {$orderby}";
+    $query .= ' LIMIT :offset, :entriesPerPage';
 
     // Execute count query
     if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
     } else {
-        $countStatement= $dbb->executeQuery($countQuery);
+        $countStatement = $dbb->executeQuery($countQuery);
     }
 
     $nbRows = (int) $dbb->fetchColumn($countStatement);
@@ -189,9 +189,9 @@ try {
         $detailMode = true;
     }
 
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
+        Centreon\Application\Controller\MonitoringResourceController::class
     );
 
     $buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) use ($resourceController) {
@@ -208,12 +208,12 @@ try {
                 [
                     'name' => 'statuses',
                     'value' => $statuses,
-                ]
+                ],
             ],
         ];
 
         try {
-             $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
+            $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
 
             return $resourceController->buildListingUri(
                 [
@@ -223,10 +223,11 @@ try {
         } catch (JsonException $e) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Error while handling hostgroup monitoring data: " . $e->getMessage(),
+                message: 'Error while handling hostgroup monitoring data: ' . $e->getMessage(),
                 exception: $e
             );
-            throw new \Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
+
+            throw new Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
         }
     };
 
@@ -320,11 +321,11 @@ try {
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error while fetching hostgroup monitoring data: " . $e->getMessage(),
+        message: 'Error while fetching hostgroup monitoring data: ' . $e->getMessage(),
         exception: $e
     );
 
-    throw new \Exception("Error while fetching hostgroup monitoring data: " . $e->getMessage());
+    throw new Exception('Error while fetching hostgroup monitoring data: ' . $e->getMessage());
 }
 $hgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
 $hgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ViewImgDirRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'view_img_dir_relation';
+
     /** @var string */
     protected $generateFilename = 'view_img_dir_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'dir_dir_parent_id',
@@ -47,8 +50,8 @@ class ViewImgDirRelation extends AbstractObject
      * @param int $mediaId
      * @param int $dirId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $mediaId, int $dirId): void
     {

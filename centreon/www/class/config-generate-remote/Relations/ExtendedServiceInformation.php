@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ExtendedServiceInformation extends AbstractObject
 {
     /** @var string */
     protected $table = 'extended_service_information';
+
     /** @var string */
     protected $generateFilename = 'extended_service_information.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'service_service_id',
@@ -52,8 +55,8 @@ class ExtendedServiceInformation extends AbstractObject
      * @param array $object
      * @param int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(array $object, int $serviceId)
     {

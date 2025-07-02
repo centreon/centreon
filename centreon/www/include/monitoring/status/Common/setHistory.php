@@ -35,49 +35,50 @@
  */
 
 require_once __DIR__ . '/../../../../../bootstrap.php';
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 
-$path = _CENTREON_PATH_ . "/www";
-require_once("$path/class/centreon.class.php");
-require_once("$path/class/centreonSession.class.php");
-require_once("$path/class/centreonDB.class.php");
+$path = _CENTREON_PATH_ . '/www';
+require_once "{$path}/class/centreon.class.php";
+require_once "{$path}/class/centreonSession.class.php";
+require_once "{$path}/class/centreonDB.class.php";
 
 $DB = new CentreonDB();
 
 CentreonSession::start();
-if (!CentreonSession::checkSession(session_id(), $DB)) {
-    print "Bad Session ID";
+if (! CentreonSession::checkSession(session_id(), $DB)) {
+    echo 'Bad Session ID';
+
     exit();
 }
 
 $centreon = $_SESSION['centreon'];
 
-if (isset($_POST["url"])) {
+if (isset($_POST['url'])) {
     $url = filter_input(INPUT_POST, 'url', FILTER_SANITIZE_URL);
-    if (!empty($url)) {
-        if (isset($_POST["search"])) {
-            $search = isset($_POST['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search']) : null;
+    if (! empty($url)) {
+        if (isset($_POST['search'])) {
+            $search = isset($_POST['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search']) : null;
             $centreon->historySearchService[$url] = $search;
         }
 
-        if (isset($_POST["search_host"])) {
+        if (isset($_POST['search_host'])) {
             $searchHost = isset($_POST['seach_host'])
-                ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['seach_host'])
+                ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['seach_host'])
                 : null;
             $centreon->historySearch[$url] = $searchHost;
         }
 
-        if (isset($_POST["search_output"])) {
+        if (isset($_POST['search_output'])) {
             $searchOutput = isset($_POST['search_output'])
-                ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_output'])
+                ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_output'])
                 : null;
             $centreon->historySearchOutput[$url] = $searchOutput;
         }
 
         $defaultLimit = $centreon->optGen['maxViewConfiguration'] >= 1
-            ? (int)$centreon->optGen['maxViewConfiguration']
+            ? (int) $centreon->optGen['maxViewConfiguration']
             : 30;
-        if (isset($_POST["limit"])) {
+        if (isset($_POST['limit'])) {
             $limit = filter_input(
                 INPUT_POST,
                 'limit',
@@ -87,7 +88,7 @@ if (isset($_POST["url"])) {
             $centreon->historyLimit[$url] = $limit;
         }
 
-        if (isset($_POST["page"])) {
+        if (isset($_POST['page'])) {
             $page = filter_input(
                 INPUT_POST,
                 'page',

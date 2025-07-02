@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class CfgResourceInstanceRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'cfg_resource_instance_relations';
+
     /** @var string */
     protected $generateFilename = 'cfg_resource_instance_relations.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'resource_id',
@@ -47,8 +50,8 @@ class CfgResourceInstanceRelation extends AbstractObject
      * @param int $resourceId
      * @param int $instanceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $resourceId, int $instanceId): void
     {

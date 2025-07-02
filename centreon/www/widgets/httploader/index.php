@@ -34,14 +34,14 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'bootstrap.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -66,12 +66,13 @@ try {
         $frameheight = 900;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 ?>
@@ -88,8 +89,8 @@ try {
         <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
         <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
-        <link href="./Themes/<?php echo $variablesThemeCSS === "Generic-theme" ? $variablesThemeCSS . "/Variables-css/"
-            : $variablesThemeCSS . "/"; ?>variables.css" rel="stylesheet" type="text/css"
+        <link href="./Themes/<?php echo $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css/'
+            : $variablesThemeCSS . '/'; ?>variables.css" rel="stylesheet" type="text/css"
         />
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
@@ -100,9 +101,9 @@ try {
     </body>
     <script type="text/javascript">
         var widgetId = <?php echo $widgetId; ?>;
-        var website = '<?php echo $preferences['website'];?>';
-        var frameheight = <?php echo $frameheight;?>;
-        var autoRefresh = <?php echo $autoRefresh;?>;
+        var website = '<?php echo $preferences['website']; ?>';
+        var frameheight = <?php echo $frameheight; ?>;
+        var autoRefresh = <?php echo $autoRefresh; ?>;
         var timeout;
 
         function loadPage() {

@@ -64,7 +64,5 @@ function generatePassword(): string
         $password .= $allRuleSets[random_int(0, strlen($allRuleSets) - 1)];
     }
 
-    $password = str_shuffle($password);
-
-    return $password;
+    return str_shuffle($password);
 }

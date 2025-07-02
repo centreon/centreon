@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2017 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with media
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Media extends Centreon_Object
 {
-    protected $table = "view_img";
-    protected $primaryKey = "img_id";
-    protected $uniqueLabelField = "img_path";
+    protected $table = 'view_img';
+
+    protected $primaryKey = 'img_id';
+
+    protected $uniqueLabelField = 'img_path';
 }

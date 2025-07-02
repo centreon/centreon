@@ -32,8 +32,10 @@ class HtmlAnalyzer
 {
     /** @var int */
     private int $index = -1;
+
     /** @var mixed|string */
     private mixed $stringToSanitize;
+
     /** @var int */
     private int $deepTag = 0;
 

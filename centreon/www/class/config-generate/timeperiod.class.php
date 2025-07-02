@@ -43,10 +43,13 @@ class Timeperiod extends AbstractObject
 {
     /** @var null */
     private $timeperiods = null;
+
     /** @var string */
     protected $generate_filename = 'timeperiods.cfg';
+
     /** @var string */
     protected string $object_name = 'timeperiod';
+
     /** @var string */
     protected $attributes_select = '
         tp_id,
@@ -60,22 +63,26 @@ class Timeperiod extends AbstractObject
         tp_friday as friday,
         tp_saturday as saturday
     ';
+
     /** @var string[] */
     protected $attributes_write = ['name', 'timeperiod_name', 'alias', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
     /** @var string[] */
     protected $attributes_array = ['use', 'exclude'];
+
     /** @var string[] */
     protected $attributes_hash = ['exceptions'];
+
     /** @var null[] */
     protected $stmt_extend = ['include' => null, 'exclude' => null];
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function getTimeperiods(): void
     {
-        $query = "SELECT $this->attributes_select FROM timeperiod";
+        $query = "SELECT {$this->attributes_select} FROM timeperiod";
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->execute();
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -84,8 +91,8 @@ class Timeperiod extends AbstractObject
     /**
      * @param $timeperiod_id
      *
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     protected function getTimeperiodExceptionFromId($timeperiod_id)
     {
@@ -93,7 +100,7 @@ class Timeperiod extends AbstractObject
             return 1;
         }
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiod_id";
+        $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiod_id';
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':timeperiod_id', $timeperiod_id, PDO::PARAM_INT);
         $stmt->execute();
@@ -110,21 +117,21 @@ class Timeperiod extends AbstractObject
      * @param $db_label
      * @param $label
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getTimeperiodExtendFromId($timeperiod_id, $db_label, $label)
     {
-        if (!isset($this->timeperiods[$timeperiod_id][$label . '_cache'])) {
+        if (! isset($this->timeperiods[$timeperiod_id][$label . '_cache'])) {
             if (is_null($this->stmt_extend[$db_label])) {
-                $query = "SELECT timeperiod_" . $db_label . "_id as period_id FROM timeperiod_" . $db_label .
-                    "_relations WHERE timeperiod_id = :timeperiod_id";
+                $query = 'SELECT timeperiod_' . $db_label . '_id as period_id FROM timeperiod_' . $db_label
+                    . '_relations WHERE timeperiod_id = :timeperiod_id';
                 $this->stmt_extend[$db_label] = $this->backend_instance->db->prepare($query);
             }
             $this->stmt_extend[$db_label]->bindParam(':timeperiod_id', $timeperiod_id, PDO::PARAM_INT);
             $this->stmt_extend[$db_label]->execute();
-            $this->timeperiods[$timeperiod_id][$label . '_cache'] =
-                $this->stmt_extend[$db_label]->fetchAll(PDO::FETCH_COLUMN);
+            $this->timeperiods[$timeperiod_id][$label . '_cache']
+                = $this->stmt_extend[$db_label]->fetchAll(PDO::FETCH_COLUMN);
         }
 
         $this->timeperiods[$timeperiod_id][$label] = [];
@@ -136,8 +143,8 @@ class Timeperiod extends AbstractObject
     /**
      * @param $timeperiod_id
      *
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function generateFromTimeperiodId($timeperiod_id)
     {
@@ -148,7 +155,7 @@ class Timeperiod extends AbstractObject
             $this->getTimeperiods();
         }
 
-        if (!isset($this->timeperiods[$timeperiod_id])) {
+        if (! isset($this->timeperiods[$timeperiod_id])) {
             return null;
         }
         if ($this->checkGenerate($timeperiod_id)) {
@@ -161,6 +168,7 @@ class Timeperiod extends AbstractObject
         $this->getTimeperiodExtendFromId($timeperiod_id, 'include', 'use');
 
         $this->generateObjectInFile($this->timeperiods[$timeperiod_id], $timeperiod_id);
+
         return $this->timeperiods[$timeperiod_id]['timeperiod_name'];
     }
 }

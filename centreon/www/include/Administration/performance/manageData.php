@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,33 +34,29 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
-include("./include/common/autoNumLimit.php");
+include './include/common/autoNumLimit.php';
 
 require_once './class/centreonDuration.class.php';
-include_once("./include/monitoring/common-Func.php");
+include_once './include/monitoring/common-Func.php';
 
-/* 
- * Path to the option dir
- */
-$path = "./include/Administration/performance/";
+// Path to the option dir
+$path = './include/Administration/performance/';
 
-/*
- * PHP functions
- */
-require_once("./include/Administration/parameters/DB-Func.php");
-require_once("./include/common/common-Func.php");
-require_once("./class/centreonDB.class.php");
+// PHP functions
+require_once './include/Administration/parameters/DB-Func.php';
+require_once './include/common/common-Func.php';
+require_once './class/centreonDB.class.php';
 
-$pearDBO = new CentreonDB("centstorage");
+$pearDBO = new CentreonDB('centstorage');
 
 switch ($o) {
-    case "msvc":
-        require_once($path . "viewMetrics.php");
+    case 'msvc':
+        require_once $path . 'viewMetrics.php';
         break;
     default:
-        require_once($path . "viewData.php");
+        require_once $path . 'viewData.php';
         break;
 }

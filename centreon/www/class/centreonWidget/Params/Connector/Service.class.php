@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -42,7 +42,7 @@ require_once __DIR__ . "/../List.class.php";
  */
 class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
 {
-    /** @var HTML_QuickForm_element*/
+    /** @var HTML_QuickForm_element */
     public $element;
 
     /**
@@ -63,9 +63,9 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function init($params): void
     {
@@ -78,8 +78,8 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
                 'param_trigger_' . $params['parameter_id'],
                 'Host',
                 $tab,
-                ['onchange' => 'javascript:loadFromTrigger("' . $triggerSource . '", ' .
-                    $params['parameter_id'] . ', this.value);']
+                ['onchange' => 'javascript:loadFromTrigger("' . $triggerSource . '", '
+                    . $params['parameter_id'] . ', this.value);']
             );
             $userPref = $this->getUserPreferences($params);
             $svcTab = [];
@@ -101,8 +101,8 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      *
      * @param int $hostId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getServiceIds($hostId)
     {
@@ -111,41 +111,42 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             's.service_id',
             $this->acl->getServicesString('ID', $this->monitoringDb)
         );
-        $sql = "SELECT service_id, service_description, display_name
+        $sql = 'SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr
-        		WHERE hsr.host_host_id = " . $this->db->escape($hostId) . "
-        		AND hsr.service_service_id = s.service_id ";
+        		WHERE hsr.host_host_id = ' . $this->db->escape($hostId) . '
+        		AND hsr.service_service_id = s.service_id ';
         $sql .= $aclString;
-        $sql .= " UNION ";
-        $sql .= " SELECT service_id, service_description, display_name
+        $sql .= ' UNION ';
+        $sql .= ' SELECT service_id, service_description, display_name
         		FROM service s, host_service_relation hsr, hostgroup_relation hgr
         		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
-        		AND hgr.host_host_id = " . $this->db->escape($hostId) . "
-        		AND hsr.service_service_id = s.service_id ";
+        		AND hgr.host_host_id = ' . $this->db->escape($hostId) . '
+        		AND hsr.service_service_id = s.service_id ';
         $sql .= $aclString;
-        $sql .= " ORDER BY service_description ";
+        $sql .= ' ORDER BY service_description ';
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
             // For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+            $serviceDescription = (preg_match('/meta_/', $row['service_description']))
                 ? $row['display_name'] : $row['service_description'];
-            $tab[$hostId . "-" . $row['service_id']] = $serviceDescription;
+            $tab[$hostId . '-' . $row['service_id']] = $serviceDescription;
         }
+
         return $tab;
     }
 
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
         static $tab;
 
-        if (!isset($tab)) {
+        if (! isset($tab)) {
             $aclString = $this->acl->queryBuilder(
                 'AND',
                 'host_id',
@@ -165,13 +166,14 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
                        WHERE host_register = '2'
                        AND host_name = '_Module_Meta' ";
             $query .= $aclString;
-            $query .= " ORDER BY host_name";
+            $query .= ' ORDER BY host_name';
             $res = $this->db->query($query);
             $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['host_id']] = $row['host_name'];
             }
         }
+
         return $tab;
     }
 
@@ -180,9 +182,9 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      *
      * @param array $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function setValue($params): void
     {

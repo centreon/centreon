@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class HostGroupRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'hostgroup_relation';
+
     /** @var string */
     protected $generateFilename = 'hostgroup_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
@@ -47,8 +50,8 @@ class HostGroupRelation extends AbstractObject
      * @param int $hgId
      * @param int $hostId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $hgId, int $hostId)
     {

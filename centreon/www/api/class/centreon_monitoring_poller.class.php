@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -57,8 +57,8 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getList()
     {
@@ -67,48 +67,49 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
         $queryValues = [];
 
         // Check for select2 'q' argument
-        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
-        $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT instance_id, name FROM instances ' .
-            'WHERE name LIKE :name AND deleted=0 ';
+        $queryPoller = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT instance_id, name FROM instances '
+            . 'WHERE name LIKE :name AND deleted=0 ';
 
-        if (!$centreon->user->admin) {
+        if (! $centreon->user->admin) {
             $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-            $queryPoller .= 'AND instances.instance_id IN (' .
-                $acl->getPollerString('ID', $this->pearDBMonitoring) . ') ';
+            $queryPoller .= 'AND instances.instance_id IN ('
+                . $acl->getPollerString('ID', $this->pearDBMonitoring) . ') ';
         }
 
         $queryPoller .= ' ORDER BY name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $queryPoller .= 'LIMIT :offset,:limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDBMonitoring->prepare($queryPoller);
         $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $pollerList = [];
         while ($data = $stmt->fetch()) {
             $pollerList[] = ['id' => $data['instance_id'], 'text' => $data['name']];
         }
+
         return ['items' => $pollerList, 'total' => (int) $this->pearDBMonitoring->numberRows()];
     }
 }

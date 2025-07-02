@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -59,7 +59,9 @@ class CentreonPdo extends PDO
     /**
      * @return void
      */
-    public function disconnect() {}
+    public function disconnect()
+    {
+    }
 
     /**
      * returns error info
@@ -68,11 +70,12 @@ class CentreonPdo extends PDO
      */
     public function toString()
     {
-        $errString = "";
+        $errString = '';
         $errTab = $this->errorInfo();
         if (count($errTab)) {
-            $errString = implode(";", $errTab);
+            $errString = implode(';', $errTab);
         }
+
         return $errString;
     }
 }

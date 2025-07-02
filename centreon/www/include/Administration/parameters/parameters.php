@@ -34,65 +34,61 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$gopt_id = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['gopt_id'] ?? null);
-if ((!isset($cg) || is_null($cg))) {
-    $gopt_id = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['gopt_id'] ?? null);
+$gopt_id = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['gopt_id'] ?? null);
+if ((! isset($cg) || is_null($cg))) {
+    $gopt_id = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['gopt_id'] ?? null);
 }
 
-/*
- * Path to the option dir
- */
-$path = "./include/Administration/parameters/";
+// Path to the option dir
+$path = './include/Administration/parameters/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 switch ($o) {
-    case "engine":
-        require_once $path . "engine/form.php" ;
+    case 'engine':
+        require_once $path . 'engine/form.php';
         break;
-    case "snmp":
-        require_once $path . "snmp/form.php" ;
+    case 'snmp':
+        require_once $path . 'snmp/form.php';
         break;
-    case "rrdtool":
-        require_once $path . "rrdtool/form.php" ;
+    case 'rrdtool':
+        require_once $path . 'rrdtool/form.php';
         break;
-    case "ldap":
-        require_once $path . "ldap/ldap.php" ;
+    case 'ldap':
+        require_once $path . 'ldap/ldap.php';
         break;
-    case "debug":
-        require_once $path . "debug/form.php" ;
+    case 'debug':
+        require_once $path . 'debug/form.php';
         break;
-    case "css":
-        require_once $path . "css/form.php" ;
+    case 'css':
+        require_once $path . 'css/form.php';
         break;
-    case "storage":
-        require_once $path . "centstorage/form.php" ;
+    case 'storage':
+        require_once $path . 'centstorage/form.php';
         break;
-    case "gorgone":
+    case 'gorgone':
         require_once $path . 'gorgone/gorgone.php';
         break;
-    case "knowledgeBase":
+    case 'knowledgeBase':
         require_once $path . 'knowledgeBase/formKnowledgeBase.php';
         break;
-    case "api":
+    case 'api':
         require_once $path . 'api/api.php';
         break;
-    case "backup":
+    case 'backup':
         require_once $path . 'backup/formBackup.php';
         break;
-    case "remote":
+    case 'remote':
         require_once $path . 'remote/formRemote.php';
         break;
-    case "general":
+    case 'general':
     default:
-        require_once $path . "general/form.php" ;
+        require_once $path . 'general/form.php';
         break;
 }

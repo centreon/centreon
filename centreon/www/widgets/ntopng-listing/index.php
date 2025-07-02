@@ -47,13 +47,13 @@ try {
     $centreonWidget = new CentreonWidget($centreon, $dependencyInjector['configuration_db']);
 
     $preferences = $centreonWidget->getWidgetPreferences($widgetId);
-    $preferences['login'] = filter_var($preferences['login'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $preferences['password'] = filter_var($preferences['password'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $preferences['token'] = filter_var($preferences['token'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $preferences['address'] = filter_var($preferences['address'] ?? "", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['login'] = filter_var($preferences['login'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['password'] = filter_var($preferences['password'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['token'] = filter_var($preferences['token'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $preferences['address'] = filter_var($preferences['address'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $preferences['protocol'] = filter_var($preferences['protocol'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $preferences['filter-address'] = filter_var($preferences['filter-address'] ?? "", FILTER_VALIDATE_IP);
-    $preferences['filter-port'] = filter_var($preferences['filter-port'] ?? "", FILTER_VALIDATE_INT);
+    $preferences['filter-address'] = filter_var($preferences['filter-address'] ?? '', FILTER_VALIDATE_IP);
+    $preferences['filter-port'] = filter_var($preferences['filter-port'] ?? '', FILTER_VALIDATE_INT);
     $preferences['interface'] = filter_var($preferences['interface'] ?? 0, FILTER_VALIDATE_INT);
     $preferences['port'] = filter_var($preferences['port'] ?? 3000, FILTER_VALIDATE_INT);
     $preferences['mode'] = filter_var($preferences['mode'] ?? 'top-n-local', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -69,19 +69,20 @@ try {
         $preferences['top'] = DEFAULT_NUMBER_OF_LINES;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
         default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
 $data = ['error' => 0];
 if (isset($preferences['login'], $preferences['password'], $preferences['address'])) {
     require_once './functions.php';
-    $preferences['base_url'] = $preferences['protocol'] . "://" . $preferences['address'] . ":" . $preferences['port'];
+    $preferences['base_url'] = $preferences['protocol'] . '://' . $preferences['address'] . ':' . $preferences['port'];
 
     try {
         $preferences['uri'] = createLink($preferences);
@@ -92,44 +93,44 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
             $i = 1;
             foreach ($array['rsp']['data'] as $traffic) {
                 $data['hosts'][] = [
-                    "name" => preg_replace('/\[.*\]/', '', $traffic['name']),
-                    "ip" => $traffic['ip'],
-                    "bandwidth" => round($traffic['thpt']['bps'] / 1000000, 2),
-                    "packets_per_second" => round($traffic['thpt']['pps'], 2)
+                    'name' => preg_replace('/\[.*\]/', '', $traffic['name']),
+                    'ip' => $traffic['ip'],
+                    'bandwidth' => round($traffic['thpt']['bps'] / 1000000, 2),
+                    'packets_per_second' => round($traffic['thpt']['pps'], 2),
                 ];
                 if ($i >= $preferences['top']) {
                     break;
                 }
                 $i++;
             }
-        } elseif ($preferences['mode'] === "top-n-flows") {
+        } elseif ($preferences['mode'] === 'top-n-flows') {
             $data['flows'] = [];
             $i = 1;
             foreach ($array['rsp']['data'] as $traffic) {
-                $protocol = $traffic['protocol'][OSI_LEVEL_4] . " " . $traffic['protocol'][OSI_LEVEL_7];
-                $client = $traffic['client']['name'] . ":" . $traffic['client']['port'];
-                $server = $traffic['server']['name'] . ":" . $traffic['server']['port'];
+                $protocol = $traffic['protocol'][OSI_LEVEL_4] . ' ' . $traffic['protocol'][OSI_LEVEL_7];
+                $client = $traffic['client']['name'] . ':' . $traffic['client']['port'];
+                $server = $traffic['server']['name'] . ':' . $traffic['server']['port'];
                 $bandwidth = round($traffic['thpt']['bps'] / 1000000, 2);
                 $pps = round($traffic['thpt']['pps'], 2);
                 $data['flows'][] = [
-                    "protocol" => $protocol,
-                    "client" => $client,
-                    "server" => $server,
-                    "bandwidth" => $bandwidth,
-                    "packets_per_second" => $pps
+                    'protocol' => $protocol,
+                    'client' => $client,
+                    'server' => $server,
+                    'bandwidth' => $bandwidth,
+                    'packets_per_second' => $pps,
                 ];
                 if ($i >= $preferences['top']) {
                     break;
                 }
                 $i++;
             }
-        } elseif ($preferences['mode'] === "top-n-application") {
+        } elseif ($preferences['mode'] === 'top-n-application') {
             $applications = [];
             $applicationList = [];
             $totalBandwidth = 0;
             foreach ($array['rsp']['data'] as $traffic) {
                 $totalBandwidth += $traffic['thpt']['bps'];
-                $application = $traffic['protocol'][OSI_LEVEL_4] . "-" . $traffic['protocol'][OSI_LEVEL_7];
+                $application = $traffic['protocol'][OSI_LEVEL_4] . '-' . $traffic['protocol'][OSI_LEVEL_7];
                 if (in_array($application, $applicationList)) {
                     $applications[$application]['bandwidth'] += $traffic['thpt']['bps'];
                 } else {
@@ -137,7 +138,7 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
                     $applications[$application] = [];
                     $applications[$application]['protocol'] = $traffic['protocol'][OSI_LEVEL_4];
 
-                    $l7 = $traffic['protocol'][OSI_LEVEL_7] === "Unknown"
+                    $l7 = $traffic['protocol'][OSI_LEVEL_7] === 'Unknown'
                         ? $traffic['server']['port']
                         : $traffic['protocol'][OSI_LEVEL_7];
 
@@ -149,9 +150,9 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
             $sortedApplications = [];
             foreach ($applications as $application) {
                 $sortedApplications[] = [
-                    "application" => $application['application'],
-                    "protocol" => $application['protocol'],
-                    "bandwidth" => $application['bandwidth']
+                    'application' => $application['application'],
+                    'protocol' => $application['protocol'],
+                    'bandwidth' => $application['bandwidth'],
                 ];
             }
             usort($sortedApplications, function ($a, $b) {
@@ -164,10 +165,10 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
             foreach ($sortedApplications as $application) {
                 $bandwidthPct = round(100 * $application['bandwidth'] / $totalBandwidth, 2);
                 $data['applications'][] = [
-                    "application" => $application['application'],
-                    "protocol" => $application['protocol'],
-                    "bandwidth" => round($application['bandwidth'] / 1000000, 2),
-                    "bandwidth_pct" => $bandwidthPct
+                    'application' => $application['application'],
+                    'protocol' => $application['protocol'],
+                    'bandwidth' => round($application['bandwidth'] / 1000000, 2),
+                    'bandwidth_pct' => $bandwidthPct,
                 ];
                 if ($i >= $preferences['top']) {
                     break;
@@ -182,7 +183,7 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
 }
 
 // Smarty template initialization
-$template = SmartyBC::createSmartyTemplate(__DIR__ . "/src/", './');
+$template = SmartyBC::createSmartyTemplate(__DIR__ . '/src/', './');
 
 $template->assign('data', $data);
 $template->assign('widgetId', $widgetId);

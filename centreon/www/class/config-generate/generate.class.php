@@ -45,7 +45,7 @@ use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../../config/centreon.config.php');
 if ($configFile !== false) {
     require_once $configFile;
 }
@@ -95,20 +95,26 @@ class Generate
 
     /** @var array */
     private $poller_cache = [];
+
     /** @var Backend|null */
     private $backend_instance = null;
+
     /** @var null */
     private $current_poller = null;
+
     /** @var null */
     private $installed_modules = null;
+
     /** @var null */
     private $module_objects = null;
+
     /** @var Container|null */
     protected $dependencyInjector = null;
 
     private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
 
     private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+
     private ReadTokenRepositoryInterface $readTokenRepository;
 
     private ReadHostRepositoryInterface $readHostRepository;
@@ -124,16 +130,16 @@ class Generate
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         $kernel = Kernel::createForWeb();
         $this->readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+            ?? throw new Exception('ReadAccRepositoryInterface not found');
         $this->readAgentConfigurationRepository = $kernel->getContainer()
             ->get(ReadAgentConfigurationRepositoryInterface::class)
-            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+            ?? throw new Exception('ReadAgentConfigurationRepositoryInterface not found');
         $this->readTokenRepository = $kernel->getContainer()
             ->get(ReadTokenRepositoryInterface::class)
-            ?? throw new \Exception('ReadTokenRepositoryInterface not found');
+            ?? throw new Exception('ReadTokenRepositoryInterface not found');
         $this->readHostRepository = $kernel->getContainer()
             ->get(ReadHostRepositoryInterface::class)
-            ?? throw new \Exception('ReadHostRepositoryInterface not found');
+            ?? throw new Exception('ReadHostRepositoryInterface not found');
     }
 
     /**
@@ -141,8 +147,8 @@ class Generate
      *
      * @param bool $isLocalhost (FALSE by default)
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function generateIndexData($isLocalhost = false): void
     {
@@ -196,7 +202,7 @@ class Generate
             }
         }
 
-        # Meta services
+        // Meta services
         if ($isLocalhost) {
             $metaServices = MetaService::getInstance($this->dependencyInjector)->getMetaServices();
             $hostId = MetaHost::getInstance($this->dependencyInjector)->getHostIdByHostName('_Module_Meta');
@@ -228,8 +234,8 @@ class Generate
      *
      * @param bool $isLocalhost (FALSE by default)
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function generateModulesIndexData($isLocalhost = false): void
     {
@@ -252,13 +258,13 @@ class Generate
     /**
      * @param $poller_id
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getPollerFromId($poller_id): void
     {
-        $query = "SELECT id, localhost,  centreonconnector_path FROM nagios_server " .
-            "WHERE id = :poller_id";
+        $query = 'SELECT id, localhost,  centreonconnector_path FROM nagios_server '
+            . 'WHERE id = :poller_id';
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $stmt->execute();
@@ -272,13 +278,13 @@ class Generate
     /**
      * @param $poller_name
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getPollerFromName($poller_name): void
     {
-        $query = "SELECT id, localhost, centreonconnector_path FROM nagios_server " .
-            "WHERE name = :poller_name";
+        $query = 'SELECT id, localhost, centreonconnector_path FROM nagios_server '
+            . 'WHERE name = :poller_name';
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':poller_name', $poller_name, PDO::PARAM_STR);
         $stmt->execute();
@@ -290,8 +296,8 @@ class Generate
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function resetObjectsEngine(): void
     {
@@ -336,11 +342,11 @@ class Generate
     /**
      * @param $username
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     private function configPoller($username = 'unknown'): void
     {
@@ -384,8 +390,8 @@ class Generate
     /**
      * @param $poller_name
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function configPollerFromName($poller_name): void
     {
@@ -393,8 +399,8 @@ class Generate
             $this->getPollerFromName($poller_name);
             $this->configPoller();
         } catch (Exception $e) {
-            throw new Exception('Exception received : ' . $e->getMessage() . " [file: " . $e->getFile() .
-                "] [line: " . $e->getLine() . "]\n");
+            throw new Exception('Exception received : ' . $e->getMessage() . ' [file: ' . $e->getFile()
+                . '] [line: ' . $e->getLine() . "]\n");
             $this->backend_instance->cleanPath();
         }
     }
@@ -403,8 +409,8 @@ class Generate
      * @param $poller_id
      * @param $username
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function configPollerFromId($poller_id, $username = 'unknown'): void
     {
@@ -414,8 +420,8 @@ class Generate
             }
             $this->configPoller($username);
         } catch (Exception $e) {
-            throw new Exception('Exception received : ' . $e->getMessage() . " [file: " . $e->getFile() .
-                "] [line: " . $e->getLine() . "]\n");
+            throw new Exception('Exception received : ' . $e->getMessage() . ' [file: ' . $e->getFile()
+                . '] [line: ' . $e->getLine() . "]\n");
             $this->backend_instance->cleanPath();
         }
     }
@@ -423,13 +429,13 @@ class Generate
     /**
      * @param $username
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function configPollers($username = 'unknown'): void
     {
-        $query = "SELECT id, localhost, centreonconnector_path FROM " .
-            "nagios_server WHERE ns_activate = '1'";
+        $query = 'SELECT id, localhost, centreonconnector_path FROM '
+            . "nagios_server WHERE ns_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
@@ -439,16 +445,16 @@ class Generate
     }
 
     /**
-     * @return void|null
      * @throws PDOException
+     * @return void|null
      */
     public function getInstalledModules()
     {
-        if (!is_null($this->installed_modules)) {
+        if (! is_null($this->installed_modules)) {
             return $this->installed_modules;
         }
         $this->installed_modules = [];
-        $stmt = $this->backend_instance->db->prepare("SELECT name FROM modules_informations");
+        $stmt = $this->backend_instance->db->prepare('SELECT name FROM modules_informations');
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $this->installed_modules[] = $value['name'];
@@ -456,8 +462,8 @@ class Generate
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function getModuleObjects(): void
     {
@@ -479,8 +485,8 @@ class Generate
     /**
      * @param int $type (1: engine, 2: broker)
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function generateModuleObjects(int $type = self::GENERATION_FOR_ENGINE): void
     {
@@ -507,8 +513,8 @@ class Generate
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function resetModuleObjects(): void
     {

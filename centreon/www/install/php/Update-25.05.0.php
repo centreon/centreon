@@ -2,6 +2,7 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -43,32 +44,32 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     $errorMessage = 'Unable to retrieve data from topology table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60105
-        SQL
+                SELECT 1 FROM `topology`
+                WHERE `topology_name` = 'Host Groups'
+                    AND `topology_page` = 60105
+            SQL
     );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+    $topologyAlreadyExists = (bool) $statement->fetch(PDO::FETCH_COLUMN);
 
     if (! $topologyAlreadyExists) {
         $errorMessage = 'Unable to insert new host group configuration topology';
         $pearDB->executeQuery(
             <<<'SQL'
-                INSERT INTO `topology` (`topology_name`,`topology_url`,`readonly`,`is_react`,`topology_parent`,`topology_page`,`topology_order`,`topology_group`,`topology_show`)
-                VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1')
-            SQL
+                    INSERT INTO `topology` (`topology_name`,`topology_url`,`readonly`,`is_react`,`topology_parent`,`topology_page`,`topology_order`,`topology_group`,`topology_show`)
+                    VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1')
+                SQL
         );
     }
 
     $errorMessage = 'Unable to update old host group configuration topology';
     $pearDB->executeQuery(
         <<<'SQL'
-            UPDATE `topology`
-            SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups'
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60102
-        SQL
+                UPDATE `topology`
+                SET `is_react` = '1',
+                    `topology_url` = '/configuration/hosts/groups'
+                WHERE `topology_name` = 'Host Groups'
+                    AND `topology_page` = 60102
+            SQL
     );
 };
 
@@ -82,12 +83,12 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     );
 
     if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        throw new \Exception('SAML configuration is missing');
+        throw new Exception('SAML configuration is missing');
     }
 
     $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
 
-    if (!isset($customConfiguration['requested_authn_context'])) {
+    if (! isset($customConfiguration['requested_authn_context'])) {
         $customConfiguration['requested_authn_context'] = 'minimum';
         $query = <<<'SQL'
                 UPDATE `provider_configuration`
@@ -99,7 +100,7 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
                 QueryParameter::string(
                     'custom_configuration',
                     json_encode($customConfiguration, JSON_THROW_ON_ERROR)
-                )
+                ),
             ]
         );
 
@@ -135,13 +136,13 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     $errorMessage = 'Unable to retrieve data from agent_configuration table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT `id`, `configuration` FROM `agent_configuration`
-        SQL
+                SELECT `id`, `configuration` FROM `agent_configuration`
+            SQL
     );
 
     $errorMessage = 'Unable to update agent_configuration table';
     $updates = [];
-    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $config = json_decode($row['configuration'], true);
         if (! is_array($config)) {
             continue;
@@ -174,7 +175,7 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
         $updatedConfig = json_encode($config);
         $updates[] = [
             'id' => $row['id'],
-            'configuration' => $updatedConfig
+            'configuration' => $updatedConfig,
         ];
     }
 
@@ -260,9 +261,9 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
             SQL
     );
 };
-  
+
 // -------------------------------------------- Broker modules directive -------------------------------------------- //
-$addColumnInEngineConf = function() use($pearDB, &$errorMessage): void {
+$addColumnInEngineConf = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unabled to add column in cfg_nagios table';
 
     if ($pearDB->isColumnExist('cfg_nagios', 'broker_module_cfg_file')) {
@@ -271,9 +272,9 @@ $addColumnInEngineConf = function() use($pearDB, &$errorMessage): void {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `cfg_nagios`
-            ADD COLUMN `broker_module_cfg_file` VARCHAR(255) DEFAULT NULL
-        SQL
+                ALTER TABLE `cfg_nagios`
+                ADD COLUMN `broker_module_cfg_file` VARCHAR(255) DEFAULT NULL
+            SQL
     );
 };
 
@@ -281,20 +282,20 @@ $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pea
     $errorMessage = 'Unable to get data from cfg_nagios_broker_module table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT `cfg_nagios_id`, `broker_module` FROM `cfg_nagios_broker_module`
-            WHERE `broker_module` LIKE '%cbmod.so %.json'
-        SQL
+                SELECT `cfg_nagios_id`, `broker_module` FROM `cfg_nagios_broker_module`
+                WHERE `broker_module` LIKE '%cbmod.so %.json'
+            SQL
     );
 
-    $brokerNagiosPair = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+    $brokerNagiosPair = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
 
-    $errorMessage= 'Unable to update cfg_nagios table';
+    $errorMessage = 'Unable to update cfg_nagios table';
     $preparedStatement = $pearDB->prepareQuery(
         <<<'SQL'
-            UPDATE `cfg_nagios`
-            SET `broker_module_cfg_file` = :broker_module_config_file
-            WHERE `nagios_id` = :nagios_id
-        SQL
+                UPDATE `cfg_nagios`
+                SET `broker_module_cfg_file` = :broker_module_config_file
+                WHERE `nagios_id` = :nagios_id
+            SQL
     );
     foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
         $brokerConfigFile = preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches) ? $matches[1] : '';
@@ -311,12 +312,11 @@ $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pea
 
     $pearDB->executeStatement(
         <<<'SQL'
-            DELETE FROM `cfg_nagios_broker_module`
-            WHERE `broker_module` LIKE '%cbmod.so %.json'
-        SQL
+                DELETE FROM `cfg_nagios_broker_module`
+                WHERE `broker_module` LIKE '%cbmod.so %.json'
+            SQL
     );
 };
-
 
 try {
     $createJwtTable();
@@ -337,7 +337,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -347,19 +347,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

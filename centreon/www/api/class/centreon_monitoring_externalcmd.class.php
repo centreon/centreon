@@ -34,9 +34,9 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -45,9 +45,9 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
  */
 class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 {
-
     /** @var CentreonDB */
     protected $pearDBMonitoring;
+
     /** @var string */
     protected $centcore_file;
 
@@ -57,7 +57,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     public function __construct()
     {
         parent::__construct();
-        $this->pearDBMonitoring = new \CentreonDB('centstorage');
+        $this->pearDBMonitoring = new CentreonDB('centstorage');
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
         } else {
@@ -66,11 +66,11 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestException
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function postSend()
     {
@@ -81,10 +81,10 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
             && is_array($this->arguments['commands'])
             && count($this->arguments['commands'])
         ) {
-            /* Get poller Listing */
-            $query = 'SELECT id ' .
-                'FROM nagios_server ' .
-                'WHERE ns_activate = "1"';
+            // Get poller Listing
+            $query = 'SELECT id '
+                . 'FROM nagios_server '
+                . 'WHERE ns_activate = "1"';
 
             $dbResult = $this->pearDB->query($query);
             $pollers = [];
@@ -111,7 +111,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
             /**
              * If user is not admin we need to retrieve its ACL
              */
-            if (!$isAdmin) {
+            if (! $isAdmin) {
                 $userAcl = new CentreonACL($centreon->user->user_id, $isAdmin);
             }
 
@@ -119,9 +119,9 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 foreach ($this->arguments['commands'] as $command) {
                     $commandSplitted = explode(';', $command['command']);
                     $action = $commandSplitted[0];
-                    if (!$isAdmin) {
+                    if (! $isAdmin) {
                         if (preg_match('/HOST(_SVC)?/', $action, $matches)) {
-                            if (!isset($commandSplitted[1])) {
+                            if (! isset($commandSplitted[1])) {
                                 throw new RestBadRequestException(_('Host not found'));
                             }
                             $query = 'SELECT acl.host_id
@@ -136,7 +136,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                                 throw new RestBadRequestException(_('Host not found'));
                             }
                         } elseif (preg_match('/(?!HOST_)SVC/', $action, $matches)) {
-                            if (!isset($commandSplitted[1]) || !isset($commandSplitted[2])) {
+                            if (! isset($commandSplitted[1]) || ! isset($commandSplitted[2])) {
                                 throw new RestBadRequestException(_('Service not found'));
                             }
                             $query = 'SELECT acl.service_id
@@ -159,11 +159,11 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
 
                     // checking that action provided exists
-                    if (!array_key_exists($action, $availableCommands)) {
+                    if (! array_key_exists($action, $availableCommands)) {
                         throw new RestBadRequestException('Action ' . $action . ' not supported');
                     }
 
-                    if (!$isAdmin) {
+                    if (! $isAdmin) {
                         // Checking that the user has rights to do the action provided
                         if ($userAcl->checkAction($availableCommands[$action]) === 0) {
                             throw new RestUnauthorizedException(
@@ -175,16 +175,17 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     if (isset($pollers[$command['poller_id']])) {
                         fwrite(
                             $fh,
-                            "EXTERNALCMD:" . $command["poller_id"] . ":[" .
-                            $command['timestamp'] . "] " . $command['command'] . "\n"
+                            'EXTERNALCMD:' . $command['poller_id'] . ':['
+                            . $command['timestamp'] . '] ' . $command['command'] . "\n"
                         );
                     }
                 }
                 fclose($fh);
-                return (['success' => true]);
-            } else {
-                throw new RestException('Cannot open Centcore file');
+
+                return ['success' => true];
             }
+
+            throw new RestException('Cannot open Centcore file');
         } else {
             throw new RestBadRequestException('Bad arguments - Cannot find command list');
         }

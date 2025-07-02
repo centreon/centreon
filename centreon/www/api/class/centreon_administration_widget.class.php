@@ -34,9 +34,9 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDBInstance.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDBInstance.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonWidget.class.php';
-require_once __DIR__ . "/webService.class.php";
+require_once __DIR__ . '/webService.class.php';
 require_once __DIR__ . '/../interface/di.interface.php';
 require_once __DIR__ . '/../trait/diAndUtilis.trait.php';
 
@@ -50,8 +50,8 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
     use CentreonWebServiceDiAndUtilisTrait;
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     * @return array
      */
     public function getListInstalled()
     {
@@ -60,10 +60,10 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
         // Check for select2 'q' argument
         $q = false === isset($this->arguments['q']) ? '' : $this->arguments['q'];
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
                 throw new RestBadRequestException('Error, limit must be an integer greater than zero');
@@ -89,13 +89,9 @@ class CentreonAdministrationWidget extends CentreonWebService implements Centreo
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->hasAccessRestApiConfiguration())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 }

@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -57,41 +57,41 @@ class CentreonConfigurationHosttemplate extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
         $queryValues = [];
 
         // Check for select2 'q' argument
-        $queryValues['hostName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['hostName'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_name, h.host_id FROM host h ' .
-            'WHERE h.host_register = "0" ' .
-            'AND h.host_name LIKE :hostName ' .
-            'ORDER BY h.host_name ';
+        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_name, h.host_id FROM host h '
+            . 'WHERE h.host_register = "0" '
+            . 'AND h.host_name LIKE :hostName '
+            . 'ORDER BY h.host_name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $query .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDB->prepare($query);
-        $stmt->bindParam(':hostName', $queryValues["hostName"], PDO::PARAM_STR);
+        $stmt->bindParam(':hostName', $queryValues['hostName'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $stmt->execute();
         $hostList = [];

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -57,27 +58,27 @@ class CentreonManufacturer
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':traps' . $v . ',';
-                $queryValues['traps' . $v] = (int)$v;
+                $queryValues['traps' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timeperiods
-        $query = 'SELECT id, name FROM traps_vendor ' .
-            'WHERE id IN (' . $listValues . ') ORDER BY name ';
+        // get list of selected timeperiods
+        $query = 'SELECT id, name FROM traps_vendor '
+            . 'WHERE id IN (' . $listValues . ') ORDER BY name ';
 
         $stmt = $this->db->prepare($query);
         if ($queryValues !== []) {

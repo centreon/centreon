@@ -34,10 +34,10 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonHook.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonHook.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -48,6 +48,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
 {
     /** @var array */
     public $arguments;
+
     /** @var CentreonDB */
     protected $pearDBMonitoring;
 
@@ -60,9 +61,9 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -76,23 +77,23 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         $bindParams = [];
         $excludeAnomalyDetection = false;
 
-        /* Get ACL if user is not admin */
+        // Get ACL if user is not admin
         $acl = null;
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
         }
 
-        $bindParams[':fullName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
+        $bindParams[':fullName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string) $this->arguments['q'] . '%';
 
         if (isset($this->arguments['e']) && strcmp('anomaly', $this->arguments['e']) == 0) {
             $excludeAnomalyDetection = true;
         }
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, fullname, host_id, service_id, index_id ' .
-            'FROM ( ' .
-            '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, i.host_id, ' .
-            'i.service_id, m.index_id ' .
-            'FROM index_data i, metrics m, services s ' . (!$isAdmin ? ', centreon_acl acl ' : '');
+        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, fullname, host_id, service_id, index_id '
+            . 'FROM ( '
+            . '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, i.host_id, '
+            . 'i.service_id, m.index_id '
+            . 'FROM index_data i, metrics m, services s ' . (! $isAdmin ? ', centreon_acl acl ' : '');
         if (isset($this->arguments['hostgroup'])) {
             $additionalTables .= ',hosts_hostgroups hg ';
         }
@@ -100,17 +101,17 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $additionalTables .= ',services_servicegroups sg ';
         }
 
-        $query .= $additionalTables .
-            'WHERE i.id = m.index_id ' .
-            'AND s.enabled = 1 ' .
-            'AND i.service_id = s.service_id ' .
-            'AND i.host_name NOT LIKE "\_Module\_%" ' .
-            'AND CONCAT(i.host_name, " - ", i.service_description) LIKE :fullName ';
+        $query .= $additionalTables
+            . 'WHERE i.id = m.index_id '
+            . 'AND s.enabled = 1 '
+            . 'AND i.service_id = s.service_id '
+            . 'AND i.host_name NOT LIKE "\_Module\_%" '
+            . 'AND CONCAT(i.host_name, " - ", i.service_description) LIKE :fullName ';
 
-        if (!$isAdmin) {
-            $query .= 'AND acl.host_id = i.host_id ' .
-                'AND acl.service_id = i.service_id ' .
-                'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
+        if (! $isAdmin) {
+            $query .= 'AND acl.host_id = i.host_id '
+                . 'AND acl.service_id = i.service_id '
+                . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
         }
 
         if ($excludeAnomalyDetection) {
@@ -118,28 +119,28 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             FROM `' . $conf_centreon['db'] . '`.mod_anomaly_service) ';
         }
         if (isset($this->arguments['hostgroup'])) {
-            $additionalCondition .= 'AND (hg.host_id = i.host_id ' .
-                'AND hg.hostgroup_id IN (';
+            $additionalCondition .= 'AND (hg.host_id = i.host_id '
+                . 'AND hg.hostgroup_id IN (';
             $params = [];
             foreach ($this->arguments['hostgroup'] as $k => $v) {
-                if (!is_numeric($v)) {
-                    throw new \RestBadRequestException('Error, host group id must be numerical');
+                if (! is_numeric($v)) {
+                    throw new RestBadRequestException('Error, host group id must be numerical');
                 }
-                $params[':hgId' . $v] = (int)$v;
+                $params[':hgId' . $v] = (int) $v;
             }
             $bindParams = array_merge($bindParams, $params);
             $additionalCondition .= implode(',', array_keys($params)) . ')) ';
         }
 
         if (isset($this->arguments['servicegroup'])) {
-            $additionalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id ' .
-                'AND sg.servicegroup_id IN (';
+            $additionalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id '
+                . 'AND sg.servicegroup_id IN (';
             $params = [];
             foreach ($this->arguments['servicegroup'] as $k => $v) {
-                if (!is_numeric($v)) {
-                    throw new \RestBadRequestException('Error, service group id must be numerical');
+                if (! is_numeric($v)) {
+                    throw new RestBadRequestException('Error, service group id must be numerical');
                 }
-                $params[':sgId' . $v] = (int)$v;
+                $params[':sgId' . $v] = (int) $v;
             }
             $bindParams = array_merge($bindParams, $params);
             $additionalCondition .= implode(',', array_keys($params)) . ')) ';
@@ -149,10 +150,10 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $additionalCondition .= 'AND i.host_id IN (';
             $params = [];
             foreach ($this->arguments['host'] as $k => $v) {
-                if (!is_numeric($v)) {
-                    throw new \RestBadRequestException('Error, host id must be numerical');
+                if (! is_numeric($v)) {
+                    throw new RestBadRequestException('Error, host id must be numerical');
                 }
-                $params[':hostId' . $v] = (int)$v;
+                $params[':hostId' . $v] = (int) $v;
             }
             $bindParams = array_merge($bindParams, $params);
             $additionalCondition .= implode(',', array_keys($params)) . ') ';
@@ -177,23 +178,23 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $virtualValues = $virtualObject['value'];
         }
 
-        $query .= $virtualServicesCondition . ') as t_union ' .
-            'WHERE fullname LIKE :fullName ' .
-            'GROUP BY host_id, service_id, fullname, index_id ' .
-            'ORDER BY fullname ';
+        $query .= $virtualServicesCondition . ') as t_union '
+            . 'WHERE fullname LIKE :fullName '
+            . 'GROUP BY host_id, service_id, fullname, index_id '
+            . 'ORDER BY fullname ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $query .= 'LIMIT :offset, :limit';
-            $bindParams[':offset'] = (int)$offset;
-            $bindParams[':limit'] = (int)$this->arguments['page_limit'];
+            $bindParams[':offset'] = (int) $offset;
+            $bindParams[':limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDBMonitoring->prepare($query);
@@ -220,6 +221,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
             $serviceList[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
         }
+
         return ['items' => $serviceList, 'total' => (int) $this->pearDBMonitoring->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn()];
     }
 
@@ -228,8 +230,8 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
      * @param $additionalCondition
      * @param $additionalValues
      * @param CentreonACL|null $aclObj
-     * @return array
      * @throws RestBadRequestException
+     * @return array
      */
     private function getVirtualServicesCondition(
         $additionalTables,
@@ -242,13 +244,13 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
 
-        /* Get ACL if user is not admin */
+        // Get ACL if user is not admin
         $acl = null;
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
         }
 
-        /* First, get virtual services for metaservices */
+        // First, get virtual services for metaservices
         $metaServiceCondition = '';
         $metaValues = $additionalValues;
         if (isset($aclObj)) {
@@ -262,7 +264,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
                 $explodedValues = '';
                 foreach ($virtualServices as $k => $v) {
                     $explodedValues .= ':meta' . $k . ',';
-                    $metaValues['metaService']['meta' . $k] = (string)$v;
+                    $metaValues['metaService']['meta' . $k] = (string) $v;
                 }
                 $explodedValues = rtrim($explodedValues, ',');
                 $metaServiceCondition .= $explodedValues . ') ';
@@ -271,23 +273,23 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
 
         $metaServiceCondition .= 'AND s.description LIKE "meta_%" ';
 
-        $virtualServicesCondition = 'UNION ALL (' .
-            'SELECT CONCAT("Meta - ", s.display_name) as fullname, i.host_id, i.service_id, m.index_id ' .
-            'FROM index_data i, metrics m, services s ' . (!$isAdmin ? ', centreon_acl acl ' : '') .
-            $additionalTables .
-            'WHERE i.id = m.index_id ' .
-            'AND s.enabled = 1 ' .
-            $additionalCondition .
-            $metaServiceCondition .
-            'AND i.service_id = s.service_id ';
-        if (!$isAdmin) {
-            $virtualServicesCondition .= 'AND acl.host_id = i.host_id ' .
-                'AND acl.service_id = i.service_id ' .
-                'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
+        $virtualServicesCondition = 'UNION ALL ('
+            . 'SELECT CONCAT("Meta - ", s.display_name) as fullname, i.host_id, i.service_id, m.index_id '
+            . 'FROM index_data i, metrics m, services s ' . (! $isAdmin ? ', centreon_acl acl ' : '')
+            . $additionalTables
+            . 'WHERE i.id = m.index_id '
+            . 'AND s.enabled = 1 '
+            . $additionalCondition
+            . $metaServiceCondition
+            . 'AND i.service_id = s.service_id ';
+        if (! $isAdmin) {
+            $virtualServicesCondition .= 'AND acl.host_id = i.host_id '
+                . 'AND acl.service_id = i.service_id '
+                . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
         }
         $virtualServicesCondition .= ') ';
 
-        /* Then, get virtual services for modules if not in anomaly detection context */
+        // Then, get virtual services for modules if not in anomaly detection context
         $allVirtualServiceIds = [];
         if (($this->arguments['e'] ?? null) !== 'anomaly') {
             $allVirtualServiceIds = CentreonHook::execute('Service', 'getVirtualServiceIds');
@@ -295,29 +297,29 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         foreach ($allVirtualServiceIds as $moduleVirtualServiceIds) {
             foreach ($moduleVirtualServiceIds as $hostname => $virtualServiceIds) {
                 if (count($virtualServiceIds)) {
-                    $virtualServicesCondition .= 'UNION ALL (' .
-                        'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, ' .
-                        'i.host_id, i.service_id, m.index_id ' .
-                        'FROM index_data i, metrics m, services s ' .
-                        $additionalTables .
-                        'WHERE i.id = m.index_id ' .
-                        'AND s.enabled = 1 ' .
-                        $additionalCondition .
-                        'AND s.service_id IN (';
+                    $virtualServicesCondition .= 'UNION ALL ('
+                        . 'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, '
+                        . 'i.host_id, i.service_id, m.index_id '
+                        . 'FROM index_data i, metrics m, services s '
+                        . $additionalTables
+                        . 'WHERE i.id = m.index_id '
+                        . 'AND s.enabled = 1 '
+                        . $additionalCondition
+                        . 'AND s.service_id IN (';
 
                     $explodedValues = '';
                     foreach ($virtualServiceIds as $k => $v) {
-                        if (!is_numeric($v)) {
-                            throw new \RestBadRequestException('Error, virtual service id must be numerical');
+                        if (! is_numeric($v)) {
+                            throw new RestBadRequestException('Error, virtual service id must be numerical');
                         }
                         $explodedValues .= ':vService' . $v . ',';
-                        $metaValues['virtualService']['vService' . $v] = (int)$v;
+                        $metaValues['virtualService']['vService' . $v] = (int) $v;
                     }
                     $explodedValues = rtrim($explodedValues, ',');
 
-                    $virtualServicesCondition .= $explodedValues . ') ' .
-                        'AND i.service_id = s.service_id ' .
-                        ') ';
+                    $virtualServicesCondition .= $explodedValues . ') '
+                        . 'AND i.service_id = s.service_id '
+                        . ') ';
                 }
             }
         }

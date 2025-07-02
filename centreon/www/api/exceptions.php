@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -47,7 +48,7 @@ class RestException extends Exception
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
@@ -70,7 +71,7 @@ class RestBadRequestException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -93,7 +94,7 @@ class RestUnauthorizedException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -116,7 +117,7 @@ class RestForbiddenException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -139,7 +140,7 @@ class RestNotFoundException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -162,7 +163,7 @@ class RestMethodNotAllowedException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -185,7 +186,7 @@ class RestConflictException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -208,7 +209,7 @@ class RestInternalServerErrorException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -231,7 +232,7 @@ class RestBadGatewayException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -254,7 +255,7 @@ class RestServiceUnavailableException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -277,7 +278,7 @@ class RestGatewayTimeOutException extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }
@@ -300,7 +301,7 @@ class RestPartialContent extends RestException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = "", $code = 0, $previous = null)
+    public function __construct($message = '', $code = 0, $previous = null)
     {
         parent::__construct($message, $this->code, $previous);
     }

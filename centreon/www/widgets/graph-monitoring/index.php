@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -45,12 +45,13 @@ require_once $centreon_path . 'www/class/centreonACL.class.php';
 $pearDB = $dependencyInjector['configuration_db'];
 
 CentreonSession::start(1);
-if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-    print "Bad Session";
+if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+    echo 'Bad Session';
+
     exit();
 }
 
-if (!isset($_REQUEST['widgetId'])) {
+if (! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -77,12 +78,13 @@ try {
         $autoRefresh = 30;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
@@ -96,12 +98,10 @@ if ($centreon->user->admin == 0) {
 $path = $centreon_path . 'www/widgets/graph-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, '/');
 
-/*
-* Check ACL
-*/
+// Check ACL
 
 $acl = 1;
-if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
+if (isset($tab[0], $tab[1])   && $centreon->user->admin == 0) {
     $sql = <<<'SQL'
         SELECT
             1 AS REALTIME,
@@ -118,7 +118,7 @@ if (isset($tab[0]) && isset($tab[1]) && $centreon->user->admin == 0) {
     $res->bindValue(':groupList', $grouplistStr, PDO::PARAM_STR);
     $res->execute();
 
-    if (!$res->rowCount()) {
+    if (! $res->rowCount()) {
         $acl = 0;
     }
 }
@@ -128,11 +128,11 @@ $servicePreferences = '';
 if ($acl === 0) {
     $servicePreferences = '';
 } elseif (false === isset($preferences['service']) || trim($preferences['service']) === '') {
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
-        "auto;width:350px;'>" . _("Please select a resource first") . "</div>";
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
+        . "auto;width:350px;'>" . _('Please select a resource first') . '</div>';
 } elseif (false === isset($preferences['graph_period']) || trim($preferences['graph_period']) === '') {
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: " .
-        "auto;width:350px;'>" . _("Please select a graph period") . "</div>";
+    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
+        . "auto;width:350px;'>" . _('Please select a graph period') . '</div>';
 }
 $template->assign(
     'theme',

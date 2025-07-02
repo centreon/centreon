@@ -48,56 +48,56 @@ function getPeriodToReport(?string $alternate = null): array
     $end_date = '';
 
     if (isset($_POST['period'])) {
-        $period = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['period']);
+        $period = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['period']);
     } elseif (isset($_GET['period'])) {
-        $period = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['period']);
+        $period = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['period']);
     }
 
     if (isset($_POST['period_choice'])) {
-        $period_choice = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['period_choice']);
+        $period_choice = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['period_choice']);
     }
 
     if (null != $alternate) {
         if (isset($_POST['alternativeDateStartDate'])) {
-            $start_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alternativeDateStartDate']);
+            $start_date = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alternativeDateStartDate']);
         }
 
         if (isset($_POST['alternativeDateEndDate'])) {
-            $end_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alternativeDateEndDate']);
+            $end_date = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['alternativeDateEndDate']);
         }
     } else {
         if (isset($_POST['StartDate'])) {
-            $start_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['StartDate']);
+            $start_date = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['StartDate']);
         } elseif (isset($_GET['StartDate'])) {
-            $start_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['StartDate']);
+            $start_date = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['StartDate']);
         }
 
         if (isset($_POST['EndDate'])) {
-            $end_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['EndDate']);
+            $end_date = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['EndDate']);
         } elseif (isset($_GET['EndDate'])) {
-            $end_date = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['EndDate']);
+            $end_date = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['EndDate']);
         }
     }
 
     $interval = [0, 0];
 
     if (
-        $period_choice === 'custom' &&
-        $start_date !== '' &&
-        $end_date !== ''
+        $period_choice === 'custom'
+        && $start_date !== ''
+        && $end_date !== ''
     ) {
         $period = '';
     }
     if (
-        $period === '' &&
-        $start_date === '' &&
-        $end_date === ''
+        $period === ''
+        && $start_date === ''
+        && $end_date === ''
     ) {
         $period = 'yesterday';
     }
     if (
-        $period === '' &&
-        $start_date !== ''
+        $period === ''
+        && $start_date !== ''
     ) {
         $interval = getDateSelectCustomized($start_date, $end_date);
     } else {
@@ -115,27 +115,26 @@ function getPeriodToReport(?string $alternate = null): array
  */
 function getHostStatsValueName()
 {
-    return (
+    return
         [
-            "UP_T",
-            "UP_A",
-            "DOWN_T",
-            "DOWN_A",
-            "UNREACHABLE_T",
-            "UNREACHABLE_A",
-            "UNDETERMINED_T",
-            "MAINTENANCE_T",
-            "UP_TP",
-            "UP_MP",
-            "DOWN_TP",
-            "DOWN_MP",
-            "UNREACHABLE_TP",
-            "UNREACHABLE_MP",
-            "UNDETERMINED_TP",
-            "MAINTENANCE_TP",
-            "TOTAL_ALERTS"
-        ]
-    );
+            'UP_T',
+            'UP_A',
+            'DOWN_T',
+            'DOWN_A',
+            'UNREACHABLE_T',
+            'UNREACHABLE_A',
+            'UNDETERMINED_T',
+            'MAINTENANCE_T',
+            'UP_TP',
+            'UP_MP',
+            'DOWN_TP',
+            'DOWN_MP',
+            'UNREACHABLE_TP',
+            'UNREACHABLE_MP',
+            'UNDETERMINED_TP',
+            'MAINTENANCE_TP',
+            'TOTAL_ALERTS',
+        ];
 }
 
 /*
@@ -144,31 +143,30 @@ function getHostStatsValueName()
  */
 function getServicesStatsValueName()
 {
-    return (
+    return
         [
-            "OK_T",
-            "OK_A",
-            "WARNING_T",
-            "WARNING_A",
-            "CRITICAL_T",
-            "CRITICAL_A",
-            "UNKNOWN_T",
-            "UNKNOWN_A",
-            "UNDETERMINED_T",
-            "MAINTENANCE_T",
-            "OK_TP",
-            "OK_MP",
-            "WARNING_TP",
-            "WARNING_MP",
-            "CRITICAL_TP",
-            "CRITICAL_MP",
-            "UNKNOWN_TP",
-            "UNKNOWN_MP",
-            "UNDETERMINED_TP",
-            "MAINTENANCE_TP",
-            "TOTAL_ALERTS"
-        ]
-    );
+            'OK_T',
+            'OK_A',
+            'WARNING_T',
+            'WARNING_A',
+            'CRITICAL_T',
+            'CRITICAL_A',
+            'UNKNOWN_T',
+            'UNKNOWN_A',
+            'UNDETERMINED_T',
+            'MAINTENANCE_T',
+            'OK_TP',
+            'OK_MP',
+            'WARNING_TP',
+            'WARNING_MP',
+            'CRITICAL_TP',
+            'CRITICAL_MP',
+            'UNKNOWN_TP',
+            'UNKNOWN_MP',
+            'UNDETERMINED_TP',
+            'MAINTENANCE_TP',
+            'TOTAL_ALERTS',
+        ];
 }
 /*
  * return start and end date to report in timestamp
@@ -177,36 +175,36 @@ function getServicesStatsValueName()
 function getDateSelectPredefined($period)
 {
     $time = time();
-    $day = date("d", $time);
-    $year = date("Y", $time);
-    $month = date("m", $time);
-    if (!is_null($period)) {
-        if ($period == "yesterday") {
+    $day = date('d', $time);
+    $year = date('Y', $time);
+    $month = date('m', $time);
+    if (! is_null($period)) {
+        if ($period == 'yesterday') {
             $start_date = mktime(0, 0, 0, $month, $day - 1, $year);
             $end_date = mktime(24, 0, 0, $month, $day - 1, $year);
-        } elseif ($period == "thisweek") {
-            $dd = (date("D", mktime(24, 0, 0, $month, $day - 1, $year)));
-            for ($ct = 1; $dd != "Mon"; $ct++) {
-                $dd = (date("D", mktime(0, 0, 0, $month, ($day - $ct), $year)));
+        } elseif ($period == 'thisweek') {
+            $dd = (date('D', mktime(24, 0, 0, $month, $day - 1, $year)));
+            for ($ct = 1; $dd != 'Mon'; $ct++) {
+                $dd = (date('D', mktime(0, 0, 0, $month, ($day - $ct), $year)));
             }
             $start_date = mktime(0, 0, 0, $month, $day - $ct, $year);
             $end_date = mktime(24, 0, 0, $month, ($day - 1), $year);
-        } elseif ($period == "last7days") {
+        } elseif ($period == 'last7days') {
             $start_date = mktime(0, 0, 0, $month, $day - 7, $year);
             $end_date = mktime(24, 0, 0, $month, $day - 1, $year);
-        } elseif ($period == "last30days") {
+        } elseif ($period == 'last30days') {
             $start_date = mktime(0, 0, 0, $month, $day - 30, $year);
             $end_date = mktime(24, 0, 0, $month, $day - 1, $year);
-        } elseif ($period == "lastyear") {
+        } elseif ($period == 'lastyear') {
             $start_date = mktime(0, 0, 0, 1, 1, $year - 1);
             $end_date = mktime(0, 0, 0, 1, 1, $year);
-        } elseif ($period == "thismonth") {
+        } elseif ($period == 'thismonth') {
             $start_date = mktime(0, 0, 0, $month, 1, $year);
             $end_date = mktime(24, 0, 0, $month, $day - 1, $year);
-        } elseif ($period == "thisyear") {
+        } elseif ($period == 'thisyear') {
             $start_date = mktime(0, 0, 0, 1, 1, $year);
             $end_date = mktime(24, 0, 0, $month, $day - 1, $year);
-        } else { /* last month */
+        } else { // last month
             $start_date = mktime(0, 0, 0, $month - 1, 1, $year);
             $end_date = mktime(0, 0, 0, $month, 1, $year);
         }
@@ -217,20 +215,21 @@ function getDateSelectPredefined($period)
     if ($start_date > $end_date) {
         $start_date = $end_date;
     }
-    return ([$start_date, $end_date]);
+
+    return [$start_date, $end_date];
 }
 
 function getDateSelectCustomized($start, $end)
 {
     $time = time();
-    $day = date("d", $time);
-    $year = date("Y", $time);
-    $month = date("m", $time);
+    $day = date('d', $time);
+    $year = date('Y', $time);
+    $month = date('m', $time);
     $end_time = mktime(0, 0, 0, $month, $day, $year);
 
     if (is_numeric($end)) {
         $end_time = $end;
-    } elseif (isset($end) && $end != "") {
+    } elseif (isset($end) && $end != '') {
         [$m, $d, $y] = preg_split('/\//', $end);
         $end = mktime(24, 0, 0, $m, $d, $y);
         if ($end < $end_time) {
@@ -238,9 +237,9 @@ function getDateSelectCustomized($start, $end)
         }
     }
     if (
-        !is_numeric($start) &&
-        isset($start) &&
-        $start != ""
+        ! is_numeric($start)
+        && isset($start)
+        && $start != ''
     ) {
         [$m, $d, $y] = preg_split('/\//', $start);
         $start_time = mktime(0, 0, 0, $m, $d, $y);
@@ -252,7 +251,7 @@ function getDateSelectCustomized($start, $end)
         $start_time = $end_time - (60 * 60 * 24);
     }
 
-    return ([$start_time, $end_time]);
+    return [$start_time, $end_time];
 }
 /*
  * Return time between two timestamp
@@ -266,16 +265,16 @@ function getTotalTimeFromInterval($start, $end, $reportTimePeriod)
     $reportTime = 0;
 
     $reportTimePeriodEnd = mktime(
-        $reportTimePeriod["report_hour_end"],
-        $reportTimePeriod["report_minute_end"],
+        $reportTimePeriod['report_hour_end'],
+        $reportTimePeriod['report_minute_end'],
         0,
         0,
         0,
         0
     );
     $reportTimePeriodStart = mktime(
-        $reportTimePeriod["report_hour_start"],
-        $reportTimePeriod["report_minute_start"],
+        $reportTimePeriod['report_hour_start'],
+        $reportTimePeriod['report_minute_start'],
         0,
         0,
         0,
@@ -287,73 +286,75 @@ function getTotalTimeFromInterval($start, $end, $reportTimePeriod)
             $day_duration  = $end - $start;
         }
         if (
-            isset($reportTimePeriod["report_" . date("l", $start)]) &&
-            $reportTimePeriod["report_" . date("l", $start)]
+            isset($reportTimePeriod['report_' . date('l', $start)])
+            && $reportTimePeriod['report_' . date('l', $start)]
         ) {
             $reportTime += $day_duration;
-        }# if the day is selected in the timeperiod
+        }// if the day is selected in the timeperiod
         $totalTime += $day_duration;
-        //$start = $day_real_end;
+        // $start = $day_real_end;
         $start += $one_day_real_duration;
     }
-    $tab = ["totalTime" => $totalTime, "reportTime" => $reportTime];
-    return $tab;
+
+    return ['totalTime' => $totalTime, 'reportTime' => $reportTime];
 }
 
 function myGetTimeTamps($dateSTR)
 {
     [$m, $d, $y] = preg_split('/\//', $dateSTR);
-    return (mktime(0, 0, 0, $m, $d, $y));
+
+    return mktime(0, 0, 0, $m, $d, $y);
 }
 
 function getPeriodList()
 {
     return [
-        "" => "",
-        "yesterday" => _("Yesterday"),
-        "thisweek" => _("This Week"),
-        "last7days" => _("Last 7 Days"),
-        "thismonth" => _("This Month"),
-        "last30days" => _("Last 30 Days"),
-        "lastmonth" => _("Last Month"),
-        "thisyear" => _("This Year"),
-        "lastyear" => _("Last Year")
+        '' => '',
+        'yesterday' => _('Yesterday'),
+        'thisweek' => _('This Week'),
+        'last7days' => _('Last 7 Days'),
+        'thismonth' => _('This Month'),
+        'last30days' => _('Last 30 Days'),
+        'lastmonth' => _('Last Month'),
+        'thisyear' => _('This Year'),
+        'lastyear' => _('Last Year'),
     ];
 }
 
 function createDateTimelineFormat($time_unix)
 {
-    $tab_month = ["01" => "Jan", "02" => "Feb", "03" => "Mar", "04" => "Apr", "05" => "May", "06" => "Jun", "07" => "Jul", "08" => "Aug", "09" => "Sep", "10" => "Oct", "11" => "Nov", "12" => "Dec"];
-    $date = $tab_month[date('m', $time_unix)] . date(" d Y G:i:s", $time_unix);
-    return $date;
+    $tab_month = ['01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr', '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug', '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec'];
+
+    return $tab_month[date('m', $time_unix)] . date(' d Y G:i:s', $time_unix);
 }
 
 function getTimeString($time, $reportTimePeriod)
 {
     $min = 60;
     $hour = $min * 60;
-    $day = mktime($reportTimePeriod["report_hour_end"], $reportTimePeriod["report_minute_end"], 0, 0, 0, 0)
-            - mktime($reportTimePeriod["report_hour_start"], $reportTimePeriod["report_minute_start"], 0, 0, 0, 0);
-    $str = "";
+    $day = mktime($reportTimePeriod['report_hour_end'], $reportTimePeriod['report_minute_end'], 0, 0, 0, 0)
+            - mktime($reportTimePeriod['report_hour_start'], $reportTimePeriod['report_minute_start'], 0, 0, 0, 0);
+    $str = '';
     if ($day && $time / $day >= 1) {
-        $str .= floor($time / $day) . "d ";
+        $str .= floor($time / $day) . 'd ';
         $time = $time % $day;
     }
     if ($hour && $time / $hour >= 1) {
-        $str .= floor($time / $hour) . "h ";
+        $str .= floor($time / $hour) . 'h ';
         $time = $time % $hour;
     }
     if ($min && $time / $min >= 1) {
-        $str .= floor($time / $min) . "m ";
+        $str .= floor($time / $min) . 'm ';
         $time = $time % $min;
     }
     if ($time) {
-        $str .=  $time . "s";
+        $str .=  $time . 's';
     }
+
     return $str;
 }
 
 function formatData($state, $time, $timeTOTAL, $time_none, $nb_alert, $color)
 {
-    return ["state" => _($state), "time" => CentreonDuration::toString($time), "timestamp" => $time, "pourcentTime" => round($time / ($timeTOTAL + 1) * 100, 2), "pourcentkTime" => $state != "Undetermined" ? round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . "%" : null, "nbAlert" => $nb_alert, "style" => "class='ListColCenter' style='background:" . $color . "'"];
+    return ['state' => _($state), 'time' => CentreonDuration::toString($time), 'timestamp' => $time, 'pourcentTime' => round($time / ($timeTOTAL + 1) * 100, 2), 'pourcentkTime' => $state != 'Undetermined' ? round($time / ($timeTOTAL - $time_none + 1) * 100, 2) . '%' : null, 'nbAlert' => $nb_alert, 'style' => "class='ListColCenter' style='background:" . $color . "'"];
 }

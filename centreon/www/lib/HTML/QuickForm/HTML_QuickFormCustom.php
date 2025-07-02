@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,20 +21,17 @@
 
 class HTML_QuickFormCustom extends HTML_QuickForm
 {
-
     /** @var bool */
     public $_tokenValidated = false;
 
-
     /**
      * Class constructor
-     * @param    string $formName Form's name.
-     * @param    string $method (optional)Form's method defaults to 'POST'
-     * @param    string $action (optional)Form's action
-     * @param    string $target (optional)Form's target defaults to '_self'
-     * @param    mixed $attributes (optional)Extra attributes for <form> tag
-     * @param    bool $trackSubmit (optional)Whether to track if the form was submitted by adding a special hidden field
-     * @access   public
+     * @param string $formName form's name
+     * @param string $method (optional)Form's method defaults to 'POST'
+     * @param string $action (optional)Form's action
+     * @param string $target (optional)Form's target defaults to '_self'
+     * @param mixed $attributes (optional)Extra attributes for <form> tag
+     * @param bool $trackSubmit (optional)Whether to track if the form was submitted by adding a special hidden field
      */
     public function __construct($formName = '', $method = 'post', $action = '', $target = '', $attributes = null, $trackSubmit = false)
     {
@@ -48,6 +46,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * Accepts a renderer
      *
      * @param object An HTML_QuickForm_Renderer object
+     * @param mixed $renderer
      */
     public function accept(&$renderer): void
     {
@@ -61,9 +60,9 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * This method accepts variable number of parameters, their
      * meaning and count depending on $elementType
      *
-     * @param     string     $elementType    type of element to add (text, textarea, file...)
-     * @return    HTML_QuickForm_Element
-     * @throws    HTML_QuickForm_Error
+     * @param string $elementType type of element to add (text, textarea, file...)
+     * @throws HTML_QuickForm_Error
+     * @return HTML_QuickForm_Element
      */
     public function &createElement($elementType)
     {
@@ -85,16 +84,16 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      */
     public function createSecurityToken(): void
     {
-        if (!$this->elementExists('centreon_token')) {
+        if (! $this->elementExists('centreon_token')) {
             $token = bin2hex(openssl_random_pseudo_bytes(16));
 
-            if (!isset($_SESSION['x-centreon-token']) || !is_array($_SESSION['x-centreon-token'])) {
+            if (! isset($_SESSION['x-centreon-token']) || ! is_array($_SESSION['x-centreon-token'])) {
                 $_SESSION['x-centreon-token'] = [];
                 $_SESSION['x-centreon-token-generated-at'] = [];
             }
 
             $_SESSION['x-centreon-token'][] = $token;
-            $_SESSION['x-centreon-token-generated-at'][(string)$token] = time();
+            $_SESSION['x-centreon-token-generated-at'][(string) $token] = time();
 
             $myTokenElement = $this->addElement('hidden', 'centreon_token');
             $myTokenElement->setValue($token);
@@ -105,7 +104,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * Check if the CSRF Token is still valid
      *
      * @param array $submittedValues
-     * @return boolean
+     * @return bool
      */
     public function checkSecurityToken($submittedValues)
     {
@@ -113,14 +112,14 @@ class HTML_QuickFormCustom extends HTML_QuickForm
 
         if ($this->_tokenValidated) {
             $success = true;
-        } elseif (isset($submittedValues['centreon_token']) &&
-            in_array($submittedValues['centreon_token'], $_SESSION['x-centreon-token'])) {
-            $elapsedTime =
-                time() - $_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']];
+        } elseif (isset($submittedValues['centreon_token'])
+            && in_array($submittedValues['centreon_token'], $_SESSION['x-centreon-token'])) {
+            $elapsedTime
+                = time() - $_SESSION['x-centreon-token-generated-at'][(string) $submittedValues['centreon_token']];
             if ($elapsedTime < (15 * 60)) {
-                $key = array_search((string)$submittedValues['centreon_token'], $_SESSION['x-centreon-token']);
-                unset($_SESSION['x-centreon-token'][$key]);
-                unset($_SESSION['x-centreon-token-generated-at'][(string)$submittedValues['centreon_token']]);
+                $key = array_search((string) $submittedValues['centreon_token'], $_SESSION['x-centreon-token']);
+                unset($_SESSION['x-centreon-token'][$key], $_SESSION['x-centreon-token-generated-at'][(string) $submittedValues['centreon_token']]);
+
                 $success = true;
                 $this->_tokenValidated = true;
             }
@@ -130,9 +129,9 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             $error = true;
         } else {
             $error = ['centreon_token' => 'The Token is invalid'];
-            echo "<div class='msg' align='center'>" .
-                _("The form has not been submitted since 15 minutes. Please retry to resubmit") .
-                "<a href='' OnLoad = windows.location(); alt='reload'> " . _("here") . "</a></div>";
+            echo "<div class='msg' align='center'>"
+                . _('The form has not been submitted since 15 minutes. Please retry to resubmit')
+                . "<a href='' OnLoad = windows.location(); alt='reload'> " . _('here') . '</a></div>';
         }
 
         $this->purgeToken();
@@ -149,9 +148,9 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             $elapsedTime = time() - $value;
 
             if ($elapsedTime > (15 * 60)) {
-                $tokenKey = array_search((string)$key, $_SESSION['x-centreon-token']);
-                unset($_SESSION['x-centreon-token'][$tokenKey]);
-                unset($_SESSION['x-centreon-token-generated-at'][(string)$key]);
+                $tokenKey = array_search((string) $key, $_SESSION['x-centreon-token']);
+                unset($_SESSION['x-centreon-token'][$tokenKey], $_SESSION['x-centreon-token-generated-at'][(string) $key]);
+
             }
         }
     }
@@ -163,33 +162,37 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * To validate grouped elements as separated entities,
      * use addGroupRule instead of addRule.
      *
-     * @param    string     $element       Form element name
-     * @param    string     $message       Message to display for invalid data
-     * @param    string     $type          Rule type, use getRegisteredRules() to get types
-     * @param    string     $format        (optional)Required for extra rule data
-     * @param    string     $validation    (optional)Where to perform validation: "server", "client"
-     * @param    boolean    $reset         Client-side validation: reset the form element to its original value if there is an error?
-     * @param    boolean    $force         Force the rule to be applied, even if the target form element does not exist
-     * @throws   HTML_QuickForm_Error
+     * @param string $element Form element name
+     * @param string $message Message to display for invalid data
+     * @param string $type Rule type, use getRegisteredRules() to get types
+     * @param string $format (optional)Required for extra rule data
+     * @param string $validation (optional)Where to perform validation: "server", "client"
+     * @param bool $reset Client-side validation: reset the form element to its original value if there is an error?
+     * @param bool $force Force the rule to be applied, even if the target form element does not exist
+     * @throws HTML_QuickForm_Error
      */
     public function addRule($element, $message, $type, $format = null, $validation = 'server', $reset = false, $force = false): void
     {
-        if (!$force) {
-            if (!is_array($element) && !$this->elementExists($element)) {
-                trigger_error("Element '$element' does not exist");
+        if (! $force) {
+            if (! is_array($element) && ! $this->elementExists($element)) {
+                trigger_error("Element '{$element}' does not exist");
+
                 return;
-            } elseif (is_array($element)) {
+            }
+            if (is_array($element)) {
                 foreach ($element as $el) {
-                    if (!$this->elementExists($el)) {
-                        trigger_error("Element '$el' does not exist");
+                    if (! $this->elementExists($el)) {
+                        trigger_error("Element '{$el}' does not exist");
+
                         return;
                     }
                 }
             }
         }
         if (false === ($newName = $this->isRuleRegistered($type, true))) {
-            throw new HTML_QuickForm_Error("Rule '$type' is not registered", QUICKFORM_INVALID_RULE);
-        } elseif (is_string($newName)) {
+            throw new HTML_QuickForm_Error("Rule '{$type}' is not registered", QUICKFORM_INVALID_RULE);
+        }
+        if (is_string($newName)) {
             $type = $newName;
         }
         if (is_array($element)) {
@@ -201,7 +204,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
         if ($type == 'required' || $type == 'uploadedfile') {
             $this->_required[] = $element;
         }
-        if (!isset($this->_rules[$element])) {
+        if (! isset($this->_rules[$element])) {
             $this->_rules[$element] = [];
         }
         if ($validation == 'client') {
@@ -210,29 +213,28 @@ class HTML_QuickFormCustom extends HTML_QuickForm
         $this->_rules[$element][] = ['type'        => $type, 'format'      => $format, 'message'     => $message, 'validation'  => $validation, 'reset'       => $reset, 'dependent'   => $dependent];
     }
 
-
     /**
      * Applies a data filter for the given field(s)
      *
-     * @param    mixed     $element       Form element name or array of such names
-     * @param    mixed     $filter        Callback, either function name or array(&$object, 'method')
-     * @throws   HTML_QuickForm_Error
+     * @param mixed $element Form element name or array of such names
+     * @param mixed $filter Callback, either function name or array(&$object, 'method')
+     * @throws HTML_QuickForm_Error
      */
     public function applyFilter($element, $filter): void
     {
-        if (!is_callable($filter)) {
-            trigger_error("Callback function '$filter' does not exist");
+        if (! is_callable($filter)) {
+            trigger_error("Callback function '{$filter}' does not exist");
         }
         if ($element == '__ALL__') {
             $this->_submitValues = $this->_recursiveFilter($filter, $this->_submitValues);
         } else {
-            if (!is_array($element)) {
+            if (! is_array($element)) {
                 $element = [$element];
             }
             foreach ($element as $elName) {
                 $value = $this->getSubmitValue($elName);
                 if (null !== $value) {
-                    if (!str_contains($elName, '[')) {
+                    if (! str_contains($elName, '[')) {
                         $this->_submitValues[$elName] = $this->_recursiveFilter($filter, $value);
                     } else {
                         $idx  = "['" . str_replace(
@@ -253,12 +255,12 @@ class HTML_QuickFormCustom extends HTML_QuickForm
     private function loadCustomElementsInGlobal(): void
     {
         // Add custom radio element type which will load our own radio HTML class
-        if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['radio_custom'])) {
+        if (! isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['radio_custom'])) {
             $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['radio_custom'] = 'HTML_QuickForm_radio_Custom';
         }
 
         // Add custom checkbox element type which will load our own checkbox HTML class
-        if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['checkbox_custom'])) {
+        if (! isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['checkbox_custom'])) {
             $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['checkbox'] = 'HTML_QuickForm_checkbox_Custom';
             $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['checkbox_custom'] = 'HTML_QuickForm_checkbox_Custom';
         }

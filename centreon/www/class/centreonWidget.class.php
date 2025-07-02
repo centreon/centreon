@@ -34,15 +34,17 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonUtils.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
 
 /**
  * Class
  *
  * @class CentreonWidgetException
  */
-class CentreonWidgetException extends Exception {}
+class CentreonWidgetException extends Exception
+{
+}
 
 /**
  * Class
@@ -53,12 +55,16 @@ class CentreonWidget
 {
     /** @var CentreonCustomView */
     public $customView;
+
     /** @var int */
     protected $userId;
+
     /** @var CentreonDB */
     protected $db;
+
     /** @var array */
     protected $widgets = [];
+
     /** @var array */
     protected $userGroups = [];
 
@@ -72,16 +78,16 @@ class CentreonWidget
      */
     public function __construct($centreon, $db)
     {
-        $this->userId = (int)$centreon->user->user_id;
+        $this->userId = (int) $centreon->user->user_id;
         $this->db = $db;
-        $query = 'SELECT contactgroup_cg_id ' .
-            'FROM contactgroup_contact_relation ' .
-            'WHERE contact_contact_id = :id';
+        $query = 'SELECT contactgroup_cg_id '
+            . 'FROM contactgroup_contact_relation '
+            . 'WHERE contact_contact_id = :id';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $this->userId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         while ($row = $stmt->fetch()) {
             $this->userGroups[$row['contactgroup_cg_id']] = $row['contactgroup_cg_id'];
@@ -91,35 +97,36 @@ class CentreonWidget
 
     /**
      * @param int $widgetModelId
-     * @return array
      * @throws Exception
+     * @return array
      */
     protected function getParamsFromWidgetModelId($widgetModelId)
     {
         static $tab;
 
-        if (!isset($tab)) {
-            $query = 'SELECT parameter_code_name ' .
-                'FROM widget_parameters ' .
-                'WHERE widget_model_id = :modelId';
+        if (! isset($tab)) {
+            $query = 'SELECT parameter_code_name '
+                . 'FROM widget_parameters '
+                . 'WHERE widget_model_id = :modelId';
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':modelId', $widgetModelId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
             $tab = [];
             while ($row = $stmt->fetch()) {
                 $tab[$row['parameter_code_name']] = $row['parameter_code_name'];
             }
         }
+
         return $tab;
     }
 
     /**
      * @param int $widgetId
-     * @return null
      * @throws Exception
+     * @return null
      */
     public function getWidgetType($widgetId)
     {
@@ -127,19 +134,20 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         while ($row = $stmt->fetch()) {
             return $row['widget_model_id'];
         }
+
         return null;
     }
 
     /**
      * @param int $widgetId
-     * @return null
      * @throws Exception
+     * @return null
      */
     public function getWidgetTitle($widgetId)
     {
@@ -147,19 +155,20 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $widgetId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         while ($row = $stmt->fetch()) {
             return htmlentities($row['title'], ENT_QUOTES);
         }
+
         return null;
     }
 
     /**
      * @param int $widgetModelId
-     * @return mixed
      * @throws Exception
+     * @return mixed
      */
     public function getWidgetDirectory($widgetModelId)
     {
@@ -167,33 +176,33 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $widgetModelId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         while ($row = $stmt->fetch()) {
-            return $row["directory"];
+            return $row['directory'];
         }
     }
 
     /**
      * @param string|int $widgetModelId
      * @param string $name
-     * @return int
      * @throws Exception
+     * @return int
      */
     public function getParameterIdByName($widgetModelId, $name)
     {
         $tab = [];
-        if (!isset($tab[$widgetModelId])) {
-            $query = 'SELECT parameter_id, parameter_code_name ' .
-                'FROM widget_parameters ' .
-                'WHERE widget_model_id = :id';
+        if (! isset($tab[$widgetModelId])) {
+            $query = 'SELECT parameter_id, parameter_code_name '
+                . 'FROM widget_parameters '
+                . 'WHERE widget_model_id = :id';
             $tab[$widgetModelId] = [];
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':id', $widgetModelId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
 
             while ($row = $stmt->fetch()) {
@@ -203,6 +212,7 @@ class CentreonWidget
         if (isset($tab[$widgetModelId][$name]) && $tab[$widgetModelId][$name]) {
             return $tab[$widgetModelId][$name];
         }
+
         return 0;
     }
 
@@ -210,18 +220,18 @@ class CentreonWidget
      * @param string $type
      * @param string $param
      *
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
-    public function getWidgetInfo($type = "id", $param = '')
+    public function getWidgetInfo($type = 'id', $param = '')
     {
         static $tabDir;
         static $tabId;
 
-        if (!isset($tabId) || !isset($tabDir)) {
-            $query = 'SELECT description, directory, title, widget_model_id, url, version, is_internal, author, ' .
-                'email, website, keywords, screenshot, thumbnail, autoRefresh ' .
-                'FROM widget_models';
+        if (! isset($tabId) || ! isset($tabDir)) {
+            $query = 'SELECT description, directory, title, widget_model_id, url, version, is_internal, author, '
+                . 'email, website, keywords, screenshot, thumbnail, autoRefresh '
+                . 'FROM widget_models';
             $res = $this->db->query($query);
             while ($row = $res->fetch()) {
                 $widgetInformation = [
@@ -244,15 +254,15 @@ class CentreonWidget
                 $tabId[$row['widget_model_id']] = $widgetInformation;
             }
         }
-        if ($type == "directory" && isset($tabDir[$param])) {
+        if ($type == 'directory' && isset($tabDir[$param])) {
             return $tabDir[$param];
         }
-        if ($type == "id" && isset($tabId[$param])) {
+        if ($type == 'id' && isset($tabId[$param])) {
             return $tabId[$param];
         }
+
         return null;
     }
-
 
     /**
      * @param int $customViewId
@@ -271,7 +281,7 @@ class CentreonWidget
         bool $permission,
         bool $authorized
     ): void {
-        if (!$authorized || !$permission) {
+        if (! $authorized || ! $permission) {
             throw new CentreonWidgetException('You are not allowed to add a widget.');
         }
         if (empty($customViewId) || empty($widgetModelId)) {
@@ -282,18 +292,18 @@ class CentreonWidget
         $stmt->bindParam(':title', $widgetTitle, PDO::PARAM_STR);
         $stmt->bindParam(':id', $widgetModelId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
-        /* Get view layout */
-        $query = 'SELECT layout ' .
-            'FROM custom_views ' .
-            'WHERE custom_view_id = :id';
+        // Get view layout
+        $query = 'SELECT layout '
+            . 'FROM custom_views '
+            . 'WHERE custom_view_id = :id';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $customViewId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
+        if (! $dbResult) {
             throw new CentreonWidgetException('No view found');
         }
         $row = $stmt->fetch();
@@ -301,18 +311,18 @@ class CentreonWidget
             throw new CentreonWidgetException('No view found');
         }
         $layout = str_replace('column_', '', $row['layout']);
-        /* Default position */
+        // Default position
         $newPosition = null;
-        /* Prepare first position */
+        // Prepare first position
         $matrix = [];
-        $query = 'SELECT widget_order ' .
-            'FROM widget_views ' .
-            'WHERE custom_view_id = :id';
+        $query = 'SELECT widget_order '
+            . 'FROM widget_views '
+            . 'WHERE custom_view_id = :id';
 
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $customViewId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
+        if (! $dbResult) {
             throw new CentreonWidgetException('No view found');
         }
 
@@ -324,7 +334,7 @@ class CentreonWidget
             $matrix[$row][] = $col;
         }
         ksort($matrix);
-        $rowNb = 0; //current row in the foreach
+        $rowNb = 0; // current row in the foreach
         foreach ($matrix as $row => $cols) {
             if ($rowNb != $row) {
                 break;
@@ -332,7 +342,7 @@ class CentreonWidget
             if (count($cols) < $layout) {
                 sort($cols); // number of used columns in this row
                 for ($i = 0; $i < $layout; $i++) {
-                    if (!isset($cols[$i]) || $cols[$i] != $i) {
+                    if (! isset($cols[$i]) || $cols[$i] != $i) {
                         $newPosition = $i . '_' . $rowNb;
                         break;
                     }
@@ -352,8 +362,8 @@ class CentreonWidget
         $stmt->bindParam(':lastId', $lastId, PDO::PARAM_INT);
         $stmt->bindParam(':neworder', $newPosition, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
     }
 
@@ -362,12 +372,12 @@ class CentreonWidget
      *
      * @param int $widgetModelId
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getWidgetInfoById($widgetModelId)
     {
-        return $this->getWidgetInfo("id", $widgetModelId);
+        return $this->getWidgetInfo('id', $widgetModelId);
     }
 
     /**
@@ -375,76 +385,78 @@ class CentreonWidget
      *
      * @param string $directory
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getWidgetInfoByDirectory($directory)
     {
-        return $this->getWidgetInfo("directory", $directory);
+        return $this->getWidgetInfo('directory', $directory);
     }
 
     /**
      * @param string|int $widgetId
-     * @return mixed
      * @throws CentreonWidgetException
      * @throws Exception
+     * @return mixed
      */
     public function getUrl($widgetId)
     {
-        $query = 'SELECT url FROM widget_models wm, widgets w ' .
-            'WHERE wm.widget_model_id = w.widget_model_id ' .
-            'AND w.widget_id = :id';
+        $query = 'SELECT url FROM widget_models wm, widgets w '
+            . 'WHERE wm.widget_model_id = w.widget_model_id '
+            . 'AND w.widget_id = :id';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $widgetId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         if ($stmt->rowCount()) {
             $row = $stmt->fetch();
+
             return $row['url'];
-        } else {
-            throw new CentreonWidgetException('No URL found for Widget #' . $widgetId);
         }
+
+        throw new CentreonWidgetException('No URL found for Widget #' . $widgetId);
     }
 
     /**
      * @param string|int $widgetId
      *
-     * @return mixed
      * @throws CentreonWidgetException
      * @throws Exception
+     * @return mixed
      */
     public function getRefreshInterval($widgetId)
     {
-        $query = 'SELECT autoRefresh FROM widget_models wm, widgets w ' .
-            'WHERE wm.widget_model_id = w.widget_model_id ' .
-            'AND w.widget_id = :id';
+        $query = 'SELECT autoRefresh FROM widget_models wm, widgets w '
+            . 'WHERE wm.widget_model_id = w.widget_model_id '
+            . 'AND w.widget_id = :id';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $widgetId, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         if ($stmt->rowCount()) {
             $row = $stmt->fetch();
+
             return $row['autoRefresh'];
-        } else {
-            throw new CentreonWidgetException('No autoRefresh found for Widget #' . $widgetId);
         }
+
+        throw new CentreonWidgetException('No autoRefresh found for Widget #' . $widgetId);
     }
 
     /**
      * @param int $viewId
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getWidgetsFromViewId(int $viewId): array
     {
-        if (!isset($this->widgets[$viewId])) {
+        if (! isset($this->widgets[$viewId])) {
             $this->widgets[$viewId] = [];
             $query = "SELECT w.widget_id, w.title, wm.url, widget_order
             		  FROM widget_views wv, widgets w, widget_models wm
@@ -457,8 +469,8 @@ class CentreonWidget
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':id', $viewId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
             while ($row = $stmt->fetch()) {
                 $this->widgets[$viewId][$row['widget_id']]['title'] = htmlentities($row['title'], ENT_QUOTES);
@@ -467,6 +479,7 @@ class CentreonWidget
                 $this->widgets[$viewId][$row['widget_id']]['widget_id'] = $row['widget_id'];
             }
         }
+
         return $this->widgets[$viewId];
     }
 
@@ -474,8 +487,8 @@ class CentreonWidget
      * @param string $search
      * @param array $range
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getWidgetModels($search = '', $range = [])
     {
@@ -486,28 +499,29 @@ class CentreonWidget
             $queryValues['search'] = '%' . $search . '%';
         }
         $query .= 'ORDER BY title ';
-        if (!empty($range)) {
+        if (! empty($range)) {
             $query .= 'LIMIT :offset, :limit ';
-            $queryValues['offset'] = (int)$range[0];
-            $queryValues['limit'] = (int)$range[1];
+            $queryValues['offset'] = (int) $range[0];
+            $queryValues['limit'] = (int) $range[1];
         }
         $stmt = $this->db->prepare($query);
         if (isset($queryValues['search'])) {
             $stmt->bindParam(':search', $queryValues['search'], PDO::PARAM_STR);
         }
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $widgets = [];
         while ($data = $stmt->fetch()) {
             $widgets[] = ['id' => $data['widget_model_id'], 'text' => $data['title']];
         }
+
         return ['items' => $widgets, 'total' => (int) $this->db->numberRows()];
     }
 
@@ -523,8 +537,8 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':viewId', $viewId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $str = '';
@@ -534,7 +548,7 @@ class CentreonWidget
                 $str .= ',';
             }
             $str .= '(:viewId, :widgetId' . $widgetId . ')';
-            $queryValues['widgetId' . $widgetId] = (int)$widgetId;
+            $queryValues['widgetId' . $widgetId] = (int) $widgetId;
         }
 
         if ($str != '') {
@@ -545,8 +559,8 @@ class CentreonWidget
                 $stmt->bindValue(':widgetId' . $widgetId, $widgetId, PDO::PARAM_INT);
             }
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         }
     }
@@ -555,27 +569,27 @@ class CentreonWidget
      * @param string|int $widgetId
      * @param bool $hasPermission
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getParamsFromWidgetId($widgetId, $hasPermission = false)
     {
         static $params;
 
-        if (!isset($params)) {
+        if (! isset($params)) {
             $params = [];
-            $query = 'SELECT ft.is_connector, ft.ft_typename, p.parameter_id, p.parameter_name, p.default_value, ' .
-                'p.header_title, p.require_permission ' .
-                'FROM widget_parameters_field_type ft, widget_parameters p, widgets w ' .
-                'WHERE ft.field_type_id = p.field_type_id ' .
-                'AND p.widget_model_id = w.widget_model_id ' .
-                'AND w.widget_id = :widgetId ' .
-                'ORDER BY parameter_order ASC';
+            $query = 'SELECT ft.is_connector, ft.ft_typename, p.parameter_id, p.parameter_name, p.default_value, '
+                . 'p.header_title, p.require_permission '
+                . 'FROM widget_parameters_field_type ft, widget_parameters p, widgets w '
+                . 'WHERE ft.field_type_id = p.field_type_id '
+                . 'AND p.widget_model_id = w.widget_model_id '
+                . 'AND w.widget_id = :widgetId '
+                . 'ORDER BY parameter_order ASC';
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
 
             while ($row = $stmt->fetch()) {
@@ -590,6 +604,7 @@ class CentreonWidget
                 $params[$row['parameter_id']]['header_title'] = $row['header_title'];
             }
         }
+
         return $params;
     }
 
@@ -603,15 +618,15 @@ class CentreonWidget
      */
     public function updateUserWidgetPreferences(array $params, bool $permission, bool $authorized): void
     {
-        if (!$authorized || !$permission) {
+        if (! $authorized || ! $permission) {
             throw new CentreonWidgetException('You are not allowed to set preferences on the widget');
         }
         $queryValues = [];
-        $query = 'SELECT wv.widget_view_id ' .
-            'FROM widget_views wv, custom_view_user_relation cvur ' .
-            'WHERE cvur.custom_view_id = wv.custom_view_id ' .
-            'AND wv.widget_id = :widgetId ' .
-            'AND (cvur.user_id = :userId';
+        $query = 'SELECT wv.widget_view_id '
+            . 'FROM widget_views wv, custom_view_user_relation cvur '
+            . 'WHERE cvur.custom_view_id = wv.custom_view_id '
+            . 'AND wv.widget_id = :widgetId '
+            . 'AND (cvur.user_id = :userId';
         $explodedValues = '';
         if (count($this->userGroups)) {
             foreach ($this->userGroups as $k => $v) {
@@ -620,9 +635,9 @@ class CentreonWidget
             }
             $explodedValues = rtrim($explodedValues, ',');
 
-            $query .= " OR cvur.usergroup_id IN ($explodedValues) ";
+            $query .= " OR cvur.usergroup_id IN ({$explodedValues}) ";
         }
-        $query .= ") AND wv.custom_view_id = :viewId";
+        $query .= ') AND wv.custom_view_id = :viewId';
 
         $stmt = $this->db->prepare($query);
 
@@ -635,8 +650,8 @@ class CentreonWidget
             }
         }
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         if ($stmt->rowCount()) {
             $row = $stmt->fetch();
@@ -646,59 +661,59 @@ class CentreonWidget
         }
 
         if ($permission == false) {
-            $query = 'DELETE FROM widget_preferences ' .
-                'WHERE widget_view_id = :widgetViewId ' .
-                'AND user_id = :userId ' .
-                'AND parameter_id NOT IN (' .
-                'SELECT parameter_id FROM widget_parameters WHERE require_permission = "1")';
+            $query = 'DELETE FROM widget_preferences '
+                . 'WHERE widget_view_id = :widgetViewId '
+                . 'AND user_id = :userId '
+                . 'AND parameter_id NOT IN ('
+                . 'SELECT parameter_id FROM widget_parameters WHERE require_permission = "1")';
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':widgetViewId', $widgetViewId, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         } else {
-            $query = 'DELETE FROM widget_preferences ' .
-                'WHERE widget_view_id = :widgetViewId ' .
-                'AND user_id = :userId';
+            $query = 'DELETE FROM widget_preferences '
+                . 'WHERE widget_view_id = :widgetViewId '
+                . 'AND user_id = :userId';
 
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':widgetViewId', $widgetViewId, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         }
 
         $queryValues = [];
-        $str = "";
+        $str = '';
         foreach ($params as $key => $val) {
             if (preg_match("/param_(\d+)/", $key, $matches)) {
                 if (is_array($val)) {
-                    if (isset($val['op_' . $matches[1]]) && isset($val['cmp_' . $matches[1]])) {
+                    if (isset($val['op_' . $matches[1]], $val['cmp_' . $matches[1]])) {
                         $val = $val['op_' . $matches[1]] . ' ' . $val['cmp_' . $matches[1]];
-                    } elseif (isset($val['order_' . $matches[1]]) && isset($val['column_' . $matches[1]])) {
+                    } elseif (isset($val['order_' . $matches[1]], $val['column_' . $matches[1]])) {
                         $val = $val['column_' . $matches[1]] . ' ' . $val['order_' . $matches[1]];
-                    } elseif (isset($val['from_' . $matches[1]]) && isset($val['to_' . $matches[1]])) {
+                    } elseif (isset($val['from_' . $matches[1]], $val['to_' . $matches[1]])) {
                         $val = $val['from_' . $matches[1]] . ',' . $val['to_' . $matches[1]];
                     } else {
                         $val = implode(',', $val);
                     }
                     $val = trim($val);
                 }
-                if ($str != "") {
-                    $str .= ", ";
+                if ($str != '') {
+                    $str .= ', ';
                 }
                 $str .= '(:widgetViewId, :parameter' . $matches[1] . ', :preference' . $matches[1] . ', :userId)';
                 $queryValues['parameter'][':parameter' . $matches[1]] = $matches[1];
                 $queryValues['preference'][':preference' . $matches[1]] = $val;
             }
         }
-        if ($str != "") {
-            $query = 'INSERT INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) ' .
-                'VALUES ' . $str;
+        if ($str != '') {
+            $query = 'INSERT INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '
+                . 'VALUES ' . $str;
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':widgetViewId', $widgetViewId, PDO::PARAM_INT);
             $stmt->bindValue(':userId', $this->userId, PDO::PARAM_INT);
@@ -713,8 +728,8 @@ class CentreonWidget
                 }
             }
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         }
         $this->customView->syncCustomView($params['custom_view_id']);
@@ -730,18 +745,18 @@ class CentreonWidget
      */
     public function deleteWidgetFromView(int $customViewId, int $widgetId, bool $authorized, bool $permission): void
     {
-        if (!$authorized || !$permission) {
+        if (! $authorized || ! $permission) {
             throw new CentreonWidgetException('You are not allowed to delete the widget');
         }
-        $query = 'DELETE FROM widget_views ' .
-            'WHERE custom_view_id = :viewId ' .
-            'AND widget_id = :widgetId';
+        $query = 'DELETE FROM widget_views '
+            . 'WHERE custom_view_id = :viewId '
+            . 'AND widget_id = :widgetId';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
         $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
     }
 
@@ -757,7 +772,7 @@ class CentreonWidget
      */
     public function updateWidgetPositions(int $customViewId, bool $permission, array $positions = []): void
     {
-        if (!$permission) {
+        if (! $permission) {
             throw new CentreonWidgetException('You are not allowed to change widget position');
         }
         if (empty($customViewId)) {
@@ -769,9 +784,9 @@ class CentreonWidget
                     $widgetOrder = "{$matches[1]}_{$matches[2]}";
                     $widgetId = $matches[3];
 
-                    $query = 'UPDATE widget_views SET widget_order = :widgetOrder ' .
-                        'WHERE custom_view_id = :viewId ' .
-                        'AND widget_id = :widgetId';
+                    $query = 'UPDATE widget_views SET widget_order = :widgetOrder '
+                        . 'WHERE custom_view_id = :viewId '
+                        . 'AND widget_id = :widgetId';
                     $stmt = $this->db->prepare($query);
                     $stmt->bindParam(':widgetOrder', $widgetOrder, PDO::PARAM_STR);
                     $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
@@ -782,6 +797,7 @@ class CentreonWidget
             }
         }
     }
+
     /**
      * Read Configuration File
      *
@@ -793,14 +809,15 @@ class CentreonWidget
     {
         $xmlString = file_get_contents($filename);
         $xmlObj = simplexml_load_string($xmlString);
+
         return (new CentreonUtils())->objectIntoArray($xmlObj);
     }
 
     /**
      * @param string $title
      *
-     * @return mixed
      * @throws Exception
+     * @return mixed
      */
     protected function getLastInsertedWidgetId($title)
     {
@@ -808,66 +825,69 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         $row = $stmt->fetch();
+
         return $row['lastId'];
     }
 
     /**
      * @param string $directory
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     protected function getLastInsertedWidgetModelId($directory)
     {
-        $query = 'SELECT MAX(widget_model_id) as lastId ' .
-            'FROM widget_models ' .
-            'WHERE directory = :directory';
+        $query = 'SELECT MAX(widget_model_id) as lastId '
+            . 'FROM widget_models '
+            . 'WHERE directory = :directory';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         $row = $stmt->fetch();
+
         return $row['lastId'];
     }
 
     /**
      * @param string $label
      *
-     * @return mixed
      * @throws Exception
+     * @return mixed
      */
     protected function getLastInsertedParameterId($label)
     {
-        $query = 'SELECT MAX(parameter_id) as lastId ' .
-            'FROM widget_parameters ' .
-            'WHERE parameter_name = :name';
+        $query = 'SELECT MAX(parameter_id) as lastId '
+            . 'FROM widget_parameters '
+            . 'WHERE parameter_name = :name';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':name', $label, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         $row = $stmt->fetch();
+
         return $row['lastId'];
     }
 
     /**
      * Get Parameter Type IDs
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getParameterTypeIds()
     {
         static $types;
 
-        if (!isset($types)) {
+        if (! isset($types)) {
             $types = [];
             $query = 'SELECT ft_typename, field_type_id FROM  widget_parameters_field_type';
             $res = $this->db->query($query);
@@ -875,6 +895,7 @@ class CentreonWidget
                 $types[$row['ft_typename']] = $row['field_type_id'];
             }
         }
+
         return $types;
     }
 
@@ -895,28 +916,28 @@ class CentreonWidget
                 if (isset($preference['@attributes'])) {
                     $pref = $preference;
                     $attr = $pref['@attributes'];
-                    if (!isset($types[$attr['type']])) {
+                    if (! isset($types[$attr['type']])) {
                         throw new CentreonWidgetException(
                             'Unknown type : ' . $attr['type'] . ' found in configuration file'
                         );
                     }
-                    if (!isset($attr['requirePermission'])) {
+                    if (! isset($attr['requirePermission'])) {
                         $attr['requirePermission'] = 0;
                     }
-                    if (!isset($attr['defaultValue'])) {
+                    if (! isset($attr['defaultValue'])) {
                         $attr['defaultValue'] = '';
                     }
-                    $str = "(:lastId, :type, :label, :name, :defaultValue, :order, :requirePermission, ";
-                    if (isset($attr['header']) && $attr['header'] != "") {
-                        $str .= ":header";
+                    $str = '(:lastId, :type, :label, :name, :defaultValue, :order, :requirePermission, ';
+                    if (isset($attr['header']) && $attr['header'] != '') {
+                        $str .= ':header';
                     } else {
-                        $str .= "NULL";
+                        $str .= 'NULL';
                     }
-                    $str .= ")";
-                    $query = 'INSERT INTO widget_parameters ' .
-                        '(widget_model_id, field_type_id, parameter_name, parameter_code_name, default_value, ' .
-                        'parameter_order, require_permission, header_title) ' .
-                        'VALUES ' . $str;
+                    $str .= ')';
+                    $query = 'INSERT INTO widget_parameters '
+                        . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, default_value, '
+                        . 'parameter_order, require_permission, header_title) '
+                        . 'VALUES ' . $str;
                     $stmt = $this->db->prepare($query);
                     $stmt->bindParam(':lastId', $lastId, PDO::PARAM_INT);
                     $stmt->bindParam(':type', $types[$attr['type']], PDO::PARAM_INT);
@@ -925,12 +946,12 @@ class CentreonWidget
                     $stmt->bindParam(':defaultValue', $attr['defaultValue'], PDO::PARAM_STR);
                     $stmt->bindParam(':order', $order, PDO::PARAM_INT);
                     $stmt->bindParam(':requirePermission', $attr['requirePermission'], PDO::PARAM_STR);
-                    if (isset($attr['header']) && $attr['header'] != "") {
+                    if (isset($attr['header']) && $attr['header'] != '') {
                         $stmt->bindParam(':header', $attr['header'], PDO::PARAM_STR);
                     }
                     $dbResult = $stmt->execute();
-                    if (!$dbResult) {
-                        throw new \Exception("An error occured");
+                    if (! $dbResult) {
+                        throw new Exception('An error occured');
                     }
                     $lastParamId = $this->getLastInsertedParameterId($attr['label']);
                     $this->insertParameterOptions($lastParamId, $attr, $pref);
@@ -938,29 +959,29 @@ class CentreonWidget
                 } else {
                     foreach ($preference as $pref) {
                         $attr = $pref['@attributes'];
-                        if (!isset($types[$attr['type']])) {
+                        if (! isset($types[$attr['type']])) {
                             throw new CentreonWidgetException(
                                 'Unknown type : ' . $attr['type'] . ' found in configuration file'
                             );
                         }
-                        if (!isset($attr['requirePermission'])) {
+                        if (! isset($attr['requirePermission'])) {
                             $attr['requirePermission'] = 0;
                         }
-                        if (!isset($attr['defaultValue'])) {
+                        if (! isset($attr['defaultValue'])) {
                             $attr['defaultValue'] = '';
                         }
 
-                        $str = "(:lastId, :type, :label, :name, :defaultValue, :order, :requirePermission, ";
-                        if (isset($attr['header']) && $attr['header'] != "") {
-                            $str .= ":header";
+                        $str = '(:lastId, :type, :label, :name, :defaultValue, :order, :requirePermission, ';
+                        if (isset($attr['header']) && $attr['header'] != '') {
+                            $str .= ':header';
                         } else {
-                            $str .= "NULL";
+                            $str .= 'NULL';
                         }
-                        $str .= ")";
-                        $query = 'INSERT INTO widget_parameters ' .
-                            '(widget_model_id, field_type_id, parameter_name, parameter_code_name, ' .
-                            'default_value, parameter_order, require_permission, header_title) ' .
-                            'VALUES ' . $str;
+                        $str .= ')';
+                        $query = 'INSERT INTO widget_parameters '
+                            . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, '
+                            . 'default_value, parameter_order, require_permission, header_title) '
+                            . 'VALUES ' . $str;
                         $stmt = $this->db->prepare($query);
                         $stmt->bindParam(':lastId', $lastId, PDO::PARAM_INT);
                         $stmt->bindParam(':type', $types[$attr['type']], PDO::PARAM_INT);
@@ -969,12 +990,12 @@ class CentreonWidget
                         $stmt->bindParam(':defaultValue', $attr['defaultValue'], PDO::PARAM_STR);
                         $stmt->bindParam(':order', $order, PDO::PARAM_INT);
                         $stmt->bindParam(':requirePermission', $attr['requirePermission'], PDO::PARAM_STR);
-                        if (isset($attr['header']) && $attr['header'] != "") {
+                        if (isset($attr['header']) && $attr['header'] != '') {
                             $stmt->bindParam(':header', $attr['header'], PDO::PARAM_STR);
                         }
                         $dbResult = $stmt->execute();
-                        if (!$dbResult) {
-                            throw new \Exception("An error occured");
+                        if (! $dbResult) {
+                            throw new Exception('An error occured');
                         }
 
                         $lastParamId = $this->getLastInsertedParameterId($attr['label']);
@@ -994,15 +1015,15 @@ class CentreonWidget
      */
     public function install($widgetPath, $directory): void
     {
-        $config = $this->readConfigFile($widgetPath . "/" . $directory . "/configs.xml");
-        if (!$config['autoRefresh']) {
+        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
+        if (! $config['autoRefresh']) {
             $config['autoRefresh'] = 0;
         }
         $queryValues = [];
-        $query = 'INSERT INTO widget_models (title, description, url, version, directory, author, email, ' .
-            'website, keywords, screenshot, thumbnail, autoRefresh) ' .
-            'VALUES (:title, :description, :url, :version, :directory, :author, :email, ' .
-            ':website, :keywords, :screenshot, :thumbnail, :autoRefresh)';
+        $query = 'INSERT INTO widget_models (title, description, url, version, directory, author, email, '
+            . 'website, keywords, screenshot, thumbnail, autoRefresh) '
+            . 'VALUES (:title, :description, :url, :version, :directory, :author, :email, '
+            . ':website, :keywords, :screenshot, :thumbnail, :autoRefresh)';
 
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':title', $config['title'], PDO::PARAM_STR);
@@ -1019,14 +1040,13 @@ class CentreonWidget
         $stmt->bindParam(':autoRefresh', $config['autoRefresh'], PDO::PARAM_INT);
 
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $lastId = $this->getLastInsertedWidgetModelId($directory);
         $this->insertWidgetPreferences($lastId, $config);
     }
-
 
     /**
      * @param int $paramId
@@ -1037,34 +1057,34 @@ class CentreonWidget
      */
     protected function insertParameterOptions($paramId, $attr, $pref)
     {
-        if ($attr['type'] == "list" || $attr['type'] == "sort") {
+        if ($attr['type'] == 'list' || $attr['type'] == 'sort') {
             if (isset($pref['option'])) {
                 $queryValues2 = [];
-                $str2 = "";
+                $str2 = '';
                 foreach ($pref['option'] as $option) {
                     $opt = $option['@attributes'] ?? $option;
-                    if ($str2 != "") {
-                        $str2 .= ", ";
+                    if ($str2 != '') {
+                        $str2 .= ', ';
                     }
-                    $str2 .= "(:id, :label, :value)";
+                    $str2 .= '(:id, :label, :value)';
                 }
-                if ($str2 != "") {
-                    $query2 = 'INSERT INTO widget_parameters_multiple_options ' .
-                        '(parameter_id, option_name, option_value) ' .
-                        'VALUES ' . $str2;
+                if ($str2 != '') {
+                    $query2 = 'INSERT INTO widget_parameters_multiple_options '
+                        . '(parameter_id, option_name, option_value) '
+                        . 'VALUES ' . $str2;
                     $stmt = $this->db->prepare($query2);
                     $stmt->bindParam(':id', $paramId, PDO::PARAM_INT);
                     $stmt->bindParam(':label', $opt['label'], PDO::PARAM_STR);
                     $stmt->bindParam(':value', $opt['value'], PDO::PARAM_STR);
                     $dbResult = $stmt->execute();
-                    if (!$dbResult) {
-                        throw new \Exception("An error occured");
+                    if (! $dbResult) {
+                        throw new Exception('An error occured');
                     }
                 }
             }
-        } elseif ($attr['type'] == "range") {
-            $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) ' .
-                'VALUES (:id, :mini, :maxi, :step)';
+        } elseif ($attr['type'] == 'range') {
+            $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) '
+                . 'VALUES (:id, :mini, :maxi, :step)';
 
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':id', $paramId, PDO::PARAM_INT);
@@ -1072,8 +1092,8 @@ class CentreonWidget
             $stmt->bindParam(':maxi', $attr['max'], PDO::PARAM_INT);
             $stmt->bindParam(':step', $attr['step'], PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         }
     }
@@ -1096,67 +1116,66 @@ class CentreonWidget
                 if (isset($preference['@attributes'])) {
                     $pref = $preference;
                     $attr = $pref['@attributes'];
-                    if (!isset($types[$attr['type']])) {
+                    if (! isset($types[$attr['type']])) {
                         throw new CentreonWidgetException(
                             'Unknown type : ' . $attr['type'] . ' found in configuration file'
                         );
                     }
-                    if (!isset($existingParams[$attr['name']])) {
-                        if (!isset($attr['requirePermission'])) {
+                    if (! isset($existingParams[$attr['name']])) {
+                        if (! isset($attr['requirePermission'])) {
                             $attr['requirePermission'] = 0;
                         }
                         $queryValues = [];
-                        $str = "(?, ?, ?, ?, ?, ?, ?, ";
-                        $queryValues[] = (int)$widgetModelId;
-                        $queryValues[] = (int)$types[$attr['type']];
-                        $queryValues[] = (string)$attr['label'];
-                        $queryValues[] = (string)$attr['name'];
-                        $queryValues[] = (string)$attr['defaultValue'];
-                        $queryValues[] = (int)$order;
-                        $queryValues[] = (string)$attr['requirePermission'];
-                        if (isset($attr['header']) && $attr['header'] != "") {
-                            $str .= "?";
-                            $queryValues[] = (string)$attr['header'];
+                        $str = '(?, ?, ?, ?, ?, ?, ?, ';
+                        $queryValues[] = (int) $widgetModelId;
+                        $queryValues[] = (int) $types[$attr['type']];
+                        $queryValues[] = (string) $attr['label'];
+                        $queryValues[] = (string) $attr['name'];
+                        $queryValues[] = (string) $attr['defaultValue'];
+                        $queryValues[] = (int) $order;
+                        $queryValues[] = (string) $attr['requirePermission'];
+                        if (isset($attr['header']) && $attr['header'] != '') {
+                            $str .= '?';
+                            $queryValues[] = (string) $attr['header'];
                         } else {
-                            $str .= "NULL";
+                            $str .= 'NULL';
                         }
-                        $str .= ")";
-                        $query = 'INSERT INTO widget_parameters (widget_model_id, field_type_id, parameter_name, ' .
-                            'parameter_code_name, default_value, parameter_order, require_permission, header_title) ' .
-                            'VALUES ' . $str;
+                        $str .= ')';
+                        $query = 'INSERT INTO widget_parameters (widget_model_id, field_type_id, parameter_name, '
+                            . 'parameter_code_name, default_value, parameter_order, require_permission, header_title) '
+                            . 'VALUES ' . $str;
                     } else {
                         $queryValues = [];
                         $str = ' field_type_id = ?, parameter_name = ?,  default_value = ?, parameter_order = ?, ';
-                        $queryValues[] = (int)$types[$attr['type']];
-                        $queryValues[] = (string)$attr['label'];
-                        $queryValues[] = (string)$attr['defaultValue'];
-                        $queryValues[] = (int)$order;
+                        $queryValues[] = (int) $types[$attr['type']];
+                        $queryValues[] = (string) $attr['label'];
+                        $queryValues[] = (string) $attr['defaultValue'];
+                        $queryValues[] = (int) $order;
 
-                        if (!isset($attr['requirePermission'])) {
+                        if (! isset($attr['requirePermission'])) {
                             $attr['requirePermission'] = 0;
                         }
                         $str .= ' require_permission = ?, header_title = ';
-                        $queryValues[] = (string)$attr['requirePermission'];
+                        $queryValues[] = (string) $attr['requirePermission'];
 
-                        if (isset($attr['header']) && $attr['header'] != "") {
-                            $str .= "? ";
-                            $queryValues[] = (string)$attr['header'];
+                        if (isset($attr['header']) && $attr['header'] != '') {
+                            $str .= '? ';
+                            $queryValues[] = (string) $attr['header'];
                         } else {
-                            $str .= "NULL ";
+                            $str .= 'NULL ';
                         }
-                        $query = 'UPDATE widget_parameters ' .
-                            'SET ' . $str . ' ' .
-                            'WHERE parameter_code_name = ? ' .
-                            'AND widget_model_id = ?';
-                        $queryValues[] = (string)$attr['name'];
-                        $queryValues[] = (int)$widgetModelId;
+                        $query = 'UPDATE widget_parameters '
+                            . 'SET ' . $str . ' '
+                            . 'WHERE parameter_code_name = ? '
+                            . 'AND widget_model_id = ?';
+                        $queryValues[] = (string) $attr['name'];
+                        $queryValues[] = (int) $widgetModelId;
                     }
                     $stmt = $this->db->prepare($query);
                     $dbResult = $stmt->execute($queryValues);
-                    if (!$dbResult) {
-                        throw new \Exception("An error occured");
+                    if (! $dbResult) {
+                        throw new Exception('An error occured');
                     }
-
 
                     $parameterId = $this->getParameterIdByName($widgetModelId, $attr['name']);
                     $currentParameterTab[$attr['name']] = 1;
@@ -1164,8 +1183,8 @@ class CentreonWidget
                     $stmt = $this->db->prepare($query);
                     $stmt->bindParam(':paramId', $parameterId, PDO::PARAM_INT);
                     $dbResult = $stmt->execute();
-                    if (!$dbResult) {
-                        throw new \Exception("An error occured");
+                    if (! $dbResult) {
+                        throw new Exception('An error occured');
                     }
 
                     $this->insertParameterOptions($parameterId, $attr, $pref);
@@ -1173,71 +1192,71 @@ class CentreonWidget
                 } else {
                     foreach ($preference as $pref) {
                         $attr = $pref['@attributes'];
-                        if (!isset($types[$attr['type']])) {
+                        if (! isset($types[$attr['type']])) {
                             throw new CentreonWidgetException(
                                 'Unknown type : ' . $attr['type'] . ' found in configuration file'
                             );
                         }
-                        if (!isset($existingParams[$attr['name']])) {
-                            if (!isset($attr['requirePermission'])) {
+                        if (! isset($existingParams[$attr['name']])) {
+                            if (! isset($attr['requirePermission'])) {
                                 $attr['requirePermission'] = 0;
                             }
 
                             $queryValues = [];
                             $str = '(?, ?, ?, ?, ?, ?, ?, ';
-                            $queryValues[] = (int)$widgetModelId;
-                            $queryValues[] = (int)$types[$attr['type']];
-                            $queryValues[] = (string)$attr['label'];
-                            $queryValues[] = (string)$attr['name'];
-                            $queryValues[] = (string)$attr['defaultValue'];
-                            $queryValues[] = (int)$order;
-                            $queryValues[] = (string)$attr['requirePermission'];
+                            $queryValues[] = (int) $widgetModelId;
+                            $queryValues[] = (int) $types[$attr['type']];
+                            $queryValues[] = (string) $attr['label'];
+                            $queryValues[] = (string) $attr['name'];
+                            $queryValues[] = (string) $attr['defaultValue'];
+                            $queryValues[] = (int) $order;
+                            $queryValues[] = (string) $attr['requirePermission'];
 
-                            if (!isset($attr['header'])) {
-                                $str .= "NULL";
+                            if (! isset($attr['header'])) {
+                                $str .= 'NULL';
                             } else {
-                                $str .= "?";
-                                $queryValues[] = (string)$attr['header'];
+                                $str .= '?';
+                                $queryValues[] = (string) $attr['header'];
                             }
-                            $str .= ")";
-                            $query = 'INSERT INTO widget_parameters (widget_model_id, field_type_id, parameter_name, ' .
-                                'parameter_code_name, default_value, parameter_order, require_permission, ' .
-                                'header_title) VALUES ' . $str;
+                            $str .= ')';
+                            $query = 'INSERT INTO widget_parameters (widget_model_id, field_type_id, parameter_name, '
+                                . 'parameter_code_name, default_value, parameter_order, require_permission, '
+                                . 'header_title) VALUES ' . $str;
                         } else {
                             $queryValues = [];
                             $str = ' field_type_id = ?, parameter_name = ?, ';
-                            $queryValues[] = (int)$types[$attr['type']];
-                            $queryValues[] = (string)$attr['label'];
+                            $queryValues[] = (int) $types[$attr['type']];
+                            $queryValues[] = (string) $attr['label'];
 
                             if (isset($attr['defaultValue'])) {
                                 $str .= ' default_value = ?, ';
-                                $queryValues[] = (string)$attr['defaultValue'];
+                                $queryValues[] = (string) $attr['defaultValue'];
                             }
                             $str .= ' parameter_order = ?, ';
-                            $queryValues[] = (int)$order;
+                            $queryValues[] = (int) $order;
 
-                            if (!isset($attr['requirePermission'])) {
+                            if (! isset($attr['requirePermission'])) {
                                 $attr['requirePermission'] = 0;
                             }
-                            $str .= " require_permission = ?, header_title = ";
-                            $queryValues[] = (string)$attr['requirePermission'];
+                            $str .= ' require_permission = ?, header_title = ';
+                            $queryValues[] = (string) $attr['requirePermission'];
 
-                            if (isset($attr['header']) && $attr['header'] != "") {
-                                $str .= "? ";
-                                $queryValues[] = (string)$attr['header'];
+                            if (isset($attr['header']) && $attr['header'] != '') {
+                                $str .= '? ';
+                                $queryValues[] = (string) $attr['header'];
                             } else {
-                                $str .= "NULL ";
+                                $str .= 'NULL ';
                             }
-                            $query = 'UPDATE widget_parameters SET ' . $str . ' ' .
-                                'WHERE parameter_code_name = ? ' .
-                                'AND widget_model_id = ?';
-                            $queryValues[] = (string)$attr['name'];
-                            $queryValues[] = (int)$widgetModelId;
+                            $query = 'UPDATE widget_parameters SET ' . $str . ' '
+                                . 'WHERE parameter_code_name = ? '
+                                . 'AND widget_model_id = ?';
+                            $queryValues[] = (string) $attr['name'];
+                            $queryValues[] = (int) $widgetModelId;
                         }
                         $stmt = $this->db->prepare($query);
                         $dbResult = $stmt->execute($queryValues);
-                        if (!$dbResult) {
-                            throw new \Exception("An error occured");
+                        if (! $dbResult) {
+                            throw new Exception('An error occured');
                         }
 
                         $parameterId = $this->getParameterIdByName($widgetModelId, $attr['name']);
@@ -1246,8 +1265,8 @@ class CentreonWidget
                         $stmt = $this->db->prepare($query);
                         $stmt->bindParam(':paramId', $parameterId, PDO::PARAM_INT);
                         $dbResult = $stmt->execute();
-                        if (!$dbResult) {
-                            throw new \Exception("An error occured");
+                        if (! $dbResult) {
+                            throw new Exception('An error occured');
                         }
 
                         $this->insertParameterOptions($parameterId, $attr, $pref);
@@ -1256,17 +1275,17 @@ class CentreonWidget
                 }
             }
         }
-        $deleteStr = "";
+        $deleteStr = '';
         $deleteQueryValues = [];
         foreach ($existingParams as $codeName) {
-            if (!isset($currentParameterTab[$codeName])) {
-                if ($deleteStr != "") {
+            if (! isset($currentParameterTab[$codeName])) {
+                if ($deleteStr != '') {
                     $deleteStr .= ', ';
                 }
                 $deleteStr .= '?';
                 $codeName = array_map(
                     function ($var) {
-                        return (string)$var;
+                        return (string) $var;
                     },
                     $codeName
                 );
@@ -1274,15 +1293,15 @@ class CentreonWidget
             }
         }
         if ($deleteStr) {
-            $query = 'DELETE FROM widget_parameters ' .
-                'WHERE parameter_code_name ' .
-                'IN (' . $deleteStr . ') ' .
-                'AND widget_model_id = ?';
-            $deleteQueryValues[] = (int)$widgetModelId;
+            $query = 'DELETE FROM widget_parameters '
+                . 'WHERE parameter_code_name '
+                . 'IN (' . $deleteStr . ') '
+                . 'AND widget_model_id = ?';
+            $deleteQueryValues[] = (int) $widgetModelId;
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute($deleteQueryValues);
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
         }
     }
@@ -1295,42 +1314,42 @@ class CentreonWidget
      */
     public function upgrade($widgetPath, $directory): void
     {
-        $config = $this->readConfigFile($widgetPath . "/" . $directory . "/configs.xml");
-        if (!$config['autoRefresh']) {
+        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
+        if (! $config['autoRefresh']) {
             $config['autoRefresh'] = 0;
         }
         $queryValues = [];
-        $query = 'UPDATE widget_models SET ' .
-            'title = ?, ' .
-            'description = ?, ' .
-            'url = ?, ' .
-            'version = ?, ' .
-            'author = ?, ' .
-            'email = ?, ' .
-            'website = ?, ' .
-            'keywords = ?, ' .
-            'screenshot = ?, ' .
-            'thumbnail = ?, ' .
-            'autoRefresh = ? ' .
-            'WHERE directory = ?';
+        $query = 'UPDATE widget_models SET '
+            . 'title = ?, '
+            . 'description = ?, '
+            . 'url = ?, '
+            . 'version = ?, '
+            . 'author = ?, '
+            . 'email = ?, '
+            . 'website = ?, '
+            . 'keywords = ?, '
+            . 'screenshot = ?, '
+            . 'thumbnail = ?, '
+            . 'autoRefresh = ? '
+            . 'WHERE directory = ?';
 
-        $queryValues[] = (string)$config['title'];
-        $queryValues[] = (string)$config['description'];
-        $queryValues[] = (string)$config['url'];
-        $queryValues[] = (string)$config['version'];
-        $queryValues[] = (string)$config['author'];
-        $queryValues[] = (string)$config['email'];
-        $queryValues[] = (string)$config['website'];
-        $queryValues[] = (string)$config['keywords'];
-        $queryValues[] = (string)$config['screenshot'];
-        $queryValues[] = (string)$config['thumbnail'];
-        $queryValues[] = (int)$config['autoRefresh'];
-        $queryValues[] = (string)$directory;
+        $queryValues[] = (string) $config['title'];
+        $queryValues[] = (string) $config['description'];
+        $queryValues[] = (string) $config['url'];
+        $queryValues[] = (string) $config['version'];
+        $queryValues[] = (string) $config['author'];
+        $queryValues[] = (string) $config['email'];
+        $queryValues[] = (string) $config['website'];
+        $queryValues[] = (string) $config['keywords'];
+        $queryValues[] = (string) $config['screenshot'];
+        $queryValues[] = (string) $config['thumbnail'];
+        $queryValues[] = (int) $config['autoRefresh'];
+        $queryValues[] = (string) $directory;
 
         $stmt = $this->db->prepare($query);
         $dbResult = $stmt->execute($queryValues);
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $info = $this->getWidgetInfoByDirectory($directory);
@@ -1348,30 +1367,30 @@ class CentreonWidget
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
     }
 
     /**
      * @param int $widgetId
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getWidgetPreferences($widgetId)
     {
-        $query = 'SELECT default_value, parameter_code_name ' .
-            'FROM widget_parameters param, widgets w ' .
-            'WHERE w.widget_model_id = param.widget_model_id ' .
-            'AND w.widget_id = :widgetId';
+        $query = 'SELECT default_value, parameter_code_name '
+            . 'FROM widget_parameters param, widgets w '
+            . 'WHERE w.widget_model_id = param.widget_model_id '
+            . 'AND w.widget_id = :widgetId';
 
         // Prevent SQL injection with widget id
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $tab = [];
@@ -1380,39 +1399,39 @@ class CentreonWidget
         }
 
         try {
-            $query = 'SELECT pref.preference_value, param.parameter_code_name ' .
-                'FROM widget_preferences pref, widget_parameters param, widget_views wv ' .
-                'WHERE param.parameter_id = pref.parameter_id ' .
-                'AND pref.widget_view_id = wv.widget_view_id ' .
-                'AND wv.widget_id = :widgetId ' .
-                'AND pref.user_id = :userId';
+            $query = 'SELECT pref.preference_value, param.parameter_code_name '
+                . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
+                . 'WHERE param.parameter_id = pref.parameter_id '
+                . 'AND pref.widget_view_id = wv.widget_view_id '
+                . 'AND wv.widget_id = :widgetId '
+                . 'AND pref.user_id = :userId';
 
             // Prevent SQL injection with widget id
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
             $dbResult = $stmt->execute();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new Exception(
-                "Error: cannot get preference parameter by user for widget , " . $e->getMessage() . "\n"
+                'Error: cannot get preference parameter by user for widget , ' . $e->getMessage() . "\n"
             );
         }
 
-        //if user has no preferences take parent preferences
+        // if user has no preferences take parent preferences
         if ($this->db->numberRows() === 0) {
             try {
-                $query = 'SELECT pref.preference_value, param.parameter_code_name ' .
-                    'FROM widget_preferences pref, widget_parameters param, widget_views wv ' .
-                    'WHERE param.parameter_id = pref.parameter_id ' .
-                    'AND pref.widget_view_id = wv.widget_view_id ' .
-                    'AND wv.widget_id = :widgetId ';
+                $query = 'SELECT pref.preference_value, param.parameter_code_name '
+                    . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
+                    . 'WHERE param.parameter_id = pref.parameter_id '
+                    . 'AND pref.widget_view_id = wv.widget_view_id '
+                    . 'AND wv.widget_id = :widgetId ';
                 // Prevent SQL injection with widget id
                 $stmt = $this->db->prepare($query);
-                $stmt->bindParam(':widgetId', $widgetId, \PDO::PARAM_INT);
+                $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
                 $dbResult = $stmt->execute();
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 throw new Exception(
-                    "Error: cannot get preference parameter for widget , " . $e->getMessage() . "\n"
+                    'Error: cannot get preference parameter for widget , ' . $e->getMessage() . "\n"
                 );
             }
         }
@@ -1420,6 +1439,7 @@ class CentreonWidget
         while ($row = $stmt->fetch()) {
             $tab[$row['parameter_code_name']] = $row['preference_value'];
         }
+
         return $tab;
     }
 
@@ -1429,14 +1449,14 @@ class CentreonWidget
      * @param int $widgetId
      * @param string $newName widget new name
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function rename(int $widgetId, string $newName)
     {
-        $query = 'UPDATE widgets ' .
-            'SET title = :title ' .
-            'WHERE widget_id = :widgetId';
+        $query = 'UPDATE widgets '
+            . 'SET title = :title '
+            . 'WHERE widget_id = :widgetId';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':title', $newName, PDO::PARAM_STR);
         $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);

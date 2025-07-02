@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2017 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../www/class/centreon-knowledge/wikiApi.class.php");
+require_once realpath(__DIR__ . '/../www/class/centreon-knowledge/wikiApi.class.php');
 
 try {
     $wikiApi = new WikiApi();

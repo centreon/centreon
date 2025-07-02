@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,39 +44,39 @@ $aclId = filter_var(
 ) ?: null;
 
 $select = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $dupNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
-/* PHP functions */
+// PHP functions
 require_once __DIR__ . '/DB-Func.php';
-require_once "./include/common/common-Func.php";
+require_once './include/common/common-Func.php';
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
+if (isset($_POST['o1'], $_POST['o2'])) {
+    if ($_POST['o1'] != '') {
+        $o = $_POST['o1'];
     }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
+    if ($_POST['o2'] != '') {
+        $o = $_POST['o2'];
     }
 }
 
 switch ($o) {
-    case "a":
-        require_once(__DIR__ . '/formResourcesAccess.php');
-        break; #Add a LCA
-    case "w":
-        require_once(__DIR__ . '/formResourcesAccess.php');
-        break; #Watch a LCA
-    case "c":
-        require_once(__DIR__ . '/formResourcesAccess.php');
-        break; #Modify a LCA
-    case "s":
+    case 'a':
+        require_once __DIR__ . '/formResourcesAccess.php';
+        break; // Add a LCA
+    case 'w':
+        require_once __DIR__ . '/formResourcesAccess.php';
+        break; // Watch a LCA
+    case 'c':
+        require_once __DIR__ . '/formResourcesAccess.php';
+        break; // Modify a LCA
+    case 's':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -84,9 +84,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Activate a LCA
-    case "ms":
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Activate a LCA
+    case 'ms':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -94,9 +94,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Activate n LCA
-    case "u":
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Activate n LCA
+    case 'u':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -104,9 +104,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Desactivate a LCA
-    case "mu":
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Desactivate a LCA
+    case 'mu':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -114,9 +114,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Desactivate n LCA
-    case "m":
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Desactivate n LCA
+    case 'm':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -124,9 +124,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Duplicate n LCAs
-    case "d":
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Duplicate n LCAs
+    case 'd':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -134,9 +134,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listsResourcesAccess.php');
-        break; #Delete n LCAs
+        require_once __DIR__ . '/listsResourcesAccess.php';
+        break; // Delete n LCAs
     default:
-        require_once(__DIR__ . '/listsResourcesAccess.php');
+        require_once __DIR__ . '/listsResourcesAccess.php';
         break;
 }

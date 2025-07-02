@@ -46,9 +46,9 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
     public const ADMIN_ACL_GROUP = 'customer_admin_acl';
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -118,19 +118,19 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         }
 
         $query = <<<'SQL_WRAP'
-            SELECT SQL_CALC_FOUND_ROWS
-                ag.acl_group_id,
-                ag.acl_group_name
-            FROM acl_groups ag
-        SQL_WRAP;
+                SELECT SQL_CALC_FOUND_ROWS
+                    ag.acl_group_id,
+                    ag.acl_group_name
+                FROM acl_groups ag
+            SQL_WRAP;
 
         $query .= ! $isUserAdmin
             ? <<<'SQL'
-                INNER JOIN acl_res_group_relations argr
-                    ON argr.acl_group_id = ag.acl_group_id
-                INNER JOIN acl_resources ar
-                    ON ar.acl_res_id = argr.acl_res_id
-            SQL
+                    INNER JOIN acl_res_group_relations argr
+                        ON argr.acl_group_id = ag.acl_group_id
+                    INNER JOIN acl_resources ar
+                        ON ar.acl_res_id = argr.acl_res_id
+                SQL
             : '';
 
         $whereCondition = '';
@@ -165,11 +165,11 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         $statement = $this->pearDB->prepare($query);
 
         if (isset($queryValues['aclGroup'])) {
-            $statement->bindValue(':aclGroup', $queryValues['aclGroup'], \PDO::PARAM_STR);
+            $statement->bindValue(':aclGroup', $queryValues['aclGroup'], PDO::PARAM_STR);
         }
         if (isset($queryValues['offset'])) {
-            $statement->bindValue(':offset', $queryValues['offset'], \PDO::PARAM_INT);
-            $statement->bindValue(':limit', $queryValues['limit'], \PDO::PARAM_INT);
+            $statement->bindValue(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $statement->bindValue(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
 
         $statement->execute();

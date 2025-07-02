@@ -1,5 +1,6 @@
 #!@PHP_BIN@
 <?php
+
 /*
  * Centreon is developed with GPL Licence 2.0:
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
@@ -19,28 +20,28 @@
  *
  */
 
-/*
- * Error Level
- */
+// Error Level
 error_reporting(E_ERROR | E_PARSE);
 
 function usage($command)
 {
-    print $command . " centreon_etc_path\n";
-    print "\tcentreon_etc_path\tThe path to Centreon configuration default (/etc/centreon)\n";
+    echo $command . " centreon_etc_path\n";
+    echo "\tcentreon_etc_path\tThe path to Centreon configuration default (/etc/centreon)\n";
 }
 
 if (count($argv) != 2) {
     fwrite(STDERR, "Incorrect number of arguments\n");
     usage($argv[0]);
+
     exit(1);
 }
 
 $centreon_etc = realpath($argv[1]);
 
-if (!file_exists($centreon_etc . '/centreon.conf.php')) {
+if (! file_exists($centreon_etc . '/centreon.conf.php')) {
     fwrite(STDERR, "Centreon configuration file doesn't exists\n");
     usage($argv[0]);
+
     exit(1);
 }
 
@@ -50,8 +51,9 @@ require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 $dbconn = new CentreonDB();
 try {
     $queryCleanSession = 'DELETE FROM session';
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     fwrite(STDERR, "Error in purge sessions\n");
+
     exit(1);
 }
 

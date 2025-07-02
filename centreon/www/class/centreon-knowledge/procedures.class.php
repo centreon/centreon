@@ -34,9 +34,9 @@
  *
  */
 
-define("PROCEDURE_SIMPLE_MODE", 0);
-define("PROCEDURE_INHERITANCE_MODE", 1);
-require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
+define('PROCEDURE_SIMPLE_MODE', 0);
+define('PROCEDURE_INHERITANCE_MODE', 1);
+require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php';
 
 /**
  * Class
@@ -47,10 +47,13 @@ class procedures
 {
     /** @var array */
     private $procList = [];
+
     /** @var CentreonDB */
     public $DB;
+
     /** @var CentreonDB */
     public $centreon_DB;
+
     /** @var WikiApi */
     public $api;
 
@@ -77,7 +80,7 @@ class procedures
         }
 
         $pages = $this->api->getAllPages();
-        //replace space
+        // replace space
         foreach ($pages as $page) {
             $page = str_replace(' ', '_', $page);
             $this->procList[$page] = '';
@@ -89,46 +92,47 @@ class procedures
      *
      * @param null $service_id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMyServiceTemplateModels($service_id = null)
     {
         $tplArr = [];
 
         $dbResult = $this->centreon_DB->query(
-            "SELECT service_description, service_template_model_stm_id " .
-            "FROM service " .
-            "WHERE service_id = '" . $service_id . "' LIMIT 1"
+            'SELECT service_description, service_template_model_stm_id '
+            . 'FROM service '
+            . "WHERE service_id = '" . $service_id . "' LIMIT 1"
         );
         $row = $dbResult->fetch();
-        if (isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != "") {
+        if (isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != '') {
             $dbResult->closeCursor();
-            $service_id = $row["service_template_model_stm_id"];
-            if ($row["service_description"]) {
-                $tplArr[$service_id] = html_entity_decode($row["service_description"], ENT_QUOTES);
+            $service_id = $row['service_template_model_stm_id'];
+            if ($row['service_description']) {
+                $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
             }
             while (1) {
                 $dbResult = $this->centreon_DB->query(
-                    "SELECT service_description, service_template_model_stm_id " .
-                    "FROM service " .
-                    "WHERE service_id = '" . $service_id . "' LIMIT 1"
+                    'SELECT service_description, service_template_model_stm_id '
+                    . 'FROM service '
+                    . "WHERE service_id = '" . $service_id . "' LIMIT 1"
                 );
                 $row = $dbResult->fetch();
                 $dbResult->closeCursor();
-                if ($row["service_description"]) {
-                    $tplArr[$service_id] = html_entity_decode($row["service_description"], ENT_QUOTES);
+                if ($row['service_description']) {
+                    $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
                 } else {
                     break;
                 }
-                if ($row["service_template_model_stm_id"]) {
-                    $service_id = $row["service_template_model_stm_id"];
+                if ($row['service_template_model_stm_id']) {
+                    $service_id = $row['service_template_model_stm_id'];
                 } else {
                     break;
                 }
             }
         }
-        return ($tplArr);
+
+        return $tplArr;
     }
 
     /**
@@ -136,35 +140,35 @@ class procedures
      *
      * @param null $host_id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMyHostMultipleTemplateModels($host_id = null)
     {
-        if (!$host_id) {
+        if (! $host_id) {
             return [];
         }
 
         $tplArr = [];
         $dbResult = $this->centreon_DB->query(
-            "SELECT host_tpl_id " .
-            "FROM `host_template_relation` " .
-            "WHERE host_host_id = '" . $host_id . "' " .
-            "ORDER BY `order`"
+            'SELECT host_tpl_id '
+            . 'FROM `host_template_relation` '
+            . "WHERE host_host_id = '" . $host_id . "' "
+            . 'ORDER BY `order`'
         );
         $statement = $this->centreon_DB->prepare(
-            "SELECT host_name " .
-            "FROM host " .
-            "WHERE host_id = :host_id LIMIT 1"
+            'SELECT host_name '
+            . 'FROM host '
+            . 'WHERE host_id = :host_id LIMIT 1'
         );
         while ($row = $dbResult->fetch()) {
-            $statement->bindValue(':host_id', $row['host_tpl_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':host_id', $row['host_tpl_id'], PDO::PARAM_INT);
             $statement->execute();
-            $hTpl = $statement->fetch(\PDO::FETCH_ASSOC);
-            $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl["host_name"], ENT_QUOTES);
+            $hTpl = $statement->fetch(PDO::FETCH_ASSOC);
+            $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl['host_name'], ENT_QUOTES);
         }
-        unset($row);
-        unset($hTpl);
+        unset($row, $hTpl);
+
         return $tplArr;
     }
 
@@ -178,12 +182,13 @@ class procedures
      */
     public function serviceHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Service_:_" . $key])) {
+        if (isset($this->procList['Service_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 $res = $this->serviceTemplateHasProcedure($templateName, null, PROCEDURE_SIMPLE_MODE);
                 if ($res == true) {
@@ -191,6 +196,7 @@ class procedures
                 }
             }
         }
+
         return false;
     }
 
@@ -204,13 +210,14 @@ class procedures
      */
     public function hostHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Host_:_" . $key])) {
+        if (isset($this->procList['Host_:_' . $key])) {
             return true;
         }
 
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 $res = $this->hostTemplateHasProcedure($templateName, null, PROCEDURE_SIMPLE_MODE);
                 if ($res == true) {
@@ -218,6 +225,7 @@ class procedures
                 }
             }
         }
+
         return false;
     }
 
@@ -229,20 +237,22 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Service-Template_:_" . $key])) {
+        if (isset($this->procList['Service-Template_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 if (isset($this->procList['Service-Template_:_' . $templateName])) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
@@ -251,22 +261,25 @@ class procedures
      *
      * @param string $key
      * @param array $templates
+     * @param mixed $mode
      * @return bool
      */
-    public function hostTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Host-Template_:_" . $key])) {
+        if (isset($this->procList['Host-Template_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 if (isset($this->procList['Host-Template_:_' . $templateName])) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

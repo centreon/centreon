@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -30,13 +31,13 @@ $errorMessage = '';
 /**
  * Add column `show_deprecated_custom_views` to contact table.
  */
-$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB): void {
+$addDeprecateCustomViewsToContact =  function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
     if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
         $pearDB->executeQuery(
-            <<<SQL
-            ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
-            SQL
+            <<<'SQL'
+                ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
+                SQL
         );
     }
 };
@@ -44,37 +45,37 @@ $addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB): v
 /**
  * Switch Topology Order between Dashboards and Custom Views.
  */
-$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB): void {
+$updateDashboardAndCustomViewsTopology = function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to update topology of Custom Views';
     $pearDB->executeQuery(
-        <<<SQL
-        UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
-        SQL
+        <<<'SQL'
+            UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
+            SQL
     );
     $errorMessage = 'Unable to update topology of Dashboards';
     $pearDB->executeQuery(
-        <<<SQL
-        UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
-        SQL
+        <<<'SQL'
+            UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
+            SQL
     );
 };
 
 /**
  * Set Show Deprecated Custom Views to true by default is there is existing custom views.
  */
-$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB): void {
+$updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pearDB): void {
     $errorMessage = 'Unable to retrieve custom views';
     $statement = $pearDB->executeQuery(
-        <<<SQL
-        SELECT 1 FROM custom_views
-        SQL
+        <<<'SQL'
+            SELECT 1 FROM custom_views
+            SQL
     );
 
     if (! empty($statement->fetchAll())) {
         $pearDB->executeQuery(
-            <<<SQL
-            UPDATE contact SET show_deprecated_custom_views = '1'
-            SQL
+            <<<'SQL'
+                UPDATE contact SET show_deprecated_custom_views = '1'
+                SQL
         );
     }
 };
@@ -84,18 +85,17 @@ $updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
 
     $pearDB->executeQuery(
         <<<'SQL'
-            UPDATE cfg_nagios
-            SET enable_flap_detection = '1',
-                host_down_disable_service_checks = '1'
-            WHERE enable_flap_detection != '1'
-               OR host_down_disable_service_checks != '1'
-        SQL
+                UPDATE cfg_nagios
+                SET enable_flap_detection = '1',
+                    host_down_disable_service_checks = '1'
+                WHERE enable_flap_detection != '1'
+                   OR host_down_disable_service_checks != '1'
+            SQL
     );
 };
 
 /** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-
-$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage): void {
+$bbdoDefaultUpdate = function () use ($pearDB, &$errorMessage): void {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
         $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
         $pearDB->query('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
@@ -149,7 +149,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -159,19 +159,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

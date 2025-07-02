@@ -21,19 +21,19 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.10.5: ';
 $errorMessage = '';
 
 // ------------ INSERT / UPDATE / DELETE
-$updateTopologyForCloudNotifications = function(CentreonDB $pearDB): void {
+$updateTopologyForCloudNotifications = function (CentreonDB $pearDB): void {
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_url` = '/configuration/notifications'
             SQL
     );
 
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -56,7 +56,7 @@ try {
     $updateTopologyForCloudNotifications($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $ex) {
+} catch (Exception $ex) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -69,5 +69,5 @@ try {
         . ' - Trace : ' . $ex->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $ex->getCode(), $ex);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $ex->getCode(), $ex);
 }

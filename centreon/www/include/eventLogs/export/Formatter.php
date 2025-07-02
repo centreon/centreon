@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Legacy\EventLogs\Export;
 
 class Formatter
@@ -30,34 +31,43 @@ class Formatter
     private const ACKNOWLEDGMENT_MESSAGE_TYPE = 'ACK';
     private const INITIAL_STATE_VALUE = 'INITIAL STATE';
     private const NOTIFICATION_TYPE_VALUE = 'NOTIF';
-    /**
-     * @var string[]
-     */
+
+    /** @var string[] */
     private array $hosts = [];
-    /**
-     * @var string[]
-     */
+
+    /** @var string[] */
     private array $serviceStatuses = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '5' => 'ACKNOWLEDGEMENT'];
-    /**
-     * @var string[]
-     */
-    private array $hostStatuses = ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE',];
-    /**
-     * @var string[]
-     */
+
+    /** @var string[] */
+    private array $hostStatuses = ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE'];
+
+    /** @var string[] */
     private array $notificationTypes = ['1' => 'HARD', '0' => 'SOFT'];
+
     private int $start = 0;
+
     private int $end = 0;
+
     private string $notification = '';
+
     private string $alert = '';
+
     private string $error = '';
+
     private string $up = '';
+
     private string $down = '';
+
     private string $unreachable = '';
+
     private string $ok = '';
+
     private string $warning = '';
+
     private string $critical = '';
+
     private string $unknown = '';
+
     private string $acknowledgement = '';
 
     /**
@@ -214,13 +224,13 @@ class Formatter
      */
     public function getLogHeads(): array
     {
-        return ['Day', 'Time', 'Host', 'Address', 'Service', 'Status', 'Type', 'Retry', 'Output', 'Contact', 'Cmd',];
+        return ['Day', 'Time', 'Host', 'Address', 'Service', 'Status', 'Type', 'Retry', 'Output', 'Contact', 'Cmd'];
     }
 
     /**
      * Generates formatted CSV  data
      * @param \PDOStatement $logs
-     * @return \Iterator<String[]>
+     * @return \Iterator<string[]>
      */
     public function formatLogs(iterable $logs): iterable
     {
@@ -231,14 +241,14 @@ class Formatter
 
     /**
      * Formats individual log data for CSV
-     * @param String[] $log
-     * @return String[]
+     * @param string[] $log
+     * @return string[]
      */
     private function formatLog(array $log): array
     {
         return [
-            'Day' => $this->dateFromTimestamp((int)$log['ctime']),
-            'Time' => $this->timeFromTimestamp((int)$log['ctime']),
+            'Day' => $this->dateFromTimestamp((int) $log['ctime']),
+            'Time' => $this->timeFromTimestamp((int) $log['ctime']),
             'Host' => $log['host_name'],
             'Address' => $this->formatAddress($log['host_name']),
             'Service' => $log['service_description'],
@@ -295,7 +305,7 @@ class Formatter
     private function formatAddress(string $hostName): string
     {
         if (array_key_exists($hostName, $this->hosts)) {
-            return (string)$this->hosts[$hostName];
+            return (string) $this->hosts[$hostName];
         }
 
         return '';
@@ -382,7 +392,7 @@ class Formatter
             return '';
         }
 
-        if ((int)$msgType > 1) {
+        if ((int) $msgType > 1) {
             return '';
         }
 

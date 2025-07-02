@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2020 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -33,22 +34,22 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 function DeleteComment($type = null, $hosts = [])
 {
-    if (!isset($type) || !is_array($hosts)) {
+    if (! isset($type) || ! is_array($hosts)) {
         return;
     }
     global $pearDB;
-    $type = \HtmlAnalyzer::sanitizeAndRemoveTags($type ?? '');
+    $type = HtmlAnalyzer::sanitizeAndRemoveTags($type ?? '');
 
     foreach ($hosts as $key => $value) {
         $res = preg_split("/\;/", $key);
         $res[1] = filter_var($res[1] ?? 0, FILTER_VALIDATE_INT);
-        write_command(" DEL_" . $type . "_COMMENT;" . $res[1], GetMyHostPoller($pearDB, $res[0]));
+        write_command(' DEL_' . $type . '_COMMENT;' . $res[1], GetMyHostPoller($pearDB, $res[0]));
     }
 }
 
@@ -56,20 +57,20 @@ function AddHostComment($host, $comment, $persistant)
 {
     global $centreon, $pearDB;
 
-    if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
+    if (! isset($persistant) || ! in_array($persistant, ['0', '1'])) {
         $persistant = '0';
     }
-    write_command(" ADD_HOST_COMMENT;" . getMyHostName($host) . ";" . $persistant . ";" .
-        $centreon->user->get_alias() . ";" . trim($comment), GetMyHostPoller($pearDB, getMyHostName($host)));
+    write_command(' ADD_HOST_COMMENT;' . getMyHostName($host) . ';' . $persistant . ';'
+        . $centreon->user->get_alias() . ';' . trim($comment), GetMyHostPoller($pearDB, getMyHostName($host)));
 }
 
 function AddSvcComment($host, $service, $comment, $persistant)
 {
     global $centreon, $pearDB;
 
-    if (!isset($persistant) || !in_array($persistant, ['0', '1'])) {
+    if (! isset($persistant) || ! in_array($persistant, ['0', '1'])) {
         $persistant = '0';
     }
-    write_command(" ADD_SVC_COMMENT;" . getMyHostName($host) . ";" . getMyServiceName($service) . ";" . $persistant .
-        ";" . $centreon->user->get_alias() . ";" . trim($comment), GetMyHostPoller($pearDB, getMyHostName($host)));
+    write_command(' ADD_SVC_COMMENT;' . getMyHostName($host) . ';' . getMyServiceName($service) . ';' . $persistant
+        . ';' . $centreon->user->get_alias() . ';' . trim($comment), GetMyHostPoller($pearDB, getMyHostName($host)));
 }

@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -48,9 +48,9 @@ if (isset($url)) {
     $statementSelect = $pearDB->prepare(
         'SELECT topology_url FROM topology WHERE topology_page = :topology_page'
     );
-    $statementSelect->bindValue(':topology_page', $p, \PDO::PARAM_INT);
+    $statementSelect->bindValue(':topology_page', $p, PDO::PARAM_INT);
     if ($statementSelect->execute()) {
-        $result = $statementSelect->fetch(\PDO::FETCH_ASSOC);
+        $result = $statementSelect->fetch(PDO::FETCH_ASSOC);
         if ($result !== false && $result['topology_url'] != $url) {
             /**
              * If urls are not equal we can retrieve the topology page number
@@ -61,10 +61,10 @@ if (isset($url)) {
                 'SELECT topology_page FROM topology '
                 . 'WHERE topology_url = :url'
             );
-            $statement->bindValue(':url', $url, \PDO::PARAM_STR);
+            $statement->bindValue(':url', $url, PDO::PARAM_STR);
             if (
                 $statement->execute()
-                && $result = $statement->fetch(\PDO::FETCH_ASSOC)
+                && $result = $statement->fetch(PDO::FETCH_ASSOC)
             ) {
                 $p = $result['topology_page'];
             }
@@ -93,14 +93,14 @@ $pdoStatement = $pearDB->prepare(
     WHERE topology_parent IS NOT NULL)
     ORDER BY topology_page ASC'
 );
-$pdoStatement->bindValue(':topology_page', (int) $p, \PDO::PARAM_INT);
+$pdoStatement->bindValue(':topology_page', (int) $p, PDO::PARAM_INT);
 
 $breadcrumbData = [];
-$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], "/");
+$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], '/');
 $basePath = htmlspecialchars($basePath, ENT_QUOTES, 'UTF-8');
 
 if ($pdoStatement->execute()) {
-    while ($result = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) {
+    while ($result = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
         $isNameAlreadyInserted = array_search(
             $result['topology_name'],
             array_column($breadcrumbData, 'name')
@@ -124,7 +124,7 @@ if ($pdoStatement->execute()) {
             'name' => $result['topology_name'],
             'url' => $result['topology_url'],
             'opt' => $result['topology_url_opt'],
-            'page' => $result['topology_page']
+            'page' => $result['topology_page'],
         ];
     }
 }
@@ -136,15 +136,15 @@ if ($centreon->user->access->page($p)) {
     foreach ($breadcrumbData as $page => $details) {
         echo $flag;
         ?>
-        <a href="<?= $details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details["opt"]}" ?>"
-            <?= $details['is_react'] ? ' isreact="isreact"' : '' ?> class="pathWay"><?= _($details["name"]); ?></a>
+        <a href="<?= $details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details['opt']}"; ?>"
+            <?= $details['is_react'] ? ' isreact="isreact"' : ''; ?> class="pathWay"><?= _($details['name']); ?></a>
         <?php
         $flag = '<span class="pathWayBracket" >  &nbsp;&#62;&nbsp; </span>';
     }
 
-    if (isset($_GET["host_id"])) {
+    if (isset($_GET['host_id'])) {
         echo '<span class="pathWayBracket" > &nbsp;&#62;&nbsp; </span>';
-        echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET["host_id"]))->sanitize()->getString();
+        echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET['host_id']))->sanitize()->getString();
     }
 }
 ?>

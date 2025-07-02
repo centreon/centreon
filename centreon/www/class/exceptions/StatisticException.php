@@ -43,5 +43,4 @@ class StatisticException extends BusinessLogicException
     ) {
         parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
     }
-
 }

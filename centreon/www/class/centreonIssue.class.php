@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -58,12 +59,12 @@ class CentreonIssue
      *
      * @param int $issueId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getChildren($issueId)
     {
-        $query = "SELECT tb.issue_id, tb.host_id, tb.service_id, tb.start_time, tb.name, tb.description,
+        $query = 'SELECT tb.issue_id, tb.host_id, tb.service_id, tb.start_time, tb.name, tb.description,
             tb.state, tb.output
         		  FROM (
 					SELECT i.issue_id,
@@ -79,7 +80,7 @@ class CentreonIssue
 					AND s.service_id = i.service_id
 					AND s.host_id = h.host_id
 					AND i.issue_id = iip.child_id
-					AND iip.parent_id = ".$this->dbb->escape($issueId)."
+					AND iip.parent_id = ' . $this->dbb->escape($issueId) . '
 
 					UNION
 
@@ -95,8 +96,8 @@ class CentreonIssue
 					WHERE h2.host_id = i2.host_id
 					AND i2.service_id IS NULL
 					AND i2.issue_id = iip2.child_id
-					AND iip2.parent_id = ".$this->dbb->escape($issueId)."
-        		  ) tb ";
+					AND iip2.parent_id = ' . $this->dbb->escape($issueId) . '
+        		  ) tb ';
         $res = $this->dbb->query($query);
         $childTab = [];
         while ($row = $res->fetchRow()) {
@@ -104,6 +105,7 @@ class CentreonIssue
                 $childTab[$row['issue_id']][$key] = $val;
             }
         }
+
         return $childTab;
     }
 
@@ -112,18 +114,16 @@ class CentreonIssue
      *
      * @param int $issueId
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function isParent($issueId)
     {
-        $query = "SELECT parent_id
+        $query = 'SELECT parent_id
             FROM issues_issues_parents
-            WHERE parent_id = " . $this->dbb->escape($issueId) . " LIMIT 1";
+            WHERE parent_id = ' . $this->dbb->escape($issueId) . ' LIMIT 1';
         $res = $this->dbb->query($query);
-        if ($res->rowCount()) {
-            return true;
-        }
-        return false;
+
+        return (bool) ($res->rowCount());
     }
 }

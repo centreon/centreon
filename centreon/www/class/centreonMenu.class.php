@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -67,7 +67,7 @@ class CentreonMenu
      */
     public function translate($isModule, $url, $menuName)
     {
-        $moduleName = "";
+        $moduleName = '';
         if ($isModule && $url) {
             if (preg_match("/\.\/modules\/([a-zA-Z-_]+)/", $url, $matches)) {
                 if (isset($matches[1])) {
@@ -77,10 +77,11 @@ class CentreonMenu
         }
         $name = _($menuName);
         if ($moduleName) {
-            $this->centreonLang->bindLang('messages', 'www/modules/'.$moduleName.'/locale/');
+            $this->centreonLang->bindLang('messages', 'www/modules/' . $moduleName . '/locale/');
             $name = _($menuName);
             $this->centreonLang->bindLang();
         }
+
         return $name;
     }
 }

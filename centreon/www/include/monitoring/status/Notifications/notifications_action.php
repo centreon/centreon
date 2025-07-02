@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -35,14 +36,14 @@
 
 session_start();
 
-$action = "start";
+$action = 'start';
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
 }
-if ($action == "start" && isset($_SESSION['disable_sound'])) {
+if ($action == 'start' && isset($_SESSION['disable_sound'])) {
     unset($_SESSION['disable_sound']);
 }
-if ($action == "stop") {
+if ($action == 'stop') {
     $_SESSION['disable_sound'] = true;
 }
 

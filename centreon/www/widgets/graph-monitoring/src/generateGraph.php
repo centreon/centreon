@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -48,7 +48,7 @@ require_once $centreon_path . 'www/class/centreonGraph.class.php';
 
 CentreonSession::start(1);
 
-if (!isset($_GET['service'])) {
+if (! isset($_GET['service'])) {
     exit;
 }
 
@@ -66,13 +66,13 @@ $query = <<<'SQL'
     SQL;
 
 $stmt = $db->prepare($query);
-$stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-$stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+$stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+$stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
 $stmt->execute();
 
 if ($stmt->rowCount()) {
     $row = $stmt->fetch();
-    $index = $row["id"];
+    $index = $row['id'];
 } else {
     $index = 0;
 }
@@ -80,19 +80,18 @@ if ($stmt->rowCount()) {
 /**
  * Create XML Request Objects
  */
-
-$iIdUser = (int)$_GET['user'];
+$iIdUser = (int) $_GET['user'];
 
 $obj = new CentreonGraph($iIdUser, $index, 0, 1);
 
-require_once $centreon_path . "www/include/common/common-Func.php";
+require_once $centreon_path . 'www/include/common/common-Func.php';
 
 /**
  * Set arguments from GET
  */
-(int)$graphPeriod = $_GET['tp'] ?? (60 * 60 * 48);
-$obj->setRRDOption("start", (time() - $graphPeriod));
-$obj->setRRDOption("end", time());
+(int) $graphPeriod = $_GET['tp'] ?? (60 * 60 * 48);
+$obj->setRRDOption('start', (time() - $graphPeriod));
+$obj->setRRDOption('end', time());
 
 $obj->GMT->getMyGMTFromSession(session_id());
 
@@ -102,17 +101,15 @@ $obj->GMT->getMyGMTFromSession(session_id());
 $obj->setTemplate();
 $obj->init();
 
-/*
- * Set colors
- */
+// Set colors
 
-$obj->setColor("CANVAS", "#FFFFFF");
-$obj->setColor("BACK", "#FFFFFF");
-$obj->setColor("SHADEA", "#FFFFFF");
-$obj->setColor("SHADEB", "#FFFFFF");
+$obj->setColor('CANVAS', '#FFFFFF');
+$obj->setColor('BACK', '#FFFFFF');
+$obj->setColor('SHADEA', '#FFFFFF');
+$obj->setColor('SHADEB', '#FFFFFF');
 
 if (isset($_GET['width']) && $_GET['width']) {
-    $obj->setRRDOption("width", (int)($_GET['width'] - 110));
+    $obj->setRRDOption('width', (int) ($_GET['width'] - 110));
 }
 
 /**
@@ -123,7 +120,7 @@ $obj->initCurveList();
 /**
  * Comment time
  */
-$obj->setOption("comment_time");
+$obj->setOption('comment_time');
 
 /**
  * Create Legend

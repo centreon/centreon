@@ -16,7 +16,6 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -32,5 +31,6 @@ function convertSizeToHumanReadable(float|int $value, string $unit, int $base): 
     $accuracy = 2;
     $prefix = ['a', 'f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
     $power = min(max(floor(log(abs($value), $base)), -6), 6);
-    return [ round((float)$value / pow($base, $power), $accuracy), $prefix[$power + 6] . $unit];
+
+    return [round((float) $value / pow($base, $power), $accuracy), $prefix[$power + 6] . $unit];
 }

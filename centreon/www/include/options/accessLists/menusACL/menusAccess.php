@@ -34,16 +34,14 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
-/*
- * Path to the configuration dir
- */
-$path = "./include/options/accessLists/menusACL/";
+// Path to the configuration dir
+$path = './include/options/accessLists/menusACL/';
 
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 define('ACL_ADD', 'a');
 define('ACL_WATCH', 'w');
@@ -56,25 +54,25 @@ define('ACL_DUPLICATE', 'm');
 define('ACL_DELETE', 'd');
 
 $aclTopologyId = filter_var(
-    $_GET["acl_topo_id"] ?? $_POST["acl_topo_id"] ?? null,
+    $_GET['acl_topo_id'] ?? $_POST['acl_topo_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 
 $duplicateNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 // If one data are not correctly typed in array, it will be set to false
 $selectIds = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $action = filter_var(
     $_POST['o1'] ?? $_POST['o2'] ?? null,
     FILTER_VALIDATE_REGEXP,
-    ["options" => ["regexp" => "/([a|c|d|m|s|u|w]{1})/"]]
+    ['options' => ['regexp' => '/([a|c|d|m|s|u|w]{1})/']]
 );
 if ($action !== false) {
     $o = $action;
@@ -82,20 +80,20 @@ if ($action !== false) {
 
 switch ($o) {
     case ACL_ADD:
-        require_once($path . "formMenusAccess.php");
+        require_once $path . 'formMenusAccess.php';
         break;
     case ACL_WATCH:
         if (is_int($aclTopologyId)) {
-            require_once($path . "formMenusAccess.php");
+            require_once $path . 'formMenusAccess.php';
         } else {
-            require_once($path . "listsMenusAccess.php");
+            require_once $path . 'listsMenusAccess.php';
         }
         break;
     case ACL_MODIFY:
         if (is_int($aclTopologyId)) {
-            require_once($path . "formMenusAccess.php");
+            require_once $path . 'formMenusAccess.php';
         } else {
-            require_once($path . "listsMenusAccess.php");
+            require_once $path . 'listsMenusAccess.php';
         }
         break;
     case ACL_ENABLE:
@@ -108,19 +106,19 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     case ACL_MULTI_ENABLE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds)) {
+            if (! in_array(false, $selectIds)) {
                 enableLCAInDB(null, $selectIds);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     case ACL_DISABLE:
         purgeOutdatedCSRFTokens();
@@ -132,45 +130,45 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     case ACL_MULTI_DISABLE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds)) {
+            if (! in_array(false, $selectIds)) {
                 disableLCAInDB(null, $selectIds);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     case ACL_DUPLICATE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds) && !in_array(false, $duplicateNbr)) {
+            if (! in_array(false, $selectIds) && ! in_array(false, $duplicateNbr)) {
                 multipleLCAInDB($selectIds, $duplicateNbr);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     case ACL_DELETE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds)) {
+            if (! in_array(false, $selectIds)) {
                 deleteLCAInDB($selectIds);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
     default:
-        require_once($path . "listsMenusAccess.php");
+        require_once $path . 'listsMenusAccess.php';
         break;
 }

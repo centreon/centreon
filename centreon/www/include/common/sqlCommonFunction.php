@@ -19,12 +19,12 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 require_once _CENTREON_PATH_ . '/src/Core/Common/Infrastructure/Repository/SqlMultipleBindTrait.php';
 
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
-use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 
 /**
  * @param array<int|string, int|string> $list
@@ -36,9 +36,9 @@ use \Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
  *     1: string
  * }
  */
-function createMultipleBindQuery(array $list, string $prefix, int $bindType = null): array
+function createMultipleBindQuery(array $list, string $prefix, ?int $bindType = null): array
 {
-    return (new class {
+    return (new class () {
         use SqlMultipleBindTrait
         {
             SqlMultipleBindTrait::createMultipleBindQuery as public create;
@@ -60,7 +60,7 @@ function createMultipleBindParameters(
     string $prefix,
     QueryParameterTypeEnum $paramType
 ): array {
-    return (new class {
+    return (new class () {
         use SqlMultipleBindTrait {
             SqlMultipleBindTrait::createMultipleBindParameters as public create;
         }

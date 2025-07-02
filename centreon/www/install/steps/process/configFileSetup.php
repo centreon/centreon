@@ -45,7 +45,7 @@ $return = [
     'msg' => '',
 ];
 
-$step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
+$step = new CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 $configuration = $step->getBaseConfiguration();
 $engine = $step->getEngineConfiguration();
@@ -125,7 +125,6 @@ if (file_exists($apiConfigurationFile) && is_writable($apiConfigurationFile)) {
     );
 }
 
-
 /**
  * Gorgone daemon configuration file for a central
  */
@@ -138,4 +137,5 @@ if (is_writable(dirname($gorgoneCoreFileForCentral))) {
 
 $return['result'] = 0;
 echo json_encode($return);
+
 exit;

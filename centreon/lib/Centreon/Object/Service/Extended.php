@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with Service extended information
@@ -42,9 +43,11 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Service_Extended extends Centreon_Object
 {
-    protected $table = "extended_service_information";
-    protected $primaryKey = "service_service_id";
-    protected $uniqueLabelField = "service_service_id";
+    protected $table = 'extended_service_information';
+
+    protected $primaryKey = 'service_service_id';
+
+    protected $uniqueLabelField = 'service_service_id';
 
     /**
      * Used for inserting object into database
@@ -54,26 +57,28 @@ class Centreon_Object_Service_Extended extends Centreon_Object
      */
     public function insert($params = [])
     {
-        $sql = "INSERT INTO $this->table ";
-        $sqlFields = "";
-        $sqlValues = "";
+        $sql = "INSERT INTO {$this->table} ";
+        $sqlFields = '';
+        $sqlValues = '';
         $sqlParams = [];
         foreach ($params as $key => $value) {
-            if ($sqlFields != "") {
-                $sqlFields .= ",";
+            if ($sqlFields != '') {
+                $sqlFields .= ',';
             }
-            if ($sqlValues != "") {
-                $sqlValues .= ",";
+            if ($sqlValues != '') {
+                $sqlValues .= ',';
             }
             $sqlFields .= $key;
-            $sqlValues .= "?";
+            $sqlValues .= '?';
             $sqlParams[] = $value;
         }
         if ($sqlFields && $sqlValues) {
-            $sql .= "(".$sqlFields.") VALUES (".$sqlValues.")";
+            $sql .= '(' . $sqlFields . ') VALUES (' . $sqlValues . ')';
             $this->db->query($sql, $sqlParams);
+
             return $this->db->lastInsertId();
         }
+
         return null;
     }
 
@@ -87,23 +92,24 @@ class Centreon_Object_Service_Extended extends Centreon_Object
     public function getParameters($objectId, $parameterNames)
     {
         $params = parent::getParameters($objectId, $parameterNames);
-        $params_image = ["esi_icon_image"];
-        if (!is_array($params)) {
+        $params_image = ['esi_icon_image'];
+        if (! is_array($params)) {
             return [];
         }
         foreach ($params_image as $image) {
             if (array_key_exists($image, $params)) {
-                $sql = "SELECT dir_name, img_path
+                $sql = 'SELECT dir_name, img_path
                         FROM view_img vi
                         LEFT JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
                         LEFT JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
-                        WHERE img_id = ?";
-                $res = $this->getResult($sql, [$params[$image]], "fetch");
+                        WHERE img_id = ?';
+                $res = $this->getResult($sql, [$params[$image]], 'fetch');
                 if (is_array($res)) {
-                    $params[$image] = $res["dir_name"]."/".$res["img_path"];
+                    $params[$image] = $res['dir_name'] . '/' . $res['img_path'];
                 }
             }
         }
+
         return $params;
     }
 }

@@ -34,12 +34,12 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
-include "./include/common/autoNumLimit.php";
+include_once './class/centreonUtils.class.php';
+include './include/common/autoNumLimit.php';
 
 const LIST_BY_HOSTS = 'h';
 const LIST_BY_SERVICES = 'sv';
@@ -47,24 +47,24 @@ const LIST_BY_HOSTGROUPS = 'hg';
 const LIST_BY_SERVICEGROUPS = 'sg';
 const LIST_BY_METASERVICES = 'ms';
 
-$list = array_key_exists("list", $_GET) && $_GET["list"] !== null
-    ? HtmlSanitizer::createFromString($_GET["list"])->sanitize()->getString()
+$list = array_key_exists('list', $_GET) && $_GET['list'] !== null
+    ? HtmlSanitizer::createFromString($_GET['list'])->sanitize()->getString()
     : null;
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchE'] ?? $_GET['searchE'] ?? null
 );
 
 if (isset($_POST['searchE']) || isset($_GET['searchE'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
+    // restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-$aclFrom = "";
+$aclFrom = '';
 $aclCond = [
     LIST_BY_HOSTS => '',
     LIST_BY_SERVICES => '',
@@ -100,18 +100,18 @@ if (! $centreon->user->admin) {
     $metaServiceIds = array_keys($acl->getMetaServices());
     $bindMetaServices = [];
     foreach ($metaServiceIds as $metaServiceId) {
-        $bindMetaServices[":ms_" . $metaServiceId] = $metaServiceId;
+        $bindMetaServices[':ms_' . $metaServiceId] = $metaServiceId;
     }
 
     $accessGroupsAsString = implode(',', array_keys($bindAccessGroups));
-    $aclFrom = ", `$dbmon`.centreon_acl acl ";
+    $aclFrom = ", `{$dbmon}`.centreon_acl acl ";
     $aclCond[LIST_BY_HOSTS] = ! empty($accessGroupsAsString)
-        ? " AND ehr.host_host_id = acl.host_id AND acl.group_id IN ($accessGroupsAsString) "
+        ? " AND ehr.host_host_id = acl.host_id AND acl.group_id IN ({$accessGroupsAsString}) "
         : '';
     $aclCond[LIST_BY_SERVICES] = ! empty($accessGroupsAsString)
-        ? " AND esr.host_host_id = acl.host_id"
-            . " AND esr.service_service_id = acl.service_id"
-            . " AND acl.group_id IN ($accessGroupsAsString)"
+        ? ' AND esr.host_host_id = acl.host_id'
+            . ' AND esr.service_service_id = acl.service_id'
+            . " AND acl.group_id IN ({$accessGroupsAsString})"
         : '';
     $aclCond[LIST_BY_HOSTGROUPS] = $bindHostGroups !== []
         ? $acl->queryBuilder('AND', 'hostgroup_hg_id', implode(',', array_keys($bindHostGroups)))
@@ -124,61 +124,61 @@ if (! $centreon->user->admin) {
         : '';
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS esc_id, esc_name, esc_alias FROM escalation esc";
+$rq = 'SELECT SQL_CALC_FOUND_ROWS esc_id, esc_name, esc_alias FROM escalation esc';
 if ($list && $list == LIST_BY_HOSTS) {
-    $rq .= " WHERE (SELECT DISTINCT COUNT(host_host_id) " .
-        " FROM escalation_host_relation ehr " . $aclFrom .
-        " WHERE ehr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_HOSTS] . ") > 0 ";
+    $rq .= ' WHERE (SELECT DISTINCT COUNT(host_host_id) '
+        . ' FROM escalation_host_relation ehr ' . $aclFrom
+        . ' WHERE ehr.escalation_esc_id = esc.esc_id ' . $aclCond[LIST_BY_HOSTS] . ') > 0 ';
 } elseif ($list && $list == LIST_BY_SERVICES) {
-    $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
-        " FROM escalation_service_relation esr " . $aclFrom .
-        "WHERE esr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_SERVICES] . ") > 0 ";
+    $rq .= ' WHERE (SELECT DISTINCT COUNT(*) '
+        . ' FROM escalation_service_relation esr ' . $aclFrom
+        . 'WHERE esr.escalation_esc_id = esc.esc_id ' . $aclCond[LIST_BY_SERVICES] . ') > 0 ';
 } elseif ($list && $list == LIST_BY_HOSTGROUPS) {
-    $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
-        "FROM escalation_hostgroup_relation ehgr " .
-        "WHERE ehgr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_HOSTGROUPS] . ") > 0 ";
+    $rq .= ' WHERE (SELECT DISTINCT COUNT(*) '
+        . 'FROM escalation_hostgroup_relation ehgr '
+        . 'WHERE ehgr.escalation_esc_id = esc.esc_id ' . $aclCond[LIST_BY_HOSTGROUPS] . ') > 0 ';
 } elseif ($list && $list == LIST_BY_SERVICEGROUPS) {
-    $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
-        " FROM escalation_servicegroup_relation esgr " .
-        " WHERE esgr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_SERVICEGROUPS] . ") > 0 ";
+    $rq .= ' WHERE (SELECT DISTINCT COUNT(*) '
+        . ' FROM escalation_servicegroup_relation esgr '
+        . ' WHERE esgr.escalation_esc_id = esc.esc_id ' . $aclCond[LIST_BY_SERVICEGROUPS] . ') > 0 ';
 } elseif ($list && $list == LIST_BY_METASERVICES) {
-    $rq .= " WHERE (SELECT DISTINCT COUNT(*) " .
-        " FROM escalation_meta_service_relation emsr " .
-        " WHERE emsr.escalation_esc_id = esc.esc_id " . $aclCond[LIST_BY_METASERVICES] . ") > 0 ";
+    $rq .= ' WHERE (SELECT DISTINCT COUNT(*) '
+        . ' FROM escalation_meta_service_relation emsr '
+        . ' WHERE emsr.escalation_esc_id = esc.esc_id ' . $aclCond[LIST_BY_METASERVICES] . ') > 0 ';
 }
 
-//Check if $search was init
+// Check if $search was init
 if ($search && $list) {
-    $rq .= " AND (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)";
+    $rq .= ' AND (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)';
 } elseif ($search) {
-    $rq .= " WHERE (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)";
+    $rq .= ' WHERE (esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)';
 }
 
 // Set Order and limits
-$rq .= " ORDER BY esc_name LIMIT " . $num * $limit . ", " . $limit;
+$rq .= ' ORDER BY esc_name LIMIT ' . $num * $limit . ', ' . $limit;
 
 $statement = $pearDB->prepare($rq);
 if (! $centreon->user->admin) {
-    switch($list) {
+    switch ($list) {
         case LIST_BY_HOSTS:
         case LIST_BY_SERVICES:
             foreach ($bindAccessGroups as $accessGroupToken => $accessGroupId) {
-                $statement->bindValue($accessGroupToken, $accessGroupId, \PDO::PARAM_INT);
+                $statement->bindValue($accessGroupToken, $accessGroupId, PDO::PARAM_INT);
             }
             break;
         case LIST_BY_HOSTGROUPS:
             foreach ($bindHostGroups as $hostGroupToken => $hostGroupId) {
-                $statement->bindValue($hostGroupToken, $hostGroupId, \PDO::PARAM_INT);
+                $statement->bindValue($hostGroupToken, $hostGroupId, PDO::PARAM_INT);
             }
             break;
         case LIST_BY_SERVICEGROUPS:
             foreach ($bindServiceGroups as $serviceGroupToken => $serviceGroupId) {
-                $statement->bindValue($serviceGroupToken, $serviceGroupId, \PDO::PARAM_INT);
+                $statement->bindValue($serviceGroupToken, $serviceGroupId, PDO::PARAM_INT);
             }
             break;
         case LIST_BY_METASERVICES:
             foreach ($bindMetaServices as $metaServiceToken => $metaServiceId) {
-                $statement->bindValue($metaServiceToken, $metaServiceId, \PDO::PARAM_INT);
+                $statement->bindValue($metaServiceToken, $metaServiceId, PDO::PARAM_INT);
             }
             break;
         default:
@@ -186,13 +186,13 @@ if (! $centreon->user->admin) {
     }
 }
 
-if($search) {
-    $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+if ($search) {
+    $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
 }
 
 $statement->execute();
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
-include "./include/common/checkPagination.php";
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -203,44 +203,42 @@ $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
 
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_alias", _("Alias"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_alias', _('Alias'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-/*
- * Escalation list
- */
+// Escalation list
 $search = tidySearchKey($search, $advanced_search);
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 for ($i = 0; $esc = $statement->fetch(); $i++) {
-    $esc = array_map("myEncode", $esc);
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $esc['esc_id'] . "]");
-    $moptions .=
-        "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && " .
-        "(event.keyCode < 45 || event.keyCode > 57)) event.returnValue = false; " .
-        "if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-        "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" " .
-        "name='dupNbr[" . $esc['esc_id'] . "]'></input>";
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($esc["esc_name"]), "RowMenu_alias" => CentreonUtils::escapeSecure($esc["esc_alias"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&esc_id=" . $esc['esc_id'], "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    $esc = array_map('myEncode', $esc);
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $esc['esc_id'] . ']');
+    $moptions
+        .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && '
+        . '(event.keyCode < 45 || event.keyCode > 57)) event.returnValue = false; '
+        . 'if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
+        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
+        . "name='dupNbr[" . $esc['esc_id'] . "]'></input>";
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($esc['esc_name']), 'RowMenu_alias' => CentreonUtils::escapeSecure($esc['esc_alias']), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&esc_id=' . $esc['esc_id'], 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 // Toolbar select more_actions
@@ -251,46 +249,46 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    "  setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    "  setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-    "  setO(this.form.elements['o1'].value); submit();} " .
-    ""];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . "  setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . "  setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
+    . "  setO(this.form.elements['o1'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    "  setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    "  setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-    "  setO(this.form.elements['o2'].value); submit();} " .
-    ""];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . "  setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . "  setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
+    . "  setO(this.form.elements['o2'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);
@@ -310,4 +308,4 @@ $tpl->assign('searchE', $search);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listEscalation.ihtml");
+$tpl->display('listEscalation.ihtml');

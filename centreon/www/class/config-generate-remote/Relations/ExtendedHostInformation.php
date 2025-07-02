@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ExtendedHostInformation extends AbstractObject
 {
     /** @var string */
     protected $table = 'extended_host_information';
+
     /** @var string */
     protected $generateFilename = 'extended_host_information.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
@@ -53,8 +56,8 @@ class ExtendedHostInformation extends AbstractObject
      * @param array $object
      * @param int $hostId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(array $object, int $hostId)
     {

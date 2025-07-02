@@ -26,13 +26,16 @@ declare(strict_types=1);
  *
  * @class HtmlSanitizer
  */
-final class HtmlSanitizer {
+final class HtmlSanitizer
+{
     /**
      * HtmlSanitizer constructor
      *
      * @param string $string
      */
-    private function __construct(private string $string) {}
+    private function __construct(private string $string)
+    {
+    }
 
     /**
      * @param string $string
@@ -47,7 +50,8 @@ final class HtmlSanitizer {
     /**
      * @return HtmlSanitizer
      */
-    public function sanitize(): self {
+    public function sanitize(): self
+    {
         $this->string = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         return $this;

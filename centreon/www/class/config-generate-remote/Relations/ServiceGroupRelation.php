@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -32,7 +33,9 @@ use Exception;
 class ServiceGroupRelation extends AbstractObject
 {
     protected $table = 'servicegroup_relation';
+
     protected $generateFilename = 'servicegroup_relation.infile';
+
     protected $attributesWrite = [
         'host_host_id',
         'service_service_id',
@@ -46,8 +49,8 @@ class ServiceGroupRelation extends AbstractObject
      * @param int $hostId
      * @param int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelationHostService(int $sgId, int $hostId, int $serviceId)
     {

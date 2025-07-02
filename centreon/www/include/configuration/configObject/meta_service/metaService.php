@@ -34,20 +34,20 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (isset($_POST["o"]) && $_POST["o"]) {
-    $o = $_POST["o"];
+if (isset($_POST['o']) && $_POST['o']) {
+    $o = $_POST['o'];
 }
 
-#Path to the configuration dir
-$path = "./include/configuration/configObject/meta_service/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/meta_service/';
 
-#PHP functions
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $meta_id = filter_var(
     $_GET['meta_id'] ?? $_POST['meta_id'] ?? null,
@@ -79,8 +79,8 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -88,21 +88,22 @@ $acl = $oreon->user->access;
 $aclDbName = $acl->getNameDBAcl();
 $metaStr = $acl->getMetaServiceString();
 
-if (!$oreon->user->admin && $meta_id && !str_contains($metaStr, "'" . $meta_id . "'")) {
+if (! $oreon->user->admin && $meta_id && ! str_contains($metaStr, "'" . $meta_id . "'")) {
     $msg = new CentreonMsg();
-    $msg->setImage("./img/icons/warning.png");
-    $msg->setTextStyle("bold");
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
     $msg->setText(_('You are not allowed to access this meta service'));
+
     return null;
 }
 
 switch ($o) {
-    case "a": # Add an Meta Service
-    case "w": # Watch an Meta Service
-    case "c": # Modify an Meta Service
-        require_once($path . "formMetaService.php");
+    case 'a': // Add an Meta Service
+    case 'w': // Watch an Meta Service
+    case 'c': // Modify an Meta Service
+        require_once $path . 'formMetaService.php';
         break;
-    case "s": # Activate a Meta Service
+    case 's': // Activate a Meta Service
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -110,9 +111,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetaService.php");
+        require_once $path . 'listMetaService.php';
         break;
-    case "u": # Desactivate a Meta Service
+    case 'u': // Desactivate a Meta Service
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -120,9 +121,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetaService.php");
+        require_once $path . 'listMetaService.php';
         break;
-    case "d": # Delete n Meta Servive
+    case 'd': // Delete n Meta Servive
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -130,9 +131,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetaService.php");
+        require_once $path . 'listMetaService.php';
         break;
-    case "m": # Duplicate n Meta Service
+    case 'm': // Duplicate n Meta Service
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -143,18 +144,18 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetaService.php");
+        require_once $path . 'listMetaService.php';
         break;
-    case "ci": # Manage Service of the MS
-        require_once($path . "listMetric.php");
+    case 'ci': // Manage Service of the MS
+        require_once $path . 'listMetric.php';
         break;
-    case "as": # Add Service to a MS
-        require_once($path . "metric.php");
+    case 'as': // Add Service to a MS
+        require_once $path . 'metric.php';
         break;
-    case "cs": # Change Service to a MS
-        require_once($path . "metric.php");
+    case 'cs': // Change Service to a MS
+        require_once $path . 'metric.php';
         break;
-    case "ss": # Activate a Metric
+    case 'ss': // Activate a Metric
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -162,9 +163,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetric.php");
+        require_once $path . 'listMetric.php';
         break;
-    case "us": # Desactivate a Metric
+    case 'us': // Desactivate a Metric
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -172,12 +173,12 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetric.php");
+        require_once $path . 'listMetric.php';
         break;
-    case "ws": # View Service to a MS
-        require_once($path . "metric.php");
+    case 'ws': // View Service to a MS
+        require_once $path . 'metric.php';
         break;
-    case "ds":  # Delete n Metric
+    case 'ds':  // Delete n Metric
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -185,9 +186,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listMetric.php");
+        require_once $path . 'listMetric.php';
         break;
     default:
-        require_once($path . "listMetaService.php");
+        require_once $path . 'listMetaService.php';
         break;
 }

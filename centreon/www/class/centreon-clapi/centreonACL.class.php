@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,14 +31,13 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 namespace CentreonClapi;
 
 use Pimple\Container;
 
-require_once "centreonUtils.class.php";
+require_once 'centreonUtils.class.php';
 
 /**
  * Class
@@ -49,11 +49,13 @@ class CentreonACL
 {
     /** @var CentreonDB */
     protected $db;
+
     // hack to get rid of warning messages
     /** @var array */
     public $topology = [];
+
     /** @var string */
-    public $topologyStr = "";
+    public $topologyStr = '';
 
     /**
      * CentreonACL constructor
@@ -68,14 +70,15 @@ class CentreonACL
     /**
      * Reload
      *
+     * @param mixed $flagOnly
      * @return void
      */
     public function reload($flagOnly = false): void
     {
-        $this->db->query("UPDATE acl_groups SET acl_group_changed = 1");
-        $this->db->query("UPDATE acl_resources SET changed = 1");
+        $this->db->query('UPDATE acl_groups SET acl_group_changed = 1');
+        $this->db->query('UPDATE acl_resources SET changed = 1');
         if ($flagOnly == false) {
-            $centreonDir = realpath(__DIR__ . "/../../../");
+            $centreonDir = realpath(__DIR__ . '/../../../');
             passthru($centreonDir . '/cron/centAcl.php');
         }
     }
@@ -83,6 +86,7 @@ class CentreonACL
     /**
      * Print timestamp at when ACL was last reloaded
      *
+     * @param null|mixed $timeformat
      * @return void
      */
     public function lastreload($timeformat = null): void
@@ -93,6 +97,6 @@ class CentreonACL
         if (isset($timeformat) && $timeformat) {
             $time = date($timeformat, $time);
         }
-        echo $time."\n";
+        echo $time . "\n";
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once __DIR__ . "/../Params.class.php";
+require_once __DIR__ . '/../Params.class.php';
 
 /**
  * Class
@@ -62,16 +63,16 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
             $elems = [];
-            $operands = [null => null, "ASC" => "ASC", "DESC" => "DESC"];
+            $operands = [null => null, 'ASC' => 'ASC', 'DESC' => 'DESC'];
             $columnList = $this->getListValues($params['parameter_id']);
             $elems[] = $this->quickform->addElement('select', 'column_' . $params['parameter_id'], '', $columnList);
             $elems[] = $this->quickform->addElement('select', 'order_' . $params['parameter_id'], '', $operands);
@@ -87,16 +88,16 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
     /**
      * @param $params
      *
-     * @return void
      * @throws HTML_QuickForm_Error
      * @throws PDOException
+     * @return void
      */
     public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
             $target = $userPref;
-        } elseif (isset($params['default_value']) && $params['default_value'] != "") {
+        } elseif (isset($params['default_value']) && $params['default_value'] != '') {
             $target = $params['default_value'];
         }
         if (isset($target)) {
@@ -104,7 +105,7 @@ class CentreonWidgetParamsSort extends CentreonWidgetParams
                 $column = trim($matches[1]);
                 $order = trim($matches[2]);
             }
-            if (isset($order) && isset($column)) {
+            if (isset($order, $column)) {
                 $this->quickform->setDefaults(['order_' . $params['parameter_id'] => $order, 'column_' . $params['parameter_id'] => $column]);
             }
         }

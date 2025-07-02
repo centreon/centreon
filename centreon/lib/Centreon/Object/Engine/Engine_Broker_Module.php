@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with Engine Broker Module
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Engine_Broker_Module extends Centreon_Object
 {
-    protected $table = "cfg_nagios_broker_module";
-    protected $primaryKey = "bk_mod_id";
-    protected $uniqueLabelField = "bk_mod_id";
+    protected $table = 'cfg_nagios_broker_module';
+
+    protected $primaryKey = 'bk_mod_id';
+
+    protected $uniqueLabelField = 'bk_mod_id';
 }

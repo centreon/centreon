@@ -1,9 +1,8 @@
 <?php
+
 $help = [];
 
-/*
- * LDAP Information
- */
+// LDAP Information
 $help['ar_name'] = dgettext('help', 'Name of configuration');
 $help['ar_description'] = dgettext('help', 'Short description of configuration');
 $help['ldap_auth_enable'] = dgettext('help', 'Enable LDAP authentication');
@@ -66,6 +65,6 @@ $help['ldap_sync_interval'] = dgettext(
 );
 $help['ldap_auto_sync'] = dgettext(
     'help',
-    "If enabled, a user LDAP synchronization will be performed on login to update contact's data and calculate " .
-    "new Centreon ACLs."
+    "If enabled, a user LDAP synchronization will be performed on login to update contact's data and calculate "
+    . 'new Centreon ACLs.'
 );

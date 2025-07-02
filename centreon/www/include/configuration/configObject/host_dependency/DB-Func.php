@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +18,14 @@
  */
 declare(strict_types=1);
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\Connection\Exception\ConnectionException;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,7 +44,7 @@ function testHostDependencyExistence(?string $name): bool
             ->getQuery();
 
         $params = QueryParameters::create([
-            QueryParameter::string('name', (string) $name)
+            QueryParameter::string('name', (string) $name),
         ]);
 
         $row = $pearDB->fetchAssociative($sql, $params);
@@ -57,7 +58,7 @@ function testHostDependencyExistence(?string $name): bool
 
     $currentId = $form?->getSubmitValue('dep_id');
     if ($row) {
-        return ((int) $row['dep_id'] === (int) $currentId);
+        return (int) $row['dep_id'] === (int) $currentId;
     }
 
     return true;
@@ -147,7 +148,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 QueryParameter::int('id', (int) $depId),
             ]);
             $original = $pearDB->fetchAssociative($sqlSel, $params);
-            if (!$original) {
+            if (! $original) {
                 continue;
             }
             unset($original['dep_id']);
@@ -156,7 +157,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             $count = $nbrDup[$depId] ?? 0;
             for ($i = 1; $i <= $count; $i++) {
                 $dup = $original;
-                $dupName = $dup['dep_name'] . "_$i";
+                $dupName = $dup['dep_name'] . "_{$i}";
                 $dup['dep_name'] = HtmlSanitizer::createFromString($dupName)
                     ->removeTags()
                     ->sanitize()
@@ -172,11 +173,11 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     ->insert('dependency')
                     ->values(array_combine(
                         $cols,
-                        array_map(fn($c) => ':' . $c, $cols)
+                        array_map(fn ($c) => ':' . $c, $cols)
                     ))
                     ->getQuery();
                 $insParams = QueryParameters::create(
-                    array_map(fn($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
+                    array_map(fn ($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
                 );
                 $pearDB->insert($sqlIns, $insParams);
                 $newId = (int) $pearDB->getLastInsertId();
@@ -185,7 +186,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 foreach ([
                     'dependency_hostParent_relation',
                     'dependency_hostChild_relation',
-                    'dependency_serviceChild_relation'
+                    'dependency_serviceChild_relation',
                 ] as $table) {
                     // No need of Distinct here, as we are sure that the relation is unique
                     $sqlRelSel = $pearDB->createQueryBuilder()
@@ -201,12 +202,12 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                             ->insert($table)
                             ->values(array_combine(
                                 $fields,
-                                array_map(fn($c) => ':' . $c, $fields)
+                                array_map(fn ($c) => ':' . $c, $fields)
                             ))
                             ->getQuery();
                         $relParams = QueryParameters::create(
-                            array_map(fn($c) =>
-                                QueryParameter::int(
+                            array_map(
+                                fn ($c) => QueryParameter::int(
                                     $c,
                                     $c === 'dependency_dep_id' ? $newId : (int) $rowRel[$c]
                                 ),
@@ -217,10 +218,10 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     }
                 }
                 $centreon->CentreonLogAction->insertLog(
-                    "host dependency",
+                    'host dependency',
                     $newId,
                     $dupName,
-                    "a",
+                    'a',
                     $fields
                 );
 
@@ -228,6 +229,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             $pearDB->commit();
         } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
             $pearDB->rollBack();
+
             throw new RepositoryException(
                 'Error duplicating host dependency',
                 ['dep_id' => $depId],
@@ -276,7 +278,7 @@ function insertHostDependency(array $data = []): int
         $id = (int) $pearDB->getLastInsertId();
 
         $centreon->CentreonLogAction->insertLog(
-            "host dependency",
+            'host dependency',
             $id,
             $values['dep_name'],
             'a',
@@ -369,13 +371,13 @@ function sanitizeResourceParameters(array $resources): array
 
     $sanitizedParameters['inherits_parent'] = $resources['inherits_parent']['inherits_parent'] == 1 ? '1' : '0';
 
-    if (!empty($resources['execution_failure_criteria']) && is_array($resources['execution_failure_criteria'])) {
+    if (! empty($resources['execution_failure_criteria']) && is_array($resources['execution_failure_criteria'])) {
         $sanitizedParameters['execution_failure_criteria'] = HtmlSanitizer::createFromString(
             implode(',', array_keys($resources['execution_failure_criteria']))
         )->removeTags()->sanitize()->getString();
     }
 
-    if (!empty($resources['notification_failure_criteria']) && is_array($resources['notification_failure_criteria'])) {
+    if (! empty($resources['notification_failure_criteria']) && is_array($resources['notification_failure_criteria'])) {
         $sanitizedParameters['notification_failure_criteria'] = HtmlSanitizer::createFromString(
             implode(',', array_keys($resources['notification_failure_criteria']))
         )->removeTags()->sanitize()->getString();
@@ -396,20 +398,20 @@ function updateHostDependencyHostParents(int $depId, array $list = []): void
             ->delete('dependency_hostParent_relation')
             ->where('dependency_dep_id = :id')
             ->getQuery();
-        $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
+        $pearDB->delete($del, QueryParameters::create([QueryParameter::int('id', $depId)]));
 
-        $items = $list["dep_hostParents"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
+        $items = $list['dep_hostParents'] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
         foreach ($items as $host) {
             $ins = $pearDB->createQueryBuilder()
                 ->insert('dependency_hostParent_relation')
                 ->values([
                     'dependency_dep_id' => ':id',
-                    'host_host_id' => ':host'
+                    'host_host_id' => ':host',
                 ])
                 ->getQuery();
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
-                QueryParameter::int('host', (int) $host)
+                QueryParameter::int('host', (int) $host),
             ]));
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -430,20 +432,20 @@ function updateHostDependencyHostChilds(int $depId, array $list = []): void
             ->delete('dependency_hostChild_relation')
             ->where('dependency_dep_id = :id')
             ->getQuery();
-        $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $depId) ]));
+        $pearDB->delete($del, QueryParameters::create([QueryParameter::int('id', $depId)]));
 
-        $items = $list["dep_hostChilds"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
+        $items = $list['dep_hostChilds'] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
         foreach ($items as $host) {
             $ins = $pearDB->createQueryBuilder()
                 ->insert('dependency_hostChild_relation')
                 ->values([
                     'dependency_dep_id' => ':id',
-                    'host_host_id'      => ':host'
+                    'host_host_id'      => ':host',
                 ])
                 ->getQuery();
             $pearDB->insert($ins, QueryParameters::create([
                 QueryParameter::int('id', $depId),
-                QueryParameter::int('host', (int) $host)
+                QueryParameter::int('host', (int) $host),
             ]));
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -464,9 +466,9 @@ function updateHostDependencyServiceChildren(int $dep_id, array $list = []): voi
             ->delete('dependency_serviceChild_relation')
             ->where('dependency_dep_id = :id')
             ->getQuery();
-        $pearDB->delete($del, QueryParameters::create([ QueryParameter::int('id', $dep_id) ]));
+        $pearDB->delete($del, QueryParameters::create([QueryParameter::int('id', $dep_id)]));
 
-        $items = $list["dep_hSvChi"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
+        $items = $list['dep_hSvChi'] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
         foreach ($items as $item) {
             [$host, $service] = explode('-', $item) + [null, null];
             if ($host !== null && $service !== null) {
@@ -475,13 +477,13 @@ function updateHostDependencyServiceChildren(int $dep_id, array $list = []): voi
                     ->values([
                         'dependency_dep_id'  => ':id',
                         'service_service_id' => ':service',
-                        'host_host_id'       => ':host'
+                        'host_host_id'       => ':host',
                     ])
                     ->getQuery();
                 $pearDB->insert($ins, QueryParameters::create([
                     QueryParameter::int('id', $dep_id),
                     QueryParameter::int('service', (int) $service),
-                    QueryParameter::int('host', (int) $host)
+                    QueryParameter::int('host', (int) $host),
                 ]));
             }
         }
@@ -500,6 +502,7 @@ function insertHostDependencyInDB(array $data = []): int
     updateHostDependencyHostParents($id, $data);
     updateHostDependencyHostChilds($id, $data);
     updateHostDependencyServiceChildren($id, $data);
+
     return $id;
 }
 

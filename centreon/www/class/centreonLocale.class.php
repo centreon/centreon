@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,9 +41,9 @@
  */
 class CentreonLocale
 {
-    /** @var \CentreonDB */
+    /** @var CentreonDB */
     protected $db;
-    
+
     /**
      * CentreonLocale constructor
      *
@@ -56,19 +57,20 @@ class CentreonLocale
     /**
      * GetLocaleList
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getLocaleList()
     {
         $res = $this->db->query(
-            "SELECT locale_id, locale_short_name, locale_long_name, locale_img "
+            'SELECT locale_id, locale_short_name, locale_long_name, locale_img '
             . "FROM locale ORDER BY locale_short_name <> 'en', locale_short_name"
         );
         $list = [];
         while ($row = $res->fetchRow()) {
             $list[$row['locale_id']] = ['locale_short_name' => _($row['locale_short_name']), 'locale_long_name' => _($row['locale_long_name']), 'locale_img' => _($row['locale_img'])];
         }
+
         return $list;
     }
 }

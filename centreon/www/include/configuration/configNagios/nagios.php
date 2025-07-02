@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,37 +44,38 @@ $nagiosId = filter_var(
 ) ?: null;
 
 $select = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $dupNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
-/* PHP functions */
+// PHP functions
 require_once __DIR__ . '/DB-Func.php';
-require_once "./include/common/common-Func.php";
+require_once './include/common/common-Func.php';
 
 /**
  *  Page forbidden if server is a remote
  */
 if ($isRemote) {
-    require_once(__DIR__ . "/../../core/errors/alt_error.php");
+    require_once __DIR__ . '/../../core/errors/alt_error.php';
+
     exit();
 }
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 $acl = $oreon->user->access;
 $serverString = $acl->getPollerString();
 $allowedMainConf = [];
-if ($serverString != "''" && !empty($serverString)) {
-    $sql = "SELECT nagios_id FROM cfg_nagios WHERE nagios_server_id IN (" . $serverString . ")";
+if ($serverString != "''" && ! empty($serverString)) {
+    $sql = 'SELECT nagios_id FROM cfg_nagios WHERE nagios_server_id IN (' . $serverString . ')';
     $res = $pearDB->query($sql);
     while ($row = $res->fetchRow()) {
         $allowedMainConf[$row['nagios_id']] = true;
@@ -82,16 +83,16 @@ if ($serverString != "''" && !empty($serverString)) {
 }
 
 switch ($o) {
-    case "a":
-        require_once(__DIR__ . '/formNagios.php');
-        break; #Add Nagios.cfg
-    case "w":
-        require_once(__DIR__ . '/formNagios.php');
-        break; #Watch Nagios.cfg
-    case "c":
-        require_once(__DIR__ . '/formNagios.php');
-        break; #Modify Nagios.cfg
-    case "s":
+    case 'a':
+        require_once __DIR__ . '/formNagios.php';
+        break; // Add Nagios.cfg
+    case 'w':
+        require_once __DIR__ . '/formNagios.php';
+        break; // Watch Nagios.cfg
+    case 'c':
+        require_once __DIR__ . '/formNagios.php';
+        break; // Modify Nagios.cfg
+    case 's':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -99,9 +100,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listNagios.php');
-        break; #Activate a nagios CFG
-    case "u":
+        require_once __DIR__ . '/listNagios.php';
+        break; // Activate a nagios CFG
+    case 'u':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -109,9 +110,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listNagios.php');
-        break; #Desactivate a nagios CFG
-    case "m":
+        require_once __DIR__ . '/listNagios.php';
+        break; // Desactivate a nagios CFG
+    case 'm':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -119,9 +120,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listNagios.php');
-        break; #Duplicate n nagios CFGs
-    case "d":
+        require_once __DIR__ . '/listNagios.php';
+        break; // Duplicate n nagios CFGs
+    case 'd':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -129,9 +130,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ . '/listNagios.php');
-        break; #Delete n nagios CFG
+        require_once __DIR__ . '/listNagios.php';
+        break; // Delete n nagios CFG
     default:
-        require_once(__DIR__ . '/listNagios.php');
+        require_once __DIR__ . '/listNagios.php';
         break;
 }

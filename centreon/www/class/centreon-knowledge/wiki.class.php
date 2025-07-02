@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 CENTREON
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -33,15 +34,14 @@
  *
  */
 
-require_once  _CENTREON_PATH_ . '/bootstrap.php';
-require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+require_once _CENTREON_PATH_ . '/bootstrap.php';
+require_once realpath(__DIR__ . '/../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once __DIR__ . '/../../include/common/vault-functions.php';
 
 use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Centreon\Domain\Log\Logger;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -54,6 +54,7 @@ class Wiki
 {
     /** @var CentreonDB */
     private $db;
+
     /** @var array */
     private $config = null;
 
@@ -73,16 +74,16 @@ class Wiki
     }
 
     /**
-     * @return array|mixed
      * @throws LogicException
      * @throws PDOException
      * @throws Throwable
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return array|mixed
      */
     public function getWikiConfig()
     {
-        if (!is_null($this->config)) {
+        if (! is_null($this->config)) {
             return $this->config;
         }
 
@@ -92,18 +93,18 @@ class Wiki
             "SELECT * FROM `options` WHERE options.key LIKE 'kb_%'"
         );
         while ($opt = $res->fetch()) {
-            $options[$opt["key"]] = html_entity_decode($opt["value"], ENT_QUOTES, "UTF-8");
+            $options[$opt['key']] = html_entity_decode($opt['value'], ENT_QUOTES, 'UTF-8');
         }
         $res->closeCursor();
 
-        if (!isset($options['kb_wiki_url']) || $options['kb_wiki_url'] == '') {
+        if (! isset($options['kb_wiki_url']) || $options['kb_wiki_url'] == '') {
             throw new Exception(
-                'Wiki is not configured. ' .
-                'You can disable cron in /etc/cron.d/centreon for wiki synchronization.'
+                'Wiki is not configured. '
+                . 'You can disable cron in /etc/cron.d/centreon for wiki synchronization.'
             );
         }
 
-        if (!preg_match('#^http://|https://#', $options['kb_wiki_url'])) {
+        if (! preg_match('#^http://|https://#', $options['kb_wiki_url'])) {
             $options['kb_wiki_url'] = 'http://' . $options['kb_wiki_url'];
         }
 

@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,16 +43,12 @@ const WATCH_DEPENDENCY = 'w';
 const MODIFY_DEPENDENCY = 'c';
 const DUPLICATE_DEPENDENCY = 'm';
 const DELETE_DEPENDENCY = 'd';
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/hostgroup_dependency/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/hostgroup_dependency/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $depId = filter_var(
     $_GET['dep_id'] ?? $_POST['dep_id'] ?? null,
@@ -69,8 +65,8 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -82,7 +78,7 @@ switch ($o) {
     case ADD_DEPENDENCY:
     case WATCH_DEPENDENCY:
     case MODIFY_DEPENDENCY:
-        require_once($path . "formHostGroupDependency.php");
+        require_once $path . 'formHostGroupDependency.php';
         break;
     case DUPLICATE_DEPENDENCY:
         purgeOutdatedCSRFTokens();
@@ -95,7 +91,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroupDependency.php");
+        require_once $path . 'listHostGroupDependency.php';
         break;
     case DELETE_DEPENDENCY:
         purgeOutdatedCSRFTokens();
@@ -105,9 +101,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listHostGroupDependency.php");
+        require_once $path . 'listHostGroupDependency.php';
         break;
     default:
-        require_once($path . "listHostGroupDependency.php");
+        require_once $path . 'listHostGroupDependency.php';
         break;
 }

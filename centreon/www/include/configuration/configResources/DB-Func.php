@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * Copyright 2005-2015 Centreon
@@ -47,6 +49,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  * Indicates if the resource name has already been used.
  *
@@ -99,9 +102,9 @@ function testExistence($name = null, $instanceId = null)
     }
 
     return ! ($total >= 1 && $result['resource_id'] !== $id);
-        /**
-         * In case of duplicate.
-         */
+    /**
+     * In case of duplicate.
+     */
 }
 
 /**
@@ -286,7 +289,7 @@ function updateResource(int $resourceId, array $submitedValues): void
             $submitedValues['resource_line'] = $vaultPath ?? $submitedValues['resource_line'];
         } else {
             $oldResourceStatement = $pearDB->prepareQuery(
-                <<<SQL
+                <<<'SQL'
                     SELECT resource_name, resource_line
                     FROM cfg_resource
                     WHERE resource_id = :resource_id
@@ -486,7 +489,7 @@ function getFromVault(string $vaultPath): array
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
             return $readVaultRepository->findFromPath($vaultPath);
@@ -499,7 +502,8 @@ function getFromVault(string $vaultPath): array
     return [];
 }
 
-function saveInVault(string $key, string $value): ?string {
+function saveInVault(string $key, string $value): ?string
+{
     global $pearDB;
 
     $kernel = Kernel::createForWeb();
@@ -511,9 +515,9 @@ function saveInVault(string $key, string $value): ?string {
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-        /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         try {
@@ -536,13 +540,14 @@ function saveInVault(string $key, string $value): ?string {
 /**
  * @param array{resource_line:string,resource_name:string} $data
  */
-function deleteFromVault(array $data): void {
+function deleteFromVault(array $data): void
+{
     if (str_starts_with($data['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
         $uuid = preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $data['resource_line'],
-                $matches
-            )
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $data['resource_line'],
+            $matches
+        )
             && isset($matches[2]) ? $matches[2] : null;
 
         $kernel = Kernel::createForWeb();
@@ -555,9 +560,9 @@ function deleteFromVault(array $data): void {
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
-            /**@var ReadVaultRepositoryInterface $readVaultRepository */
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-            /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
             try {

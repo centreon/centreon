@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -45,18 +46,24 @@ class CentreonNotification
     public const HOST_ESC = 2;
     public const SVC_ESC = 3;
 
-    /** @var CentreonDB $db */
+    /** @var CentreonDB */
     protected $db;
+
     /** @var array */
     protected $svcTpl = [];
+
     /** @var array */
     protected $svcNotifType = [];
+
     /** @var array */
     protected $svcBreak = [1 => false, 2 => false];
+
     /** @var array */
     protected $hostNotifType = [];
+
     /** @var array */
     protected $notifiedHosts = [];
+
     /** @var array */
     protected $hostBreak = [1 => false, 2 => false];
 
@@ -73,17 +80,18 @@ class CentreonNotification
     /**
      * Get list of contact
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getList()
     {
-        $sql = "SELECT contact_id, contact_alias FROM contact ORDER BY contact_name";
+        $sql = 'SELECT contact_id, contact_alias FROM contact ORDER BY contact_name';
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['contact_id']] = $row['contact_alias'];
         }
+
         return $tab;
     }
 
@@ -92,12 +100,12 @@ class CentreonNotification
      *
      * @param int $contactId
      *
-     * @return bool true if notification is enabled, false otherwise
      * @throws PDOException
+     * @return bool true if notification is enabled, false otherwise
      */
     protected function isNotificationEnabled($contactId)
     {
-        $sql = "SELECT contact_enable_notifications FROM contact WHERE contact_id = " . $contactId;
+        $sql = 'SELECT contact_enable_notifications FROM contact WHERE contact_id = ' . $contactId;
         $res = $this->db->query($sql);
         if ($res->rowCount()) {
             $row = $res->fetchRow();
@@ -105,6 +113,7 @@ class CentreonNotification
                 return true;
             }
         }
+
         return false;
     }
 
@@ -113,19 +122,20 @@ class CentreonNotification
      *
      * @param int $contactGroupId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getContactGroupsById($contactGroupId)
     {
-        $sql = "SELECT cg_id, cg_name
+        $sql = 'SELECT cg_id, cg_name
         		FROM contactgroup cg
-        		WHERE cg.cg_id = " . $this->db->escape($contactGroupId);
+        		WHERE cg.cg_id = ' . $this->db->escape($contactGroupId);
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['cg_id']] = $row['cg_name'];
         }
+
         return $tab;
     }
 
@@ -134,20 +144,21 @@ class CentreonNotification
      *
      * @param int $contactId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getContactGroups($contactId)
     {
-        $sql = "SELECT cg_id, cg_name
+        $sql = 'SELECT cg_id, cg_name
         		FROM contactgroup cg, contactgroup_contact_relation ccr
         		WHERE cg.cg_id = ccr.contactgroup_cg_id
-        		AND ccr.contact_contact_id = " . $contactId;
+        		AND ccr.contact_contact_id = ' . $contactId;
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['cg_id']] = $row['cg_name'];
         }
+
         return $tab;
     }
 
@@ -157,8 +168,8 @@ class CentreonNotification
      * @param int $notifType 0 for Hosts, 1 for Services, 2 for Host Escalations, 3 for Service Escalations
      * @param int $contactId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getNotifications($notifType, $contactId)
     {
@@ -175,6 +186,7 @@ class CentreonNotification
         } elseif ($notifType == self::HOST_ESC || $notifType == self::SVC_ESC) {
             $resources = $this->getEscalationNotifications($notifType, $contactgroups);
         }
+
         return $resources;
     }
 
@@ -184,8 +196,8 @@ class CentreonNotification
      * @param int $notifType 0 for Hosts, 1 for Services, 2 for Host Escalations, 3 for Service Escalations
      * @param int $contactgroupId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getNotificationsContactGroup($notifType, $contactgroupId)
     {
@@ -200,6 +212,7 @@ class CentreonNotification
         } elseif ($notifType == self::HOST_ESC || $notifType == self::SVC_ESC) {
             $resources = $this->getEscalationNotifications($notifType, $contactgroups);
         }
+
         return $resources;
     }
 
@@ -208,27 +221,28 @@ class CentreonNotification
      *
      * @param array $escalations
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getHostEscalations($escalations)
     {
         $escalations = implode(',', array_keys($escalations));
-        $sql = "SELECT h.host_id, h.host_name
+        $sql = 'SELECT h.host_id, h.host_name
         		FROM escalation_host_relation ehr, host h
         		WHERE h.host_id = ehr.host_host_id
-        		AND ehr.escalation_esc_id IN (" . $escalations . ")
+        		AND ehr.escalation_esc_id IN (' . $escalations . ')
         		UNION
         		SELECT h.host_id, h.host_name
         		FROM escalation_hostgroup_relation ehr, hostgroup_relation hgr, host h
         		WHERE ehr.hostgroup_hg_id = hgr.hostgroup_hg_id
         		AND hgr.host_host_id = h.host_id
-        		AND ehr.escalation_esc_id IN (" . $escalations . ")";
+        		AND ehr.escalation_esc_id IN (' . $escalations . ')';
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
             $tab[$row['host_id']] = $row['host_name'];
         }
+
         return $tab;
     }
 
@@ -237,33 +251,34 @@ class CentreonNotification
      *
      * @param array $escalations
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getServiceEscalations($escalations)
     {
         $escalationsList = implode('', array_keys($escalations));
-        $sql = "SELECT h.host_id, h.host_name, s.service_id, s.service_description
+        $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description
         		FROM escalation_service_relation esr, host h, service s
         		WHERE h.host_id = esr.host_host_id
         		AND esr.service_service_id = s.service_id
-        		AND esr.escalation_esc_id IN (" . $escalationsList . ")
+        		AND esr.escalation_esc_id IN (' . $escalationsList . ')
         		UNION
         		SELECT h.host_id, h.host_name, s.service_id, s.service_description
         		FROM escalation_servicegroup_relation esr, servicegroup_relation sgr, host h, service s
         		WHERE esr.servicegroup_sg_id = sgr.servicegroup_sg_id
         		AND sgr.host_host_id = h.host_id
         		AND sgr.service_service_id = s.service_id
-        		AND esr.escalation_esc_id IN (" . $escalationsList . ")";
+        		AND esr.escalation_esc_id IN (' . $escalationsList . ')';
         $res = $this->db->query($sql);
         $tab = [];
         while ($row = $res->fetchRow()) {
-            if (!isset($tab[$row['host_id']])) {
+            if (! isset($tab[$row['host_id']])) {
                 $tab[$row['host_id']] = [];
             }
             $tab[$row['host_id']][$row['service_id']]['host_name'] = $row['host_name'];
             $tab[$row['host_id']][$row['service_id']]['service_description'] = $row['service_description'];
         }
+
         return $tab;
     }
 
@@ -273,18 +288,18 @@ class CentreonNotification
      * @param $notifType
      * @param array $contactgroups
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getEscalationNotifications($notifType, $contactgroups)
     {
-        if (!count($contactgroups)) {
+        if (! count($contactgroups)) {
             return [];
         }
-        $sql = "SELECT ecr.escalation_esc_id, e.esc_name
+        $sql = 'SELECT ecr.escalation_esc_id, e.esc_name
         		FROM escalation_contactgroup_relation ecr, escalation e
         		WHERE e.esc_id = ecr.escalation_esc_id
-        		AND ecr.contactgroup_cg_id IN (".implode(',', array_keys($contactgroups)).")";
+        		AND ecr.contactgroup_cg_id IN (' . implode(',', array_keys($contactgroups)) . ')';
         $res = $this->db->query($sql);
         $escTab = [];
         while ($row = $res->fetchRow()) {
@@ -295,9 +310,9 @@ class CentreonNotification
         }
         if ($notifType == self::HOST_ESC) {
             return $this->getHostEscalations($escTab);
-        } else {
-            return $this->getServiceEscalations($escTab);
         }
+
+        return $this->getServiceEscalations($escTab);
     }
 
     /**
@@ -306,21 +321,21 @@ class CentreonNotification
      * @param int $contactId
      * @param array $contactgroups
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getHostNotifications($contactId, $contactgroups)
     {
-        $sql = "SELECT host_id, host_name, host_register, 1 as notif_type
+        $sql = 'SELECT host_id, host_name, host_register, 1 as notif_type
         		FROM contact_host_relation chr, host h
-        		WHERE chr.contact_id = " . $contactId . "
-        		AND chr.host_host_id = h.host_id ";
+        		WHERE chr.contact_id = ' . $contactId . '
+        		AND chr.host_host_id = h.host_id ';
         if (count($contactgroups)) {
-            $sql .= " UNION
+            $sql .= ' UNION
         			  SELECT host_id, host_name, host_register, 2 as notif_type
         			  FROM contactgroup_host_relation chr, host h
-        			  WHERE chr.contactgroup_cg_id IN (" . implode(',', array_keys($contactgroups)) . ")
-        			  AND chr.host_host_id = h.host_id ";
+        			  WHERE chr.contactgroup_cg_id IN (' . implode(',', array_keys($contactgroups)) . ')
+        			  AND chr.host_host_id = h.host_id ';
         }
         $res = $this->db->query($sql);
         $this->notifiedHosts = [];
@@ -336,9 +351,9 @@ class CentreonNotification
         unset($res);
 
         if ($this->notifiedHosts !== []) {
-            $sql2 = "SELECT host_id, host_name
+            $sql2 = 'SELECT host_id, host_name
                 FROM host
-                WHERE host_id NOT IN (" . implode(',', array_keys($this->notifiedHosts)) . ") AND host_register = '1'";
+                WHERE host_id NOT IN (' . implode(',', array_keys($this->notifiedHosts)) . ") AND host_register = '1'";
         } else {
             $sql2 = "SELECT host_id, host_name FROM host WHERE host_register = '1'";
         }
@@ -349,6 +364,7 @@ class CentreonNotification
                 $this->notifiedHosts[$row['host_id']] = $row['host_name'];
             }
         }
+
         return $this->notifiedHosts;
     }
 
@@ -358,17 +374,17 @@ class CentreonNotification
      * @param int $hostId
      * @param array $templates
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     protected function getHostTemplateNotifications($hostId, $templates)
     {
-        $sql = "SELECT htr.host_tpl_id, ctr.contact_id, ctr2.contactgroup_cg_id
+        $sql = 'SELECT htr.host_tpl_id, ctr.contact_id, ctr2.contactgroup_cg_id
         		FROM host_template_relation htr
         		LEFT JOIN contact_host_relation ctr ON htr.host_host_id = ctr.host_host_id
         		LEFT JOIN contactgroup_host_relation ctr2 ON htr.host_host_id = ctr2.host_host_id
         		WHERE htr.host_host_id = :host_id 
-        		ORDER BY `order`";
+        		ORDER BY `order`';
         $statement = $this->db->prepare($sql);
         $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
         $statement->execute();
@@ -383,13 +399,13 @@ class CentreonNotification
                 if ($this->hostNotifType[$row['host_tpl_id']] == 1 && $this->hostBreak[1] == true) {
                     return false;
                 }
-                if ($this->hostNotifType[$row['host_tpl_id']] == 2 && $this->hostBreak[2] == true) {
-                    return false;
-                }
-                return true;
+
+                return ! ($this->hostNotifType[$row['host_tpl_id']] == 2 && $this->hostBreak[2] == true);
             }
+
             return $this->getHostTemplateNotifications($row['host_tpl_id'], $templates);
         }
+
         return false;
     }
 
@@ -399,16 +415,16 @@ class CentreonNotification
      * @param int $contactId
      * @param array $contactGroups
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getServiceNotifications($contactId, $contactGroups)
     {
-        $sql = "SELECT h.host_id, h.host_name, s.service_id, s.service_description, s.service_register, 1 as notif_type
+        $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description, s.service_register, 1 as notif_type
         		FROM contact_service_relation csr, service s
         		LEFT JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
         		LEFT JOIN host h ON h.host_id = hsr.host_host_id
-        		WHERE csr.contact_id = " . $contactId . "
+        		WHERE csr.contact_id = ' . $contactId . "
                 AND csr.service_service_id = s.service_id
                 AND s.service_use_only_contacts_from_host != '1'
         		UNION
@@ -423,13 +439,13 @@ class CentreonNotification
 
         if (count($contactGroups)) {
             $contactGroups = implode(',', array_keys($contactGroups));
-            $sql .= " UNION
+            $sql .= ' UNION
         			  SELECT h.host_id, h.host_name, s.service_id, s.service_description, s.service_register,
                       2 as notif_type
         			  FROM contactgroup_service_relation csr, service s
         			  LEFT JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
         			  LEFT JOIN host h ON h.host_id = hsr.host_host_id
-        			  WHERE csr.contactgroup_cg_id IN (" . $contactGroups . ")
+        			  WHERE csr.contactgroup_cg_id IN (' . $contactGroups . ")
                       AND csr.service_service_id = s.service_id
                       AND s.service_use_only_contacts_from_host != '1'
         			  UNION
@@ -449,9 +465,9 @@ class CentreonNotification
         $svcList = [];
         $templates = [];
         while ($row = $res->fetchRow()) {
-            $svcList[$row['service_id']]=$row['service_id'];
+            $svcList[$row['service_id']] = $row['service_id'];
             if ($row['service_register'] == 1) {
-                if (!isset($svcTab[$row['host_id']])) {
+                if (! isset($svcTab[$row['host_id']])) {
                     $svcTab[$row['host_id']] = [];
                 }
                 $svcTab[$row['host_id']][$row['service_id']] = [];
@@ -465,11 +481,11 @@ class CentreonNotification
         unset($res);
 
         if (count($this->notifiedHosts)) {
-            $sql = "SELECT h.host_id, h.host_name, s.service_id, s.service_description "
-                . "FROM service s, host h, host_service_relation hsr "
-                . "WHERE hsr.service_service_id = s.service_id "
-                . "AND hsr.host_host_id = h.host_id "
-                . "AND h.host_id IN (" . implode(',', array_keys($this->notifiedHosts)) . ")";
+            $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description '
+                . 'FROM service s, host h, host_service_relation hsr '
+                . 'WHERE hsr.service_service_id = s.service_id '
+                . 'AND hsr.host_host_id = h.host_id '
+                . 'AND h.host_id IN (' . implode(',', array_keys($this->notifiedHosts)) . ')';
             $res = $this->db->query($sql);
             while ($row = $res->fetchRow()) {
                 $svcTab[$row['host_id']][$row['service_id']] = [];
@@ -484,9 +500,9 @@ class CentreonNotification
             foreach ($svcTab as $tmp) {
                 $tab = array_merge(array_keys($tmp), $tab);
             }
-            $sql2 = "SELECT service_id, service_description
+            $sql2 = 'SELECT service_id, service_description
             		 FROM service
-            		 WHERE service_id NOT IN (".implode(',', $tab).") AND service_register = '1'";
+            		 WHERE service_id NOT IN (' . implode(',', $tab) . ") AND service_register = '1'";
         } else {
             $sql2 = "SELECT service_id, service_description
             		 FROM service
@@ -495,14 +511,14 @@ class CentreonNotification
 
         $res2 = $this->db->query($sql2);
 
-        $sql3 = "SELECT h.host_id, h.host_name, hsr.service_service_id as service_id
+        $sql3 = 'SELECT h.host_id, h.host_name, hsr.service_service_id as service_id
                     		 FROM host h, host_service_relation hsr
                     		 WHERE h.host_id = hsr.host_host_id
                     		 UNION
                     		 SELECT h.host_id, h.host_name, hsr.service_service_id
                     		 FROM host h, host_service_relation hsr, hostgroup_relation hgr
                     		 WHERE h.host_id = hgr.host_host_id
-                    		 AND hgr.hostgroup_hg_id = hsr.hostgroup_hg_id";
+                    		 AND hgr.hostgroup_hg_id = hsr.hostgroup_hg_id';
         $res3 = $this->db->query($sql3);
         while ($row3 = $res3->fetchRow()) {
             $list[$row3['service_id']] = $row3;
@@ -514,7 +530,7 @@ class CentreonNotification
             if ($this->getServiceTemplateNotifications($row['service_id'], $templates) === true) {
                 if (array_key_exists($row['service_id'], $list)) {
                     $row3 = $list[$row['service_id']];
-                    if (!isset($svcTab[$row3['host_id']])) {
+                    if (! isset($svcTab[$row3['host_id']])) {
                         $svcTab[$row3['host_id']] = [];
                     }
                     $svcTab[$row3['host_id']][$row['service_id']] = [];
@@ -533,18 +549,18 @@ class CentreonNotification
      * @param int $serviceId
      * @param array $templates
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     protected function getServiceTemplateNotifications($serviceId, $templates)
     {
         $tplId = 0;
-        if (!isset($this->svcTpl[$serviceId])) {
-            $sql = "SELECT s.service_template_model_stm_id, csr.contact_id, csr2.contactgroup_cg_id
+        if (! isset($this->svcTpl[$serviceId])) {
+            $sql = 'SELECT s.service_template_model_stm_id, csr.contact_id, csr2.contactgroup_cg_id
         			FROM service s
         			LEFT JOIN contact_service_relation csr ON csr.service_service_id = s.service_id
         			LEFT JOIN contactgroup_service_relation csr2 ON csr2.service_service_id = s.service_id
-        			WHERE service_id = ".$this->db->escape($serviceId);
+        			WHERE service_id = ' . $this->db->escape($serviceId);
             $res = $this->db->query($sql);
             $row = $res->fetchRow();
             $tplId = $row['service_template_model_stm_id'];
@@ -561,14 +577,13 @@ class CentreonNotification
             if ($this->svcNotifType[$tplId] == 1 && $this->svcBreak[1] == true) {
                 return false;
             }
-            if ($this->svcNotifType[$tplId] == 2 && $this->svcBreak[2] == true) {
-                return false;
-            }
-            return true;
+
+            return ! ($this->svcNotifType[$tplId] == 2 && $this->svcBreak[2] == true);
         }
         if ($tplId) {
             return $this->getServiceTemplateNotifications($tplId, $templates);
         }
+
         return false;
     }
 }

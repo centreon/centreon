@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -41,43 +42,55 @@
  * @package  Centreon
  * @author   qgarnier <qgarnier@centreon.com>
  * @license  GPL http://www.gnu.org/licenses
- * @link     http://www.centreon.com
+ * @see     http://www.centreon.com
  */
 class MysqlTable
 {
     /** @var string|null */
     public $type = null;
+
     /** @var CentreonDB */
     private $db;
+
     /** @var string|null */
     private $name = null;
+
     /** @var string|null */
     private $schema = null;
+
     /** @var int */
     private $activate = 1;
+
     /** @var string|null */
     private $column = null;
+
     /** @var string|null */
     private $duration = null;
+
     /** @var string|null */
     private $timezone = null;
+
     /** @var int|null */
     private $retention = null;
+
     /** @var int|null */
     private $retentionforward = null;
+
     /** @var string|null */
     private $createstmt = null;
+
     /** @var string|null */
     private $backupFolder = null;
+
     /** @var string|null */
     private $backupFormat = null;
 
     /**
      * Class constructor
      *
-     * @param CentreonDB $DBobj     the centreon database
-     * @param string     $tableName the database table name
-     * @param string     $schema    the schema
+     * @param CentreonDB $DBobj the centreon database
+     * @param string $tableName the database table name
+     * @param string $schema the schema
      */
     public function __construct($DBobj, $tableName, $schema)
     {
@@ -85,7 +98,7 @@ class MysqlTable
         $this->setName($tableName);
         $this->setSchema($schema);
     }
-    
+
     /**
      * Set table name
      *
@@ -95,9 +108,9 @@ class MysqlTable
      */
     private function setName($name): void
     {
-        $this->name = isset($name) && $name != "" ? $name : null;
+        $this->name = isset($name) && $name != '' ? $name : null;
     }
-    
+
     /**
      * Get table name
      *
@@ -107,7 +120,7 @@ class MysqlTable
     {
         return $this->name;
     }
-    
+
     /**
      * Set table schema
      *
@@ -117,9 +130,9 @@ class MysqlTable
      */
     private function setSchema($schema): void
     {
-        $this->schema = isset($schema) && $schema != "" ? $schema : null;
+        $this->schema = isset($schema) && $schema != '' ? $schema : null;
     }
-    
+
     /**
      * Get table schema
      *
@@ -129,7 +142,7 @@ class MysqlTable
     {
         return $this->schema;
     }
-    
+
     /**
      * Set partitioning activation flag
      *
@@ -143,7 +156,7 @@ class MysqlTable
             $this->activate = $activate;
         }
     }
-    
+
     /**
      * Get activate value
      *
@@ -153,7 +166,7 @@ class MysqlTable
     {
         return $this->activate;
     }
-    
+
     /**
      * Set partitioning column name
      *
@@ -163,11 +176,11 @@ class MysqlTable
      */
     public function setColumn($column): void
     {
-        if (isset($column) && $column != "") {
+        if (isset($column) && $column != '') {
             $this->column = $column;
         }
     }
-    
+
     /**
      * Get column value
      *
@@ -177,7 +190,7 @@ class MysqlTable
     {
         return $this->column;
     }
-    
+
     /**
      * Set partitioning timezone
      *
@@ -187,9 +200,9 @@ class MysqlTable
      */
     public function setTimezone($timezone): void
     {
-        $this->timezone = isset($timezone) && $timezone != "" ? $timezone : date_default_timezone_get();
+        $this->timezone = isset($timezone) && $timezone != '' ? $timezone : date_default_timezone_get();
     }
-    
+
     /**
      * Get timezone value
      *
@@ -205,21 +218,21 @@ class MysqlTable
      *
      * @param string $type the type
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function setType($type): void
     {
-        if (isset($type) && ($type == "date")) {
+        if (isset($type) && ($type == 'date')) {
             $this->type = $type;
         } else {
             throw new Exception(
-                "Config Error: Wrong type format for table "
-                . $this->schema . "." . $this->name . "\n"
+                'Config Error: Wrong type format for table '
+                . $this->schema . '.' . $this->name . "\n"
             );
         }
     }
-    
+
     /**
      * Get partitioning column type
      *
@@ -235,19 +248,19 @@ class MysqlTable
      *
      * @param string $duration the duration
      *
-     * @return null
      * @throws Exception
+     * @return null
      */
     public function setDuration($duration): void
     {
         if (isset($duration) && ($duration != 'daily')) {
             throw new Exception(
-                "Config Error: Wrong duration format for table "
-                . $this->schema . "." . $this->name . "\n"
+                'Config Error: Wrong duration format for table '
+                . $this->schema . '.' . $this->name . "\n"
             );
-        } else {
-            $this->duration = $duration;
         }
+        $this->duration = $duration;
+
     }
 
     /**
@@ -269,8 +282,8 @@ class MysqlTable
      */
     public function setCreateStmt($createstmt): void
     {
-        if (isset($createstmt) && $createstmt != "") {
-            $this->createstmt = str_replace(";", "", $createstmt);
+        if (isset($createstmt) && $createstmt != '') {
+            $this->createstmt = str_replace(';', '', $createstmt);
         }
     }
 
@@ -293,7 +306,7 @@ class MysqlTable
      */
     public function setBackupFolder($backupFolder): void
     {
-        if (isset($backupFolder) || $backupFolder != "") {
+        if (isset($backupFolder) || $backupFolder != '') {
             $this->backupFolder = $backupFolder;
         }
     }
@@ -317,7 +330,7 @@ class MysqlTable
      */
     public function setBackupFormat($backupFormat): void
     {
-        if (isset($backupFormat) || $backupFormat != "") {
+        if (isset($backupFormat) || $backupFormat != '') {
             $this->backupFormat = $backupFormat;
         }
     }
@@ -337,8 +350,8 @@ class MysqlTable
      *
      * @param int $retention the retention
      *
-     * @return null
      * @throws Exception
+     * @return null
      */
     public function setRetention($retention): void
     {
@@ -346,8 +359,8 @@ class MysqlTable
             $this->retention = $retention;
         } else {
             throw new Exception(
-                "Config Error: Wrong format of retention value for table "
-                . $this->schema . "." . $this->name . "\n"
+                'Config Error: Wrong format of retention value for table '
+                . $this->schema . '.' . $this->name . "\n"
             );
         }
     }
@@ -367,8 +380,8 @@ class MysqlTable
      *
      * @param int $retentionforward the retention forward
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function setRetentionForward($retentionforward): void
     {
@@ -376,8 +389,8 @@ class MysqlTable
             $this->retentionforward = $retentionforward;
         } else {
             throw new Exception(
-                "Config Error: Wrong format of retention forward value for table "
-                . $this->schema . "." . $this->name . "\n"
+                'Config Error: Wrong format of retention forward value for table '
+                . $this->schema . '.' . $this->name . "\n"
             );
         }
     }
@@ -400,31 +413,29 @@ class MysqlTable
     public function isValid()
     {
         // Condition to mod with new version
-        if (is_null($this->name) || is_null($this->column)
+        return ! (is_null($this->name) || is_null($this->column)
             || is_null($this->activate) || is_null($this->duration)
             || is_null($this->schema) || is_null($this->retention)
             || is_null($this->type) || is_null($this->createstmt)
-        ) {
-            return false;
-        }
-        return true;
+        );
     }
 
     /**
      * Check if table exists in database
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function exists()
     {
         try {
-            $DBRESULT = $this->db->query("use `" . $this->schema . "`");
+            $DBRESULT = $this->db->query('use `' . $this->schema . '`');
         } catch (PDOException $e) {
             throw new Exception(
-                "SQL Error: Cannot use database "
-                . $this->schema . "," . $e->getMessage() . "\n"
+                'SQL Error: Cannot use database '
+                . $this->schema . ',' . $e->getMessage() . "\n"
             );
+
             return false;
         }
 
@@ -432,49 +443,42 @@ class MysqlTable
             $DBRESULT = $this->db->query("show tables like '" . $this->name . "'");
         } catch (PDOException $e) {
             throw new Exception(
-                "SQL Error: Cannot execute query,"
+                'SQL Error: Cannot execute query,'
                 . $e->getMessage() . "\n"
             );
+
             return false;
         }
 
-        if (!$DBRESULT->rowCount()) {
-            return false;
-        }
-
-        return true;
+        return ! (! $DBRESULT->rowCount());
     }
 
     /**
      * Check of column exists in table
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function columnExists()
     {
         try {
             $DBRESULT = $this->db->query(
-                "describe " . $this->schema . "." . $this->name
+                'describe ' . $this->schema . '.' . $this->name
             );
         } catch (PDOException $e) {
             throw new Exception(
-                "SQL query error : " . $e->getMessage() . "\n"
+                'SQL query error : ' . $e->getMessage() . "\n"
             );
         }
 
         $found = false;
         while ($row = $DBRESULT->fetchRow()) {
-            if ($row["Field"] == $this->column) {
+            if ($row['Field'] == $this->column) {
                 $found = true;
                 break;
             }
         }
 
-        if (!$found) {
-            return (false);
-        }
-
-        return (true);
+        return ! (! $found);
     }
 }

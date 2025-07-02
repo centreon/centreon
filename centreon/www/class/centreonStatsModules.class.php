@@ -48,7 +48,8 @@ class CentreonStatsModules
 {
     /** @var CentreonDB */
     private $db;
-    /** @var LoggerInterface $logger */
+
+    /** @var LoggerInterface */
     private $logger;
 
     /**
@@ -65,13 +66,13 @@ class CentreonStatsModules
     /**
      * Get list of installed modules
      *
-     * @return array Return the names of installed modules [['name' => string], ...]
      * @throws PDOException
+     * @return array Return the names of installed modules [['name' => string], ...]
      */
     private function getInstalledModules()
     {
         $installedModules = [];
-        $stmt = $this->db->prepare("SELECT name FROM modules_informations");
+        $stmt = $this->db->prepare('SELECT name FROM modules_informations');
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $installedModules[] = $value['name'];
@@ -84,7 +85,7 @@ class CentreonStatsModules
      * Get statistics module objects
      *
      * @param array $installedModules Names of installed modules for which you want
-     * to retrieve statistics module [['name' => string], ...]
+     *                                to retrieve statistics module [['name' => string], ...]
      *
      * @return array Return a list of statistics module found
      * @see    CentreonStatsModules::getInstalledModules()
@@ -115,8 +116,8 @@ class CentreonStatsModules
     /**
      * Get statistics from module
      *
-     * @return array The statistics of each module
      * @throws PDOException
+     * @return array The statistics of each module
      */
     public function getModulesStatistics()
     {
@@ -134,6 +135,7 @@ class CentreonStatsModules
                 }
             }
         }
+
         return $data;
     }
 }

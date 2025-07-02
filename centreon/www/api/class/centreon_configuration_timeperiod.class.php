@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -55,9 +55,9 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
     /**
      * Get a list of time periods as a source of data for the select2 widget
      *
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException If some parameter is missing will throw this exception
+     * @return array
      */
     public function getList()
     {
@@ -79,17 +79,17 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
             ];
         }
 
-        $queryTimePeriod = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT tp_id, tp_name FROM timeperiod ' .
-            ($queryWhere ? 'WHERE ' . join(' AND ', $queryWhere) : '') .
-            ' ORDER BY tp_name ';
+        $queryTimePeriod = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT tp_id, tp_name FROM timeperiod '
+            . ($queryWhere ? 'WHERE ' . join(' AND ', $queryWhere) : '')
+            . ' ORDER BY tp_name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
 
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
@@ -125,7 +125,7 @@ class CentreonConfigurationTimeperiod extends CentreonConfigurationObjects
 
         return [
             'items' => $timePeriodList,
-            'total' => (int) $this->pearDB->numberRows()
+            'total' => (int) $this->pearDB->numberRows(),
         ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -38,10 +39,13 @@ class MacroHost extends AbstractObject
 {
     /** @var CentreonDB */
     private CentreonDB $databaseConnection;
+
     /** @var string */
     protected $table = 'on_demand_macro_host';
+
     /** @var string */
     protected $generateFilename = 'on_demand_macro_host.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
@@ -58,7 +62,7 @@ class MacroHost extends AbstractObject
     {
         try {
             parent::__construct($dependencyInjector);
-            if (!isset($this->backendInstance->db)) {
+            if (! isset($this->backendInstance->db)) {
                 throw new Exception('Database connection is not set');
             }
             $this->databaseConnection = $this->backendInstance->db;
@@ -89,9 +93,9 @@ class MacroHost extends AbstractObject
     {
         try {
             $statement = $this->databaseConnection->prepareQuery(
-                "SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description, host_host_id
+                'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description, host_host_id
                 FROM on_demand_macro_host
-                WHERE host_host_id = :host_id"
+                WHERE host_host_id = :host_id'
             );
             $this->databaseConnection->executePreparedQuery($statement, ['host_id' => $hostId]);
             $macros = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -101,6 +105,7 @@ class MacroHost extends AbstractObject
                 message: 'Host macros generated',
                 customContext: [$macros]
             );
+
             return $macros;
         } catch (CentreonDbException $ex) {
             CentreonLog::create()->error(

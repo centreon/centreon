@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -37,8 +38,8 @@
 function testConnectorExistence($name = null)
 {
     global $connectorObj, $form;
-    
+
     $id = isset($form) ? $form->getSubmitValue('connector_id') : null;
-    
+
     return $connectorObj->isNameAvailable($name, $id);
 }

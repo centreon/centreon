@@ -33,29 +33,29 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!isset($oreon->optGen["AjaxFirstTimeReloadStatistic"]) || $oreon->optGen["AjaxFirstTimeReloadStatistic"] == 0) {
+if (! isset($oreon->optGen['AjaxFirstTimeReloadStatistic']) || $oreon->optGen['AjaxFirstTimeReloadStatistic'] == 0) {
     $tFS = 10;
 } else {
-    $tFS = $oreon->optGen["AjaxFirstTimeReloadStatistic"] * 1000;
+    $tFS = $oreon->optGen['AjaxFirstTimeReloadStatistic'] * 1000;
 }
-if (!isset($oreon->optGen["AjaxFirstTimeReloadMonitoring"]) || $oreon->optGen["AjaxFirstTimeReloadMonitoring"] == 0) {
+if (! isset($oreon->optGen['AjaxFirstTimeReloadMonitoring']) || $oreon->optGen['AjaxFirstTimeReloadMonitoring'] == 0) {
     $tFM = 10;
 } else {
-    $tFM = $oreon->optGen["AjaxFirstTimeReloadMonitoring"] * 1000;
+    $tFM = $oreon->optGen['AjaxFirstTimeReloadMonitoring'] * 1000;
 }
 $sid = session_id();
 $time = time();
 
 $obis = $o;
-if (isset($_GET["problem"])) {
+if (isset($_GET['problem'])) {
     $obis .= '_pb';
 }
-if (isset($_GET["acknowledge"])) {
-    $obis .= '_ack_' . $_GET["acknowledge"];
+if (isset($_GET['acknowledge'])) {
+    $obis .= '_ack_' . $_GET['acknowledge'];
 }
 
 ?>
@@ -66,7 +66,7 @@ if (isset($_GET["acknowledge"])) {
     // hostgroup select2 value
     var hg_search = "";
 
-    <?php include_once "./include/monitoring/status/Common/commonJS.php"; ?>
+    <?php include_once './include/monitoring/status/Common/commonJS.php'; ?>
 
     function set_header_title() {
         var _img_asc = mk_imgOrder('./img/icones/7x7/sort_asc.gif', "asc");
@@ -74,7 +74,7 @@ if (isset($_GET["acknowledge"])) {
 
         if (document.getElementById('alias')) {
             var h = document.getElementById('alias');
-            h.innerHTML = '<?php echo addslashes(_("Hostgroups / Hosts"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Hostgroups / Hosts')); ?>';
             h.indice = 'alias';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -83,7 +83,7 @@ if (isset($_GET["acknowledge"])) {
 
             if (document.getElementById('current_state')) {
                 var h = document.getElementById('current_state');
-                h.innerHTML = '<?php echo addslashes(_("Status"))?>';
+                h.innerHTML = '<?php echo addslashes(_('Status')); ?>';
                 h.indice = 'current_state';
                 h.onclick = function () {
                     change_type_order(this.indice)
@@ -92,7 +92,7 @@ if (isset($_GET["acknowledge"])) {
             }
 
             var h = document.getElementById('services');
-            h.innerHTML = '<?php echo addslashes(_("Services information"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Services information')); ?>';
             h.indice = 'services';
 
             var h = document.getElementById(_sort_type);
@@ -177,7 +177,7 @@ if (isset($_GET["acknowledge"])) {
         proc.setXml(
             _addrXML + "?" + '&search=' + _host_search + '&hg_search=' + this.hg_search + '&num=' + _num +
             '&limit=' + _limit + '&sort_type=' + _sort_type + '&order=' + _order + '&date_time_format_status=' +
-            _date_time_format_status + '&o=' + _o + '&p=' + _p + '&time=<?php print time(); ?>'
+            _date_time_format_status + '&o=' + _o + '&p=' + _p + '&time=<?php echo time(); ?>'
         );
         proc.setXslt(_addrXSL);
         if (handleVisibilityChange()) {
