@@ -35,7 +35,7 @@ Cypress.Commands.add(
       attempt++;
 
       // Use Cypress.$ for quick DOM check without failing the test
-      const inputEl = Cypress.$('input[label="Name"]');
+      const inputEl = Cypress.$('input[aria-label="Name"]');
 
       if (inputEl.length === 0 || !inputEl.is(':visible')) {
         cy.log(`Attempt ${attempt}: input not visible yet`);
@@ -53,7 +53,7 @@ Cypress.Commands.add(
       const currentVal = inputEl.val();
 
       if (currentVal === expectedValue) {
-        return true; // success
+        return cy.getByTestId({ testId: 'cancel' }).click().then(() => true);
       }
 
       if (attempt >= maxAttempts) {
