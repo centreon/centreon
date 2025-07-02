@@ -182,11 +182,6 @@ abstract class TestCase extends BaseTestCase
 
         $mock
             ->method('get')
-            ->withConsecutive(
-                [$this->equalTo('security.authorization_checker')],
-                [$this->equalTo('security.token_storage')],
-                [$this->equalTo('parameter_bag')]
-            )
             ->willReturnOnConsecutiveCalls(
                 $authorizationChecker,
                 $tokenStorage,
