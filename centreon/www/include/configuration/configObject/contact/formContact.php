@@ -212,7 +212,7 @@ $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 $tpl = SmartyBC::createSmartyTemplate($path);
 
 /**
- * @var \Centreon\Domain\Service\ModuleFormManager $moduleFormManager
+ * @var Centreon\Domain\Service\ModuleFormManager $moduleFormManager
  */
 if ($o == ADD_CONTACT) {
     $form->addElement('header', 'title', _('Add a User'));
