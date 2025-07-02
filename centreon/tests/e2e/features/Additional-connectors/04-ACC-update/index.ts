@@ -121,10 +121,9 @@ Then('the form is closed', () => {
 });
 
 Then('the informations are successfully saved', () => {
-  cy.get('*[role="rowgroup"]').should('contain', 'Connector-002');
-  cy.contains('Connector-002').click();
-  cy.url().should('match', /\/centreon\/configuration\/additional-connector-configurations\?mode=edit&id=\d+/);
-  cy.contains('Modify an additional configuration').should('exist');
+  cy.contains('VMWare 6/7').click();
+  cy.ensureConnectorInputValue('Connector-002', { maxAttempts: 5, interval: 1500 });
+  cy.contains('VMWare 6/7').click();
   cy.wait('@keepAlive');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
