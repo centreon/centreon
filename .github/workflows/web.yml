@@ -494,8 +494,12 @@ jobs:
         run: composer stan:new
         working-directory: centreon
 
-      - name: Run of rector
+      - name: Run of rector on all code
         run: composer rector
+        working-directory: centreon
+
+      - name: Run of deptrac on the new section for the /src/App directory
+        run: composer dep:new
         working-directory: centreon
 
   package:

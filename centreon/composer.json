@@ -85,7 +85,6 @@
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-master",
     "dama/doctrine-test-bundle": "8.2.*",
-    "deptrac/deptrac": "3.0.*",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "mockery/mockery": "1.6.*",
@@ -175,6 +174,10 @@
     "stan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
     "rector": "../tools/vendor/bin/rector process --dry-run",
     "rector:fix": "../tools/vendor/bin/rector process",
+    "dep:new": [
+      "../tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
+      "../tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
+    ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
     "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
@@ -194,11 +197,15 @@
       "@stan:test",
       "@stan:new"
     ],
+    "dep": [
+      "@dep:new"
+    ],
     "ci": [
       "@symfony:check:ci",
       "@cs",
       "@stan",
       "@rector",
+      "@dep",
       "@test"
     ]
   },

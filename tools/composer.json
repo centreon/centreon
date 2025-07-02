@@ -5,6 +5,7 @@
   "require": {
     "php": "8.2",
     "ext-mbstring": "*",
+    "deptrac/deptrac": "3.0.*",
     "friendsofphp/php-cs-fixer": "3.76.*",
     "maglnet/composer-require-checker": "4.16.*",
     "phpstan/phpstan": "2.1.*",
