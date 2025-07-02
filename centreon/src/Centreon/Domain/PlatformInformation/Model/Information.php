@@ -27,7 +27,6 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 /**
  * Class designed to retrieve servers' specific information
- *
  */
 class Information
 {
@@ -35,6 +34,7 @@ class Information
     public const MAX_VALUE_LENGTH = 1024;
     public const MIN_KEY_LENGTH = 1;
     public const MIN_VALUE_LENGTH = 1;
+
     /**
      * Information key
      *
@@ -69,6 +69,7 @@ class Information
         Assertion::minLength($key, self::MIN_KEY_LENGTH, 'Information::key');
         Assertion::maxLength($key, self::MAX_KEY_LENGTH, 'Information::key');
         $this->key = $key;
+
         return $this;
     }
 
@@ -92,6 +93,7 @@ class Information
             Assertion::maxLength($value, self::MAX_VALUE_LENGTH, 'Information::value');
         }
         $this->value = $value;
+
         return $this;
     }
 }

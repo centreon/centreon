@@ -29,38 +29,24 @@ namespace Centreon\Infrastructure\MonitoringServer\API\Model;
  */
 class RealTimeMonitoringServer
 {
-    /**
-     * @var int;
-     */
+    /** @var int; */
     public $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $address;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public $isRunning;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $lastAlive;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $version;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $description;
 }

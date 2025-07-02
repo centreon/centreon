@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\Interfaces;
 
-use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
+use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 
 /**
  * @package Centreon\Domain\MetaServiceConfiguration\Interfaces
@@ -34,8 +34,8 @@ interface MetaServiceConfigurationServiceInterface
      * Find a meta service (for non admin user).
      *
      * @param int $metaId Id of the meta service to be found
-     * @return MetaServiceConfiguration|null
      * @throws MetaServiceConfigurationException
+     * @return MetaServiceConfiguration|null
      */
     public function findWithAcl(int $metaId): ?MetaServiceConfiguration;
 
@@ -43,24 +43,24 @@ interface MetaServiceConfigurationServiceInterface
      * Find a meta service (for admin user).
      *
      * @param int $metaId Id of the meta service to be found
-     * @return MetaServiceConfiguration|null
      * @throws MetaServiceConfigurationException
+     * @return MetaServiceConfiguration|null
      */
     public function findWithoutAcl(int $metaId): ?MetaServiceConfiguration;
 
     /**
      * Find all meta services configurations (for non admin user).
      *
-     * @return MetaServiceConfiguration[]
      * @throws MetaServiceConfigurationException
+     * @return MetaServiceConfiguration[]
      */
     public function findAllWithAcl(): array;
 
     /**
      * Find all meta services configurations (for admin user).
      *
-     * @return MetaServiceConfiguration[]
      * @throws MetaServiceConfigurationException
+     * @return MetaServiceConfiguration[]
      */
     public function findAllWithoutAcl(): array;
 }

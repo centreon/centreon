@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -22,12 +23,12 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
-use JsonSchema\Constraints\Constraint;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
 
 /**
  * Class
@@ -73,6 +74,7 @@ class AbstractRepositoryDRB
         foreach ($accessGroups as $accessGroup) {
             $ids[] = $accessGroup->getId();
         }
+
         return implode(',', $ids);
     }
 
@@ -89,6 +91,7 @@ class AbstractRepositoryDRB
 
         if (is_array($decodedRecord) === false) {
             $this->critical('The property get from dbms is not a valid json');
+
             throw new RepositoryException('Invalid Json format');
         }
 
@@ -108,6 +111,7 @@ class AbstractRepositoryDRB
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
             $this->critical($message);
+
             throw new RepositoryException('Some properties doesn\'t match the json schema :' . $message);
         }
     }

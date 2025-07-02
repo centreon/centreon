@@ -23,9 +23,9 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\Timeline\Interfaces;
 
 use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
-use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 
 interface TimelineServiceInterface extends ContactFilterInterface
 {

@@ -23,11 +23,11 @@ declare(strict_types=1);
 namespace Centreon\Domain\Check\Interfaces;
 
 use Centreon\Domain\Check\Check;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 
 interface CheckServiceInterface extends ContactFilterInterface
 {

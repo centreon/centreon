@@ -127,7 +127,7 @@ class WidgetSource extends SourceAbstract
 
         $xml = simplexml_load_file($configFile);
 
-        $entity = new Module;
+        $entity = new Module();
         $entity->setId(basename(dirname($configFile)));
         $entity->setPath(dirname($configFile));
         $entity->setType(static::TYPE);

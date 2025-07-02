@@ -33,8 +33,8 @@ interface HostGroupServiceInterface
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return HostGroupServiceInterface
      * @throws \Exception
+     * @return HostGroupServiceInterface
      */
     public function filterByContact($contact): HostGroupServiceInterface;
 
@@ -42,8 +42,8 @@ interface HostGroupServiceInterface
      * Retrieve hostgroups from their ids
      *
      * @param int[] $hostGroupIds
-     * @return HostGroup[]
      * @throws HostGroupException
+     * @return HostGroup[]
      */
     public function findHostGroupsByIds(array $hostGroupIds): array;
 
@@ -51,8 +51,8 @@ interface HostGroupServiceInterface
      * Retrieve hostgroups from their names
      *
      * @param string[] $hostGroupNames
-     * @return HostGroup[]
      * @throws HostGroupException
+     * @return HostGroup[]
      */
     public function findHostGroupsByNames(array $hostGroupNames): array;
 }

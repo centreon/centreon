@@ -1,28 +1,21 @@
 <?php
+
 namespace Centreon\Domain\Entity;
 
 class ViewImgDir
 {
-    const TABLE = 'view_img_dir';
+    public const TABLE = 'view_img_dir';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $dirId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $dirName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $dirAlias;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $dirComment;
 
     public function setDirId(int $dirId): void
@@ -55,7 +48,7 @@ class ViewImgDir
         return $this->dirAlias;
     }
 
-    public function setDirComment(string $dirComment = null): void
+    public function setDirComment(?string $dirComment = null): void
     {
         $this->dirComment = $dirComment;
     }

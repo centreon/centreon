@@ -35,7 +35,7 @@ interface RemoteServerRepositoryInterface
     /**
      * Delete an Additional Remote Server, for pollers linked to multiple Remote Servers.
      *
-     * @param integer $monitoringServerId
+     * @param int $monitoringServerId
      */
     public function deleteAdditionalRemoteServer(int $monitoringServerId): void;
 }

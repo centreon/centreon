@@ -23,17 +23,14 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\SubmitResult;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Entity\EntityValidator;
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
 use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 use Centreon\Domain\Monitoring\SubmitResult\Interfaces\SubmitResultServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 
 /**
  * Monitoring class used to manage result submitting to services, hosts and resources
@@ -45,24 +42,16 @@ class SubmitResultService extends AbstractCentreonService implements SubmitResul
     public const VALIDATION_GROUPS_HOST_SUBMIT_RESULT = ['submit_result_host'];
     public const VALIDATION_GROUPS_SERVICE_SUBMIT_RESULT = ['submit_result_service'];
 
-    /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
+    /** @var EngineServiceInterface used to send external commands to engine */
     private $engineService;
 
-    /**
-     * @var EntityValidator
-     */
+    /** @var EntityValidator */
     private $validator;
 
-    /**
-     * @var MonitoringRepositoryInterface
-     */
+    /** @var MonitoringRepositoryInterface */
     private $monitoringRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

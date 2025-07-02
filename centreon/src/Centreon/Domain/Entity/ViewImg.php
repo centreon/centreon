@@ -1,28 +1,21 @@
 <?php
+
 namespace Centreon\Domain\Entity;
 
 class ViewImg
 {
-    const TABLE = 'view_img';
+    public const TABLE = 'view_img';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $imgId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $imgName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $imgPath;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $imgComment;
 
     public function setImgId(int $imgId): void

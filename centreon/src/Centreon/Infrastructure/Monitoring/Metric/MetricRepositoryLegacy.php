@@ -25,7 +25,6 @@ namespace Centreon\Infrastructure\Monitoring\Metric;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\Monitoring\Service;
-use Centreon\Infrastructure\DatabaseConnection;
 
 /**
  * Repository to get metrics data from legacy centreon classes
@@ -34,14 +33,10 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class MetricRepositoryLegacy implements MetricRepositoryInterface
 {
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
-    /**
-     * @var \CentreonDB
-     */
+    /** @var \CentreonDB */
     private $dbStorage;
 
     /**
@@ -61,6 +56,7 @@ final class MetricRepositoryLegacy implements MetricRepositoryInterface
     public function setContact(ContactInterface $contact): MetricRepositoryInterface
     {
         $this->contact = $contact;
+
         return $this;
     }
 

@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\SubmitResult\Interfaces;
 
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 
 interface SubmitResultServiceInterface extends ContactFilterInterface
 {
     /**
      * Function allowing user to submit a result to a service
      *
-     * @param  SubmitResult $result
+     * @param SubmitResult $result
      * @return void
      */
     public function submitServiceResult(SubmitResult $result): void;
@@ -40,7 +40,7 @@ interface SubmitResultServiceInterface extends ContactFilterInterface
     /**
      * Function allowing user to submit a result to a meta service
      *
-     * @param  SubmitResult $result
+     * @param SubmitResult $result
      * @return void
      */
     public function submitMetaServiceResult(SubmitResult $result): void;
@@ -48,7 +48,7 @@ interface SubmitResultServiceInterface extends ContactFilterInterface
     /**
      * Function allowing user to submit a result to a host
      *
-     * @param  SubmitResult $result
+     * @param SubmitResult $result
      * @return void
      */
     public function submitHostResult(SubmitResult $result): void;

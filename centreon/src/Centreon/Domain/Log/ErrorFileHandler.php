@@ -45,7 +45,7 @@ class ErrorFileHandler extends StreamHandler
     public function __construct(
         FormatterInterface $formatter,
         $stream,
-        int $filePermission = null,
+        ?int $filePermission = null,
         $level = Logger::EMERGENCY,
         bool $useLocking = false,
         bool $bubble = true

@@ -53,7 +53,7 @@ class ResourceGroup
     /**
      * Contructor for ResourceGroup entity
      *
-     * @param integer $resourceGroupId
+     * @param int $resourceGroupId
      * @param string $resourceGroupName
      */
     public function __construct(int $resourceGroupId, string $resourceGroupName)
@@ -62,11 +62,10 @@ class ResourceGroup
         $this->name = $resourceGroupName;
     }
 
-
     /**
      * Get resource group id.
      *
-     * @return integer
+     * @return int
      */
     public function getId(): int
     {
@@ -86,7 +85,7 @@ class ResourceGroup
     /**
      * Set the resource group id.
      *
-     * @param integer $resourceGroupId
+     * @param int $resourceGroupId
      * @return ResourceGroup
      */
     public function setId(int $resourceGroupId): self
@@ -124,6 +123,7 @@ class ResourceGroup
     public function setConfigurationUri(?string $configurationUri): self
     {
         $this->configurationUri = $configurationUri;
+
         return $this;
     }
 }

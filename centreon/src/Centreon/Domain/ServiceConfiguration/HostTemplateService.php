@@ -31,14 +31,10 @@ use Centreon\Domain\HostConfiguration\Host;
  */
 class HostTemplateService
 {
-    /**
-     * @var Host
-     */
+    /** @var Host */
     private $hostTemplate;
 
-    /**
-     * @var Service
-     */
+    /** @var Service */
     private $serviceTemplate;
 
     /**
@@ -59,6 +55,7 @@ class HostTemplateService
             throw new \InvalidArgumentException('This host is not a template');
         }
         $this->hostTemplate = $hostTemplate;
+
         return $this;
     }
 
@@ -80,6 +77,7 @@ class HostTemplateService
             throw new \InvalidArgumentException('This service is not a template');
         }
         $this->serviceTemplate = $serviceTemplate;
+
         return $this;
     }
 }

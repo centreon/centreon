@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,8 +37,6 @@
 
 namespace Centreon\Infrastructure\Event;
 
-use Centreon\Infrastructure\Event\DispatcherLoaderInterface;
-
 /**
  * This class is used to find and include a specific php file in a tree.
  *
@@ -45,14 +44,10 @@ use Centreon\Infrastructure\Event\DispatcherLoaderInterface;
  */
 class FileLoader implements DispatcherLoaderInterface
 {
-    /**
-     * @var string Path where we will try to find php files
-     */
+    /** @var string Path where we will try to find php files */
     private $pathModules;
 
-    /**
-     * @var string Name of the php file to find in path
-     */
+    /** @var string Name of the php file to find in path */
     private $filename;
 
     /**
@@ -72,7 +67,7 @@ class FileLoader implements DispatcherLoaderInterface
      *
      * @throws \Exception
      */
-    public function load():void
+    public function load(): void
     {
         if (! is_dir($this->pathModules)) {
             throw new \Exception(_('The path does not exist'));
@@ -85,7 +80,7 @@ class FileLoader implements DispatcherLoaderInterface
                 && is_dir($this->pathModules . '/' . $module)
                 && file_exists($fileToInclude)
             ) {
-                require_once($fileToInclude);
+                require_once $fileToInclude;
             }
         }
     }

@@ -406,7 +406,7 @@ final class SqlConcatenator implements \Stringable
         }
 
         $patterns = array_map(
-            static fn(string $name): string => '!' . preg_quote($name, '!') . '\b!',
+            static fn (string $name): string => '!' . preg_quote($name, '!') . '\b!',
             array_keys($this->bindArrayReplacements)
         );
 

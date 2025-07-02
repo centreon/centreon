@@ -47,8 +47,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      * Find all service templates associated with the given host templates.
      *
      * @param int[] $hostTemplateIds Ids of the host templates for which we want to find the service templates
-     * @return HostTemplateService[]
      * @throws ServiceConfigurationException
+     * @return HostTemplateService[]
      */
     public function findHostTemplateServices(array $hostTemplateIds): array;
 
@@ -57,8 +57,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      *
      * @param int $serviceId Id of the service
      * @param bool $isUsingInheritance Indicates whether to use inheritance to find service macros (FALSE by default)
-     * @return ServiceMacro[] List of service macros found
      * @throws ServiceConfigurationException
+     * @return ServiceMacro[] List of service macros found
      */
     public function findOnDemandServiceMacros(int $serviceId, bool $isUsingInheritance = false): array;
 
@@ -66,8 +66,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      * Find a service.
      *
      * @param int $serviceId Service id
-     * @return Service|null
      * @throws ServiceConfigurationException
+     * @return Service|null
      */
     public function findService(int $serviceId): ?Service;
 
@@ -75,8 +75,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      * Find all services associated to host.
      *
      * @param Host $host Host for which we want to find services
-     * @return Service[]
      * @throws ServiceConfigurationException
+     * @return Service[]
      */
     public function findServicesByHost(Host $host): array;
 
@@ -85,8 +85,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      *
      * @param int $serviceId Service id
      * @param string $command Command to analyse
-     * @return ServiceMacro[] List of service macros
      * @throws ServiceConfigurationException
+     * @return ServiceMacro[] List of service macros
      */
     public function findServiceMacrosFromCommandLine(int $serviceId, string $command): array;
 
@@ -94,8 +94,8 @@ interface ServiceConfigurationServiceInterface extends ContactFilterInterface
      * Find the command of a service.
      *
      * @param int $serviceId Service id
-     * @return string|null Return the command if found
      * @throws ServiceConfigurationException
+     * @return string|null Return the command if found
      */
     public function findCommandLine(int $serviceId): ?string;
 

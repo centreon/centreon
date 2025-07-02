@@ -48,7 +48,6 @@ class PlatformTopologyController extends AbstractController
     /** @var PlatformTopologyServiceInterface */
     private $platformTopologyService;
 
-
     /**
      * PlatformTopologyController constructor.
      *
@@ -78,11 +77,12 @@ class PlatformTopologyController extends AbstractController
             Constraint::CHECK_MODE_VALIDATE_SCHEMA
         );
 
-        if (!$validator->isValid()) {
+        if (! $validator->isValid()) {
             $message = '';
             foreach ($validator->getErrors() as $error) {
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
+
             throw new PlatformTopologyException($message);
         }
     }
@@ -186,7 +186,7 @@ class PlatformTopologyController extends AbstractController
             $edges = [];
             $nodes = [];
 
-            //Format the PlatformTopology into a Json Graph Format
+            // Format the PlatformTopology into a Json Graph Format
             foreach ($platformTopology as $platform) {
                 $topologyJsonGraph = new PlatformJsonGraph($platform);
                 if (! empty($topologyJsonGraph->getRelation())) {
@@ -245,6 +245,7 @@ class PlatformTopologyController extends AbstractController
 
         try {
             $this->platformTopologyService->deletePlatformAndReallocateChildren($platformId);
+
             return $this->view(null, Response::HTTP_NO_CONTENT);
         } catch (EntityNotFoundException $ex) {
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_NOT_FOUND);

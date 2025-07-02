@@ -27,56 +27,56 @@ interface ConfigurationLoaderApiInterface
     /**
      * Indicates whether the connection to the Gorgone server used a self-signed certificate
      *
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     public function isSecureConnectionSelfSigned(): bool;
 
     /**
      * Returns the IP address of the Gorgone server
      *
-     * @return string|null IP address
      * @throws \Exception
+     * @return string|null IP address
      */
     public function getApiIpAddress(): ?string;
 
     /**
      * Returns the connection port of the Gorgone server
      *
-     * @return int|null Connection port
      * @throws \Exception
+     * @return int|null Connection port
      */
     public function getApiPort(): ?int;
 
     /**
      * Returns the API password of the Gorgone server
      *
-     * @return string|null API password of the Gorgone server
      * @throws \Exception
+     * @return string|null API password of the Gorgone server
      */
     public function getApiPassword(): ?string;
 
     /**
      * Returns the delay before the connection timeout
      *
-     * @return int Timeout (in seconds)
      * @throws \Exception
+     * @return int Timeout (in seconds)
      */
     public function getCommandTimeout(): int;
 
     /**
      * Indicates whether the connection to the Gorgone server is secure
      *
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     public function isApiConnectionSecure(): bool;
 
     /**
      * Returns the API username of the Gorgone server
      *
-     * @return string|null API username of the Gorgone server
      * @throws \Exception
+     * @return string|null API username of the Gorgone server
      */
     public function getApiUsername(): ?string;
 }

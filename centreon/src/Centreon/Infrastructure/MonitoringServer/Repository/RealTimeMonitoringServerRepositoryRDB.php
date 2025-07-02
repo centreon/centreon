@@ -155,8 +155,7 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
         ]);
         $this->sqlRequestTranslator->addNormalizer(
             'running',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */

@@ -87,7 +87,7 @@ class ModuleSource extends SourceAbstract
          * Do not execute the install process for the module if it is already installed.
          */
         return $module->isInstalled() === false ? parent::install($id) : $module;
-  }
+    }
 
     /**
      * {@inheritDoc}
@@ -230,7 +230,7 @@ class ModuleSource extends SourceAbstract
             }
 
             foreach ($info['images'] as $image) {
-                $entity->addImage(static::PATH_WEB . $entity->getId() . '/'. $image);
+                $entity->addImage(static::PATH_WEB . $entity->getId() . '/' . $image);
             }
         }
 
@@ -383,7 +383,7 @@ class ModuleSource extends SourceAbstract
         foreach ($moduleDetails->getDependencies() as $dependency) {
             $dependencies[] = $dependency;
             $dependencyDetails = $this->getDetail($dependency);
-            if (! $dependencyDetails){
+            if (! $dependencyDetails) {
                 throw ModuleException::moduleIsMissing($dependency);
             }
             $dependencies = array_unique([

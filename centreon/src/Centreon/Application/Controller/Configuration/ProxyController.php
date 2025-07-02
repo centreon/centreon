@@ -22,18 +22,18 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Configuration;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\Proxy\Proxy;
+use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
-use JMS\Serializer\SerializerInterface;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
+use Centreon\Domain\Proxy\Proxy;
+use FOS\RestBundle\View\View;
+use JMS\Serializer\Exception\ValidationFailedException;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Application\Controller\AbstractController;
-use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 
 /**
  * This class is design to manage all API REST requests concerning the proxy configuration.
@@ -42,9 +42,7 @@ use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
  */
 class ProxyController extends AbstractController
 {
-    /**
-     * @var ProxyServiceInterface
-     */
+    /** @var ProxyServiceInterface */
     private $proxyService;
 
     /**
@@ -58,8 +56,8 @@ class ProxyController extends AbstractController
     }
 
     /**
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getProxy(): View
     {
@@ -69,9 +67,10 @@ class ProxyController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
+        if (! $contact->isAdmin() && ! $this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
+
         return $this->view($this->proxyService->getProxy());
     }
 
@@ -79,8 +78,8 @@ class ProxyController extends AbstractController
      * @param Request $request
      * @param EntityValidator $entityValidator
      * @param SerializerInterface $serializer
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function updateProxy(
         Request $request,
@@ -94,7 +93,7 @@ class ProxyController extends AbstractController
          */
         $user = $this->getUser();
 
-        if (!$user->isAdmin() && !$this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
+        if (! $user->isAdmin() && ! $this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
         $data = json_decode((string) $request->getContent(), true);
@@ -114,12 +113,13 @@ class ProxyController extends AbstractController
          * @var Proxy $proxy
          */
         $proxy = $serializer->deserialize(
-            (string)$request->getContent(),
+            (string) $request->getContent(),
             Proxy::class,
             'json'
         );
 
         $this->proxyService->updateProxy($proxy);
+
         return $this->view();
     }
 }

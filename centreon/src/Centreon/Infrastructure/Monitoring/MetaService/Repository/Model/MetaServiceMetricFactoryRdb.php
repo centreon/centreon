@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\MetaService\Repository\Model;
 
-use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric;
+use Centreon\Domain\Monitoring\Resource;
 
 /**
  * This class is designed to provide a way to create the MetaServiceMetric entity from the database.
@@ -36,8 +36,8 @@ class MetaServiceMetricFactoryRdb
      * Create a MetaServiceMetric entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return MetaServiceMetric
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceMetric
      */
     public static function create(array $data): MetaServiceMetric
     {

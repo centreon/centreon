@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Model;
 
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use Security\Encryption;
 
 class PlatformInformationFactory
@@ -33,9 +32,7 @@ class PlatformInformationFactory
      */
     public const ENCRYPT_SECOND_KEY = 'api_remote_credentials';
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $encryptionFirstKey;
 
     public function __construct(?string $encryptionFirstKey)
@@ -45,8 +42,8 @@ class PlatformInformationFactory
 
     /**
      * @param array<string, mixed> $information
-     * @return PlatformInformation
      * @throws \Exception
+     * @return PlatformInformation
      */
     public function createRemoteInformation(array $information): PlatformInformation
     {
@@ -97,28 +94,29 @@ class PlatformInformationFactory
     public function createCentralInformation(): PlatformInformation
     {
         $isRemote = false;
-        $platformInformation = new PlatformInformation($isRemote);
-        return $platformInformation;
+
+        return new PlatformInformation($isRemote);
     }
 
     /**
      * encrypt the Central API Password
      *
      * @param string $password
-     * @return string
      * @throws \Exception
+     * @return string
      */
     private function encryptApiCredentials(string $password): string
     {
         if ($this->encryptionFirstKey === null) {
             throw new \InvalidArgumentException(
-                _("Unable to find the encryption key.")
+                _('Unable to find the encryption key.')
             );
         }
 
         $secondKey = base64_encode(self::ENCRYPT_SECOND_KEY);
         $centreonEncryption = new Encryption();
         $centreonEncryption->setFirstKey($this->encryptionFirstKey)->setSecondKey($secondKey);
+
         return $centreonEncryption->crypt($password);
     }
 }

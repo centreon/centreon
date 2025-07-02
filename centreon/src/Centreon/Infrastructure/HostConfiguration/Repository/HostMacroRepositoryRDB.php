@@ -22,9 +22,7 @@ class HostMacroRepositoryRDB extends AbstractRepositoryDRB implements
     HostMacroReadRepositoryInterface,
     HostMacroWriteRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -61,7 +59,7 @@ class HostMacroRepositoryRDB extends AbstractRepositoryDRB implements
         $statement->bindValue(':order', $hostMacro->getOrder(), \PDO::PARAM_INT);
         $statement->execute();
 
-        $hostMacroId = (int)$this->db->lastInsertId();
+        $hostMacroId = (int) $this->db->lastInsertId();
         $hostMacro->setId($hostMacroId);
     }
 
@@ -80,6 +78,7 @@ class HostMacroRepositoryRDB extends AbstractRepositoryDRB implements
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $hostMacros[] = HostMacroFactoryRdb::create($result);
         }
+
         return $hostMacros;
     }
 

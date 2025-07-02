@@ -39,24 +39,22 @@ namespace Centreon\Application\Validation\Validator;
 
 use App\Kernel;
 use Centreon\Application\Validation\Constraints\RepositoryCallback;
+use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
+use Centreon\ServiceProvider;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\CallbackValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use Symfony\Component\Validator\Constraints\CallbackValidator;
-use Psr\Container\ContainerInterface;
-use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\ServiceProvider;
-use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
 
 class RepositoryCallbackValidator extends CallbackValidator implements CentreonValidatorInterface
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      * @return void
      */
     public function validate($object, Constraint $constraint): void
     {
-        if (!$constraint instanceof RepositoryCallback) {
+        if (! $constraint instanceof RepositoryCallback) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\RepositoryCallback');
         }
 
@@ -67,15 +65,16 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
             ->get($constraint->repository);
 
         $fieldAccessor = $constraint->fieldAccessor;
-        $value = $object->$fieldAccessor();
+        $value = $object->{$fieldAccessor}();
         $field = $constraint->fields;
 
-        if (!method_exists($constraint->repository, $method)) {
+        if (! method_exists($constraint->repository, $method)) {
             throw new ConstraintDefinitionException(sprintf(
                 '%s targeted by Callback constraint is not a valid callable in the repository',
                 json_encode($method)
             ));
-        } elseif (null !== $object && !$repository->$method($object)) {
+        }
+        if (null !== $object && ! $repository->{$method}($object)) {
             $this->context->buildViolation($constraint->message)
                 ->atPath($field)
                 ->setInvalidValue($value)

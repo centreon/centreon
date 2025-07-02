@@ -36,14 +36,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class CommandRepositoryAPI implements CommandRepositoryInterface
 {
     /**
-     * @var HttpClientInterface Http client library that will be used to
-     * communicate with the Gorgone server through its API.
+     * @var HttpClientInterface http client library that will be used to
+     *                          communicate with the Gorgone server through its API
      */
     private $client;
 
-    /**
-     * @var ConfigurationLoaderApiInterface
-     */
+    /** @var ConfigurationLoaderApiInterface */
     private $configuration;
 
     /**
@@ -70,7 +68,7 @@ class CommandRepositoryAPI implements CommandRepositoryInterface
         if ($this->configuration->getApiUsername() !== null) {
             $options = array_merge(
                 $options,
-                [ 'auth_basic' => $this->configuration->getApiUsername() . ':'
+                ['auth_basic' => $this->configuration->getApiUsername() . ':'
                   . $this->configuration->getApiPassword()]
             );
         }
@@ -87,7 +85,7 @@ class CommandRepositoryAPI implements CommandRepositoryInterface
                 throw new \Exception('Bad request', $response->getStatusCode());
             }
             $jsonResponse = json_decode($response->getContent(), true);
-            if (!array_key_exists('token', $jsonResponse)) {
+            if (! array_key_exists('token', $jsonResponse)) {
                 $exceptionMessage = 'Token not found';
                 if (array_key_exists('message', $jsonResponse)) {
                     if ($jsonResponse['message'] === 'Method not implemented') {
@@ -96,8 +94,10 @@ class CommandRepositoryAPI implements CommandRepositoryInterface
                         $exceptionMessage = $jsonResponse['message'];
                     }
                 }
+
                 throw new CommandRepositoryException($exceptionMessage);
             }
+
             return (string) $jsonResponse['token'];
         } catch (CommandRepositoryException $ex) {
             throw $ex;

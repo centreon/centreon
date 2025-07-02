@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -38,14 +39,10 @@ namespace Centreon\Domain\Entity;
 
 class Listener
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $event;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $action;
 
     public function __construct(int $event, callable $action)

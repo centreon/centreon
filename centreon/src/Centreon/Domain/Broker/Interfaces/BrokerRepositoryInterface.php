@@ -28,7 +28,7 @@ use Centreon\Domain\Broker\BrokerConfiguration;
 interface BrokerRepositoryInterface
 {
     /**
-     * @param integer $monitoringServerId
+     * @param int $monitoringServerId
      * @param string $configKey
      * @return BrokerConfiguration[]
      */

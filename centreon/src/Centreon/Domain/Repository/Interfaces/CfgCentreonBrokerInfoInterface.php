@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Repository\Interfaces;
 
 use Centreon\Domain\Entity\CfgCentreonBrokerInfo;

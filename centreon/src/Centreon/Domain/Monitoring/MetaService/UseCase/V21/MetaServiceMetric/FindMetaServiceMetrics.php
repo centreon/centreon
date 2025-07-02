@@ -24,7 +24,6 @@ namespace Centreon\Domain\Monitoring\MetaService\UseCase\V21\MetaServiceMetric;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\MetaService\Exception\MetaServiceMetricException;
-use Centreon\Domain\Monitoring\MetaService\UseCase\V21\MetaServiceMetric\FindMetaServiceMetricsResponse;
 use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricServiceInterface;
 
 /**
@@ -34,14 +33,10 @@ use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServ
  */
 class FindMetaServiceMetrics
 {
-    /**
-     * @var MetaServiceMetricServiceInterface
-     */
+    /** @var MetaServiceMetricServiceInterface */
     private $metaServiceMetricServiceInterface;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -61,8 +56,8 @@ class FindMetaServiceMetrics
     /**
      * Execute the use case for which this class was designed.
      * @param int $metaId
-     * @return FindMetaServiceMetricsResponse
      * @throws MetaServiceMetricException
+     * @return FindMetaServiceMetricsResponse
      */
     public function execute(int $metaId): FindMetaServiceMetricsResponse
     {
@@ -71,6 +66,7 @@ class FindMetaServiceMetrics
             ? $this->metaServiceMetricServiceInterface->findWithoutAcl($metaId)
             : $this->metaServiceMetricServiceInterface->findWithAcl($metaId);
         $response->setMetaServiceMetrics($metaServiceMetrics);
+
         return $response;
     }
 }

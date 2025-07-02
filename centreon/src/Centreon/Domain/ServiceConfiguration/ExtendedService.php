@@ -30,39 +30,25 @@ namespace Centreon\Domain\ServiceConfiguration;
  */
 class ExtendedService
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notes;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notesUrl;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $actionUrl;
 
-    /**
-     * @var int|null Icon id associated to service
-     */
+    /** @var int|null Icon id associated to service */
     private $iconId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $iconAlternativeText;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $graphId;
 
     /**
@@ -80,6 +66,7 @@ class ExtendedService
     public function setId(?int $id): ExtendedService
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -98,6 +85,7 @@ class ExtendedService
     public function setNotes(?string $notes): ExtendedService
     {
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -116,6 +104,7 @@ class ExtendedService
     public function setNotesUrl(?string $notesUrl): ExtendedService
     {
         $this->notesUrl = $notesUrl;
+
         return $this;
     }
 
@@ -134,6 +123,7 @@ class ExtendedService
     public function setActionUrl(?string $actionUrl): ExtendedService
     {
         $this->actionUrl = $actionUrl;
+
         return $this;
     }
 
@@ -152,6 +142,7 @@ class ExtendedService
     public function setIconId(?int $iconId): ExtendedService
     {
         $this->iconId = $iconId;
+
         return $this;
     }
 
@@ -170,6 +161,7 @@ class ExtendedService
     public function setIconAlternativeText(?string $iconAlternativeText): ExtendedService
     {
         $this->iconAlternativeText = $iconAlternativeText;
+
         return $this;
     }
 
@@ -188,6 +180,7 @@ class ExtendedService
     public function setGraphId(?int $graphId): ExtendedService
     {
         $this->graphId = $graphId;
+
         return $this;
     }
 }

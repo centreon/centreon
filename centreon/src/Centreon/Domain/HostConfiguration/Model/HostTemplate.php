@@ -36,17 +36,14 @@ class HostTemplate
     public const STATUS_ENABLE = 1;
     public const STATUS_DISABLE = 0;
     public const STATUS_DEFAULT = 2;
-
     public const NOTIFICATION_OPTION_DOWN = 1;
     public const NOTIFICATION_OPTION_UNREACHABLE = 2;
     public const NOTIFICATION_OPTION_RECOVERY = 4;
     public const NOTIFICATION_OPTION_FLAPPING = 8;
     public const NOTIFICATION_OPTION_DOWNTIME_SCHEDULED = 16;
-
     public const STALKING_OPTION_UP = 1;
     public const STALKING_OPTION_DOWN = 2;
     public const STALKING_OPTION_UNREACHABLE = 4;
-
     public const MAX_NAME_LENGTH = 200;
     public const MAX_ALIAS_LENGTH = 200;
     public const MAX_DISPLAY_NAME_LENGTH = 255;
@@ -63,128 +60,103 @@ class HostTemplate
     public const MIN_NOTIFICATION_INTERVAL = 0;
     public const MIN_FIRST_NOTIFICATION_DELAY = 0;
     public const MIN_RECOVERY_NOTIFICATION_DELAY = 0;
-
     private const AVAILABLE_STATUS = [
-        self::STATUS_ENABLE, self::STATUS_DISABLE, self::STATUS_DEFAULT
+        self::STATUS_ENABLE, self::STATUS_DISABLE, self::STATUS_DEFAULT,
     ];
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $alias;
 
-    /**
-     * @var string|null Display name
-     */
+    /** @var string|null Display name */
     private $displayName;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $address;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $comment;
 
-    /**
-     * @var int[] Host template parent ids
-     */
+    /** @var int[] Host template parent ids */
     private $parentIds = [];
 
-    /**
-     * @var bool Indicates whether the host template is activated or not.
-     */
+    /** @var bool indicates whether the host template is activated or not */
     private $isActivated = true;
 
-    /**
-     * @var bool Indicates whether the configuration is locked for editing or not.
-     */
+    /** @var bool indicates whether the configuration is locked for editing or not */
     private $isLocked = false;
 
-    /**
-     * @var int Enable or disable active checks. By default active host checks are enabled.
-     */
+    /** @var int Enable or disable active checks. By default active host checks are enabled. */
     private $activeChecksStatus = self::STATUS_DEFAULT;
 
-    /**
-     * @var int Enable or disable passive checks here. When disabled submitted states will be not accepted.
-     */
+    /** @var int Enable or disable passive checks here. When disabled submitted states will be not accepted. */
     private $passiveChecksStatus = self::STATUS_DEFAULT;
 
     /**
      * @var int|null Number of checks before considering verified state (HARD).<br>
-     * Define the number of times that monitoring engine will retry the host check command if it returns any non-OK
-     * state.<br>
-     * Setting this value to 1 will cause monitoring engine to generate an alert immediately.<br>
-     * <b>Note: If you do not want to check the status of the host, you must still set this to a minimum value of 1.
-     * <br>
-     * To bypass the host check, just leave the check command option blank.</b>
+     *               Define the number of times that monitoring engine will retry the host check command if it returns any non-OK
+     *               state.<br>
+     *               Setting this value to 1 will cause monitoring engine to generate an alert immediately.<br>
+     *               <b>Note: If you do not want to check the status of the host, you must still set this to a minimum value of 1.
+     *               <br>
+     *               To bypass the host check, just leave the check command option blank.</b>
      */
     private $maxCheckAttempts;
 
     /**
      * @var int|null Define the number of "time units" between regularly scheduled checks of the host.<br>
-     * With the default time unit of 60s, this number will mean multiples of 1 minute.
+     *               With the default time unit of 60s, this number will mean multiples of 1 minute.
      */
     private $checkInterval;
 
     /**
      * @var int|null Define the number of "time units" to wait before scheduling a re-check for this host after a
-     * non-UP state was detected.<br>
-     * With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
-     * Once the host has been retried max_check_attempts times without a change in its status,
-     * it will revert to being scheduled at its "normal" check interval rate.
+     *               non-UP state was detected.<br>
+     *               With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
+     *               Once the host has been retried max_check_attempts times without a change in its status,
+     *               it will revert to being scheduled at its "normal" check interval rate.
      */
     private $retryCheckInterval;
 
-    /**
-     * @var int Specify whether or not notifications for this host are enabled.
-     */
+    /** @var int specify whether or not notifications for this host are enabled */
     private $notificationsStatus = self::STATUS_DEFAULT;
 
     /**
      * @var int|null Define the number of "time units" to wait before re-notifying a contact that this host is still
-     * down or unreachable.<br>
-     * With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
-     * A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification
-     * will be sent out.
+     *               down or unreachable.<br>
+     *               With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
+     *               A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification
+     *               will be sent out.
      */
     private $notificationInterval;
 
     /**
      * @var int|null Define the number of "time units" to wait before sending out the first problem notification when
-     * this host enters a non-UP state.<br>
-     * With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
-     * If you set this value to 0, monitoring engine will start sending out notifications immediately.
+     *               this host enters a non-UP state.<br>
+     *               With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
+     *               If you set this value to 0, monitoring engine will start sending out notifications immediately.
      */
     private $firstNotificationDelay;
 
     /**
      * @var int|null Define the number of "time units" to wait before sending out the recovery notification when this
-     * host enters an UP state.<br>
-     * With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
-     * If you set this value to 0, monitoring engine will start sending out notifications immediately.
+     *               host enters an UP state.<br>
+     *               With the default time unit of 60s, this number will mean multiples of 1 minute.<br>
+     *               If you set this value to 0, monitoring engine will start sending out notifications immediately.
      */
     private $recoveryNotificationDelay;
 
     /**
      * @var int Define the states of the host for which notifications should be sent out.<br>
-     * If you specify None as an option, no host notifications will be sent out.<br>
-     * If you do not specify any notification options, monitoring engine will assume that you want notifications to be
-     * sent out for all possible states.<br>
-     * <b>Sets to 0 to define not options.</b>
+     *          If you specify None as an option, no host notifications will be sent out.<br>
+     *          If you do not specify any notification options, monitoring engine will assume that you want notifications to be
+     *          sent out for all possible states.<br>
+     *          <b>Sets to 0 to define not options.</b>
      *
      * @see HostTemplate::NOTIFICATION_OPTION_DOWN
      * @see HostTemplate::NOTIFICATION_OPTION_UNREACHABLE
@@ -194,53 +166,41 @@ class HostTemplate
      */
     private $notificationOptions = 0;
 
-    /**
-     * @var string|null Community of the SNMP agent.
-     */
+    /** @var string|null community of the SNMP agent */
     private $snmpCommunity;
 
-    /**
-     * @var string|null Version of the SNMP agent.
-     */
+    /** @var string|null version of the SNMP agent */
     private $snmpVersion;
 
-    /**
-     * @var Image|null Define the image that should be associated with this template.
-     */
+    /** @var Image|null define the image that should be associated with this template */
     private $icon;
 
-    /**
-     * @var string|null Define an optional string that is used in the alternative description of the icon image.
-     */
+    /** @var string|null define an optional string that is used in the alternative description of the icon image */
     private $alternativeIcon;
 
     /**
-     * @var Image|null Define an image that should be associated with this host template in the statusmap CGI in
-     * monitoring engine.
+     * @var Image|null define an image that should be associated with this host template in the statusmap CGI in
+     *                 monitoring engine
      */
     private $statusMapImage;
 
     /**
      * @var string|null Define an optional URL that can be used to provide more information about the host.
-     * <br>
-     * This can be very useful if you want to make detailed information on the host template, emergency contact methods,
-     * etc. available to other support staff.<br>
-     * Any valid URL can be used.
+     *                  <br>
+     *                  This can be very useful if you want to make detailed information on the host template, emergency contact methods,
+     *                  etc. available to other support staff.<br>
+     *                  Any valid URL can be used.
      */
     private $urlNotes;
 
-    /**
-     * @var string|null Define an optional URL that can be used to provide more actions to be performed on the host.
-     */
+    /** @var string|null define an optional URL that can be used to provide more actions to be performed on the host */
     private $actionUrl;
 
-    /**
-     * @var string|null Define an optional notes.
-     */
+    /** @var string|null define an optional notes */
     private $notes;
 
     /**
-     * @var int This directive determines which host states "stalking" is enabled for.
+     * @var int this directive determines which host states "stalking" is enabled for
      *
      * @see HostTemplate::STALKING_OPTION_UP
      * @see HostTemplate::STALKING_OPTION_DOWN
@@ -263,6 +223,7 @@ class HostTemplate
     public function setId(?int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -276,8 +237,8 @@ class HostTemplate
 
     /**
      * @param string|null $name
-     * @return self
      * @throws \Assert\AssertionFailedException
+     * @return self
      */
     public function setName(?string $name): self
     {
@@ -285,6 +246,7 @@ class HostTemplate
             Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'HostTemplate::name');
         }
         $this->name = $name;
+
         return $this;
     }
 
@@ -298,8 +260,8 @@ class HostTemplate
 
     /**
      * @param string|null $alias
-     * @return self
      * @throws \Assert\AssertionFailedException
+     * @return self
      */
     public function setAlias(?string $alias): self
     {
@@ -307,6 +269,7 @@ class HostTemplate
             Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'HostTemplate::alias');
         }
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -320,8 +283,8 @@ class HostTemplate
 
     /**
      * @param string|null $displayName
-     * @return self
      * @throws \Assert\AssertionFailedException
+     * @return self
      */
     public function setDisplayName(?string $displayName): self
     {
@@ -329,6 +292,7 @@ class HostTemplate
             Assertion::maxLength($displayName, self::MAX_DISPLAY_NAME_LENGTH, 'HostTemplate::displayName');
         }
         $this->displayName = $displayName;
+
         return $this;
     }
 
@@ -342,8 +306,8 @@ class HostTemplate
 
     /**
      * @param string|null $address
-     * @return self
      * @throws \Assert\AssertionFailedException
+     * @return self
      */
     public function setAddress(?string $address): self
     {
@@ -351,6 +315,7 @@ class HostTemplate
             Assertion::maxLength($address, self::MAX_ADDRESS_LENGTH, 'HostTemplate::address');
         }
         $this->address = $address;
+
         return $this;
     }
 
@@ -364,8 +329,8 @@ class HostTemplate
 
     /**
      * @param string|null $comment
-     * @return self
      * @throws \Assert\AssertionFailedException
+     * @return self
      */
     public function setComment(?string $comment): self
     {
@@ -373,6 +338,7 @@ class HostTemplate
             Assertion::maxLength($comment, self::MAX_COMMENTS_LENGTH, 'HostTemplate::comment');
         }
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -401,6 +367,7 @@ class HostTemplate
                 )
             );
         }
+
         return $this;
     }
 
@@ -419,6 +386,7 @@ class HostTemplate
     public function setActivated(bool $isActivated): self
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 
@@ -437,6 +405,7 @@ class HostTemplate
     public function setLocked(bool $isLocked): HostTemplate
     {
         $this->isLocked = $isLocked;
+
         return $this;
     }
 
@@ -454,10 +423,11 @@ class HostTemplate
      */
     public function setActiveChecksStatus(int $activeChecksStatus): HostTemplate
     {
-        if (!in_array($activeChecksStatus, self::AVAILABLE_STATUS)) {
+        if (! in_array($activeChecksStatus, self::AVAILABLE_STATUS)) {
             throw HostTemplateArgumentException::badActiveChecksStatus($activeChecksStatus);
         }
         $this->activeChecksStatus = $activeChecksStatus;
+
         return $this;
     }
 
@@ -475,10 +445,11 @@ class HostTemplate
      */
     public function setPassiveChecksStatus(int $passiveChecksStatus): HostTemplate
     {
-        if (!in_array($passiveChecksStatus, self::AVAILABLE_STATUS)) {
+        if (! in_array($passiveChecksStatus, self::AVAILABLE_STATUS)) {
             throw HostTemplateArgumentException::badPassiveChecksStatus($passiveChecksStatus);
         }
         $this->passiveChecksStatus = $passiveChecksStatus;
+
         return $this;
     }
 
@@ -492,8 +463,8 @@ class HostTemplate
 
     /**
      * @param int|null $maxCheckAttempts
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setMaxCheckAttempts(?int $maxCheckAttempts): HostTemplate
     {
@@ -501,6 +472,7 @@ class HostTemplate
             Assertion::min($maxCheckAttempts, self::MIN_CHECK_ATTEMPS, 'HostTemplate::maxCheckAttempts');
         }
         $this->maxCheckAttempts = $maxCheckAttempts;
+
         return $this;
     }
 
@@ -514,8 +486,8 @@ class HostTemplate
 
     /**
      * @param int|null $checkInterval
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setCheckInterval(?int $checkInterval): HostTemplate
     {
@@ -523,6 +495,7 @@ class HostTemplate
             Assertion::min($checkInterval, self::MIN_CHECK_INTERVAL, 'HostTemplate::checkInterval');
         }
         $this->checkInterval = $checkInterval;
+
         return $this;
     }
 
@@ -536,8 +509,8 @@ class HostTemplate
 
     /**
      * @param int|null $retryCheckInterval
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setRetryCheckInterval(?int $retryCheckInterval): HostTemplate
     {
@@ -545,6 +518,7 @@ class HostTemplate
             Assertion::min($retryCheckInterval, self::MIN_RETRY_CHECK_INTERVAL, 'HostTemplate::retryCheckInterval');
         }
         $this->retryCheckInterval = $retryCheckInterval;
+
         return $this;
     }
 
@@ -562,10 +536,11 @@ class HostTemplate
      */
     public function setNotificationsStatus(int $notificationsStatus): HostTemplate
     {
-        if (!in_array($notificationsStatus, self::AVAILABLE_STATUS)) {
+        if (! in_array($notificationsStatus, self::AVAILABLE_STATUS)) {
             HostTemplateArgumentException::badNotificationStatus($notificationsStatus);
         }
         $this->notificationsStatus = $notificationsStatus;
+
         return $this;
     }
 
@@ -579,8 +554,8 @@ class HostTemplate
 
     /**
      * @param int|null $notificationInterval
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setNotificationInterval(?int $notificationInterval): HostTemplate
     {
@@ -592,6 +567,7 @@ class HostTemplate
             );
         }
         $this->notificationInterval = $notificationInterval;
+
         return $this;
     }
 
@@ -605,8 +581,8 @@ class HostTemplate
 
     /**
      * @param int|null $firstNotificationDelay
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setFirstNotificationDelay(?int $firstNotificationDelay): HostTemplate
     {
@@ -618,6 +594,7 @@ class HostTemplate
             );
         }
         $this->firstNotificationDelay = $firstNotificationDelay;
+
         return $this;
     }
 
@@ -631,8 +608,8 @@ class HostTemplate
 
     /**
      * @param int|null $recoveryNotificationDelay
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setRecoveryNotificationDelay(?int $recoveryNotificationDelay): HostTemplate
     {
@@ -644,6 +621,7 @@ class HostTemplate
             );
         }
         $this->recoveryNotificationDelay = $recoveryNotificationDelay;
+
         return $this;
     }
 
@@ -657,8 +635,8 @@ class HostTemplate
 
     /**
      * @param int $notificationOptions
-     * @return HostTemplate
      * @throws \InvalidArgumentException
+     * @return HostTemplate
      */
     public function setNotificationOptions(int $notificationOptions): HostTemplate
     {
@@ -671,6 +649,7 @@ class HostTemplate
             throw HostTemplateArgumentException::badNotificationOptions($notificationOptions);
         }
         $this->notificationOptions = $notificationOptions;
+
         return $this;
     }
 
@@ -684,8 +663,8 @@ class HostTemplate
 
     /**
      * @param string|null $snmpCommunity
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setSnmpCommunity(?string $snmpCommunity): HostTemplate
     {
@@ -693,6 +672,7 @@ class HostTemplate
             Assertion::maxLength($snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, 'HostTemplate::snmpCommunity');
         }
         $this->snmpCommunity = $snmpCommunity;
+
         return $this;
     }
 
@@ -705,9 +685,9 @@ class HostTemplate
     }
 
     /**
-     * @param string|null $snmpVersion The SNMP versions available are 1, 2c and 3.
-     * @return HostTemplate
+     * @param string|null $snmpVersion the SNMP versions available are 1, 2c and 3
      * @throws \InvalidArgumentException
+     * @return HostTemplate
      */
     public function setSnmpVersion(?string $snmpVersion): HostTemplate
     {
@@ -716,6 +696,7 @@ class HostTemplate
                 ? $snmpVersion
                 : null;
         }
+
         return $this;
     }
 
@@ -734,6 +715,7 @@ class HostTemplate
     public function setIcon(?Image $icon): HostTemplate
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -747,8 +729,8 @@ class HostTemplate
 
     /**
      * @param string|null $alternativeIcon
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setAlternativeIcon(?string $alternativeIcon): HostTemplate
     {
@@ -756,6 +738,7 @@ class HostTemplate
             Assertion::maxLength($alternativeIcon, self::MAX_ALTERNATIF_ICON_TEXT, 'HostTemplate::alternativeIcon');
         }
         $this->alternativeIcon = $alternativeIcon;
+
         return $this;
     }
 
@@ -774,6 +757,7 @@ class HostTemplate
     public function setStatusMapImage(?Image $statusMapImage): HostTemplate
     {
         $this->statusMapImage = $statusMapImage;
+
         return $this;
     }
 
@@ -787,8 +771,8 @@ class HostTemplate
 
     /**
      * @param string|null $urlNotes
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setUrlNotes(?string $urlNotes): HostTemplate
     {
@@ -796,6 +780,7 @@ class HostTemplate
             Assertion::maxLength($urlNotes, self::MAX_URL_NOTES, 'HostTemplate::urlNotes');
         }
         $this->urlNotes = $urlNotes;
+
         return $this;
     }
 
@@ -809,8 +794,8 @@ class HostTemplate
 
     /**
      * @param string|null $actionUrl
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setActionUrl(?string $actionUrl): HostTemplate
     {
@@ -818,6 +803,7 @@ class HostTemplate
             Assertion::maxLength($actionUrl, self::MAX_ACTION_URL, 'HostTemplate::actionUrl');
         }
         $this->actionUrl = $actionUrl;
+
         return $this;
     }
 
@@ -831,8 +817,8 @@ class HostTemplate
 
     /**
      * @param string|null $notes
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public function setNotes(?string $notes): HostTemplate
     {
@@ -840,6 +826,7 @@ class HostTemplate
             Assertion::maxLength($notes, self::MAX_NOTES, 'HostTemplate::notes');
         }
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -853,8 +840,8 @@ class HostTemplate
 
     /**
      * @param int $stalkingOptions
-     * @return HostTemplate
      * @throws \InvalidArgumentException
+     * @return HostTemplate
      */
     public function setStalkingOptions(int $stalkingOptions): HostTemplate
     {
@@ -865,6 +852,7 @@ class HostTemplate
             throw HostTemplateArgumentException::badStalkingOptions($stalkingOptions);
         }
         $this->stalkingOptions = $stalkingOptions;
+
         return $this;
     }
 }

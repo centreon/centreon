@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -37,29 +38,25 @@
 namespace Centreon\Application\Validation;
 
 use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
+use Pimple\Container;
 use Pimple\Psr11\ServiceLocator;
 use ReflectionClass;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
-use Pimple\Container;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 
 class CentreonValidatorFactory implements ConstraintValidatorFactoryInterface
 {
-    /**
-     * @var \Pimple\Container
-     */
+    /** @var Container */
     protected $container;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $validators = [];
 
     /**
      * Construct
      *
-     * @param \Pimple\Container $container
+     * @param Container $container
      */
     public function __construct(Container $container)
     {
@@ -67,13 +64,13 @@ class CentreonValidatorFactory implements ConstraintValidatorFactoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getInstance(Constraint $constraint): ConstraintValidatorInterface
     {
         $className = $constraint->validatedBy();
 
-        if (!isset($this->validators[$className])) {
+        if (! isset($this->validators[$className])) {
             if (class_exists($className)) {
                 // validator as a class with dependencies from centreon
                 $reflection = (new ReflectionClass($className));

@@ -22,10 +22,10 @@
 namespace Centreon\Application\Webservice;
 
 use Centreon\Application\DataRepresenter\Response;
-use Centreon\ServiceProvider;
+use Centreon\Application\Serializer;
 use Centreon\Domain\Repository\ContactGroupRepository;
 use Centreon\Infrastructure\Webservice;
-use Centreon\Application\Serializer;
+use Centreon\ServiceProvider;
 
 /**
  * @OA\Tag(name="centreon_contact_groups", description="Web Service for Contact Groups")
@@ -36,7 +36,7 @@ class ContactGroupsWebservice extends Webservice\WebServiceAbstract implements
     use Webservice\DependenciesTrait;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getName(): string
     {
@@ -44,7 +44,7 @@ class ContactGroupsWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function dependencies(): array
     {
@@ -141,9 +141,7 @@ class ContactGroupsWebservice extends Webservice\WebServiceAbstract implements
      */
     public function getList(): Response
     {
-        /*
-         * process request
-         */
+        // process request
         $request = $this->query();
 
         $limit = isset($request['limit']) ? (int) $request['limit'] : null;

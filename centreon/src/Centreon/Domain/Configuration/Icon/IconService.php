@@ -32,9 +32,7 @@ use Centreon\Domain\Configuration\Icon\Interfaces\IconServiceInterface;
  */
 class IconService implements IconServiceInterface
 {
-    /**
-     * @var IconRepositoryInterface
-     */
+    /** @var IconRepositoryInterface */
     private $iconRepository;
 
     /**

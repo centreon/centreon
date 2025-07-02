@@ -32,9 +32,7 @@ use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
  */
 class ProxyService implements ProxyServiceInterface
 {
-    /**
-     * @var ProxyRepositoryInterface
-     */
+    /** @var ProxyRepositoryInterface */
     private $proxyRepository;
 
     /**

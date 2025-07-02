@@ -32,24 +32,16 @@ class Icon
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'icon_main';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $directory;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $url;
 
     /**

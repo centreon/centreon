@@ -42,8 +42,8 @@ interface HostCategoryServiceInterface
      * Find a host category (for non admin user).
      *
      * @param int $categoryId Id of the host category to be found
-     * @return HostCategory|null
      * @throws HostCategoryException
+     * @return HostCategory|null
      */
     public function findWithAcl(int $categoryId): ?HostCategory;
 
@@ -51,8 +51,8 @@ interface HostCategoryServiceInterface
      * Find a host category (for admin user).
      *
      * @param int $categoryId Id of the host category to be found
-     * @return HostCategory|null
      * @throws HostCategoryException
+     * @return HostCategory|null
      */
     public function findWithoutAcl(int $categoryId): ?HostCategory;
 
@@ -60,8 +60,8 @@ interface HostCategoryServiceInterface
      * Find host categories by name (for admin user).
      *
      * @param string[] $categoriesName List of names of host categories to be found
-     * @return HostCategory[]
      * @throws HostCategoryException
+     * @return HostCategory[]
      */
     public function findByNamesWithoutAcl(array $categoriesName): array;
 }

@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\MetaService\Model;
 
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 
 /**
  * This class is designed to represent a  meta service metric.
@@ -35,27 +35,20 @@ class MetaServiceMetric
     public const MAX_METRIC_NAME_LENGTH = 255;
     public const MIN_METRIC_NAME_LENGTH = 1;
     public const MAX_METRIC_UNIT_NAME_LENGTH = 32;
-    /**
-     * @var int ID of the Metric
-     */
+
+    /** @var int ID of the Metric */
     private $id;
-    /**
-     * @var string Name of the Metric
-     */
+
+    /** @var string Name of the Metric */
     private $name;
-    /**
-     * @var string Name of the Metric Unit
-     */
+
+    /** @var string Name of the Metric Unit */
     private $unit;
 
-    /**
-     * @var float Current value of the Metric in RealTime
-     */
+    /** @var float Current value of the Metric in RealTime */
     private $value;
 
-    /**
-     * @var ResourceEntity Resource on which Metric is attached
-     */
+    /** @var ResourceEntity Resource on which Metric is attached */
     private $resource;
 
     /**
@@ -69,7 +62,7 @@ class MetaServiceMetric
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getId(): int
     {
@@ -77,12 +70,13 @@ class MetaServiceMetric
     }
 
     /**
-     * @param integer $id
+     * @param int $id
      * @return MetaServiceMetric
      */
     public function setId(int $id): MetaServiceMetric
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -96,14 +90,15 @@ class MetaServiceMetric
 
     /**
      * @param string $name
-     * @return MetaServiceMetric
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceMetric
      */
     public function setName(string $name): MetaServiceMetric
     {
         Assertion::maxLength($name, self::MAX_METRIC_NAME_LENGTH, 'MetaServiceMetric::name');
         Assertion::minLength($name, self::MIN_METRIC_NAME_LENGTH, 'MetaServiceMetric::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -117,15 +112,16 @@ class MetaServiceMetric
 
     /**
      * @param string|null $unit
-     * @return MetaServiceMetric
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceMetric
      */
     public function setUnit(?string $unit): MetaServiceMetric
     {
-        if (!is_null($unit)) {
+        if (! is_null($unit)) {
             Assertion::maxLength($unit, self::MAX_METRIC_UNIT_NAME_LENGTH, 'MetaServiceMetric::unit');
         }
         $this->unit = $unit;
+
         return $this;
     }
 
@@ -144,6 +140,7 @@ class MetaServiceMetric
     public function setValue(?float $value): MetaServiceMetric
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -162,6 +159,7 @@ class MetaServiceMetric
     public function setResource(?ResourceEntity $resource): MetaServiceMetric
     {
         $this->resource = $resource;
+
         return $this;
     }
 }

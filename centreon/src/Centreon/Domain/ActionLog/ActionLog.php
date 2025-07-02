@@ -29,39 +29,25 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $creationDate;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $objectType;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $objectId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $objectName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $actionType;
 
-    /**
-     * @var int Id of the contact who added this action log
-     */
+    /** @var int Id of the contact who added this action log */
     private $contactId;
 
     /**
@@ -72,7 +58,7 @@ class ActionLog
      * @param string $objectName Object name (ex: localhost, localhost/ping)
      * @param string $actionType Action type (see ActionLog::ACTION_TYPE_ADD, etc...)
      * @param int $contactId Id of the contact who added this action log
-     * @param \DateTime|null $creationDate If null, the creation date will be the same as the entity's creation date.
+     * @param \DateTime|null $creationDate if null, the creation date will be the same as the entity's creation date
      *
      * @see ActionLog::ACTION_TYPE_ADD
      * @see ActionLog::ACTION_TYPE_DELETE
@@ -85,7 +71,7 @@ class ActionLog
         string $objectName,
         string $actionType,
         int $contactId,
-        \DateTime $creationDate = null
+        ?\DateTime $creationDate = null
     ) {
         $this->objectType = $objectType;
         $this->objectId = $objectId;
@@ -113,6 +99,7 @@ class ActionLog
     public function setId(?int $id): ActionLog
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -131,6 +118,7 @@ class ActionLog
     public function setCreationDate(?\DateTime $creationDate): ActionLog
     {
         $this->creationDate = $creationDate;
+
         return $this;
     }
 
@@ -149,6 +137,7 @@ class ActionLog
     public function setObjectType(string $objectType): ActionLog
     {
         $this->objectType = $objectType;
+
         return $this;
     }
 
@@ -167,6 +156,7 @@ class ActionLog
     public function setObjectId(int $objectId): ActionLog
     {
         $this->objectId = $objectId;
+
         return $this;
     }
 
@@ -185,6 +175,7 @@ class ActionLog
     public function setObjectName(string $objectName): ActionLog
     {
         $this->objectName = $objectName;
+
         return $this;
     }
 
@@ -206,12 +197,13 @@ class ActionLog
             self::ACTION_TYPE_ADD,
             self::ACTION_TYPE_DELETE,
             self::ACTION_TYPE_ENABLE,
-            self::ACTION_TYPE_DISABLE
+            self::ACTION_TYPE_DISABLE,
         ];
-        if (!in_array($actionType, $allowedActionTypes)) {
+        if (! in_array($actionType, $allowedActionTypes)) {
             throw new \InvalidArgumentException(_('Type of action not recognized'));
         }
         $this->actionType = $actionType;
+
         return $this;
     }
 
@@ -230,6 +222,7 @@ class ActionLog
     public function setContactId(int $contactId): ActionLog
     {
         $this->contactId = $contactId;
+
         return $this;
     }
 }

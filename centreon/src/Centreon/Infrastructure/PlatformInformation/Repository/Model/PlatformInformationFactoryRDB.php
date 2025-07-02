@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\PlatformInformation\Repository\Model;
 
-use Security\Encryption;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Security\Encryption;
 
 class PlatformInformationFactoryRDB
 {
@@ -32,9 +32,7 @@ class PlatformInformationFactoryRDB
      */
     public const ENCRYPT_SECOND_KEY = 'api_remote_credentials';
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $encryptionFirstKey;
 
     public function __construct(?string $encryptionFirstKey)
@@ -76,6 +74,7 @@ class PlatformInformationFactoryRDB
                     break;
             }
         }
+
         return $platformInformation;
     }
 
@@ -91,7 +90,7 @@ class PlatformInformationFactoryRDB
 
         if ($this->encryptionFirstKey === null) {
             throw new \InvalidArgumentException(
-                _("Unable to find the encryption key.")
+                _('Unable to find the encryption key.')
             );
         }
 
@@ -101,6 +100,7 @@ class PlatformInformationFactoryRDB
         try {
             $centreonEncryption = new Encryption();
             $centreonEncryption->setFirstKey($this->encryptionFirstKey)->setSecondKey($secondKey);
+
             return $centreonEncryption->decrypt($encryptedKey);
         } catch (\throwable $e) {
             throw new \InvalidArgumentException(

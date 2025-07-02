@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\Contact\Contact;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\SubmitResult\Interfaces\SubmitResultServiceInterface;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
 use Exception;
+use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class SubmitResultController extends AbstractController
 {
@@ -41,12 +41,10 @@ class SubmitResultController extends AbstractController
      * @var SubmitResultServiceInterface
      */
     private $submitResultService;
-
-    private const SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE =
-        __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResultResources.json';
-
-    private const SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE =
-        __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResult.json';
+    private const SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResultResources.json';
+    private const SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResult.json';
 
     /**
      * @param SubmitResultServiceInterface $submitResultService
@@ -84,6 +82,7 @@ class SubmitResultController extends AbstractController
             ) {
                 continue;
             }
+
             return false;
         }
 
@@ -94,30 +93,28 @@ class SubmitResultController extends AbstractController
      * Entry point to submit result to multiple hosts.
      *
      * @param Request $request
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function submitResultResources(
         Request $request
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
-        * @var Contact $contact
-        */
+         * @var Contact $contact
+         */
         $contact = $this->getUser();
         $this->submitResultService->filterByContact($contact);
 
-       /*
-        * Validate the content of the POST request against the JSON schema validator
-        */
+        // Validate the content of the POST request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE);
 
         /**
          * If user has no rights to submit result for host and/or service
          * return view with unauthorized HTTP header response
          */
-        if (!$this->hasSubmitResultRightsForResources($contact, $payload['resources'])) {
+        if (! $this->hasSubmitResultRightsForResources($contact, $payload['resources'])) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -150,9 +147,9 @@ class SubmitResultController extends AbstractController
      *
      * @param Request $request
      * @param int $hostId ID of the host
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function submitResultHost(
         Request $request,
@@ -164,13 +161,11 @@ class SubmitResultController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_HOST_SUBMIT_RESULT)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_HOST_SUBMIT_RESULT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
-       /*
-        * Validate the content of the POST request against the JSON schema validator
-        */
+        // Validate the content of the POST request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE);
 
         if ($payload !== []) {
@@ -196,9 +191,9 @@ class SubmitResultController extends AbstractController
      * @param Request $request
      * @param int $hostId ID of service parent (host)
      * @param int $serviceId ID of the service
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function submitResultService(
         Request $request,
@@ -211,13 +206,11 @@ class SubmitResultController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_SUBMIT_RESULT)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_SERVICE_SUBMIT_RESULT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
-       /*
-        * Validate the content of the POST request against the JSON schema validator
-        */
+        // Validate the content of the POST request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE);
 
         if ($payload !== []) {

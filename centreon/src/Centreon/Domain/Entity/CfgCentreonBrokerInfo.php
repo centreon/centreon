@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Entity;
 
 /**
@@ -6,36 +7,24 @@ namespace Centreon\Domain\Entity;
  */
 class CfgCentreonBrokerInfo
 {
-    const TABLE = 'cfg_centreonbroker_info';
+    public const TABLE = 'cfg_centreonbroker_info';
 
-    /**
-     * @var int the linked config id
-     */
+    /** @var int the linked config id */
     private $configId;
 
-    /**
-     * @var string the config group (input, output, log...)
-     */
+    /** @var string the config group (input, output, log...) */
     private $configGroup;
 
-    /**
-     * @var int the config group id (its order in flows listing)
-     */
+    /** @var int the config group id (its order in flows listing) */
     private $configGroupId;
 
-    /**
-     * @var int the config group level (eg: categories)
-     */
+    /** @var int the config group level (eg: categories) */
     private $configGroupLevel;
 
-    /**
-     * @var string the name of the linked field
-     */
+    /** @var string the name of the linked field */
     private $configKey;
 
-    /**
-     * @var string the value of the linked field
-     */
+    /** @var string the value of the linked field */
     private $configValue;
 
     public function __construct(string $configKey, string $configValue)

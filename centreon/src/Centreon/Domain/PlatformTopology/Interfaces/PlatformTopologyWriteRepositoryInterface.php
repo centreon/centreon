@@ -24,9 +24,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformTopology\Interfaces;
 
-use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\Repository\RepositoryException;
-
 interface PlatformTopologyWriteRepositoryInterface
 {
     /**

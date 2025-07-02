@@ -75,17 +75,17 @@ class Configuration
         return $value;
     }
 
-    public function getFinder() : ?Finder
+    public function getFinder(): ?Finder
     {
         return $this->finder;
     }
 
-    public function getModulePath() : string
+    public function getModulePath(): string
     {
         return $this->centreonPath . ModuleSource::PATH;
     }
 
-    public function getWidgetPath() : string
+    public function getWidgetPath(): string
     {
         return $this->centreonPath . WidgetSource::PATH;
     }
@@ -97,7 +97,7 @@ class Configuration
      *
      * @return array
      */
-    public function getModuleConfig(string $moduleFolder) : array
+    public function getModuleConfig(string $moduleFolder): array
     {
         $configVars = [];
         $filesIterator = $this->getFinder()

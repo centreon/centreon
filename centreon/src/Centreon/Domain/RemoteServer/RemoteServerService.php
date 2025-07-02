@@ -23,51 +23,38 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\RemoteServer;
 
-use Centreon\Domain\Menu\MenuException;
-use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
-use Centreon\Domain\RemoteServer\RemoteServerException;
-use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 use Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface;
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
-use Centreon\Domain\RemoteServer\Interfaces\RemoteServerServiceInterface;
-use Centreon\Domain\RemoteServer\Interfaces\RemoteServerLocalConfigurationRepositoryInterface;
+use Centreon\Domain\Menu\MenuException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterRepositoryInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
+use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
+use Centreon\Domain\RemoteServer\Interfaces\RemoteServerLocalConfigurationRepositoryInterface;
+use Centreon\Domain\RemoteServer\Interfaces\RemoteServerServiceInterface;
 
 class RemoteServerService implements RemoteServerServiceInterface
 {
-    /**
-     * @var MenuRepositoryInterface
-     */
+    /** @var MenuRepositoryInterface */
     private $menuRepository;
 
-    /**
-     * @var PlatformTopologyRepositoryInterface
-     */
+    /** @var PlatformTopologyRepositoryInterface */
     private $platformTopologyRepository;
 
-    /**
-     * @var RemoteServerLocalConfigurationRepositoryInterface
-     */
+    /** @var RemoteServerLocalConfigurationRepositoryInterface */
     private $remoteServerRepository;
 
-    /**
-     * @var PlatformTopologyRegisterRepositoryInterface
-     */
+    /** @var PlatformTopologyRegisterRepositoryInterface */
     private $platformTopologyRegisterRepository;
 
-    /**
-     * @var ProxyServiceInterface
-     */
+    /** @var ProxyServiceInterface */
     private $proxyService;
 
-    /**
-     * @var MonitoringServerServiceInterface
-     */
+    /** @var MonitoringServerServiceInterface */
     private $monitoringServerService;
 
     /**
@@ -96,7 +83,6 @@ class RemoteServerService implements RemoteServerServiceInterface
 
     /**
      * @inheritDoc
-
      */
     public function convertCentralToRemote(PlatformInformation $platformInformation): void
     {
@@ -105,7 +91,7 @@ class RemoteServerService implements RemoteServerServiceInterface
          */
         try {
             $platformChildren = $this->platformTopologyRepository->findCentralRemoteChildren();
-            if (!empty($platformChildren)) {
+            if (! empty($platformChildren)) {
                 throw new RemoteServerException(
                     _("Your Central is linked to another remote(s), conversion in Remote isn't allowed")
                 );
@@ -130,7 +116,6 @@ class RemoteServerService implements RemoteServerServiceInterface
         }
         /**
          * Add the future Parent Central as Parent Address to be able to register it later.
-         *
          */
         $topLevelPlatform->setParentAddress($platformInformation->getCentralServerAddress());
 
@@ -170,11 +155,13 @@ class RemoteServerService implements RemoteServerServiceInterface
             }
 
             $this->menuRepository->disableCentralMenus();
-        } catch (PlatformTopologyRepositoryExceptionInterface | PlatformTopologyException $ex) {
+        } catch (PlatformTopologyRepositoryExceptionInterface|PlatformTopologyException $ex) {
             $this->updatePlatformTypeParameters(PlatformRegistered::TYPE_CENTRAL);
+
             throw $ex;
         } catch (\Exception $ex) {
             $this->updatePlatformTypeParameters(PlatformRegistered::TYPE_CENTRAL);
+
             throw new MenuException(_('An error occurred while disabling the central menus'));
         }
 

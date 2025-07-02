@@ -46,8 +46,8 @@ interface EngineConfigurationRepositoryInterface
      * Find the Engine configuration based on the monitoring server id.
      *
      * @param int $monitoringServerId
-     * @return EngineConfiguration|null
      * @throws \Throwable
+     * @return EngineConfiguration|null
      */
     public function findEngineConfigurationByMonitoringServerId(int $monitoringServerId): ?EngineConfiguration;
 

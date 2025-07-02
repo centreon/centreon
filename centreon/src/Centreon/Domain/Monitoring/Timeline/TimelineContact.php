@@ -24,14 +24,10 @@ namespace Centreon\Domain\Monitoring\Timeline;
 
 class TimelineContact
 {
-    /**
-     * @var int|null Id of contact
-     */
+    /** @var int|null Id of contact */
     private $id;
 
-    /**
-     * @var string Name of contact
-     */
+    /** @var string Name of contact */
     private $name;
 
     /**
@@ -49,6 +45,7 @@ class TimelineContact
     public function setId(?int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -67,6 +64,7 @@ class TimelineContact
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 }

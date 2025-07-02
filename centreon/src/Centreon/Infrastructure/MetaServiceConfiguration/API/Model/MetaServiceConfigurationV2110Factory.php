@@ -52,6 +52,7 @@ class MetaServiceConfigurationV2110Factory
         $newMetaServiceConfiguration->metric = $metaServiceConfiguration['metric'];
         $newMetaServiceConfiguration->warning = $metaServiceConfiguration['warning'];
         $newMetaServiceConfiguration->critical = $metaServiceConfiguration['critical'];
+
         return $newMetaServiceConfiguration;
     }
 
@@ -79,6 +80,7 @@ class MetaServiceConfigurationV2110Factory
 
             $metaServicesConfigurations[] = $newMetaServiceConfiguration;
         }
+
         return $metaServicesConfigurations;
     }
 
@@ -87,18 +89,27 @@ class MetaServiceConfigurationV2110Factory
      */
     private static function createEmptyClass(): \stdClass
     {
-        return new class extends \stdClass
-        {
+        return new class () extends \stdClass {
             public $id;
+
             public $name;
+
             public $isActivated;
+
             public $output;
+
             public $calculationType;
+
             public $dataSourceType;
+
             public $metaSelectMode;
+
             public $regexpString;
+
             public $metric;
+
             public $warning;
+
             public $critical;
         };
     }

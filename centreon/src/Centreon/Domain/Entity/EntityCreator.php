@@ -23,33 +23,25 @@ declare(strict_types=1);
 namespace Centreon\Domain\Entity;
 
 use Centreon\Domain\Annotation\EntityDescriptor;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Service\EntityDescriptorMetadataInterface;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Centreon\Domain\Service\EntityDescriptorMetadataInterface;
-use Centreon\Domain\Contact\Contact;
 use ReflectionClass;
 use Utility\StringConverter;
 
 class EntityCreator
 {
-    /**
-     * @var string Class name to create
-     */
+    /** @var string Class name to create */
     private $className;
 
-    /**
-     * @var array<string, EntityDescriptor[]>
-     */
+    /** @var array<string, EntityDescriptor[]> */
     private static $entityDescriptors;
 
-    /**
-     * @var array<string, \ReflectionMethod[]>
-     */
+    /** @var array<string, \ReflectionMethod[]> */
     private static $publicMethods;
 
-    /**
-     * @var Contact
-     */
+    /** @var Contact */
     private static $contact;
 
     /**
@@ -59,11 +51,11 @@ class EntityCreator
      * @param string $className Class name to create
      * @param array $data Data used to fill the new object entity
      * @param string|null $prefix The prefix is used to retrieve only certain records when the table contains data
-     * from more than one entity
-     * @return mixed Return an new instance of the class
+     *                            from more than one entity
      * @throws \Exception
+     * @return mixed Return an new instance of the class
      */
-    public static function createEntityByArray(string $className, array $data, string $prefix = null)
+    public static function createEntityByArray(string $className, array $data, ?string $prefix = null)
     {
         return (new self($className))->createByArray($data, $prefix);
     }
@@ -93,15 +85,15 @@ class EntityCreator
      *
      * @param array $data Array that contains the data that will be used to complete entity
      * @param string|null $prefix The prefix is used to retrieve only certain records when the table contains data
-     * from more than one entity
-     * @return mixed Return an instance of class according to the class name given into constructor
+     *                            from more than one entity
      * @throws AnnotationException
      * @throws \ReflectionException
      * @throws \Exception
+     * @return mixed Return an instance of class according to the class name given into constructor
      */
-    public function createByArray(array $data, string $prefix = null)
+    public function createByArray(array $data, ?string $prefix = null)
     {
-        if (!class_exists($this->className)) {
+        if (! class_exists($this->className)) {
             throw new \Exception(
                 sprintf(_('The class %s does not exist'), $this->className)
             );
@@ -112,14 +104,11 @@ class EntityCreator
 
         $objectToSet = (new ReflectionClass($this->className))->newInstance();
 
-        if (!empty($prefix)) {
+        if (! empty($prefix)) {
             // If a prefix is defined, we keep only $data for which the keys start
             // with the prefix
             $data = array_filter($data, function ($column) use ($prefix) {
-                if (str_starts_with($column, $prefix)) {
-                    return true;
-                }
-                return false;
+                return (bool) (str_starts_with($column, $prefix));
             }, ARRAY_FILTER_USE_KEY);
 
             // Next, we remove the prefix
@@ -148,7 +137,7 @@ class EntityCreator
                     if ($firstParameter->hasType()) {
                         try {
                             $parameterType = $firstParameter->getType();
-                            if (!$parameterType instanceof \ReflectionNamedType) {
+                            if (! $parameterType instanceof \ReflectionNamedType) {
                                 throw new \UnexpectedValueException('Not a ReflectionNamedType');
                             }
                             $value = $this->convertValueBeforeInsert(
@@ -190,8 +179,8 @@ class EntityCreator
      * @param mixed $value Value to convert
      * @param string $destinationType Destination type
      * @param bool $allowNull Indicates whether the null value is allowed
-     * @return mixed Return the converted value
      * @throws \Exception
+     * @return mixed Return the converted value
      */
     private function convertValueBeforeInsert(
         $value,
@@ -201,9 +190,9 @@ class EntityCreator
         if (is_null($value)) {
             if ($allowNull) {
                 return $value;
-            } else {
-                throw new \Exception(_('The value cannot be null'));
             }
+
+            throw new \Exception(_('The value cannot be null'));
         }
 
         switch ($destinationType) {
@@ -222,8 +211,10 @@ class EntityCreator
                     if (self::$contact !== null) {
                         $value->setTimezone(self::$contact->getTimezone());
                     }
+
                     return $value;
                 }
+
                 throw new \Exception(_('Numeric value expected'));
             default:
                 return $value;
@@ -242,7 +233,7 @@ class EntityCreator
         }
 
         self::$publicMethods[$this->className] = [];
-        $reflectionClass = new \ReflectionClass($this->className);
+        $reflectionClass = new ReflectionClass($this->className);
         foreach ($reflectionClass->getMethods() as $method) {
             if ($method->isPublic()) {
                 self::$publicMethods[$this->className][$method->getName()] = $method;

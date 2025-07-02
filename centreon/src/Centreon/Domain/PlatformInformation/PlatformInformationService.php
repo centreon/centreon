@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation;
 
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
-use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationReadRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationServiceInterface;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 
 /**
  * Service intended to use rest API on 'information' specific configuration data
@@ -34,10 +34,7 @@ use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationReadReposi
  */
 class PlatformInformationService implements PlatformInformationServiceInterface
 {
-
-    /**
-     * @var PlatformInformationReadRepositoryInterface
-     */
+    /** @var PlatformInformationReadRepositoryInterface */
     private $platformInformationRepository;
 
     public function __construct(

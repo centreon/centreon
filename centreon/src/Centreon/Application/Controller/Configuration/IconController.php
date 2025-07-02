@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Configuration;
 
+use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Configuration\Icon\Interfaces\IconServiceInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\Configuration\Icon\Interfaces\IconServiceInterface;
-use Centreon\Application\Controller\AbstractController;
 
 /**
  * This class is design to manage all API REST requests concerning the icons configuration.
@@ -38,9 +38,7 @@ class IconController extends AbstractController
     // Groups for serializing
     public const SERIALIZER_GROUPS_MAIN = ['icon_main'];
 
-    /**
-     * @var IconServiceInterface
-     */
+    /** @var IconServiceInterface */
     private $iconService;
 
     public function __construct(IconServiceInterface $iconService)
@@ -52,8 +50,8 @@ class IconController extends AbstractController
      * Get list of icons
      *
      * @param RequestParametersInterface $requestParameters
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getIcons(RequestParametersInterface $requestParameters): View
     {

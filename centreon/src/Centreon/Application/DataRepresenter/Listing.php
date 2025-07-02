@@ -38,7 +38,6 @@
 namespace Centreon\Application\DataRepresenter;
 
 use JsonSerializable;
-use Centreon\Application\DataRepresenter\Entity;
 
 /**
  * @OA\Schema(
@@ -54,29 +53,19 @@ use Centreon\Application\DataRepresenter\Entity;
  */
 class Listing implements JsonSerializable
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $entities;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $offset;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $limit;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $total;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $entityClass;
 
     /**
@@ -91,10 +80,10 @@ class Listing implements JsonSerializable
      */
     public function __construct(
         $entities,
-        int $total = null,
-        int $offset = null,
-        int $limit = null,
-        string $entityClass = null
+        ?int $total = null,
+        ?int $offset = null,
+        ?int $limit = null,
+        ?string $entityClass = null
     ) {
         $this->entities = $entities ?? [];
         $this->total = $total ?: count($this->entities);

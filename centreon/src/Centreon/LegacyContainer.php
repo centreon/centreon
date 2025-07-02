@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -31,9 +32,7 @@ use Pimple\Container;
  */
 class LegacyContainer
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private static $container;
 
     /**
@@ -46,6 +45,7 @@ class LegacyContainer
         if (self::$container === null) {
             self::$container = new Container();
         }
+
         return self::$container;
     }
 }

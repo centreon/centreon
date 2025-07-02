@@ -32,19 +32,13 @@ class Icon
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'icon_main';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $url;
 
     /**
@@ -76,7 +70,7 @@ class Icon
 
     /**
      * @param string|null $name
-     * @return \Centreon\Domain\Monitoring\Icon
+     * @return Icon
      */
     public function setName(?string $name): self
     {
@@ -95,7 +89,7 @@ class Icon
 
     /**
      * @param string|null $url
-     * @return \Centreon\Domain\Monitoring\Icon
+     * @return Icon
      */
     public function setUrl(?string $url): self
     {

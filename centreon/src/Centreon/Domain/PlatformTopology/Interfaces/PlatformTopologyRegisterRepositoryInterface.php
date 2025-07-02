@@ -26,7 +26,6 @@ namespace Centreon\Domain\PlatformTopology\Interfaces;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
 use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Domain\Proxy\Proxy;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryExceptionInterface;
 
 interface PlatformTopologyRegisterRepositoryInterface
 {
@@ -42,7 +41,7 @@ interface PlatformTopologyRegisterRepositoryInterface
     public function registerPlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        Proxy $proxy = null
+        ?Proxy $proxy = null
     ): void;
 
     /**
@@ -57,6 +56,6 @@ interface PlatformTopologyRegisterRepositoryInterface
     public function deletePlatformToParent(
         PlatformInterface $platform,
         PlatformInformation $platformInformation,
-        Proxy $proxy = null
+        ?Proxy $proxy = null
     ): void;
 }

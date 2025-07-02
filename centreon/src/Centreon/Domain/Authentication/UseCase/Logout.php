@@ -24,18 +24,14 @@ declare(strict_types=1);
 namespace Centreon\Domain\Authentication\UseCase;
 
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
-use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Centreon\Domain\Log\LoggerTrait;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 
 class Logout
 {
     use LoggerTrait;
 
-    /**
-     * @var AuthenticationRepositoryInterface
-     */
+    /** @var AuthenticationRepositoryInterface */
     private $authenticationRepository;
 
     public function __construct(

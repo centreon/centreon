@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Model;
 
-use Centreon\Domain\PlatformInformation\Model\Information;
-
 class InformationFactory
 {
     /**
      * @param array<string,mixed> $request
-     * @return array<Information>
      * @throws \Assert\AssertionFailedException
+     * @return array<Information>
      */
     public static function createFromDto(array $request): array
     {

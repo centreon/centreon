@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
-use Centreon\Domain\Monitoring\Notes;
-
 /**
  * Resource external Links model for resource repository
  *
@@ -31,14 +29,10 @@ use Centreon\Domain\Monitoring\Notes;
  */
 class ResourceExternalLinks
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $actionUrl;
 
-    /**
-     * @var Notes|null
-     */
+    /** @var Notes|null */
     private $notes;
 
     /**

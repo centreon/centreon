@@ -124,8 +124,8 @@ trait CommandLineTrait
      *   ==> matched values : [/usr/lib64/nagios/plugins/check_icmp, hiddenPassword]
      *
      * @param string $configurationCommand
-     * @return string
      * @throws MonitoringServiceException
+     * @return string
      */
     private function generateCommandMacroPattern(string $configurationCommand): string
     {

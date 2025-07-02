@@ -41,9 +41,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSeverityReadRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
@@ -84,8 +82,8 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
      *
      * @param int $hostSeverityId Id of the host severity to be found
      * @param int|null $contactId Contact id related to host severity
-     * @return HostSeverity|null
      * @throws AssertionFailedException
+     * @return HostSeverity|null
      */
     private function findByIdRequest(int $hostSeverityId, ?int $contactId): ?HostSeverity
     {
@@ -143,6 +141,7 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostSeverityFactoryRdb::create($result);
         }
+
         return null;
     }
 
@@ -174,6 +173,7 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostSeverityFactoryRdb::create($result);
         }
+
         return null;
     }
 }

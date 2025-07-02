@@ -39,7 +39,7 @@ use Centreon\Domain\Entity\AclGroup;
 class ListContext implements SerializerContextInterface
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function context(): array
     {

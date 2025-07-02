@@ -1,8 +1,8 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
-use PDO;
 
 class CfgResourceInstanceRelationsRepository extends ServiceEntityRepository
 {
@@ -15,16 +15,15 @@ class CfgResourceInstanceRelationsRepository extends ServiceEntityRepository
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = implode(',', $pollerIds);
 
-        $sql = "SELECT t.* "
-            . "FROM cfg_resource_instance_relations AS t "
-            . "WHERE t.instance_id IN ({$ids})"
-        ;
+        $sql = 'SELECT t.* '
+            . 'FROM cfg_resource_instance_relations AS t '
+            . "WHERE t.instance_id IN ({$ids})";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

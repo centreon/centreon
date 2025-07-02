@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -47,7 +48,7 @@ interface PaginationRepositoryInterface
      * @param array<string,string> $ordering
      * @return array<int,mixed>
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array;
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array;
 
     /**
      * Get total count of elements in the list

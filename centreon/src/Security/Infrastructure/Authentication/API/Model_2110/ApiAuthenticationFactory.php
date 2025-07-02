@@ -50,7 +50,7 @@ class ApiAuthenticationFactory
      */
     private static function createEmptyClass(): \stdClass
     {
-        return new class extends \stdClass {
+        return new class () extends \stdClass {
             /** @var array<string,mixed> */
             public $contact;
 

@@ -10,12 +10,9 @@ namespace Centreon\Infrastructure\Service;
 class CentcoreConfigService
 {
     public const CONF_WEB = 'instCentWeb.conf';
-
     public const MACROS_DELIMITER_TEMPLATE = '@%s@';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $macros;
 
     /**

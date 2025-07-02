@@ -26,9 +26,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
 class AuthenticateApiResponse
 {
-    /**
-     * @var array<string,array<string,mixed>>
-     */
+    /** @var array<string,array<string,mixed>> */
     private $apiAuthentication = [];
 
     /**
@@ -57,7 +55,7 @@ class AuthenticateApiResponse
             ],
             'security' => [
                 'token' => $token,
-            ]
+            ],
         ];
     }
 }

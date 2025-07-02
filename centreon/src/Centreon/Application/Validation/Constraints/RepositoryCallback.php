@@ -42,31 +42,20 @@ use Symfony\Component\Validator\Constraint;
 
 class RepositoryCallback extends Constraint
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $fieldAccessor = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $repoMethod = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $repository = null;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $fields = '';
-
     public const NOT_VALID_REPO_CALLBACK = '13bd9dbf-6b9b-41cd-a99e-4844bcf3077z';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $message = 'Does not satisfy validation callback. Check Repository.';
 
     /**
@@ -77,7 +66,7 @@ class RepositoryCallback extends Constraint
     ];
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function validatedBy(): string
     {
@@ -85,7 +74,7 @@ class RepositoryCallback extends Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getTargets(): string|array
     {

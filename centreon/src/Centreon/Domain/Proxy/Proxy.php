@@ -31,8 +31,9 @@ class Proxy
 {
     public const PROTOCOL_HTTP = 'http://';
     public const PROTOCOL_HTTPS = 'https://';
+
     /**
-     * @link https://metacpan.org/pod/LWP::Protocol::connect
+     * @see https://metacpan.org/pod/LWP::Protocol::connect
      */
     public const PROTOCOL_CONNECT = 'connect://';
 
@@ -45,29 +46,19 @@ class Proxy
         self::PROTOCOL_CONNECT,
     ];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $url;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $port;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $user;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $password;
 
-    /**
-     * @var string Proxy connection protocol (default: Proxy::PROTOCOL_HTTP)
-     */
+    /** @var string Proxy connection protocol (default: Proxy::PROTOCOL_HTTP) */
     private $protocol = self::PROTOCOL_HTTP;
 
     public function __construct()
@@ -83,14 +74,15 @@ class Proxy
     }
 
     /**
-     * @param string|null $url An empty url will not be taken into account.
+     * @param string|null $url an empty url will not be taken into account
      * @return Proxy
      */
     public function setUrl(?string $url): Proxy
     {
-        if (!empty($url)) {
+        if (! empty($url)) {
             $this->url = $url;
         }
+
         return $this;
     }
 
@@ -104,8 +96,8 @@ class Proxy
 
     /**
      * @param int|null $port Numerical value (0 >= PORT <= 65535)
-     * @return Proxy
      * @throws \InvalidArgumentException
+     * @return Proxy
      */
     public function setPort(?int $port): Proxy
     {
@@ -129,14 +121,15 @@ class Proxy
     }
 
     /**
-     * @param string|null $user An empty user will not be taken into account.
+     * @param string|null $user an empty user will not be taken into account
      * @return Proxy
      */
     public function setUser(?string $user): Proxy
     {
-        if (!empty($user)) {
+        if (! empty($user)) {
             $this->user = $user;
         }
+
         return $this;
     }
 
@@ -155,6 +148,7 @@ class Proxy
     public function setPassword(?string $password): Proxy
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -168,20 +162,21 @@ class Proxy
 
     /**
      * @param string $protocol
-     * @return Proxy
      * @throws \InvalidArgumentException
+     * @return Proxy
      * @see Proxy::PROTOCOL_HTTP
      * @see Proxy::PROTOCOL_HTTPS
      * @see Proxy::PROTOCOL_CONNECT
      */
     public function setProtocol(string $protocol): Proxy
     {
-        if (!in_array($protocol, static::AVAILABLE_PROTOCOLS)) {
+        if (! in_array($protocol, static::AVAILABLE_PROTOCOLS)) {
             throw new \InvalidArgumentException(
                 sprintf(_('Protocol %s is not allowed'), $protocol)
             );
         }
         $this->protocol = $protocol;
+
         return $this;
     }
 
@@ -201,17 +196,18 @@ class Proxy
     public function __toString(): string
     {
         $uri = '';
-        if (!empty($this->url)) {
+        if (! empty($this->url)) {
             $uri .= $this->protocol;
-            if (!empty($this->user)) {
+            if (! empty($this->user)) {
                 $uri .= $this->user . ':' . $this->password . '@';
             }
-            if (!empty($this->port) && $this->port > 0 && $this->port < 65536) {
+            if (! empty($this->port) && $this->port > 0 && $this->port < 65536) {
                 $uri .= $this->url . ':' . $this->port;
             } else {
                 $uri .= $this->url;
             }
         }
+
         return $uri;
     }
 }

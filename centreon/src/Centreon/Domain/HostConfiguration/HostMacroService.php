@@ -66,6 +66,7 @@ class HostMacroService implements HostMacroServiceInterface
     {
         try {
             Assertion::notNull($host->getId(), 'Host::id');
+
             return $this->readRepository->findAllByHost($host);
         } catch (\Throwable $ex) {
             throw HostMacroServiceException::errorOnReadingHostMacros($ex);

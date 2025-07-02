@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -77,7 +78,7 @@ $dependencyInjector[CentreonI18n::class] = function ($container) {
     if (! str_contains($lang, '.UTF-8')) {
         $lang .= '.UTF-8';
     }
-    $translationFile = _CENTREON_PATH_  . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
+    $translationFile = _CENTREON_PATH_ . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
     $translation = new CentreonI18n();
     $translation->setFilesGenerationPath($translationFile);
 

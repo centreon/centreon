@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -51,10 +52,9 @@ class ContactProvider implements UserProviderInterface
      *
      * @param string $username The username
      *
-     * @return UserInterface
-     *
      * @throws UserNotFoundException if the user is not found
      * @throws \Exception
+     * @return UserInterface
      */
     public function loadUserByUsername(string $username): UserInterface
     {
@@ -62,6 +62,7 @@ class ContactProvider implements UserProviderInterface
         if (is_null($contact)) {
             throw new UserNotFoundException();
         }
+
         return $contact;
     }
 
@@ -77,6 +78,7 @@ class ContactProvider implements UserProviderInterface
         if (is_null($contact)) {
             throw new UserNotFoundException();
         }
+
         return $contact;
     }
 
@@ -90,7 +92,6 @@ class ContactProvider implements UserProviderInterface
      *
      * @param UserInterface $user
      * @return UserInterface
-     *
      */
     public function refreshUser(UserInterface $user): UserInterface
     {

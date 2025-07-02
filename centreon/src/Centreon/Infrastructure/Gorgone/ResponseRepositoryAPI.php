@@ -36,14 +36,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ResponseRepositoryAPI implements ResponseRepositoryInterface
 {
     /**
-     * @var HttpClientInterface Http client library that will be used to
-     * communicate with the Gorgone server through its API.
+     * @var HttpClientInterface http client library that will be used to
+     *                          communicate with the Gorgone server through its API
      */
     private $client;
 
-    /**
-     * @var ConfigurationLoaderApiInterface
-     */
+    /** @var ConfigurationLoaderApiInterface */
     private $configuration;
 
     /**
@@ -69,7 +67,7 @@ class ResponseRepositoryAPI implements ResponseRepositoryInterface
         if ($this->configuration->getApiUsername() !== null) {
             $options = array_merge(
                 $options,
-                [ 'auth_basic' => $this->configuration->getApiUsername() . ':'
+                ['auth_basic' => $this->configuration->getApiUsername() . ':'
                     . $this->configuration->getApiPassword()]
             );
         }
@@ -86,6 +84,7 @@ class ResponseRepositoryAPI implements ResponseRepositoryInterface
             if ($response->getStatusCode() !== 200) {
                 throw new \Exception('Request error', $response->getStatusCode());
             }
+
             return $response->getContent();
         } catch (\Throwable $ex) {
             throw new \Exception($ex->getMessage(), (int) $ex->getCode(), $ex);

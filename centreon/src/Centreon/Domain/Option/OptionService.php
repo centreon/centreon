@@ -32,9 +32,7 @@ use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
  */
 class OptionService implements OptionServiceInterface
 {
-    /**
-     * @var OptionRepositoryInterface
-     */
+    /** @var OptionRepositoryInterface */
     private $repository;
 
     /**
@@ -61,6 +59,7 @@ class OptionService implements OptionServiceInterface
                 $requestedOptions[] = $option;
             }
         }
+
         return $requestedOptions;
     }
 

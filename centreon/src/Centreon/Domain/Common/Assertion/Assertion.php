@@ -448,7 +448,7 @@ class Assertion
                     (fn (?int ...$items): array => $items)(...$values);
                     break;
             }
-        } catch(\TypeError) {
+        } catch (\TypeError) {
             throw AssertionException::invalidTypeInArray($type, $propertyPath);
         }
     }

@@ -29,8 +29,8 @@ interface PlatformInformationReadRepositoryInterface
     /**
      * Find all platform information.
      *
-     * @return PlatformInformation|null
      * @throws \Exception
+     * @return PlatformInformation|null
      */
     public function findPlatformInformation(): ?PlatformInformation;
 

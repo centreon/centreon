@@ -50,7 +50,7 @@ class ObjectConstructor implements ObjectConstructorInterface
         DeserializationContext $context
     ): ?object {
         $className = $metadata->name;
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             throw SerializerException::classNotFound($className);
         }
         $reflection = new \ReflectionClass($className);
@@ -71,6 +71,7 @@ class ObjectConstructor implements ObjectConstructorInterface
                 if ($ex instanceof \ArgumentCountError) {
                     throw SerializerException::notEnoughConstructorArguments($className, $ex);
                 }
+
                 throw $ex;
             }
         } else {

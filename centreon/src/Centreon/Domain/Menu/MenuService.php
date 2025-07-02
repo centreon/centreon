@@ -29,9 +29,7 @@ use Centreon\Domain\Menu\Model\Page;
 
 class MenuService implements MenuServiceInterface
 {
-    /**
-     * @var MenuRepositoryInterface
-     */
+    /** @var MenuRepositoryInterface */
     private $menuRepository;
 
     public function __construct(MenuRepositoryInterface $menuRepository)

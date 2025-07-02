@@ -75,7 +75,7 @@ class MonitoringHostsController extends AbstractController
                 $this->monitoring->hidePasswordInServiceCommandLine($service);
             }
         } catch (\Throwable $ex) {
-            $service->setCommandLine(sprintf('Unable to hide passwords in command (Reason: %s)',$ex->getMessage()));
+            $service->setCommandLine(sprintf('Unable to hide passwords in command (Reason: %s)', $ex->getMessage()));
         }
 
         $groups = [
@@ -331,7 +331,7 @@ class MonitoringHostsController extends AbstractController
      *
      * @throws \Exception
      *
-     * @return \FOS\RestBundle\View\View
+     * @return View
      */
     public function getHostGroupsByHost(int $hostId, RequestParametersInterface $requestParameters)
     {

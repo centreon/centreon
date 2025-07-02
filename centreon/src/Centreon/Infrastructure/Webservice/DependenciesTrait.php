@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,10 +37,10 @@
 
 namespace Centreon\Infrastructure\Webservice;
 
+use Centreon\ServiceProvider;
 use Pimple\Container;
 use Pimple\Psr11\ServiceLocator;
 use Symfony\Component\Serializer;
-use Centreon\ServiceProvider;
 
 trait DependenciesTrait
 {
@@ -61,7 +62,7 @@ trait DependenciesTrait
     /**
      * Extract services that are in use only
      *
-     * @param \Pimple\Container $di
+     * @param Container $di
      */
     public function setDi(Container $di): void
     {
@@ -71,7 +72,7 @@ trait DependenciesTrait
     /**
      * Get the Serializer service
      *
-     * @return \Symfony\Component\Serializer\Serializer
+     * @return Serializer\Serializer
      */
     public function getSerializer(): Serializer\Serializer
     {

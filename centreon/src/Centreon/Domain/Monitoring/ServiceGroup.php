@@ -35,23 +35,17 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public const SERIALIZER_GROUP_MAIN = 'sg_main';
     public const SERIALIZER_GROUP_WITH_HOST = 'sg_with_host';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var Host[]
-     */
+    /** @var Host[] */
     private $hosts = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -75,6 +69,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setId(int $id): ServiceGroup
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -85,9 +80,9 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function addHost(Host $host): ServiceGroup
     {
         $this->hosts[] = $host;
+
         return $this;
     }
-
 
     /**
      * @return Host[]
@@ -104,6 +99,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setHosts(array $hosts): ServiceGroup
     {
         $this->hosts = $hosts;
+
         return $this;
     }
 
@@ -120,6 +116,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -138,6 +135,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setName(?string $name): ServiceGroup
     {
         $this->name = $name;
+
         return $this;
     }
 }

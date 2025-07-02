@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostGroup;
 
 use Centreon\Domain\HostConfiguration\Exception\HostGroupException;
-use Centreon\Domain\HostConfiguration\HostGroupService;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
 use Centreon\Domain\Repository\RepositoryException;
 
@@ -44,8 +43,8 @@ interface HostGroupServiceInterface
      * Find host groups by name (for admin user).
      *
      * @param string[] $groupsName List of names of host groups to be found
-     * @return HostGroup[]
      * @throws HostGroupException
+     * @return HostGroup[]
      */
     public function findByNamesWithoutAcl(array $groupsName): array;
 
@@ -53,9 +52,9 @@ interface HostGroupServiceInterface
      * Find a host group (for non admin user).
      *
      * @param int $groupId Id of the host group to be found
-     * @return HostGroup|null
      * @throws HostGroupException
      * @throws RepositoryException
+     * @return HostGroup|null
      */
     public function findWithAcl(int $groupId): ?HostGroup;
 
@@ -63,9 +62,9 @@ interface HostGroupServiceInterface
      * Find a host group (for admin user).
      *
      * @param int $groupId Id of the host group to be found
-     * @return HostGroup|null
      * @throws HostGroupException
      * @throws RepositoryException
+     * @return HostGroup|null
      */
     public function findWithoutAcl(int $groupId): ?HostGroup;
 }

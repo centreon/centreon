@@ -24,8 +24,8 @@ namespace Centreon\Domain\Downtime\Interfaces;
 
 use Centreon\Domain\Downtime\Downtime;
 use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Monitoring\Service;
 
 interface DowntimeServiceInterface
 {
@@ -35,16 +35,16 @@ interface DowntimeServiceInterface
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return self
      * @throws \Exception
+     * @return self
      */
     public function filterByContact($contact): self;
 
     /**
      * Find downtime of all hosts.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findHostDowntimes(): array;
 
@@ -52,16 +52,16 @@ interface DowntimeServiceInterface
      * Find one downtime linked to a host.
      *
      * @param int $downtimeId Downtime id
-     * @return Downtime|null Return NULL if the downtime has not been found
      * @throws \Exception
+     * @return Downtime|null Return NULL if the downtime has not been found
      */
     public function findOneDowntime(int $downtimeId): ?Downtime;
 
     /**
      * Find all downtimes.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimes(): array;
 
@@ -70,16 +70,16 @@ interface DowntimeServiceInterface
      *
      * @param int $hostId Host id for which we want to find host
      * @param bool $withServices Display downtimes of host-related services also
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByHost(int $hostId, bool $withServices): array;
 
     /**
      * Find downtime of all services.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findServicesDowntimes(): array;
 
@@ -88,8 +88,8 @@ interface DowntimeServiceInterface
      *
      * @param int $hostId Host id linked to this service
      * @param int $serviceId Service id for which we want to find downtimes
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByService(int $hostId, int $serviceId): array;
 
@@ -97,8 +97,8 @@ interface DowntimeServiceInterface
      * Find all downtimes for a metaservice.
      *
      * @param int $metaId ID of the metaservice
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByMetaService(int $metaId): array;
 

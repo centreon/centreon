@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -34,6 +35,7 @@ interface RequestParametersInterface
      * @return string
      */
     public function getSearchAsString(): string;
+
     /**
      * Add an extra parameter.
      *

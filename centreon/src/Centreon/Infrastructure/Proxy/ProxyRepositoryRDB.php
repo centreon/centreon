@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -38,8 +39,8 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
      */
     public function updateProxy(Proxy $proxy): void
     {
-        $request =
-            'DELETE FROM `:db`.options 
+        $request
+            = 'DELETE FROM `:db`.options 
             WHERE `key` IN (\'proxy_url\', \'proxy_port\', \'proxy_user\', \'proxy_password\')';
 
         $request = $this->translateDbName($request);
@@ -54,7 +55,7 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
             'proxy_url' => $proxy->getUrl(),
             'proxy_port' => $proxy->getPort(),
             'proxy_user' => $proxy->getUser(),
-            'proxy_password' => $proxy->getPassword()
+            'proxy_password' => $proxy->getPassword(),
         ];
 
         foreach ($data as $key => $value) {
@@ -76,13 +77,14 @@ class ProxyRepositoryRDB extends AbstractRepositoryDRB implements ProxyRepositor
         $statement = $this->db->query($request);
         if ($statement !== false) {
             $proxyDetails = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
-            if (!empty($proxyDetails)) {
+            if (! empty($proxyDetails)) {
                 $proxy->setUrl($proxyDetails['proxy_url'] ?? null);
                 $proxy->setPort(isset($proxyDetails['proxy_port']) ? (int) $proxyDetails['proxy_port'] : null);
                 $proxy->setUser($proxyDetails['proxy_user'] ?? null);
                 $proxy->setPassword($proxyDetails['proxy_password'] ?? null);
             }
         }
+
         return $proxy;
     }
 }

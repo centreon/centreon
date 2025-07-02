@@ -29,29 +29,19 @@ namespace Centreon\Domain\Filter;
  */
 class FilterCriteria
 {
-    /**
-     * @var string|null Name of the criteria
-     */
+    /** @var string|null Name of the criteria */
     private $name;
 
-    /**
-     * @var string|null Type of the criteria
-     */
+    /** @var string|null Type of the criteria */
     private $type;
 
-    /**
-     * @var string|array<mixed>|boolean|null Value of the criteria
-     */
+    /** @var string|array<mixed>|bool|null Value of the criteria */
     private $value;
 
-    /**
-     * @var string|null Object type used in the criteria
-     */
+    /** @var string|null Object type used in the criteria */
     private $objectType;
 
-    /**
-     * @var array<mixed>|null Value of the searchData
-     */
+    /** @var array<mixed>|null Value of the searchData */
     private $searchData;
 
     /**
@@ -69,6 +59,7 @@ class FilterCriteria
     public function setName(?string $name): FilterCriteria
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -87,11 +78,12 @@ class FilterCriteria
     public function setType(?string $type): FilterCriteria
     {
         $this->type = $type;
+
         return $this;
     }
 
     /**
-     * @return string|array<mixed>|boolean|null
+     * @return string|array<mixed>|bool|null
      */
     public function getValue()
     {
@@ -99,12 +91,13 @@ class FilterCriteria
     }
 
     /**
-     * @param string|array<mixed>|boolean|null $value
+     * @param string|array<mixed>|bool|null $value
      * @return FilterCriteria
      */
     public function setValue($value): FilterCriteria
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -123,6 +116,7 @@ class FilterCriteria
     public function setObjectType(?string $objectType): FilterCriteria
     {
         $this->objectType = $objectType;
+
         return $this;
     }
 
@@ -137,7 +131,9 @@ class FilterCriteria
         return $this;
     }
 
-    /** @return mixed[]|null  */
+    /**
+     * @return mixed[]|null
+     */
     public function getSearchData()
     {
         return $this->searchData;

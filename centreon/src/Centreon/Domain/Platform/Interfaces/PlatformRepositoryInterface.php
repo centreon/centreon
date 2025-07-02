@@ -27,16 +27,16 @@ interface PlatformRepositoryInterface
     /**
      * Retrieves the web version of the Centreon platform.
      *
-     * @return string|null Version of the Centreon platform
      * @throws \Exception
+     * @return string|null Version of the Centreon platform
      */
     public function getWebVersion(): ?string;
 
     /**
      * Retrieves the version of each modules installed on the Centreon platform.
      *
-     * @return array<string, string> Version of the modules on the Centreon platform
      * @throws \Exception
+     * @return array<string, string> Version of the modules on the Centreon platform
      */
     public function getModulesVersion(): array;
 
@@ -44,8 +44,8 @@ interface PlatformRepositoryInterface
      * Retrieves the version of each widget installed on the Centreon platform.
      *
      * @param string $webVersion Centreon web version
-     * @return array<string, string> Version of the widgets on the Centreon platform
      * @throws \Exception
+     * @return array<string, string> Version of the widgets on the Centreon platform
      */
     public function getWidgetsVersion(string $webVersion): array;
 }

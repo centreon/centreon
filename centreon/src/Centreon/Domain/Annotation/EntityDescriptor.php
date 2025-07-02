@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -29,13 +30,9 @@ namespace Centreon\Domain\Annotation;
  */
 class EntityDescriptor
 {
-    /**
-     * @var string Name of the column
-     */
+    /** @var string Name of the column */
     public $column;
 
-    /**
-     * @var string Name of the setter method
-     */
+    /** @var string Name of the setter method */
     public $modifier;
 }

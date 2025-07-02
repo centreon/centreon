@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
-use FOS\RestBundle\View\View;
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\Monitoring\MetaService\UseCase\V21\MetaServiceMetric\FindMetaServiceMetrics;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\Monitoring\MetaService\API\Model\MetaServiceMetricFactoryV21;
+use FOS\RestBundle\View\View;
 
 /**
  * This class is designed to provide APIs for the context of RealTime Monitoring Servers.
@@ -47,10 +47,11 @@ class MetaServiceController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         $response = $findMetaServiceMetrics->execute($metaId);
+
         return $this->view(
             [
                 'result' => MetaServiceMetricFactoryV21::createFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }

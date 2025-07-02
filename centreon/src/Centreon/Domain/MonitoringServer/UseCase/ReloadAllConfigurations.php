@@ -57,7 +57,7 @@ class ReloadAllConfigurations
 
     /**
      * @throws ConfigurationMonitoringServerException
-     * @throws \Centreon\Domain\Exception\TimeoutException
+     * @throws TimeoutException
      */
     public function execute(): void
     {
@@ -81,7 +81,7 @@ class ReloadAllConfigurations
                     $accessGroups
                 );
             }
-        } catch(AccessDeniedException $ex) {
+        } catch (AccessDeniedException $ex) {
             throw new AccessDeniedException($ex->getMessage());
         } catch (\Throwable $ex) {
             throw ConfigurationMonitoringServerException::errorRetrievingMonitoringServers($ex);

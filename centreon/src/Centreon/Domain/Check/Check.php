@@ -28,29 +28,19 @@ class Check
     public const VALIDATION_GROUPS_SERVICE_CHECK = ['check_service'];
     public const VALIDATION_GROUPS_META_SERVICE_CHECK = ['check_meta_service'];
 
-    /**
-     * @var int Resource id
-     */
+    /** @var int Resource id */
     private $resourceId;
 
-    /**
-     * @var int|null Parent resource id
-     */
+    /** @var int|null Parent resource id */
     private $parentResourceId;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $checkTime;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isForced = false;
 
-    /**
-     * @var bool Indicates if this downtime should be applied to linked services
-     */
+    /** @var bool Indicates if this downtime should be applied to linked services */
     private $withServices = false;
 
     /**
@@ -68,6 +58,7 @@ class Check
     public function setResourceId(int $resourceId): Check
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -86,6 +77,7 @@ class Check
     public function setParentResourceId(?int $parentResourceId): Check
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 
@@ -104,6 +96,7 @@ class Check
     public function setCheckTime(?\DateTime $checkTime): Check
     {
         $this->checkTime = $checkTime;
+
         return $this;
     }
 
@@ -122,6 +115,7 @@ class Check
     public function setForced(bool $isForced): Check
     {
         $this->isForced = $isForced;
+
         return $this;
     }
 

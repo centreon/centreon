@@ -1,8 +1,9 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
 use Centreon\Domain\Entity\CfgCentreonBrokerInfo;
+use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 /**
@@ -33,7 +34,7 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
         $stmt->execute();
 
         $row = $stmt->fetch();
-        if (!is_null($row['max_config_group_id'])) {
+        if (! is_null($row['max_config_group_id'])) {
             // to get the new new config group id, we need to increment the max exsting one
             $configGroupId = $row['max_config_group_id'] + 1;
         }
@@ -48,7 +49,7 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
      */
     public function add(CfgCentreonBrokerInfo $brokerInfoEntity): void
     {
-        $sql = "INSERT INTO " . $brokerInfoEntity::TABLE . ' '
+        $sql = 'INSERT INTO ' . $brokerInfoEntity::TABLE . ' '
             . '(config_id, config_group, config_group_id, config_key, config_value) '
             . 'VALUES (:config_id, :config_group, :config_group_id, :config_key, :config_value)';
         $stmt = $this->db->prepare($sql);
@@ -69,18 +70,18 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT t.*
-FROM cfg_centreonbroker_info AS t
-INNER JOIN cfg_centreonbroker AS cci ON cci.config_id = t.config_id
-WHERE cci.ns_nagios_server IN ({$ids})
-SQL;
+            SELECT t.*
+            FROM cfg_centreonbroker_info AS t
+            INNER JOIN cfg_centreonbroker AS cci ON cci.config_id = t.config_id
+            WHERE cci.ns_nagios_server IN ({$ids})
+            SQL;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

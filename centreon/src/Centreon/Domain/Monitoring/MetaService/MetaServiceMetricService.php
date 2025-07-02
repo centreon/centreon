@@ -23,11 +23,11 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\MetaService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use Centreon\Domain\Monitoring\MetaService\Exception\MetaServiceMetricException;
-use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
-use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricServiceInterface;
 use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricRepositoryInterface;
+use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServiceMetricServiceInterface;
 
 /**
  * This class is designed to manage Meta Service Metrics.
@@ -36,18 +36,13 @@ use Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric\MetaServ
  */
 class MetaServiceMetricService implements MetaServiceMetricServiceInterface
 {
-    /**
-     * @var MetaServiceConfigurationServiceInterface
-     */
+    /** @var MetaServiceConfigurationServiceInterface */
     private $metaServiceConfigurationService;
-    /**
-     * @var MetaServiceMetricRepositoryInterface
-     */
+
+    /** @var MetaServiceMetricRepositoryInterface */
     private $repository;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**

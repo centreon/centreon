@@ -38,8 +38,8 @@ interface HostGroupReadRepositoryInterface
      * Find all host groups linked to a host.
      *
      * @param Host $host
-     * @return HostGroup[]
      * @throws \Throwable
+     * @return HostGroup[]
      */
     public function findAllByHost(Host $host): array;
 
@@ -47,9 +47,9 @@ interface HostGroupReadRepositoryInterface
      * Find a host group by id.
      *
      * @param int $hostGroupId Id of the host group to be found
-     * @return HostGroup|null
      * @throws RepositoryException
      * @throws \Exception
+     * @return HostGroup|null
      */
     public function findById(int $hostGroupId): ?HostGroup;
 
@@ -58,9 +58,9 @@ interface HostGroupReadRepositoryInterface
      *
      * @param int $hostGroupId Id of the host group to be found
      * @param ContactInterface $contact Contact related to host group
-     * @return HostGroup|null
      * @throws RepositoryException
      * @throws \Exception
+     * @return HostGroup|null
      */
     public function findByIdAndContact(int $hostGroupId, ContactInterface $contact): ?HostGroup;
 

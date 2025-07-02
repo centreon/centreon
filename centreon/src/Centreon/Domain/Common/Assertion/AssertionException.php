@@ -52,7 +52,6 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHARACTERS = 1003;
     public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_MIN_DATE = 1005;
-
     public const INVALID_URL_IP_OR_DOMAIN = 1006;
 
     /**

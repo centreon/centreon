@@ -32,9 +32,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -73,6 +71,7 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
         $statement->bindValue(':action_type', $actionLog->getActionType(), \PDO::PARAM_STR);
         $statement->bindValue(':contact_id', $actionLog->getContactId(), \PDO::PARAM_INT);
         $statement->execute();
+
         return (int) $this->db->lastInsertId();
     }
 
@@ -89,7 +88,7 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
         }
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->db->beginTransaction();
         }
         try {
@@ -106,13 +105,14 @@ class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogR
                 $statement->bindValue(':action_log_id', $actionLog->getId(), \PDO::PARAM_INT);
                 $statement->execute();
             }
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->commit();
             }
         } catch (\Exception $ex) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }

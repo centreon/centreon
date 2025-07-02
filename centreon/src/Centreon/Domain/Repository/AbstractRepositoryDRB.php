@@ -69,6 +69,7 @@ class AbstractRepositoryDRB
         foreach ($accessGroups as $accessGroup) {
             $ids[] = $accessGroup->getId();
         }
+
         return implode(',', $ids);
     }
 }

@@ -1,8 +1,9 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Domain\Entity\Options;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use PDO;
 
 class OptionsRepository extends ServiceEntityRepository
@@ -10,7 +11,7 @@ class OptionsRepository extends ServiceEntityRepository
     /**
      * Export options
      *
-     * @return \Centreon\Domain\Entity\Options[]
+     * @return Options[]
      */
     public function export(): array
     {

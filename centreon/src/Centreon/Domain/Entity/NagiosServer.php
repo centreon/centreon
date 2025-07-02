@@ -22,8 +22,8 @@
 namespace Centreon\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
-use Symfony\Component\Serializer\Annotation as Serializer;
 use PDO;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 class NagiosServer implements Mapping\MetadataInterface
 {
@@ -32,157 +32,101 @@ class NagiosServer implements Mapping\MetadataInterface
     public const SERIALIZER_GROUP_REMOTE_LIST = 'nagios-server-remote-list';
     public const SERIALIZER_GROUP_LIST = 'nagios-server-list';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST, NagiosServer::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST, NagiosServer::SERIALIZER_GROUP_LIST])]
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $localhost;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     #[Serializer\SerializedName('default')]
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $isDefault;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $lastRestart;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\SerializedName('ip')]
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST])]
     private $nsIpAddress;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\SerializedName('activate')]
     #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $nsActivate;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineStartCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineStopCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineRestartCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineReloadCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $nagiosBin;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $nagiostatsBin;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $nagiosPerfdata;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $brokerReloadCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonbrokerCfgPath;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonbrokerModulePath;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonconnectorPath;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $gorgoneCommunicationType;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $sshPort;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $gorgonePort;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $initScriptCentreontrapd;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $snmpTrapdPathConf;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $engineVersion;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $centreonbrokerLogsPath;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $remoteId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $remoteServerUseAsProxy;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadMetadata(Mapping\ClassMetadata $metadata): void
     {
@@ -231,7 +175,7 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setId($id = null): void
     {
-        $this->id = (int)$id;
+        $this->id = (int) $id;
     }
 
     /**
@@ -246,7 +190,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $name
      * @return void
      */
-    public function setName(string $name = null): void
+    public function setName(?string $name = null): void
     {
         $this->name = $name;
     }
@@ -380,7 +324,7 @@ class NagiosServer implements Mapping\MetadataInterface
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getSshPort(): ?int
     {
@@ -463,7 +407,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $localhost
      * @return void
      */
-    public function setLocalhost(string $localhost = null): void
+    public function setLocalhost(?string $localhost = null): void
     {
         $this->localhost = $localhost;
     }
@@ -474,7 +418,7 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setIsDefault($isDefault = null): void
     {
-        $this->isDefault = (int)$isDefault;
+        $this->isDefault = (int) $isDefault;
     }
 
     /**
@@ -483,14 +427,14 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setLastRestart($lastRestart = null): void
     {
-        $this->lastRestart = (int)$lastRestart;
+        $this->lastRestart = (int) $lastRestart;
     }
 
     /**
      * @param string $nsIpAddress
      * @return void
      */
-    public function setNsIpAddress(string $nsIpAddress = null): void
+    public function setNsIpAddress(?string $nsIpAddress = null): void
     {
         $this->nsIpAddress = $nsIpAddress;
     }
@@ -499,7 +443,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $nsActivate
      * @return void
      */
-    public function setNsActivate(string $nsActivate = null): void
+    public function setNsActivate(?string $nsActivate = null): void
     {
         $this->nsActivate = $nsActivate;
     }
@@ -508,7 +452,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineStartCommand
      * @return void
      */
-    public function setEngineStartCommand(string $engineStartCommand = null): void
+    public function setEngineStartCommand(?string $engineStartCommand = null): void
     {
         $this->engineStartCommand = $engineStartCommand;
     }
@@ -517,7 +461,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineStopCommand
      * @return void
      */
-    public function setEngineStopCommand(string $engineStopCommand = null): void
+    public function setEngineStopCommand(?string $engineStopCommand = null): void
     {
         $this->engineStopCommand = $engineStopCommand;
     }
@@ -526,7 +470,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineRestartCommand
      * @return void
      */
-    public function setEngineRestartCommand(string $engineRestartCommand = null): void
+    public function setEngineRestartCommand(?string $engineRestartCommand = null): void
     {
         $this->engineRestartCommand = $engineRestartCommand;
     }
@@ -535,7 +479,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineReloadCommand
      * @return void
      */
-    public function setEngineReloadCommand(string $engineReloadCommand = null): void
+    public function setEngineReloadCommand(?string $engineReloadCommand = null): void
     {
         $this->engineReloadCommand = $engineReloadCommand;
     }
@@ -544,7 +488,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $nagiosBin
      * @return void
      */
-    public function setNagiosBin(string $nagiosBin = null): void
+    public function setNagiosBin(?string $nagiosBin = null): void
     {
         $this->nagiosBin = $nagiosBin;
     }
@@ -553,7 +497,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $nagiostatsBin
      * @return void
      */
-    public function setNagiostatsBin(string $nagiostatsBin = null): void
+    public function setNagiostatsBin(?string $nagiostatsBin = null): void
     {
         $this->nagiostatsBin = $nagiostatsBin;
     }
@@ -562,7 +506,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $nagiosPerfdata
      * @return void
      */
-    public function setNagiosPerfdata(string $nagiosPerfdata = null): void
+    public function setNagiosPerfdata(?string $nagiosPerfdata = null): void
     {
         $this->nagiosPerfdata = $nagiosPerfdata;
     }
@@ -571,7 +515,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $brokerReloadCommand
      * @return void
      */
-    public function setBrokerReloadCommand(string $brokerReloadCommand = null): void
+    public function setBrokerReloadCommand(?string $brokerReloadCommand = null): void
     {
         $this->brokerReloadCommand = $brokerReloadCommand;
     }
@@ -580,7 +524,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $centreonbrokerCfgPath
      * @return void
      */
-    public function setCentreonbrokerCfgPath(string $centreonbrokerCfgPath = null): void
+    public function setCentreonbrokerCfgPath(?string $centreonbrokerCfgPath = null): void
     {
         $this->centreonbrokerCfgPath = $centreonbrokerCfgPath;
     }
@@ -589,7 +533,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $centreonbrokerModulePath
      * @return void
      */
-    public function setCentreonbrokerModulePath(string $centreonbrokerModulePath = null): void
+    public function setCentreonbrokerModulePath(?string $centreonbrokerModulePath = null): void
     {
         $this->centreonbrokerModulePath = $centreonbrokerModulePath;
     }
@@ -598,7 +542,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $centreonconnectorPath
      * @return void
      */
-    public function setCentreonconnectorPath(string $centreonconnectorPath = null): void
+    public function setCentreonconnectorPath(?string $centreonconnectorPath = null): void
     {
         $this->centreonconnectorPath = $centreonconnectorPath;
     }
@@ -609,8 +553,8 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setSshPort($sshPort = null): void
     {
-        $this->sshPort = (int)$sshPort;
-    } 
+        $this->sshPort = (int) $sshPort;
+    }
 
     /**
      * @param string|int $gorgoneCommunicationType
@@ -618,7 +562,7 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setGorgoneCommunicationType($gorgoneCommunicationType = null): void
     {
-        $this->gorgoneCommunicationType = (int)$gorgoneCommunicationType;
+        $this->gorgoneCommunicationType = (int) $gorgoneCommunicationType;
     }
 
     /**
@@ -627,14 +571,14 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setGorgonePort($gorgonePort = null): void
     {
-        $this->gorgonePort = (int)$gorgonePort;
+        $this->gorgonePort = (int) $gorgonePort;
     }
 
     /**
      * @param string $initScriptCentreontrapd
      * @return void
      */
-    public function setInitScriptCentreontrapd(string $initScriptCentreontrapd = null): void
+    public function setInitScriptCentreontrapd(?string $initScriptCentreontrapd = null): void
     {
         $this->initScriptCentreontrapd = $initScriptCentreontrapd;
     }
@@ -643,7 +587,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $snmpTrapdPathConf
      * @return void
      */
-    public function setSnmpTrapdPathConf(string $snmpTrapdPathConf = null): void
+    public function setSnmpTrapdPathConf(?string $snmpTrapdPathConf = null): void
     {
         $this->snmpTrapdPathConf = $snmpTrapdPathConf;
     }
@@ -652,7 +596,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineName
      * @return void
      */
-    public function setEngineName(string $engineName = null): void
+    public function setEngineName(?string $engineName = null): void
     {
         $this->engineName = $engineName;
     }
@@ -661,7 +605,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $engineVersion
      * @return void
      */
-    public function setEngineVersion(string $engineVersion = null): void
+    public function setEngineVersion(?string $engineVersion = null): void
     {
         $this->engineVersion = $engineVersion;
     }
@@ -670,7 +614,7 @@ class NagiosServer implements Mapping\MetadataInterface
      * @param string $centreonbrokerLogsPath
      * @return void
      */
-    public function setCentreonbrokerLogsPath(string $centreonbrokerLogsPath = null): void
+    public function setCentreonbrokerLogsPath(?string $centreonbrokerLogsPath = null): void
     {
         $this->centreonbrokerLogsPath = $centreonbrokerLogsPath;
     }
@@ -681,14 +625,14 @@ class NagiosServer implements Mapping\MetadataInterface
      */
     public function setRemoteId($remoteId = null): void
     {
-        $this->remoteId = (int)$remoteId;
+        $this->remoteId = (int) $remoteId;
     }
 
     /**
      * @param string $remoteServerUseAsProxy
      * @return void
      */
-    public function setRemoteServerUseAsProxy(string $remoteServerUseAsProxy = null): void
+    public function setRemoteServerUseAsProxy(?string $remoteServerUseAsProxy = null): void
     {
         $this->remoteServerUseAsProxy = $remoteServerUseAsProxy;
     }

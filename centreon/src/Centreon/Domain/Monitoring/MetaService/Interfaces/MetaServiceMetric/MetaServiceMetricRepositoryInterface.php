@@ -35,7 +35,7 @@ interface MetaServiceMetricRepositoryInterface
     /**
      * Find Meta Service Metrics for a non-admin user.
      *
-     * @param integer $metaId
+     * @param int $metaId
      * @param ContactInterface $contact
      * @return MetaServiceMetric[]|null
      */
@@ -58,7 +58,7 @@ interface MetaServiceMetricRepositoryInterface
     /**
      * Find Meta Service Metrics for an admin user.
      *
-     * @param integer $metaId
+     * @param int $metaId
      * @return MetaServiceMetric[]|null
      */
     public function findByMetaId(int $metaId): ?array;

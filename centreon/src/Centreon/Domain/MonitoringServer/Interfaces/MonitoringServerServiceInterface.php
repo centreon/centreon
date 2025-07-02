@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\Interfaces;
 
+use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\MonitoringServerResource;
-use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -46,16 +46,16 @@ interface MonitoringServerServiceInterface
      *
      * @param int $monitoringServerId Id of the monitoring server for which we want their resources
      * @param string $resourceName Resource name to find
-     * @return MonitoringServerResource|null
      * @throws MonitoringServerException
+     * @return MonitoringServerResource|null
      */
     public function findResource(int $monitoringServerId, string $resourceName): ?MonitoringServerResource;
 
     /**
      * Find the local monitoring server.
      *
-     * @return MonitoringServer|null
      * @throws MonitoringServerException
+     * @return MonitoringServer|null
      */
     public function findLocalServer(): ?MonitoringServer;
 
@@ -70,9 +70,9 @@ interface MonitoringServerServiceInterface
     /**
      * Find a monitoring server.
      *
-     * @param int $monitoringServerId Id of the monitoring server to be found.
-     * @return MonitoringServer|null
+     * @param int $monitoringServerId id of the monitoring server to be found
      * @throws MonitoringServerException
+     * @return MonitoringServer|null
      */
     public function findServer(int $monitoringServerId): ?MonitoringServer;
 
@@ -80,8 +80,8 @@ interface MonitoringServerServiceInterface
      * Find a monitoring server by its name.
      *
      * @param string $monitoringServerName Name to find
-     * @return MonitoringServer|null
      * @throws MonitoringServerException
+     * @return MonitoringServer|null
      */
     public function findServerByName(string $monitoringServerName): ?MonitoringServer;
 
@@ -96,8 +96,8 @@ interface MonitoringServerServiceInterface
     /**
      * Find remote monitoring servers IPs.
      *
-     * @return string[]
      * @throws MonitoringServerException
+     * @return string[]
      */
     public function findRemoteServersIps(): array;
 }

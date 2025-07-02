@@ -34,15 +34,12 @@ class RequestParameters implements RequestParametersInterface
     public const NAME_FOR_SEARCH = 'search';
     public const NAME_FOR_SORT = 'sort_by';
     public const NAME_FOR_TOTAL = 'total';
-
     public const ORDER_ASC = 'ASC';
     public const ORDER_DESC = 'DESC';
     public const DEFAULT_ORDER = self::ORDER_ASC;
-
     public const DEFAULT_LIMIT = 10;
     public const DEFAULT_PAGE = 1;
     public const DEFAULT_SEARCH_OPERATOR = self::OPERATOR_EQUAL;
-
     public const OPERATOR_EQUAL = '$eq';
     public const OPERATOR_NOT_EQUAL = '$neq';
     public const OPERATOR_LESS_THAN = '$lt';
@@ -54,13 +51,10 @@ class RequestParameters implements RequestParametersInterface
     public const OPERATOR_REGEXP = '$rg';
     public const OPERATOR_IN = '$in';
     public const OPERATOR_NOT_IN = '$ni';
-
     public const AGGREGATE_OPERATOR_OR = '$or';
     public const AGGREGATE_OPERATOR_AND = '$and';
-
     public const CONCORDANCE_MODE_NO_STRICT = 0;
     public const CONCORDANCE_MODE_STRICT = 1;
-
     public const CONCORDANCE_ERRMODE_SILENT = 0;
     public const CONCORDANCE_ERRMODE_EXCEPTION = 1;
 
@@ -70,38 +64,26 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @var int Indicates whether we should consider only known search parameters.
-     * Used in the data repository classes.
+     *          Used in the data repository classes.
      */
     private $concordanceStrictMode = self::CONCORDANCE_MODE_NO_STRICT;
 
-    /**
-     * @var int Indicates error behaviour when there unknown search parameters in strict mode.
-     */
+    /** @var int indicates error behaviour when there unknown search parameters in strict mode */
     private $concordanceErrorMode = self::CONCORDANCE_ERRMODE_EXCEPTION;
 
-    /**
-     * @var array Array representing fields to search for
-     */
+    /** @var array Array representing fields to search for */
     private $search = [];
 
-    /**
-     * @var array Field to order
-     */
+    /** @var array Field to order */
     private $sort = [];
 
-    /**
-     * @var int Number of the page
-     */
+    /** @var int Number of the page */
     private $page = 1;
 
-    /**
-     * @var int Number of records per page
-     */
+    /** @var int Number of records per page */
     private $limit = 10;
 
-    /**
-     * @var int Total of lines founds without limit
-     */
+    /** @var int Total of lines founds without limit */
     private $total = 0;
 
     /**
@@ -120,6 +102,7 @@ class RequestParameters implements RequestParametersInterface
         if (array_key_exists($parameterName, $this->extraParameters)) {
             return $this->extraParameters[$parameterName];
         }
+
         return null;
     }
 
@@ -138,6 +121,7 @@ class RequestParameters implements RequestParametersInterface
     public function setConcordanceStrictMode(int $concordanceStrictMode): self
     {
         $this->concordanceStrictMode = $concordanceStrictMode;
+
         return $this;
     }
 
@@ -156,6 +140,7 @@ class RequestParameters implements RequestParametersInterface
     public function setConcordanceErrorMode(int $concordanceErrorMode): self
     {
         $this->concordanceErrorMode = $concordanceErrorMode;
+
         return $this;
     }
 
@@ -176,6 +161,7 @@ class RequestParameters implements RequestParametersInterface
                 }
             }
         }
+
         return false;
     }
 
@@ -197,12 +183,12 @@ class RequestParameters implements RequestParametersInterface
             self::OPERATOR_NOT_LIKE,
             self::OPERATOR_REGEXP,
             self::OPERATOR_IN,
-            self::OPERATOR_NOT_IN
+            self::OPERATOR_NOT_IN,
         ];
         $names = [];
         $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys): void {
             foreach ($data as $key => $value) {
-                if (!in_array($key, $names) && !in_array($key, $notAllowedKeys) && !is_int($key)) {
+                if (! in_array($key, $names) && ! in_array($key, $notAllowedKeys) && ! is_int($key)) {
                     $names[] = $key;
                 }
                 if (is_object($value) || is_array($value)) {
@@ -211,6 +197,7 @@ class RequestParameters implements RequestParametersInterface
             }
         };
         $searchIn($this->search);
+
         return $names;
     }
 
@@ -223,11 +210,11 @@ class RequestParameters implements RequestParametersInterface
     {
         $search = $this->search;
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             if (
                 (
-                    !isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
-                    && !isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
+                    ! isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
+                    && ! isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
                 )
                 || (count($this->search) > 1)
             ) {
@@ -251,7 +238,7 @@ class RequestParameters implements RequestParametersInterface
             self::NAME_FOR_SORT => $this->sort !== []
                 ? json_decode(json_encode($this->sort), true)
                 : new \stdClass(),
-            self::NAME_FOR_TOTAL => $this->total
+            self::NAME_FOR_TOTAL => $this->total,
         ];
     }
 
@@ -267,7 +254,7 @@ class RequestParameters implements RequestParametersInterface
                 if ($key === $parameterToExtract) {
                     unset($parameters[$key]);
                 } elseif (is_array($value) || is_object($value)) {
-                    $value = (array)$value;
+                    $value = (array) $value;
                     $extractFunction($parameterToExtract, $value);
                 }
             }
@@ -349,11 +336,11 @@ class RequestParameters implements RequestParametersInterface
     public function setSort(string $sortRequest): void
     {
         $sortRequestToAnalyze = json_decode($sortRequest ?: self::DEFAULT_SEARCH_OPERATOR, true);
-        if (!is_array($sortRequestToAnalyze)) {
-            if (!empty($sortRequest) && $sortRequest[0] != '{') {
+        if (! is_array($sortRequestToAnalyze)) {
+            if (! empty($sortRequest) && $sortRequest[0] != '{') {
                 $this->sort = [$sortRequest => self::DEFAULT_ORDER];
             } else {
-                throw new \RestBadRequestException("Bad format for the sort request parameter");
+                throw new \RestBadRequestException('Bad format for the sort request parameter');
             }
         } else {
             foreach ($sortRequestToAnalyze as $name => $order) {
@@ -363,7 +350,7 @@ class RequestParameters implements RequestParametersInterface
                     $sortFound,
                     PREG_OFFSET_CAPTURE
                 );
-                if (!$isMatched || !in_array(strtoupper($order), $this->authorizedOrders)) {
+                if (! $isMatched || ! in_array(strtoupper($order), $this->authorizedOrders)) {
                     unset($sortRequestToAnalyze[$name]);
                 } else {
                     $sortRequestToAnalyze[$name] = strtoupper($order);

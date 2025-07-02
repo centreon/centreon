@@ -32,9 +32,7 @@ use Centreon\Domain\Platform\Interfaces\PlatformServiceInterface;
  */
 class PlatformService implements PlatformServiceInterface
 {
-    /**
-     * @var PlatformRepositoryInterface
-     */
+    /** @var PlatformRepositoryInterface */
     private $platformRepository;
 
     /**
@@ -52,6 +50,7 @@ class PlatformService implements PlatformServiceInterface
     {
         try {
             $webVersion = $this->platformRepository->getWebVersion();
+
             return $webVersion ?? '0.0.0';
         } catch (\Exception $ex) {
             throw new PlatformException('Error while searching for the web version of the Centreon platform');

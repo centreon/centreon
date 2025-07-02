@@ -54,7 +54,7 @@ class MonitoringServerConfigurationRepositoryFile implements MonitoringServerCon
         $this->includeFile('www/include/configuration/configGenerate/xml/moveFiles.php');
     }
 
-     /**
+    /**
      * @inheritDoc
      */
     public function reloadConfiguration(int $monitoringServerId): void
@@ -68,10 +68,10 @@ class MonitoringServerConfigurationRepositoryFile implements MonitoringServerCon
     {
         try {
             ob_start();
-            require(_CENTREON_PATH_ . $filePath);
+            require _CENTREON_PATH_ . $filePath;
             $xml = ob_get_contents();
             ob_end_clean();
-            if (!empty($xml)) {
+            if (! empty($xml)) {
                 if (($element = simplexml_load_string($xml)) !== false) {
                     if ((string) $element->statuscode !== '0') {
                         throw new RepositoryException((string) $element->error);

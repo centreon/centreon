@@ -462,8 +462,8 @@ class DowntimeController extends AbstractController
                 ]
             )->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**
@@ -529,8 +529,8 @@ class DowntimeController extends AbstractController
 
             return $this->view($downtime)->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**
@@ -602,8 +602,8 @@ class DowntimeController extends AbstractController
                 ]
             )->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**

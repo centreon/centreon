@@ -37,18 +37,13 @@ use Centreon\Domain\Repository\RepositoryException;
  */
 class HostGroupService implements HostGroupServiceInterface
 {
-    /**
-     * @var HostGroupReadRepositoryInterface
-     */
+    /** @var HostGroupReadRepositoryInterface */
     private $readRepository;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
-    /**
-     * @var HostGroupWriteRepositoryInterface
-     */
+
+    /** @var HostGroupWriteRepositoryInterface */
     private $writeRepository;
 
     /**

@@ -37,29 +37,19 @@ class HostCategory
     public const MIN_ALIAS_LENGTH = 1;
     public const MAX_COMMENTS_LENGTH = 65535;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string Define a short name for this category. It will be displayed with this name in the ACL configuration.
-     */
+    /** @var string Define a short name for this category. It will be displayed with this name in the ACL configuration. */
     private $name;
 
-    /**
-     * @var string Longer description of this category.
-     */
+    /** @var string longer description of this category */
     private $alias;
 
-    /**
-     * @var string|null Comments regarding this category.
-     */
+    /** @var string|null comments regarding this category */
     private $comments;
 
-    /**
-     * @var bool Indicates whether this host category is enabled or not (TRUE by default)
-     */
+    /** @var bool Indicates whether this host category is enabled or not (TRUE by default) */
     private $isActivated = true;
 
     /**
@@ -88,6 +78,7 @@ class HostCategory
     public function setId(int $id): HostCategory
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -101,14 +92,15 @@ class HostCategory
 
     /**
      * @param string $name
-     * @return HostCategory
      * @throws \Assert\AssertionFailedException
+     * @return HostCategory
      */
     public function setName(string $name): HostCategory
     {
         Assertion::minLength($name, self::MIN_NAME_LENGTH, 'HostCategory::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'HostCategory::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -122,14 +114,15 @@ class HostCategory
 
     /**
      * @param string $alias
-     * @return HostCategory
      * @throws \Assert\AssertionFailedException
+     * @return HostCategory
      */
     public function setAlias(string $alias): HostCategory
     {
         Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, 'HostCategory::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'HostCategory::alias');
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -148,6 +141,7 @@ class HostCategory
     public function setActivated(bool $isActivated): HostCategory
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 
@@ -161,8 +155,8 @@ class HostCategory
 
     /**
      * @param string|null $comments
-     * @return HostCategory
      * @throws \Assert\AssertionFailedException
+     * @return HostCategory
      */
     public function setComments(?string $comments): HostCategory
     {
@@ -170,6 +164,7 @@ class HostCategory
             Assertion::maxLength($comments, self::MAX_COMMENTS_LENGTH, 'HostCategory::comments');
         }
         $this->comments = $comments;
+
         return $this;
     }
 }

@@ -34,7 +34,6 @@ use FOS\RestBundle\View\View;
  */
 class ParametersController extends AbstractController
 {
-
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration';
     private const DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale';
     private const DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring';
@@ -60,7 +59,7 @@ class ParametersController extends AbstractController
         self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES => 'monitoring_default_acknowledgement_with_services',
         self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS => 'monitoring_default_acknowledgement_force_active_checks',
         self::DEFAULT_DOWNTIME_FIXED => 'monitoring_default_downtime_fixed',
-        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services'
+        self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
     ];
 
     public function __construct(
@@ -99,7 +98,7 @@ class ParametersController extends AbstractController
             self::DEFAULT_DOWNTIME_DURATION,
             self::DEFAULT_DOWNTIME_DURATION_SCALE,
             self::DEFAULT_DOWNTIME_FIXED,
-            self::DEFAULT_DOWNTIME_WITH_SERVICES
+            self::DEFAULT_DOWNTIME_WITH_SERVICES,
         ]);
 
         foreach ($options as $option) {
@@ -142,21 +141,21 @@ class ParametersController extends AbstractController
             }
         }
 
-        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_DURATION]] =
-            $this->convertToSeconds((int) $downtimeDuration, $downtimeScale);
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_DURATION]]
+            = $this->convertToSeconds((int) $downtimeDuration, $downtimeScale);
 
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_REFRESH_INTERVAL]] = (int) $refreshInterval;
-        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_STATISTICS_REFRESH_INTERVAL]] =
-            (int) $statisticsRefreshInterval;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_STATISTICS_REFRESH_INTERVAL]]
+            = (int) $statisticsRefreshInterval;
 
-        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT]] =
-            $isAcknowledgementPersistent;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT]]
+            = $isAcknowledgementPersistent;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_STICKY]] = $isAcknowledgementSticky;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY]] = $isAcknowledgementNotify;
-        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES]] =
-            $isAcknowledgementWithServices;
-        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS]] =
-            $isAcknowledgementForceActiveChecks;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES]]
+            = $isAcknowledgementWithServices;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS]]
+            = $isAcknowledgementForceActiveChecks;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_FIXED]] = $isDowntimeFixed;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_WITH_SERVICES]] = $isDowntimeWithServices;
 
@@ -166,19 +165,19 @@ class ParametersController extends AbstractController
     /**
      * Converts the combination stored in DB into seconds
      *
-     * @param integer $duration
+     * @param int $duration
      * @param string $scale
-     * @return integer
+     * @return int
      */
     private function convertToSeconds(int $duration, string $scale): int
     {
         switch ($scale) {
             case 'm':
-                return ($duration * 60);
+                return $duration * 60;
             case 'h':
-                return ($duration * 3600);
+                return $duration * 3600;
             case 'd':
-                return ($duration * 86400);
+                return $duration * 86400;
             default:
                 return $duration;
         }

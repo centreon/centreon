@@ -397,7 +397,7 @@ class CheckController extends AbstractController
         if (false === $user->isAdmin()) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($user);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 

@@ -43,7 +43,7 @@ interface IconRepositoryInterface
     /**
      * Retrieve an icon based on its id
      *
-     * @param integer $id
+     * @param int $id
      * @return Icon|null
      */
     public function getIcon(int $id): ?Icon;

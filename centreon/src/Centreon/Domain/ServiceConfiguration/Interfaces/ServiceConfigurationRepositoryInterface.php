@@ -44,8 +44,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      *
      * @param int $serviceId Id of the service
      * @param bool $isUsingInheritance Indicates whether to use inheritance to find service macros (FALSE by default)
-     * @return array<ServiceMacro> List of service macros found
      * @throws \Throwable
+     * @return array<ServiceMacro> List of service macros found
      */
     public function findOnDemandServiceMacros(int $serviceId, bool $isUsingInheritance = false): array;
 
@@ -56,8 +56,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * case where the service does not have a command.
      *
      * @param int $serviceId Service id
-     * @return string|null Return the command if found
      * @throws \Throwable
+     * @return string|null Return the command if found
      */
     public function findCommandLine(int $serviceId): ?string;
 
@@ -65,8 +65,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find all service templates associated with the given host templates.
      *
      * @param int[] $hostTemplateIds Ids of the host templates for which we want to find the service templates
-     * @return HostTemplateService[]
      * @throws \Exception
+     * @return HostTemplateService[]
      */
     public function findHostTemplateServices(array $hostTemplateIds): array;
 
@@ -74,8 +74,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find a service.
      *
      * @param int $serviceId Service id
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findService(int $serviceId): ?Service;
 
@@ -83,8 +83,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find all services associated to host.
      *
      * @param Host $host Host for which we want to find services
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServicesByHost(Host $host): array;
 

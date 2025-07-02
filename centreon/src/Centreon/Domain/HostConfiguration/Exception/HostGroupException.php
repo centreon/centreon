@@ -66,7 +66,7 @@ class HostGroupException extends \Exception
      * @param \Throwable|null $ex
      * @return self
      */
-    public static function notFoundException(array $data, \Throwable $ex = null): self
+    public static function notFoundException(array $data, ?\Throwable $ex = null): self
     {
         return new self(
             sprintf(_('Host group (%s) not found'), $data['id'] ?? $data['name'] ?? null),

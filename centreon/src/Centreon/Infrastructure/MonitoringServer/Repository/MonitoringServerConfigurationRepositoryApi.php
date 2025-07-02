@@ -50,7 +50,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     /** @var AuthenticationTokenServiceInterface */
     private $authenticationTokenService;
 
-    /** @var \Symfony\Contracts\HttpClient\HttpClientInterface */
+    /** @var HttpClientInterface */
     private $httpClient;
 
     /** @var string */

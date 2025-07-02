@@ -35,101 +35,65 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public const TYPE_HOST_ACKNOWLEDGEMENT = 0;
     public const TYPE_SERVICE_ACKNOWLEDGEMENT = 1;
 
-    //Groups for validation
+    // Groups for validation
     public const VALIDATION_GROUP_ACK_RESOURCE = ['ack_resource'];
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $pollerId;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $hostId;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $serviceId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $authorId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $authorName;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $comment;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $deletionTime;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $entryTime;
 
-    /**
-     * @var int Resource id
-     */
+    /** @var int Resource id */
     private $resourceId;
 
-    /**
-     * @var int|null Parent resource id
-     */
+    /** @var int|null Parent resource id */
     private $parentResourceId;
 
-    /**
-     * @var bool Indicates if the contacts must to be notify
-     */
+    /** @var bool Indicates if the contacts must to be notify */
     private $isNotifyContacts = true;
 
-    /**
-     * @var bool Indicates this acknowledgement will be maintained in the case of a restart of the scheduler
-     */
+    /** @var bool Indicates this acknowledgement will be maintained in the case of a restart of the scheduler */
     private $isPersistentComment = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isSticky = true;
 
-    /**
-     * @var int State of this acknowledgement
-     */
+    /** @var int State of this acknowledgement */
     private $state;
 
-    /**
-     * @var int Type of this acknowledgement
-     */
+    /** @var int Type of this acknowledgement */
     private $type;
 
-    /**
-     * @var bool Indicates if this downtime should be applied to linked services
-     */
+    /** @var bool Indicates if this downtime should be applied to linked services */
     private $withServices = false;
 
-    /**
-     * @var bool Indicates if after acknowledgement action the resource should be force checked
-     */
+    /** @var bool Indicates if after acknowledgement action the resource should be force checked */
     private $forceActiveChecks = true;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -159,6 +123,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setId(int $id): Acknowledgement
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -177,6 +142,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setPollerId(int $pollerId): Acknowledgement
     {
         $this->pollerId = $pollerId;
+
         return $this;
     }
 
@@ -195,6 +161,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setHostId(int $hostId): Acknowledgement
     {
         $this->hostId = $hostId;
+
         return $this;
     }
 
@@ -213,6 +180,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setServiceId(int $serviceId): Acknowledgement
     {
         $this->serviceId = $serviceId;
+
         return $this;
     }
 
@@ -231,6 +199,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setAuthorId(?int $authorId): Acknowledgement
     {
         $this->authorId = $authorId;
+
         return $this;
     }
 
@@ -265,6 +234,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setComment(?string $comment): Acknowledgement
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -283,6 +253,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setDeletionTime(?\DateTime $deletionTime): Acknowledgement
     {
         $this->deletionTime = $deletionTime;
+
         return $this;
     }
 
@@ -301,6 +272,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setEntryTime(?\DateTime $entryTime): Acknowledgement
     {
         $this->entryTime = $entryTime;
+
         return $this;
     }
 
@@ -319,6 +291,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setResourceId(int $resourceId): Acknowledgement
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -337,6 +310,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setParentResourceId(?int $parentResourceId): Acknowledgement
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 
@@ -355,6 +329,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setNotifyContacts(bool $isNotifyContacts): Acknowledgement
     {
         $this->isNotifyContacts = $isNotifyContacts;
+
         return $this;
     }
 
@@ -373,6 +348,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setPersistentComment(bool $isPersistentComment): Acknowledgement
     {
         $this->isPersistentComment = $isPersistentComment;
+
         return $this;
     }
 
@@ -391,6 +367,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setSticky(bool $isSticky): Acknowledgement
     {
         $this->isSticky = $isSticky;
+
         return $this;
     }
 
@@ -409,6 +386,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setState(int $state): Acknowledgement
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -427,6 +405,7 @@ class Acknowledgement implements EntityDescriptorMetadataInterface
     public function setType(int $type): Acknowledgement
     {
         $this->type = $type;
+
         return $this;
     }
 

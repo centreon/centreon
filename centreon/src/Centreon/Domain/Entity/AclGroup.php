@@ -22,8 +22,8 @@
 namespace Centreon\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
-use Symfony\Component\Serializer\Annotation as Serializer;
 use PDO;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 /**
  * ACL group entity
@@ -36,38 +36,28 @@ class AclGroup implements Mapping\MetadataInterface
     public const ENTITY_IDENTIFICATOR_COLUMN = 'acl_group_id';
     public const TABLE = 'acl_groups';
 
-    /**
-     * @var int an identification of entity
-     */
+    /** @var int an identification of entity */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $alias;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $changed;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $activate;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadMetadata(Mapping\ClassMetadata $metadata): void
     {

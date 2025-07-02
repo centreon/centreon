@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,7 +37,6 @@
 
 namespace Centreon\Domain\Repository\Traits;
 
-use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 
 trait CheckListOfIdsTrait
@@ -63,7 +63,7 @@ trait CheckListOfIdsTrait
         foreach ($ids as $x => $value) {
             $key = ":id{$x}";
 
-            $sql .= (!$isWhere ? 'WHERE ' : 'OR ') . "`{$columnNameOfIdentificator}` = {$key} ";
+            $sql .= (! $isWhere ? 'WHERE ' : 'OR ') . "`{$columnNameOfIdentificator}` = {$key} ";
             $collector->addValue($key, $value);
 
             $isWhere = true;

@@ -106,7 +106,7 @@ class PlatformController extends AbstractController
                 default => $this->view(null, Response::HTTP_BAD_REQUEST),
             };
         } catch (\Throwable $th) {
-           $this->view(null, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->view(null, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->view(null, Response::HTTP_NO_CONTENT);

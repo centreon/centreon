@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -40,21 +41,17 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
 
 class EntityPersister
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $entityClassName;
 
-    /**
-     * @var \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata
-     */
+    /** @var ClassMetadata */
     protected $classMetadata;
 
     /**
      * Construct
      *
      * @param class-string $entityClassName
-     * @param \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata $classMetadata
+     * @param ClassMetadata $classMetadata
      */
     public function __construct($entityClassName, ClassMetadata $classMetadata)
     {
@@ -69,7 +66,7 @@ class EntityPersister
      */
     public function load(array $data): object
     {
-        $entity = new $this->entityClassName;
+        $entity = new $this->entityClassName();
 
         // load entity with data
         foreach ($data as $column => $value) {
@@ -81,7 +78,7 @@ class EntityPersister
 
             $action = 'set' . ucfirst($property);
 
-            if (!is_callable([$entity, $action])) {
+            if (! is_callable([$entity, $action])) {
                 continue;
             }
 

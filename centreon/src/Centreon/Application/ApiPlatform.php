@@ -27,9 +27,7 @@ namespace Centreon\Application;
  */
 class ApiPlatform
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $version;
 
     /**
@@ -51,6 +49,7 @@ class ApiPlatform
     public function setVersion(string $version): self
     {
         $this->version = $version;
+
         return $this;
     }
 }

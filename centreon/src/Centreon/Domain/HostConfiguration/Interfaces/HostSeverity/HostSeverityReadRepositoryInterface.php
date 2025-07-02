@@ -38,9 +38,9 @@ interface HostSeverityReadRepositoryInterface
      * Find a host severity by id.
      *
      * @param int $hostSeverityId Id of the host severity to be found
-     * @return HostSeverity|null
      * @throws RepositoryException
      * @throws \Exception
+     * @return HostSeverity|null
      */
     public function findById(int $hostSeverityId): ?HostSeverity;
 
@@ -49,9 +49,9 @@ interface HostSeverityReadRepositoryInterface
      *
      * @param int $hostSeverityId Id of the host severity to be found
      * @param ContactInterface $contact Contact related to host severity
-     * @return HostSeverity|null
      * @throws RepositoryException
      * @throws \Exception
+     * @return HostSeverity|null
      */
     public function findByIdAndContact(int $hostSeverityId, ContactInterface $contact): ?HostSeverity;
 

@@ -36,14 +36,10 @@ use Centreon\Domain\Repository\RepositoryException;
  */
 class HostSeverityService implements HostSeverityServiceInterface
 {
-    /**
-     * @var HostSeverityReadRepositoryInterface
-     */
+    /** @var HostSeverityReadRepositoryInterface */
     private $readRepository;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**

@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric;
 
-use Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric;
 use Centreon\Domain\Monitoring\MetaService\Exception\MetaServiceMetricException;
+use Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric;
 
 /**
  * @package Centreon\Domain\Monitoring\MetaService\Interfaces\MetaServiceMetric
@@ -33,18 +33,18 @@ interface MetaServiceMetricServiceInterface
     /**
      * Find all meta service metrics (for non admin user).
      *
-     * @param integer $metaId
-     * @return MetaServiceMetric[]|null
+     * @param int $metaId
      * @throws MetaServiceMetricException
+     * @return MetaServiceMetric[]|null
      */
     public function findWithoutAcl(int $metaId): ?array;
 
     /**
      * Find all meta service metrics (for admin user).
      *
-     * @param integer $metaId
-     * @return MetaServiceMetric[]|null
+     * @param int $metaId
      * @throws MetaServiceMetricException
+     * @return MetaServiceMetric[]|null
      */
     public function findWithAcl(int $metaId): ?array;
 }

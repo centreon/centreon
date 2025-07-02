@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
-use Centreon\Domain\Monitoring\ResourceLinksUris as Uris;
-use Centreon\Domain\Monitoring\ResourceLinksEndpoints as Endpoints;
 use Centreon\Domain\Monitoring\ResourceExternalLinks as Externals;
+use Centreon\Domain\Monitoring\ResourceLinksEndpoints as Endpoints;
+use Centreon\Domain\Monitoring\ResourceLinksUris as Uris;
 
 /**
  * Resource Links model for resource repository
@@ -33,19 +33,13 @@ use Centreon\Domain\Monitoring\ResourceExternalLinks as Externals;
  */
 class ResourceLinks
 {
-    /**
-     * @var Uris
-     */
+    /** @var Uris */
     private $uris;
 
-    /**
-     * @var Endpoints
-     */
+    /** @var Endpoints */
     private $endpoints;
 
-    /**
-     * @var Externals
-     */
+    /** @var Externals */
     private $externals;
 
     /**

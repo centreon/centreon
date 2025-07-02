@@ -37,9 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class MonitoringServicesController extends AbstractController
 {
-    /**
-     * @var MonitoringServiceInterface
-     */
+    /** @var MonitoringServiceInterface */
     private $monitoring;
 
     /**
@@ -55,8 +53,8 @@ class MonitoringServicesController extends AbstractController
     /**
      * Entry point to get all real time services.
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServices(RequestParametersInterface $requestParameters): View
     {
@@ -68,14 +66,14 @@ class MonitoringServicesController extends AbstractController
             ->setGroups([
                 Service::SERIALIZER_GROUP_MAIN,
                 Service::SERIALIZER_GROUP_WITH_HOST,
-                Host::SERIALIZER_GROUP_MIN
+                Host::SERIALIZER_GROUP_MIN,
             ])
             ->enableMaxDepth();
 
         return $this->view(
             [
                 'result' => $services,
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -83,8 +81,8 @@ class MonitoringServicesController extends AbstractController
     /**
      * Entry point to get all real time services based on a service group
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServicesByServiceGroups(RequestParametersInterface $requestParameters): View
     {
@@ -115,7 +113,7 @@ class MonitoringServicesController extends AbstractController
         return $this->view(
             [
                 'result' => $servicesByServiceGroups,
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -124,8 +122,8 @@ class MonitoringServicesController extends AbstractController
      * Entry point to get all servicegroups attached to host-service
      *
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServiceGroupsByHostAndService(
         int $hostId,
@@ -144,11 +142,11 @@ class MonitoringServicesController extends AbstractController
             return $this->view(
                 [
                     'result' => $serviceGroups,
-                    'meta' => $requestParameters->toArray()
+                    'meta' => $requestParameters->toArray(),
                 ]
             )->setContext($context);
-        } else {
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
         }
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 }

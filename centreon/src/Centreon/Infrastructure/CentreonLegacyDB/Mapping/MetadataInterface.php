@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,14 +37,12 @@
 
 namespace Centreon\Infrastructure\CentreonLegacyDB\Mapping;
 
-use Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata;
-
 interface MetadataInterface
 {
     /**
      * Describe the relationship between properties and DB columns as names and data types
      *
-     * @param \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata $metadata
+     * @param ClassMetadata $metadata
      * @return void
      */
     public static function loadMetadata(ClassMetadata $metadata): void;

@@ -49,6 +49,7 @@ class MetaServiceMetricFactoryV21
 
             $metaServiceMetrics[] = $newMetaServiceMetric;
         }
+
         return $metaServiceMetrics;
     }
 
@@ -57,12 +58,15 @@ class MetaServiceMetricFactoryV21
      */
     private static function createEmptyClass(): \stdClass
     {
-        return new class extends \stdClass
-        {
+        return new class () extends \stdClass {
             public $id;
+
             public $name;
+
             public $unit;
+
             public $value;
+
             public $resource;
         };
     }

@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
-use Centreon\Domain\Log\LoggerTrait;
-use FOS\RestBundle\View\View;
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\RealTimeMonitoringServerException;
-use Centreon\Infrastructure\MonitoringServer\API\Model\RealTimeMonitoringServerFactory;
 use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTimeMonitoringServers;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\MonitoringServer\API\Model\RealTimeMonitoringServerFactory;
+use FOS\RestBundle\View\View;
 
 /**
  * This class is designed to provide APIs for the context of RealTime Monitoring Servers.
@@ -54,10 +54,11 @@ class RealTimeMonitoringServerController extends AbstractController
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         $response = $findRealTimeMonitoringServers->execute();
+
         return $this->view(
             [
                 'result' => RealTimeMonitoringServerFactory::createFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }

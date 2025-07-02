@@ -36,9 +36,9 @@ interface CommandRepositoryInterface
      * Send a command to the Gorgone server.
      *
      * @param CommandInterface $command Command to send
-     * @return string Returns a token that will be used to retrieve the response
      * @throws CommandRepositoryException
      * @throws \Exception
+     * @return string Returns a token that will be used to retrieve the response
      */
     public function send(CommandInterface $command): string;
 }

@@ -24,10 +24,10 @@ namespace Centreon\Infrastructure\HostConfiguration\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryWriteRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostCategory;
-use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostCategoryFactoryRdb;
@@ -43,9 +43,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
     HostCategoryReadRepositoryInterface,
     HostCategoryWriteRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -79,7 +77,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         $statement->bindValue(':icon_id', null, \PDO::PARAM_INT);
         $statement->bindValue(':is_activated', $category->isActivated() ? '1' : '0', \PDO::PARAM_STR);
         $statement->execute();
-        $category->setId((int)$this->db->lastInsertId());
+        $category->setId((int) $this->db->lastInsertId());
     }
 
     /**
@@ -105,8 +103,8 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
      *
      * @param int $categoryId Id of the host category to be found
      * @param int|null $contactId Contact id related to host categories
-     * @return HostCategory|null
      * @throws AssertionFailedException
+     * @return HostCategory|null
      */
     private function findByIdRequest(int $categoryId, ?int $contactId): ?HostCategory
     {
@@ -147,6 +145,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostCategoryFactoryRdb::create($result);
         }
+
         return null;
     }
 
@@ -171,6 +170,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $hostCategories[] = HostCategoryFactoryRdb::create($result);
         }
+
         return $hostCategories;
     }
 
@@ -196,6 +196,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $hostCategories[] = HostCategoryFactoryRdb::create($record);
         }
+
         return $hostCategories;
     }
 }

@@ -32,9 +32,7 @@ use Centreon\Domain\ActionLog\Interfaces\ActionLogServiceInterface;
  */
 class ActionLogService implements ActionLogServiceInterface
 {
-    /**
-     * @var ActionLogRepositoryInterface
-     */
+    /** @var ActionLogRepositoryInterface */
     private $actionLogRepository;
 
     /**
@@ -58,6 +56,7 @@ class ActionLogService implements ActionLogServiceInterface
                 $actionLog->setId($actionId);
                 $this->addDetailsOfAction($actionLog, $details);
             }
+
             return $actionId;
         } catch (\Throwable $ex) {
             throw new ActionLogException(_('Error when adding an entry in the action log'), 0, $ex);

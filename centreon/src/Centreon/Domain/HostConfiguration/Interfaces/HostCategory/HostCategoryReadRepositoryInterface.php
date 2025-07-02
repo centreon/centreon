@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostCategory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\HostConfiguration\Model\HostCategory;
 use Centreon\Domain\HostConfiguration\Host;
+use Centreon\Domain\HostConfiguration\Model\HostCategory;
 
 /**
  * This interface gathers all the reading operations on the host category repository.
@@ -37,8 +37,8 @@ interface HostCategoryReadRepositoryInterface
      * Find a host category by id.
      *
      * @param int $categoryId Id of the host category to be found
-     * @return HostCategory|null
      * @throws \Throwable
+     * @return HostCategory|null
      */
     public function findById(int $categoryId): ?HostCategory;
 
@@ -47,8 +47,8 @@ interface HostCategoryReadRepositoryInterface
      *
      * @param int $categoryId Id of the host category to be found
      * @param ContactInterface $contact Contact related to host category
-     * @return HostCategory|null
      * @throws \Throwable
+     * @return HostCategory|null
      */
     public function findByIdAndContact(int $categoryId, ContactInterface $contact): ?HostCategory;
 
@@ -56,8 +56,8 @@ interface HostCategoryReadRepositoryInterface
      * Find host categories by name (for admin user).
      *
      * @param string[] $categoriesName List of names of host categories to be found
-     * @return HostCategory[]
      * @throws \Throwable
+     * @return HostCategory[]
      */
     public function findByNames(array $categoriesName): array;
 

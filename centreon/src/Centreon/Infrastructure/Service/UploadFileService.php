@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,22 +37,23 @@
 
 namespace Centreon\Infrastructure\Service;
 
-use Psr\Container\ContainerInterface;
 use Centreon\Infrastructure\FileManager\File;
+use Psr\Container\ContainerInterface;
 
 class UploadFileService
 {
-    /** @var array|null $filesRequest */
+    /** @var array|null */
     protected $filesRequest;
+
     protected ContainerInterface $services;
 
     /**
      * Construct
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      * @param array $filesRequest Copy of $_FILES
      */
-    public function __construct(ContainerInterface $services, array $filesRequest = null)
+    public function __construct(ContainerInterface $services, ?array $filesRequest = null)
     {
         $this->services = $services;
         $this->filesRequest = $filesRequest;
@@ -62,7 +64,7 @@ class UploadFileService
      *
      * @return array
      */
-    public function getFiles(string $fieldName, array $withExtension = null) : array
+    public function getFiles(string $fieldName, ?array $withExtension = null): array
     {
         $filesFromRequest = $this->prepare($fieldName);
 
@@ -80,7 +82,7 @@ class UploadFileService
         return $result;
     }
 
-    public function prepare(string $fieldName) : array
+    public function prepare(string $fieldName): array
     {
         $result = [];
 

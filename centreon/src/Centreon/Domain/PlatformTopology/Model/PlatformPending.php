@@ -27,7 +27,6 @@ use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
 
 /**
  * Class designed to retrieve servers to be added using the wizard
- *
  */
 class PlatformPending implements PlatformInterface
 {
@@ -45,62 +44,42 @@ class PlatformPending implements PlatformInterface
         self::TYPE_POLLER,
         self::TYPE_REMOTE,
         self::TYPE_MAP,
-        self::TYPE_MBI
+        self::TYPE_MBI,
     ];
 
-    /**
-     * @var int|null Id of server
-     */
+    /** @var int|null Id of server */
     private $id;
 
-    /**
-     * @var string|null chosen name : "virtual name"
-     */
+    /** @var string|null chosen name : "virtual name" */
     private $name;
 
-    /**
-     * @var string|null  platform's real name : "physical name"
-     */
+    /** @var string|null platform's real name : "physical name" */
     private $hostname;
 
-    /**
-     * @var string|null Server type
-     */
+    /** @var string|null Server type */
     private $type;
 
-    /**
-     * @var string|null Server address
-     */
+    /** @var string|null Server address */
     private $address;
 
-    /**
-     * @var string|null Server parent address
-     */
+    /** @var string|null Server parent address */
     private $parentAddress;
 
-    /**
-     * @var int|null Server parent id
-     */
+    /** @var int|null Server parent id */
     private $parentId;
 
-    /**
-     * @var int|null Server nagios ID for Central only
-     */
+    /** @var int|null Server nagios ID for Central only */
     private $serverId;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isLinkedToAnotherServer = false;
 
-    /**
-     * @var PlatformRelation|null Communication type between topology and parent
-     */
+    /** @var PlatformRelation|null Communication type between topology and parent */
     private $relation;
 
     /**
      * @var bool define if the platform is in a pending state or is already registered
-     * By default PlatformPending entities are pending platforms
+     *           By default PlatformPending entities are pending platforms
      */
     private $isPending = true;
 
@@ -118,6 +97,7 @@ class PlatformPending implements PlatformInterface
     public function setId(?int $id): PlatformInterface
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -138,7 +118,7 @@ class PlatformPending implements PlatformInterface
             $type = strtolower($type);
 
             // Check if the server_type is available
-            if (!in_array($type, self::AVAILABLE_TYPES)) {
+            if (! in_array($type, self::AVAILABLE_TYPES)) {
                 throw new \InvalidArgumentException(
                     sprintf(
                         _("The platform type of '%s'@'%s' is not consistent"),
@@ -149,6 +129,7 @@ class PlatformPending implements PlatformInterface
             }
         }
         $this->type = $type;
+
         return $this;
     }
 
@@ -166,6 +147,7 @@ class PlatformPending implements PlatformInterface
     public function setName(?string $name): PlatformInterface
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -183,6 +165,7 @@ class PlatformPending implements PlatformInterface
     public function setHostname(?string $hostname): PlatformInterface
     {
         $this->hostname = $hostname;
+
         return $this;
     }
 
@@ -227,6 +210,7 @@ class PlatformPending implements PlatformInterface
     public function setAddress(?string $address): PlatformInterface
     {
         $this->address = $this->checkIpAddress($address);
+
         return $this;
     }
 
@@ -244,9 +228,10 @@ class PlatformPending implements PlatformInterface
     public function setParentAddress(?string $parentAddress): PlatformInterface
     {
         if (null !== $parentAddress && $this->getType() === static::TYPE_CENTRAL) {
-            throw new \InvalidArgumentException(_("Cannot use parent address on a Central server type"));
+            throw new \InvalidArgumentException(_('Cannot use parent address on a Central server type'));
         }
         $this->parentAddress = $this->checkIpAddress($parentAddress);
+
         return $this;
     }
 
@@ -264,9 +249,10 @@ class PlatformPending implements PlatformInterface
     public function setParentId(?int $parentId): PlatformInterface
     {
         if (null !== $parentId && $this->getType() === static::TYPE_CENTRAL) {
-            throw new \InvalidArgumentException(_("Cannot set parent id to a central server"));
+            throw new \InvalidArgumentException(_('Cannot set parent id to a central server'));
         }
         $this->parentId = $parentId;
+
         return $this;
     }
 
@@ -284,6 +270,7 @@ class PlatformPending implements PlatformInterface
     public function setServerId(?int $serverId): PlatformInterface
     {
         $this->serverId = $serverId;
+
         return $this;
     }
 
@@ -301,6 +288,7 @@ class PlatformPending implements PlatformInterface
     public function setLinkedToAnotherServer(bool $isLinked): PlatformInterface
     {
         $this->isLinkedToAnotherServer = $isLinked;
+
         return $this;
     }
 
@@ -341,6 +329,7 @@ class PlatformPending implements PlatformInterface
     public function setPending(bool $isPending): PlatformInterface
     {
         $this->isPending = $isPending;
+
         return $this;
     }
 }

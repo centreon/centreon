@@ -34,48 +34,32 @@ class ContactGroup
     public const TABLE = 'contactgroup';
     public const ENTITY_IDENTIFICATOR_COLUMN = 'cg_id';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     #[Serializer\SerializedName('id')]
     #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     #[Serializer\SerializedName('name')]
     #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $cg_alias;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $cg_comment;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $cg_type;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $cg_ldap_dn;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $ar_id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     #[Serializer\SerializedName('activate')]
     #[Serializer\Groups([ContactGroup::SERIALIZER_GROUP_LIST])]
     private $cg_activate;
@@ -101,7 +85,7 @@ class ContactGroup
     /**
      * @param int|null $cgId
      */
-    public function setCgId(int $cgId = null): void
+    public function setCgId(?int $cgId = null): void
     {
         $this->cg_id = $cgId;
     }
@@ -117,7 +101,7 @@ class ContactGroup
     /**
      * @param string|null $cgName
      */
-    public function setCgName(string $cgName = null): void
+    public function setCgName(?string $cgName = null): void
     {
         $this->cg_name = $cgName;
     }
@@ -133,7 +117,7 @@ class ContactGroup
     /**
      * @param string|null $cgAlias
      */
-    public function setCgAlias(string $cgAlias = null): void
+    public function setCgAlias(?string $cgAlias = null): void
     {
         $this->cg_alias = $cgAlias;
     }
@@ -143,13 +127,13 @@ class ContactGroup
      */
     public function getCgActivate(): int
     {
-        return (int)$this->cg_activate;
+        return (int) $this->cg_activate;
     }
 
     /**
      * @param string|null $cgActivate
      */
-    public function setCgActivate(string $cgActivate = null): void
+    public function setCgActivate(?string $cgActivate = null): void
     {
         $this->cg_activate = $cgActivate;
     }
@@ -165,7 +149,7 @@ class ContactGroup
     /**
      * @param string|null $cgComment
      */
-    public function setCgComment(string $cgComment = null): void
+    public function setCgComment(?string $cgComment = null): void
     {
         $this->cg_comment = $cgComment;
     }
@@ -181,7 +165,7 @@ class ContactGroup
     /**
      * @param string|null $cgType
      */
-    public function setCgType(string $cgType = null): void
+    public function setCgType(?string $cgType = null): void
     {
         $this->cg_type = $cgType;
     }
@@ -197,7 +181,7 @@ class ContactGroup
     /**
      * @param string|null $cgLdapDn
      */
-    public function setCgLdapDn(string $cgLdapDn = null): void
+    public function setCgLdapDn(?string $cgLdapDn = null): void
     {
         $this->cg_ldap_dn = $cgLdapDn;
     }
@@ -213,7 +197,7 @@ class ContactGroup
     /**
      * @param int|null $arId
      */
-    public function setArId(int $arId = null): void
+    public function setArId(?int $arId = null): void
     {
         $this->ar_id = $arId;
     }

@@ -36,8 +36,8 @@ interface MetaServiceConfigurationReadRepositoryInterface
      * Find a meta service configuration by id.
      *
      * @param int $metaId Id of the meta service configuration to be found
-     * @return MetaServiceConfiguration|null
      * @throws \Throwable
+     * @return MetaServiceConfiguration|null
      */
     public function findById(int $metaId): ?MetaServiceConfiguration;
 
@@ -46,25 +46,25 @@ interface MetaServiceConfigurationReadRepositoryInterface
      *
      * @param int $metaId Id of the meta service configuration to be found
      * @param ContactInterface $contact Contact related to host category
-     * @return MetaServiceConfiguration|null
      * @throws \Throwable
+     * @return MetaServiceConfiguration|null
      */
     public function findByIdAndContact(int $metaId, ContactInterface $contact): ?MetaServiceConfiguration;
 
     /**
      * Find all meta services configurations.
      *
-     * @return MetaServiceConfiguration[]
      * @throws \Throwable
+     * @return MetaServiceConfiguration[]
      */
     public function findAll(): array;
 
     /**
      * Find all meta services configurations by contact.
      *
-     * @param ContactInterface $contact Contact related to meta services configurations.
-     * @return MetaServiceConfiguration[]
+     * @param ContactInterface $contact contact related to meta services configurations
      * @throws \Throwable
+     * @return MetaServiceConfiguration[]
      */
     public function findAllByContact(ContactInterface $contact): array;
 }

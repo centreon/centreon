@@ -31,8 +31,8 @@ interface FilterRepositoryInterface
      * Add filter.
      *
      * @param Filter $filter
-     * @return int created filter id
      * @throws FilterException
+     * @return int created filter id
      */
     public function addFilter(Filter $filter): int;
 
@@ -40,8 +40,8 @@ interface FilterRepositoryInterface
      * Update filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function updateFilter(Filter $filter): void;
 
@@ -49,8 +49,8 @@ interface FilterRepositoryInterface
      * Delete filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function deleteFilter(Filter $filter): void;
 
@@ -58,8 +58,8 @@ interface FilterRepositoryInterface
      * Find filters linked to a user id using request parameters.
      *
      * @param int $userId current user id
-     * @return Filter[]
      * @throws \Exception
+     * @return Filter[]
      */
     public function findFiltersByUserIdWithRequestParameters(int $userId, string $pageName): array;
 
@@ -68,15 +68,15 @@ interface FilterRepositoryInterface
      *
      * @param int $userId current user id
      * @param string $pageName page name
-     * @return Filter[]
      * @throws \Exception
+     * @return Filter[]
      */
     public function findFiltersByUserIdWithoutRequestParameters(int $userId, string $pageName): array;
 
     /**
      * Find filter by id
      *
-     * @param integer $userId
+     * @param int $userId
      * @param string $pageName
      * @param string $name
      * @return Filter|null
@@ -89,8 +89,8 @@ interface FilterRepositoryInterface
      * @param int $userId current user id
      * @param string $pageName page name
      * @param int $filterId Filter id to search
-     * @return Filter
      * @throws FilterException
+     * @return Filter
      */
     public function findFilterByUserIdAndId(int $userId, string $pageName, int $filterId): ?Filter;
 }

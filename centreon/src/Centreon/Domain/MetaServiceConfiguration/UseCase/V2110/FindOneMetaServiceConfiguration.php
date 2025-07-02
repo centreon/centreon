@@ -28,7 +28,6 @@ use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
-use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceConfigurationResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
@@ -40,13 +39,10 @@ class FindOneMetaServiceConfiguration
 {
     use LoggerTrait;
 
-    /**
-     * @var MetaServiceConfigurationServiceInterface
-     */
+    /** @var MetaServiceConfigurationServiceInterface */
     private $metaServiceConfigurationService;
-    /**
-     * @var ContactInterface
-     */
+
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -66,8 +62,8 @@ class FindOneMetaServiceConfiguration
     /**
      * Execute the use case for which this class was designed.
      * @param int $metaId
-     * @return FindOneMetaServiceConfigurationResponse
      * @throws MetaServiceConfigurationException
+     * @return FindOneMetaServiceConfigurationResponse
      */
     public function execute(int $metaId): FindOneMetaServiceConfigurationResponse
     {

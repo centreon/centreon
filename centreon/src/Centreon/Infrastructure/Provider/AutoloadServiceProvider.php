@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,11 +37,10 @@
 
 namespace Centreon\Infrastructure\Provider;
 
-use Centreon\Infrastructure\Provider\AutoloadServiceProviderInterface;
-use ReflectionClass;
-use Pimple\Container;
-use Symfony\Component\Finder\Finder;
 use Exception;
+use Pimple\Container;
+use ReflectionClass;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Register all service providers
@@ -52,7 +52,7 @@ class AutoloadServiceProvider
     /**
      * Register service providers
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      * @return void
      */
     public static function register(Container $dependencyInjector): void
@@ -60,14 +60,14 @@ class AutoloadServiceProvider
         $providers = self::getProviders($dependencyInjector['finder']);
 
         foreach ($providers as $provider) {
-            $dependencyInjector->register(new $provider);
+            $dependencyInjector->register(new $provider());
         }
     }
 
     /**
      * Get a list of the service provider classes
      *
-     * @param \Symfony\Component\Finder\Finder $finder
+     * @param Finder $finder
      * @return array
      */
     private static function getProviders(Finder $finder): array
@@ -77,15 +77,14 @@ class AutoloadServiceProvider
             ->files()
             ->name('ServiceProvider.php')
             ->depth('== 1')
-            ->in(__DIR__ . '/../../../../src')
-        ;
+            ->in(__DIR__ . '/../../../../src');
 
         foreach ($serviceProviders as $serviceProvider) {
             $serviceProviderRelativePath = $serviceProvider->getRelativePath();
 
             $object = "{$serviceProviderRelativePath}\\ServiceProvider";
 
-            if (!class_exists($object)) {
+            if (! class_exists($object)) {
                 continue;
             }
 
@@ -102,8 +101,8 @@ class AutoloadServiceProvider
      *
      * @param array $providers
      * @param string $object
+     * @throws Exception
      * @return void
-     * @throws \Exception
      */
     private static function addProvider(array &$providers, string $object): void
     {

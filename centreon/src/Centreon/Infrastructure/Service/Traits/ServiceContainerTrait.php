@@ -6,16 +6,12 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 
 trait ServiceContainerTrait
 {
-    /**
-     * @var array<string|int,mixed>
-     */
+    /** @var array<string|int,mixed> */
     private $objects = [];
 
     public function has($id): bool
     {
-        $result = array_key_exists(strtolower($id), $this->objects);
-
-        return $result;
+        return array_key_exists(strtolower($id), $this->objects);
     }
 
     public function get($id): string
@@ -24,9 +20,7 @@ trait ServiceContainerTrait
             throw new NotFoundException(sprintf(_('Not found exporter with name: %d'), $id));
         }
 
-        $result = $this->objects[strtolower($id)];
-
-        return $result;
+        return $this->objects[strtolower($id)];
     }
 
     public function all(): array

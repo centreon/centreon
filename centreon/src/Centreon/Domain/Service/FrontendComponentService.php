@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -32,10 +33,11 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Domain\Service;
 
-use Psr\Container\ContainerInterface;
 use CentreonLegacy\ServiceProvider;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class to manage external frontend components provided by modules and widgets
@@ -57,7 +59,7 @@ class FrontendComponentService
     /**
      * FrontendComponentService constructor
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(private ContainerInterface $services)
     {
@@ -84,10 +86,10 @@ class FrontendComponentService
 
         foreach ($files as $key => $value) {
             $path = $dir . DIRECTORY_SEPARATOR . $value;
-            if (!is_dir($path) && preg_match($regex, $path)) {
+            if (! is_dir($path) && preg_match($regex, $path)) {
                 // group files by directory
                 $results[dirname($path)][] = basename($path);
-            } elseif ($recursive && $value != "." && $value != "..") {
+            } elseif ($recursive && $value != '.' && $value != '..') {
                 $this->getDirContents($path, $results, $regex);
             }
         }
@@ -115,7 +117,7 @@ class FrontendComponentService
     private function getChunksByModuleName(string $moduleName): array
     {
         $chunks = [];
-        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName. '/static';
+        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName . '/static';
 
         $files = [];
         $this->getDirContents($modulePath, $files, '/\.js$/', false);
@@ -190,7 +192,7 @@ class FrontendComponentService
 
                     $hookParameters = $this->getBundleStructure($path, $hookFiles, $chunks);
 
-                    if (!$hookParameters['js']['bundle'] !== null) {
+                    if (! $hookParameters['js']['bundle'] !== null) {
                         $hooks[$hookName] = $hookParameters;
                     }
                 }

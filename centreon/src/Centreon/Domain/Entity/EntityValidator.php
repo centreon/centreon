@@ -40,19 +40,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class EntityValidator
 {
-    /**
-     * @var ValidatorInterface
-     */
+    /** @var ValidatorInterface */
     private $validator;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $allowExtraFields;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $allowMissingFields;
 
     /**
@@ -136,9 +130,9 @@ class EntityValidator
                 )
             );
         }
+
         return $this->removeDuplicatedViolation($violations);
     }
-
 
     /**
      * @param $object
@@ -180,7 +174,7 @@ class EntityValidator
             // use the real name of properties (camel case)
             $id = self::convertCamelCaseToSnakeCase($id);
 
-            if (!empty($propertyMetadatas)) {
+            if (! empty($propertyMetadatas)) {
                 $propertyMetadata = $propertyMetadatas[0];
                 if ($propertyMetadata->getCascadingStrategy() == CascadingStrategy::CASCADE) {
                     foreach ($propertyMetadata->getConstraints() as $constraint) {
@@ -215,11 +209,11 @@ class EntityValidator
             return new Collection([
                 'fields' => $constraints,
                 'allowExtraFields' => $this->allowExtraFields,
-                'allowMissingFields' => $this->allowMissingFields
+                'allowMissingFields' => $this->allowMissingFields,
             ]);
-        } else {
-            return new Collection($constraints);
         }
+
+        return new Collection($constraints);
     }
 
     /**
@@ -232,14 +226,15 @@ class EntityValidator
         /** @var array<int, ConstraintViolationInterface> $violationCodes */
         $violationCodes = [];
         foreach ($violations as $index => $violation) {
-            if (!array_key_exists($violation->getPropertyPath(), $violationCodes)
-                || !in_array($violation->getCode(), $violationCodes[$violation->getPropertyPath()])
+            if (! array_key_exists($violation->getPropertyPath(), $violationCodes)
+                || ! in_array($violation->getCode(), $violationCodes[$violation->getPropertyPath()])
             ) {
                 $violationCodes[$violation->getPropertyPath()][] = $violation->getCode();
             } else {
                 $violations->remove($index);
             }
         }
+
         return $violations;
     }
 
@@ -256,6 +251,7 @@ class EntityValidator
                 return $constraint->type;
             }
         }
+
         return null;
     }
 
@@ -273,7 +269,7 @@ class EntityValidator
         $errorMessages = '';
         /** @var array<ConstraintViolationInterface> $violations */
         foreach ($violations as $violation) {
-            if (!empty($errorMessages)) {
+            if (! empty($errorMessages)) {
                 $errorMessages .= "\n";
             }
             $propertyName = $violation->getPropertyPath();

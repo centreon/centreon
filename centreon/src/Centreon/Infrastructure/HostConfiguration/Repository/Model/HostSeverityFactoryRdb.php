@@ -36,22 +36,23 @@ class HostSeverityFactoryRdb
      * Create a HostSeverity entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public static function create(array $data): HostSeverity
     {
         $icon = (new Image())
-            ->setId((int)$data['img_id'])
+            ->setId((int) $data['img_id'])
             ->setName($data['img_name'])
             ->setComment($data['img_comment'])
             ->setPath(str_replace('//', '/', ($data['img_path'])));
-        $hostSeverity = (new HostSeverity($data['hc_name'], $data['hc_alias'], (int)$data['level'], $icon))
-            ->setId((int)$data['hc_id'])
+        $hostSeverity = (new HostSeverity($data['hc_name'], $data['hc_alias'], (int) $data['level'], $icon))
+            ->setId((int) $data['hc_id'])
             ->setActivated($data['hc_activate'] === '1');
         if ($data['hc_comment'] !== null) {
             $hostSeverity->setComments($data['hc_comment']);
         }
+
         return $hostSeverity;
     }
 }

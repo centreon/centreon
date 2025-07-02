@@ -78,7 +78,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::CENTREON_NOTIFYMASTER] = function (Container $pimple): NotifyMasterService {
             $service = new NotifyMasterService($pimple[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]);
-            $service->setCurl(new Curl);
+            $service->setCurl(new Curl());
 
             return $service;
         };
