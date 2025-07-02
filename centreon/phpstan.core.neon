@@ -7,6 +7,10 @@ rules:
     - Tools\PhpStan\CustomRules\MiscRules\StringBackquotesCustomRule
     - Tools\PhpStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
     - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
+    - Tools\PhpStan\CustomRules\ArchitectureRules\FinalClassCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
+    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
 
 parameters:
     level: 8

@@ -5,10 +5,6 @@ includes:
 
 rules:
     - Tools\PhpStan\CustomRules\MiscRules\VariableLengthCustomRule
-    - Tools\PhpStan\CustomRules\ArchitectureRules\FinalClassCustomRule
-    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
-    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
-    - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
 
 services:
     -
