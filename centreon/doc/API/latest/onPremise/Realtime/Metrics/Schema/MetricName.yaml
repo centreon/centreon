@@ -1,0 +1,7 @@
+in: path
+name: metricName
+required: true
+description: Name of the metric to retrieve
+schema:
+  type: string
+  example: 'cpu'
