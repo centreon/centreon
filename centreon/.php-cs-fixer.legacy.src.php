@@ -27,7 +27,7 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.ph
 
 $finder = Finder::create()
     ->in([
-        //        __DIR__ . '/src/Centreon', // TODO add this folder when the code is ready
+        __DIR__ . '/src/Centreon',
         __DIR__ . '/src/CentreonCommand',
         __DIR__ . '/src/CentreonLegacy',
         __DIR__ . '/src/CentreonModule',
@@ -37,13 +37,6 @@ $finder = Finder::create()
         __DIR__ . '/src/EventSubscriber',
         __DIR__ . '/src/Security',
         __DIR__ . '/src/Utility',
-        //        __DIR__ . '/www', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/Centreon', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/CentreonLegacy', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/CentreonRemote', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/Security', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/Utility', // TODO add this folder when the code is ready
-        //        __DIR__ . '/tests/php/www', // TODO add this folder when the code is ready
     ])
     ->append([
         __DIR__ . '/bootstrap.php',

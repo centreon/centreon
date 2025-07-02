@@ -46,7 +46,6 @@ $rules = array_merge(
     [
         '@Symfony' => true,
         '@Symfony:risky' => true,
-        'concat_space' => ['spacing' => 'one'], // FIXME Why I need to do this? It should be erase by custom rules
     ],
     PhpCsFixerRuleSet::getRules()
 );

@@ -27,7 +27,6 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.ph
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/tests/php/Core',
         __DIR__ . '/tests/php/Centreon',
         __DIR__ . '/tests/php/CentreonLegacy',
         __DIR__ . '/tests/php/CentreonRemote',

@@ -43,12 +43,12 @@ class PhpCsFixerRuleSet
     public static function getRulesSafe(): array
     {
         return [
+            '@PSR12' => true,
             'align_multiline_comment' => true,
             'array_indentation' => true,
             'array_syntax' => true,
             'assign_null_coalescing_to_coalesce_equal' => true,
             'backtick_to_shell_exec' => true,
-            'binary_operator_spaces' => true,
             'blank_line_before_statement' => ['statements' => ['exit', 'return', 'throw', 'yield']],
             'cast_spaces' => true,
             'class_attributes_separation' => [
@@ -63,23 +63,23 @@ class PhpCsFixerRuleSet
             'clean_namespace' => true,
             'combine_consecutive_issets' => true,
             'combine_consecutive_unsets' => true,
+            'concat_space' => ['spacing' => 'one'],
             'declare_parentheses' => true,
+            'declare_strict_types' => false,
             'explicit_indirect_variable' => true,
             'explicit_string_variable' => true,
             'fully_qualified_strict_types' => true,
-            'type_declaration_spaces' => true,
             'general_phpdoc_tag_rename' => ['case_sensitive' => true, 'replacements' => ['inheritdoc' => 'inheritDoc']],
-            // 'header_comment' => [
-            //     'header' => self::getLicenseHeaderAsPhpComment(),
-            //     'location' => 'after_open',
-            //     'separate' => 'both',
-            // ],
+//             'header_comment' => [
+//                 'header' => self::getLicenseHeaderAsPhpComment(),
+//                 'location' => 'after_open',
+//                 'separate' => 'both',
+//             ],
             'heredoc_indentation' => true,
             'heredoc_to_nowdoc' => true,
             'include' => true,
             'lambda_not_used_import' => true,
             'list_syntax' => true,
-            'lowercase_cast' => true,
             'native_function_invocation' => false,
             'method_chaining_indentation' => true,
             'multiline_whitespace_before_semicolons' => true,
@@ -102,7 +102,6 @@ class PhpCsFixerRuleSet
                     'square_brace_block',
                     'switch',
                     'throw',
-                    'use',
                 ],
             ],
             'no_leading_namespace_whitespace' => true,
@@ -131,7 +130,6 @@ class PhpCsFixerRuleSet
             'nullable_type_declaration_for_default_null_value' => true,
             'object_operator_without_whitespace' => true,
             'operator_linebreak' => true,
-            'ordered_class_elements' => true,
             'ordered_imports' => ['imports_order' => ['const', 'class', 'function'], 'sort_algorithm' => 'alpha'],
             'phpdoc_add_missing_param_annotation' => ['only_untyped' => true],
             'phpdoc_align' => ['align' => 'left'],
@@ -155,13 +153,11 @@ class PhpCsFixerRuleSet
             'return_assignment' => true,
             'self_static_accessor' => true,
             'semicolon_after_instruction' => true,
-            'short_scalar_cast' => true,
             'simple_to_complex_string_variable' => true,
             'simplified_if_return' => true,
             'single_line_comment_spacing' => true,
             'single_line_comment_style' => true,
             'single_quote' => true,
-            'single_space_around_construct' => true,
             'space_after_semicolon' => true,
             'standardize_increment' => true,
             'standardize_not_equals' => true,
@@ -169,10 +165,10 @@ class PhpCsFixerRuleSet
             'ternary_to_null_coalescing' => true,
             'trailing_comma_in_multiline' => true,
             'trim_array_spaces' => true,
+            'type_declaration_spaces' => true,
             'types_spaces' => true,
-            'unary_operator_spaces' => true,
-            'visibility_required' => true,
             'whitespace_after_comma_in_array' => true,
+            'yoda_style' => false,
         ];
     }
 
@@ -186,6 +182,7 @@ class PhpCsFixerRuleSet
         return [
             'array_push' => true,
             'combine_nested_dirname' => true,
+            'declare_strict_types' => true,
             'dir_constant' => true,
             'fopen_flag_order' => true,
             'function_to_constant' => true,
@@ -210,37 +207,36 @@ class PhpCsFixerRuleSet
             'strict_param' => true,
             'string_line_ending' => true,
             'use_arrow_functions' => true,
-            'declare_strict_types' => true,
             'void_return' => true,
         ];
     }
 
-//    /**
-//     * This method returns the license header as a PHP comment.
-//     *
-//     * @return string
-//     */
-//    private static function getLicenseHeaderAsPhpComment()
-//    {
-//        $year = date('Y');
-//
-//        return <<<"EOF"
-//            Copyright 2005 - {$year} Centreon (https://www.centreon.com/)
-//
-//            Licensed under the Apache License, Version 2.0 (the "License");
-//            you may not use this file except in compliance with the License.
-//            You may obtain a copy of the License at
-//
-//            https://www.apache.org/licenses/LICENSE-2.0
-//
-//            Unless required by applicable law or agreed to in writing, software
-//            distributed under the License is distributed on an "AS IS" BASIS,
-//            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//            See the License for the specific language governing permissions and
-//            limitations under the License.
-//
-//            For more information : contact@centreon.com
-//
-//            EOF;
-//    }
+    /**
+     * This method returns the license header as a PHP comment.
+     *
+     * @return string
+     */
+    private static function getLicenseHeaderAsPhpComment()
+    {
+        $year = 2025;
+
+        return <<<"EOF"
+            Copyright 2005 - {$year} Centreon (https://www.centreon.com/)
+
+            Licensed under the Apache License, Version 2.0 (the "License");
+            you may not use this file except in compliance with the License.
+            You may obtain a copy of the License at
+
+            https://www.apache.org/licenses/LICENSE-2.0
+
+            Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            See the License for the specific language governing permissions and
+            limitations under the License.
+
+            For more information : contact@centreon.com
+
+            EOF;
+    }
 }
