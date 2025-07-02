@@ -112,7 +112,7 @@ jobs:
         run: composer stan:legacy:src
         working-directory: centreon-open-tickets
 
-      - name: Run of rector
+      - name: Run of rector on all sections
         run: composer rector
         working-directory: centreon-open-tickets
 

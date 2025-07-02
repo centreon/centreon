@@ -494,7 +494,7 @@ jobs:
         run: composer stan:new
         working-directory: centreon
 
-      - name: Run of rector on all code
+      - name: Run of rector on all sections
         run: composer rector
         working-directory: centreon
 

@@ -50,6 +50,6 @@ jobs:
         run: composer stan:tools
         working-directory: tools
 
-      - name: Run of rector
+      - name: Run of rector on all sections
         run: composer rector
         working-directory: tools

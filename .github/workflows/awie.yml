@@ -137,7 +137,7 @@ jobs:
         run: composer stan:legacy:www
         working-directory: centreon-awie
 
-      - name: Run of rector
+      - name: Run of rector on all sections
         run: composer rector
         working-directory: centreon-awie
 
