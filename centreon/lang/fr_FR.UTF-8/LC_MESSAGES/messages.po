@@ -23931,5 +23931,5 @@ msgstr "Comportement de la recherche texte libre"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Resource status performance"
-msgstr ""
+msgstr "Performances de la page Statut des ressources"
 
