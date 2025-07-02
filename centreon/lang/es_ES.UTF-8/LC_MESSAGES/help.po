@@ -7235,5 +7235,5 @@ msgid ""
 msgstr ""
 "Esta opción sirve para evitar problemas de rendimiento de la búsqueda en Estado de servicios cuando hay grandes cantidades de datos."
 "Búsqueda restringida: la búsqueda en texto libre se hará solamente en los campos siguientes: nombre de anfitrión, alias y la dirección, y descripción de servicio. Use esta opción si tiene una gran cantidad de datos."
-"Búsqueda completa: la búsqueda en texto libre también se hará en el campo \"información\. Esta opción solamente es adecuada si tiene una pequeña cantidád de datos ya que afecta el rendimiento."
+"Búsqueda completa: la búsqueda en texto libre también se hará en el campo \"información\". Esta opción solamente es adecuada si tiene una pequeña cantidád de datos ya que afecta el rendimiento."
 
