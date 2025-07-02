@@ -161,8 +161,12 @@
     "require:check": "../tools/vendor/bin/composer-require-checker check composer.json",
     "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
     "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
+    "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
     "cs:core": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",
     "cs:core:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff",
+    "cs:test": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.test.php --verbose --dry-run --diff",
+    "cs:test:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.test.php --verbose --diff",
     "cs:new": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff",
     "cs:new:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff",
     "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
@@ -183,12 +187,16 @@
     "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "cs": [
       "@cs:legacy:src",
+      "@cs:legacy:www",
       "@cs:core",
+      "@cs:test",
       "@cs:new"
     ],
     "cs:fix": [
       "@cs:legacy:src:fix",
+      "@cs:legacy:www:fix",
       "@cs:core:fix",
+      "@cs:test:fix",
       "@cs:new:fix"
     ],
     "stan": [

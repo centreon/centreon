@@ -28,7 +28,6 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php'
 $finder = Finder::create()
     ->in([
         __DIR__ . '/src/Core',
-        //        __DIR__ . '/tests/php/Core', // TODO add this folder when the code is ready
     ])
     ->append([
         __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
