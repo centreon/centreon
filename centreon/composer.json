@@ -211,8 +211,8 @@
     "ci": [
       "@symfony:check:ci",
       "@cs",
-      "@stan",
       "@rector",
+      "@stan",
       "@dep",
       "@test"
     ]

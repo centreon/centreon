@@ -51,8 +51,8 @@
     ],
     "ci": [
       "@cs",
-      "@stan",
-      "@rector"
+      "@rector",
+      "@stan"
     ]
   },
   "extra": {
