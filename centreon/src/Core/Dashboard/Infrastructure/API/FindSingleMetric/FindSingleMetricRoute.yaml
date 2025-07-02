@@ -1,0 +1,9 @@
+FindSingleMetric:
+  methods: GET
+  path: /monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}
+  controller: Core\Dashboard\Infrastructure\API\FindSingleMetric\FindSingleMetricController
+  requirements:
+    hostId: '\d+'
+    serviceId: '\d+'
+    metricName: '[^/]+'
+  condition: "request.attributes.get('version') >= 25.07"

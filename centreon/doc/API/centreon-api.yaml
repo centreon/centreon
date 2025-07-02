@@ -11,6 +11,7 @@ info:
     + Added new endpoint to bulk duplicate hostgroups
     + Added endpoint to export resources : only csv format available for the moment
     + Added endpoint to count resources
+    + Added endpoint to get a single metric value for a host and a service
     +
     # Updated features
     + Updated endpoint to add an hostgroup
@@ -4028,6 +4029,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}:
+    $ref: './latest/onPremise/Realtime/Metrics/FindSingleMetric.yaml'
   /monitoring/resources/acknowledge:
     post:
       tags:

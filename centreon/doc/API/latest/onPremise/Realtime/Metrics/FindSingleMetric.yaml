@@ -1,0 +1,25 @@
+get:
+  tags:
+    - Metrics
+  summary: 'Get service metric data'
+  description: |
+    Retrieve the data for a specific metric of a service, including its values and timestamps
+  parameters:
+    - $ref: 'Schema/HostId.yaml'
+    - $ref: 'Schema/ServiceId.yaml'
+    - $ref: 'Schema/MetricName.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Metric.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '422':
+      $ref: '../../Common/Response/UnprocessableContent.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
