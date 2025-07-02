@@ -25,6 +25,17 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
+$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+
+$matches = [];
+preg_match('#^(/[^/]+)/#', $uri, $matches);
+
+$baseUri = $matches[1] ?? '/centreon';
+
+// Fake SCRIPT_NAME and PHP_SELF so Symfony thinks the script is under $baseUri
+$_SERVER['SCRIPT_NAME'] = $baseUri . '/index.php';
+$_SERVER['PHP_SELF'] = $baseUri . '/index.php';
+
 return function (array $context) {
     return new \App\Shared\Infrastructure\Symfony\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 };
