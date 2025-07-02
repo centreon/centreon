@@ -256,11 +256,7 @@ class CentreonMedia
             return '';
         }
         if (count($this->filenames)) {
-            if (isset($this->filenames[$imgId])) {
-                return $this->filenames[$imgId];
-            }
-
-            return '';
+            return $this->filenames[$imgId] ?? '';
         }
         $query = 'SELECT img_id, img_path, dir_alias
 	    		  FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr

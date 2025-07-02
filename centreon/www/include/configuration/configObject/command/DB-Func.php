@@ -62,11 +62,8 @@ function getCommandName($command_id)
     $query = 'SELECT `command_name` FROM `command` WHERE `command_id` = ' . $pearDB->escape($command_id);
     $dbResult = $pearDB->query($query);
     $command = $dbResult->fetch();
-    if (isset($command['command_name'])) {
-        return $command['command_name'];
-    }
 
-    return null;
+    return $command['command_name'] ?? null;
 }
 
 function testCmdExistence($name = null)
