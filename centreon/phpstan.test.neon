@@ -1,7 +1,7 @@
 includes:
     - ../tools/vendor/phpstan/phpstan-mockery/extension.neon
     - ../tools/vendor/phpstan/phpstan-phpunit/extension.neon
-    - phpstan.test.baseline.neon
+
 parameters:
     bootstrapFiles:
         - config/centreon.config.php.template
