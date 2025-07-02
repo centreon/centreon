@@ -18,4 +18,3 @@ return $rectorConfig
         __DIR__ . '/.php-cs-fixer.legacy.www.php',
         __DIR__ . '/rector.php',
     ]);
-
