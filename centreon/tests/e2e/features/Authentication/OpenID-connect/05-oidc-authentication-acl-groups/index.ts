@@ -67,6 +67,12 @@ When(
     configureOpenIDConnect();
 
     cy.getByLabel({
+      label: 'Enable automatic management',
+      tag: 'input'
+    })
+      .eq(0)
+      .check();
+    cy.getByLabel({
       label: 'Roles attribute path',
       tag: 'input'
     }).type('{selectall}{backspace}realm_access.roles');
