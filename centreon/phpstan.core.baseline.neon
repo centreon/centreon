@@ -78,7 +78,7 @@ parameters:
 			path: src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
 
 		-
-			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:306\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:307\:\:count\(\) should return int\<0, max\> but returns int\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Core/Command/Infrastructure/Repository/DbReadCommandRepository.php
@@ -527,7 +527,7 @@ parameters:
 			path: src/Core/Media/Infrastructure/Repository/ApiWriteMediaRepository.php
 
 		-
-			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:198\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:199\:\:count\(\) should return int\<0, max\> but returns int\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Core/Media/Infrastructure/Repository/DbReadMediaRepository.php

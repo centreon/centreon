@@ -1,19 +1,5 @@
-# TODO - Fix issues in this file - Remove issue from baseline file when fixed
-
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Call to function is_string\(\) with ''@CENTREON_CACHEDIR@'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/App/Kernel.php
-
-		-
-			message: '#^Call to function is_string\(\) with ''@CENTREON_LOG@'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/App/Kernel.php
-
 		-
 			message: '#^PHPDoc tag @var with type Centreon\\Domain\\Contact\\Interfaces\\ContactInterface is not subtype of native type Symfony\\Component\\Security\\Core\\User\\UserInterface\|null\.$#'
 			identifier: varTag.nativeType
@@ -147,46 +133,46 @@ parameters:
 			path: src/Centreon/Infrastructure/CentreonLegacyDB/CentreonDBAdapter.php
 
 		-
+			message: '#^Variable \$filterEntity in PHPDoc tag @var does not exist\.$#'
+			identifier: varTag.variableNotFound
+			count: 2
+			path: src/Centreon/Infrastructure/Filter/FilterRepositoryRDB.php
+
+		-
 			message: '#^Call to function is_null\(\) with null will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostConfigurationRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:299\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:298\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:95\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:93\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:179\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
-
-		-
-			message: '#^PHPDoc tag @var has invalid value \(int;\)\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 19 on line 2$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: src/Centreon/Infrastructure/MonitoringServer/API/Model/RealTimeMonitoringServer.php
 
 		-
 			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MonitoringServer/Repository/RealTimeMonitoringServerRepositoryRDB\.php\:158\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
