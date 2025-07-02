@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -22,8 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Adaptation\Database\Connection\Adapter\Dbal\Transformer;
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Adapter\Dbal\Transformer\DbalParametersTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
@@ -46,7 +47,7 @@ it('transform from query parameters', function (): void {
             'host_name' => 'foo_server',
             'host_enabled' => true,
             'host_blob' => 'fsfqsd4f5qsdff325154',
-            'host_null' => null
+            'host_null' => null,
         ]
     )
         ->and($types)->toBeArray()->toBe(
@@ -55,7 +56,7 @@ it('transform from query parameters', function (): void {
                 'host_name' => DbalParameterType::STRING,
                 'host_enabled' => DbalParameterType::BOOLEAN,
                 'host_blob' => DbalParameterType::LARGE_OBJECT,
-                'host_null' => DbalParameterType::NULL
+                'host_null' => DbalParameterType::NULL,
             ]
         );
 });
@@ -78,7 +79,7 @@ it('transform from query parameters with : before key', function (): void {
             'host_name' => 'foo_server',
             'host_enabled' => true,
             'host_blob' => 'fsfqsd4f5qsdff325154',
-            'host_null' => null
+            'host_null' => null,
         ]
     )
         ->and($types)->toBeArray()->toBe(
@@ -87,7 +88,7 @@ it('transform from query parameters with : before key', function (): void {
                 'host_name' => DbalParameterType::STRING,
                 'host_enabled' => DbalParameterType::BOOLEAN,
                 'host_blob' => DbalParameterType::LARGE_OBJECT,
-                'host_null' => DbalParameterType::NULL
+                'host_null' => DbalParameterType::NULL,
             ]
         );
 });
@@ -99,14 +100,14 @@ it('reverse to query parameters', function (): void {
             'host_name' => 'foo_server',
             'host_enabled' => true,
             'host_blob' => 'fsfqsd4f5qsdff325154',
-            'host_null' => null
+            'host_null' => null,
         ],
         [
             'host_id' => DbalParameterType::INTEGER,
             'host_name' => DbalParameterType::STRING,
             'host_enabled' => DbalParameterType::BOOLEAN,
             'host_blob' => DbalParameterType::LARGE_OBJECT,
-            'host_null' => DbalParameterType::NULL
+            'host_null' => DbalParameterType::NULL,
         ]
     );
     expect($queryParameters)->toBeInstanceOf(QueryParameters::class)
@@ -116,7 +117,7 @@ it('reverse to query parameters', function (): void {
                 'host_name',
                 'host_enabled',
                 'host_blob',
-                'host_null'
+                'host_null',
             ]
         )
         ->and($queryParameters->get('host_id'))->toBeInstanceOf(QueryParameter::class)

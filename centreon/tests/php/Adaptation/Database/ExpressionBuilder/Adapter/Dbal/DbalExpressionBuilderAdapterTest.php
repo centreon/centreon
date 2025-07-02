@@ -27,10 +27,9 @@ use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdap
 use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
-use Mockery;
 
 beforeEach(function (): void {
-    $connection = Mockery::mock(Connection::class);
+    $connection = \Mockery::mock(Connection::class);
     $dbalExpressionBuilder = new ExpressionBuilder($connection);
     $this->dbalExpressionBuilderAdapterTest = new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
 });
