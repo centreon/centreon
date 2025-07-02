@@ -97,6 +97,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         // remove double slashes
         $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
 
+        // remove double identical prefixes due to progressive migration
+        $generatedRoute = preg_replace('#^/([^/]+)/\1(/|$)#', '/$1$2', $generatedRoute);
+
         if ($generatedRoute === null) {
             throw new \Exception('Error occured during regular expression search and replace.');
         }
