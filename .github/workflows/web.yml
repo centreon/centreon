@@ -466,6 +466,10 @@ jobs:
         run: composer symfony:check:ci
         working-directory: centreon
 
+      - name: Run of php-cs-fixer on the legacy section for the /www directory
+        run: composer cs:legacy:www
+        working-directory: centreon
+
       - name: Run of php-cs-fixer on the legacy section for the /src directory
         run: composer cs:legacy:src
         working-directory: centreon
