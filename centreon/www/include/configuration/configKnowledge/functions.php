@@ -63,9 +63,9 @@ function versionCentreon($pearDB)
 
 function getWikiConfig($pearDB)
 {
-    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the ' .
-        '<a href="https://docs.centreon.com/docs/administration/knowledge-base/" target="_blank" >' .
-        'documentation.</a>';
+    $errorMsg = 'MediaWiki is not installed or configured. Please refer to the '
+        . '<a href="https://docs.centreon.com/docs/administration/knowledge-base/" target="_blank" >'
+        . 'documentation.</a>';
 
     if (is_null($pearDB)) {
         throw new Exception($errorMsg);
