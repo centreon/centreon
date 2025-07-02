@@ -140,7 +140,8 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
         return $customConfiguration->getBaseUrl() . '/'
             . ltrim($authorizationEndpointBase ?? '', '/')
             . '?' . $queryParams
-            . (! empty($customConfiguration->getConnectionScopes())
+            . (
+                ! empty($customConfiguration->getConnectionScopes())
                 ? '&scope=' . implode('%20', $customConfiguration->getConnectionScopes())
                 : ''
             );

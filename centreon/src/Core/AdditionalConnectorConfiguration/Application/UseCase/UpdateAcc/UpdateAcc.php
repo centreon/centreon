@@ -176,7 +176,7 @@ final class UpdateAcc
 
         if (! $this->user->isAdmin()) {
             $pollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAccRepository->findPollersByAccId($acc->getId())
             );
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

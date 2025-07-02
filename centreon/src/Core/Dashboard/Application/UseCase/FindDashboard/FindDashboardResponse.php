@@ -70,7 +70,8 @@ final class FindDashboardResponse
 
     public bool $isFavorite = false;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->refresh = new RefreshResponseDto();

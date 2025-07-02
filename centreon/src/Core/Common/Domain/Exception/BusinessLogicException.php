@@ -140,14 +140,16 @@ abstract class BusinessLogicException extends \Exception
             $previousContext = $this->getPrevious()->getBusinessContext();
         }
         $this->businessContext = array_merge(
-            $context, ['previous' => $previousContext]
+            $context,
+            ['previous' => $previousContext]
         );
     }
 
     /**
      * @return void
      */
-    private function setExceptionContext(): void {
+    private function setExceptionContext(): void
+    {
         $this->exceptionContext = ExceptionFormatter::format($this);
     }
 }

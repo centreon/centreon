@@ -60,7 +60,7 @@ it(
     'should fail if there are no providers',
     function (): void {
         ($this->expectInvalidArgumentException)(
-            fn() => new Validator(new \EmptyIterator()),
+            fn () => new Validator(new \EmptyIterator()),
             Validator::ERROR_NO_PROVIDERS
         );
     }
@@ -112,7 +112,7 @@ foreach ($dataset as [$field, $expectedCode, $value]) {
         "should fail if the field '{$field}' {$message}",
         function () use ($field, $expectedCode, $value): void {
             ($this->expectInvalidArgumentException)(
-                fn() => $this->fakeValidator->validateAndRetrieveRequestParameters([$field => $value]),
+                fn () => $this->fakeValidator->validateAndRetrieveRequestParameters([$field => $value]),
                 $expectedCode
             );
         }

@@ -180,4 +180,3 @@ class HostTemplateException extends \Exception
         return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
     }
 }
-

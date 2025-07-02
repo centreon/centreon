@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\User\Infrastructure\API\FindUserPermissions;
 
@@ -48,8 +48,7 @@ final readonly class FindUserPermissionsResponseNormalizer implements Normalizer
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): array
-    {
+    ): array {
         $data = $this->normalizer->normalize($object, $format, $context);
         $normalizedData = [];
         if (! isset($data['permissions'])) {

@@ -32,4 +32,3 @@ interface FindResourcesByParentPresenterInterface
      */
     public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $response): void;
 }
-

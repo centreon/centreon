@@ -541,7 +541,8 @@ class Service
         return $this->geoCoords;
     }
 
-    public function isNameIdentical(string $testName): bool {
+    public function isNameIdentical(string $testName): bool
+    {
         return $this->name === self::formatName($testName);
     }
 

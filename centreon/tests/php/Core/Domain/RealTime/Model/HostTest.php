@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\RealTime\Model;
 
-use PHPUnit\Framework\TestCase;
-use Core\Domain\RealTime\Model\Host;
-use Core\Domain\RealTime\Model\Icon;
-use Core\Domain\RealTime\Model\HostStatus;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Domain\RealTime\Model\Host;
+use Core\Domain\RealTime\Model\HostStatus;
+use Core\Domain\RealTime\Model\Icon;
+use PHPUnit\Framework\TestCase;
 
 class HostTest extends TestCase
 {
     /**
-    * test Name too long exception
-    */
+     * test Name too long exception
+     */
     public function testNameTooLongException(): void
     {
         $hostName = str_repeat('.', Host::MAX_NAME_LENGTH + 1);
@@ -40,7 +40,7 @@ class HostTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $hostName,
-                strlen($hostName),
+                mb_strlen($hostName),
                 Host::MAX_NAME_LENGTH,
                 'Host::name'
             )->getMessage()
@@ -64,8 +64,8 @@ class HostTest extends TestCase
     }
 
     /**
-    * test address too long exception
-    */
+     * test address too long exception
+     */
     public function testAddressTooLongException(): void
     {
         $address = str_repeat('.', Host::MAX_ADDRESS_LENGTH + 1);
@@ -73,7 +73,7 @@ class HostTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $address,
-                strlen($address),
+                mb_strlen($address),
                 Host::MAX_ADDRESS_LENGTH,
                 'Host::address'
             )->getMessage()
@@ -82,8 +82,8 @@ class HostTest extends TestCase
     }
 
     /**
-    * test address empty exception
-    */
+     * test address empty exception
+     */
     public function testAddressEmptyException(): void
     {
         $address = '';

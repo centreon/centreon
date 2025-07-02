@@ -35,7 +35,8 @@ class BrokerInputOutputValidator
 
     }
 
-    public function brokerIsValidOrFail(int $brokerId): void {
+    public function brokerIsValidOrFail(int $brokerId): void
+    {
         if (! ($this->readBrokerRepository->exists($brokerId))) {
             throw BrokerException::notFound($brokerId);
         }

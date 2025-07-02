@@ -86,6 +86,6 @@ it('should order found updates', function (): void {
         '22.10.0-alpha.1',
         '22.10.0-beta.3',
         '22.10.1',
-        '22.10.11'
+        '22.10.11',
     ]);
 });

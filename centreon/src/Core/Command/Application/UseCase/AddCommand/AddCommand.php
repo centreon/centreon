@@ -174,14 +174,14 @@ final class AddCommand
         $response->isActivated = $command->isActivated();
         $response->isLocked = $command->isLocked();
         $response->arguments = array_map(
-            fn(Argument $argument) => [
+            fn (Argument $argument) => [
                 'name' => $argument->getName(),
                 'description' => $argument->getDescription(),
             ],
             $command->getArguments(),
         );
         $response->macros = array_map(
-            fn(CommandMacro $macro) => [
+            fn (CommandMacro $macro) => [
                 'name' => $macro->getName(),
                 'description' => $macro->getDescription(),
                 'type' => $macro->getType(),

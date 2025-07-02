@@ -130,8 +130,7 @@ class PartialUpdateServiceValidation
         if ($commandId === null && $serviceTemplateId === null) {
             throw ServiceException::checkCommandCannotBeNull();
         }
-        if ($commandId !== null && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check))
-        {
+        if ($commandId !== null && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check)) {
             $this->error('The check command does not exist', ['check_command_id' => $commandId]);
 
             throw ServiceException::idDoesNotExist('check_command_id', $commandId);

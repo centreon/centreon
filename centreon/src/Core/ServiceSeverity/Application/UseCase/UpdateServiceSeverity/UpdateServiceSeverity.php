@@ -81,9 +81,9 @@ final class UpdateServiceSeverity
 
             if (! $this->user->isAdmin()
                 && ! $this->readServiceSeverityRepository->existsByAccessGroups(
-                        $severityId,
-                        $this->readAccessGroupRepositoryInterface->findByContact($this->user)
-                    )
+                    $severityId,
+                    $this->readAccessGroupRepositoryInterface->findByContact($this->user)
+                )
             ) {
                 $this->error(
                     'Service severity not found',

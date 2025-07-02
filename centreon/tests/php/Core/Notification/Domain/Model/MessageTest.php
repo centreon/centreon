@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Message;
 
 beforeEach(function (): void {
     $this->channel = Channel::Slack;

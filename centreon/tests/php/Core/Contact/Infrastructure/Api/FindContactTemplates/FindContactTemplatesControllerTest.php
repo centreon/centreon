@@ -29,9 +29,9 @@ use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesPr
 use Core\Contact\Infrastructure\Api\FindContactTemplates\FindContactTemplatesController;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 beforeEach(function (): void {
     $this->useCase = $this->createMock(FindContactTemplates::class);

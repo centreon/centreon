@@ -141,7 +141,7 @@ final class FindDashboardContacts
             $this->requestParameters
         );
 
-        if ($this->isCloudPlatform === false ) {
+        if ($this->isCloudPlatform === false) {
             $total = $this->requestParameters->getTotal();
             $admins = $this->readContactRepository->findAdminWithRequestParameters(
                 $this->requestParameters

@@ -39,7 +39,8 @@ final class FindFavoriteDashboardsResponse implements ListingResponseInterface
     /**
      * @inheritDoc
      */
-    public function getData(): mixed {
+    public function getData(): mixed
+    {
         return $this->dashboards;
     }
 }

@@ -146,4 +146,3 @@ it('should throw an exception when host severity level is too low', function ():
         'NewHostSeverity::level'
     )->getMessage()
 );
-

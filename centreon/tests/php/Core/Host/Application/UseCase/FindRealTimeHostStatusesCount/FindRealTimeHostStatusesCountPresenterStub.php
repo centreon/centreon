@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Host\Application\UseCase\FindRealTimeHostStatusesCount;
 
@@ -37,4 +37,3 @@ class FindRealTimeHostStatusesCountPresenterStub extends AbstractPresenter imple
         $this->response = $response;
     }
 }
-

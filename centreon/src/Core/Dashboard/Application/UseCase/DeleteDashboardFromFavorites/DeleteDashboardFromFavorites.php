@@ -50,8 +50,7 @@ final class DeleteDashboardFromFavorites
         private readonly ReadUserProfileRepositoryInterface $userProfileReader,
         private readonly ReadDashboardRepositoryInterface $dashboardReader,
         private readonly ContactInterface $user
-    )
-    {
+    ) {
     }
 
     /**

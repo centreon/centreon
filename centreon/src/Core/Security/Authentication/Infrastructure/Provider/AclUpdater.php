@@ -126,7 +126,7 @@ class AclUpdater implements AclUpdaterInterface
             $this->info('Updating user contact group', [
                 'user_id' => $user->getId(),
                 'contact_group_id' => [
-                    array_map(fn($contactGroup) => $contactGroup->getId(), $contactGroups),
+                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
                 ],
             ]);
             $this->dataStorageEngine->startTransaction();

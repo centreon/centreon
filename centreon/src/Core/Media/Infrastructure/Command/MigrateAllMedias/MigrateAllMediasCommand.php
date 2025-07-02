@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Command\MigrateAllMedias;
 
@@ -115,10 +115,13 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
         switch (mb_substr($size, -1)) {
             case 't':
                 $max *= 1024;
+                // no break
             case 'g':
                 $max *= 1024;
+                // no break
             case 'm':
                 $max *= 1024;
+                // no break
             case 'k':
                 $max *= 1024;
         }

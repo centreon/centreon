@@ -30,4 +30,3 @@ interface UpdateRulePresenterInterface extends PresenterInterface
 {
     public function presentResponse(ResponseStatusInterface $response): void;
 }
-

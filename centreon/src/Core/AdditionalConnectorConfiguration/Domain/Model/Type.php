@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Domain\Model;
 
-enum Type: string {
+enum Type: string
+{
     /*
      * TODO: when enum will contain more than one case:
      *  - remove corresponding ignoreErrors in phpstan.core.neon and phpstan.legacy.src.neon,

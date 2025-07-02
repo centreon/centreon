@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\FindTokens;
 
@@ -34,7 +34,6 @@ final class TokenDto
         public \DateTimeInterface $creationDate,
         public \DateTimeInterface $expirationDate,
         public bool $isRevoked,
-    )
-    {
+    ) {
     }
 }

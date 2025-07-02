@@ -67,7 +67,8 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
      *
      * @return string
      */
-    private function convertTypeToString(CredentialTypeEnum $type): string {
+    private function convertTypeToString(CredentialTypeEnum $type): string
+    {
         return match ($type) {
             CredentialTypeEnum::TYPE_HOST => 'host',
             CredentialTypeEnum::TYPE_SERVICE => 'service',

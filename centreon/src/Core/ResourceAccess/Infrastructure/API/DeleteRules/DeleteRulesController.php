@@ -71,4 +71,3 @@ final class DeleteRulesController extends AbstractController
         return $dto;
     }
 }
-

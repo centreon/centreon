@@ -53,7 +53,7 @@ class AddAgentConfigurationPresenter extends AbstractPresenter implements AddAge
                         'type' => $response->type->value,
                         'configuration' => $response->configuration,
                         'connection_mode' => $this->connectionModeToString($response->connectionMode),
-                        'pollers' => array_map(fn(Poller $poller) => ['id' => $poller->id, 'name' => $poller->name], $response->pollers),
+                        'pollers' => array_map(fn (Poller $poller) => ['id' => $poller->id, 'name' => $poller->name], $response->pollers),
                     ]
                 )
             );
@@ -61,7 +61,8 @@ class AddAgentConfigurationPresenter extends AbstractPresenter implements AddAge
         }
     }
 
-    private function ConnectionModeToString(ConnectionModeEnum $connectionMode): string {
+    private function ConnectionModeToString(ConnectionModeEnum $connectionMode): string
+    {
         return match ($connectionMode) {
             ConnectionModeEnum::SECURE => 'secure',
             ConnectionModeEnum::NO_TLS => 'no-tls',

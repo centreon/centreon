@@ -93,7 +93,7 @@ final class DeleteAcc
 
             if (false === $this->user->isAdmin()) {
                 $linkedPollerIds = array_map(
-                    static fn(Poller $poller): int => $poller->id,
+                    static fn (Poller $poller): int => $poller->id,
                     $this->readAccRepository->findPollersByAccId($id)
                 );
 

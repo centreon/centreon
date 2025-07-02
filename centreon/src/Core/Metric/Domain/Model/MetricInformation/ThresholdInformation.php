@@ -32,7 +32,7 @@ class ThresholdInformation
         private readonly ?float $criticalLowThreshold,
         private readonly string $colorWarning,
         private readonly string $colorCritical,
-    ){
+    ) {
     }
 
     public function getWarningThreshold(): ?float

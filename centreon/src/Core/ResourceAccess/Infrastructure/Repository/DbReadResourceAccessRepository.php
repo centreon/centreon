@@ -57,7 +57,8 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  */
 final class DbReadResourceAccessRepository extends AbstractRepositoryRDB implements ReadResourceAccessRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db

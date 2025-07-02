@@ -31,7 +31,8 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 
 final class HostCategoryProvider implements DatasetProviderInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
 
     /**
      * @param ReadHostCategoryRepositoryInterface $repository

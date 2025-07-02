@@ -166,7 +166,7 @@ final class FindDashboard
 
         $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $accessGroupsIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $userAccessGroups
         );
 

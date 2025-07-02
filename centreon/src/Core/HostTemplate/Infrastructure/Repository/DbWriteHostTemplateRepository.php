@@ -37,7 +37,8 @@ use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
 class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -93,11 +94,11 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                 $this->db->commit();
             }
 
-            $this->debug('Host template added with ID '. $hostTemplateId);
+            $this->debug('Host template added with ID ' . $hostTemplateId);
 
             return $hostTemplateId;
         } catch (\Throwable $ex) {
-             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();
@@ -129,7 +130,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
-             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();

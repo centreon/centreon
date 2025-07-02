@@ -52,7 +52,8 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
      *
      * @throws AssertionFailedException
      */
-    public function __construct(array $parameters){
+    public function __construct(array $parameters)
+    {
         /** @var _TelegrafParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 

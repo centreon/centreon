@@ -32,8 +32,7 @@ final class FindHostGroupsResponse implements ListingResponseInterface
      */
     public function __construct(
         public array $hostgroups = [],
-    )
-    {
+    ) {
     }
 
     /**

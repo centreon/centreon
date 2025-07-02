@@ -62,4 +62,3 @@ final class ServiceGroupProvider implements DatasetProviderInterface
         return $this->repository->exist($resourceIds);
     }
 }
-

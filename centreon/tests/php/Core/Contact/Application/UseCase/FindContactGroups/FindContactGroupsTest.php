@@ -83,7 +83,7 @@ it('should present a ForbiddenResponse if the user doesn\'t have read menu acces
     $this->user
         ->expects($this->any())
         ->method('hasTopologyRole')
-        ->willReturnCallback(fn(string $role): bool => match ($role) {
+        ->willReturnCallback(fn (string $role): bool => match ($role) {
             Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ, Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE => false,
             default => true,
         });

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Media\Application\UseCase\UpdateMedia;
 
@@ -82,7 +82,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readMediaRepository
         ->expects($this->once())
         ->method('findById')
-        ->willReturn(new Media( 1, 'filename', 'directory', null, null));
+        ->willReturn(new Media(1, 'filename', 'directory', null, null));
 
     $this->writeMediaRepository
         ->expects($this->once())

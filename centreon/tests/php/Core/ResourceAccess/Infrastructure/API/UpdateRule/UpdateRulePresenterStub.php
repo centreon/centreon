@@ -33,7 +33,8 @@ class UpdateRulePresenterStub extends AbstractPresenter implements UpdateRulePre
 {
     public ?ResponseStatusInterface $responseStatus = null;
 
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter) {
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    {
         parent::__construct($presenterFormatter);
     }
 
@@ -45,4 +46,3 @@ class UpdateRulePresenterStub extends AbstractPresenter implements UpdateRulePre
         $this->responseStatus = $response;
     }
 }
-

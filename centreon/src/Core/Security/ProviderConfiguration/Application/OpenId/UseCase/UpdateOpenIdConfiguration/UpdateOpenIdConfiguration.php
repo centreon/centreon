@@ -63,7 +63,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  */
 class UpdateOpenIdConfiguration
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository

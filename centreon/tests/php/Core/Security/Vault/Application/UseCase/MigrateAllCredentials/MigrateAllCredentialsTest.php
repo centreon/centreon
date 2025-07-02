@@ -148,7 +148,8 @@ it('should present a MigrateAllCredentialsResponse when no error occurs', functi
         'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
         'redirect_url' => null,
     ]);
-    $openIdProviderConfiguration = new Configuration(1,
+    $openIdProviderConfiguration = new Configuration(
+        1,
         type: Provider::OPENID,
         name: Provider::OPENID,
         jsonCustomConfiguration: '{}',

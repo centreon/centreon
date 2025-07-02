@@ -49,4 +49,3 @@ final class FindRuleController extends AbstractController
         return $presenter->show();
     }
 }
-

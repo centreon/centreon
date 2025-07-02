@@ -54,7 +54,7 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
             throw AccException::arrayCanNotBeEmpty('parameters.vcenters[]');
         }
 
-        $vcenterNames = array_map(fn(array $vcenter) => $vcenter['name'], $parameters['vcenters']);
+        $vcenterNames = array_map(fn (array $vcenter) => $vcenter['name'], $parameters['vcenters']);
 
         if (count(array_unique($vcenterNames)) !== count($vcenterNames)) {
             throw AccException::duplicatesNotAllowed('parameters.vcenters[].name');

@@ -119,7 +119,7 @@ final class FindNotifiableRule
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
-  
+
         return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
             $notificationId,
             $this->user,
@@ -139,13 +139,13 @@ final class FindNotifiableRule
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findUsersByNotificationId($notificationId);
         }
-  
-            return $this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
-                $notificationId,
-                $this->user,
-                $this->findAccessGroupsOfNonAdminUser()
-            );
-        
+
+        return $this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
+            $notificationId,
+            $this->user,
+            $this->findAccessGroupsOfNonAdminUser()
+        );
+
     }
 
     /**
@@ -183,7 +183,7 @@ final class FindNotifiableRule
 
         // Retrieve contacts from contact groups
         $contactGroupIds = array_map(
-            static fn(ContactGroup $contactGroup) => $contactGroup->getId(),
+            static fn (ContactGroup $contactGroup) => $contactGroup->getId(),
             $contactGroups
         );
 
@@ -213,7 +213,7 @@ final class FindNotifiableRule
      *
      * @return ContactDto[]
      */
-    private function createContactDto (array $contacts): array
+    private function createContactDto(array $contacts): array
     {
         $contactDtos = [];
         $contactIdsAlreadyCreated = [];

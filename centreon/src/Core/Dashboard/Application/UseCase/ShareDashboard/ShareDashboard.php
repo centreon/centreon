@@ -229,7 +229,8 @@ final class ShareDashboard
      *
      * @throws \Throwable
      */
-    private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
+    private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void
+    {
         try {
             $this->dataStorageEngine->startTransaction();
             $this->writeDashboardShareRepository->deleteDashboardShares($dashboardId);

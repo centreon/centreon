@@ -120,7 +120,7 @@ it(
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setExtraTimePeriods([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -132,7 +132,7 @@ it(
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setTemplates([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -144,7 +144,7 @@ it(
     function (): void {
         $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
         $tp->setDays([
-            new \stdClass()
+            new \stdClass(),
         ]);
     }
 )->throws(

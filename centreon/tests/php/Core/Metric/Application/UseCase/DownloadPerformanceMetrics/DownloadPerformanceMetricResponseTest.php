@@ -74,26 +74,26 @@ it(
     }
 )->with([
     [
-        [], [], 'filename'
-    ],
-    [
-        [
-            createPerformanceMetric('2022-01-01', 0.039, 0, 0.108, 0.0049)
-        ],
-        [
-            generateExpectedResponseData('2022-01-01', 0.039, 0, 0.108, 0.0049)
-        ],
-        'filename'
+        [], [], 'filename',
     ],
     [
         [
             createPerformanceMetric('2022-01-01', 0.039, 0, 0.108, 0.0049),
-            createPerformanceMetric('2022-01-01 11:00:05', 0.04, 0.1, 0.10, 0.006)
         ],
         [
             generateExpectedResponseData('2022-01-01', 0.039, 0, 0.108, 0.0049),
-            generateExpectedResponseData('2022-01-01 11:00:05', 0.04, 0.1, 0.10, 0.006)
         ],
-        'filename'
-    ]
+        'filename',
+    ],
+    [
+        [
+            createPerformanceMetric('2022-01-01', 0.039, 0, 0.108, 0.0049),
+            createPerformanceMetric('2022-01-01 11:00:05', 0.04, 0.1, 0.10, 0.006),
+        ],
+        [
+            generateExpectedResponseData('2022-01-01', 0.039, 0, 0.108, 0.0049),
+            generateExpectedResponseData('2022-01-01 11:00:05', 0.04, 0.1, 0.10, 0.006),
+        ],
+        'filename',
+    ],
 ]);

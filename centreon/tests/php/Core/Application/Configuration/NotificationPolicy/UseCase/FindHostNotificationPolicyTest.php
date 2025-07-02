@@ -22,28 +22,28 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\Configuration\NotificationPolicy\UseCase;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Engine\EngineConfiguration;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\HostConfiguration\Host;
+use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
+use Centreon\Domain\Option\OptionService;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Configuration\Notification\Repository\ReadHostNotificationRepositoryInterface;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindHostNotificationPolicy;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyResponse;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
-use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
-use Core\Application\Configuration\Notification\Repository\ReadHostNotificationRepositoryInterface;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface as ReadRealTimeHostRepositoryInterface;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Centreon\Domain\HostConfiguration\Host;
-use Centreon\Domain\Option\OptionService;
-use Core\Domain\RealTime\Model\Host as RealTimeHost;
-use Core\Domain\RealTime\Model\HostStatus;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
+use Core\Domain\RealTime\Model\Host as RealTimeHost;
+use Core\Domain\RealTime\Model\HostStatus;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->readHostNotificationRepository = $this->createMock(ReadHostNotificationRepositoryInterface::class);
@@ -65,10 +65,10 @@ beforeEach(function (): void {
         new HostStatus(HostStatus::STATUS_NAME_DOWN, HostStatus::STATUS_CODE_DOWN, 1)
     );
 
-    $hostNotification = new HostNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $hostNotification = new HostNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $hostNotification->addEvent(HostNotification::EVENT_HOST_DOWN);
 
-    $serviceNotification = new ServiceNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $serviceNotification = new ServiceNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $serviceNotification->addEvent(ServiceNotification::EVENT_SERVICE_CRITICAL);
 
     $this->notifiedContact = new NotifiedContact(

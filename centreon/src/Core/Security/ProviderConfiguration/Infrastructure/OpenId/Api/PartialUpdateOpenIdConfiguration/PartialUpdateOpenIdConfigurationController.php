@@ -176,7 +176,7 @@ final class PartialUpdateOpenIdConfigurationController extends AbstractControlle
             $updateOpenIdConfigurationRequest->redirectUrl = $requestData['redirect_url'];
         }
 
-        if (array_key_exists('authentication_conditions', $requestData))  {
+        if (array_key_exists('authentication_conditions', $requestData)) {
             if (array_key_exists('is_enabled', $requestData['authentication_conditions'])) {
                 $updateOpenIdConfigurationRequest->authenticationConditions['is_enabled']
                     = $requestData['authentication_conditions']['is_enabled'];
@@ -226,7 +226,7 @@ final class PartialUpdateOpenIdConfigurationController extends AbstractControlle
             }
         }
 
-        if (array_key_exists('groups_mapping', $requestData))  {
+        if (array_key_exists('groups_mapping', $requestData)) {
             if (array_key_exists('is_enabled', $requestData['groups_mapping'])) {
                 $updateOpenIdConfigurationRequest->groupsMapping['is_enabled']
                     = $requestData['groups_mapping']['is_enabled'];

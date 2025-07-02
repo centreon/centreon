@@ -43,8 +43,7 @@ final class FindSeverity
         private readonly ReadSeverityRepositoryInterface $repository,
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-    )
-    {
+    ) {
     }
 
     /**

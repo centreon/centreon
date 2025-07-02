@@ -309,7 +309,7 @@ final class UpdateSAMLConfiguration
         return new AuthenticationConditions(
             $authenticationConditionsParameters['is_enabled'],
             $authenticationConditionsParameters['attribute_path'],
-          null,
+            null,
             $authenticationConditionsParameters['authorized_values'],
         );
     }
@@ -353,7 +353,7 @@ final class UpdateSAMLConfiguration
         return new GroupsMapping(
             $groupsMappingParameters['is_enabled'],
             $groupsMappingParameters['attribute_path'],
-           null,
+            null,
             $contactGroupRelations
         );
     }

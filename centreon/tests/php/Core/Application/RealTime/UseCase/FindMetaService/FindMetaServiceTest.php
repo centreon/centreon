@@ -23,22 +23,20 @@ declare(strict_types=1);
 namespace Tests\Core\Application\RealTime\UseCase\FindMetaService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Tests\Core\Domain\RealTime\Model\MetaServiceTest;
-use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Application\RealTime\UseCase\FindMetaService\FindMetaService;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as ReadMetaServiceConfigurationRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface;
+use Core\Application\RealTime\UseCase\FindMetaService\FindMetaService;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\RealTime\Api\FindMetaService\FindMetaServicePresenter;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
-use Tests\Core\Application\RealTime\UseCase\FindMetaService\FindMetaServicePresenterStub;
+use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Domain\Configuration\MetaServiceTest as MetaServiceConfigurationTest;
-use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as
-    ReadMetaServiceConfigurationRepositoryInterface;
+use Tests\Core\Domain\RealTime\Model\MetaServiceTest;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(ReadMetaServiceRepositoryInterface::class);

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Command\Infrastructure\Repository;
 
@@ -70,14 +70,14 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
             'is_shell' => $command->isShellEnabled(),
             'argument_example' => $this->emptyStringAsNull($command->getArgumentExample()),
             'arguments' => array_map(
-                fn(Argument $arg) => [
+                fn (Argument $arg) => [
                     'name' => $arg->getName(),
                     'description' => $this->emptyStringAsNull($arg->getDescription()),
                 ],
                 $command->getArguments(),
             ),
             'macros' => array_map(
-                fn(NewCommandMacro $cmd) => [
+                fn (NewCommandMacro $cmd) => [
                     'name' => $cmd->getName(),
                     'type' => (int) $cmd->getType()->value,
                     'description' => $this->emptyStringAsNull($cmd->getDescription()),
@@ -109,9 +109,9 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
 
                 throw new \Exception(
                     sprintf(
-                            'Request error: {"code":%d,"message":"Error when retrieving response content (see logs for more details)"',
-                            $response->getStatusCode()
-                        ),
+                        'Request error: {"code":%d,"message":"Error when retrieving response content (see logs for more details)"',
+                        $response->getStatusCode()
+                    ),
                     $response->getStatusCode()
                 );
             }

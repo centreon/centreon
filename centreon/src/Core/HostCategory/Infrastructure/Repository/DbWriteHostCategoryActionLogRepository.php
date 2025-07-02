@@ -101,7 +101,8 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
             $this->writeActionLogRepository->addActionDetails(
-                $actionLog, $this->getNewHostCategoryAsArray($hostCategory)
+                $actionLog,
+                $this->getNewHostCategoryAsArray($hostCategory)
             );
 
             return $hostCategoryId;

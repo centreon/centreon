@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\SAML\Model;
 
-enum RequestedAuthnContextEnum 
+enum RequestedAuthnContextEnum
 {
     case MINIMUM;
     case EXACT;

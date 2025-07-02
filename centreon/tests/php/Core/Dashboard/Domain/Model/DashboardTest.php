@@ -32,17 +32,15 @@ beforeEach(function (): void {
     $this->testedCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00');
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->testedGlobalRefresh = new Refresh(RefreshType::Manual, 30);
-    $this->createDashboard = function (array $fields = []): Dashboard {
-        return new Dashboard(
-            $fields['id'] ?? 1,
-            $fields['name'] ?? 'dashboard-name',
-            \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
-            \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
-            $this->testedCreatedAt,
-            $this->testedUpdatedAt,
-            $this->testedGlobalRefresh,
-        );
-    };
+    $this->createDashboard = fn (array $fields = []): Dashboard => new Dashboard(
+        $fields['id'] ?? 1,
+        $fields['name'] ?? 'dashboard-name',
+        \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
+        \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
+        $this->testedCreatedAt,
+        $this->testedUpdatedAt,
+        $this->testedGlobalRefresh,
+    );
 });
 
 it('should return properly set dashboard instance', function (): void {
@@ -62,14 +60,14 @@ it('should return properly set dashboard instance', function (): void {
 
 it(
     'should throw an exception when dashboard name is an empty string',
-    fn() => ($this->createDashboard)(['name' => ''])
+    fn () => ($this->createDashboard)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('Dashboard::name')->getMessage()
 );
 
 // string field trimmed
-it("should return trim the field name after construct", function (): void {
+it('should return trim the field name after construct', function (): void {
     $dashboard = new Dashboard(
         1,
         ' abcd ',
@@ -83,7 +81,7 @@ it("should return trim the field name after construct", function (): void {
     expect($dashboard->getName())->toBe('abcd');
 });
 
-it("should return trim the field description", function (): void {
+it('should return trim the field description', function (): void {
     $dashboard = (new Dashboard(
         1,
         'abcd',
@@ -125,7 +123,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when dashboard {$field} is too long",
-        fn() => ($this->createDashboard)([$field => $tooLong])
+        fn () => ($this->createDashboard)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "Dashboard::{$field}")->getMessage()
@@ -142,7 +140,7 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard {$field} is not a positive integer",
-        fn() => ($this->createDashboard)([$field => 0])
+        fn () => ($this->createDashboard)([$field => 0])
     )->throws(
         AssertionException::class,
         AssertionException::positiveInt(0, 'Dashboard::' . $propertyName)->getMessage()

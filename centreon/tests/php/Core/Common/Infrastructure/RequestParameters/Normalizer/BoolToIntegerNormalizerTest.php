@@ -29,7 +29,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToIntegerNormali
 
 it(
     'should success with NULL when allowed',
-    fn() => expect(
+    fn () => expect(
         (new BoolToIntegerNormalizer(nullable: true))
             ->normalize(null)
     )->toBe(null)
@@ -39,7 +39,7 @@ it(
 
 it(
     'should success',
-    fn($tested, $expected) => expect(
+    fn ($tested, $expected) => expect(
         (new BoolToIntegerNormalizer(4321, 1234))
             ->normalize($tested)
     )->toBe($expected)
@@ -65,7 +65,7 @@ it(
 
 it(
     'should fail',
-    fn($tested) => (new BoolToIntegerNormalizer())->normalize($tested)
+    fn ($tested) => (new BoolToIntegerNormalizer())->normalize($tested)
 )
     ->with(
         [

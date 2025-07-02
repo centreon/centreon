@@ -62,4 +62,3 @@ abstract class AbstractDatasetFilterType implements DatasetFilterTypeInterface
         return false;
     }
 }
-

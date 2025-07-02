@@ -24,9 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Resources\Application\UseCase\FindResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Exception\ResourceException;

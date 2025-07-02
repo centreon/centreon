@@ -346,7 +346,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             }
             $boundValues = \array_merge(...$boundValues);
         }
-        foreach ($boundValues as $bindToken => $bindValueInformation){
+        foreach ($boundValues as $bindToken => $bindValueInformation) {
             foreach ($bindValueInformation as $bindValue => $paramType) {
                 $statement->bindValue($bindToken, $bindValue, $paramType);
             }
@@ -488,7 +488,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
         foreach ($metaserviceIds as $key => $metaserviceId) {
-            $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_'. $metaserviceId => \PDO::PARAM_STR];
+            $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_' . $metaserviceId => \PDO::PARAM_STR];
         }
 
         $bindTokens = implode(', ', array_keys($bindMetaserviceNames));

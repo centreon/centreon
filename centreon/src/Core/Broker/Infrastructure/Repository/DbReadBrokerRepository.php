@@ -58,6 +58,6 @@ class DbReadBrokerRepository extends AbstractRepositoryRDB implements ReadBroker
         $statement->bindValue(':brokerId', $id, \PDO::PARAM_INT);
         $statement->execute();
 
-       return (bool) $statement->fetchColumn();
+        return (bool) $statement->fetchColumn();
     }
 }

@@ -27,6 +27,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
     FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
+
 class FindProviderConfigurationsPresenter extends AbstractPresenter implements FindProviderConfigurationsPresenterInterface
 {
     /**

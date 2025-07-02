@@ -175,7 +175,7 @@ class FindServiceNotificationPolicy
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -206,7 +206,7 @@ class FindServiceNotificationPolicy
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 

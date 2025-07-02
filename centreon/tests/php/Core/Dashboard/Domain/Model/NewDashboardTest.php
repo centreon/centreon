@@ -59,7 +59,7 @@ it('should return properly set dashboard instance', function (): void {
 
 it(
     'should throw an exception when dashboard name is an empty string',
-    fn() => ($this->createDashboard)(['name' => ''])
+    fn () => ($this->createDashboard)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('NewDashboard::name')->getMessage()
@@ -112,7 +112,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when dashboard {$field} is too long",
-        fn() => ($this->createDashboard)([$field => $tooLong])
+        fn () => ($this->createDashboard)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewDashboard::{$field}")->getMessage()
@@ -129,10 +129,9 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard {$field} is not a positive integer",
-        fn() => ($this->createDashboard)([$field => 0])
+        fn () => ($this->createDashboard)([$field => 0])
     )->throws(
         AssertionException::class,
         AssertionException::positiveInt(0, 'NewDashboard::' . $propertyName)->getMessage()
     );
 }
-

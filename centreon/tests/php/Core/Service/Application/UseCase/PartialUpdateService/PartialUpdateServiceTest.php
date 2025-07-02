@@ -176,7 +176,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willThrowException(new Exception);
+        ->willThrowException(new Exception());
 
     ($this->useCase)(new PartialUpdateServiceRequest(), $this->presenter, $this->service->getId());
 

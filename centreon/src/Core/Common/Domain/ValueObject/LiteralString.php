@@ -38,7 +38,9 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @param string $value
      */
-    public function __construct(protected string $value) {}
+    public function __construct(protected string $value)
+    {
+    }
 
     /**
      * @return string

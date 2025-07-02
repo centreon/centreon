@@ -31,7 +31,8 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
  * @class ExportResourcesPresenter
  * @package Core\Resources\Application\UseCase\ExportResources
  */
-interface ExportResourcesPresenterInterface {
+interface ExportResourcesPresenterInterface
+{
     /**
      * @param ExportResourcesResponse|ResponseStatusInterface $response
      *

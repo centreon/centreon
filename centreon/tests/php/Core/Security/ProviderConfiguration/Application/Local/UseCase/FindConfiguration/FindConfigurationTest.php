@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration;
 
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfiguration;
@@ -36,14 +35,10 @@ use PHPUnit\Framework\TestCase;
 
 class FindConfigurationTest extends TestCase
 {
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&MockObject */
     private ProviderAuthenticationInterface $providerAuthentication;
 
     /**

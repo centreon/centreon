@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
-use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface, ResponseStatusInterface};
+use Core\Application\Common\UseCase\{AbstractPresenter, ResponseStatusInterface};
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationPresenterInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfigurationResponse;
 

@@ -58,11 +58,11 @@ class AddCommandPresenter extends AbstractPresenter implements AddCommandPresent
                         'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                         'argument_example' => $this->emptyStringAsNull($response->argumentExample),
-                        'arguments' => array_map(fn(array $argument): array => [
+                        'arguments' => array_map(fn (array $argument): array => [
                             'name' => $argument['name'],
                             'description' => $this->emptyStringAsNull($argument['description']),
                         ], $response->arguments),
-                        'macros' => array_map(fn(array $macro): array => [
+                        'macros' => array_map(fn (array $macro): array => [
                             'name' => $macro['name'],
                             'type' => $macro['type']->value,
                             'description' => $this->emptyStringAsNull($macro['description']),

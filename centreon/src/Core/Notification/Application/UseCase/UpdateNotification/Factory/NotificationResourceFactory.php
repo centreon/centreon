@@ -88,7 +88,7 @@ class NotificationResourceFactory
         return new NotificationResource(
             $repository->resourceType(),
             $repository->eventEnum(),
-            array_map((fn($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
+            array_map((fn ($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
             ($repository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])

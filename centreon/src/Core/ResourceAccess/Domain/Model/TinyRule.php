@@ -82,4 +82,3 @@ class TinyRule
         return $this->isEnabled;
     }
 }
-

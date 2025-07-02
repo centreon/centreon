@@ -71,7 +71,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('exists')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->hostCategory->getId(), $this->presenter);
 
@@ -182,7 +182,7 @@ it('should present a FindHostCategoryResponse when a non-admin user has read-onl
         ->toBe($this->responseArray['is_activated'])
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
-    });
+});
 
 it('should present a FindHostCategoryResponse when a non-admin user has read/write rights', function (): void {
     $this->user
@@ -223,7 +223,6 @@ it('should present a FindHostCategoryResponse when a non-admin user has read/wri
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
 });
-
 
 it('should present a FindHostCategoryResponse with admin user', function (): void {
     $this->user

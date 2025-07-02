@@ -19,29 +19,28 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Upload;
 
 use Core\Common\Infrastructure\Upload\FileCollection;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-it('should iterate on each files of ZIP archive and others', function(): void {
+it('should iterate on each files of ZIP archive and others', function (): void {
     $fileManager = new FileCollection();
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'archive.zip', 'archive.zip'));
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.jpg', 'logo.jpg'));
     $fileManager->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.svg', 'logo.svg'));
 
-    foreach($fileManager->getFiles() as $filename => $contentFile) {
+    foreach ($fileManager->getFiles() as $filename => $contentFile) {
         echo null; // To ensure that we can iterate several times
     }
     $files = [];
-    foreach($fileManager->getFiles() as $filename => $contentFile) {
+    foreach ($fileManager->getFiles() as $filename => $contentFile) {
         /** @var list<array{filename: string, md5: string}> $files */
         $files[] = [
             'filename' => $filename,
-            'md5' => md5($contentFile)
+            'md5' => md5($contentFile),
         ];
     }
     expect($files)->toHaveCount(4)

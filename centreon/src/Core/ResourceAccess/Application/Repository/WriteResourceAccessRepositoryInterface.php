@@ -135,4 +135,3 @@ interface WriteResourceAccessRepositoryInterface
      */
     public function deleteDatasetFilter(int $datasetFilterId): void;
 }
-

@@ -157,8 +157,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sqlTranslator->addNormalizer(
             'status',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */

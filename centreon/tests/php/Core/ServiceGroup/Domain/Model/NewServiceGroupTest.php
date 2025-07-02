@@ -29,18 +29,16 @@ use Core\Domain\Common\GeoCoords;
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
 
 beforeEach(function (): void {
-    $this->createServiceGroup = static function (array $fields = []): NewServiceGroup {
-        return new NewServiceGroup(
-            ...[
-                'name' => 'service-name',
-                'alias' => 'service-alias',
-                'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
-                'comment' => '',
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createServiceGroup = static fn (array $fields = []): NewServiceGroup => new NewServiceGroup(
+        ...[
+            'name' => 'service-name',
+            'alias' => 'service-alias',
+            'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
+            'comment' => '',
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set service group instance', function (): void {
@@ -55,7 +53,7 @@ it('should return properly set service group instance', function (): void {
 
 it(
     'should throw an exception when service group name is an empty string',
-    fn() => ($this->createServiceGroup)(['name' => ''])
+    fn () => ($this->createServiceGroup)(['name' => ''])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::minLength('', 0, NewServiceGroup::MIN_NAME_LENGTH, 'NewServiceGroup::name')->getMessage()
@@ -97,7 +95,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service group {$field} is too long",
-        fn() => ($this->createServiceGroup)([$field => $tooLong])
+        fn () => ($this->createServiceGroup)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewServiceGroup::{$field}")->getMessage()

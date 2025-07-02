@@ -65,7 +65,8 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
 final class AddServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups;
@@ -368,7 +369,7 @@ final class AddServiceTemplate
         $response->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
         $response->acknowledgementTimeout = $serviceTemplate->getAcknowledgementTimeout();
         $response->macros = array_map(
-            fn(Macro $macro): MacroDto => new MacroDto(
+            fn (Macro $macro): MacroDto => new MacroDto(
                 $macro->getName(),
                 $macro->getValue(),
                 $macro->isPassword(),
@@ -378,16 +379,16 @@ final class AddServiceTemplate
         );
 
         $response->categories = array_map(
-            fn(ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            fn (ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $serviceCategories
         );
 
         $hostTemplateNames = $this->readHostTemplateRepository->findNamesByIds(array_map(
-            fn(array $group): int => (int) $group['relation']->getHostId(),
+            fn (array $group): int => (int) $group['relation']->getHostId(),
             $serviceGroups
         ));
         $response->groups = array_map(
-            fn(array $group) => [
+            fn (array $group) => [
                 'serviceGroupId' => $group['serviceGroup']->getId(),
                 'serviceGroupName' => $group['serviceGroup']->getName(),
                 'hostTemplateId' => (int) $group['relation']->getHostId(),
@@ -510,7 +511,7 @@ final class AddServiceTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

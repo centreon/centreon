@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Service\Domain\Model;
 
@@ -52,7 +52,8 @@ class ServiceNamesByHost
     /**
      * @return int
      */
-    public function getHostId(): int{
+    public function getHostId(): int
+    {
         return $this->hostId;
     }
 

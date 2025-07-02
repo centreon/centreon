@@ -36,7 +36,9 @@ use Utility\SqlConcatenator;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
-    use RepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use RepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {

@@ -118,10 +118,10 @@ it('should present a FindAccResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-   $this->readAccRepository
-       ->expects($this->once())
-       ->method('find')
-       ->willReturn($this->acc);
+    $this->readAccRepository
+        ->expects($this->once())
+        ->method('find')
+        ->willReturn($this->acc);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

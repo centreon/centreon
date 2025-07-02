@@ -33,7 +33,8 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
  * @class CountResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\CountResources
  */
-final readonly class CountResourcesRequestTransformer {
+final readonly class CountResourcesRequestTransformer
+{
     /**
      * @param CountResourcesInput $input
      * @param ResourceFilter $resourceFilter

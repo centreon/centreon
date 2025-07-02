@@ -51,7 +51,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\PartialRuleUpdate\PartialRuleUpdatePresenterStub;
 
 beforeEach(closure: function (): void {
-   $this->presenter = new PartialRuleUpdatePresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new PartialRuleUpdatePresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     foreach ([
         HostFilterType::class,
@@ -265,4 +265,3 @@ it(
             ->toBeInstanceOf(NoContentResponse::class);
     }
 );
-

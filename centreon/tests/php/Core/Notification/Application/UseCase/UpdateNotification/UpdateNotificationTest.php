@@ -41,7 +41,7 @@ use Core\Notification\Application\UseCase\UpdateNotification\Validator\Notificat
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\UpdateNotification\UpdateNotificationPresenterStub;
 
-beforeEach(function():void {
+beforeEach(function (): void {
     $this->readNotificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -74,7 +74,7 @@ it('should present a forbidden response when the user is not admin and does not 
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    $request= new UpdateNotificationRequest();
+    $request = new UpdateNotificationRequest();
     $this->useCase->__invoke($request, $this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -89,7 +89,7 @@ it('should present a not found response when the notification does not exist', f
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $request= new UpdateNotificationRequest();
+    $request = new UpdateNotificationRequest();
     $request->id = 2;
 
     $this->readNotificationRepository
@@ -114,19 +114,19 @@ it('should present a no content response when everything is ok', function (): vo
     $request->name = 'notification';
     $request->messages = [
         [
-            "channel" => "Email",
-            "subject" => "Subject",
-            "message" => "This is my message",
-            "formatted_message" => "<h1>This is my message</h1>",
-        ]
+            'channel' => 'Email',
+            'subject' => 'Subject',
+            'message' => 'This is my message',
+            'formatted_message' => '<h1>This is my message</h1>',
+        ],
     ];
     $request->resources = [
         [
-            "type" => "hostgroup",
-            "events" => 3,
-            "ids" => [1,2,3],
-            "includeServiceEvents" => 0
-        ]
+            'type' => 'hostgroup',
+            'events' => 3,
+            'ids' => [1, 2, 3],
+            'includeServiceEvents' => 0,
+        ],
     ];
     $request->users = [1];
 

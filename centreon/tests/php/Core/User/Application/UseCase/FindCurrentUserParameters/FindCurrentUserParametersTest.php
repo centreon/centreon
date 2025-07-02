@@ -43,9 +43,9 @@ beforeEach(function (): void {
         $this->contact = $this->createMock(ContactInterface::class),
         $this->rights = $this->createMock(DashboardRights::class)
     );
-    $this->randomInt = static fn(): int => random_int(1, 1_000_000);
-    $this->randomBool = static fn(): bool => (bool) random_int(0, 1);
-    $this->randomString = static fn(): string => 'panel-' . mb_substr(md5(random_bytes(10)), 0, 6);
+    $this->randomInt = static fn (): int => random_int(1, 1_000_000);
+    $this->randomBool = static fn (): bool => (bool) random_int(0, 1);
+    $this->randomString = static fn (): string => 'panel-' . mb_substr(md5(random_bytes(10)), 0, 6);
 });
 
 it(

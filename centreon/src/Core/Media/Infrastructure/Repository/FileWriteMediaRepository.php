@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -66,9 +66,9 @@ class FileWriteMediaRepository implements WriteMediaRepositoryInterface
         }
 
         if (! $this->engine->addFile(
-                $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename(),
-                $media->getData()
-            )
+            $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename(),
+            $media->getData()
+        )
         ) {
             throw new \Exception($this->engine->getLastError());
         }

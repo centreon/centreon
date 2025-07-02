@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AdditionalConnectorConfiguration\Application\Exception\AccException;
 use Core\AdditionalConnectorConfiguration\Application\UseCase\AddAcc\AddAccRequest;
 

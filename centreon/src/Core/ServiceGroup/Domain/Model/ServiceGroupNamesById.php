@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ServiceGroup\Domain\Model;
 
@@ -48,7 +48,8 @@ class ServiceGroupNamesById
      *
      * @return null|string
      */
-    public function getName(int $groupId): ?string {
+    public function getName(int $groupId): ?string
+    {
         return isset($this->names[$groupId]) ? $this->names[$groupId]->value : null;
     }
 

@@ -47,4 +47,3 @@ interface DatasetFilterTypeInterface
      */
     public function canResourceIdsBeEmpty(): bool;
 }
-

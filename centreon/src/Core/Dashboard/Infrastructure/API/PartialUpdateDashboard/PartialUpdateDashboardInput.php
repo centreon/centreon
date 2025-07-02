@@ -157,5 +157,6 @@ final readonly class PartialUpdateDashboardInput
             ]),
         ])]
         public mixed $panels = null,
-    ) {}
+    ) {
+    }
 }

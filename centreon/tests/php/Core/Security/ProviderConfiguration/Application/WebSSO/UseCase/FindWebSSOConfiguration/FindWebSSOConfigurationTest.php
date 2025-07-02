@@ -27,12 +27,12 @@ use Centreon\Domain\Repository\RepositoryException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfiguration;
 use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\ReadWebSSOConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration\{
     FindWebSSOConfiguration,
     FindWebSSOConfigurationResponse
 };
+use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfiguration;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(ReadWebSSOConfigurationRepositoryInterface::class);

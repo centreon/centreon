@@ -29,7 +29,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodDto, DtoException};
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodDto};
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
@@ -70,7 +70,6 @@ it('should present an ForbiddenResponse whenuser has insufficient rights', funct
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

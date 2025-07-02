@@ -65,7 +65,7 @@ it('test with a basic context from a repository exception', function (): void {
                         'context' => [
                             'name' => 'John',
                             'age' => 42,
-                            'previous' => null
+                            'previous' => null,
                         ],
                     ]
                 );
@@ -113,8 +113,8 @@ it('test with a business context from a repository exception', function (): void
                             'previous' => [
                                 'name' => 'Anna',
                                 'age' => 25,
-                                'previous' => null
-                            ]
+                                'previous' => null,
+                            ],
                         ],
                     ]
                 );
@@ -179,8 +179,8 @@ it('test with a business context with previous from a repository exception', fun
                             'previous' => [
                                 'name' => 'Anna',
                                 'age' => 25,
-                                'previous' => null
-                            ]
+                                'previous' => null,
+                            ],
                         ],
                     ]
                 );

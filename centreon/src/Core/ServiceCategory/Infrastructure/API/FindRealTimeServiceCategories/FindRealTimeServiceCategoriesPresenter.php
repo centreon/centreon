@@ -54,4 +54,3 @@ class FindRealTimeServiceCategoriesPresenter extends AbstractPresenter implement
         }
     }
 }
-

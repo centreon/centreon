@@ -48,7 +48,7 @@ class AgentConfigurationFactory
         Type $type,
         ConnectionModeEnum $connectionMode,
         array $parameters,
-    ): NewAgentConfiguration{
+    ): NewAgentConfiguration {
         return new NewAgentConfiguration(
             name: $name,
             type: $type,

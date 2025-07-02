@@ -90,12 +90,12 @@ final class AddHostTemplateFactory
         $dto->isLocked = $hostTemplate->isLocked();
 
         $dto->categories = array_map(
-            fn(HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            fn (HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $hostCategories
         );
 
         $dto->templates = array_map(
-            fn($template) => ['id' => $template['id'], 'name' => $template['name']],
+            fn ($template) => ['id' => $template['id'], 'name' => $template['name']],
             $parentTemplates
         );
 

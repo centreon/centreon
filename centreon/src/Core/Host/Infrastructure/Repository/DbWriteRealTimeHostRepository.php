@@ -44,7 +44,7 @@ class DbWriteRealTimeHostRepository extends AbstractRepositoryRDB implements Wri
     public function addHostToResourceAcls(int $hostId, array $accessGroups): void
     {
         $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

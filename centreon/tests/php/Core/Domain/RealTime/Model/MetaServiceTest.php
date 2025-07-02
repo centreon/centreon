@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\RealTime\Model;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Domain\RealTime\Model\MetaService;
 use Core\Domain\RealTime\Model\ServiceStatus;
+use PHPUnit\Framework\TestCase;
 
 class MetaServiceTest extends TestCase
 {
     /**
-    * test name too long exception
-    */
+     * test name too long exception
+     */
     public function testNameTooLongException(): void
     {
         $name = str_repeat('.', MetaService::MAX_NAME_LENGTH + 1);
@@ -39,7 +39,7 @@ class MetaServiceTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 MetaService::MAX_NAME_LENGTH,
                 'MetaService::name'
             )->getMessage()

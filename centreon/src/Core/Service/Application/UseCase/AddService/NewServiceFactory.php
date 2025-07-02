@@ -95,7 +95,8 @@ class NewServiceFactory
         $newService->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
         $newService->setFirstNotificationDelay($request->firstNotificationDelay);
         $newService->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        $newService->setGeoCoords($request->geoCoords === ''
+        $newService->setGeoCoords(
+            $request->geoCoords === ''
             ? null
             : GeoCoords::fromString($request->geoCoords)
         );

@@ -70,9 +70,9 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->user
-    ->expects($this->once())
-    ->method('isAdmin')
-    ->willReturn(true);
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->readHostSeverityRepository
         ->expects($this->once())
         ->method('exists')

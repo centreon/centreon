@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\UpdateMedia;
 
@@ -29,4 +29,3 @@ interface UpdateMediaPresenterInterface
 {
     public function presentResponse(UpdateMediaResponse|ResponseStatusInterface $response): void;
 }
-

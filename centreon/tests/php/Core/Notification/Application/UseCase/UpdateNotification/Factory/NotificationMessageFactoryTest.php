@@ -19,10 +19,9 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\UpdateNotification\Factory;
-
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationMessageFactory;
@@ -30,11 +29,11 @@ use Core\Notification\Application\UseCase\UpdateNotification\Factory\Notificatio
 it('should throw an AssertionException when a message has an empty subject', function (): void {
     $messages = [
         [
-            "channel" => "Email",
-            "subject" => "",
-            "message" => "This is my message",
-            "formatted_message" => "<h1>This is my message</h1>",
-        ]
+            'channel' => 'Email',
+            'subject' => '',
+            'message' => 'This is my message',
+            'formatted_message' => '<h1>This is my message</h1>',
+        ],
     ];
 
     NotificationMessageFactory::createMultipleMessage($messages);

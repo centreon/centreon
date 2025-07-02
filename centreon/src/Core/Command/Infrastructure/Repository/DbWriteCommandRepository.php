@@ -66,7 +66,7 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
 
             return $commandId;
         } catch (\Throwable $ex) {
-             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();

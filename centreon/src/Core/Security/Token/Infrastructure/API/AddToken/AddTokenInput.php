@@ -40,16 +40,13 @@ final readonly class AddTokenInput
         #[Assert\NotNull()]
         #[Assert\Type('string')]
         public mixed $name,
-
         #[Assert\DateTime(
             format: \DateTimeInterface::ATOM,
         )]
         public mixed $expirationDate,
-
         #[Assert\NotNull()]
         #[Assert\Choice(choices: [self::API_TYPE, self::CMA_TYPE])]
         public mixed $type,
-
         #[Assert\NotNull()]
         #[Assert\Type('int')]
         public mixed $userId,

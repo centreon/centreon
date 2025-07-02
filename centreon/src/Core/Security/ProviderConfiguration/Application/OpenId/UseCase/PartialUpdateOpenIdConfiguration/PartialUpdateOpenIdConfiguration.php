@@ -65,7 +65,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  */
 final class PartialUpdateOpenIdConfiguration
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository
@@ -109,10 +110,10 @@ final class PartialUpdateOpenIdConfiguration
             );
 
             $configuration->update(
-                isActive: $request->isActive instanceOf NoValue
+                isActive: $request->isActive instanceof NoValue
                     ? $configuration->isActive()
                     : $request->isActive,
-                isForced: $request->isForced instanceOf NoValue
+                isForced: $request->isForced instanceof NoValue
                     ? $configuration->isForced()
                     : $request->isForced
             );
@@ -143,8 +144,7 @@ final class PartialUpdateOpenIdConfiguration
             $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
 
             return;
-        }
-        catch (\Throwable $ex) {
+        } catch (\Throwable $ex) {
             $this->error('Error during Opend ID Provider Partial Update', [
                 'exception' => [
                     'type' => $ex::class,
@@ -187,7 +187,7 @@ final class PartialUpdateOpenIdConfiguration
                     = $paramValue instanceof NoValue
                     ? $customConfig->getContactTemplate()
                     : (
-                    $paramValue && array_key_exists('id', $paramValue) !== null
+                        $paramValue && array_key_exists('id', $paramValue) !== null
                         ? $this->getContactTemplateOrFail($paramValue)
                         : null
                     );
@@ -206,7 +206,7 @@ final class PartialUpdateOpenIdConfiguration
                     $paramValue,
                     $customConfig->getGroupsMapping()
                 );
-            } elseif ($paramValue instanceOf NoValue) {
+            } elseif ($paramValue instanceof NoValue) {
                 $customConfigurationAsArray[$paramName] = $oldConfigArray[$paramName];
             } else {
                 $customConfigurationAsArray[$paramName] = $requestArray[$paramName];
@@ -254,13 +254,13 @@ final class PartialUpdateOpenIdConfiguration
     private function createUpdatedAclConditions(array $paramValue, ACLConditions $aclConditions): ACLConditions
     {
         return new ACLConditions(
-            isEnabled: $paramValue['is_enabled'] instanceOf NoValue
+            isEnabled: $paramValue['is_enabled'] instanceof NoValue
                 ? $aclConditions->isEnabled()
                 : $paramValue['is_enabled'],
-            applyOnlyFirstRole: $paramValue['apply_only_first_role'] instanceOf NoValue
+            applyOnlyFirstRole: $paramValue['apply_only_first_role'] instanceof NoValue
                 ? $aclConditions->onlyFirstRoleIsApplied()
                 : $paramValue['apply_only_first_role'],
-            attributePath: $paramValue['attribute_path'] instanceOf NoValue
+            attributePath: $paramValue['attribute_path'] instanceof NoValue
                 ? $aclConditions->getAttributePath()
                 : $paramValue['attribute_path'],
             endpoint: $paramValue['endpoint'] instanceof NoValue
@@ -269,7 +269,7 @@ final class PartialUpdateOpenIdConfiguration
                     $paramValue['endpoint']['type'],
                     $paramValue['endpoint']['custom_endpoint']
                 ),
-            relations: $paramValue['relations'] instanceOf NoValue
+            relations: $paramValue['relations'] instanceof NoValue
                 ? $aclConditions->getRelations()
                 : $this->createAuthorizationRules($paramValue['relations']),
         );
@@ -387,29 +387,29 @@ final class PartialUpdateOpenIdConfiguration
         AuthenticationConditions $authConditions
     ): AuthenticationConditions {
         $newAuthConditions = new AuthenticationConditions(
-            isEnabled: $requestParam['is_enabled'] instanceOf NoValue
+            isEnabled: $requestParam['is_enabled'] instanceof NoValue
                 ? $authConditions->isEnabled()
                 : $requestParam['is_enabled'],
-            attributePath: $requestParam['attribute_path'] instanceOf NoValue
+            attributePath: $requestParam['attribute_path'] instanceof NoValue
                 ? $authConditions->getAttributePath()
                 : $requestParam['attribute_path'],
-            endpoint: $requestParam['endpoint'] instanceOf NoValue
+            endpoint: $requestParam['endpoint'] instanceof NoValue
                 ? $authConditions->getEndpoint()
                 : new Endpoint(
                     $requestParam['endpoint']['type'],
                     $requestParam['endpoint']['custom_endpoint']
                 ),
-            authorizedValues: $requestParam['authorized_values'] instanceOf NoValue
+            authorizedValues: $requestParam['authorized_values'] instanceof NoValue
                 ? $authConditions->getAuthorizedValues()
                 : $requestParam['authorized_values'],
         );
         $newAuthConditions->setTrustedClientAddresses(
-            $requestParam['trusted_client_addresses'] instanceOf NoValue
+            $requestParam['trusted_client_addresses'] instanceof NoValue
                 ? $authConditions->getTrustedClientAddresses()
                 : $requestParam['trusted_client_addresses']
         );
         $newAuthConditions->setBlacklistClientAddresses(
-            $requestParam['blacklist_client_addresses'] instanceOf NoValue
+            $requestParam['blacklist_client_addresses'] instanceof NoValue
                 ? $authConditions->getBlacklistClientAddresses()
                 : $requestParam['blacklist_client_addresses']
         );
@@ -428,7 +428,7 @@ final class PartialUpdateOpenIdConfiguration
         GroupsMapping $groupsMapping
     ): GroupsMapping {
         $contactGroupRelations = [];
-        if (! $requestParam['relations'] instanceOf NoValue) {
+        if (! $requestParam['relations'] instanceof NoValue) {
             $contactGroupIds = $this->getContactGroupIds($requestParam['relations']);
             $foundContactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
             $this->logNonExistentContactGroupsIds($contactGroupIds, $foundContactGroups);
@@ -447,19 +447,19 @@ final class PartialUpdateOpenIdConfiguration
         }
 
         return new GroupsMapping(
-            isEnabled: $requestParam['is_enabled'] instanceOf NoValue
+            isEnabled: $requestParam['is_enabled'] instanceof NoValue
                 ? $groupsMapping->isEnabled()
                 : $requestParam['is_enabled'],
-            attributePath: $requestParam['attribute_path'] instanceOf NoValue
+            attributePath: $requestParam['attribute_path'] instanceof NoValue
                 ? $groupsMapping->getAttributePath()
                 : $requestParam['attribute_path'],
-            endpoint: $requestParam['endpoint'] instanceOf NoValue
+            endpoint: $requestParam['endpoint'] instanceof NoValue
                 ? $groupsMapping->getEndpoint()
                 : new Endpoint(
                     $requestParam['endpoint']['type'],
                     $requestParam['endpoint']['custom_endpoint']
                 ),
-            contactGroupRelations: $requestParam['relations'] instanceOf NoValue
+            contactGroupRelations: $requestParam['relations'] instanceof NoValue
                 ? $groupsMapping->getContactGroupRelations()
                 : $contactGroupRelations
         );

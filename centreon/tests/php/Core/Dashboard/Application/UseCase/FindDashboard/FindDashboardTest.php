@@ -26,18 +26,17 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindDashboard;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Configuration\UserGroup\Repository\ReadUserGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
@@ -171,7 +170,7 @@ it(
             ->method('hasAdminRole')->willReturn(true);
 
         $this->userProfileReader->expects($this->once())
-            ->method('findByContact')->willReturn($this->userProfile);;
+            ->method('findByContact')->willReturn($this->userProfile);
 
         $this->readDashboardRepository->expects($this->once())
             ->method('findOne')->willReturn($this->testedDashboard);
@@ -198,7 +197,7 @@ it(
             ->method('hasAdminRole')->willReturn(false);
 
         $this->userProfileReader->expects($this->once())
-            ->method('findByContact')->willReturn($this->userProfile);;
+            ->method('findByContact')->willReturn($this->userProfile);
 
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);

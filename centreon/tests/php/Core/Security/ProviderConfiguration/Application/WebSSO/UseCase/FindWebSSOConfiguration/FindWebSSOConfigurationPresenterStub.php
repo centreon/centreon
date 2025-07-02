@@ -23,18 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration;
 
-use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration\{
-    FindWebSSOConfigurationResponse,
-    FindWebSSOConfigurationPresenterInterface as PresenterInterface
+    FindWebSSOConfigurationPresenterInterface as PresenterInterface,
+    FindWebSSOConfigurationResponse
 };
+use Symfony\Component\HttpFoundation\Response;
 
 class FindWebSSOConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var FindWebSSOConfigurationResponse
-     */
+    /** @var FindWebSSOConfigurationResponse */
     public $response;
 
     /**

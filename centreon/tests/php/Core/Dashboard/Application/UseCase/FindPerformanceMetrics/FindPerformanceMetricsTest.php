@@ -19,7 +19,7 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
@@ -37,7 +37,7 @@ use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function(): void {
+beforeEach(function (): void {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
     $this->nonAdminUser = (new Contact())->setAdmin(false)->setId(1);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -47,8 +47,7 @@ beforeEach(function(): void {
     $this->isCloudPlatform = false;
 });
 
-it('should present an ErrorResponse when something occurs in the repository', function(): void {
-
+it('should present an ErrorResponse when something occurs in the repository', function (): void {
     $useCase = new FindPerformanceMetrics(
         $this->adminUser,
         $this->requestParameters,
@@ -76,8 +75,7 @@ it('should present an ErrorResponse when something occurs in the repository', fu
         ->toBe('An error occured while retrieving metrics');
 });
 
-it('should present a FindPerformanceMetricsResponse when metrics are found', function(): void {
-
+it('should present a FindPerformanceMetricsResponse when metrics are found', function (): void {
     $useCase = new FindPerformanceMetrics(
         $this->adminUser,
         $this->requestParameters,
@@ -94,10 +92,10 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
             'Centreon-Server',
             3,
             [
-                new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
-                new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null),
-                new PerformanceMetric(3,'rtmax','ms', null, null, null, null, null, null, null),
-                new PerformanceMetric(4,'rtmin','ms', null, null, null, null, null, null, null),
+                new PerformanceMetric(1, 'pl', '%', 400.3, null, null, null, null, null, null),
+                new PerformanceMetric(2, 'rta', 'ms', 20, 50, null, null, null, null, null),
+                new PerformanceMetric(3, 'rtmax', 'ms', null, null, null, null, null, null, null),
+                new PerformanceMetric(4, 'rtmin', 'ms', null, null, null, null, null, null, null),
             ]
         ),
         new ResourceMetric(
@@ -106,10 +104,10 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
             'Centreon-Server',
             3,
             [
-                new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
-                new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null),
+                new PerformanceMetric(5, 'traffic_in', 'M', null, null, null, null, null, null, null),
+                new PerformanceMetric(6, 'traffic_out', 'M', null, null, null, null, null, null, null),
             ]
-        )
+        ),
     ];
 
     $this->rights
@@ -201,8 +199,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         );
 });
 
-it('should present a FindPerformanceMetricsResponse when metrics are found as non-admin', function(): void {
-
+it('should present a FindPerformanceMetricsResponse when metrics are found as non-admin', function (): void {
     $useCase = new FindPerformanceMetrics(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -215,26 +212,26 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
     $response = [
         new ResourceMetric(
             1,
-            "Ping",
-            "Centreon-Server",
+            'Ping',
+            'Centreon-Server',
             3,
             [
-                new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
-                new PerformanceMetric(2,'rta','ms', 20, 50, null, null, null, null, null),
-                new PerformanceMetric(3,'rtmax','ms', null, null, null, null, null, null, null),
-                new PerformanceMetric(4,'rtmin','ms', null, null, null, null, null, null, null),
+                new PerformanceMetric(1, 'pl', '%', 400.3, null, null, null, null, null, null),
+                new PerformanceMetric(2, 'rta', 'ms', 20, 50, null, null, null, null, null),
+                new PerformanceMetric(3, 'rtmax', 'ms', null, null, null, null, null, null, null),
+                new PerformanceMetric(4, 'rtmin', 'ms', null, null, null, null, null, null, null),
             ]
         ),
         new ResourceMetric(
             2,
-            "Traffic",
-            "Centreon-Server",
+            'Traffic',
+            'Centreon-Server',
             3,
             [
-                new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
-                new PerformanceMetric(6,'traffic_out','M', null, null, null, null, null, null, null),
+                new PerformanceMetric(5, 'traffic_in', 'M', null, null, null, null, null, null, null),
+                new PerformanceMetric(6, 'traffic_out', 'M', null, null, null, null, null, null, null),
             ]
-        )
+        ),
     ];
 
     $this->rights
@@ -345,6 +342,6 @@ it('should present a ForbiddenResponse when user has unsufficient rights', funct
     $useCase($presenter);
 
     expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
-    ->and($presenter->data->getMessage())
-    ->toBe(DashboardException::accessNotAllowed()->getMessage());
+        ->and($presenter->data->getMessage())
+        ->toBe(DashboardException::accessNotAllowed()->getMessage());
 });

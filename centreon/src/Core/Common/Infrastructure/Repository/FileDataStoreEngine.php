@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
@@ -276,7 +276,7 @@ class FileDataStoreEngine implements DataStorageEngineInterface
         /** @var iterable<\SplFileInfo> $files */
         $files = new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($files as $file) {
-            if ($file->isDir()){
+            if ($file->isDir()) {
                 $this->deleteDirectory($file->getRealPath());
             } else {
                 $this->deleteFile($file->getRealPath());

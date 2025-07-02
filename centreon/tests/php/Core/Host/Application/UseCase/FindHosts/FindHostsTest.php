@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Host\Application\UseCase\FindHosts;
 
@@ -48,25 +48,25 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Host\Infrastructure\API\FindHosts\FindHostsPresenterStub;
 
 beforeEach(closure: function (): void {
-   $this->requestParameters = $this->createMock(RequestParametersInterface::class);
-   $this->user = $this->createMock(ContactInterface::class);
-   $this->hostRepository = $this->createMock(ReadHostRepositoryInterface::class);
-   $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
-   $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
-   $this->hostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
-   $this->hostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
-   $this->presenter = new FindHostsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->requestParameters = $this->createMock(RequestParametersInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
+    $this->hostRepository = $this->createMock(ReadHostRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->hostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
+    $this->hostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
+    $this->presenter = new FindHostsPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
-   $this->useCase = new FindHosts(
-       $this->requestParameters,
-       $this->user,
-       $this->hostRepository,
-       $this->accessGroupRepository,
-       $this->hostCategoryRepository,
-       $this->hostTemplateRepository,
-       $this->hostGroupRepository,
-       false
-   );
+    $this->useCase = new FindHosts(
+        $this->requestParameters,
+        $this->user,
+        $this->hostRepository,
+        $this->accessGroupRepository,
+        $this->hostCategoryRepository,
+        $this->hostTemplateRepository,
+        $this->hostGroupRepository,
+        false
+    );
 });
 
 it('should present a Forbidden response when a non-admin user does not have rights', function (): void {

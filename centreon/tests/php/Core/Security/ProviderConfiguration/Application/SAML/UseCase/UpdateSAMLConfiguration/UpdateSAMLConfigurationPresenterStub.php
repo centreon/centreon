@@ -29,7 +29,7 @@ use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfi
 
 class UpdateSAMLConfigurationPresenterStub extends AbstractPresenter implements UpdateSAMLConfigurationPresenterInterface
 {
-    /** @var ResponseStatusInterface|null $responseStatus */
+    /** @var ResponseStatusInterface|null */
     public ?ResponseStatusInterface $responseStatus = null;
 
     /**

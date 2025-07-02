@@ -53,7 +53,7 @@ it('test format business logic exception without previous', function (): void {
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -75,7 +75,7 @@ it('test format business logic exception without previous with context', functio
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -94,13 +94,16 @@ it('test format business logic exception without previous with context', functio
 
 it('test format business logic exception with previous', function (): void {
     $exception = new RepositoryException(
-        'repository_exception_message', previous: new \LogicException(
-        'logic_exception_message', 99
-    ));
+        'repository_exception_message',
+        previous: new \LogicException(
+            'logic_exception_message',
+            99
+        )
+    );
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe(\Core\Common\Domain\Exception\RepositoryException::class)
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')

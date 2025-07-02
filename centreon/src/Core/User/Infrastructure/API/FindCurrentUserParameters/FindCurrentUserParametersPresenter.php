@@ -32,8 +32,7 @@ use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParam
 use Core\User\Infrastructure\Model\UserInterfaceDensityConverter;
 use Core\User\Infrastructure\Model\UserThemeConverter;
 
-class FindCurrentUserParametersPresenter extends DefaultPresenter
-implements FindCurrentUserParametersPresenterInterface
+class FindCurrentUserParametersPresenter extends DefaultPresenter implements FindCurrentUserParametersPresenterInterface
 {
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,

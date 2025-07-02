@@ -35,4 +35,3 @@ class PartialRuleUpdatePresenterStub extends AbstractPresenter
         $this->responseStatus = $responseStatus;
     }
 }
-

@@ -163,7 +163,6 @@ it('should run found updates', function (): void {
             )
         );
 
-
     $this->writeUpdateRepository
         ->expects($this->exactly(3))
         ->method('runUpdate')

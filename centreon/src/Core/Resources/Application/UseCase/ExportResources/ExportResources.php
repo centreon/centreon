@@ -45,7 +45,8 @@ final readonly class ExportResources
     public function __construct(
         private ReadResourceRepositoryInterface $readResourceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * @param ExportResourcesRequest $request

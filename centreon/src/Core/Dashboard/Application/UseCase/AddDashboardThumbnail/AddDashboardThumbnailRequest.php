@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboardThumbnail;
 
-readonly final class AddDashboardThumbnailRequest
+final readonly class AddDashboardThumbnailRequest
 {
     public function __construct(
         public int $dashboardId,

@@ -43,7 +43,8 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 
 final class DeleteHostTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,

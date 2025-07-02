@@ -23,10 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\FindOpenIdConfiguration;
 
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration\{
     FindOpenIdConfiguration,
@@ -35,6 +31,10 @@ use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdCon
 use Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\FindOpenIdConfiguration\{
     FindOpenIdConfigurationController
 };
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 beforeEach(function (): void {
     $this->presenter = $this->createMock(FindOpenIdConfigurationPresenterInterface::class);

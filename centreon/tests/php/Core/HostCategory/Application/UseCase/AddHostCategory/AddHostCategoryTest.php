@@ -171,7 +171,6 @@ it('should return created object on success', function (): void {
         ->method('findById')
         ->willReturn($this->hostCategory);
 
-
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getPresentedData())->toBeInstanceOf(CreatedResponse::class);
@@ -187,4 +186,3 @@ it('should return created object on success', function (): void {
         ->and($payload->comment)
         ->toBe($this->hostCategory->getComment());
 });
-

@@ -113,11 +113,11 @@ beforeEach(function (): void {
         new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
     ];
 
-    $this->hostMacro = new Macro(1,'_MACRO_HOST1','value');
+    $this->hostMacro = new Macro(1, '_MACRO_HOST1', 'value');
     $this->hostMacro->setIsPassword(true);
     $this->hostMacros = [$this->hostMacro];
 
-    $this->serviceMacro = new Macro(1,'_MACRO_SERVICE1','value');
+    $this->serviceMacro = new Macro(1, '_MACRO_SERVICE1', 'value');
     $this->serviceMacro->setIsPassword(true);
     $this->serviceMacros = [$this->serviceMacro];
 
@@ -154,7 +154,8 @@ beforeEach(function (): void {
         'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
         'redirect_url' => null,
     ]);
-    $this->openIdProviderConfiguration = new Configuration(1,
+    $this->openIdProviderConfiguration = new Configuration(
+        1,
         type: Provider::OPENID,
         name: Provider::OPENID,
         jsonCustomConfiguration: '{}',
@@ -194,8 +195,8 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
     $credentials = new \ArrayIterator([$this->credential1, $this->credential2, $this->credential3]);
     $uuid = (new UUIDGenerator())->generateV4();
     $this->writeVaultRepository->method('upsert')->willReturnOnConsecutiveCalls(
-        [$this->credential1->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential1->name],
-        [$this->credential2->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential2->name],
+        [$this->credential1->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . $this->credential1->name],
+        [$this->credential2->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . $this->credential2->name],
         ['_SERVICE' . $this->credential3->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . '_SERVICE' . $this->credential3->name],
     );
 
@@ -242,7 +243,7 @@ it('tests getIterator method with poller macros', function (): void {
     $credentials = new \ArrayIterator([$this->credential4]);
     $uuid = (new UUIDGenerator())->generateV4();
     $this->writeVaultRepository->method('upsert')->willReturn(
-        [$this->credential4->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential4->name]
+        [$this->credential4->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . $this->credential4->name]
     );
 
     $credentialMigrator = new CredentialMigrator(
@@ -273,8 +274,9 @@ it('tests getIterator method with poller macros', function (): void {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
         expect($status->uuid)->toBe($uuid);
         expect($status->resourceId)->toBeIn([4]);
-        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
-            . $uuid . '::' .  $this->credential4->name
+        expect($status->vaultPath)->toBe(
+            'secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' . $this->credential4->name
         );
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_POLLER_MACRO]);
         expect($status->credentialName)->toBeIn(['$POLLERMACRO$']);
@@ -285,7 +287,7 @@ it('tests getIterator method with broker input/output configuration', function (
     $credentials = new \ArrayIterator([$this->credential5]);
     $uuid = (new UUIDGenerator())->generateV4();
     $this->writeVaultRepository->method('upsert')->willReturn(
-        [$this->credential5->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' .  $this->credential5->name]
+        [$this->credential5->name => 'secret::hashicorp_vault::vault/path/' . $uuid . '::' . $this->credential5->name]
     );
 
     $credentialMigrator = new CredentialMigrator(
@@ -316,8 +318,9 @@ it('tests getIterator method with broker input/output configuration', function (
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
         expect($status->uuid)->toBe($uuid);
         expect($status->resourceId)->toBeIn([5]);
-        expect($status->vaultPath)->toBe('secret::hashicorp_vault::vault/path/'
-            . $uuid . '::' .  $this->credential5->name
+        expect($status->vaultPath)->toBe(
+            'secret::hashicorp_vault::vault/path/'
+            . $uuid . '::' . $this->credential5->name
         );
         expect($status->type)->toBeIn([CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT]);
         expect($status->credentialName)->toBeIn(['my-output_db_password']);
@@ -331,7 +334,6 @@ it('tests getIterator method with exception', function (): void {
 
     $credentialMigrator = new CredentialMigrator(
         credentials: $credentials,
-
         writeVaultRepository: $this->writeVaultRepository,
         writeHostRepository: $this->writeHostRepository,
         writeHostTemplateRepository: $this->writeHostTemplateRepository,

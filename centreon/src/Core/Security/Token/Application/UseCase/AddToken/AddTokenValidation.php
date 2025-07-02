@@ -68,8 +68,7 @@ class AddTokenValidation
      */
     public function assertIsValidUser(int $userId): void
     {
-        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS))
-        {
+        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)) {
             throw TokenException::notAllowedToCreateTokenForUser($userId);
         }
         if (false === $this->readContactRepository->exists($userId)) {

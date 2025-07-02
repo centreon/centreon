@@ -34,4 +34,3 @@ class UpdateRulePresenter extends DefaultPresenter implements UpdateRulePresente
         $this->setResponseStatus($response);
     }
 }
-

@@ -47,4 +47,3 @@ class HostGroupFilterType extends AbstractDatasetFilterType
         return true;
     }
 }
-

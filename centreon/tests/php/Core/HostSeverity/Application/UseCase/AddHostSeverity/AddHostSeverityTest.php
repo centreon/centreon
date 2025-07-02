@@ -235,4 +235,3 @@ it('should return created object on success', function (): void {
         ->and($payload->comment)
         ->toBe($this->hostSeverity->getComment());
 });
-

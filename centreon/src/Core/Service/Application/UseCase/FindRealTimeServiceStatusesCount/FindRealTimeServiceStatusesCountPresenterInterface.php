@@ -33,4 +33,3 @@ interface FindRealTimeServiceStatusesCountPresenterInterface extends PresenterIn
      */
     public function presentResponse(FindRealTimeServiceStatusesCountResponse|ResponseStatusInterface $response): void;
 }
-

@@ -26,13 +26,13 @@ namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UpdateWeb
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfigurationFactory;
+use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOConfiguration\{
     UpdateWebSSOConfiguration,
-    UpdateWebSSOConfigurationRequest,
-    UpdateWebSSOConfigurationPresenterInterface
+    UpdateWebSSOConfigurationPresenterInterface,
+    UpdateWebSSOConfigurationRequest
 };
-use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfigurationFactory;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(WriteWebSSOConfigurationRepositoryInterface::class);
@@ -69,7 +69,7 @@ it('should have an Error Response when parameters are invalid', function (): voi
     $updateWebSSOConfigurationRequest = new UpdateWebSSOConfigurationRequest();
     $updateWebSSOConfigurationRequest->isActive = true;
     $updateWebSSOConfigurationRequest->isForced = false;
-    $badIpAddress = "abcd_.@";
+    $badIpAddress = 'abcd_.@';
     $updateWebSSOConfigurationRequest->trustedClientAddresses = [$badIpAddress];
     $updateWebSSOConfigurationRequest->blacklistClientAddresses = [];
     $updateWebSSOConfigurationRequest->loginHeaderAttribute = 'HTTP_AUTH_USER';

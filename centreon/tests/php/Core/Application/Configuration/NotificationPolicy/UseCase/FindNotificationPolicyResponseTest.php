@@ -23,17 +23,17 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Configuration\NotificationPolicy\UseCase;
 
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyResponse;
+use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
 beforeEach(function (): void {
-    $hostNotification = new HostNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $hostNotification = new HostNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $hostNotification->addEvent(HostNotification::EVENT_HOST_DOWN);
 
-    $serviceNotification = new ServiceNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $serviceNotification = new ServiceNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $serviceNotification->addEvent(ServiceNotification::EVENT_SERVICE_CRITICAL);
 
     $this->contact = new NotifiedContact(

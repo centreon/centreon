@@ -769,7 +769,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             }
 
             $contactGroupIds = array_map(
-                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
                 $contactGroups
             );
 
@@ -1142,7 +1142,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ? explode(',', $contactRole['topologies'])
                 : [];
             $roles = array_map(
-                static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                     $topology
                 ),
                 $topologies
@@ -1172,7 +1172,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         $topologies = explode(',', $contactRole['topologies']);
         $roles = array_map(
-            static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                 $topology
             ),
             $topologies

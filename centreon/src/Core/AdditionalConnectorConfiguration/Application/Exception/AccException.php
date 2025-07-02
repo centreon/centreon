@@ -125,7 +125,7 @@ class AccException extends \Exception
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The additional configuration name '%s' already exists"), $name),
+            sprintf(_("The additional configuration name '%s' already exists"), $name),
             self::CODE_CONFLICT
         );
     }

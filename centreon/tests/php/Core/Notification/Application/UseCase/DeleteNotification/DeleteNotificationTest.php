@@ -28,12 +28,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
-use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationPresenterStub;
-
+use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);

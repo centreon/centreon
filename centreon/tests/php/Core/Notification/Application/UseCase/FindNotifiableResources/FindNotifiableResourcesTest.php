@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\Notification\Application\UseCase\FindNotifiableResources;
 
 use Centreon\Domain\Contact\Contact;
-use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, NotModifiedResponse};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotModifiedResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
@@ -96,19 +96,19 @@ it(
     [
         [
             new NotifiableResource(
-            1,
-            [
-                new NotifiableHost(
-                    24,
-                    'myHost',
-                    'mytHost',
-                    [],
-                    [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
-                )
-            ]
-            )
-        ]
-    ]
+                1,
+                [
+                    new NotifiableHost(
+                        24,
+                        'myHost',
+                        'mytHost',
+                        [],
+                        [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
+                    ),
+                ]
+            ),
+        ],
+    ],
 ]);
 
 it(
@@ -162,17 +162,17 @@ it(
     [
         [
             new NotifiableResource(
-            1,
-            [
-                new NotifiableHost(
-                    24,
-                    'myHost',
-                    'mytHost',
-                    [],
-                    [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
-                )
-            ]
-            )
-        ]
-    ]
+                1,
+                [
+                    new NotifiableHost(
+                        24,
+                        'myHost',
+                        'mytHost',
+                        [],
+                        [new NotifiableService(13, 'Ping', null, [ServiceEvent::Ok])]
+                    ),
+                ]
+            ),
+        ],
+    ],
 ]);

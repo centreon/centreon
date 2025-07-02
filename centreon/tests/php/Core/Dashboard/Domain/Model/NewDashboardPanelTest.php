@@ -69,7 +69,7 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard panel {$field} is an empty string",
-        fn() => ($this->createPanel)([$field => ''])
+        fn () => ($this->createPanel)([$field => ''])
     )->throws(
         AssertionException::class,
         AssertionException::notEmptyString("NewDashboardPanel::{$field}")->getMessage()
@@ -106,7 +106,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when dashboard panel {$field} is too long",
-        fn() => ($this->createPanel)([$field => $tooLong])
+        fn () => ($this->createPanel)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewDashboardPanel::{$field}")->getMessage()
@@ -127,14 +127,14 @@ foreach (
 ) {
     it(
         "should throw an exception when dashboard panel {$field} is too low",
-        fn() => ($this->createPanel)([$field => $min - 1])
+        fn () => ($this->createPanel)([$field => $min - 1])
     )->throws(
         AssertionException::class,
         AssertionException::range($min - 1, $min, $max, 'NewDashboardPanel::' . $field)->getMessage()
     );
     it(
         "should throw an exception when dashboard panel {$field} is too high",
-        fn() => ($this->createPanel)([$field => $max + 1])
+        fn () => ($this->createPanel)([$field => $max + 1])
     )->throws(
         AssertionException::class,
         AssertionException::range($max + 1, $min, $max, 'NewDashboardPanel::' . $field)->getMessage()

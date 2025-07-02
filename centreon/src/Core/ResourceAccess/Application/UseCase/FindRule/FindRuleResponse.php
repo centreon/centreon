@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\UseCase\FindRule;
 
@@ -46,4 +46,3 @@ final class FindRuleResponse
     /** @var mixed[] */
     public array $datasetFilters = [];
 }
-

@@ -41,7 +41,7 @@ final class FindNotifiableRulePresenter extends AbstractPresenter implements Fin
                         'subject' => $data->channels->email->subject,
                         'formatted_message' => $data->channels->email->formattedMessage,
                         'contacts' => array_map(
-                            static fn(ContactDto $contact) => [
+                            static fn (ContactDto $contact) => [
                                 'email_address' => $contact->emailAddress,
                                 'full_name' => $contact->fullName,
                             ],

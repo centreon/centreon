@@ -30,4 +30,3 @@ interface FindRulePresenterInterface extends PresenterInterface
 {
     public function presentResponse(FindRuleResponse|ResponseStatusInterface $response): void;
 }
-

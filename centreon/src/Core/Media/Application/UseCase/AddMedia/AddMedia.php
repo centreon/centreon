@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\AddMedia;
 
@@ -121,11 +121,11 @@ final class AddMedia
 
                 /** @var NewMedia $media */
                 if (! $this->readMediaRepository->existsByPath(
-                        $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename()
-                    )
+                    $media->getDirectory() . DIRECTORY_SEPARATOR . $media->getFilename()
+                )
                 ) {
                     $fileContent = $media->getData();
-                    if (array_key_exists('extension',$fileInfo) && $fileInfo['extension'] === 'svg') {
+                    if (array_key_exists('extension', $fileInfo) && $fileInfo['extension'] === 'svg') {
                         $this->svgSanitizer->minify(true);
                         $fileContent = $this->svgSanitizer->sanitize($fileContent);
                     }
@@ -138,7 +138,7 @@ final class AddMedia
                     ]);
                     $mediaRecorded[] = [
                         'id' => $this->writeMediaRepository->add(
-                            new NewMedia($media->getFilename(),$media->getDirectory(), $fileContent)
+                            new NewMedia($media->getFilename(), $media->getDirectory(), $fileContent)
                         ),
                         'filename' => $media->getFilename(),
                         'directory' => $media->getDirectory(),
@@ -186,7 +186,7 @@ final class AddMedia
      */
     private function createMedias(AddMediaRequest $request): \Iterator
     {
-        return new class($request->medias, $request->directory) implements \Iterator {
+        return new class ($request->medias, $request->directory) implements \Iterator {
             private int $position = 0;
 
             /**

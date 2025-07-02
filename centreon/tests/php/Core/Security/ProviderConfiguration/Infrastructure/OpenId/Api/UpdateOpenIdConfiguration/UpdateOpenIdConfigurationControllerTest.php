@@ -24,18 +24,18 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration;
 
 use Centreon\Domain\Contact\Contact;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration\{
-    UpdateOpenIdConfigurationController
-};
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{
     UpdateOpenIdConfiguration,
     UpdateOpenIdConfigurationPresenterInterface
 };
+use Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\UpdateOpenIdConfiguration\{
+    UpdateOpenIdConfigurationController
+};
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 beforeEach(function (): void {
     $this->presenter = $this->createMock(UpdateOpenIdConfigurationPresenterInterface::class);
@@ -87,83 +87,83 @@ beforeEach(function (): void {
 });
 
 it('should thrown an exception when the request body is invalid', function (): void {
-        $controller = new UpdateOpenIdConfigurationController();
-        $controller->setContainer($this->container);
+    $controller = new UpdateOpenIdConfigurationController();
+    $controller->setContainer($this->container);
 
-        $invalidPayload = json_encode([]);
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn($invalidPayload);
+    $invalidPayload = json_encode([]);
+    $this->request
+        ->expects($this->once())
+        ->method('getContent')
+        ->willReturn($invalidPayload);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $controller($this->useCase, $this->request, $this->presenter);
+    $this->expectException(\InvalidArgumentException::class);
+    $controller($this->useCase, $this->request, $this->presenter);
 });
 
 it('should execute the usecase properly', function (): void {
-        $controller = new UpdateOpenIdConfigurationController();
-        $controller->setContainer($this->container);
+    $controller = new UpdateOpenIdConfigurationController();
+    $controller->setContainer($this->container);
 
-        $validPayload = json_encode([
-            'is_active' => true,
-            'is_forced' => true,
-            'base_url' => 'http://127.0.0.1/auth/openid-connect',
-            'authorization_endpoint' => '/authorization',
-            'token_endpoint' => '/token',
-            'introspection_token_endpoint' => '/introspect',
-            'userinfo_endpoint' => '/userinfo',
-            'endsession_endpoint' => '/logout',
-            'connection_scopes' => [],
-            'login_claim' => 'preferred_username',
-            'client_id' => 'MyCl1ientId',
-            'client_secret' => 'MyCl1ientSuperSecr3tKey',
-            'authentication_type' => 'client_secret_post',
-            'verify_peer' => false,
-            'auto_import' => false,
-            'contact_template' => null,
-            'email_bind_attribute' => null,
-            'fullname_bind_attribute' => null,
-            'roles_mapping' => [
-                'is_enabled' => false,
-                'apply_only_first_role' => false,
-                'attribute_path' => '',
-                'endpoint' => [
-                    'type' => 'introspection_endpoint',
-                    'custom_endpoint' => ''
-                ],
-                'relations' => []
+    $validPayload = json_encode([
+        'is_active' => true,
+        'is_forced' => true,
+        'base_url' => 'http://127.0.0.1/auth/openid-connect',
+        'authorization_endpoint' => '/authorization',
+        'token_endpoint' => '/token',
+        'introspection_token_endpoint' => '/introspect',
+        'userinfo_endpoint' => '/userinfo',
+        'endsession_endpoint' => '/logout',
+        'connection_scopes' => [],
+        'login_claim' => 'preferred_username',
+        'client_id' => 'MyCl1ientId',
+        'client_secret' => 'MyCl1ientSuperSecr3tKey',
+        'authentication_type' => 'client_secret_post',
+        'verify_peer' => false,
+        'auto_import' => false,
+        'contact_template' => null,
+        'email_bind_attribute' => null,
+        'fullname_bind_attribute' => null,
+        'roles_mapping' => [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => '',
             ],
-            "authentication_conditions" => [
-                "is_enabled" => false,
-                "attribute_path" => "",
-                "endpoint" => [
-                    "type" => "introspection_endpoint",
-                    "custom_endpoint" => null
-                ],
-                "authorized_values" => [],
-                "trusted_client_addresses" => [],
-                "blacklist_client_addresses" => []
+            'relations' => [],
+        ],
+        'authentication_conditions' => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => null,
             ],
-            "groups_mapping" => [
-                "is_enabled" => false,
-                "attribute_path" => "",
-                "endpoint" => [
-                    "type" => "introspection_endpoint",
-                    "custom_endpoint" => null
-                ],
-                "relations" => []
+            'authorized_values' => [],
+            'trusted_client_addresses' => [],
+            'blacklist_client_addresses' => [],
+        ],
+        'groups_mapping' => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => null,
             ],
-            'redirect_url' => null
-        ]);
+            'relations' => [],
+        ],
+        'redirect_url' => null,
+    ]);
 
-        $this->request
-            ->expects($this->exactly(2))
-            ->method('getContent')
-            ->willReturn($validPayload);
+    $this->request
+        ->expects($this->exactly(2))
+        ->method('getContent')
+        ->willReturn($validPayload);
 
-        $this->useCase
-            ->expects($this->once())
-            ->method('__invoke');
+    $this->useCase
+        ->expects($this->once())
+        ->method('__invoke');
 
-        $controller($this->useCase, $this->request, $this->presenter);
+    $controller($this->useCase, $this->request, $this->presenter);
 });

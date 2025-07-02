@@ -22,31 +22,25 @@ declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Api\FindUsers;
 
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsers;
-use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersController;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsersPresenterInterface;
+use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersController;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class FindUsersControllerTest extends TestCase
 {
-    /**
-     * @var FindUsersPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindUsersPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var FindUsers&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindUsers&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $container;
 
     public function setUp(): void
@@ -56,10 +50,10 @@ class FindUsersControllerTest extends TestCase
 
         $timezone = new \DateTimeZone('Europe/Paris');
         $adminContact = (new Contact())
-        ->setId(1)
-        ->setName('admin')
-        ->setAdmin(true)
-        ->setTimezone($timezone);
+            ->setId(1)
+            ->setName('admin')
+            ->setAdmin(true)
+            ->setTimezone($timezone);
 
         /**
          * @var AuthorizationCheckerInterface&\PHPUnit\Framework\MockObject\MockObject

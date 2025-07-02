@@ -63,7 +63,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  */
 class CredentialMigrator implements \IteratorAggregate, \Countable
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param \Countable&\Traversable<CredentialDto> $credentials

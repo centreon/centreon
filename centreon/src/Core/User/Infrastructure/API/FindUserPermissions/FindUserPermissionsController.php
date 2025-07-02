@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\User\Infrastructure\API\FindUserPermissions;
 
@@ -46,8 +46,7 @@ final class FindUserPermissionsController extends AbstractController
         StandardPresenter $presenter,
         FindUserPermissions $useCase,
         ContactInterface $user
-    ): Response
-    {
+    ): Response {
         $response = $useCase($user);
 
         if ($response instanceof ResponseStatusInterface) {

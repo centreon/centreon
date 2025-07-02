@@ -62,7 +62,7 @@ class VmWareV6Parameters implements AccParametersInterface
         private readonly EncryptionInterface $encryption,
         array $parameters,
         private readonly bool $isEncrypted = false
-    ){
+    ) {
         /** @var _VmWareV6ParametersRequest $parameters */
         Assertion::range($parameters['port'], 0, 65535, 'parameters.port');
         foreach ($parameters['vcenters'] as $index => $vcenter) {
@@ -101,8 +101,7 @@ class VmWareV6Parameters implements AccParametersInterface
         EncryptionInterface $encryption,
         AccParametersInterface $currentObj,
         array $newDatas
-    ): self
-    {
+    ): self {
         /** @var _VmWareV6Parameters|_VmWareV6ParametersWithoutCredentials $newDatas */
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $currentObj->getDecryptedData();

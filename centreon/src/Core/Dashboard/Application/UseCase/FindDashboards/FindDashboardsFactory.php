@@ -92,8 +92,7 @@ final class FindDashboardsFactory
                     'name' => $contactShare->getContactName(),
                     'email' => $contactShare->getContactEmail(),
                     'role' => $contactShare->getRole(),
-                ]
-                , $contactShares[$dashboard->getId()]);
+                ], $contactShares[$dashboard->getId()]);
             }
 
             if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
@@ -103,7 +102,8 @@ final class FindDashboardsFactory
                         'name' => $contactGroupShare->getContactGroupName(),
                         'role' => $contactGroupShare->getRole(),
                     ],
-                    $contactGroupShares[$dashboard->getId()]);
+                    $contactGroupShares[$dashboard->getId()]
+                );
             }
 
             if ($thumbnail !== null) {

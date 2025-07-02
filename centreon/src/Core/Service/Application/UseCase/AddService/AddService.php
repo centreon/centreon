@@ -66,7 +66,8 @@ use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 final class AddService
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
@@ -353,7 +354,7 @@ final class AddService
         $response->acknowledgementTimeout = $service->getAcknowledgementTimeout();
         $response->geoCoords = $service->getGeoCoords()?->__toString();
         $response->macros = array_map(
-            fn(Macro $macro): MacroDto => new MacroDto(
+            fn (Macro $macro): MacroDto => new MacroDto(
                 $macro->getName(),
                 $macro->getValue(),
                 $macro->isPassword(),
@@ -363,12 +364,12 @@ final class AddService
         );
 
         $response->categories = array_map(
-            fn(ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            fn (ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $serviceCategories
         );
 
         $response->groups = array_map(
-            fn(array $group) => [
+            fn (array $group) => [
                 'id' => $group['serviceGroup']->getId(),
                 'name' => $group['serviceGroup']->getName(),
             ],
@@ -424,8 +425,7 @@ final class AddService
             $this->linkServiceToServiceCategories($newServiceId, $request);
             $this->linkServiceToServiceGroups($newServiceId, $request);
 
-            if (($monitoringServer = $this->readMonitoringServerRepository->findByHost($request->hostId)))
-            {
+            if (($monitoringServer = $this->readMonitoringServerRepository->findByHost($request->hostId))) {
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServer->getId());
             }
 
@@ -501,7 +501,7 @@ final class AddService
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

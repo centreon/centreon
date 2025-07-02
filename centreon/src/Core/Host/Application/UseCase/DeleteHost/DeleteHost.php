@@ -49,7 +49,8 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,

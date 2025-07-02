@@ -272,7 +272,8 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
      *
      * @return array<string,int|bool|string>
      */
-    private function getHostPropertiesAsArray(NewHost $host): array {
+    private function getHostPropertiesAsArray(NewHost $host): array
+    {
         $hostPropertiesArray = [];
         $hostReflection = new \ReflectionClass($host);
 

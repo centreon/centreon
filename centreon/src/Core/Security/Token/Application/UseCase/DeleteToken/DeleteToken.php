@@ -54,7 +54,7 @@ final class DeleteToken
      * @param int $userId
      * @param PresenterInterface $presenter
      */
-    public function __invoke( PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
+    public function __invoke(PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {

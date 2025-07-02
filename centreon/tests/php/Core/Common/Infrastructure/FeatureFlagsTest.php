@@ -27,7 +27,7 @@ use Core\Common\Infrastructure\FeatureFlags;
 
 it(
     'should be ok for On-Prem',
-    fn(string $json, array $expected) => expect((new FeatureFlags(false, $json))->getAll())
+    fn (string $json, array $expected) => expect((new FeatureFlags(false, $json))->getAll())
         ->toBe($expected)
 )->with([
     ['not-a-valid-json', []],
@@ -39,7 +39,7 @@ it(
 
 it(
     'should be ok for Cloud',
-    fn(string $json, array $expected) => expect((new FeatureFlags(true, $json))->getAll())
+    fn (string $json, array $expected) => expect((new FeatureFlags(true, $json))->getAll())
         ->toBe($expected)
 )->with([
     ['not-a-valid-json', []],
@@ -51,13 +51,13 @@ it(
 
 it(
     'should be false by default for not existing features',
-    fn() => expect((new FeatureFlags(false, '{}'))->isEnabled('not-existing'))
+    fn () => expect((new FeatureFlags(false, '{}'))->isEnabled('not-existing'))
         ->toBe(false)
 );
 
 it(
     'should ignore wrong feature bitmask value',
-    fn(string $json) => expect((new FeatureFlags(false, $json))->getAll())->toBe([])
+    fn (string $json) => expect((new FeatureFlags(false, $json))->getAll())->toBe([])
 )->with([
     ['{"foo": null}'],
     ['{"foo": true}'],
@@ -69,7 +69,7 @@ it(
 
 it(
     'should ignore wrong feature name considered as integer',
-    fn(int $int) => expect((new FeatureFlags(false, '{"' . $int . '": 1, "i' . $int . '": 1}'))->getAll())
+    fn (int $int) => expect((new FeatureFlags(false, '{"' . $int . '": 1, "i' . $int . '": 1}'))->getAll())
         ->toBe(['i' . $int => true])
 )->with([
     [0],

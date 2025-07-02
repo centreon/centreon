@@ -52,7 +52,7 @@ class FindServicesOnPremPresenter extends AbstractPresenter implements FindServi
                 $result[] = [
                     'id' => $dto->id,
                     'name' => $dto->name,
-                    'hosts' => array_map(fn($host): array => [
+                    'hosts' => array_map(fn ($host): array => [
                         'id' => $host['id'],
                         'name' => $host['name'],
                     ], $dto->hosts),
@@ -68,11 +68,11 @@ class FindServicesOnPremPresenter extends AbstractPresenter implements FindServi
                     'severity' => $dto->severity
                         ? ['id' => $dto->severity['id'], 'name' => $dto->severity['name']]
                         : null,
-                    'categories' => array_map(fn($category): array => [
+                    'categories' => array_map(fn ($category): array => [
                         'id' => $category['id'],
                         'name' => $category['name'],
                     ], $dto->categories),
-                    'groups' => array_map(fn($group): array => [
+                    'groups' => array_map(fn ($group): array => [
                         'id' => $group['id'],
                         'name' => $group['name'],
                         'host_id' => $group['hostId'],

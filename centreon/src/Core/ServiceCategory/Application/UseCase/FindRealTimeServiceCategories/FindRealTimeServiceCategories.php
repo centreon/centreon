@@ -124,4 +124,3 @@ final class FindRealTimeServiceCategories
         return $this->repository->findAll($this->requestParameters);
     }
 }
-

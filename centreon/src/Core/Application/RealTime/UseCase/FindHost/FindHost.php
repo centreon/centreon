@@ -89,7 +89,7 @@ final class FindHost
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
             $host = $this->repository->findHostByIdAndAccessGroupIds($hostId, $accessGroupIds);

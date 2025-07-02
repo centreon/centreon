@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ServiceGroup\Infrastructure\Repository;
 
@@ -50,7 +50,8 @@ class ApiReadServiceGroupRepository implements ReadServiceGroupRepositoryInterfa
     /**
      * @inheritDoc
      */
-    public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable {
+    public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable
+    {
         $apiEndpoint = $this->router->generate('FindServiceGroups');
         $options = [
             'verify_peer' => true,

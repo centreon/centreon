@@ -106,7 +106,7 @@ final class FindResources
     private function findResourcesAsUser(ResourceFilter $filter): array
     {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 

@@ -25,25 +25,25 @@ namespace Core\GraphTemplate\Application\UseCase\FindGraphTemplates;
 
 class GraphTemplateDto
 {
-        public int $id = 0;
+    public int $id = 0;
 
-        public string $name = '';
+    public string $name = '';
 
-        public string $verticalAxisLabel = '';
+    public string $verticalAxisLabel = '';
 
-        public int $width = 0;
+    public int $width = 0;
 
-        public int $height = 0;
+    public int $height = 0;
 
-        public int $base = 0;
+    public int $base = 0;
 
-        public ?float $gridLowerLimit = null;
+    public ?float $gridLowerLimit = null;
 
-        public ?float $gridUpperLimit = null;
+    public ?float $gridUpperLimit = null;
 
-        public bool $isUpperLimitSizedToMax = false;
+    public bool $isUpperLimitSizedToMax = false;
 
-        public bool $isGraphScaled = false;
+    public bool $isGraphScaled = false;
 
-        public bool $isDefaultCentreonTemplate = false;
+    public bool $isDefaultCentreonTemplate = false;
 }

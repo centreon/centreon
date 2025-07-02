@@ -79,7 +79,7 @@ final class DeleteAgentConfiguration
             }
 
             $linkedPollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($id)
             );
 

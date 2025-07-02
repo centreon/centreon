@@ -127,7 +127,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -174,7 +174,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['sg_id'], $data['sg_name'])),
+            (fn ($data) => new ConfigurationResource($data['sg_id'], $data['sg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -212,7 +212,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $concatenator = $this->getConcatenatorForFindRequest($accessGroupIds)
@@ -227,7 +227,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $statement->execute();
 
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['sg_id'], $data['sg_name'])),
+            (fn ($data) => new ConfigurationResource($data['sg_id'], $data['sg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -301,7 +301,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         array $accessGroups
     ): array {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

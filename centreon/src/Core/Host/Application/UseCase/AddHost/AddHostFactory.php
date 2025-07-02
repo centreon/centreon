@@ -96,17 +96,17 @@ final class AddHostFactory
         $dto->isActivated = $host->isActivated();
 
         $dto->categories = array_map(
-            fn(HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            fn (HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $hostCategories
         );
 
         $dto->groups = array_map(
-            fn(HostGroup $group) => ['id' => $group->getId(), 'name' => $group->getName()],
+            fn (HostGroup $group) => ['id' => $group->getId(), 'name' => $group->getName()],
             $hostGroups
         );
 
         $dto->templates = array_map(
-            fn($template) => ['id' => $template['id'], 'name' => $template['name']],
+            fn ($template) => ['id' => $template['id'], 'name' => $template['name']],
             $parentTemplates
         );
 

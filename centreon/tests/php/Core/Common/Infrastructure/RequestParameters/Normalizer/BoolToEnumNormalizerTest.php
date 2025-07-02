@@ -29,7 +29,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 
 it(
     'should success with NULL when allowed',
-    fn() => expect(
+    fn () => expect(
         (new BoolToEnumNormalizer(nullable: true))
             ->normalize(null)
     )->toBe(null)
@@ -39,7 +39,7 @@ it(
 
 it(
     'should success',
-    fn($tested, $expected) => expect(
+    fn ($tested, $expected) => expect(
         (new BoolToEnumNormalizer('customFALSE', 'customTRUE'))
             ->normalize($tested)
     )->toBe($expected)
@@ -65,7 +65,7 @@ it(
 
 it(
     'should fail',
-    fn($tested) => (new BoolToEnumNormalizer())->normalize($tested)
+    fn ($tested) => (new BoolToEnumNormalizer())->normalize($tested)
 )
     ->with(
         [

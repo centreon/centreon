@@ -40,7 +40,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -88,7 +90,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -153,13 +155,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array
     {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

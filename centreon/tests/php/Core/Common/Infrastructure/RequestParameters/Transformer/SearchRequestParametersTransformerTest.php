@@ -42,25 +42,25 @@ it('transform from query parameters', function (): void {
     $requestParameters = SearchRequestParametersTransformer::transformFromQueryParameters($queryParameters);
     expect($requestParameters)->toBeArray()->toHaveCount(7)
         ->and($requestParameters)->toBe([
-            'contact_id' => [\PDO::PARAM_INT => 110],
-            'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
-            'contact_alias' => [\PDO::PARAM_STR => 'foo_alias'],
-            'contact_active' => [\PDO::PARAM_BOOL => true],
-            'contact_is_admin' => [\PDO::PARAM_BOOL => false],
-            'contact_email' => [\PDO::PARAM_NULL => null],
-            'contact_token' => [\PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
+            'contact_id' => [PDO::PARAM_INT => 110],
+            'contact_name' => [PDO::PARAM_STR => 'foo_name'],
+            'contact_alias' => [PDO::PARAM_STR => 'foo_alias'],
+            'contact_active' => [PDO::PARAM_BOOL => true],
+            'contact_is_admin' => [PDO::PARAM_BOOL => false],
+            'contact_email' => [PDO::PARAM_NULL => null],
+            'contact_token' => [PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
         ]);
 });
 
 it('reverse to query parameters', function (): void {
     $requestParameters = [
-        'contact_id' => [\PDO::PARAM_INT => 110],
-        'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
-        'contact_alias' => [\PDO::PARAM_STR => 'foo_alias'],
-        'contact_active' => [\PDO::PARAM_BOOL => true],
-        'contact_is_admin' => [\PDO::PARAM_BOOL => false],
-        'contact_email' => [\PDO::PARAM_NULL => null],
-        'contact_token' => [\PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
+        'contact_id' => [PDO::PARAM_INT => 110],
+        'contact_name' => [PDO::PARAM_STR => 'foo_name'],
+        'contact_alias' => [PDO::PARAM_STR => 'foo_alias'],
+        'contact_active' => [PDO::PARAM_BOOL => true],
+        'contact_is_admin' => [PDO::PARAM_BOOL => false],
+        'contact_email' => [PDO::PARAM_NULL => null],
+        'contact_token' => [PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
     ];
     $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
     expect($queryParameters)->toBeInstanceOf(QueryParameters::class)
@@ -90,13 +90,13 @@ it('reverse to query parameters', function (): void {
 
 it('reverse to query parameters with unknown PDO type', function (): void {
     $requestParameters = [
-        'contact_id' => [\PDO::PARAM_INT => 110],
-        'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
-        'contact_alias' => [\PDO::PARAM_STR_CHAR => 'foo_alias'],
-        'contact_active' => [\PDO::PARAM_BOOL => true],
-        'contact_is_admin' => [\PDO::PARAM_BOOL => false],
-        'contact_email' => [\PDO::PARAM_NULL => null],
-        'contact_token' => [\PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
+        'contact_id' => [PDO::PARAM_INT => 110],
+        'contact_name' => [PDO::PARAM_STR => 'foo_name'],
+        'contact_alias' => [PDO::PARAM_STR_CHAR => 'foo_alias'],
+        'contact_active' => [PDO::PARAM_BOOL => true],
+        'contact_is_admin' => [PDO::PARAM_BOOL => false],
+        'contact_email' => [PDO::PARAM_NULL => null],
+        'contact_token' => [PDO::PARAM_LOB => 'fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf'],
     ];
     SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
 })->throws(TransformerException::class);

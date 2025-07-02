@@ -199,9 +199,7 @@ it('should raise an exception when the service category IDs do not exist, as an 
     ServiceTemplateException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
-it('should raise an exception when the service category IDs do not exist, as a non-administrator', function ():
-void {
-
+it('should raise an exception when the service category IDs do not exist, as a non-administrator', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -280,8 +278,7 @@ it('should raise an exception when the service groups IDs do not exist, as a non
 
 it(
     'should raise an exception when the host template IDs are not linked to service template, as a non-administrator',
-    function (): void
-    {
+    function (): void {
         $serviceTemplateId = 1;
         $serviceGroupDtos = [
             new ServiceGroupDto(4, 1),

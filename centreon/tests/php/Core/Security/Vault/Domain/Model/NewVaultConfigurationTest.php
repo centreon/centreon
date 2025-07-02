@@ -26,7 +26,6 @@ namespace Tests\Core\Security\Vault\Domain\Model;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
-use Core\Security\Vault\Domain\Model\Vault;
 use Security\Encryption;
 
 $invalidMinLengthString = '';
@@ -37,7 +36,7 @@ for ($index = 0; $index <= NewVaultConfiguration::MAX_LENGTH; $index++) {
 $invalidNameMaxLengthString = str_repeat('a', NewVaultConfiguration::NAME_MAX_LENGTH + 1);
 beforeEach(function (): void {
     $this->encryption = new Encryption();
-    $this->encryption->setFirstKey("myFirstKey");
+    $this->encryption->setFirstKey('myFirstKey');
 });
 
 it(
@@ -57,7 +56,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::minLength(
         $invalidMinLengthString,
-        strlen($invalidMinLengthString),
+        mb_strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
         'NewVaultConfiguration::name'
     )->getMessage()
@@ -80,7 +79,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::maxLength(
         $invalidNameMaxLengthString,
-        strlen($invalidNameMaxLengthString),
+        mb_strlen($invalidNameMaxLengthString),
         NewVaultConfiguration::NAME_MAX_LENGTH,
         'NewVaultConfiguration::name'
     )->getMessage()
@@ -103,7 +102,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::minLength(
         $invalidMinLengthString,
-        strlen($invalidMinLengthString),
+        mb_strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
         'NewVaultConfiguration::address'
     )->getMessage()
@@ -182,7 +181,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::minLength(
         $invalidMinLengthString,
-        strlen($invalidMinLengthString),
+        mb_strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
         'NewVaultConfiguration::rootPath'
     )->getMessage()
@@ -205,7 +204,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::maxLength(
         $invalidNameMaxLengthString,
-        strlen($invalidNameMaxLengthString),
+        mb_strlen($invalidNameMaxLengthString),
         NewVaultConfiguration::NAME_MAX_LENGTH,
         'NewVaultConfiguration::rootPath'
     )->getMessage()
@@ -228,7 +227,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::minLength(
         $invalidMinLengthString,
-        strlen($invalidMinLengthString),
+        mb_strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
         'NewVaultConfiguration::roleId'
     )->getMessage()
@@ -251,7 +250,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::maxLength(
         $invalidMaxLengthString,
-        strlen($invalidMaxLengthString),
+        mb_strlen($invalidMaxLengthString),
         NewVaultConfiguration::MAX_LENGTH,
         'NewVaultConfiguration::roleId'
     )->getMessage()
@@ -274,7 +273,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::minLength(
         $invalidMinLengthString,
-        strlen($invalidMinLengthString),
+        mb_strlen($invalidMinLengthString),
         NewVaultConfiguration::MIN_LENGTH,
         'NewVaultConfiguration::secretId'
     )->getMessage()
@@ -297,7 +296,7 @@ it(
     InvalidArgumentException::class,
     AssertionException::maxLength(
         $invalidMaxLengthString,
-        strlen($invalidMaxLengthString),
+        mb_strlen($invalidMaxLengthString),
         NewVaultConfiguration::MAX_LENGTH,
         'NewVaultConfiguration::secretId'
     )->getMessage()

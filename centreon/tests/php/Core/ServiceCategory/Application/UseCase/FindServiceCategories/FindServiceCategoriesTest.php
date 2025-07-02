@@ -28,14 +28,14 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\UseCase\FindServiceCategories\FindServiceCategories;
 use Core\ServiceCategory\Application\UseCase\FindServiceCategories\FindServiceCategoriesResponse;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Exception;
 
 beforeEach(function (): void {
@@ -71,7 +71,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->serviceCategoryRepository
         ->expects($this->once())
         ->method('findByRequestParameter')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->presenter);
 
@@ -157,7 +157,6 @@ it('should present a FindServiceGroupsResponse when a non-admin user has read/wr
         ->and($this->presenter->getPresentedData()->serviceCategories[0])
         ->toBe($this->responseArray);
 });
-
 
 it('should present a FindServiceCategoriesResponse with admin user', function (): void {
     $this->user

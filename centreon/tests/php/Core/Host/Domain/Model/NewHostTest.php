@@ -32,54 +32,52 @@ use Core\Host\Domain\Model\NewHost;
 use Core\Host\Domain\Model\SnmpVersion;
 
 beforeEach(function (): void {
-    $this->createHost = static function (array $fields = []): NewHost {
-        return new NewHost(
-            ...[
-                'monitoringServerId' => 1,
-                'name' => 'host-name',
-                'address' => '127.0.0.1',
-                'alias' => 'host-alias',
-                'snmpVersion' => SnmpVersion::Two,
-                'snmpCommunity' => 'snmpCommunity-value',
-                'noteUrl' => 'noteUrl-value',
-                'note' => 'note-value',
-                'actionUrl' => 'actionUrl-value',
-                'iconAlternative' => 'iconAlternative-value',
-                'comment' => 'comment-value',
-                'geoCoordinates' => GeoCoords::fromString('48.51,2.20'),
-                'checkCommandArgs' => ['arg1', 'arg2'],
-                'eventHandlerCommandArgs' => ['arg3', 'arg4'],
-                'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
-                'timezoneId' => 1,
-                'severityId' => 1,
-                'checkCommandId' => 1,
-                'checkTimeperiodId' => 1,
-                'notificationTimeperiodId' => 1,
-                'eventHandlerCommandId' => 1,
-                'iconId' => 1,
-                'maxCheckAttempts' => 5,
-                'normalCheckInterval' => 5,
-                'retryCheckInterval' => 5,
-                'notificationInterval' => 5,
-                'firstNotificationDelay' => 5,
-                'recoveryNotificationDelay' => 5,
-                'acknowledgementTimeout' => 5,
-                'freshnessThreshold' => 5,
-                'lowFlapThreshold' => 5,
-                'highFlapThreshold' => 5,
-                'activeCheckEnabled' => YesNoDefault::Yes,
-                'passiveCheckEnabled' => YesNoDefault::Yes,
-                'notificationEnabled' => YesNoDefault::Yes,
-                'freshnessChecked' => YesNoDefault::Yes,
-                'flapDetectionEnabled' => YesNoDefault::Yes,
-                'eventHandlerEnabled' => YesNoDefault::Yes,
-                'addInheritedContactGroup' => true,
-                'addInheritedContact' => true,
-                'isActivated' => false,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createHost = static fn (array $fields = []): NewHost => new NewHost(
+        ...[
+            'monitoringServerId' => 1,
+            'name' => 'host-name',
+            'address' => '127.0.0.1',
+            'alias' => 'host-alias',
+            'snmpVersion' => SnmpVersion::Two,
+            'snmpCommunity' => 'snmpCommunity-value',
+            'noteUrl' => 'noteUrl-value',
+            'note' => 'note-value',
+            'actionUrl' => 'actionUrl-value',
+            'iconAlternative' => 'iconAlternative-value',
+            'comment' => 'comment-value',
+            'geoCoordinates' => GeoCoords::fromString('48.51,2.20'),
+            'checkCommandArgs' => ['arg1', 'arg2'],
+            'eventHandlerCommandArgs' => ['arg3', 'arg4'],
+            'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
+            'timezoneId' => 1,
+            'severityId' => 1,
+            'checkCommandId' => 1,
+            'checkTimeperiodId' => 1,
+            'notificationTimeperiodId' => 1,
+            'eventHandlerCommandId' => 1,
+            'iconId' => 1,
+            'maxCheckAttempts' => 5,
+            'normalCheckInterval' => 5,
+            'retryCheckInterval' => 5,
+            'notificationInterval' => 5,
+            'firstNotificationDelay' => 5,
+            'recoveryNotificationDelay' => 5,
+            'acknowledgementTimeout' => 5,
+            'freshnessThreshold' => 5,
+            'lowFlapThreshold' => 5,
+            'highFlapThreshold' => 5,
+            'activeCheckEnabled' => YesNoDefault::Yes,
+            'passiveCheckEnabled' => YesNoDefault::Yes,
+            'notificationEnabled' => YesNoDefault::Yes,
+            'freshnessChecked' => YesNoDefault::Yes,
+            'flapDetectionEnabled' => YesNoDefault::Yes,
+            'eventHandlerEnabled' => YesNoDefault::Yes,
+            'addInheritedContactGroup' => true,
+            'addInheritedContact' => true,
+            'isActivated' => false,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set host instance (all properties)', function (): void {
@@ -181,7 +179,7 @@ it('should return properly set host instance (mandatory properties only)', funct
 // mandatory fields
 it(
     'should throw an exception when host name is an empty string',
-    fn() => ($this->createHost)(['name' => '    '])
+    fn () => ($this->createHost)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::notEmptyString('NewHost::name')->getMessage()
@@ -189,7 +187,7 @@ it(
 
 it(
     'should throw an exception when host address does not respect format',
-    fn() => ($this->createHost)(['address' => 'hello world'])
+    fn () => ($this->createHost)(['address' => 'hello world'])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::ipOrDomain('hello world', 'NewHost::address')->getMessage()
@@ -259,7 +257,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when host {$field} is too long",
-        fn() => ($this->createHost)([$field => $tooLong])
+        fn () => ($this->createHost)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewHost::{$field}")->getMessage()
@@ -281,7 +279,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host {$field} is not > 0",
-        fn() => ($this->createHost)([$field => 0])
+        fn () => ($this->createHost)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "NewHost::{$field}")->getMessage()
@@ -305,7 +303,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host  {$field} is not >= 0",
-        fn() => ($this->createHost)([$field => -1])
+        fn () => ($this->createHost)([$field => -1])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::min(-1, 0, "NewHost::{$field}")->getMessage()

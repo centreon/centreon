@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\RealTime\UseCase\FindService;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\RealTime\UseCase\FindService\FindServicePresenterInterface;
 use Core\Application\RealTime\UseCase\FindService\FindServiceResponse;
@@ -30,9 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FindServicePresenterStub extends AbstractPresenter implements FindServicePresenterInterface
 {
-    /**
-     * @var FindServiceResponse
-     */
+    /** @var FindServiceResponse */
     public $response;
 
     /**

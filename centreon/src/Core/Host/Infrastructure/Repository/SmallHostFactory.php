@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Infrastructure\Repository;
 
@@ -85,7 +85,7 @@ class SmallHostFactory
         $host = new SmallHost(
             (int) $data['id'],
             new TrimmedString($data['name']),
-            $data['alias'] !== null ? new TrimmedString($data['alias']) : null ,
+            $data['alias'] !== null ? new TrimmedString($data['alias']) : null,
             new TrimmedString($data['ip_address']),
             self::intOrNull($data, 'check_interval'),
             self::intOrNull($data, 'retry_check_interval'),

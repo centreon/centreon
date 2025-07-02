@@ -41,7 +41,6 @@ use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
 use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
-use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {

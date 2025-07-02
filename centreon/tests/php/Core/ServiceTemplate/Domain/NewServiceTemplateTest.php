@@ -29,9 +29,8 @@ use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 
 /**
- * @return NewServiceTemplate
- *
  * @throws \Assert\AssertionFailedException
+ * @return NewServiceTemplate
  */
 function createNewServiceTemplate(): NewServiceTemplate
 {
@@ -55,7 +54,7 @@ foreach (
         }
     )->throws(
         AssertionException::class,
-        AssertionException::notEmptyString("NewServiceTemplate::$field")->getMessage()
+        AssertionException::notEmptyString("NewServiceTemplate::{$field}")->getMessage()
     );
 
     $tooLongString = str_repeat('a', $length + 1);
@@ -71,7 +70,7 @@ foreach (
             $tooLongString,
             $length + 1,
             $length,
-            "NewServiceTemplate::$field"
+            "NewServiceTemplate::{$field}"
         )->getMessage()
     );
 }
@@ -87,7 +86,7 @@ foreach (
         'firstNotificationDelay',
         'acknowledgementTimeout',
         'lowFlapThreshold',
-        'highFlapThreshold'
+        'highFlapThreshold',
     ] as $field
 ) {
     it(
@@ -101,7 +100,7 @@ foreach (
         AssertionException::min(
             -1,
             0,
-            "NewServiceTemplate::$field"
+            "NewServiceTemplate::{$field}"
         )->getMessage()
     );
 }
@@ -115,7 +114,7 @@ foreach (
         'checkTimePeriodId',
         'iconId',
         'graphTemplateId',
-        'severityId'
+        'severityId',
     ] as $field
 ) {
     it(
@@ -129,7 +128,7 @@ foreach (
         AssertionException::min(
             0,
             1,
-            "NewServiceTemplate::$field"
+            "NewServiceTemplate::{$field}"
         )->getMessage()
     );
 }
@@ -151,13 +150,13 @@ foreach (['commandArgument', 'eventHandlerArgument'] as $field) {
 }
 
 it(
-    "should retrieve all notificationTypes that were previously added",
+    'should retrieve all notificationTypes that were previously added',
     function (): void {
         $serviceTemplate = createNewServiceTemplate();
         $notificationTypes = [
             NotificationType::Unknown,
             NotificationType::Warning,
-            NotificationType::Recovery
+            NotificationType::Recovery,
         ];
         foreach ($notificationTypes as $notificationType) {
             call_user_func_array([$serviceTemplate, 'addNotificationType'], [$notificationType]);
@@ -166,10 +165,9 @@ it(
     }
 );
 
-
 it(
-    "should throw an exception when name contains illegal characters",
-    fn() => (new NewServiceTemplate('fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
+    'should throw an exception when name contains illegal characters',
+    fn () => (new NewServiceTemplate('fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
 )->throws(
     AssertionException::class,
     AssertionException::unauthorizedCharacters(
@@ -180,8 +178,8 @@ it(
 );
 
 it(
-    "should throw an exception when alias contains illegal characters",
-    fn() => (new NewServiceTemplate('fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
+    'should throw an exception when alias contains illegal characters',
+    fn () => (new NewServiceTemplate('fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
 )->throws(
     AssertionException::class,
     AssertionException::unauthorizedCharacters(
@@ -192,7 +190,7 @@ it(
 );
 
 it(
-    "should remove spaces that are too long in the alias",
+    'should remove spaces that are too long in the alias',
     function (): void {
         $serviceTemplate = new NewServiceTemplate('fake_name', '   fake   alias       ok    ');
         expect($serviceTemplate->getAlias())->toBe('fake alias ok');

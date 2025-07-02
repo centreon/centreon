@@ -132,7 +132,7 @@ class Validator
         $type = Type::from($request->type);
 
         $pollers = $this->readAccRepository->findPollersByType($type);
-        $pollerIds = array_map(fn(Poller $poller) => $poller->id, $pollers);
+        $pollerIds = array_map(fn (Poller $poller) => $poller->id, $pollers);
 
         if ([] !== $invalidPollers = array_intersect($pollerIds, $request->pollers)) {
             throw AccException::alreadyAssociatedPollers($type, $invalidPollers);

@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Severity\RealTime\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Domain\RealTime\Model\Icon;
 use Core\Severity\RealTime\Domain\Model\Severity;
-use Centreon\Domain\Common\Assertion\AssertionException;
 
 beforeEach(function (): void {
     $this->icon = (new Icon())

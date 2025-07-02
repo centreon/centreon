@@ -32,7 +32,8 @@ use Core\Common\Domain\Collection\StringCollection;
  * @class ExportResourcesResponse
  * @package Core\Resources\Application\UseCase\ExportResources
  */
-final class ExportResourcesResponse {
+final class ExportResourcesResponse
+{
     /** @var \Traversable<ResourceEntity> */
     private \Traversable $resources;
 

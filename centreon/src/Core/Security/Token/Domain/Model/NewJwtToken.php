@@ -48,8 +48,7 @@ final class NewJwtToken extends NewToken
         int $creatorId,
         TrimmedString $creatorName,
         ?\DateTimeInterface $expirationDate,
-    )
-    {
+    ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
         parent::__construct(

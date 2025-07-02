@@ -19,7 +19,7 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
@@ -60,7 +60,8 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
      *
      * @return array<array<string,int|string|float|null>>
      */
-    private static function formatResource(array $resourceMetrics): array {
+    private static function formatResource(array $resourceMetrics): array
+    {
         return array_map(fn (MetricInformationDto $metricInformation) => [
             'id' => $metricInformation->serviceId,
             'name' => $metricInformation->resourceName,

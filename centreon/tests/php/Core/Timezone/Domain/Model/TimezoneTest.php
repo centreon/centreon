@@ -52,12 +52,12 @@ it('should throw an exception when timezone offset format is not respected', fun
     new Timezone(1, $this->name, 'aaa', $this->dayligthSavingTimeOffset);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', "Timezone::offset")->getMessage()
+    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', 'Timezone::offset')->getMessage()
 );
 
 it('should throw an exception when timezone daylightSavingTimeOffset format is not respected', function (): void {
     new Timezone(1, $this->name, $this->offset, 'aaa');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', "Timezone::daylightSavingTimeOffset")->getMessage()
+    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', 'Timezone::daylightSavingTimeOffset')->getMessage()
 );

@@ -894,14 +894,16 @@ class NewService
     /**
      * @param GeoCoords|null $geoCoords
      */
-    public function setGeoCoords(?GeoCoords $geoCoords): void {
+    public function setGeoCoords(?GeoCoords $geoCoords): void
+    {
         $this->geoCoords = $geoCoords;
     }
 
     /**
      * @return GeoCoords|null
      */
-    public function getGeoCoords(): ?GeoCoords{
+    public function getGeoCoords(): ?GeoCoords
+    {
         return $this->geoCoords;
     }
 }

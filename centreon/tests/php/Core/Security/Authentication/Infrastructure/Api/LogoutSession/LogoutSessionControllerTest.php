@@ -23,37 +23,29 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Infrastructure\Api\LogoutSession;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\InputBag;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionController;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionPresenter;
-use Core\Infrastructure\Common\Presenter\JsonFormatter;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LogoutSessionControllerTest extends TestCase
 {
-    /**
-     * @var Request&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Request&\PHPUnit\Framework\MockObject\MockObject */
     private $request;
 
-    /**
-     * @var LogoutSession&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var LogoutSession&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var LogoutSessionPresenter
-     */
+    /** @var LogoutSessionPresenter */
     private $logoutSessionPresenter;
 
-    /**
-     * @var UrlGeneratorInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UrlGeneratorInterface&\PHPUnit\Framework\MockObject\MockObject */
     private UrlGeneratorInterface $urlGenerator;
 
     public function setUp(): void

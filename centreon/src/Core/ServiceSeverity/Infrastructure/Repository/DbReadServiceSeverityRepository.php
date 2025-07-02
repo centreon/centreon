@@ -79,7 +79,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -153,7 +153,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
         $concat = new SqlConcatenator();
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

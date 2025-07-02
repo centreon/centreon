@@ -51,8 +51,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     public function deleteByNameAndUserId(string $tokenName, int $userId): void
     {
         try {
-            $this->connection->delete
-            (
+            $this->connection->delete(
                 <<<'SQL'
                     DELETE tokens FROM security_token tokens
                     JOIN security_authentication_tokens sat
@@ -228,9 +227,9 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
 
     private function addApiToken(NewApiToken $token): void
     {
-       $isTransactionActive = $this->connection->isTransactionActive();
+        $isTransactionActive = $this->connection->isTransactionActive();
 
-       try {
+        try {
             if (! $isTransactionActive) {
                 $this->connection->startTransaction();
             }
@@ -241,7 +240,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             if (! $isTransactionActive) {
                 $this->connection->commitTransaction();
             }
-       } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
                 "Add token failed : {$exception->getMessage()}",
                 [

@@ -45,7 +45,8 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     /**
      * @inheritDoc
      */
-    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void {
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void
+    {
         $request = <<<'SQL'
                 INSERT INTO `:db`.dashboard_thumbnail_relation
                     (

@@ -164,8 +164,8 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
             return null;
         }
 
-       /** @var array{id:int,name:string} $result */
-       return new Type($result['id'], $result['name']);
+        /** @var array{id:int,name:string} $result */
+        return new Type($result['id'], $result['name']);
     }
 
     /**
@@ -249,7 +249,7 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
         $data = [];
         while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             /** @var _ExtendedInputOutput $row */
-            $data[$row['config_id'] . '_' . $row['config_group']. '_' . $row['config_group_id']][] = $row;
+            $data[$row['config_id'] . '_' . $row['config_group'] . '_' . $row['config_group_id']][] = $row;
         }
 
         $results = [];

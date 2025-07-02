@@ -31,6 +31,7 @@ use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTem
 class FindServiceTemplatesPresenterStub extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
 {
     public ResponseStatusInterface|FindServiceTemplateResponse $response;
+
     public function presentResponse(ResponseStatusInterface|FindServiceTemplateResponse $response): void
     {
         $this->response = $response;

@@ -39,4 +39,3 @@ class HostCategoryFilterType extends AbstractDatasetFilterType
         HostGroupFilterType::TYPE_NAME,
     ];
 }
-

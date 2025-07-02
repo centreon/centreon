@@ -26,148 +26,147 @@ namespace Tests\Core\Common\Domain\ValueObject;
 use Core\Common\Domain\ValueObject\LiteralString;
 
 it('correct instanciation', function (): void {
-    $string = "foo";
+    $string = 'foo';
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
 it('get value', function (): void {
-    $string = "foo";
+    $string = 'foo';
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
 it('is empty', function (): void {
-    $string = "";
+    $string = '';
     $literalString = new LiteralString($string);
     expect($literalString->isEmpty())->toBeTrue();
 });
 
 it('length', function (): void {
-    $literalString = new LiteralString("foo");
+    $literalString = new LiteralString('foo');
     expect($literalString->length())->toBe(3);
 });
 
 it('to uppercase', function (): void {
-    $literalString = new LiteralString("foo");
+    $literalString = new LiteralString('foo');
     $newLiteralString = $literalString->toUpperCase();
     expect($literalString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($literalString->getValue())
-        ->toBe("foo")
+        ->toBe('foo')
         ->and($newLiteralString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($newLiteralString->getValue())
-        ->toBe("FOO");
+        ->toBe('FOO');
 });
 
 it('to lowercase', function (): void {
-    $literalString = new LiteralString("FOO");
+    $literalString = new LiteralString('FOO');
     $newLiteralString = $literalString->toLowerCase();
     expect($literalString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($literalString->getValue())
-        ->toBe("FOO")
+        ->toBe('FOO')
         ->and($newLiteralString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($newLiteralString->getValue())
-        ->toBe("foo");
+        ->toBe('foo');
 });
 
 it('trim', function (): void {
-    $literalString = new LiteralString(" foo ");
+    $literalString = new LiteralString(' foo ');
     $newLiteralString = $literalString->trim();
     expect($literalString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($literalString->getValue())
-        ->toBe(" foo ")
+        ->toBe(' foo ')
         ->and($newLiteralString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($newLiteralString->getValue())
-        ->toBe("foo");
+        ->toBe('foo');
 });
 
 it('starts with', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->startsWith("f"))->toBeTrue();
+    $literalString = new LiteralString('foo');
+    expect($literalString->startsWith('f'))->toBeTrue();
 });
 
 it('not starts with', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->startsWith("bar"))->toBeFalse();
+    $literalString = new LiteralString('foo');
+    expect($literalString->startsWith('bar'))->toBeFalse();
 });
 
 it('ends with', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->endsWith("o"))->toBeTrue();
+    $literalString = new LiteralString('foo');
+    expect($literalString->endsWith('o'))->toBeTrue();
 });
 
 it('not ends with', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->endsWith("bar"))->toBeFalse();
+    $literalString = new LiteralString('foo');
+    expect($literalString->endsWith('bar'))->toBeFalse();
 });
 
 it('replace', function (): void {
-    $literalString = new LiteralString("foo");
-    $newLiteralString = $literalString->replace("foo", "bar");
+    $literalString = new LiteralString('foo');
+    $newLiteralString = $literalString->replace('foo', 'bar');
     expect($literalString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($literalString->getValue())
-        ->toBe("foo")
+        ->toBe('foo')
         ->and($newLiteralString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($newLiteralString->getValue())
-        ->toBe("bar");
+        ->toBe('bar');
 });
 
 it('contains', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->contains("o"))->toBeTrue();
+    $literalString = new LiteralString('foo');
+    expect($literalString->contains('o'))->toBeTrue();
 });
 
 it('not contains', function (): void {
-    $literalString = new LiteralString("foo");
-    expect($literalString->contains("bar"))->toBeFalse();
+    $literalString = new LiteralString('foo');
+    expect($literalString->contains('bar'))->toBeFalse();
 });
 
 it('append', function (): void {
-    $literalString = new LiteralString("foo");
-    $newLiteralString = $literalString->append("bar");
+    $literalString = new LiteralString('foo');
+    $newLiteralString = $literalString->append('bar');
     expect($literalString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($literalString->getValue())
-        ->toBe("foo")
+        ->toBe('foo')
         ->and($newLiteralString)
         ->toBeInstanceOf(LiteralString::class)
         ->and($newLiteralString->getValue())
-        ->toBe("foobar");
+        ->toBe('foobar');
 });
 
 it('equal', function (): void {
-    $literalString1 = new LiteralString("foo");
-    $literalString2 = new LiteralString("foo");
+    $literalString1 = new LiteralString('foo');
+    $literalString2 = new LiteralString('foo');
     expect($literalString1->equals($literalString2))->toBeTrue();
 });
 
 it('not equal', function (): void {
-    $literalString1 = new LiteralString("foo");
-    $literalString2 = new LiteralString("bar");
+    $literalString1 = new LiteralString('foo');
+    $literalString2 = new LiteralString('bar');
     expect($literalString1->equals($literalString2))->toBeFalse();
 });
 
 it('equal with incorrect type', function (): void {
-    $literalString1 = new LiteralString("foo");
+    $literalString1 = new LiteralString('foo');
     $dateTime = new \DateTime();
     $literalString1->equals($dateTime);
 })->throws(\TypeError::class);
 
 it('magic method toString', function (): void {
-    $literalString = new LiteralString("foo");
-    expect("$literalString")->toBe("foo");
+    $literalString = new LiteralString('foo');
+    expect("{$literalString}")->toBe('foo');
 });
 
 it('json serialize', function (): void {
-    $literalString = new LiteralString("foo");
+    $literalString = new LiteralString('foo');
     expect($literalString->jsonSerialize())->toBe('foo');
 });
-

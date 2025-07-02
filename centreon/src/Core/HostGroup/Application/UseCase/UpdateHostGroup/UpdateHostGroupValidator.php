@@ -83,9 +83,9 @@ class UpdateHostGroupValidator
         $unexistentHosts = $this->user->isAdmin()
         ? array_diff($hostIds, $this->readHostRepository->exist($hostIds))
         : array_filter($hostIds, fn ($hostId) => ! $this->readHostRepository->existsByAccessGroups(
-                $hostId,
-                $this->readAccessGroupRepository->findByContact($this->user)
-            ));
+            $hostId,
+            $this->readAccessGroupRepository->findByContact($this->user)
+        ));
 
         if ($unexistentHosts !== []) {
             throw HostException::idsDoNotExist('hosts', $unexistentHosts);

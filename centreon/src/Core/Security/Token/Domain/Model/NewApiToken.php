@@ -50,8 +50,7 @@ final class NewApiToken extends NewToken
         int $creatorId,
         TrimmedString $creatorName,
         ?\DateTimeInterface $expirationDate,
-    )
-    {
+    ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
         Assertion::positiveInt($this->userId, "{$this->shortName}::userId");

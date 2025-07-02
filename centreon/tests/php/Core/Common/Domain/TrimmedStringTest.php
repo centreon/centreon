@@ -27,15 +27,15 @@ use Core\Common\Domain\TrimmedString;
 
 it(
     'should trim a string',
-    fn() => expect((new TrimmedString('  Hello World !  '))->value)
+    fn () => expect((new TrimmedString('  Hello World !  '))->value)
         ->toBe('Hello World !')
 );
 
 it(
     'should trim a Stringable',
-    fn() => expect(
+    fn () => expect(
         (new TrimmedString(
-            new class implements \Stringable {
+            new class () implements \Stringable {
                 public function __toString(): string
                 {
                     return '  Hello World !  ';
@@ -47,6 +47,6 @@ it(
 
 it(
     'should implements a Stringable',
-    fn() => expect((string) new TrimmedString('  Hello World !  '))
+    fn () => expect((string) new TrimmedString('  Hello World !  '))
         ->toBe('Hello World !')
 );

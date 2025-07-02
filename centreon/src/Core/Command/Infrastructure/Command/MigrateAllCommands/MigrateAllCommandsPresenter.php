@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Command\Infrastructure\Command\MigrateAllCommands;
 
@@ -30,8 +30,7 @@ use Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommandsPresen
 use Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommandsResponse;
 use Core\Command\Application\UseCase\MigrateAllCommands\MigrationErrorDto;
 
-class MigrateAllCommandsPresenter extends CliAbstractPresenter
-    implements MigrateAllCommandsPresenterInterface
+class MigrateAllCommandsPresenter extends CliAbstractPresenter implements MigrateAllCommandsPresenterInterface
 {
     public function presentResponse(MigrateAllCommandsResponse|ResponseStatusInterface $response): void
     {

@@ -29,4 +29,3 @@ interface UpdateNotificationPresenterInterface
 {
     public function presentResponse(ResponseStatusInterface $response): void;
 }
-

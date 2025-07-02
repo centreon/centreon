@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Contact\Application\UseCase\FindContactTemplates;
 
-use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesResponse;
-use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesPresenterInterface;
 use Core\Application\Common\UseCase\{AbstractPresenter, ResponseStatusInterface};
+use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesPresenterInterface;
+use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplatesResponse;
 
 class FindContactTemplatesPresenterStub extends AbstractPresenter implements FindContactTemplatesPresenterInterface
 {

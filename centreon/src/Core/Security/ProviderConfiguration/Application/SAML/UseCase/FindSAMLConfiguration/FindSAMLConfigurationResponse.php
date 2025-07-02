@@ -199,7 +199,7 @@ final class FindSAMLConfigurationResponse
     public static function contactGroupRelationsToArray(array $contactGroupRelations): array
     {
         return array_map(
-            fn(ContactGroupRelation $contactGroupRelation) => [
+            fn (ContactGroupRelation $contactGroupRelation) => [
                 'group_value' => $contactGroupRelation->getClaimValue(),
                 'contact_group' => [
                     'id' => $contactGroupRelation->getContactGroup()->getId(),

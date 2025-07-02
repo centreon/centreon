@@ -31,7 +31,7 @@ beforeEach(function (): void {
 
 it(
     'should return a valid geographic coordinates object for valid latitudes',
-    fn() => expect((new GeoCoords($lat = '0', '0'))->latitude)->toBe($lat)
+    fn () => expect((new GeoCoords($lat = '0', '0'))->latitude)->toBe($lat)
         ->and((new GeoCoords($lat = '0.0', '0'))->latitude)->toBe($lat)
         ->and((new GeoCoords($lat = '+0.0', '0'))->latitude)->toBe($lat)
         ->and((new GeoCoords($lat = '-0.0', '0'))->latitude)->toBe($lat)
@@ -46,7 +46,7 @@ it(
 
 it(
     'should return a valid geographic coordinates object for valid longitudes',
-    fn() => expect((new GeoCoords('0', $lng = '0'))->longitude)->toBe($lng)
+    fn () => expect((new GeoCoords('0', $lng = '0'))->longitude)->toBe($lng)
         ->and((new GeoCoords('0', $lng = '0.0'))->longitude)->toBe($lng)
         ->and((new GeoCoords('0', $lng = '+0.0'))->longitude)->toBe($lng)
         ->and((new GeoCoords('0', $lng = '-0.0'))->longitude)->toBe($lng)
@@ -63,15 +63,15 @@ it(
 it(
     'should not return a valid geographic coordinates object for invalid latitudes',
     function (): void {
-        $factory = static fn(string $lat, string $lng) => static fn() => new GeoCoords($lat, $lng);
+        $factory = static fn (string $lat, string $lng) => static fn () => new GeoCoords($lat, $lng);
 
         expect($factory('', '0'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('90.00001', '0'))->toThrow(InvalidGeoCoordException::class)
-            ->and($factory('-90.00001', '0'))->toThrow(\Core\Domain\Exception\InvalidGeoCoordException::class)
+            ->and($factory('-90.00001', '0'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('1.2.3', '0'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('1-2', '0'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('1+2', '0'))->toThrow(InvalidGeoCoordException::class)
-            ->and($factory('--1.2', '0'))->toThrow(\Core\Domain\Exception\InvalidGeoCoordException::class)
+            ->and($factory('--1.2', '0'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('++1.2', '0'))->toThrow(InvalidGeoCoordException::class);
     }
 );
@@ -79,22 +79,22 @@ it(
 it(
     'should not return a valid geographic coordinates object for invalid longitudes',
     function (): void {
-        $factory = static fn(string $lat, string $lng) => static fn(): GeoCoords => new GeoCoords($lat, $lng);
+        $factory = static fn (string $lat, string $lng) => static fn (): GeoCoords => new GeoCoords($lat, $lng);
 
-        expect($factory('0', ''))->toThrow(\Core\Domain\Exception\InvalidGeoCoordException::class)
+        expect($factory('0', ''))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '180.00001'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '-180.00001'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '1.2.3'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '1-2'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '1+2'))->toThrow(InvalidGeoCoordException::class)
             ->and($factory('0', '--1.2'))->toThrow(InvalidGeoCoordException::class)
-            ->and($factory('0', '++1.2'))->toThrow(\Core\Domain\Exception\InvalidGeoCoordException::class);
+            ->and($factory('0', '++1.2'))->toThrow(InvalidGeoCoordException::class);
     }
 );
 
 it(
     'should throw an exception when the geographic coordinates object has too few coordinates',
-    fn() => GeoCoords::fromString('')
+    fn () => GeoCoords::fromString('')
 )->throws(
     InvalidGeoCoordException::class,
     InvalidGeoCoordException::invalidFormat()->getMessage()
@@ -102,7 +102,7 @@ it(
 
 it(
     'should throw an exception when the geographic coordinates object has too many coordinates',
-    fn() => GeoCoords::fromString('1,2,3')
+    fn () => GeoCoords::fromString('1,2,3')
 )->throws(
     InvalidGeoCoordException::class,
     InvalidGeoCoordException::invalidFormat()->getMessage()
@@ -110,15 +110,15 @@ it(
 
 it(
     'should throw an exception when the geographic coordinates object has wrong values but a valid format',
-    fn() => GeoCoords::fromString(',')
+    fn () => GeoCoords::fromString(',')
 )->throws(
-    \Core\Domain\Exception\InvalidGeoCoordException::class,
+    InvalidGeoCoordException::class,
     InvalidGeoCoordException::invalidValues()->getMessage()
 );
 
 it(
     'should throw an exception when the geographic coordinates object has wrong latitude',
-    fn() => GeoCoords::fromString('-91.0,100')
+    fn () => GeoCoords::fromString('-91.0,100')
 )->throws(
     InvalidGeoCoordException::class,
     InvalidGeoCoordException::invalidValues()->getMessage()
@@ -126,7 +126,7 @@ it(
 
 it(
     'should throw an exception when the geographic coordinates object has wrong longitude',
-    fn() => GeoCoords::fromString('-90.0,200')
+    fn () => GeoCoords::fromString('-90.0,200')
 )->throws(
     InvalidGeoCoordException::class,
     InvalidGeoCoordException::invalidValues()->getMessage()

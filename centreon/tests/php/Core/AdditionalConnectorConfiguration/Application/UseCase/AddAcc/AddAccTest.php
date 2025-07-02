@@ -249,10 +249,10 @@ it(
 it(
     'should present an AddAccResponse when no error occurs',
     function (): void {
-               $this->user
-                   ->expects($this->once())
-                   ->method('hasTopologyRole')
-                   ->willReturn(true);
+        $this->user
+            ->expects($this->once())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
 
         $this->user
             ->expects($this->any())

@@ -26,8 +26,8 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguratio
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\Validation\TelegrafValidator;
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 
 beforeEach(function (): void {
     $this->TelegrafValidator = new TelegrafValidator();

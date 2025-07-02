@@ -23,16 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\DeleteNotifications;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Symfony\Component\HttpFoundation\Response;
-use Core\Notification\Domain\Model\ResponseCode;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\MultiStatusResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Infrastructure\Common\Api\Router;
+use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsPresenterInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsResponse;
 use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsStatusResponse;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsPresenterInterface;
+use Core\Notification\Domain\Model\ResponseCode;
+use Symfony\Component\HttpFoundation\Response;
 
 class DeleteNotificationsPresenterStub extends AbstractPresenter implements DeleteNotificationsPresenterInterface
 {
@@ -45,13 +43,11 @@ class DeleteNotificationsPresenterStub extends AbstractPresenter implements Dele
     {
         if ($response instanceof DeleteNotificationsResponse) {
             $multiStatusResponse = [
-                'results' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
-                    return [
-                        'href' => self::HREF . $notificationDto->id,
-                        'status' => $this->enumToIntConverter($notificationDto->status),
-                        'message' => $notificationDto->message,
-                    ];
-                }, $response->results),
+                'results' => array_map(fn (DeleteNotificationsStatusResponse $notificationDto) => [
+                    'href' => self::HREF . $notificationDto->id,
+                    'status' => $this->enumToIntConverter($notificationDto->status),
+                    'message' => $notificationDto->message,
+                ], $response->results),
             ];
 
             $this->response = new MultiStatusResponse($multiStatusResponse);

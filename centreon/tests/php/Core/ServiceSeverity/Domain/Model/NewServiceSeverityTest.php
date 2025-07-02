@@ -133,4 +133,3 @@ it('should throw an exception when service severity level is too low', function 
         'NewServiceSeverity::level'
     )->getMessage()
 );
-

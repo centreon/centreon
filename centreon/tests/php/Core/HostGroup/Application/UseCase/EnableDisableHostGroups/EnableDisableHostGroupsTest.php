@@ -23,7 +23,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -32,12 +31,7 @@ use Core\HostGroup\Application\UseCase\EnableDisableHostGroups\EnableDisableHost
 use Core\HostGroup\Application\UseCase\EnableDisableHostGroups\EnableDisableHostGroupsResponse;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
-use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
-use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
-use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
-use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->useCase = new EnableDisableHostGroups(
@@ -67,7 +61,6 @@ it('should check that HostGroups exists as admin', function (): void {
 });
 
 it('should check that HostGroups exists as user', function (): void {
-
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -89,9 +82,9 @@ it('should return a EnableDisableHostGroupsResponse', function (): void {
     $this->readRepository
         ->expects($this->exactly(3))
         ->method('existsOne')
-        ->willReturnOnConsecutiveCalls(true,false,true);
+        ->willReturnOnConsecutiveCalls(true, false, true);
 
-    $ex = new \Exception('Error while enabling a HostGroup');
+    $ex = new Exception('Error while enabling a HostGroup');
 
     $this->writeRepository
         ->expects($this->exactly(2))

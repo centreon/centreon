@@ -300,19 +300,11 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
     /**
      * @inheritDoc
      */
-    public function findAll(): \Iterator&\Countable {
+    public function findAll(): \Iterator&\Countable
+    {
         $this->logger->debug(sprintf('Loading commands in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
 
-        return new class (
-            $this->db,
-            self::MAX_ITEMS_BY_REQUEST,
-            $this->createCommand(...),
-            $this->findArgumentsByCommandId(...),
-            $this->findMacrosByCommandId(...),
-            $this->logger
-        )   extends AbstractRepositoryRDB
-            implements \Iterator, \Countable
-        {
+        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createCommand(...), $this->findArgumentsByCommandId(...), $this->findMacrosByCommandId(...), $this->logger) extends AbstractRepositoryRDB implements \Iterator, \Countable {
             /** @var callable */
             protected $createCommand;
 

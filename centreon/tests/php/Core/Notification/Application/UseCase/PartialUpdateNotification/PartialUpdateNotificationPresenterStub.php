@@ -31,9 +31,7 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
 
 class PartialUpdateNotificationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var ResponseStatusInterface
-     */
+    /** @var ResponseStatusInterface */
     public ResponseStatusInterface $response;
 
     /**

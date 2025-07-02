@@ -33,7 +33,8 @@ class UpdateNotificationPresenterStub extends AbstractPresenter implements Updat
 {
     public ?ResponseStatusInterface $responseStatus = null;
 
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter) {
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    {
         parent::__construct($presenterFormatter);
     }
 

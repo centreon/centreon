@@ -47,4 +47,3 @@ final class FindRealTimeServiceStatusesCountController extends AbstractControlle
         return $presenter->show();
     }
 }
-

@@ -180,7 +180,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 $jsonSchemaValidatorFile = __DIR__ . '/../Local/Repository/CustomConfigurationSchema.json';
                 $this->validateJsonRecord($configuration->getJsonCustomConfiguration(), $jsonSchemaValidatorFile);
                 $excludedUserAliases = array_map(
-                    fn($user) => $user['contact_alias'],
+                    fn ($user) => $user['contact_alias'],
                     $this->findExcludedUsers()
                 );
 

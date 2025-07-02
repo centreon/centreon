@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Normalizer;
 
@@ -46,8 +46,7 @@ final readonly class NotEmptyStringNormalizer implements NormalizerInterface
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): string
-    {
+    ): string {
         /** @var array{value: string} $data */
         $data = $this->normalizer->normalize($object, $format, $context);
 

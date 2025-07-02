@@ -232,4 +232,3 @@ it('should return created object on success', function (): void {
         ->and($payload->isActivated)
         ->toBe($this->serviceSeverity->isActivated());
 });
-

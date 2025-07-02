@@ -32,7 +32,7 @@ class MonitoringServer
     public function __construct(
         private readonly int $id,
         private string $name,
-    ){
+    ) {
         $this->name = trim($name);
         Assertion::notEmptyString($this->name, 'MonitoringServer::name');
     }

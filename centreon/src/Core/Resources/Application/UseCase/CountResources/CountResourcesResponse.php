@@ -29,7 +29,8 @@ namespace Core\Resources\Application\UseCase\CountResources;
  * @class CountResourcesResponse
  * @package Core\Resources\Application\UseCase\CountResources
  */
-final class CountResourcesResponse {
+final class CountResourcesResponse
+{
     /** @var int */
     private int $totalFilteredResources = 0;
 

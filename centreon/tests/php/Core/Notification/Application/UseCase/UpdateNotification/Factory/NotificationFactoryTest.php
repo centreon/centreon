@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\UpdateNotification\Factory;
 
@@ -30,13 +30,12 @@ use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationR
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\TimePeriod;
 
-beforeEach(function(): void {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->factory = new NotificationFactory($this->repository);
 });
 
-it('should throw a NotificationException when a different notification with the same name exists', function ():
-void {
+it('should throw a NotificationException when a different notification with the same name exists', function (): void {
     $request = new UpdateNotificationRequest();
     $request->id = 1;
     $request->name = 'notification';

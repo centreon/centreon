@@ -50,7 +50,10 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements ReadHostCategoryRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait, HostGroupRepositoryTrait, HostCategoryRepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
+    use HostGroupRepositoryTrait;
+    use HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -460,12 +463,13 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     {
         $this->info('Get a host category with ID #' . $hostCategoryId);
 
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
-            FROM `:db`.hostcategories hc
-            WHERE hc.hc_id = :hostCategoryId
-            AND hc.level IS NULL
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+                FROM `:db`.hostcategories hc
+                WHERE hc.hc_id = :hostCategoryId
+                AND hc.level IS NULL
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':hostCategoryId', $hostCategoryId, \PDO::PARAM_INT);
@@ -497,13 +501,14 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             $bindValues[':hct_' . $index] = $categoryId;
         }
 
-        $hostCategoryIdsQuery = implode(', ',array_keys($bindValues));
-        $request = $this->translateDbName(<<<SQL
-            SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
-            FROM `:db`.hostcategories hc
-            WHERE hc.hc_id IN ({$hostCategoryIdsQuery})
-            AND hc.level IS NULL
-            SQL
+        $hostCategoryIdsQuery = implode(', ', array_keys($bindValues));
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+                FROM `:db`.hostcategories hc
+                WHERE hc.hc_id IN ({$hostCategoryIdsQuery})
+                AND hc.level IS NULL
+                SQL
         );
 
         $statement = $this->db->prepare($request);

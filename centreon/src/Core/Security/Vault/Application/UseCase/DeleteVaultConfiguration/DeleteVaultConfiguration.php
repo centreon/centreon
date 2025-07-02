@@ -57,7 +57,8 @@ final class DeleteVaultConfiguration
     /**
      * @param PresenterInterface $presenter
      */
-    public function __invoke(PresenterInterface $presenter): void {
+    public function __invoke(PresenterInterface $presenter): void
+    {
         try {
             if (! $this->user->isAdmin()) {
                 $this->error('User is not admin', ['user' => $this->user->getName()]);

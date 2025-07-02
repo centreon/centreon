@@ -23,43 +23,35 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\User\Application\UseCase\RenewPassword;
 
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
+use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use PHPUnit\Framework\TestCase;
+use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
+use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
+use Core\Security\User\Application\UseCase\RenewPassword\RenewPassword;
+use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordPresenterInterface;
+use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordRequest;
 use Core\Security\User\Domain\Model\User;
 use Core\Security\User\Domain\Model\UserPassword;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
-use Core\Security\User\Application\UseCase\RenewPassword\RenewPassword;
-use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordRequest;
-use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
-use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
-use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
-use Core\Security\User\Application\UseCase\RenewPassword\RenewPasswordPresenterInterface;
-use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
+use PHPUnit\Framework\TestCase;
 
 class RenewPasswordTest extends TestCase
 {
-    /**
-     * @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $readRepository;
 
-    /**
-     * @var WriteUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeRepository;
 
-    /**
-     * @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var ReadConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $readConfigurationRepository;
 
     public function setUp(): void
@@ -153,7 +145,7 @@ class RenewPasswordTest extends TestCase
             SecurityPolicy::MIN_NEW_PASSWORD_DELAY
         );
 
-        $configuration = new Configuration(1, strtolower(Provider::LOCAL), Provider::LOCAL, '{}', true, true);
+        $configuration = new Configuration(1, mb_strtolower(Provider::LOCAL), Provider::LOCAL, '{}', true, true);
         $configuration->setCustomConfiguration(new CustomConfiguration($securityPolicy));
 
         $this->readRepository

@@ -64,4 +64,3 @@ final class FindRulesPresenter extends AbstractPresenter implements FindRulesPre
         ]);
     }
 }
-

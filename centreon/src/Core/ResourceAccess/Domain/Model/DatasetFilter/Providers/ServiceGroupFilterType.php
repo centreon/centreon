@@ -44,4 +44,3 @@ class ServiceGroupFilterType extends AbstractDatasetFilterType
         return true;
     }
 }
-

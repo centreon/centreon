@@ -25,6 +25,7 @@ namespace Core\Common\Infrastructure;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\FeatureFlagsInterface;
+
 use function is_int;
 use function is_string;
 

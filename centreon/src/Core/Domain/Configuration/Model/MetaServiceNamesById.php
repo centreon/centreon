@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Domain\Configuration\Model;
 
@@ -44,8 +44,9 @@ class MetaServiceNamesById
      *
      * @return null|string
      */
-    public function getName(int $metaServiceId): ?string {
-        return isset($this->names[$metaServiceId]) ? $this->names[$metaServiceId]->value: null;
+    public function getName(int $metaServiceId): ?string
+    {
+        return isset($this->names[$metaServiceId]) ? $this->names[$metaServiceId]->value : null;
     }
 
     /**
@@ -56,4 +57,3 @@ class MetaServiceNamesById
         return $this->names;
     }
 }
-

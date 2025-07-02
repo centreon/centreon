@@ -23,26 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\Platform\UseCase\FindInstallationStatus;
 
-use Symfony\Component\HttpFoundation\Response;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusResponse;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusPresenterInterface;
+use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatusResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class FindInstallationStatusPresenterStub implements FindInstallationStatusPresenterInterface
 {
-    /**
-     * @var FindInstallationStatusResponse
-     */
+    /** @var FindInstallationStatusResponse */
     public $response;
 
-    /**
-     * @var ResponseStatusInterface|null
-     */
+    /** @var ResponseStatusInterface|null */
     private $responseStatus;
 
-    /**
-     * @var mixed[]
-     */
+    /** @var mixed[] */
     public $responseHeaders;
 
     /**

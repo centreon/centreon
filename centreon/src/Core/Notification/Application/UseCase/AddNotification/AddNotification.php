@@ -138,7 +138,7 @@ final class AddNotification
         } catch (NotificationException $ex) {
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
-                        NotificationException::CODE_CONFLICT => new InvalidArgumentResponse($ex),
+                    NotificationException::CODE_CONFLICT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -217,7 +217,7 @@ final class AddNotification
         $response->isActivated = $notification->isActivated();
 
         $response->messages = array_map(
-            static fn(Message $message): array => [
+            static fn (Message $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
@@ -227,12 +227,12 @@ final class AddNotification
         );
 
         $response->users = array_map(
-            static fn(NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn (NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
         );
 
         $response->contactGroups = array_map(
-            static fn(ContactGroup $contactGroup): array => [
+            static fn (ContactGroup $contactGroup): array => [
                 'id' => $contactGroup->getId(),
                 'name' => $contactGroup->getName(),
             ],
@@ -246,7 +246,7 @@ final class AddNotification
                     ? $response->convertHostEventsToBitFlags($resource->getEvents())
                     : $response->convertServiceEventsToBitFlags($resource->getEvents()),
                 'ids' => array_map(
-                    static fn($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
+                    static fn ($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
                 ),
             ];
