@@ -131,11 +131,6 @@ $flagContactsAsServiceAccount = function () use ($pearDB, &$errorMessage) {
 };
 
 try {
-    $env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
-    $env->load();
-    $env->add('CORS_ALLOW_ORIGIN', '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$');
-    $env->save();
-
     $bbdoDefaultUpdate();
     $addDeprecateCustomViewsToContact();
     $addServiceFlagToContacts();
