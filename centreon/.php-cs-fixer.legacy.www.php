@@ -40,6 +40,9 @@ $finder = Finder::create()
         __DIR__ . '/.env.local.php',
         __DIR__ . '/bootstrap.php',
         __DIR__ . '/container.php',
+    ])
+    ->exclude([
+        __DIR__ . 'config/centreon.config.php'
     ]);
 
 return $config
