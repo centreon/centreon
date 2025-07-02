@@ -31,7 +31,9 @@ use PHPStan\Reflection\ReflectionProvider;
  */
 trait CentreonRuleTrait
 {
-    public function __construct(private ReflectionProvider $reflectionProvider) {}
+    public function __construct(private ReflectionProvider $reflectionProvider)
+    {
+    }
 
     /**
      * Tells whether the class FQCN extends an Exception.

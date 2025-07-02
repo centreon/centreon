@@ -34,4 +34,3 @@ return $rectorConfig
         __DIR__ . '/.php-cs-fixer.tools.php',
         __DIR__ . '/rector.php',
     ]);
-
