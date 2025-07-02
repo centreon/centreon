@@ -30,7 +30,7 @@ class ImportExportContext extends CentreonAwieContext
                     return ! $context->assertFind('css', '.loadingWrapper')->isVisible();
                 }
 
-                    return true;
+                return true;
             }
         );
 
