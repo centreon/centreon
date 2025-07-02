@@ -60,33 +60,14 @@ beforeEach(function (): void {
         $this->dataStorageEngine,
         $this->isCloudPlatform = false
     );
-
-});
-
-it('should present a Forbidden response when the user has no rights on dashboards', function (): void {
-    $request = new ShareDashboardRequest();
-    $presenter = new ShareDashboardPresenterStub();
-
-    $this->rights
-        ->expects($this->once())
-        ->method('canCreate')
-        ->willReturn(false);
-
-    ($this->useCase)($request, $presenter);
-
-    expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->data->getMessage())
-        ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
 });
 
 it('should present a Not Found Response when the dashboard does not exist', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
-    $presenter = new ShareDashboardPresenterStub();
 
-    $this->rights
-        ->expects($this->once())
-        ->method('canCreate')
+    $this->rights->expects($this->once())
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
@@ -94,32 +75,30 @@ it('should present a Not Found Response when the dashboard does not exist', func
         ->method('validateDashboard')
         ->willThrowException(DashboardException::theDashboardDoesNotExist($request->dashboardId));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(NotFoundResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(NotFoundResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::theDashboardDoesNotExist($request->dashboardId)->getMessage());
 });
 
 it('should present a Forbidden Response when the dashboard is not shared with the user', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
-    $presenter = new ShareDashboardPresenterStub();
 
-    $this->rights
-        ->expects($this->once())
-        ->method('canCreate')
-        ->willReturn(true);
+    $this->rights->expects($this->once())
+        ->method('hasAdminRole')
+        ->willReturn(false);
 
     $this->validator
         ->expects($this->once())
         ->method('validateDashboard')
         ->willThrowException(DashboardException::dashboardAccessRightsNotAllowedForWriting($request->dashboardId));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::dashboardAccessRightsNotAllowedForWriting($request->dashboardId)->getMessage());
 });
 
@@ -129,25 +108,23 @@ it('should present an Invalid Argument Response when the edited contacts do not 
     $request->contacts = [
         [
             'id' => 1,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
-    $this->rights
-        ->expects($this->once())
-        ->method('canCreate')
+    $this->rights->expects($this->once())
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContacts')
+        ->method('validateContactsForOnPremise')
         ->willThrowException(DashboardException::theContactsDoNotExist([1]));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::theContactsDoNotExist([1])->getMessage());
 });
 
@@ -157,29 +134,28 @@ it('should present an Invalid Argument Response when the contacts are duplicated
     $request->contacts = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 1,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
-        ->method('canCreate')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContacts')
+        ->method('validateContactsForOnPremise')
         ->willThrowException(DashboardException::contactForShareShouldBeUnique());
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::contactForShareShouldBeUnique()->getMessage());
 });
 
@@ -189,29 +165,28 @@ it('should present an Invalid Argument Response when the users have insufficient
     $request->contacts = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 2,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
-        ->method('canCreate')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContacts')
+        ->method('validateContactsForOnPremise')
         ->willThrowException(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2]));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2])->getMessage());
 });
 
@@ -224,29 +199,28 @@ it(
         $request->contacts = [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 2,
-                'role' => 'editor'
-            ]
+                'role' => 'editor',
+            ],
         ];
-        $presenter = new ShareDashboardPresenterStub();
 
         $this->rights
             ->expects($this->once())
-            ->method('canCreate')
-            ->willReturn(true);
+            ->method('hasAdminRole')
+            ->willReturn(false);
 
         $this->validator
             ->expects($this->once())
-            ->method('validateContacts')
+            ->method('validateContactsForOnPremise')
             ->willThrowException(DashboardException::userAreNotInAccessGroups([2]));
 
-        ($this->useCase)($request,$presenter);
+        $response = ($this->useCase)($request);
 
-        expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($presenter->data->getMessage())
+        expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
             ->toBe(DashboardException::userAreNotInAccessGroups([2])->getMessage());
     }
 );
@@ -257,25 +231,24 @@ it('should present an Invalid Argument Response when the edited contact groups d
     $request->contactGroups = [
         [
             'id' => 1,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
-        ->method('canCreate')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContactGroups')
+        ->method('validateContactGroupsForOnPremise')
         ->willThrowException(DashboardException::theContactGroupsDoNotExist([1]));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::theContactGroupsDoNotExist([1])->getMessage());
 });
 
@@ -285,29 +258,28 @@ it('should present an Invalid Argument Response when the contact groups are dupl
     $request->contactGroups = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 1,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
-        ->method('canCreate')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContactGroups')
+        ->method('validateContactGroupsForOnPremise')
         ->willThrowException(DashboardException::contactGroupForShareShouldBeUnique());
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::contactGroupForShareShouldBeUnique()->getMessage());
 });
 
@@ -317,29 +289,28 @@ it('should present an Invalid Argument Response when the contact groups have ins
     $request->contactGroups = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 2,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
-        ->method('canCreate')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->validator
         ->expects($this->once())
-        ->method('validateContactGroups')
+        ->method('validateContactGroupsForOnPremise')
         ->willThrowException(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2]));
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($presenter->data->getMessage())
+    expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($response->getMessage())
         ->toBe(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2])->getMessage());
 });
 
@@ -351,29 +322,28 @@ it('should present an Invalid Argument Response when the user is not admin '
         $request->contactGroups = [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 2,
-                'role' => 'editor'
-            ]
+                'role' => 'editor',
+            ],
         ];
-        $presenter = new ShareDashboardPresenterStub();
 
         $this->rights
             ->expects($this->once())
-            ->method('canCreate')
-            ->willReturn(true);
+            ->method('hasAdminRole')
+            ->willReturn(false);
 
         $this->validator
             ->expects($this->once())
-            ->method('validateContactGroups')
+            ->method('validateContactGroupsForOnPremise')
             ->willThrowException(DashboardException::contactGroupIsNotInUserContactGroups([2]));
 
-        ($this->useCase)($request,$presenter);
+        $response = ($this->useCase)($request);
 
-        expect($presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($presenter->data->getMessage())
+        expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
             ->toBe(DashboardException::contactGroupIsNotInUserContactGroups([2])->getMessage());
 });
 
@@ -383,35 +353,29 @@ it ('should present an Error Response when an unhandled error occurs', function 
     $request->contactGroups = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 2,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->once())
         ->method('hasAdminRole')
         ->willReturn(false);
 
-    $this->rights
-        ->expects($this->once())
-        ->method('canCreate')
-        ->willReturn(true);
-
     $this->readContactRepository
         ->expects($this->once())
         ->method('findContactIdsByAccessGroups')
         ->willThrowException(new \Exception());
 
-    ($this->useCase)($request,$presenter);
+    $response = ($this->useCase)($request);
 
-    expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->data->getMessage())
-        ->toBe(DashboardException::errorWhileUpdating()->getMessage());
+    expect($response)->toBeInstanceOf(ErrorResponse::class)
+        ->and($response->getMessage())
+        ->toBe(DashboardException::errorWhileUpdatingDashboardShare()->getMessage());
 });
 
 it('should present a No Content Response when no error occurs', function (): void {
@@ -420,14 +384,13 @@ it('should present a No Content Response when no error occurs', function (): voi
     $request->contactGroups = [
         [
             'id' => 1,
-            'role' => 'editor'
+            'role' => 'editor',
         ],
         [
             'id' => 2,
-            'role' => 'editor'
-        ]
+            'role' => 'editor',
+        ],
     ];
-    $presenter = new ShareDashboardPresenterStub();
 
     $this->rights
         ->expects($this->any())
@@ -446,8 +409,7 @@ it('should present a No Content Response when no error occurs', function (): voi
         ->expects($this->once())
         ->method('addDashboardContactGroupShares');
 
+    $response = ($this->useCase)($request);
 
-    ($this->useCase)($request,$presenter);
-
-    expect($presenter->data)->toBeInstanceOf(NoContentResponse::class);
+    expect($response)->toBeInstanceOf(NoContentResponse::class);
 });

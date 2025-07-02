@@ -10,8 +10,8 @@ interface SamlConfigValues {
   x509Certificate: string;
 }
 
-const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
-  const keycloakURL = `${providerAddress}/realms/Centreon_SSO`;
+const getSamlConfigValues = (): SamlConfigValues => {
+  const keycloakURL = `http://localhost:8080/realms/Centreon_SSO`;
 
   return {
     entityID: keycloakURL,
@@ -24,34 +24,35 @@ const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
 };
 
 const configureSAML = (): Cypress.Chainable => {
-  const samlConfigValues = getSamlConfigValues({
-    providerAddress: 'http://localhost:8080'
-  });
+  const samlConfigValues = getSamlConfigValues();
 
   cy.contains('Enable SAMLv2 authentication').should('be.visible');
 
   cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.remoteLoginURL);
+    .type(`{selectall}{backspace}${samlConfigValues.remoteLoginURL}`);
 
   cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.entityID);
+    .type(`{selectall}{backspace}${samlConfigValues.entityID}`);
 
   cy.getByLabel({
     label: 'Copy/paste x.509 certificate',
     tag: 'textarea'
   })
     .should('be.visible')
-    .type(samlConfigValues.x509Certificate);
+    .type(`{selectall}{backspace}${samlConfigValues.x509Certificate}`);
 
   cy.getByLabel({
     label: 'User ID (login) attribute for Centreon user',
     tag: 'input'
   })
     .should('be.visible')
-    .type(samlConfigValues.loginAttribute);
+    .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
+
+  cy.getByLabel({ label: 'Requested authentication context' })
+    .should('be.visible');
 
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
@@ -61,7 +62,21 @@ const configureSAML = (): Cypress.Chainable => {
   return cy
     .getByLabel({ label: 'Logout URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.logoutURL);
+    .type(`{selectall}{backspace}${samlConfigValues.logoutURL}`);
+};
+
+const saveSamlFormIfEnabled = () => {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(":disabled")) {
+      return;
+    } else {
+      cy.wrap($btn).click();
+
+      return cy.wait('@updateSAMLProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    }
+  });
 };
 
 const navigateToSAMLConfigPage = (): Cypress.Chainable => {
@@ -101,5 +116,6 @@ export {
   initializeSAMLUser,
   removeContact,
   configureSAML,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 };

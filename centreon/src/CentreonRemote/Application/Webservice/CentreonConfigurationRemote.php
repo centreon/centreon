@@ -371,6 +371,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      */
     public function postLinkCentreonRemoteServer(): array
     {
+        global $pearDB;
         // retrieve post values to be used in other classes
         $_POST = json_decode(file_get_contents('php://input'), true);
 
@@ -541,6 +542,15 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'address' => $serverIP,
             ]);
         }
+
+        // Update session to reload ACL
+        $sid = session_id();
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                UPDATE session SET update_acl = '1' WHERE session_id = :sessionId
+                SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['sessionId' => $sid]);
 
         return ['success' => true, 'task_id' => $taskId];
     }

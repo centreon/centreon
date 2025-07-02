@@ -57,6 +57,16 @@ When('the user changes the properties of a service template', () => {
     .next()
     .click();
   cy.getIframeBody().contains('Ping-WAN').click();
+  //Click on the tab 'Notifications'
+  cy.getIframeBody().contains('a', 'Notifications').click();
+  // Click outside the form
+  cy.get('body').click(0, 0);
+  // Chose '24x7' as Notification Period
+  cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
+  cy.getIframeBody().contains('div', '24x7').click();
+  // Check 'Critical' as Notification type
+  cy.getIframeBody().find('#notifC').click({ force: true });
+  //Click on the 'Save' button
   cy.getIframeBody()
     .find('div#validForm')
     .find('p.oreonbutton')
@@ -78,6 +88,18 @@ Then('the properties are updated', () => {
     .find('select#service_template_model_stm_id')
     .contains('Ping-WAN')
     .should('exist');
+  //Click on the tab 'Notifications'
+  cy.getIframeBody().contains('a', 'Notifications').click();
+  // Click outside the form
+  cy.get('body').click(0, 0);
+  // Check that the 'Notification Period' has the setted value
+  cy.getIframeBody()
+      .find('#timeperiod_tp_id2')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', '24x7');
+  // Check that the type 'Critical' is checked
+  cy.getIframeBody().find('#notifC').should('be.checked');
 });
 
 When('the user duplicates a service template', () => {

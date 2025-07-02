@@ -35,6 +35,7 @@
  */
 
 use App\Kernel;
+use Core\Common\Application\UseCase\VaultTrait;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -46,6 +47,8 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  */
 class Broker extends AbstractObjectJSON
 {
+    use VaultTrait;
+
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
 
@@ -134,6 +137,10 @@ class Broker extends AbstractObjectJSON
         $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
+
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
     }
 
     /**
@@ -419,6 +426,12 @@ class Broker extends AbstractObjectJSON
             // Add vault path if vault if defined
             if ($this->readVaultConfigurationRepository->exists()) {
                 $object['vault_configuration'] = $this->readVaultConfigurationRepository->getLocation();
+            }
+
+            if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+                foreach ($object['output'] as $outputIndex => $output) {
+                    $this->processVaultOutput($output, $outputIndex, $object);
+                }
             }
 
             // Generate file
@@ -760,5 +773,77 @@ class Broker extends AbstractObjectJSON
         ];
 
         return $luaParameters;
+    }
+
+    /**
+     * Process vault output and update object with vault data.
+     *
+     * @param array $output
+     * @param int $outputIndex
+     * @param array $object
+     * @return void
+     */
+    private function processVaultOutput(array &$output, int $outputIndex, array &$object): void
+    {
+        foreach ($output as $outputKey => $outputValue) {
+            if (is_string($outputValue) && $this->isAVaultPath($outputValue)) {
+                $this->updateVaultData($output, $outputKey, $outputValue, $object['output'][$outputIndex]);
+            }
+
+            if ($outputKey === "lua_parameter" && is_array($outputValue)) {
+                $this->processLuaParameters($output, $outputKey, $outputValue, $object['output'][$outputIndex]);
+            }
+        }
+    }
+
+    /**
+     * Update vault data for a given key.
+     *
+     * @param array $output
+     * @param string $outputKey
+     * @param string $outputValue
+     * @param array $outputReference
+     * @return void
+     */
+    private function updateVaultData(
+        array &$output,
+        string $outputKey,
+        string $outputValue,
+        array &$outputReference
+    ): void {
+        $vaultData = $this->readVaultRepository->findFromPath($outputValue);
+        $vaultKey = $output['name'] . '_' . $outputKey;
+        if (array_key_exists($vaultKey, $vaultData)) {
+            $outputReference[$outputKey] = $vaultData[$vaultKey];
+        }
+    }
+
+    /**
+     * Process Lua parameters and update with vault data if applicable.
+     *
+     * @param array $output
+     * @param string $outputKey
+     * @param array $luaParameters
+     * @param array $outputReference
+     * @return void
+     */
+    private function processLuaParameters(
+        array &$output,
+        string $outputKey,
+        array $luaParameters,
+        array &$outputReference
+    ): void {
+        foreach ($luaParameters as $parameterIndex => $luaParameter) {
+            if ($luaParameter['type'] === 'password'
+                && is_string($luaParameter['value'])
+                && $this->isAVaultPath($luaParameter['value'])
+            ) {
+                $vaultData = $this->readVaultRepository->findFromPath($luaParameter['value']);
+                $vaultKey = $output['name'] . '_' . $outputKey . '_' . $luaParameter['name'];
+                if (array_key_exists($vaultKey, $vaultData)) {
+                    $outputReference[$outputKey][$parameterIndex]['value'] = $vaultData[$vaultKey];
+                }
+            }
+        }
     }
 }

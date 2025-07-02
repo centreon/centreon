@@ -83,7 +83,7 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
+      cy.findByTestId('stacked-bar-3-0-0.08084').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -96,7 +96,7 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
+      cy.findByTestId('stacked-bar-3-0-0.08084').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -250,8 +250,6 @@ describe('Bar chart', () => {
     cy.contains('0.11 ms').should('be.visible');
 
     cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays a tooltip with a single metric when a stacked bar is hovered and a prop is set', () => {

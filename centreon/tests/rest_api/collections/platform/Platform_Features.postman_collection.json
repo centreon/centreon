@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "31e81819-df9b-4488-9e92-c448cc665b84",
+		"_postman_id": "abf8b4fc-72e3-4f63-9098-4d5b26150a4d",
 		"name": "Platform_Features",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-31e81819-df9b-4488-9e92-c448cc665b84?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -28,6 +27,31 @@
 							"        \"ad_exclusion_periods\": false,\r",
 							"        \"resource_access_management\": false,\r",
 							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Schema validation for the platform features response\", function () {\r",
+							"    const schema = {\r",
+							"        type: \"object\",\r",
+							"        properties: {\r",
+							"            is_cloud_platform: { type: \"boolean\" },\r",
+							"            feature_flags: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    notification: { type: \"boolean\" },\r",
+							"                    map_visx_viewer: { type: \"boolean\" },\r",
+							"                    vault: { type: \"boolean\" },\r",
+							"                    vault_broker: { type: \"boolean\" },\r",
+							"                    vault_gorgone: { type: \"boolean\" },\r",
+							"                    ad_exclusion_periods: { type: \"boolean\" },\r",
+							"                    resource_access_management: { type: \"boolean\" }\r",
+							"                },\r",
+							"                required: [\"notification\", \"map_visx_viewer\", \"vault\", \"vault_broker\", \"vault_gorgone\", \"ad_exclusion_periods\", \"resource_access_management\"]\r",
+							"            }\r",
+							"        },\r",
+							"        required: [\"is_cloud_platform\", \"feature_flags\"]\r",
+							"    };\r",
+							"\r",
+							"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 							"});"
 						],
 						"type": "text/javascript",

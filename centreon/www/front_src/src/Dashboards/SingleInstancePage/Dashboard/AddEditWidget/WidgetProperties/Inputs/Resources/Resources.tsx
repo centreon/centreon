@@ -104,92 +104,101 @@ const Resources = ({
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
-          {value.map((resource, index) => (
-            <ItemComposition.Item
-              className={classes.resourceCompositionItem}
-              deleteButtonHidden={
-                deleteButtonHidden ||
-                getResourceStatic(resource.resourceType) ||
-                hideResourceDeleteButton()
-              }
-              key={`${index}${resource.resourceType}`}
-              labelDelete={t(labelDelete)}
-              onDeleteItem={deleteResource(index)}
-            >
-              <SelectField
-                className={classes.resourceType}
-                dataTestId={labelResourceType}
-                disabled={
-                  !canEditField ||
-                  isValidatingResources ||
-                  getResourceStatic(resource.resourceType)
+          {value.map((resource, index) => {
+            const resourceTypeSelectedOptionId = equals(
+              resource.resourceType,
+              'hostgroup'
+            )
+              ? WidgetResourceType.hostGroup
+              : resource.resourceType;
+
+            return (
+              <ItemComposition.Item
+                className={classes.resourceCompositionItem}
+                deleteButtonHidden={
+                  deleteButtonHidden ||
+                  getResourceStatic(resource.resourceType) ||
+                  hideResourceDeleteButton()
                 }
-                label={t(labelSelectResourceType) as string}
-                options={getResourceTypeOptions(index, resource)}
-                selectedOptionId={resource.resourceType}
-                onChange={changeResourceType(index)}
-              />
-              {singleResourceSelection ? (
-                <SingleConnectedAutocompleteField
-                  exclusionOptionProperty="name"
-                  changeIdValue={changeIdValue(resource.resourceType)}
-                  className={classes.resources}
-                  disableClearable={singleResourceSelection}
+                key={`${index}${resource.resourceType}`}
+                labelDelete={t(labelDelete)}
+                onDeleteItem={deleteResource(index)}
+              >
+                <SelectField
+                  className={classes.resourceType}
+                  dataTestId={labelResourceType}
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    (equals(
-                      resource.resourceType,
-                      WidgetResourceType.service
-                    ) &&
-                      !hasSelectedHostForSingleMetricwidget) ||
-                    !resource.resourceType
+                    getResourceStatic(resource.resourceType)
                   }
-                  field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint({
-                    index,
-                    resourceType: resource.resourceType
-                  })}
-                  label={t(labelSelectAResource)}
-                  limitTags={2}
-                  queryKey={`${resource.resourceType}-${index}`}
-                  value={resource.resources[0] || null}
-                  onChange={changeResource(index)}
+                  label={t(labelSelectResourceType) as string}
+                  options={getResourceTypeOptions(index, resource)}
+                  selectedOptionId={resourceTypeSelectedOptionId}
+                  onChange={changeResourceType(index)}
                 />
-              ) : (
-                <MultiConnectedAutocompleteField
-                  exclusionOptionProperty="name"
-                  changeIdValue={changeIdValue(resource.resourceType)}
-                  chipProps={{
-                    color: 'primary',
-                    onDelete: (_, option): void =>
-                      deleteResourceItem({
-                        index,
-                        option,
-                        resources: resource.resources
-                      })
-                  }}
-                  className={classes.resources}
-                  disabled={
-                    !canEditField ||
-                    isValidatingResources ||
-                    !resource.resourceType
-                  }
-                  field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint({
-                    index,
-                    resourceType: resource.resourceType
-                  })}
-                  label={t(labelSelectAResource)}
-                  limitTags={2}
-                  placeholder=""
-                  queryKey={`${resource.resourceType}-${index}`}
-                  value={resource.resources || []}
-                  onChange={changeResources(index)}
-                />
-              )}
-            </ItemComposition.Item>
-          ))}
+                {singleResourceSelection ? (
+                  <SingleConnectedAutocompleteField
+                    exclusionOptionProperty="name"
+                    changeIdValue={changeIdValue(resource.resourceType)}
+                    className={classes.resources}
+                    disableClearable={singleResourceSelection}
+                    disabled={
+                      !canEditField ||
+                      isValidatingResources ||
+                      (equals(
+                        resource.resourceType,
+                        WidgetResourceType.service
+                      ) &&
+                        !hasSelectedHostForSingleMetricwidget) ||
+                      !resource.resourceType
+                    }
+                    field={getSearchField(resource.resourceType)}
+                    getEndpoint={getResourceResourceBaseEndpoint({
+                      index,
+                      resourceType: resource.resourceType
+                    })}
+                    label={t(labelSelectAResource)}
+                    limitTags={2}
+                    queryKey={`${resource.resourceType}-${index}`}
+                    value={resource.resources[0] || null}
+                    onChange={changeResource(index)}
+                  />
+                ) : (
+                  <MultiConnectedAutocompleteField
+                    exclusionOptionProperty="name"
+                    changeIdValue={changeIdValue(resource.resourceType)}
+                    chipProps={{
+                      color: 'primary',
+                      onDelete: (_, option): void =>
+                        deleteResourceItem({
+                          index,
+                          option,
+                          resources: resource.resources
+                        })
+                    }}
+                    className={classes.resources}
+                    disabled={
+                      !canEditField ||
+                      isValidatingResources ||
+                      !resource.resourceType
+                    }
+                    field={getSearchField(resource.resourceType)}
+                    getEndpoint={getResourceResourceBaseEndpoint({
+                      index,
+                      resourceType: resource.resourceType
+                    })}
+                    label={t(labelSelectAResource)}
+                    limitTags={2}
+                    placeholder=""
+                    queryKey={`${resource.resourceType}-${index}`}
+                    value={resource.resources || []}
+                    onChange={changeResources(index)}
+                  />
+                )}
+              </ItemComposition.Item>
+            );
+          })}
         </ItemComposition>
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -42,6 +43,7 @@ use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/** @package Core\Dashboard\Application\UseCase\ShareDashboard */
 final class ShareDashboard
 {
     use LoggerTrait;
@@ -60,97 +62,164 @@ final class ShareDashboard
     ) {
     }
 
-    public function __invoke(ShareDashboardRequest $request, ShareDashboardPresenterInterface $presenter): void
+    public function __invoke(ShareDashboardRequest $request): ResponseStatusInterface
     {
         try {
             $isUserAdmin = $this->isUserAdmin();
-            if ($isUserAdmin) {
-                $this->validator->validateDashboard($request->dashboardId);
-                $this->validator->validateContacts($request->contacts);
-                $this->validator->validateContactGroups($request->contactGroups);
-            } elseif ($this->rights->canCreate()) {
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $accessGroupIds = array_map(
-                    static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-                    $accessGroups
-                );
-                $contactIdsInUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups(
-                    $accessGroupIds
-                );
+            $contactIdsRelationsToDelete = [];
 
-                $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
-                $userContactGroupIds = array_map(
-                    static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
-                    $userContactGroups
-                );
-
-                $this->validator->validateDashboard(
-                    dashboardId: $request->dashboardId,
-                    isAdmin: false
-                );
-                $this->validator->validateContacts(
-                    contacts: $request->contacts,
-                    contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
-                    isAdmin: false
-                );
-                $this->validator->validateContactGroups(
-                    contactGroups: $request->contactGroups,
-                    userContactGroupIds: $userContactGroupIds,
-                    isAdmin: false
-                );
-            } else {
-                $this->error("User doesn't have sufficient rights to add shares on dashboards");
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
-            }
-
-            $contactRoles = [];
-            foreach ($request->contacts as $contact) {
-                $contactRoles[] = new TinyRole(
-                    $contact['id'],
-                    DashboardSharingRoleConverter::fromString($contact['role'])
-                );
-            }
-
-            $contactGroupRoles = [];
-            foreach ($request->contactGroups as $contactGroup) {
-                $contactGroupRoles[] = new TinyRole(
-                    $contactGroup['id'],
-                    DashboardSharingRoleConverter::fromString($contactGroup['role'])
-                );
-            }
+            $this->validator->validateDashboard(
+                dashboardId: $request->dashboardId,
+                isAdmin: $isUserAdmin,
+            );
 
             if ($isUserAdmin) {
-                $this->updateDashboardSharesAsAdmin($request->dashboardId, $contactRoles, $contactGroupRoles);
+                $this->isCloudPlatform
+                    ? $this->validator->validateContactsForCloud(isAdmin: true, contacts: $request->contacts)
+                    : $this->validator->validateContactsForOnPremise(isAdmin: true, contacts: $request->contacts);
+
+                $this->isCloudPlatform
+                    ? $this->validator->validateContactGroupsForCloud(isAdmin: true, contactGroups: $request->contactGroups)
+                    : $this->validator->validateContactGroupsForOnPremise(isAdmin: true, contactGroups: $request->contactGroups);
             } else {
-                $this->updateDashboardSharesAsNonAdmin(
+                $currentUserContactGroupIds = $this->findCurrentUserContactGroupIds();
+
+                if ($this->isCloudPlatform) {
+                    $contactIdsInCurrentUserContactGroups = $this->readContactRepository->findContactIdsByContactGroups(
+                        $currentUserContactGroupIds
+                    );
+
+                    $this->validator->validateContactsForCloud(
+                        isAdmin: false,
+                        contacts: $request->contacts,
+                        contactIdsInUserContactGroups: $contactIdsInCurrentUserContactGroups,
+                    );
+
+                    $this->validator->validateContactGroupsForCloud(
+                        isAdmin: false,
+                        contactGroups: $request->contactGroups,
+                        userContactGroupIds: $currentUserContactGroupIds,
+                    );
+
+                    $contactIdsRelationsToDelete = $contactIdsInCurrentUserContactGroups;
+                } else {
+                    $contactIdsInUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups(
+                        $this->findCurrentUserAccessGroupIds()
+                    );
+
+                    $this->validator->validateContactsForOnPremise(
+                        isAdmin: false,
+                        contacts: $request->contacts,
+                        contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
+                    );
+                    $this->validator->validateContactGroupsForOnPremise(
+                        isAdmin: false,
+                        contactGroups: $request->contactGroups,
+                        userContactGroupIds: $currentUserContactGroupIds,
+                    );
+
+                    $contactIdsRelationsToDelete = $contactIdsInUserAccessGroups;
+                }
+            }
+
+            $contactRoles = $this->createRolesFromRequest($request->contacts);
+            $contactGroupRoles = $this->createRolesFromRequest($request->contactGroups);
+
+            $isUserAdmin
+                ? $this->updateDashboardSharesAsAdmin(
+                    $request->dashboardId,
+                    $contactRoles,
+                    $contactGroupRoles
+                )
+                : $this->updateDashboardSharesAsNonAdmin(
                     $request->dashboardId,
                     $contactRoles,
                     $contactGroupRoles,
-                    $userContactGroupIds,
-                    $contactIdsInUserAccessGroups
+                    $currentUserContactGroupIds,
+                    $contactIdsRelationsToDelete
                 );
-            }
 
-            $presenter->presentResponse(new NoContentResponse());
+            return new NoContentResponse();
         } catch (DashboardException $ex) {
-            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
-            $presenter->presentResponse(
-                match ($ex->getCode()) {
-                    DashboardException::CODE_NOT_FOUND => new NotFoundResponse($ex),
-                    DashboardException::CODE_FORBIDDEN => new ForbiddenResponse($ex),
-                    default => new InvalidArgumentResponse($ex->getMessage()),
-                }
+            $this->error(
+                "Error while updating dashboard shares : {$ex->getMessage()}",
+                [
+                    'dashboard_id' => $request->dashboardId,
+                    'contact_id' => $this->user->getId(),
+                    'contacts' => $request->contacts,
+                    'contact_groups' => $request->contactGroups,
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => (string) $ex,
+                    ],
+                ]
             );
+
+            return match ($ex->getCode()) {
+                DashboardException::CODE_NOT_FOUND => new NotFoundResponse($ex),
+                DashboardException::CODE_FORBIDDEN => new ForbiddenResponse($ex),
+                default => new InvalidArgumentResponse($ex->getMessage()),
+            };
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
-            $presenter->presentResponse(
-                new ErrorResponse(DashboardException::errorWhileUpdating()->getMessage())
+            $this->error(
+                "Error while updating dashboard shares : {$ex->getMessage()}",
+                [
+                    'dashboard_id' => $request->dashboardId,
+                    'contact_id' => $this->user->getId(),
+                    'contacts' => $request->contacts,
+                    'contact_groups' => $request->contactGroups,
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => (string) $ex,
+                    ],
+                ]
             );
+
+            return new ErrorResponse(DashboardException::errorWhileUpdatingDashboardShare()->getMessage());
         }
+    }
+
+    /**
+     * @param array<array{id: int, role: string}> $data
+     * @return TinyRole[]
+     */
+    private function createRolesFromRequest(array $data): array
+    {
+        return array_map(
+            static fn (array $item): TinyRole => new TinyRole(
+                $item['id'],
+                DashboardSharingRoleConverter::fromString($item['role'])
+            ),
+            $data
+        );
+    }
+
+    /**
+     * @throws \Throwable
+     * @return int[]
+     */
+    private function findCurrentUserContactGroupIds(): array
+    {
+        $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
+
+        return array_map(
+            static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+            $contactGroups
+        );
+    }
+
+    /**
+     * @throws \Throwable
+     * @return int[]
+     */
+    private function findCurrentUserAccessGroupIds(): array
+    {
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+
+        return array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
     }
 
     /**
@@ -171,7 +240,16 @@ final class ShareDashboard
             );
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
-            $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
+            $this->error(
+                "Error during update dashboard shares transaction, rolling back: {$ex->getMessage()}",
+                [
+                    'dashboard_id' => $dashboardId,
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => (string) $ex,
+                    ],
+                ]
+            );
             $this->dataStorageEngine->rollbackTransaction();
 
             throw $ex;
@@ -211,7 +289,16 @@ final class ShareDashboard
             );
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
-            $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
+            $this->error(
+                "Error during update dashboard shares transaction, rolling back: {$ex->getMessage()}",
+                [
+                    'dashboard_id' => $dashboardId,
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => (string) $ex,
+                    ],
+                ]
+            );
             $this->dataStorageEngine->rollbackTransaction();
 
             throw $ex;

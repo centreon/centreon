@@ -1,11 +1,13 @@
 import { ReactElement, ReactNode, useMemo } from 'react';
 
-import { Button as MuiButton } from '@mui/material';
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps
+} from '@mui/material';
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import { DataTestAttributes } from '../../@types/data-attributes';
-
-import { useStyles } from './Button.styles';
+import { button } from './Button.module.css';
 
 const muiVariantMap: Record<
   Required<ButtonProps>['variant'],
@@ -16,20 +18,21 @@ const muiVariantMap: Record<
   secondary: 'outlined'
 };
 
-export type ButtonProps = {
-  children: ReactNode;
-  className?: string;
-  disabled?: boolean;
-  icon?: string | ReactNode;
-  iconVariant?: 'none' | 'start' | 'end';
-  isDanger?: boolean;
-  onClick?: (e) => void;
-  ref?: React.Ref<HTMLButtonElement>;
-  size?: 'small' | 'medium' | 'large';
-  type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'secondary' | 'ghost';
-} & AriaLabelingAttributes &
-  DataTestAttributes;
+export type ButtonProps = AriaLabelingAttributes &
+  DataTestAttributes &
+  Omit<MuiButtonProps, 'variant'> & {
+    children: ReactNode;
+    className?: string;
+    disabled?: boolean;
+    icon?: string | ReactNode;
+    iconVariant?: 'none' | 'start' | 'end';
+    isDanger?: boolean;
+    onClick?: (e) => void;
+    ref?: React.Ref<HTMLButtonElement>;
+    size?: 'small' | 'medium' | 'large';
+    type?: 'button' | 'submit' | 'reset';
+    variant?: 'primary' | 'secondary' | 'ghost';
+  };
 
 const Button = ({
   children,
@@ -44,8 +47,6 @@ const Button = ({
   className = '',
   ...attr
 }: ButtonProps): ReactElement => {
-  const { classes, cx } = useStyles();
-
   const MuiOverrideProps = useMemo(
     () => ({
       color: 'primary' as const,
@@ -57,7 +58,7 @@ const Button = ({
 
   return (
     <MuiButton
-      className={cx(classes.button, className)}
+      className={`${button} ${className}`}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}

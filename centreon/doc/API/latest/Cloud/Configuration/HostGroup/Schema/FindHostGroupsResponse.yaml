@@ -1,0 +1,52 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Host group ID"
+    example: 1
+  name:
+    type: string
+    maxLength: 200
+    description: "Host group name"
+    example: "MySQL-Servers"
+  alias:
+    type: string
+    nullable: true
+    maxLength: 200
+    description: "Host group alias"
+    example: "All MySQL Servers"
+  icon:
+    type: object
+    nullable: true
+    description: "Host group icon"
+    properties:
+      id:
+        type: integer
+        description: "Icon ID"
+        example: 1
+      name:
+        type: string
+        maxLength: 200
+        description: "Icon name"
+        example: "folder/image.png"
+      url:
+        type: string
+        description: "Icon URL"
+        example: "/centreon/img/media/folder/image.png"
+  geo_coords:
+    type: string
+    nullable: true
+    maxLength: 32
+    description: "Geographical coordinates use by Centreon Map module to position element on map"
+    example: "48.51,2.20"
+  is_activated:
+    type: boolean
+    description: "Indicates whether the host group is activated or not"
+  enabled_hosts_count:
+    type: integer
+    description: "Number of enabled hosts linked with this host group"
+    example: 2
+  disabled_hosts_count:
+    type: integer
+    description: "Number of disabled hosts linked with this host group"
+    example: 5

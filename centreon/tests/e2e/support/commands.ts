@@ -17,6 +17,9 @@ import '../features/Logs/commands';
 import '../features/Notifications/commands';
 import '../features/Commands/commands';
 import '../features/Resources-status/commands';
+import '../features/Platform-upgrade-update/commands';
+import '../features/Additional-connectors/commands';
+
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -36,7 +39,9 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+Cypress.Commands.add('loginKeycloak', (jsonName): Cypress.Chainable => {
+  cy.url().should('include', '/realms/Centreon_SSO');
+
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
     cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
@@ -143,7 +148,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
-      enterIframe: () => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;

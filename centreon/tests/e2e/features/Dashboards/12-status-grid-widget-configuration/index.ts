@@ -275,10 +275,9 @@ Given('a dashboard featuring two Status Grid widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
@@ -306,7 +305,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -387,8 +386,9 @@ When(
 );
 
 Then('the Status Grid widget displays up to that number of tiles', () => {
-  cy.getByTestId({
-    testId: 'DvrIcon'
+  cy.getByLabel({
+      label: 'See more on the Resources Status page',
+      tag: 'a'
   }).should('be.visible');
 });
 
@@ -406,8 +406,8 @@ Given('a dashboard having a configured Status Grid widget', () => {
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 

@@ -83,7 +83,7 @@ jobs:
             let hasSkipLabel = false;
             let labels = [];
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               try {
                 const fetchedLabels = await github.rest.issues.listLabelsOnIssue({
                   owner: context.repo.owner,
@@ -173,7 +173,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
         with:
           since_last_remote_commit: true
           json: true
@@ -221,7 +221,7 @@ jobs:
           echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
         shell: bash
 
-      - if: ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }}
+      - if: ${{ contains(fromJSON('["pull_request"]') , github.event_name) }}
         name: Get nested pull request path
         id: pr_path
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -270,7 +270,7 @@ jobs:
             core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
 
             let isTargetingFeatureBranch = false;
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
@@ -361,7 +361,7 @@ jobs:
               return true;
             }
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               if (['develop', 'master'].includes(finalTargetBranch)) {
@@ -375,6 +375,11 @@ jobs:
             const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
 
             if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
+              return true;
+            }
+
+            // If month number is not 04 or 10, it is a cloud version
+            if (! currentMajorVersion.match(/\.(04|10)$/)) {
               return true;
             }
 
@@ -404,7 +409,7 @@ jobs:
             const getNightlyInput = () => {
               const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
               console.log(nightly_manual_trigger);
-              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '') {
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
                 return 'false';
               } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
                 return 'true';
@@ -431,7 +436,7 @@ jobs:
             };
             const bookworm_mysql = {
               "operating_system": "bookworm",
-              "database": "mysql:8.3",
+              "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
 
@@ -488,7 +493,7 @@ jobs:
               .addHeading(`${context.workflow} environment outputs`)
               .addTable(outputTable);
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const mainBranchName = prPath.pop();
               let codeBlock = `

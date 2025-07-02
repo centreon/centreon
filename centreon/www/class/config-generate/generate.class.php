@@ -39,6 +39,8 @@
 use App\Kernel;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -107,6 +109,9 @@ class Generate
     private ReadAccRepositoryInterface $readAdditionalConnectorRepository;
 
     private ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository;
+    private ReadTokenRepositoryInterface $readTokenRepository;
+
+    private ReadHostRepositoryInterface $readHostRepository;
 
     /**
      * Generate constructor
@@ -122,7 +127,13 @@ class Generate
             ?? throw new \Exception('ReadAccRepositoryInterface not found');
         $this->readAgentConfigurationRepository = $kernel->getContainer()
             ->get(ReadAgentConfigurationRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
+        $this->readTokenRepository = $kernel->getContainer()
+            ->get(ReadTokenRepositoryInterface::class)
+            ?? throw new \Exception('ReadTokenRepositoryInterface not found');
+        $this->readHostRepository = $kernel->getContainer()
+            ->get(ReadHostRepositoryInterface::class)
+            ?? throw new \Exception('ReadHostRepositoryInterface not found');
     }
 
     /**
@@ -309,12 +320,15 @@ class Generate
         Broker::getInstance($this->dependencyInjector)->reset();
 
         (new AdditionalConnectorVmWareV6(
-            Backend::getInstance($this->dependencyInjector),
+            $this->dependencyInjector,
+            $this->backend_instance,
             $this->readAdditionalConnectorRepository
         ))->reset();
         (new AgentConfiguration(
-            Backend::getInstance($this->dependencyInjector),
-            $this->readAgentConfigurationRepository
+            $this->backend_instance,
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository,
+            $this->readHostRepository
         ))->reset();
         $this->resetModuleObjects();
     }
@@ -334,14 +348,11 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
-        $kernel = Kernel::createForWeb();
-        $readAgentConfigurationRepository = $kernel->getContainer()->get(
-            ReadAgentConfigurationRepositoryInterface::class
-        )
-            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AgentConfiguration(
-            Backend::getInstance($this->dependencyInjector),
-            $readAgentConfigurationRepository
+            $this->backend_instance,
+            $this->readAgentConfigurationRepository,
+            $this->readTokenRepository,
+            $this->readHostRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
@@ -362,11 +373,10 @@ class Generate
         $this->generateModulesIndexData($this->current_poller['localhost'] === '1');
 
         $this->backend_instance->initPath($this->current_poller['id'], 3);
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
         (new AdditionalConnectorVmWareV6(
+            $this->dependencyInjector,
             $this->backend_instance,
-            $readAdditionalConnectorRepository
+            $this->readAdditionalConnectorRepository
         ))->generateFromPollerId($this->current_poller['id']);
         $this->backend_instance->movePath($this->current_poller['id']);
     }

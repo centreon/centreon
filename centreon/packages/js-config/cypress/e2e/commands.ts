@@ -166,6 +166,12 @@ Cypress.Commands.add('getContainersLogs', () => {
   return cy.task('getContainersLogs');
 });
 
+Cypress.Commands.add('getContainerMappedPort', (containerName: string, containerPort: number) => {
+  cy.log(`Getting mapped port ${containerPort} of container ${containerName}`);
+
+  return cy.task('getContainerMappedPort', { containerName, containerPort });
+});
+
 interface CopyFromContainerProps {
   destination: string;
   name?: string;
@@ -280,7 +286,16 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.contains(/^Logout$/).click();
 
-  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  cy.waitUntil(() =>
+    cy.wait('@logout').then((interception) => {
+      return interception?.response?.statusCode === 302;
+    }),
+    {
+      errorMsg: 'Logout did not complete successfully',
+      timeout: 30000,
+      interval: 2000
+    }
+  );
 
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearAllCookies();
@@ -907,6 +922,7 @@ declare global {
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
+      getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;

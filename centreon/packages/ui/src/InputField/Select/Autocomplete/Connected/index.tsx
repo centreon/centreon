@@ -37,6 +37,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   exclusionOptionProperty?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
+  decoder?;
   getRenderedOptionText: (option: TData) => string;
   getRequestHeaders?: HeadersInit;
   initialPage: number;
@@ -52,6 +53,7 @@ const ConnectedAutocompleteField = (
   const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
     getEndpoint,
+    decoder,
     field,
     labelKey,
     open,
@@ -88,9 +90,10 @@ const ConnectedAutocompleteField = (
 
     const theme = useTheme();
 
-    const { fetchQuery, isFetching, prefetchNextPage } = useFetchQuery<
+    const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
       ListingModel<TData>
     >({
+      decoder,
       baseEndpoint,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
@@ -322,6 +325,7 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
+        total={data?.meta.total}
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
         options={

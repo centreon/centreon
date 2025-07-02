@@ -471,6 +471,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setLocale($contactLocale)
             ->setDefaultPage($page)
             ->setUseDeprecatedPages($contact['show_deprecated_pages'] === '1')
+            ->setUseDeprecatedCustomViews($contact['show_deprecated_custom_views'] === '1')
             ->setTheme($contact['contact_theme'])
             ->setUserInterfaceDensity($contact['user_interface_density']);
 
@@ -576,7 +577,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }

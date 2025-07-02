@@ -3,6 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../Button';
 
 import { Modal } from '.';
+import '../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof Modal> = {
   argTypes: {

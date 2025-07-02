@@ -25,26 +25,36 @@ namespace CentreonOpenTickets\Providers\Infrastructure\API\FindProviders;
 
 use Centreon\Application\Controller\AbstractController;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
-use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersPresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access_editor',
+    null,
+    "User doesn't have sufficient rights to get ticket providers information"
+)]
 final class FindProvidersController extends AbstractController
 {
     /**
      * @param FindProviders $useCase
-     * @param FindProvidersPresenterInterface $presenter
+     * @param StandardPresenter $presenter
      *
      * @return Response
      */
     public function __invoke(
         FindProviders $useCase,
-        FindProvidersPresenterInterface $presenter
+        StandardPresenter $presenter
     ): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $response = $useCase();
 
-        $useCase($presenter);
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString($presenter->present($response));
     }
 }

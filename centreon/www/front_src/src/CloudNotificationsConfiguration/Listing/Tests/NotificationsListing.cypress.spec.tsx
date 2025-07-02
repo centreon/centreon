@@ -156,7 +156,7 @@ const mockedBulkDelete = (response): void => {
     method: Method.POST,
     path: `${notificationEndpoint({})}/_delete`,
     response,
-    statusCode: 207
+    statusCode: 200
   });
 };
 
@@ -538,10 +538,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });

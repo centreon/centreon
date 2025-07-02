@@ -1,0 +1,77 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-dashboard-administrator;user-dashboard-administrator;user-dashboard-administrator@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"user-dashboard-administrator;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;alias-administrator-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Home;Dashboards;Administrator;"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Monitoring;Resources Status"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;3;Configuration;Hosts"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;3;Configuration;Services"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;3;Configuration;Notifications"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;4;Administration"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;alias-administrator-ACLGROUP"
+    },
+    {
+        "action": "addresource",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;All Resources"
+    },
+    {
+        "action": "addaction",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;Simple User"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;name-administrator-ACLMENU"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "ALL;name-administrator-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;user-dashboard-administrator;"
+    }
+]

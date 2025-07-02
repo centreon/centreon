@@ -3,8 +3,8 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+
 import {
   Box,
   Collapse,
@@ -66,7 +66,7 @@ const CollapsibleGroup = ({
 
   const containerClassName = className || '';
 
-  const CollapseIcon = isOpen ? ExpandMore : ChevronRightIcon;
+  const CollapseIcon = isOpen ? ExpandLess : ExpandMore;
   const ContainerComponent = useCallback(
     ({
       children: containerComponentChildren

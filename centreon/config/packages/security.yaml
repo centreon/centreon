@@ -1,6 +1,4 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
-    enable_authenticator_manager: true
     access_decision_manager:
         strategy: unanimous
         allow_if_all_abstain: false
@@ -10,6 +8,9 @@ security:
         contact_provider:
             id: contact.provider
     firewalls:
+        dev:
+            pattern: ^.*/api/beta/(_(profiler|wdt)|css|images|js)/
+            security: false
         free:
             stateless: true
             pattern: ^.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)(/it-edition-extensions/login_page|/platform/(?:versions|features|installation/status))$

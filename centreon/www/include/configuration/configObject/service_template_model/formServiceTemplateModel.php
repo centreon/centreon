@@ -200,10 +200,10 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
     $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
     $statement->execute();
     // Set base value
-    $service_list = $statement->fetch();
+    $service_list = $statement->fetch() ?: [];
     $service = array_map('myDecodeSvTP', $service_list);
     $serviceTplId = $service['service_template_model_stm_id'];
-    $cmdId = $isCloudPlatform ? '' : $service['command_command_id'];
+    $cmdId = $service['command_command_id'];
 
     // Set Service Notification Options
     $tmp = explode(',', $service['service_notification_options']);

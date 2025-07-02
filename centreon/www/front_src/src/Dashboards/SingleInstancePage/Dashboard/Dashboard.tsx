@@ -116,49 +116,51 @@ const Dashboard = (): ReactElement => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <PageLayout.Actions rowReverse={isEditing}>
-          {!isEditing && canEdit && (
-            <span>
-              <IconButton
-                aria-label="edit"
-                data-testid="edit"
-                icon={<SettingsIcon />}
-                size="small"
-                variant="primary"
-                onClick={editDashboard(dashboard as DashboardType)}
-              />
-              <IconButton
-                aria-label="share"
-                data-testid="share"
-                icon={<ShareIcon />}
-                size="small"
-                variant="primary"
-                onClick={openAccessRights}
-              />
-              <IconButton
-                aria-label="refresh"
-                data-testid="refresh"
-                icon={<RefreshIcon />}
-                size="small"
-                variant="primary"
-                onClick={refreshAllWidgets}
-              />
-            </span>
-          )}
-          {canEdit && (
-            <div className={classes.editActions}>
-              <AddWidgetButton />
-              {isEditing && (
-                <Divider
-                  className={classes.divider}
-                  orientation="vertical"
-                  variant="middle"
+        <div className={classes.body}>
+          <PageLayout.Actions rowReverse={isEditing}>
+            {!isEditing && canEdit && (
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  data-testid="edit"
+                  icon={<SettingsIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={editDashboard(dashboard as DashboardType)}
                 />
-              )}
-              <DashboardEditActions panels={panels} />
-            </div>
-          )}
-        </PageLayout.Actions>
+                <IconButton
+                  aria-label="share"
+                  data-testid="share"
+                  icon={<ShareIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={openAccessRights}
+                />
+                <IconButton
+                  aria-label="refresh"
+                  data-testid="refresh"
+                  icon={<RefreshIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={refreshAllWidgets}
+                />
+              </span>
+            )}
+            {canEdit && (
+              <div className={classes.editActions}>
+                <AddWidgetButton />
+                {isEditing && (
+                  <Divider
+                    className={classes.divider}
+                    orientation="vertical"
+                    variant="middle"
+                  />
+                )}
+                <DashboardEditActions panels={panels} />
+              </div>
+            )}
+          </PageLayout.Actions>
+        </div>
         <Layout />
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />

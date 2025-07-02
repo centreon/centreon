@@ -1465,20 +1465,23 @@ function updateHost_MC($hostId = null)
         );
     }
 
-    $request = "UPDATE host SET ";
-    foreach (array_keys($bindParams) as $token) {
-        $request .= ltrim($token, ':') . " = " . $token . ", ";
-    }
-    $request = rtrim($request, ', ');
-    $request .= " WHERE host_id = :hostId";
-    $statement = $pearDB->prepare($request);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $statement->bindValue($token, $value, $paramType);
+    if (! empty($bindParams)) {
+        $request = "UPDATE host SET ";
+        foreach (array_keys($bindParams) as $token) {
+            $request .= ltrim($token, ':') . " = " . $token . ", ";
         }
+        $request = rtrim($request, ', ');
+        $request .= " WHERE host_id = :hostId";
+
+        $statement = $pearDB->prepare($request);
+        foreach ($bindParams as $token => $bindValues) {
+            foreach ($bindValues as $paramType => $value) {
+                $statement->bindValue($token, $value, $paramType);
+            }
+        }
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
     }
-    $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-    $statement->execute();
 
     /*
      *  update multiple templates
@@ -3021,6 +3024,8 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
  */
 function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
 {
+    global $pearDB;
+
     $payload = [
         'name' => $formData['host_name'],
         'alias' => $formData['host_alias'] ?: null,
@@ -3071,19 +3076,35 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
             ? (int) $formData['command_command_id2']
             : null,
+        'check_command_id' => '' !== $formData['command_command_id']
+            ? (int) $formData['command_command_id']
+            : null,
+        'check_command_args' => array_values(array_filter(
+            explode('!', $formData['command_command_id_arg1']),
+            static fn(string $elem): bool => $elem !== ""
+        )),
     ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<SQL
+            SELECT
+                `host_snmp_community`
+            FROM
+                `host`
+            WHERE
+                `host_id` = :host_id
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
 
     if ($isCloudPlatform === false) {
         $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'check_command_id' => '' !== $formData['command_command_id']
-                ? (int) $formData['command_command_id']
-                : null,
-            'check_command_args' => array_values(array_filter(
-                explode('!', $formData['command_command_id_arg1']),
-                static fn(string $elem): bool => $elem !== ""
-            )),
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
@@ -3136,6 +3157,8 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
  */
 function getPayloadForHost(bool $isCloudPlatform, array $formData): array
 {
+    global $pearDB;
+
     $payload = [
         'name' => $formData['host_name'],
         'address' => $formData['host_address'],
@@ -3191,19 +3214,35 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
             ? (int) $formData['command_command_id2']
             : null,
+        'check_command_id' => '' !== $formData['command_command_id']
+            ? (int) $formData['command_command_id']
+            : null,
+        'check_command_args' => array_values(array_filter(
+            explode('!', $formData['command_command_id_arg1']),
+            static fn(string $elem): bool => $elem !== ""
+        )),
     ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<SQL
+            SELECT
+                `host_snmp_community`
+            FROM
+                `host`
+            WHERE
+                `host_id` = :host_id
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
 
     if ($isCloudPlatform === false) {
         $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'check_command_id' => '' !== $formData['command_command_id']
-                ? (int) $formData['command_command_id']
-                : null,
-            'check_command_args' => array_values(array_filter(
-                explode('!', $formData['command_command_id_arg1']),
-                static fn(string $elem): bool => $elem !== ""
-            )),
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']

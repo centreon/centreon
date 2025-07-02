@@ -51,6 +51,9 @@ final class UpdateSAMLConfigurationRequest
     /** @var string */
     public string $userIdAttribute = '';
 
+    /** @var string */
+    public string $requestedAuthnContext = 'minimum';
+
     /** @var bool */
     public bool $logoutFrom = true;
 
@@ -119,6 +122,7 @@ final class UpdateSAMLConfigurationRequest
             'entity_id_url' => $this->entityIdUrl,
             'remote_login_url' => $this->remoteLoginUrl,
             'user_id_attribute' => $this->userIdAttribute,
+            'requested_authn_context' => $this->requestedAuthnContext,
             'certificate' => $this->publicCertificate,
             'logout_from' => $this->logoutFrom,
             'logout_from_url' => $this->logoutFromUrl,

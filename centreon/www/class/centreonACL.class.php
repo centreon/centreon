@@ -165,6 +165,17 @@ class CentreonACL
     }
 
     /**
+     * Function that will update poller ACL
+     *
+     * @return void
+     */
+    public function updatePollerACL(): void
+    {
+        $this->pollers = [];
+        $this->setPollers();
+    }
+
+    /**
      * Function that will check whether or not the user needs to rebuild his ACL
      *
      * @return void

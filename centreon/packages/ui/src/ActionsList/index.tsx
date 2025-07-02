@@ -59,6 +59,7 @@ const ActionsList = ({
         return (
           <MenuItem
             aria-label={label}
+            data-testid={label}
             className={classes.item}
             data-variant={variant}
             id={label}

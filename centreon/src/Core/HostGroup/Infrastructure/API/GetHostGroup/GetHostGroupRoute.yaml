@@ -1,0 +1,7 @@
+GetHostGroup:
+  methods: GET
+  path: /configuration/hosts/groups/{hostGroupId}
+  requirements:
+    hostGroupId: '\d+'
+  controller: 'Core\HostGroup\Infrastructure\API\GetHostGroup\GetHostGroupController'
+  condition: "request.attributes.get('version') >= 23.10"

@@ -11,13 +11,13 @@ export const useTextStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     justifyContent: 'center'
   },
-  threshold: {
+  thresholdLabel: {
     textAlign: 'center'
   },
   thresholds: {
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(5),
+    gap: theme.spacing(1),
     whiteSpace: 'nowrap',
     width: '100%'
   },

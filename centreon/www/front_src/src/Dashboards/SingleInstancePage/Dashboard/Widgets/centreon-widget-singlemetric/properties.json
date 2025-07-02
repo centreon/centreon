@@ -63,5 +63,5 @@
   "singleMetricSelection": true,
   "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric",
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

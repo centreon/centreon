@@ -25,18 +25,14 @@ namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
+class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
-    /**
-     * @param ObjectNormalizer $normalizer
-     */
-    public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-    ) {
-    }
+    use NormalizerAwareTrait;
 
     /**
      * @param FindAgentConfigurationResponse $object
@@ -45,13 +41,13 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array<string, mixed>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): float|int|bool|array|string|null {
+    ): array {
         /** @var array<string, bool|float|int|string> $data */
         $data = $this->normalizer->normalize($object->agentConfiguration, $format, $context);
 
@@ -61,13 +57,41 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
                 fn (Poller $poller) => $this->normalizer->normalize($poller, $format, $context),
                 $object->pollers
             );
+            /** @var array{
+             *      configuration: array{
+             *          hosts: array<int, array{
+             *              id: int
+             *          }>
+             *      }
+             * } $data */
+            if ($object->agentConfiguration->getType() === Type::CMA && $object->hostNamesById !== null) {
+                foreach ($data['configuration']['hosts'] as $index => $host) {
+                    $data['configuration']['hosts'][$index]['name'] = $object->hostNamesById->getName($host['id']);
+                }
+            }
         }
 
         return $data;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    /**
+     * @param mixed $data
+     * @param ?string $format
+     * @param array<string, mixed> $context
+     */
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof FindAgentConfigurationResponse;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            FindAgentConfigurationResponse::class => true,
+        ];
     }
 }
