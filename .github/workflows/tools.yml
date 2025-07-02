@@ -43,11 +43,11 @@ jobs:
         shell: bash
 
       - name: Run of php-cs-fixer
-        run: composer cs:tools
+        run: composer cs
         working-directory: tools
 
       - name: Run of phpstan at level max
-        run: composer stan:tools
+        run: composer stan
         working-directory: tools
 
       - name: Run of rector on all sections
