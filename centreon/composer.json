@@ -26,6 +26,8 @@
     "ext-xmlwriter": "*",
     "ext-zip": "*",
     "amphp/http-client": "4.6.*",
+    "api-platform/core": "^4.1",
+    "api-platform/symfony": "*",
     "beberlei/assert": "3.3.*",
     "curl/curl": "2.5.*",
     "doctrine/annotations": "1.14.*",
@@ -47,6 +49,7 @@
     "psr/container": "1.1.*",
     "smarty-gettext/smarty-gettext": "1.7.*",
     "smarty/smarty": "4.5.*",
+    "symfony/asset": "6.4.*",
     "symfony/config": "6.4.*",
     "symfony/console": "6.4.*",
     "symfony/dependency-injection": "6.4.*",
@@ -76,12 +79,14 @@
     "symfony/serializer": "6.4.*",
     "symfony/string": "6.4.*",
     "symfony/translation": "6.4.*",
+    "symfony/twig-bundle": "6.4.*",
     "symfony/uid": "6.4.*",
     "symfony/validator": "6.4.*",
     "symfony/yaml": "6.4.*"
   },
   "require-dev": {
     "behat/behat": "3.14.*",
+    "behat/gherkin": "4.12.*",
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-master",
     "dama/doctrine-test-bundle": "8.2.*",
@@ -95,7 +100,6 @@
     "squizlabs/php_codesniffer": "3.10.*",
     "symfony/phpunit-bridge": "6.4.*",
     "symfony/stopwatch": "6.4.*",
-    "symfony/twig-bundle": "6.4.*",
     "symfony/var-dumper": "6.4.*",
     "symfony/web-profiler-bundle": "6.4.*",
     "twig/twig": "3.14.*",
@@ -222,7 +226,8 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "6.4.*"
+      "require": "6.4.*",
+      "public-dir": "www"
     }
   }
 }

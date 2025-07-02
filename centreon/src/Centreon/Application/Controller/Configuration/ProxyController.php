@@ -99,7 +99,10 @@ class ProxyController extends AbstractController
         }
         $data = json_decode((string) $request->getContent(), true);
         if ($data === null) {
-            throw new HttpException(json_last_error(), _('Invalid json message received'));
+            throw new HttpException(
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                _('Invalid json message received'),
+            );
         }
         $errors = $entityValidator->validateEntity(
             Proxy::class,

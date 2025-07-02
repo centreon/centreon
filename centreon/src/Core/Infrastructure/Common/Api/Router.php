@@ -69,7 +69,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      * {@inheritDoc}
      *
      * @param string $name
-     * @param array<string,mixed> $parameters
+     * @param array{
+     *   base_uri?: string,
+     *   ...<string, mixed>
+     * } $parameters
      * @param int $referenceType
      *
      * @throws \Exception
@@ -79,7 +82,15 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $parameters['base_uri'] ??= $this->getBaseUri();
+        $doubleBaseUri = '';
         if (! empty($parameters['base_uri'])) {
+            $doubleBaseUri = $parameters['base_uri'] . '/' . $parameters['base_uri'];
+            $doubleBaseUri = preg_replace('/(?<!:)(\/{2,})/', '$2/', $doubleBaseUri);
+
+            if ($doubleBaseUri === null) {
+                throw new \Exception('Error occured during regular expression search and replace.');
+            }
+
             $parameters['base_uri'] .= '/';
         }
 
@@ -93,6 +104,16 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         }
 
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
+
+        // remove double slashes
+        $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
+
+        if ($generatedRoute === null) {
+            throw new \Exception('Error occured during regular expression search and replace.');
+        }
+
+        // remove double identical prefixes due to progressive migration
+        $generatedRoute = str_replace($doubleBaseUri, $parameters['base_uri'], $generatedRoute);
 
         // remove double slashes
         $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
