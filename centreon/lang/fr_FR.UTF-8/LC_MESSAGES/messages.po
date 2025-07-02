@@ -23927,7 +23927,7 @@ msgstr "Recherche restreinte"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Free text search behavior"
-msgstr ""
+msgstr "Comportement de la recherche texte libre"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Resource status performance"
