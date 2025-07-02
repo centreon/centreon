@@ -11,9 +11,17 @@ security:
     requirements:
         base_uri: ".*"
 core:
-    resource: "./../../src/Core/**/Infrastructure/A*/**/*Route.yaml"
+    resource: "./../../src/Core/**/Infrastructure/**/*Route.yaml"
     prefix: "{base_uri}api/{version}"
     defaults:
         version: "latest"
+    requirements:
+        base_uri: ".*"
+core_attribute:
+    resource: "./../../src/Core/**/Infrastructure/**/*Controller.php"
+    type: attribute
+    prefix: "{base_uri}api/{version}"
+    defaults:
+      version: "latest"
     requirements:
         base_uri: ".*"
