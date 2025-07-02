@@ -114,6 +114,8 @@ class MacroHost extends AbstractObject
                 customContext: ['host_id' => $hostId],
                 exception: $ex,
             );
+
+            return [];
         }
     }
 

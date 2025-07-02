@@ -145,31 +145,31 @@ parameters:
 			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostConfigurationRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:298\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:299\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:93\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:94\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:174\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:174\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:173\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:174\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php

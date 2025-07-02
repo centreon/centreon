@@ -9,6 +9,7 @@ parameters:
         - www
     ignoreErrors:
         -   # Ignore path problems
+            reportUnmatched: false
             message: '#is not a file or it does not exist.#'
 
         -   # Apparently, the PHPMailer project was partially copied in this project, but the missing dependecies are not used.

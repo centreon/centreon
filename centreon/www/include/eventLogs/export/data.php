@@ -54,9 +54,9 @@ bind_textdomain_codeset('messages', 'UTF-8');
 textdomain('messages');
 
 $sid = $sessionId === false ? '-1' : $sessionId;
-$contact_id = check_session($sid, $pearDB); // @phpstan-ignore-line
+$contact_id = check_session($sid, $pearDB);
 
-$is_admin = isUserAdmin($sid); // @phpstan-ignore-line
+$is_admin = isUserAdmin($sid);
 $access = new CentreonACL($contact_id, $is_admin);
 $lca = [
     'LcaHost' => $access->getHostsServices($pearDBO, true),

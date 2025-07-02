@@ -171,6 +171,8 @@
     "cs:new:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff",
     "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
     "stan:legacy:src:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:www:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:core": "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "stan:core:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
     "stan:test": "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G",
