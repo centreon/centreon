@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "8e51568aafd62091bea288e48f9201d6",
+  "content-hash": "26ceea210da291c7c7804c2e41599b84",
   "packages": [],
   "packages-dev": [
     {
@@ -1351,7 +1351,7 @@
       "dist": {
         "type": "path",
         "url": "../centreon",
-        "reference": "10c5a662e5c0af2b1abed4131aa2af6dbfb2b79a"
+        "reference": "96faadd1d0ba1fe5dd553ca4be54e242d77b4565"
       },
       "require": {
         "amphp/http-client": "4.6.*",
@@ -1503,9 +1503,6 @@
         "require:check": [
           "../tools/vendor/bin/composer-require-checker check composer.json"
         ],
-        "symfony:check:ci": [
-          "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
-        ],
         "cs:legacy:src": [
           "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff"
         ],
@@ -1527,29 +1524,61 @@
         "stan:legacy:src": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G"
         ],
+        "stan:legacy:src:baseline": [
+          "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G"
+        ],
         "stan:core": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G"
+        ],
+        "stan:core:baseline": [
+          "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G"
         ],
         "stan:test": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G"
         ],
+        "stan:test:baseline": [
+          "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.test.neon --memory-limit=1G"
+        ],
         "stan:new": [
           "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G"
         ],
-        "php:check8.2": [
-          "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8"
-        ],
-        "rector:check": [
-          "../tools/vendor/bin/rector process --dry-run --debug"
+        "rector": [
+          "../tools/vendor/bin/rector process --dry-run"
         ],
         "rector:fix": [
-          "../tools/vendor/bin/rector process --debug"
+          "../tools/vendor/bin/rector process"
         ],
         "test": [
           "pest --do-not-cache-result"
         ],
         "test:ci": [
           "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
+        ],
+        "symfony:check:ci": [
+          "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
+        ],
+        "cs": [
+          "@cs:legacy:src",
+          "@cs:core",
+          "@cs:new"
+        ],
+        "cs:fix": [
+          "@cs:legacy:src:fix",
+          "@cs:core:fix",
+          "@cs:new:fix"
+        ],
+        "stan": [
+          "@stan:legacy:src",
+          "@stan:core",
+          "@stan:test",
+          "@stan:new"
+        ],
+        "ci": [
+          "@symfony:check:ci",
+          "@cs",
+          "@stan",
+          "@rector",
+          "@test"
         ]
       },
       "license": [
@@ -8768,86 +8797,6 @@
         "source": "https://github.com/smarty-php/smarty/tree/v4.5.5"
       },
       "time": "2024-11-21T22:06:22+00:00"
-    },
-    {
-      "name": "squizlabs/php_codesniffer",
-      "version": "3.10.3",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-        "reference": "62d32998e820bddc40f99f8251958aed187a5c9c"
-      },
-      "dist": {
-        "type": "zip",
-        "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/62d32998e820bddc40f99f8251958aed187a5c9c",
-        "reference": "62d32998e820bddc40f99f8251958aed187a5c9c",
-        "shasum": ""
-      },
-      "require": {
-        "ext-simplexml": "*",
-        "ext-tokenizer": "*",
-        "ext-xmlwriter": "*",
-        "php": ">=5.4.0"
-      },
-      "require-dev": {
-        "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.3.4"
-      },
-      "bin": [
-        "bin/phpcbf",
-        "bin/phpcs"
-      ],
-      "type": "library",
-      "extra": {
-        "branch-alias": {
-          "dev-master": "3.x-dev"
-        }
-      },
-      "notification-url": "https://packagist.org/downloads/",
-      "license": [
-        "BSD-3-Clause"
-      ],
-      "authors": [
-        {
-          "name": "Greg Sherwood",
-          "role": "Former lead"
-        },
-        {
-          "name": "Juliette Reinders Folmer",
-          "role": "Current lead"
-        },
-        {
-          "name": "Contributors",
-          "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer/graphs/contributors"
-        }
-      ],
-      "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-      "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
-      "keywords": [
-        "phpcs",
-        "standards",
-        "static analysis"
-      ],
-      "support": {
-        "issues": "https://github.com/PHPCSStandards/PHP_CodeSniffer/issues",
-        "security": "https://github.com/PHPCSStandards/PHP_CodeSniffer/security/policy",
-        "source": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
-        "wiki": "https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki"
-      },
-      "funding": [
-        {
-          "url": "https://github.com/PHPCSStandards",
-          "type": "github"
-        },
-        {
-          "url": "https://github.com/jrfnl",
-          "type": "github"
-        },
-        {
-          "url": "https://opencollective.com/php_codesniffer",
-          "type": "open_collective"
-        }
-      ],
-      "time": "2024-09-18T10:38:58+00:00"
     },
     {
       "name": "symfony/cache",

@@ -160,7 +160,6 @@
   },
   "scripts": {
     "require:check": "../tools/vendor/bin/composer-require-checker check composer.json",
-    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
     "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
     "cs:core": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",
@@ -174,11 +173,34 @@
     "stan:test": "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G",
     "stan:test:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.test.neon --memory-limit=1G",
     "stan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
-    "php:check8.2": "../tools/vendor/bin/phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "../tools/vendor/bin/rector process --dry-run",
+    "rector": "../tools/vendor/bin/rector process --dry-run",
     "rector:fix": "../tools/vendor/bin/rector process",
     "test": "pest --do-not-cache-result",
-    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction"
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
+    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
+    "cs": [
+      "@cs:legacy:src",
+      "@cs:core",
+      "@cs:new"
+    ],
+    "cs:fix": [
+      "@cs:legacy:src:fix",
+      "@cs:core:fix",
+      "@cs:new:fix"
+    ],
+    "stan": [
+      "@stan:legacy:src",
+      "@stan:core",
+      "@stan:test",
+      "@stan:new"
+    ],
+    "ci": [
+      "@symfony:check:ci",
+      "@cs",
+      "@stan",
+      "@rector",
+      "@test"
+    ]
   },
   "extra": {
     "symfony": {

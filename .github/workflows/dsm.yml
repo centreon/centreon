@@ -98,7 +98,7 @@ jobs:
         working-directory: centreon-dsm
 
       - name: Run of rector
-        run: composer rector:check
+        run: composer rector
         working-directory: centreon-dsm
 
   package:

@@ -495,7 +495,7 @@ jobs:
         working-directory: centreon
 
       - name: Run of rector
-        run: composer rector:check
+        run: composer rector
         working-directory: centreon
 
   package:

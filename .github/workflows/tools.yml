@@ -51,5 +51,5 @@ jobs:
         working-directory: tools
 
       - name: Run of rector
-        run: composer rector:check
+        run: composer rector
         working-directory: tools

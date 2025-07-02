@@ -113,7 +113,7 @@ jobs:
         working-directory: centreon-open-tickets
 
       - name: Run of rector
-        run: composer rector:check
+        run: composer rector
         working-directory: centreon-open-tickets
 
   backend-unit-test:
