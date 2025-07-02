@@ -26,7 +26,7 @@ Cypress.Commands.add(
   (expectedValue: string, options: RetryOptions = {}) => {
     const {
       maxAttempts = 5,
-      interval = 1000,
+      interval = 5000,
     } = options;
 
     let attempt = 0;

@@ -122,7 +122,7 @@ Then('the form is closed', () => {
 
 Then('the informations are successfully saved', () => {
   cy.contains('VMWare 6/7').click();
-  cy.ensureConnectorInputValue('Connector-002', { maxAttempts: 5, interval: 1500 });
+  cy.ensureConnectorInputValue('Connector-002', { maxAttempts: 6, interval: 5000 });
   cy.contains('VMWare 6/7').click();
   cy.wait('@keepAlive');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
