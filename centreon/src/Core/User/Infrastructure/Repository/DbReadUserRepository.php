@@ -152,7 +152,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 SELECT /* Finds users belonging to associated contact groups in ACL group rules */
                     contact.contact_id, contact.contact_alias, contact.contact_name,
                     contact.contact_email, contact.contact_admin, contact.contact_theme,
-                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`
+                    contact.user_interface_density, contact.contact_oreon AS `user_can_reach_frontend`,
+                    contact.is_service_account
                 FROM `:db`.`contact`
                 INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
                     ON c_cg_rel.contact_contact_id = contact.contact_id
@@ -164,7 +165,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 SELECT /* Finds users belonging to the same contact groups as the user */
                     contact2.contact_id, contact2.contact_alias, contact2.contact_name,
                     contact2.contact_email, contact2.contact_admin, contact2.contact_theme,
-                    contact2.user_interface_density, contact2.contact_oreon AS `user_can_reach_frontend`
+                    contact2.user_interface_density, contact2.contact_oreon AS `user_can_reach_frontend`,
+                    contact.is_service_account
                 FROM `:db`.`contact`
                 INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
                     ON c_cg_rel.contact_contact_id = contact.contact_id
