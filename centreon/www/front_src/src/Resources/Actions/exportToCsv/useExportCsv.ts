@@ -1,5 +1,8 @@
 import { buildListingEndpoint, useFetchQuery, useSnackbar } from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
@@ -42,7 +45,9 @@ const useExportCsv = ({
   const visualization = useAtomValue(selectedVisualizationAtom);
   const selectedColumnIds = useAtomValue(selectedColumnIdsAtom);
   const refreshInterval = useAtomValue(refreshIntervalAtom);
-
+  const isResourceStatusFullSearchEnabled = useAtomValue(
+    isResourceStatusFullSearchEnabledAtom
+  );
   const listing = useAtomValue(listingAtom);
 
   const getListSearch = ({ array, field }: ListSearch) => {
@@ -103,7 +108,10 @@ const useExportCsv = ({
 
     const filtersParameters = {
       search: {
-        ...(getSearch({ searchCriteria: getCriteriaValue('search') }) ?? {}),
+        ...(getSearch({
+          searchCriteria: getCriteriaValue('search'),
+          isResourceStatusFullSearchEnabled
+        }) ?? {}),
         conditions: [
           ...getListSearch({ array: names, field: 'name' }),
           ...getListSearch({ array: parentNames, field: 'parent_name' })

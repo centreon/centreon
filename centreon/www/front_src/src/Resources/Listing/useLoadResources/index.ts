@@ -17,7 +17,10 @@ import { useTranslation } from 'react-i18next';
 
 import type { SelectEntry } from '@centreon/ui';
 import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
 import {
@@ -101,6 +104,9 @@ const useLoadResources = (): LoadResources => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
+  const isResourceStatusFullSearchEnabled = useAtomValue(
+    isResourceStatusFullSearchEnabledAtom
+  );
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
@@ -184,7 +190,10 @@ const useLoadResources = (): LoadResources => {
       page,
       resourceTypes: getCriteriaIds('resource_types'),
       search: mergeRight(
-        getSearch({ searchCriteria: getCriteriaValue('search') }) || {},
+        getSearch({
+          searchCriteria: getCriteriaValue('search'),
+          isResourceStatusFullSearchEnabled
+        }) || {},
         {
           conditions: [
             ...names.map((name) => ({

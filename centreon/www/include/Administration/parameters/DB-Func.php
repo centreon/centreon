@@ -706,6 +706,16 @@ function updateGeneralConfigData()
             ? htmlentities($ret["send_statistics"]["yes"], ENT_QUOTES, "UTF-8") : "0"
     );
 
+    $resourceStatusSearchMode = isset($ret["resource_status_search_mode"]["resource_status_search_mode"]) && $ret["resource_status_search_mode"]["resource_status_search_mode"] !== null
+        ? (int) $ret["resource_status_search_mode"]["resource_status_search_mode"]
+        : RESOURCE_STATUS_FULL_SEARCH;
+
+    updateOption(
+        $pearDB,
+        "resource_status_search_mode",
+        $resourceStatusSearchMode
+    );
+
     $centreon->initOptGen($pearDB);
 }
 

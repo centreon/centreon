@@ -8199,3 +8199,13 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
+
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data."
+"Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data."
+"Full search: Free text search will also be performed on the \"information\" field. This is appropriate only if you have a small amount of data, as it affects performance."
+msgstr ""
+"Cette option peut être utilisée pour éviter les problèmes de performance de la recherche dans la page Statut des ressources, lorsque vous manipulez de grandes quantités de données."
+"Recherche limitée : La recherche texte libre ne portera que sur les champs suivants : nom, alias et adresse d'hôte, et description de service. À utiliser si vous disposez d'une grande quantité de données."
+"Recherche étendue : La recherche texte libre sera également effectuée dans le champ Informations. Cette option n'est adaptée que si vous disposez d'une petite quantité de données, car elle affecte les performances."
