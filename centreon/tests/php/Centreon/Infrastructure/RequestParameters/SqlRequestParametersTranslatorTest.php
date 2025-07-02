@@ -21,11 +21,11 @@
 
 namespace Tests\Centreon\Infrastructure\RequestParameters;
 
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use PHPUnit\Framework\TestCase;
 
 class SqlRequestParametersTranslatorTest extends TestCase
@@ -85,7 +85,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
                 '$or' => [
                     'host.name' => ['$rg' => 'host1'],
                     'host.description' => ['$rg' => 'host1'],
-                ]
+                ],
             ]);
 
         $sqlRequestParametersTranslator = new SqlRequestParametersTranslator($this->requestParameters);
@@ -113,7 +113,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
                 '$or' => [
                     'host.name' => ['$rg' => 'host1'],
                     'host.description' => ['$rg' => 'host1'],
-                ]
+                ],
             ]);
         $this->requestParameters->expects($this->exactly(2))
             ->method('getConcordanceStrictMode')
@@ -129,7 +129,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
         ]);
 
         $this->expectException(RequestParametersTranslatorException::class);
-        $this->expectExceptionMessage("The parameter host.description is not allowed");
+        $this->expectExceptionMessage('The parameter host.description is not allowed');
 
         $sqlRequestParametersTranslator->translateSearchParameterToSql();
     }
@@ -145,7 +145,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
                 '$or' => [
                     'host.name' => ['$rg' => 'host1'],
                     'host.description' => ['$rg' => 'host1'],
-                ]
+                ],
             ]);
         $this->requestParameters->expects($this->exactly(2))
             ->method('getConcordanceStrictMode')
@@ -179,7 +179,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
                 '$and' => [
                     'event.type' => ['$eq' => 'comment'],
                     'event.date' => ['$ge' => '2020-01-31T03:54:12+01:00'],
-                ]
+                ],
             ]);
 
         $sqlRequestParametersTranslator = new SqlRequestParametersTranslator($this->requestParameters);
@@ -189,8 +189,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
         ]);
         $sqlRequestParametersTranslator->addNormalizer(
             'event.date',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 public function normalize($valueToNormalize)
                 {
                     return (new \Datetime($valueToNormalize))->getTimestamp();
@@ -207,8 +206,8 @@ class SqlRequestParametersTranslatorTest extends TestCase
 
         $this->assertEquals(
             [
-                ':value_1' => [ \PDO::PARAM_STR => 'comment' ],
-                ':value_2' => [ \PDO::PARAM_INT => 1580439252 ],
+                ':value_1' => [\PDO::PARAM_STR => 'comment'],
+                ':value_2' => [\PDO::PARAM_INT => 1580439252],
             ],
             $sqlRequestParametersTranslator->getSearchValues()
         );

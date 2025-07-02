@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016 Centreon
  *
@@ -17,16 +18,19 @@
 
 namespace CentreonLegacy\Core\Widget;
 
-use Pimple\Psr11\Container;
-use \Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $information;
+
     private $utils;
 
     public function setUp(): void
@@ -37,7 +41,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $configuration = ['title' => 'My Widget', 'author' => 'Centreon', 'email' => 'contact@centreon.com', 'website' => 'http://www.centreon.com', 'description' => 'Widget for displaying host monitoring information', 'version' => '1.0.0', 'keywords' => 'centreon, widget, host, monitoring', 'screenshot' => '', 'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png', 'url' => './widgets/host-monitoring/index.php', 'directory' => 'my-widget', 'preferences' => ['preference' => [['@attributes' => ['label' => 'Host Name', 'name' => 'host_name_search', 'defaultValue' => '', 'type' => 'compare', 'header' => 'Filters']], ['@attributes' => ['label' => 'Results', 'name' => 'entries', 'defaultValue' => '10', 'type' => 'range', 'min' => '10', 'max' => '100', 'step' => '10']], ['@attributes' => ['label' => 'Order By', 'name' => 'order_by', 'defaultValue' => '', 'type' => 'sort'], 'option' => [['@attributes' => ['value' => 'h.name', 'label' => 'Host Name']], ['@attributes' => ['value' => 'criticality', 'label' => 'Severity']]]]]], 'autoRefresh' => 0];
 
-        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Widget\Information::class)
+        $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(
                 ['getConfiguration', 'getTypes', 'getParameters', 'isInstalled', 'getIdByName', 'getParameterIdByName']
@@ -85,72 +89,72 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrade(): void
     {
-        $query = 'UPDATE widget_models SET ' .
-            'title = :title, ' .
-            'description = :description, ' .
-            'url = :url, ' .
-            'version = :version, ' .
-            'author = :author, ' .
-            'email = :email, ' .
-            'website = :website, ' .
-            'keywords = :keywords, ' .
-            'thumbnail = :thumbnail, ' .
-            'autoRefresh = :autoRefresh ' .
-            'WHERE directory = :directory ';
+        $query = 'UPDATE widget_models SET '
+            . 'title = :title, '
+            . 'description = :description, '
+            . 'url = :url, '
+            . 'version = :version, '
+            . 'author = :author, '
+            . 'email = :email, '
+            . 'website = :website, '
+            . 'keywords = :keywords, '
+            . 'thumbnail = :thumbnail, '
+            . 'autoRefresh = :autoRefresh '
+            . 'WHERE directory = :directory ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'DELETE FROM widget_parameters ' .
-            'WHERE parameter_id = :id ';
+        $query = 'DELETE FROM widget_parameters '
+            . 'WHERE parameter_id = :id ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters ' .
-            '(widget_model_id, field_type_id, parameter_name, parameter_code_name, ' .
-            'default_value, parameter_order, require_permission, header_title) ' .
-            'VALUES ' .
-            '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, ' .
-            ':default_value, :parameter_order, :require_permission, :header_title) ';
+        $query = 'INSERT INTO widget_parameters '
+            . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, '
+            . 'default_value, parameter_order, require_permission, header_title) '
+            . 'VALUES '
+            . '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, '
+            . ':default_value, :parameter_order, :require_permission, :header_title) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters_multiple_options ' .
-            '(parameter_id, option_name, option_value) VALUES ' .
-            '(:parameter_id, :option_name, :option_value) ';
+        $query = 'INSERT INTO widget_parameters_multiple_options '
+            . '(parameter_id, option_name, option_value) VALUES '
+            . '(:parameter_id, :option_name, :option_value) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) ' .
-            'VALUES (:parameter_id, :min_range, :max_range, :step) ';
+        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) '
+            . 'VALUES (:parameter_id, :min_range, :max_range, :step) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'UPDATE widget_parameters SET ' .
-            'field_type_id = :field_type_id, ' .
-            'parameter_name = :parameter_name, ' .
-            'default_value = :default_value, ' .
-            'parameter_order = :parameter_order, ' .
-            'require_permission = :require_permission, ' .
-            'header_title = :header_title ' .
-            'WHERE widget_model_id = :widget_model_id ' .
-            'AND parameter_code_name = :parameter_code_name ';
+        $query = 'UPDATE widget_parameters SET '
+            . 'field_type_id = :field_type_id, '
+            . 'parameter_name = :parameter_name, '
+            . 'default_value = :default_value, '
+            . 'parameter_order = :parameter_order, '
+            . 'require_permission = :require_permission, '
+            . 'header_title = :header_title '
+            . 'WHERE widget_model_id = :widget_model_id '
+            . 'AND parameter_code_name = :parameter_code_name ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'DELETE FROM widget_parameters_multiple_options ' .
-            'WHERE parameter_id = :id ';
+        $query = 'DELETE FROM widget_parameters_multiple_options '
+            . 'WHERE parameter_id = :id ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'DELETE FROM widget_parameters_range ' .
-            'WHERE parameter_id = :id ';
+        $query = 'DELETE FROM widget_parameters_range '
+            . 'WHERE parameter_id = :id ';
         $this->db->addResultSet(
             $query,
             []

@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure\MetaServiceConfiguration\API\Model;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurationsResponse;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceConfigurationResponse;
 use Centreon\Infrastructure\MetaServiceConfiguration\API\Model\MetaServiceConfigurationV2110Factory;
+use PHPUnit\Framework\TestCase;
 use Tests\Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfigurationTest;
 
 /**
@@ -34,9 +34,7 @@ use Tests\Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguratio
  */
 class MetaServiceConfigurationV2110FactoryTest extends TestCase
 {
-    /**
-     * @var MetaServiceConfiguration
-     */
+    /** @var MetaServiceConfiguration */
     private $metaServiceConfiguration;
 
     protected function setUp(): void

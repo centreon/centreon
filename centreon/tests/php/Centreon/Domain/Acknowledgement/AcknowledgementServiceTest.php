@@ -21,38 +21,45 @@
 
 namespace Tests\Centreon\Domain\Acknowledgement;
 
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Acknowledgement\Interfaces\AcknowledgementRepositoryInterface;
-use Centreon\Domain\Acknowledgement\AcknowledgementService;
 use Centreon\Domain\Acknowledgement\Acknowledgement;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Acknowledgement\AcknowledgementException;
+use Centreon\Domain\Acknowledgement\AcknowledgementService;
+use Centreon\Domain\Acknowledgement\Interfaces\AcknowledgementRepositoryInterface;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
 use Centreon\Domain\Entity\EntityValidator;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolation;
-use JMS\Serializer\Exception\ValidationFailedException;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\Acknowledgement\AcknowledgementException;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class AcknowledgementServiceTest extends TestCase
 {
     protected $adminContact;
+
     protected $aclContact;
 
     protected $host;
+
     protected $service;
 
     protected $hostAcknowledgement;
+
     protected $serviceAcknowledgement;
 
     protected $acknowledgementRepository;
+
     protected $accessGroupRepository;
+
     protected $monitoringRepository;
+
     protected $engineService;
+
     protected $entityValidator;
 
     protected $violationList;

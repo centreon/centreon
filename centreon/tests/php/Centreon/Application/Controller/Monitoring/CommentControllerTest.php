@@ -42,16 +42,27 @@ class CommentControllerTest extends TestCase
     private const DECODING_ERROR_MESSAGE = 'Error when decoding your sent data';
 
     private Contact $adminContact;
+
     private Resource $hostResource;
+
     private Resource $serviceResource;
+
     private string $correctJsonComment;
+
     private string $wrongJsonComment;
+
     private string $hostCommentJson;
+
     private string $serviceCommentJson;
+
     private CommentService&MockObject $commentService;
+
     private MonitoringService $monitoringService;
+
     private ContainerInterface $container;
+
     private Request&MockObject $request;
+
     private ReadAccessGroupRepositoryInterface $readAccessGroupRepository;
 
     protected function setUp(): void
@@ -73,7 +84,7 @@ class CommentControllerTest extends TestCase
                     'id' => 1,
                     'parent' => null,
                     'comment' => 'simple comment on a host resource',
-                    'date' => null
+                    'date' => null,
                 ],
                 [
                     'type' => 'service',
@@ -82,19 +93,19 @@ class CommentControllerTest extends TestCase
                         'id' => 1,
                     ],
                     'comment' => 'simple comment on a service resource',
-                    'date' => $date
+                    'date' => $date,
                 ],
             ],
         ];
 
         $hostCommentJson = [
             'comment' => 'single comment on a service',
-            'date' => $date
+            'date' => $date,
         ];
 
         $serviceCommentJson = [
             'comment' => 'single comment on a host',
-            'date' => $date
+            'date' => $date,
         ];
 
         $this->hostResource = (new Resource())
@@ -240,6 +251,7 @@ class CommentControllerTest extends TestCase
         $this->expectExceptionMessage(self::DECODING_ERROR_MESSAGE);
         $commentController->addHostComment($this->request, $this->hostResource->getId());
     }
+
     /**
      * Testing with wrong property added to the POST JSON for addHostComment
      */
@@ -258,6 +270,7 @@ class CommentControllerTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $commentController->addHostComment($this->request, $this->hostResource->getId());
     }
+
     /**
      * Testing with a correct JSON POST data and successfully adding a comment for a host resource
      */
@@ -306,6 +319,7 @@ class CommentControllerTest extends TestCase
             $this->serviceResource->getId()
         );
     }
+
     /**
      * Testing with wrong property added to the POST JSON for addServiceComment
      */
@@ -328,14 +342,15 @@ class CommentControllerTest extends TestCase
             $this->serviceResource->getId()
         );
     }
+
     /**
      * Testing with a correct JSON POST data and successfully adding comment for a service resource
      */
     public function testAddServiceCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
-        ->method('filterByContact')
-        ->willReturn($this->commentService);
+            ->method('filterByContact')
+            ->willReturn($this->commentService);
 
         $commentController = new CommentController(
             $this->commentService,

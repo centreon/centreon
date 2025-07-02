@@ -196,7 +196,7 @@ it('test a log with exception', function (): void {
             'contact' => 1,
             'name' => 'John Doe',
             'is_admin' => true,
-            'exception' => new LogicException('exception_message', 99)
+            'exception' => new LogicException('exception_message', 99),
         ]
     );
     expect(file_exists($this->logPathFileName))->toBeTrue();

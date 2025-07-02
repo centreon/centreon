@@ -44,41 +44,28 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 class PlatformTopologyControllerTest extends TestCase
 {
     protected $goodJsonPlatform;
+
     protected $badJsonPlatform;
 
-    /**
-     * @var PlatformPending|null $platform
-     */
+    /** @var PlatformPending|null */
     protected $platform;
 
-    /**
-     * @var Contact
-     */
+    /** @var Contact */
     protected $adminContact;
 
-    /**
-     * @var PlatformRegistered
-     */
+    /** @var PlatformRegistered */
     protected $centralPlatform;
 
-    /**
-     * @var PlatformPending
-     */
+    /** @var PlatformPending */
     protected $pollerPlatform;
 
-    /**
-     * @var PlatformJsonGraph
-     */
+    /** @var PlatformJsonGraph */
     protected $centralJsonGraphFormat;
 
-    /**
-     * @var PlatformJsonGraph
-     */
+    /** @var PlatformJsonGraph */
     protected $pollerJsonGraphFormat;
 
-    /**
-     * @var PlatformTopologyService&MockObject $platformTopologyService
-     */
+    /** @var PlatformTopologyService&MockObject */
     protected $platformTopologyService;
 
     protected $container;
@@ -101,7 +88,7 @@ class PlatformTopologyControllerTest extends TestCase
             'hostname' => 'localhost.localdomain',
             'address' => '1.1.1.2',
             'type' => 'poller',
-            'parent_address' => '1.1.1.1'
+            'parent_address' => '1.1.1.1',
         ];
 
         $this->goodJsonPlatform = json_encode($goodJsonPlatform);
@@ -291,16 +278,16 @@ class PlatformTopologyControllerTest extends TestCase
                     'graph' => [
                         'label' => 'centreon-topology',
                         'metadata' => [
-                            'version' => '1.0.0'
+                            'version' => '1.0.0',
                         ],
                         'nodes' => $nodes,
                         'edges' => [
                             [
-                                "source" => "2",
-                                "relation" => "normal",
-                                "target" => "1"
-                            ]
-                        ]
+                                'source' => '2',
+                                'relation' => 'normal',
+                                'target' => '1',
+                            ],
+                        ],
                     ],
                 ],
                 Response::HTTP_OK

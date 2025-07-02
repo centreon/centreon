@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\MetaServiceConfiguration\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 use PHPUnit\Framework\TestCase;
 
@@ -186,10 +185,9 @@ class MetaServiceConfigurationTest extends TestCase
         (new MetaServiceConfiguration('name', 'average', 1))->setDataSourceType($dataSourceType);
     }
 
-
     /**
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public static function createEntity(): MetaServiceConfiguration
     {

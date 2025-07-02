@@ -23,29 +23,21 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\PlatformInformation\Model;
 
 use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformationFactory;
+use PHPUnit\Framework\TestCase;
 
 class PlatformInformationFactoryTest extends TestCase
 {
-    /**
-     * @var PlatformInformation
-     */
+    /** @var PlatformInformation */
     private $centralPlatformInformationStub;
 
-    /**
-     * @var PlatformInformation
-     */
+    /** @var PlatformInformation */
     private $remotePlatformInformationStub;
 
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     private $remoteRequest;
 
-    /**
-     * @var array<string,boolean>
-     */
+    /** @var array<string,bool> */
     private $centralRequest;
 
     private $platformInformationFactory;
@@ -62,10 +54,10 @@ class PlatformInformationFactoryTest extends TestCase
             'apiScheme' => 'http',
             'apiPort' => 80,
             'apiPath' => 'centreon',
-            'peerValidation' => false
+            'peerValidation' => false,
         ];
         $this->centralRequest = [
-            'isRemote' => false
+            'isRemote' => false,
         ];
         $this->platformInformationFactory = new PlatformInformationFactory(
             'encryptionF0rT3st'

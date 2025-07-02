@@ -28,14 +28,10 @@ use PHPUnit\Framework\TestCase;
 
 class InformationFactoryTest extends TestCase
 {
-    /**
-     * @var array<Information>
-     */
+    /** @var array<Information> */
     private $information;
 
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     private $informationRequest;
 
     protected function setUp(): void
@@ -49,7 +45,7 @@ class InformationFactoryTest extends TestCase
             'apiScheme' => 'http',
             'apiPort' => 80,
             'apiPath' => 'centreon',
-            'peerValidation' => false
+            'peerValidation' => false,
         ];
     }
 

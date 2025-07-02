@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2019 Centreon
  *
@@ -17,10 +18,10 @@
 
 namespace CentreonLegacy\Core\Configuration;
 
-use PHPUnit\Framework\TestCase;
 use CentreonLegacy\Core\Configuration;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\Infrastructure\Source\WidgetSource;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -31,9 +32,11 @@ class ConfigurationTest extends TestCase
 {
     /** @var string[] */
     public $configuration;
+
     /** @var string */
     public $centreonPath;
-    /** @var \CentreonLegacy\Core\Configuration\Configuration */
+
+    /** @var Configuration\Configuration */
     public $service;
 
     public function setUp(): void

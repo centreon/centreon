@@ -32,9 +32,7 @@ use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
  */
 class LogoutTest extends TestCase
 {
-    /**
-     * @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $authenticationRepository;
 
     protected function setUp(): void

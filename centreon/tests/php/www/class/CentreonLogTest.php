@@ -84,7 +84,7 @@ it('test changing the path of an existing log', function (): void {
             CentreonLog::TYPE_LDAP => '/user/test/ldap.log',
             CentreonLog::TYPE_UPGRADE => '/user/test/upgrade.log',
             CentreonLog::TYPE_PLUGIN_PACK_MANAGER => '/user/test/plugin.log',
-            CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log'
+            CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log',
         ]
     );
 });
@@ -255,8 +255,8 @@ it('test writing logs with a custom context', function (): void {
     $contentLog = file_get_contents($logfile);
     expect($contentLog)->toBeString()->toContain(
         "[{$this->centreonLogTest->date}",
-        '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar"},"exception":null,"default":' .
-        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
+        '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar"},"exception":null,"default":'
+        . '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();
@@ -273,19 +273,19 @@ it('test writing logs with a custom context and an exception', function (): void
         $contentLog = file_get_contents($logfile);
         expect($contentLog)->toBeString()->toContain(
             sprintf(
-                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},"exception":{"exceptions":' .
-                '[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
-                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},"exception":{"exceptions":'
+                . '[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
                 'RuntimeException',
                 'test_message_exception',
                 $e->getFile(),
                 $e->getLine(),
                 99,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "{closure}",
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "->"
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                '{closure}',
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '->'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
         );
@@ -297,6 +297,7 @@ it('test writing logs with a custom context and an exception', function (): void
 it('test writing logs with a custom context and a native exception with a previous (native exception)', function (): void {
     try {
         $previous = new LogicException('test_message_exception_previous', 98);
+
         throw new RuntimeException('test_message_exception', 99, $previous);
     } catch (RuntimeException $e) {
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -306,27 +307,27 @@ it('test writing logs with a custom context and a native exception with a previo
         $contentLog = file_get_contents($logfile);
         expect($contentLog)->toBeString()->toContain(
             sprintf(
-                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},' .
-                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
-                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
-                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
-                "RuntimeException",
-                "test_message_exception",
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},'
+                . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
+                . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                'RuntimeException',
+                'test_message_exception',
                 $e->getFile(),
                 $e->getLine(),
                 99,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "LogicException",
-                "test_message_exception_previous",
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                'LogicException',
+                'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 98,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "{closure}",
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "->"
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                '{closure}',
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '->'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
@@ -338,6 +339,7 @@ it('test writing logs with a custom context and a native exception with a previo
 it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (native exception)', function (): void {
     try {
         $previous = new LogicException('test_message_exception_previous', 99);
+
         throw new CentreonDbException('test_message_exception', ['contact' => 1], $previous);
     } catch (CentreonDbException $e) {
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -347,27 +349,27 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
         $contentLog = file_get_contents($logfile);
         expect($contentLog)->toBeString()->toContain(
             sprintf(
-                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","from_exception":[{"contact":1}]},' .
-                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
-                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
-                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
-                "CentreonDbException",
-                "test_message_exception",
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","from_exception":[{"contact":1}]},'
+                . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
+                . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                'CentreonDbException',
+                'test_message_exception',
                 $e->getFile(),
                 $e->getLine(),
                 1,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "LogicException",
-                "test_message_exception_previous",
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                'LogicException',
+                'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 99,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "{closure}",
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "->"
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                '{closure}',
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '->'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
@@ -380,6 +382,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
     try {
         $nativePrevious = new LogicException('test_message_native_exception_previous', 99);
         $previous = new CentreonDbException('test_message_exception_previous', ['id' => 1, 'name' => 'John', 'age' => 48], $nativePrevious);
+
         throw new StatisticException('test_message_exception', ['X' => 100.36, 'Y' => 888, 'graph' => true], $previous);
     } catch (StatisticException $e) {
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -389,36 +392,36 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
         $contentLog = file_get_contents($logfile);
         expect($contentLog)->toBeString()->toContain(
             sprintf(
-                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar","from_exception":' .
-                '[{"X":100.36,"Y":888,"graph":true},{"id":1,"name":"John","age":48}]},' .
-                '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
-                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},' .
-                '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],' .
-                '"traces":[{"function":"%s","class":"%s","type":"%s"},',
-                "StatisticException",
-                "test_message_exception",
+                '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar","from_exception":'
+                . '[{"X":100.36,"Y":888,"graph":true},{"id":1,"name":"John","age":48}]},'
+                . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
+                . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
+                . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                'StatisticException',
+                'test_message_exception',
                 $e->getFile(),
                 $e->getLine(),
                 0,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "CentreonDbException",
-                "test_message_exception_previous",
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                'CentreonDbException',
+                'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 1,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "LogicException",
-                "test_message_native_exception_previous",
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                'LogicException',
+                'test_message_native_exception_previous',
                 $e->getPrevious()->getPrevious()->getFile(),
                 $e->getPrevious()->getPrevious()->getLine(),
                 99,
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "{closure}",
-                "{closure}",
-                "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
-                "->"
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '{closure}',
+                '{closure}',
+                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
+                '->'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
@@ -447,8 +450,8 @@ function testContentLogWithoutContext(
     $contentLog = file_get_contents($logfile);
     expect($contentLog)->toBeString()->toContain(
         "[{$date}",
-        '] ' . strtoupper($level) . ' : ' . $message . ' | {"custom":null,"exception":null,"default":' .
-        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
+        '] ' . strtoupper($level) . ' : ' . $message . ' | {"custom":null,"exception":null,"default":'
+        . '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();

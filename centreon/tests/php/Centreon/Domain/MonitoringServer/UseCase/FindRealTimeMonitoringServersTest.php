@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTimeMonitoringServers;
 use Centreon\Infrastructure\MonitoringServer\Repository\RealTimeMonitoringServerRepositoryRDB;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 
 /**
@@ -38,8 +38,11 @@ use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 class FindRealTimeMonitoringServersTest extends TestCase
 {
     private RealTimeMonitoringServerRepositoryRDB&MockObject $realTimeMonitoringServerRepository;
+
     private RealTimeMonitoringServer $realTimeMonitoringServer;
+
     private MonitoringServer $monitoringServer;
+
     private ContactInterface|MockObject $contact;
 
     protected function setUp(): void
@@ -79,8 +82,8 @@ class FindRealTimeMonitoringServersTest extends TestCase
     }
 
     /**
-    * Test as non admin user
-    */
+     * Test as non admin user
+     */
     public function testExecuteAsNonAdmin(): void
     {
         $this->realTimeMonitoringServerRepository

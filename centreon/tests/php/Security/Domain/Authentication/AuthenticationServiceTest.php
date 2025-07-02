@@ -40,49 +40,31 @@ use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
  */
 class AuthenticationServiceTest extends TestCase
 {
-    /**
-     * @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $authenticationRepository;
 
-    /**
-     * @var SessionRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var SessionRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $sessionRepository;
 
-    /**
-     * @var ProviderAuthenticationInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $provider;
 
-    /**
-     * @var AuthenticationTokens|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticationTokens|\PHPUnit\Framework\MockObject\MockObject */
     private $authenticationTokens;
 
-    /**
-     * @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject */
     private $providerToken;
 
-    /**
-     * @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject */
     private $refreshToken;
 
-    /**
-     * @var ReadConfigurationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadConfigurationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $readConfigurationFactory;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $providerFactory;
 
-    /**
-     * @var ReadTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $readTokenRepository;
 
     protected function setUp(): void

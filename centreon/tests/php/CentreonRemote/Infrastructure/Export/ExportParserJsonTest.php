@@ -35,16 +35,16 @@ afterEach(function (): void {
     $this->fs->remove('/tmp/test2.json');
 });
 
-it ('should parse non existent file', function (): void {
+it('should parse non existent file', function (): void {
     expect($this->parser->parse('/tmp/test.json'))->toBe([]);
 });
 
-it ('should parse file', function (): void {
+it('should parse file', function (): void {
     $this->fs->dumpFile('/tmp/test.json', '{"key": "value"}');
     expect($this->parser->parse('/tmp/test.json'))->toBe(['key' => 'value']);
 });
 
-it ('should call the callback for a file with macro', function (): void {
+it('should call the callback for a file with macro', function (): void {
     $this->fs->dumpFile('/tmp/test2.json', '{"key":"@val@"}');
 
     $result = $this->parser->parse(

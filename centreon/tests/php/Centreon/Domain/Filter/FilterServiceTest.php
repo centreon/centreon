@@ -21,43 +21,33 @@
 
 namespace Tests\Centreon\Domain\Filter;
 
-use Centreon\Domain\Filter\FilterService;
-use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Filter\Filter;
 use Centreon\Domain\Filter\FilterCriteria;
-use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface;
-use Centreon\Domain\Monitoring\HostGroup;
-use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterface;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Filter\FilterException;
-use PHPUnit\Framework\TestCase;
+use Centreon\Domain\Filter\FilterService;
+use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
+use Centreon\Domain\Monitoring\HostGroup;
+use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface;
+use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class FilterServiceTest extends TestCase
 {
-    /**
-     * @var Contact|null $adminContact
-     */
+    /** @var Contact|null */
     protected $adminContact;
 
-    /**
-     * @var Filter|null $filter
-     */
+    /** @var Filter|null */
     protected $filter;
 
-    /**
-     * @var FilterRepositoryInterface&MockObject $filterRepository
-     */
+    /** @var FilterRepositoryInterface&MockObject */
     protected $filterRepository;
 
-    /**
-     * @var HostGroupServiceInterface&MockObject $hostGroupService
-     */
+    /** @var HostGroupServiceInterface&MockObject */
     protected $hostGroupService;
 
-    /**
-     * @var ServiceGroupServiceInterface&MockObject $serviceGroupService
-     */
+    /** @var ServiceGroupServiceInterface&MockObject */
     protected $serviceGroupService;
 
     protected function setUp(): void
@@ -68,36 +58,36 @@ class FilterServiceTest extends TestCase
             ->setAdmin(true);
 
         $this->filter = (new Filter())
-        ->setId(1)
-        ->setName('filter1')
-        ->setUserId(1)
-        ->setPageName('events-view')
-        ->setCriterias([
-            (new FilterCriteria())
-                ->setName("host_groups")
-                ->setType("multi_select")
-                ->setValue([
-                    [
-                      "id" => 1,
-                      "name" => "linux"
-                    ]
-                ])
-                ->setObjectType("host_groups"),
-            (new FilterCriteria())
-                ->setName("service_groups")
-                ->setType("multi_select")
-                ->setValue([
-                    [
-                      "id" => 1,
-                      "name" => "sg_ping"
-                    ]
-                ])
-                ->setObjectType("service_groups"),
-            (new FilterCriteria())
-                ->setName("search")
-                ->setType("text")
-                ->setValue("my search"),
-        ]);
+            ->setId(1)
+            ->setName('filter1')
+            ->setUserId(1)
+            ->setPageName('events-view')
+            ->setCriterias([
+                (new FilterCriteria())
+                    ->setName('host_groups')
+                    ->setType('multi_select')
+                    ->setValue([
+                        [
+                            'id' => 1,
+                            'name' => 'linux',
+                        ],
+                    ])
+                    ->setObjectType('host_groups'),
+                (new FilterCriteria())
+                    ->setName('service_groups')
+                    ->setType('multi_select')
+                    ->setValue([
+                        [
+                            'id' => 1,
+                            'name' => 'sg_ping',
+                        ],
+                    ])
+                    ->setObjectType('service_groups'),
+                (new FilterCriteria())
+                    ->setName('search')
+                    ->setType('text')
+                    ->setValue('my search'),
+            ]);
 
         $this->filterRepository = $this->createMock(FilterRepositoryInterface::class);
 

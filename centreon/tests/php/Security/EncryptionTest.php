@@ -34,8 +34,10 @@ class EncryptionTest extends TestCase
 {
     /** @var string */
     private $firstKey;
+
     /** @var string */
     private $secondKey;
+
     /** @var string */
     private $falseKey;
 
@@ -97,7 +99,7 @@ class EncryptionTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
 
-        set_error_handler(function($errNo, $errStr, ...$args): void {
+        set_error_handler(function ($errNo, $errStr, ...$args): void {
             throw new \Exception($errStr);
             restore_error_handler();
         });
@@ -150,7 +152,7 @@ class EncryptionTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
 
-        set_error_handler(function($errNo, $errStr, ...$args): void {
+        set_error_handler(function ($errNo, $errStr, ...$args): void {
             throw new \Exception($errStr);
             restore_error_handler();
         });

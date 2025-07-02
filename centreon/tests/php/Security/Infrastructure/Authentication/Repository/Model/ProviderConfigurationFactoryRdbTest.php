@@ -23,17 +23,15 @@ declare(strict_types=1);
 namespace Tests\Security\Infrastructure\Authentication\Repository\Model;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Security\Infrastructure\Repository\Model\ProviderConfigurationFactoryRdb;
 use PHPUnit\Framework\TestCase;
+use Security\Infrastructure\Repository\Model\ProviderConfigurationFactoryRdb;
 
 /**
  * @package Tests\Security\Infrastructure\Authentication\API\Model_2110
  */
 class ProviderConfigurationFactoryRdbTest extends TestCase
 {
-    /**
-     * @var array<string,int|string|bool> $dbData
-     */
+    /** @var array<string,int|string|bool> */
     private $dbData;
 
     protected function setUp(): void
@@ -44,7 +42,7 @@ class ProviderConfigurationFactoryRdbTest extends TestCase
             'name' => 'local',
             'is_active' => true,
             'is_forced' => true,
-            'custom_configuration' => '{}'
+            'custom_configuration' => '{}',
         ];
     }
 
@@ -63,7 +61,7 @@ class ProviderConfigurationFactoryRdbTest extends TestCase
         $this->assertEquals($this->dbData['is_forced'], $providerConfiguration->isForced());
     }
 
-     /**
+    /**
      * Tests model is properly created
      */
     public function testCreateFromResponseWithMissingProperty(): void

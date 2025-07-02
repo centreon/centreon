@@ -22,14 +22,10 @@ use ArrayAccess;
 
 class DependencyInjector implements ArrayAccess
 {
-    /**
-     * @var self
-     */
+    /** @var self */
     protected static $instance;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $container;
 
     /**
@@ -39,7 +35,7 @@ class DependencyInjector implements ArrayAccess
      */
     public static function getInstance(): self
     {
-        if (!static::$instance instanceof DependencyInjector) {
+        if (! static::$instance instanceof DependencyInjector) {
             static::$instance = new DependencyInjector();
         }
 

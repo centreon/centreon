@@ -36,54 +36,34 @@ use Tests\Centreon\Domain\PlatformInformation\Model\PlatformInformationTest;
 
 class UpdatePartiallyPlatformInformationTest extends TestCase
 {
-    /**
-     * @var PlatformInformationReadRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var PlatformInformationReadRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $readRepository;
 
-    /**
-     * @var PlatformInformationWriteRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var PlatformInformationWriteRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $writeRepository;
 
-    /**
-     * @var PlatformInformation
-     */
+    /** @var PlatformInformation */
     private $centralInformation;
 
-    /**
-     * @var PlatformInformation
-     */
+    /** @var PlatformInformation */
     private $remoteInformation;
 
-    /**
-     * @var ProxyServiceInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProxyServiceInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $proxyService;
 
-    /**
-     * @var RemoteServerServiceInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RemoteServerServiceInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $remoteServerService;
 
-    /**
-     * @var PlatformTopologyServiceInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var PlatformTopologyServiceInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $platformTopologyService;
 
-    /**
-     * @var ContactInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContactInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $user;
 
-    /**
-     * @var array<string,bool>
-     */
+    /** @var array<string,bool> */
     private $centralInformationRequest;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private $remoteInformationRequest;
 
     protected function setUp(): void
@@ -105,7 +85,7 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
             'apiScheme' => 'http',
             'apiPort' => 80,
             'apiPath' => 'centreon',
-            'peerValidation' => false
+            'peerValidation' => false,
         ];
     }
 
@@ -123,6 +103,7 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
             $this->user
         );
         $useCase->setEncryptionFirstKey('encryptionF0rT3st');
+
         return $useCase;
     }
 

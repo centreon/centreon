@@ -147,8 +147,8 @@ class HostCategoryTest extends TestCase
     }
 
     /**
-     * @return HostCategory
      * @throws \Assert\AssertionFailedException
+     * @return HostCategory
      */
     public static function createEntity(): HostCategory
     {
@@ -157,6 +157,6 @@ class HostCategoryTest extends TestCase
             ->setName('Category')
             ->setAlias('Alias category')
             ->setActivated(true)
-            ->setComments("blablabla");
+            ->setComments('blablabla');
     }
 }

@@ -42,34 +42,22 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
  */
 class AuthenticateApiTest extends TestCase
 {
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerFactory;
 
-    /**
-     * @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private WriteTokenRepositoryInterface $writeTokenRepository;
 
-    /**
-     * @var NewProviderToken
-     */
+    /** @var NewProviderToken */
     private NewProviderToken $providerToken;
 
-    /**
-     * @var Contact
-     */
+    /** @var Contact */
     private Contact $contact;
 
-    /**
-     * @var Configuration&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Configuration&\PHPUnit\Framework\MockObject\MockObject */
     private Configuration $configuration;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationInterface $providerAuthentication;
 
     protected function setUp(): void

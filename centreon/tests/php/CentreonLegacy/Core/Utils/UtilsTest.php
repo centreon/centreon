@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -17,14 +18,14 @@
 
 namespace Tests\CentreonLegacy\Core\Utils;
 
+use Centreon\Test\Mock;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Configuration\Configuration;
 use CentreonLegacy\Core\Utils\Utils;
+use CentreonLegacy\ServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\ServiceProvider;
-use CentreonLegacy\Core\Configuration\Configuration;
-use Centreon\Test\Mock;
 
 /**
  * @group CentreonLegacy
@@ -34,11 +35,13 @@ class UtilsTest extends TestCase
 {
     /** @var FileSystem */
     public $fs;
+
     /** @var ServiceContainer */
     public $container;
+
     /** @var Utils */
-    public $service
-    ;
+    public $service;
+
     public function setUp(): void
     {
         // mount VFS
@@ -47,7 +50,7 @@ class UtilsTest extends TestCase
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this->createMock(Configuration::class);
-        $this->container['configuration_db'] = new Mock\CentreonDB;
+        $this->container['configuration_db'] = new Mock\CentreonDB();
         $this->container['configuration_db']->addResultSet("SELECT 'OK';", []);
 
         $this->service = new Utils(new Container($this->container));
@@ -103,7 +106,7 @@ class UtilsTest extends TestCase
      */
     public function testObjectIntoArrayWithEmptyObject(): void
     {
-        $result = $this->service->objectIntoArray(new \stdClass);
+        $result = $this->service->objectIntoArray(new \stdClass());
 
         $this->assertEmpty($result);
     }

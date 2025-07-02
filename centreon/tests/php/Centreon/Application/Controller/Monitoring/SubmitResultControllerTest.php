@@ -21,35 +21,42 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
+use Centreon\Application\Controller\Monitoring\SubmitResultController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Monitoring\Resource;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResultService;
 use FOS\RestBundle\View\View;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
-use Centreon\Domain\Monitoring\Resource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResultService;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResultException;
-use Centreon\Application\Controller\Monitoring\SubmitResultController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class SubmitResultControllerTest extends TestCase
 {
     private const DECODING_ERROR_MESSAGE = 'Error when decoding your sent data';
 
     private Contact $adminContact;
+
     private Resource $hostResource;
+
     private Resource $serviceResource;
+
     private string $correctJsonSubmitResult;
+
     private string $wrongJsonSubmitResult;
+
     private string $hostSubmitResultJson;
+
     private string $serviceSubmitResultJson;
+
     private SubmitResultService&MockObject $submitResultService;
+
     private ContainerInterface $container;
+
     private Request&MockObject $request;
 
     protected function setUp(): void
@@ -70,7 +77,7 @@ class SubmitResultControllerTest extends TestCase
                     'parent' => null,
                     'status' => 2,
                     'output' => 'Host went down',
-                    'performance_data' => 'ping: 0'
+                    'performance_data' => 'ping: 0',
                 ],
                 [
                     'type' => 'service',
@@ -80,7 +87,7 @@ class SubmitResultControllerTest extends TestCase
                     ],
                     'status' => 2,
                     'output' => 'Service went critical',
-                    'performance_data' => 'proc: 0'
+                    'performance_data' => 'proc: 0',
                 ],
             ],
         ];
@@ -88,13 +95,13 @@ class SubmitResultControllerTest extends TestCase
         $hostSubmitResultJson = [
             'status' => 2,
             'output' => 'Host went down',
-            'performance_data' => 'ping: 0'
+            'performance_data' => 'ping: 0',
         ];
 
         $serviceSubmitResultJson = [
             'status' => 2,
             'output' => 'Service went critical',
-            'performance_data' => 'proc: 0'
+            'performance_data' => 'proc: 0',
         ];
 
         $this->hostResource = (new Resource())
@@ -219,6 +226,7 @@ class SubmitResultControllerTest extends TestCase
         $this->expectExceptionMessage(self::DECODING_ERROR_MESSAGE);
         $submitResultController->submitResultHost($this->request, $this->hostResource->getId());
     }
+
     /**
      * Testing with wrong property added to the POST JSON for submitResultHost
      */
@@ -231,17 +239,18 @@ class SubmitResultControllerTest extends TestCase
             ->method('getContent')
             ->willReturn($this->wrongJsonSubmitResult);
         $this->expectException(\InvalidArgumentException::class);
-        //$this->expectExceptionMessage('[status] The property status is required');
+        // $this->expectExceptionMessage('[status] The property status is required');
         $submitResultController->submitResultHost($this->request, $this->hostResource->getId());
     }
+
     /**
      * Testing with a correct JSON POST data and successful submit for submitResultHost
      */
     public function testSubmitResultHostSuccess(): void
     {
         $this->submitResultService->expects($this->any())
-        ->method('filterByContact')
-        ->willReturn($this->submitResultService);
+            ->method('filterByContact')
+            ->willReturn($this->submitResultService);
 
         $submitResultController = new SubmitResultController($this->submitResultService);
         $submitResultController->setContainer($this->container);
@@ -273,6 +282,7 @@ class SubmitResultControllerTest extends TestCase
             $this->serviceResource->getId()
         );
     }
+
     /**
      * Testing with wrong property added to the POST JSON for submitResultService
      */
@@ -292,6 +302,7 @@ class SubmitResultControllerTest extends TestCase
             $this->serviceResource->getId()
         );
     }
+
     /**
      * Testing with a correct JSON POST data and successful submit for submitResultService
      */

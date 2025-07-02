@@ -77,7 +77,7 @@ abstract class ResourcesTestCase extends TestCase
         $checks = [$check];
 
         $methodUnderTest = static::METHOD_UNDER_TEST;
-        $view = $sut->$methodUnderTest(
+        $view = $sut->{$methodUnderTest}(
             $this->mockRequest(self::DEFAULT_REQUEST_CONTENT),
             $this->mockEntityValidator(),
             $this->mockSerializer($checks)
@@ -107,7 +107,7 @@ abstract class ResourcesTestCase extends TestCase
         $sut->setContainer($container);
         $methodUnderTest = static::METHOD_UNDER_TEST;
 
-        $view = $sut->$methodUnderTest(
+        $view = $sut->{$methodUnderTest}(
             $this->mockRequest(static::DEFAULT_REQUEST_CONTENT),
             $validator,
             $this->mockSerializer($checks)

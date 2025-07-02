@@ -27,7 +27,7 @@ use Utility\Difference\BasicDifference;
 
 it(
     'should compute getAdded()',
-    fn($before, $after, $expected) => expect((new BasicDifference($before, $after))->getAdded())
+    fn ($before, $after, $expected) => expect((new BasicDifference($before, $after))->getAdded())
         ->toBe($expected)
 )
     ->with(
@@ -46,7 +46,7 @@ it(
 
 it(
     'should compute getRemoved()',
-    fn($before, $after, $expected) => expect((new BasicDifference($before, $after))->getRemoved())
+    fn ($before, $after, $expected) => expect((new BasicDifference($before, $after))->getRemoved())
         ->toBe($expected)
 )
     ->with(
@@ -67,7 +67,7 @@ it(
 
 it(
     'should compute getCommon()',
-    fn($before, $after, $expected) => expect((new BasicDifference($before, $after))->getCommon())
+    fn ($before, $after, $expected) => expect((new BasicDifference($before, $after))->getCommon())
         ->toBe($expected)
 )
     ->with(

@@ -25,9 +25,9 @@ namespace Tests\Centreon\Domain\Gorgone;
 use Centreon\Domain\Gorgone\Command\Thumbprint;
 use Centreon\Domain\Gorgone\GorgoneService;
 use Centreon\Domain\Gorgone\Interfaces\CommandRepositoryInterface;
+use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseRepositoryInterface;
 use Centreon\Domain\Gorgone\Response;
-use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use PHPUnit\Framework\TestCase;
 
 class CommandServiceTest extends TestCase

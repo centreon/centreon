@@ -50,86 +50,56 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PlatformTopologyServiceTest extends TestCase
 {
-    /**
-     * @var Contact|null $adminContact
-     */
+    /** @var Contact|null */
     protected $adminContact;
 
-    /**
-     * @var PlatformPending|null $platform
-     */
+    /** @var PlatformPending|null */
     protected $platform;
 
-    /**
-     * @var PlatformRegistered|null $registeredParent
-     */
+    /** @var PlatformRegistered|null */
     protected $registeredParent;
 
-    /**
-     * @var PlatformRepositoryInterface&MockObject $platformTopologyRepository
-     */
+    /** @var PlatformRepositoryInterface&MockObject */
     protected $platformTopologyRepository;
 
-    /**
-     * @var HttpClientInterface|null $httpClient
-     */
+    /** @var HttpClientInterface|null */
     protected $httpClient;
 
-    /**
-     * @var PlatformInformationServiceInterface&MockObject $platformInformationService
-     */
+    /** @var PlatformInformationServiceInterface&MockObject */
     private $platformInformationService;
 
-    /**
-     * @var ProxyServiceInterface&MockObject $proxyService
-     */
+    /** @var ProxyServiceInterface&MockObject */
     private $proxyService;
 
-    /**
-     * @var EngineConfiguration|null $engineConfiguration
-     */
+    /** @var EngineConfiguration|null */
     protected $engineConfiguration;
 
-    /**
-     * @var BrokerConfiguration $brokerConfiguration
-     */
+    /** @var BrokerConfiguration */
     protected $brokerConfiguration;
 
-    /**
-     * @var EngineConfigurationServiceInterface&MockObject $engineConfigurationService
-     */
+    /** @var EngineConfigurationServiceInterface&MockObject */
     protected $engineConfigurationService;
 
-    /**
-     * @var MonitoringServerServiceInterface&MockObject $monitoringServerService
-     */
+    /** @var MonitoringServerServiceInterface&MockObject */
     protected $monitoringServerService;
 
-    /**
-     * @var MonitoringServer
-     */
+    /** @var MonitoringServer */
     protected $monitoringServer;
 
-    /**
-     * @var BrokerRepositoryInterface&MockObject $brokerRepository
-     */
+    /** @var BrokerRepositoryInterface&MockObject */
     protected $brokerRepository;
 
-    /**
-     * @var PlatformTopologyRegisterRepositoryInterface&MockObject $platformTopologyRegisterRepository
-     */
+    /** @var PlatformTopologyRegisterRepositoryInterface&MockObject */
     private $platformTopologyRegisterRepository;
 
     /**
      * Undocumented variable
      *
-     * @var RemoteServerRepositoryInterface&MockObject $remoteServerRepository
+     * @var RemoteServerRepositoryInterface&MockObject
      */
     private $remoteServerRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface&MockObject $readAccessGroupRepository
-     */
+    /** @var ReadAccessGroupRepositoryInterface&MockObject */
     private $readAccessGroupRepository;
 
     /**

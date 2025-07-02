@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTimeMonitoringServersResponse;
-use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 use PHPUnit\Framework\TestCase;
+use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 
 /**
  * @package Tests\Centreon\Domain\MonitoringServer\UseCase

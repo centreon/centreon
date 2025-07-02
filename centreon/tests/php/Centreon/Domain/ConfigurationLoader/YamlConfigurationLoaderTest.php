@@ -69,9 +69,7 @@ class YamlConfigurationLoaderTest extends TestCase
         $gcl->load();
     }
 
-    /***
-     * This test is designed to test the Exception
-     */
+    // This test is designed to test the Exception
     public function testFileNotFound(): void
     {
         $this->expectException(\Exception::class);

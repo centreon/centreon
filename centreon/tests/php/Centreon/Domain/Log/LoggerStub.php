@@ -36,7 +36,8 @@ use Psr\Log\LoggerInterface;
  * @class LoggerStub
  * @package Tests\Centreon\Domain\Log
  */
-class LoggerStub implements LoggerInterface {
+class LoggerStub implements LoggerInterface
+{
     use LoggerTrait {
         emergency as traitEmergency;
         alert as traitAlert;
@@ -48,8 +49,10 @@ class LoggerStub implements LoggerInterface {
         debug as traitDebug;
         log as traitLog;
     }
+
     /** @var Logger */
     private Logger $monolog;
+
     /** @var string */
     private string $logPathFileName;
 

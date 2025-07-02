@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MetaServiceConfiguration\UseCase\V21;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MetaServiceConfiguration\MetaServiceConfigurationService;
 use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;

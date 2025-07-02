@@ -21,60 +21,50 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Application\Controller\Monitoring\TimelineController;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Monitoring\ResourceStatus;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineServiceInterface;
 use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
-use Centreon\Domain\Monitoring\ResourceStatus;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
-use Psr\Container\ContainerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class TimelineControllerTest extends TestCase
 {
     protected MockObject|ContactInterface $contact;
+
     protected MockObject|UserInterface $user;
+
     protected Host $host;
 
-    /**
-     * @var MockObject|Service
-     */
+    /** @var MockObject|Service */
     protected $service;
 
-    /**
-     * @var MockObject|TimelineEvent
-     */
+    /** @var MockObject|TimelineEvent */
     protected $timelineEvent;
 
-    /**
-     * @var MockObject|MonitoringServiceInterface
-     */
+    /** @var MockObject|MonitoringServiceInterface */
     protected $monitoringService;
 
-    /**
-     * @var MockObject|TimelineServiceInterface
-     */
+    /** @var MockObject|TimelineServiceInterface */
     protected $timelineService;
 
-    /**
-     * @var MockObject|ContainerInterface
-     */
+    /** @var MockObject|ContainerInterface */
     protected $container;
 
-    /**
-     * @var MockObject|RequestParametersInterface
-     */
+    /** @var MockObject|RequestParametersInterface */
     protected $requestParameters;
 
     protected function setUp(): void
@@ -83,11 +73,11 @@ class TimelineControllerTest extends TestCase
 
         $this->contact = $this->createMock(ContactInterface::class);
         $this->user = $this->createMock(UserInterface::class);
-            /*(new Contact())
-            ->setId(1)
-            ->setName('admin')
-            ->setAdmin(true)
-            ->setTimezone($timezone);*/
+        /*(new Contact())
+        ->setId(1)
+        ->setName('admin')
+        ->setAdmin(true)
+        ->setTimezone($timezone);*/
 
         $this->host = (new Host())
             ->setId(1);
@@ -172,7 +162,7 @@ class TimelineControllerTest extends TestCase
             $view,
             View::create([
                 'result' => [$this->timelineEvent],
-                'meta' => []
+                'meta' => [],
             ])->setContext($context)
         );
     }
@@ -207,7 +197,7 @@ class TimelineControllerTest extends TestCase
             $view,
             View::create([
                 'result' => [$this->timelineEvent],
-                'meta' => []
+                'meta' => [],
             ])->setContext($context)
         );
     }
@@ -231,7 +221,7 @@ class TimelineControllerTest extends TestCase
             ->willReturn([$this->timelineEvent]);
 
         $controller = new TimelineController($this->monitoringService, $this->timelineService, $this->contact);
-        //buffer output for streamed response
+        // buffer output for streamed response
         $this->contact
             ->expects($this->any())
             ->method('hasTopologyRole')
@@ -240,7 +230,7 @@ class TimelineControllerTest extends TestCase
         $controller->setContainer($this->container);
         $response = $controller->downloadServiceTimeline(1, 1, $this->requestParameters);
         $response->sendContent();
-        echo($response->getContent());
+        echo $response->getContent();
         $actualContent = ob_get_contents();
         ob_end_clean();
 
