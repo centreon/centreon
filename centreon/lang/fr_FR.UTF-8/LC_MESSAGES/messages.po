@@ -30,7 +30,7 @@ msgstr " Champs requis"
 
 #: centreon/www/install/smarty_translate.php
 msgid " Table is not partitioned "
-msgstr " La table n'est pas partitionnée "
+msgstr "La table n'est pas partitionnée "
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 msgid " The timezone used is configured on your user settings"
