@@ -23919,7 +23919,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Full search"
-msgstr ""
+msgstr "Recherche étendue"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Limited search"
