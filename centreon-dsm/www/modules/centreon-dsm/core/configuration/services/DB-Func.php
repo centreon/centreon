@@ -196,7 +196,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
 
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -207,7 +207,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -264,7 +264,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             // Update services in Centreon configuration
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -275,7 +275,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -308,7 +308,7 @@ function deletePoolInDB($pools = [])
             // Delete services in Centreon configuration
             $listServices = getListServiceForPool($key);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -318,7 +318,7 @@ function deletePoolInDB($pools = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
