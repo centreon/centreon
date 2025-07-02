@@ -58,24 +58,6 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
 
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
-<<<<<<< HEAD
-        if ($connectionMode === ConnectionModeEnum::SECURE) {
-            $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
-            $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-            $this->validateCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
-            $this->validateCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
-            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-        } else {
-            $this->validateOptionalCertificate(
-                $parameters['otel_public_certificate'],
-                'configuration.otel_public_certificate'
-            );
-            $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-            $this->validateOptionalCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
-            $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
-            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-        }
-=======
         $this->validateOptionalCertificate(
             $parameters['otel_public_certificate'],
             'configuration.otel_public_certificate'
@@ -84,7 +66,6 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
         $this->validateOptionalCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
         $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
         $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
->>>>>>> 49c947d42c ( enh(agent configuration): set certificate fields to optional (#7534))
 
         /** @var _TelegrafParameters $parameters */
         $this->parameters = $parameters;
