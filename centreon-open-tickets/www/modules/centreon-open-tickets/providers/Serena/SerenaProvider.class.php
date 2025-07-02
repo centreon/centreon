@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -141,7 +142,7 @@ class SerenaProvider extends AbstractProvider
             . 'size="20"  type="text" />';
         $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
             . 'type="select-one">'
-            .'<option value="' . self::ARG_PROJECT_ID . '">' . _('Project ID') . '</options>'
+            . '<option value="' . self::ARG_PROJECT_ID . '">' . _('Project ID') . '</options>'
             . '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>'
             . '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</options>'
             . '<option value="' . self::ARG_CATEGORY . '">' . _('Category') . '</options>'
@@ -247,10 +248,10 @@ class SerenaProvider extends AbstractProvider
                 $extended_fields .= '
     <ae:extendedField>
         <ae:id>
-            <ae:displayName>' . $listing[$ticket_argument]['displayName']. '</ae:displayName>
+            <ae:displayName>' . $listing[$ticket_argument]['displayName'] . '</ae:displayName>
             <ae:id></ae:id>
             <ae:uuid></ae:uuid>
-            <ae:dbName>' . $listing[$ticket_argument]['dbName']. '</ae:dbName>
+            <ae:dbName>' . $listing[$ticket_argument]['dbName'] . '</ae:dbName>
         </ae:id>
         <ae:setValueBy>DISPLAY-VALUE</ae:setValueBy>
         <ae:setValueMethod>REPLACE-VALUES</ae:setValueMethod>

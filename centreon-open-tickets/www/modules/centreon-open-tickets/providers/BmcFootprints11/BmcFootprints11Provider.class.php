@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2017-2019 Centreon (http://www.centreon.com/)
  *

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2019 Centreon (http://www.centreon.com/)
  *
@@ -40,7 +41,7 @@ class EasyVistaRestProvider extends AbstractProvider
 
     protected $close_advanced = 1;
 
-    protected $proxy_enabled = 1;    
+    protected $proxy_enabled = 1;
 
     protected $internal_arg_name = [
         self::ARG_TITLE => 'title',
@@ -64,7 +65,8 @@ class EasyVistaRestProvider extends AbstractProvider
     *
     * @return {array} telling us if there is a missing parameter
     */
-    public function validateFormatPopup() {
+    public function validateFormatPopup()
+    {
         $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
 
@@ -101,7 +103,8 @@ class EasyVistaRestProvider extends AbstractProvider
     }
 
     // webservice methods
-    public function getHostgroups($centreon_path, $data) {
+    public function getHostgroups($centreon_path, $data)
+    {
         $hostCount = count($data['host_list']);
         $listIds = '';
 
@@ -117,16 +120,16 @@ class EasyVistaRestProvider extends AbstractProvider
         $db_storage = new CentreonDBManager('centstorage');
 
         $query = 'SELECT name FROM hostgroups WHERE hostgroup_id IN'
-            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds .')'
+            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
             . ' GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)';
-        
+
         $dbQuery = $db_storage->prepare($query);
         foreach ($queryValues as $bindName => $bindValue) {
             $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
         }
         $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT)
 
-        .$dbQuery->execute();
+        . $dbQuery->execute();
 
         $result = [];
         while ($row = $dbQuery->fetch()) {
@@ -134,7 +137,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         return $result;
-    }  
+    }
 
     // Set default values for our rule form options
     protected function setDefaultValueExtra()
@@ -332,18 +335,18 @@ class EasyVistaRestProvider extends AbstractProvider
             . '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>'
             . '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency') . '</option>'
             . '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requester') . '</option>'
-            . '<option value="' . self::ARG_RECIPIENT_NAME . '">' ._('Recipient') . '</option>'
+            . '<option value="' . self::ARG_RECIPIENT_NAME . '">' . _('Recipient') . '</option>'
             . '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</option>'
-            . '<option value="' . self::ARG_ORIGIN . '">' ._('Origin') . '</option>'
+            . '<option value="' . self::ARG_ORIGIN . '">' . _('Origin') . '</option>'
             . '<option value="' . self::ARG_IMPACT_ID . '">' . _('Impact') . '</option>'
-            . '<option value="' . self::ARG_DESCRIPTION . '">' ._('Description') . '</option>'
+            . '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</option>'
             . '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department') . '</option>'
             . '<option value="' . self::ARG_CI_NAME . '">' . _('CI') . '</option>'
             . '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset') . '</option>'
             . '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location') . '</option>'
             . '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</option>'
             . '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog code') . '</option>'
-            . '<option value="' . self::ARG_CUSTOM_EZV . '">' ._('Custom Field') . '</option>'
+            . '<option value="' . self::ARG_CUSTOM_EZV . '">' . _('Custom Field') . '</option>'
             . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
@@ -394,7 +397,7 @@ class EasyVistaRestProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -424,7 +427,7 @@ class EasyVistaRestProvider extends AbstractProvider
     {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/assets?fields=asset_tag,HREF';
-        
+
         if (! empty($filter)) {
             $info['query_endpoint'] .= '&' . $filter;
         }
@@ -650,16 +653,16 @@ class EasyVistaRestProvider extends AbstractProvider
             }
         }
 
-//         fwrite($file, print_r("\n ticketargs \n",true));
-//         fwrite($file, print_r($ticketArguments,true));
+        //         fwrite($file, print_r("\n ticketargs \n",true));
+        //         fwrite($file, print_r($ticketArguments,true));
 
-// fwrite($file, print_r("\n info \n",true));
-// fwrite($file, print_r(json_encode($info['data']),true));
+        // fwrite($file, print_r("\n info \n",true));
+        // fwrite($file, print_r(json_encode($info['data']),true));
         $result = $this->curlQuery($info);
         preg_match('~' . $this->getFormValue('address') . $this->getFormValue('api_path') . $info['query_endpoint'] . '/(.*)$~', $result['HREF'], $match);
 
         return $match[1];
-// fclose($file);
+        // fclose($file);
 
         // return 1234;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2018-2019 Centreon (http://www.centreon.com/)
  *
@@ -32,7 +33,8 @@ class Centreon_OpenTickets_Log
      * @param CentreonDB $dbStorage
      * @return void
      */
-    public function __construct($db, $dbStorage) {
+    public function __construct($db, $dbStorage)
+    {
         $this->_db = $db;
         $this->_dbStorage = $dbStorage;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -1044,7 +1045,7 @@ Output: {$service.output|substr:0:1024}
                 $array_values = [];
                 foreach ($values as $other) {
                     if (
-                        isset($this->submitted_config[$clone_key . $other], $this->submitted_config[$clone_key.$other][$index])
+                        isset($this->submitted_config[$clone_key . $other], $this->submitted_config[$clone_key . $other][$index])
                     ) {
                         $array_values[$other] = $this->submitted_config[$clone_key . $other][$index];
                     } else {
@@ -1074,8 +1075,9 @@ Output: {$service.output|substr:0:1024}
             isset($this->submitted_config['schedule_check']) && $this->submitted_config['schedule_check'] === 'yes'
         ) ? $this->submitted_config['schedule_check'] : '';
         $this->save_config['simple']['attach_files']
-            = (isset($this->submitted_config['attach_files']) && $this->submitted_config['attach_files'] == 'yes'
-        ) ? $this->submitted_config['attach_files'] : '';
+            = (
+                isset($this->submitted_config['attach_files']) && $this->submitted_config['attach_files'] == 'yes'
+            ) ? $this->submitted_config['attach_files'] : '';
         $this->save_config['simple']['close_ticket_enable']
             = (isset($this->submitted_config['close_ticket_enable'])
                 && $this->submitted_config['close_ticket_enable'] == 'yes')
@@ -1624,7 +1626,7 @@ Output: {$service.output|substr:0:1024}
 
             if (is_null($extra_args['ticket_value'])) {
                 $db_storage->query(
-                    "UPDATE mod_open_tickets SET `ticket_value` = '" .$db_storage->escape($result['ticket_id']) . "'
+                    "UPDATE mod_open_tickets SET `ticket_value` = '" . $db_storage->escape($result['ticket_id']) . "'
                     WHERE `ticket_id` = '" . $db_storage->escape($result['ticket_id']) . "'"
                 );
             }
@@ -1779,7 +1781,7 @@ Output: {$service.output|substr:0:1024}
 
             throw new Exception('command timeout on: ' . $cmd);
         }
-  
-            return $output;
+
+        return $output;
     }
 }

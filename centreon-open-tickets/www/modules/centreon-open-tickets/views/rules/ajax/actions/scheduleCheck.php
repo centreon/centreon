@@ -116,7 +116,7 @@ try {
                 ), $row['instance_id']]
             );
             continue;
-        // servuce check action and service description from database is empty (meaning entry is about a host)
+            // servuce check action and service description from database is empty (meaning entry is about a host)
         }
         if ($isService && (is_null($row['description']) || $row['description'] == '')) {
             continue;

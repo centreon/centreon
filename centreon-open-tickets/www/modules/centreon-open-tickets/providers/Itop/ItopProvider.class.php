@@ -1,4 +1,5 @@
 <?php
+
 /*
 * Copyright 2019 Centreon (http://www.centreon.com/)
 *
@@ -84,7 +85,7 @@ class ItopProvider extends AbstractProvider
             || ! isset($info['password'])
             || ! isset($info['protocol'])
         ) {
-                throw new Exception('missing arguments', 13);
+            throw new Exception('missing arguments', 13);
         }
         // check if php curl is installed
         if (! extension_loaded('curl')) {
@@ -439,7 +440,7 @@ class ItopProvider extends AbstractProvider
             || $entry['Type'] == self::ITOP_SERVICE_TYPE
             || $entry['Type'] == self::ITOP_SERVICE_SUBCATEGORY_TYPE
         ) {
-                $this->assignItopAjax($entry, $groups_order, $groups);
+            $this->assignItopAjax($entry, $groups_order, $groups);
         }
     }
 
@@ -480,8 +481,8 @@ class ItopProvider extends AbstractProvider
             // we just put the id and the name of the organization inside the result array
             if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$organization['key']] = $this->to_utf8($organization['fields']['name']);
-            continue;
-        }
+                continue;
+            }
 
             // if we do have have a filter, we make sure that the match the filter, if so, we put the name and the id
             // of the organization inside the result array
@@ -664,40 +665,40 @@ class ItopProvider extends AbstractProvider
         if (isset($ticketArguments['organization'])
             && $ticketArguments['organization'] != ''
             && $ticketArguments['organization'] != -1) {
-                $data['fields']['org_id'] = $ticketArguments['organization'];
+            $data['fields']['org_id'] = $ticketArguments['organization'];
         }
 
         if (isset($ticketArguments['service'])
             && $ticketArguments['service'] != ''
             && $ticketArguments['service'] != -1) {
-                $data['fields']['service_id'] = $ticketArguments['service'];
+            $data['fields']['service_id'] = $ticketArguments['service'];
         }
 
         if (isset($ticketArguments['service_subcategory'])
             && $ticketArguments['service_subcategory'] != ''
             && $ticketArguments['service_subcategory'] != -1) {
-                $data['fields']['servicesubcategory_id'] = $ticketArguments['service_subcategory'];
+            $data['fields']['servicesubcategory_id'] = $ticketArguments['service_subcategory'];
         }
 
         if (isset($ticketArguments['caller'])
             && $ticketArguments['caller'] != ''
             && $ticketArguments['caller'] != -1) {
-                $data['fields']['caller_id'] = $ticketArguments['caller'];
+            $data['fields']['caller_id'] = $ticketArguments['caller'];
         }
 
         if (isset($ticketArguments['urgency'])
             && $ticketArguments['urgency'] != '') {
-                $data['fields']['urgency'] = $ticketArguments['urgency'];
+            $data['fields']['urgency'] = $ticketArguments['urgency'];
         }
 
         if (isset($ticketArguments['origin'])
             && $ticketArguments['origin'] != '') {
-                $data['fields']['origin'] = $ticketArguments['origin'];
+            $data['fields']['origin'] = $ticketArguments['origin'];
         }
 
         if (isset($ticketArguments['impact'])
             && $ticketArguments['impact'] != '') {
-                $data['fields']['impact'] = $ticketArguments['impact'];
+            $data['fields']['impact'] = $ticketArguments['impact'];
         }
         $result = $this->curlQuery($data);
 

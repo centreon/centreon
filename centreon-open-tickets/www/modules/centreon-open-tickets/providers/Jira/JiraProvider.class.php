@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2019 Centreon (http://www.centreon.com/)
  *
@@ -247,7 +248,7 @@ class JiraProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listIssuetypeJira();
 
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .  (
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
             isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
         ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];

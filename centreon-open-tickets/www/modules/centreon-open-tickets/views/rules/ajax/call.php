@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
@@ -47,7 +48,7 @@ $actions = ['get-form-config' => __DIR__ . '/actions/getFormConfig.php', 'save-f
 if (! isset($_POST['data']) && ! isset($_REQUEST['action'])) {
     $resultat = ['code' => 1, 'msg' => "POST 'data' needed."];
 } else {
-    $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
+    $get_information = isset($_POST['data']) ? json_decode($_POST['data'], true) : null;
     $action = ! is_null($get_information) && isset($get_information['action'])
         ? $get_information['action'] : ($_REQUEST['action'] ?? 'none');
     if (! isset($actions[$action])) {

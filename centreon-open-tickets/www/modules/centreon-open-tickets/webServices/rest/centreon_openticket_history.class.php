@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -83,7 +84,7 @@ class CentreonOpenticketHistory extends CentreonWebService
             AND services.description = ?'
         );
         foreach ($this->arguments['links'] as $link) {
-            if (isset($link['hostname'], $link['service_description'])  ) {
+            if (isset($link['hostname'], $link['service_description'])) {
                 $res = $this->pearDBMonitoring->execute(
                     $stmt_service,
                     [$link['hostname'], $link['service_description']]

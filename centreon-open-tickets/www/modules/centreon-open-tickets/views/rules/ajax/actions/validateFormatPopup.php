@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2015-2019 Centreon (http://www.centreon.com/)
  *
@@ -67,5 +68,3 @@ try {
     $resultat['msg'] = $e->getMessage();
     $db->rollback();
 }
-
-?>

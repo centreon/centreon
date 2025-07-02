@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2019 Centreon (http://www.centreon.com/)
  *
@@ -70,7 +71,8 @@ class GlpiRestApiProvider extends AbstractProvider
     *
     * @return {array} telling us if there is a missing parameter
     */
-    public function validateFormatPopup() {
+    public function validateFormatPopup()
+    {
         $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
 
@@ -98,7 +100,7 @@ class GlpiRestApiProvider extends AbstractProvider
             || ! isset($info['app_token'])
             || ! isset($info['protocol'])
         ) {
-                throw new Exception('missing arguments', 13);
+            throw new Exception('missing arguments', 13);
         }
 
         // check if php curl is installed
@@ -508,11 +510,11 @@ class GlpiRestApiProvider extends AbstractProvider
             . '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</option>'
             . '<option value="' . self::ARG_ENTITY . '">' . _('Entity') . '</option>'
             . '<option value="' . self::ARG_ITIL_CATEGORY . '">' . _('Category') . '</option>'
-            . '<option value="' . self::ARG_REQUESTER . '">' ._('Requester') . '</option>'
+            . '<option value="' . self::ARG_REQUESTER . '">' . _('Requester') . '</option>'
             . '<option value="' . self::ARG_USER . '">' . _('User') . '</option>'
-            . '<option value="' . self::ARG_USER_ROLE . '">' ._('user_role') . '</option>'
+            . '<option value="' . self::ARG_USER_ROLE . '">' . _('user_role') . '</option>'
             . '<option value="' . self::ARG_GROUP . '">' . _('Group') . '</option>'
-            . '<option value="' . self::ARG_GROUP_ROLE . '">' ._('group_role') . '</option>'
+            . '<option value="' . self::ARG_GROUP_ROLE . '">' . _('group_role') . '</option>'
             . '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</option>'
             . '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</option>'
             . '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</option>'
@@ -601,7 +603,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -652,7 +654,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -703,7 +705,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -754,7 +756,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -806,7 +808,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -857,7 +859,7 @@ class GlpiRestApiProvider extends AbstractProvider
     {
         // add a label to our entry and activate sorting or not.
         $groups[$entry['Id']] = ['label' => _($entry['Label'])
-        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 

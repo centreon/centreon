@@ -27,15 +27,15 @@ $rows = 0;
 $nbRule = 0;
 require './include/common/autoNumLimit.php';
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p='.$p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 $query = 'SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r';
 if ($search) {
-    $query .= " WHERE r.alias LIKE '%".$search."%' ";
+    $query .= " WHERE r.alias LIKE '%" . $search . "%' ";
 }
 $queryCount = $query;
 $query .= ' ORDER BY r.alias';
-$query .= ' LIMIT '.$num * $limit.', '.$limit;
+$query .= ' LIMIT ' . $num * $limit . ', ' . $limit;
 
 $resCount = $db->query($queryCount);
 $rows = $resCount->rowCount();
@@ -45,17 +45,17 @@ $elemArr = [];
 $tdStyle = 'list_one';
 $ruleStr = '';
 while ($row = $res->fetch()) {
-    $selectedElements = $form->addElement('checkbox', 'select['.$row['rule_id'].']');
+    $selectedElements = $form->addElement('checkbox', 'select[' . $row['rule_id'] . ']');
     $elemArr[$row['rule_id']]['select'] = $selectedElements->toHtml();
-    $elemArr[$row['rule_id']]['url_edit'] = './main.php?p='.$p.'&o=c&rule_id='.$row['rule_id'];
+    $elemArr[$row['rule_id']]['url_edit'] = './main.php?p=' . $p . '&o=c&rule_id=' . $row['rule_id'];
     $elemArr[$row['rule_id']]['name'] = $row['alias'];
     $elemArr[$row['rule_id']]['status'] = $row['activate'] ? _('Enabled') : _('Disabled');
     $elemArr[$row['rule_id']]['style'] = $tdStyle;
     $dupElements = $form->addElement(
         'text',
-        'duplicateNb['.$row['rule_id'].']',
+        'duplicateNb[' . $row['rule_id'] . ']',
         null,
-        ['id' => 'duplicateNb['.$row['rule_id'].']', 'size' => '3', 'value' => '1']
+        ['id' => 'duplicateNb[' . $row['rule_id'] . ']', 'size' => '3', 'value' => '1']
     );
     $moptions = '';
     if ($row['activate']) {
@@ -65,14 +65,14 @@ while ($row = $res->fetch()) {
     } else {
         $moptions .= "<a href='main.php?p=" . $p . '&o=e&rule_id=' . $row['rule_id'] . '&limit='
             . $limit . '&num=' . $num . "'><img class='ico-14' src='img/icons/enabled.png' border='0' alt='"
-            . _('Enabled')."'></a>";
+            . _('Enabled') . "'></a>";
     }
     $elemArr[$row['rule_id']]['dup'] = $moptions . '&nbsp;' . $dupElements->toHtml();
     $tdStyle = $tdStyle == 'list_one' ? 'list_two' : 'list_one';
     if ($ruleStr) {
         $ruleStr .= ',';
     }
-    $ruleStr .= "'".$row['rule_id']."'";
+    $ruleStr .= "'" . $row['rule_id'] . "'";
     $nbRule++;
 }
 
@@ -89,7 +89,7 @@ $tpl->assign(
 </script>
 <?php
 $attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?')."')) {"
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
     . "     setO(this.form.elements['o1'].value); submit();} "
     . "else if (this.form.elements['o1'].selectedIndex == 2) {"
     . "     setO(this.form.elements['o1'].value); submit();} "
@@ -107,7 +107,7 @@ $form->addElement(
 );
 
 $attrs2 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"._('Do you confirm the deletion ?')."')) {"
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
     . "     setO(this.form.elements['o2'].value); submit();} "
     . "else if (this.form.elements['o2'].selectedIndex == 2) {"
     . "     setO(this.form.elements['o2'].value); submit();} "

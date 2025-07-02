@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2017-2019 Centreon (http://www.centreon.com/)
  *
@@ -357,7 +358,7 @@ class EasyvistaSoapProvider extends AbstractProvider
             }
             $attributes .= (isset($ticket_arguments[$value['formid']])
                 ? '<tns:' . $value['soapname'] . '><![CDATA[' . $ticket_arguments[$value['formid']]
-                . ']]></tns:' . $value['soapname'] . '>' :  '<tns:' . $value['soapname'] . '/>');
+                . ']]></tns:' . $value['soapname'] . '>' : '<tns:' . $value['soapname'] . '/>');
         }
 
         $data = '<?xml version="1.0"?>
@@ -369,7 +370,7 @@ class EasyvistaSoapProvider extends AbstractProvider
         . $account . '
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>'
-        . $attributes .'
+        . $attributes . '
 </tns:EZV_CreateRequest>
 </soap:Body>
 </soap:Envelope>

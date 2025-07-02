@@ -453,9 +453,9 @@ class Automatic
                     || $params['select'][$groupId] == $value
                     || (
                         isset($groupEntry['placeholder'], $groupEntry['placeholder'][$key])
-                         
+
                         && $params['select'][$groupId] == $groupEntry['placeholder'][$key]
-                       )
+                    )
                 ) {
                     $form['select_' . $groupId] = $key . '___' . $value;
                     if (

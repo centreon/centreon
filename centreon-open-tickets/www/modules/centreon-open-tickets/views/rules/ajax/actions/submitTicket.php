@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -42,10 +43,10 @@ function get_contact_information()
 function get_provider_class($rule_id)
 {
     global $register_providers,
-        $centreon_open_tickets_path,
-        $rule,
-        $centreon_path,
-        $get_information;
+    $centreon_open_tickets_path,
+    $rule,
+    $centreon_path,
+    $get_information;
 
     $provider = $rule->getAliasAndProviderId($rule_id);
     $provider_name = null;

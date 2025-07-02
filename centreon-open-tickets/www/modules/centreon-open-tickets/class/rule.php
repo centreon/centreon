@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -209,7 +210,7 @@ class Centreon_OpenTickets_Rule
 
                 return $selected;
             }
-        // cmd 4 = open a ticket on hosts
+            // cmd 4 = open a ticket on hosts
         } elseif ($cmd == 4) {
             $hostsSelectedStr = '';
             $hostsSelectedStrAppend = '';
@@ -310,7 +311,7 @@ class Centreon_OpenTickets_Rule
         } else {
             $this->_db->query(
                 "UPDATE mod_open_tickets_rule SET 
-                    `alias` = '" . $this->_db->escape($datas['rule_alias']) ."',
+                    `alias` = '" . $this->_db->escape($datas['rule_alias']) . "',
                     `provider_id` = '" . $datas['provider_id'] . "'
                 WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
             );

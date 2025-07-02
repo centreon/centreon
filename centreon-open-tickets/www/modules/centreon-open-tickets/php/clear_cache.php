@@ -25,8 +25,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-$extractErrorMessage = function (BufferedOutput $output): ?string
-{
+$extractErrorMessage = function (BufferedOutput $output): ?string {
     $rawMessage = $output->fetch();
     $messages = explode("\n", $rawMessage);
     $filteredMessages = [];
@@ -63,4 +62,3 @@ $code = $application->run($input, $consoleOutput);
 if (! is_null($message = $extractErrorMessage($consoleOutput))) {
     throw new Exception($message);
 }
-

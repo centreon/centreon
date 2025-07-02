@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -51,5 +52,3 @@ try {
 }
 
 exit(1);
-
-?>

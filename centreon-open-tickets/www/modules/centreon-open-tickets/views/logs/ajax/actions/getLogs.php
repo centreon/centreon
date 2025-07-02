@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -19,7 +20,8 @@
  * limitations under the License.
  */
 
-function set_pagination($tpl, $pagination, $current_page, $rows) {
+function set_pagination($tpl, $pagination, $current_page, $rows)
+{
     $tpl->assign('pagination', $pagination);
     $tpl->assign('current_page', $current_page);
     $num_page = (int) (($rows / $pagination) + 1);
@@ -82,5 +84,3 @@ try {
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
 }
-
-?>

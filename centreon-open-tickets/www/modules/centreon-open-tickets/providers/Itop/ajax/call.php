@@ -1,4 +1,5 @@
 <?php
+
 /*
 * Copyright 2019 Centreon (http://www.centreon.com/)
 *
@@ -44,7 +45,7 @@ require_once $centreon_path . 'www/include/common/common-Func.php';
 if (! isset($_POST['data'])) {
     $result = ['code' => 1, 'msg' => "POST 'data' is required."];
 } else {
-    $getInformation = isset($_POST['data']) ? json_decode($_POST['data'], true): null;
+    $getInformation = isset($_POST['data']) ? json_decode($_POST['data'], true) : null;
     $result = ['code' => 0, 'msg' => 'ok'];
 
     // check if there is the provider id in the data
@@ -73,19 +74,25 @@ if (! isset($_POST['data'])) {
     // check if provider exists
     if (is_null($providerName) || ! file_exists($centreon_open_tickets_path . 'providers/' . $providerName . '/'
         . $providerName . 'Provider.class.php')) {
-            $result['code'] = 1;
-            $result['msg'] = 'Please set a provider, or check that ' . $centreon_open_tickets_path
-                . 'providers/' . $providerName . '/' . $providerName . 'Provider.class.php exists';
+        $result['code'] = 1;
+        $result['msg'] = 'Please set a provider, or check that ' . $centreon_open_tickets_path
+            . 'providers/' . $providerName . '/' . $providerName . 'Provider.class.php exists';
 
-            return;
+        return;
     }
 
     // initate provider
     require_once $centreon_open_tickets_path . 'providers/' . $providerName . '/' . $providerName
         . 'Provider.class.php';
     $className = $providerName . 'Provider';
-    $centreonProvider = new $className($rule, $centreon_path, $centreon_open_tickets_path, $getInformation['rule_id'],
-        null, $getInformation['provider_id']);
+    $centreonProvider = new $className(
+        $rule,
+        $centreon_path,
+        $centreon_open_tickets_path,
+        $getInformation['rule_id'],
+        null,
+        $getInformation['provider_id']
+    );
 
     // check if methods exist
     foreach ($getInformation['methods'] as $method) {

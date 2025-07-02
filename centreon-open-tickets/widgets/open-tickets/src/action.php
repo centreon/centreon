@@ -163,7 +163,8 @@ function format_popup()
     $template->assign('continue', (! is_null($result) && isset($result['format_popup'])) ? 0 : 1);
     $template->assign(
         'attach_files_enable',
-        (! is_null($result)
+        (
+            ! is_null($result)
             && isset($result['attach_files_enable'])
             && $result['attach_files_enable'] === 'yes'
         ) ? 1 : 0
@@ -171,7 +172,8 @@ function format_popup()
 
     $template->assign(
         'formatPopupProvider',
-        (! is_null($result)
+        (
+            ! is_null($result)
             && isset($result['format_popup'])
         ) ? $result['format_popup'] : ''
     );
@@ -226,16 +228,16 @@ try {
         remove_tickets();
     } elseif ($cmd == 70) {
         service_ack((bool) $preferences['auto_close_action_popup']);
-    // schedule service forced check
+        // schedule service forced check
     } elseif ($cmd == 80) {
         schedule_check(true, true, (bool) $preferences['auto_close_action_popup']);
-    // schedule service check
+        // schedule service check
     } elseif ($cmd == 81) {
         schedule_check(true, false, (bool) $preferences['auto_close_action_popup']);
-    // schedule host forced check
+        // schedule host forced check
     } elseif ($cmd == 82) {
         schedule_check(false, true, (bool) $preferences['auto_close_action_popup']);
-    // schedule host check
+        // schedule host check
     } elseif ($cmd == 83) {
         schedule_check(false, false, (bool) $preferences['auto_close_action_popup']);
     }

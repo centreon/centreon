@@ -39,4 +39,3 @@ return static function (ContainerConfigurator $container): void {
             ->tag('monitoring.resource.extra.presenter.providers');
     }
 };
-

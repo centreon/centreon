@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2015-2023 Centreon (http://www.centreon.com/)
  *
@@ -59,38 +60,38 @@ $media = new CentreonMedia($db);
 
 /** @var Centreon $centreon */
 $centreon = $_SESSION['centreon'];
-$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);	
+$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
-	
-/**	
- * @var CentreonDB $dbb	
- */	
+
+/**
+ * @var CentreonDB $dbb
+ */
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-// Set Colors Table	
+// Set Colors Table
 $stateHColors = [
-    0 => 'host_up',	
-    1 => 'host_down',	
-    2 => 'host_unreachable',	
+    0 => 'host_up',
+    1 => 'host_down',
+    2 => 'host_unreachable',
     4 => 'host_pending',
-];	
+];
 $stateSColors = [
-    0 => 'service_ok',	
-    1 => 'service_warning',	
-    2 => 'service_critical',	
-    3 => 'service_unknown',	
+    0 => 'service_ok',
+    1 => 'service_warning',
+    2 => 'service_critical',
+    3 => 'service_unknown',
     4 => 'pending',
-];	
+];
 $stateLabels = [
-    0 => 'Ok',	
-    1 => 'Warning',	
-    2 => 'Critical',	
-    3 => 'Unknown',	
+    0 => 'Ok',
+    1 => 'Warning',
+    2 => 'Critical',
+    3 => 'Unknown',
     4 => 'Pending',
-];	
-$aStateType = ['1' => 'H', '0' => 'S'];	
+];
+$aStateType = ['1' => 'H', '0' => 'S'];
 $mainQueryParameters = [];
 
 // Build Query
@@ -145,7 +146,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
     if ($op && isset($search) && $search != '') {
         $query = CentreonUtils::conditionBuilder(
             $query,
-            'h.name '.CentreonUtils::operandToMysqlFormat($op)
+            'h.name ' . CentreonUtils::operandToMysqlFormat($op)
             . " '" . $dbb->escape($search) . "' "
         );
     }
@@ -159,7 +160,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
     if ($op && isset($search) && $search != '') {
         $query = CentreonUtils::conditionBuilder(
             $query,
-            's.description ' . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search)."' "
+            's.description ' . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
         );
     }
 }
@@ -358,10 +359,10 @@ while ($row = $res->fetch()) {
         } elseif ($key == 'check_attempt') {
             $value = $value . '/' . $row['max_check_attempts'];
         } elseif ($key == 's_state') {
-            $data[$row['host_id'].'_'.$row['service_id']]['color'] = $stateSColors[$value];
+            $data[$row['host_id'] . '_' . $row['service_id']]['color'] = $stateSColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == 'h_state') {
-            $data[$row['host_id'].'_'.$row['service_id']]['hcolor'] = $stateHColors[$value];
+            $data[$row['host_id'] . '_' . $row['service_id']]['hcolor'] = $stateHColors[$value];
             $value = $stateLabels[$value];
         } elseif ($key == 'output') {
             $value = substr($value, 0, $outputLength);
@@ -374,7 +375,7 @@ while ($row = $res->fetch()) {
             $critData = $criticality->getData($row['criticality_id'], 1);
             $value = $critData['hc_name'];
         }
-        $data[$row['host_id'].'_'.$row['service_id']][$key] = $value;
+        $data[$row['host_id'] . '_' . $row['service_id']][$key] = $value;
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
@@ -386,9 +387,9 @@ while ($row = $res->fetch()) {
             ORDER BY entry_time DESC LIMIT 1'
         );
         if ($row2 = $res2->fetch()) {
-            $data[$row['host_id'].'_'.$row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
+            $data[$row['host_id'] . '_' . $row['service_id']]['comment'] = substr($row2['data'], 0, $commentLength);
         } else {
-            $data[$row['host_id'].'_'.$row['service_id']]['comment'] = '-';
+            $data[$row['host_id'] . '_' . $row['service_id']]['comment'] = '-';
         }
     }
 }

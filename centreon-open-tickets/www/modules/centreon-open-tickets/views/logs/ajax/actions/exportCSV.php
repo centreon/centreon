@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -31,11 +32,11 @@ try {
     $tickets = $ticket_log->getLog($_SESSION['OT_form_logs'], $centreon_bg, null, null, true);
     // fwrite($fp, print_r($tickets, true));
 
-    echo _('Begin date').'; '._('End date').";\n";
+    echo _('Begin date') . '; ' . _('End date') . ";\n";
     echo $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['start'])) . ';' . $centreon_bg->GMT->getDate('m/d/Y (H:i:s)', intval($tickets['end'])) . "\n";
     echo "\n";
 
-    echo _('Day') . ';' . _('Time') . ';' . _('Host') . ';' . _('Service') . ';' . _('Ticket ID') . ';' . _('User') . ';' . _('Subject')."\n";
+    echo _('Day') . ';' . _('Time') . ';' . _('Host') . ';' . _('Service') . ';' . _('Ticket ID') . ';' . _('User') . ';' . _('Subject') . "\n";
     foreach ($tickets['tickets'] as $ticket) {
         echo $centreon_bg->GMT->getDate('Y/m/d', $ticket['timestamp']) . ';' . $centreon_bg->GMT->getDate('H:i:s', $ticket['timestamp']) . ';' . $ticket['host_name'] . ';' . $ticket['service_description'] . ';' . $ticket['ticket_id'] . ';' . $ticket['user'] . ';' . $ticket['subject'] . "\n";
     }
@@ -44,5 +45,3 @@ try {
 }
 
 exit(1);
-
-?>

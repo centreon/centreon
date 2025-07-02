@@ -1378,8 +1378,10 @@ class PHPMailer
             if (
                 ! empty($this->DKIM_domain)
                 && ! empty($this->DKIM_selector)
-                && (! empty($this->DKIM_private_string)
-                    || (! empty($this->DKIM_private)
+                && (
+                    ! empty($this->DKIM_private_string)
+                    || (
+                        ! empty($this->DKIM_private)
                         && static::isPermittedPath($this->DKIM_private)
                         && file_exists($this->DKIM_private)
                     )
@@ -2611,10 +2613,11 @@ class PHPMailer
                 }
                 $matchcount = preg_match_all('/[^\040\041\043-\133\135-\176]/', $str, $matches);
                 break;
-            // @noinspection PhpMissingBreakStatementInspection
+                // @noinspection PhpMissingBreakStatementInspection
             case 'comment':
                 $matchcount = preg_match_all('/[()"]/', $str, $matches);
-            // fallthrough
+                // fallthrough
+                // no break
             case 'text':
             default:
                 $matchcount += preg_match_all('/[\000-\010\013\014\016-\037\177-\377]/', $str, $matches);
@@ -2776,14 +2779,15 @@ class PHPMailer
                 // RFC 2047 section 5.3
                 $pattern = '^A-Za-z0-9!*+\/ -';
                 break;
-            /*
-             * RFC 2047 section 5.2.
-             * Build $pattern without including delimiters and []
-             */
-            // @noinspection PhpMissingBreakStatementInspection
+                /*
+                 * RFC 2047 section 5.2.
+                 * Build $pattern without including delimiters and []
+                 */
+                // @noinspection PhpMissingBreakStatementInspection
             case 'comment':
                 $pattern = '\(\)"';
-            // Intentional fall through
+                // Intentional fall through
+                // no break
             case 'text':
             default:
                 // RFC 2047 section 5.1
@@ -3174,7 +3178,7 @@ class PHPMailer
         }
 
         return (bool) (filter_var('http://' . $host, FILTER_VALIDATE_URL) !== false);
-            // Is it a syntactically valid hostname?
+        // Is it a syntactically valid hostname?
     }
 
     /**
@@ -4111,7 +4115,7 @@ class PHPMailer
                 $str = preg_replace('/\r\n|\r/m', "\n", $str);
                 echo gmdate('Y-m-d H:i:s'),
                 "\t",
-                    // Trim trailing space
+                // Trim trailing space
                 trim(
                     // Indent for readability, except for trailing break
                     str_replace(
