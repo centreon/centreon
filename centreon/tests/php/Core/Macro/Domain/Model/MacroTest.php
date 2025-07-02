@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,9 +101,9 @@ it('should resolve macro inheritance', function (): void {
         $macroB2->getName() => $macroB2,
     ])
         ->and($inheritedMacros)->toBe([
-        $macroC->getName() => $macroC,
-        $macroD->getName() => $macroD,
-        $macroE2->getName() => $macroE2,
-        $macroB1->getName() => $macroB1,
-    ]);
+            $macroC->getName() => $macroC,
+            $macroD->getName() => $macroD,
+            $macroE2->getName() => $macroE2,
+            $macroB1->getName() => $macroB1,
+        ]);
 });
