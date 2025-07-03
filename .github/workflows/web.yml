@@ -478,9 +478,9 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::Legacy PHP CS Fixer"
-            composer cs:legacy:www
-            composer cs:legacy:src
-            composer cs:legacy:test
+            composer cs:legacy:www -- --format=txt
+            composer cs:legacy:src -- --format=txt
+            composer cs:legacy:test -- --format=txt
             echo "::endgroup::"
 
             echo "::group::Legacy PHPStan"
@@ -498,7 +498,7 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::Core PHP CS Fixer"
-            composer cs:core
+            composer cs:core -- --format=txt
             echo "::endgroup::"
 
             echo "::group::Core PHPStan"
@@ -514,7 +514,7 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::New PHP CS Fixer"
-            composer cs:new
+            composer cs:new -- --format=txt
             echo "::endgroup::"
 
             echo "::group::New PHPStan"
@@ -522,7 +522,7 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::New Deptrac"
-            composer dep:new -- --formatter=github
+            composer dep:new -- --formatter=github-actions
             echo "::endgroup::"
           } &
           pid_new=$!
