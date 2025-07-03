@@ -466,68 +466,33 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
-      - name: Run analyses in parallel
-        working-directory: centreon
+      - name: Run php-cs-fixer in parallel
         run: |
           set -e
 
-          # Analyse code quality of legacy section (/www, /src, /tests)
           {
-            echo "::group::Legacy Rector"
-            composer rector:legacy -- --no-progress-bar
-            echo "::endgroup::"
-
-            echo "::group::Legacy PHP CS Fixer"
+            echo "::group::php-cs-fixer legacy"
             composer cs:legacy:www -- --format=txt | cat
             composer cs:legacy:src -- --format=txt | cat
             composer cs:legacy:test -- --format=txt | cat
             echo "::endgroup::"
-
-            echo "::group::Legacy PHPStan"
-            composer stan:legacy:www -- --no-progress
-            composer stan:legacy:src -- --no-progress
-            composer stan:legacy:test -- --no-progress
-            echo "::endgroup::"
           } &
           pid_legacy=$!
 
-          # Analyse code quality of core section (/src/Core, /tests/Core)
           {
-            echo "::group::Core Rector"
-            composer rector:core -- --no-progress-bar
-            echo "::endgroup::"
-
-            echo "::group::Core PHP CS Fixer"
+            echo "::group::php-cs-fixer core"
             composer cs:core -- --format=txt | cat
-            echo "::endgroup::"
-
-            echo "::group::Core PHPStan"
-            composer stan:core -- --no-progress
             echo "::endgroup::"
           } &
           pid_core=$!
 
-          # Analyse code quality of new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
           {
-            echo "::group::New Rector"
-            composer rector:new -- --no-progress-bar
-            echo "::endgroup::"
-
-            echo "::group::New PHP CS Fixer"
+            echo "::group::php-cs-fixer new"
             composer cs:new -- --format=txt | cat
-            echo "::endgroup::"
-
-            echo "::group::New PHPStan"
-            composer stan:new -- --no-progress
-            echo "::endgroup::"
-
-            echo "::group::New Deptrac"
-            composer dep:new -- --formatter=github-actions | cat
             echo "::endgroup::"
           } &
           pid_new=$!
 
-          # Wait and capture exit codes
           exit_legacy=0
           exit_core=0
           exit_new=0
@@ -536,8 +501,7 @@ jobs:
           wait $pid_core   || exit_core=$?
           wait $pid_new    || exit_new=$?
 
-          # Build summary
-          echo "## ✅ Analyse Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## PHP CS Fixer Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "$exit_legacy" -eq 0 ]; then
@@ -558,13 +522,255 @@ jobs:
             echo "- ✨ **New**: ❌ Failed (exit code: $exit_new)" >> $GITHUB_STEP_SUMMARY
           fi
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Toutes les analyses ont été lancées en parallèle pour plus de rapidité 🚀" >> $GITHUB_STEP_SUMMARY
-
-          # Fail job if any block failed
           if [ "$exit_legacy" -ne 0 ] || [ "$exit_core" -ne 0 ] || [ "$exit_new" -ne 0 ]; then
             exit 1
           fi
+
+      - name: Run PHPStan in parallel
+        run: |
+          set -e
+
+          {
+            echo "::group::PHPStan Legacy"
+            composer stan:legacy:www -- --no-progress
+            composer stan:legacy:src -- --no-progress
+            composer stan:legacy:test -- --no-progress
+            echo "::endgroup::"
+          } &
+          pid_stan_legacy=$!
+
+          {
+            echo "::group::PHPStan Core"
+            composer stan:core -- --no-progress
+            echo "::endgroup::"
+          } &
+          pid_stan_core=$!
+
+          {
+            echo "::group::PHPStan New"
+            composer stan:new -- --no-progress
+            echo "::endgroup::"
+          } &
+          pid_stan_new=$!
+
+          exit_stan_legacy=0
+          exit_stan_core=0
+          exit_stan_new=0
+
+          wait $pid_stan_legacy || exit_stan_legacy=$?
+          wait $pid_stan_core   || exit_stan_core=$?
+          wait $pid_stan_new    || exit_stan_new=$?
+
+          echo "## PHPStan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$exit_stan_legacy" -eq 0 ]; then
+            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_stan_legacy)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_stan_core" -eq 0 ]; then
+            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_stan_core)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_stan_new" -eq 0 ]; then
+            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ✨ **New**: ❌ Failed (exit code: $exit_stan_new)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_stan_legacy" -ne 0 ] || [ "$exit_stan_core" -ne 0 ] || [ "$exit_stan_new" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Run Rector in parallel
+        run: |
+          set -e
+
+          {
+            echo "::group::Rector Legacy"
+            composer rector:legacy -- --no-progress-bar
+            echo "::endgroup::"
+          } &
+          pid_rector_legacy=$!
+
+          {
+            echo "::group::Rector Core"
+            composer rector:core -- --no-progress-bar
+            echo "::endgroup::"
+          } &
+          pid_rector_core=$!
+
+          {
+            echo "::group::Rector New"
+            composer rector:new -- --no-progress-bar
+            echo "::endgroup::"
+          } &
+          pid_rector_new=$!
+
+          exit_rector_legacy=0
+          exit_rector_core=0
+          exit_rector_new=0
+
+          wait $pid_rector_legacy || exit_rector_legacy=$?
+          wait $pid_rector_core   || exit_rector_core=$?
+          wait $pid_rector_new    || exit_rector_new=$?
+
+          echo "## Rector Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$exit_rector_legacy" -eq 0 ]; then
+            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_rector_legacy)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_rector_core" -eq 0 ]; then
+            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_rector_core)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_rector_new" -eq 0 ]; then
+            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ✨ **New**: ❌ Failed (exit code: $exit_rector_new)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_rector_legacy" -ne 0 ] || [ "$exit_rector_core" -ne 0 ] || [ "$exit_rector_new" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Run Deptrac in parallel
+        run: |
+          set -e
+
+          {
+            echo "::group::Deptrac New"
+            composer dep:new -- --formatter=github | cat
+            echo "::endgroup::"
+          } &
+          pid_dep_new=$!
+
+          exit_dep_new=0
+
+          wait $pid_dep_new    || exit_dep_new=$?
+
+          echo "## Deptrac Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$exit_dep_new" -eq 0 ]; then
+            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ✨ **New**: ❌ Failed (exit code: $exit_dep_new)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$exit_dep_new" -ne 0 ]; then
+            exit 1
+          fi
+
+#      - name: Run analyses in parallel
+#        working-directory: centreon
+#        run: |
+#          set -e
+#
+#          # Analyse code quality of legacy section (/www, /src, /tests)
+#          {
+#            echo "::group::Legacy Rector"
+#            composer rector:legacy -- --no-progress-bar
+#            echo "::endgroup::"
+#
+#            echo "::group::Legacy PHP CS Fixer"
+#            composer cs:legacy:www -- --format=txt | cat
+#            composer cs:legacy:src -- --format=txt | cat
+#            composer cs:legacy:test -- --format=txt | cat
+#            echo "::endgroup::"
+#
+#            echo "::group::Legacy PHPStan"
+#            composer stan:legacy:www -- --no-progress
+#            composer stan:legacy:src -- --no-progress
+#            composer stan:legacy:test -- --no-progress
+#            echo "::endgroup::"
+#          } &
+#          pid_legacy=$!
+#
+#          # Analyse code quality of core section (/src/Core, /tests/Core)
+#          {
+#            echo "::group::Core Rector"
+#            composer rector:core -- --no-progress-bar
+#            echo "::endgroup::"
+#
+#            echo "::group::Core PHP CS Fixer"
+#            composer cs:core -- --format=txt | cat
+#            echo "::endgroup::"
+#
+#            echo "::group::Core PHPStan"
+#            composer stan:core -- --no-progress
+#            echo "::endgroup::"
+#          } &
+#          pid_core=$!
+#
+#          # Analyse code quality of new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
+#          {
+#            echo "::group::New Rector"
+#            composer rector:new -- --no-progress-bar
+#            echo "::endgroup::"
+#
+#            echo "::group::New PHP CS Fixer"
+#            composer cs:new -- --format=txt | cat
+#            echo "::endgroup::"
+#
+#            echo "::group::New PHPStan"
+#            composer stan:new -- --no-progress
+#            echo "::endgroup::"
+#
+#            echo "::group::New Deptrac"
+#            composer dep:new -- --formatter=github-actions | cat
+#            echo "::endgroup::"
+#          } &
+#          pid_new=$!
+#
+#          # Wait and capture exit codes
+#          exit_legacy=0
+#          exit_core=0
+#          exit_new=0
+#
+#          wait $pid_legacy || exit_legacy=$?
+#          wait $pid_core   || exit_core=$?
+#          wait $pid_new    || exit_new=$?
+#
+#          # Build summary
+#          echo "## ✅ Analyse Summary" >> $GITHUB_STEP_SUMMARY
+#          echo "" >> $GITHUB_STEP_SUMMARY
+#
+#          if [ "$exit_legacy" -eq 0 ]; then
+#            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+#          else
+#            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_legacy)" >> $GITHUB_STEP_SUMMARY
+#          fi
+#
+#          if [ "$exit_core" -eq 0 ]; then
+#            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+#          else
+#            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_core)" >> $GITHUB_STEP_SUMMARY
+#          fi
+#
+#          if [ "$exit_new" -eq 0 ]; then
+#            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+#          else
+#            echo "- ✨ **New**: ❌ Failed (exit code: $exit_new)" >> $GITHUB_STEP_SUMMARY
+#          fi
+#
+#          echo "" >> $GITHUB_STEP_SUMMARY
+#          echo "Toutes les analyses ont été lancées en parallèle pour plus de rapidité 🚀" >> $GITHUB_STEP_SUMMARY
+#
+#          # Fail job if any block failed
+#          if [ "$exit_legacy" -ne 0 ] || [ "$exit_core" -ne 0 ] || [ "$exit_new" -ne 0 ]; then
+#            exit 1
+#          fi
 
   package:
     needs:
