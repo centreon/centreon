@@ -470,19 +470,19 @@ jobs:
         working-directory: centreon
         run: |
           set -e
-          
+
           # Analyse code quality of legacy section (/www, /src, /tests)
           {
             echo "::group::Legacy Rector"
             composer rector:legacy
             echo "::endgroup::"
-          
+
             echo "::group::Legacy PHP CS Fixer"
             composer cs:legacy:www
             composer cs:legacy:src
             composer cs:legacy:test
             echo "::endgroup::"
-          
+
             echo "::group::Legacy PHPStan"
             composer stan:legacy:www
             composer stan:legacy:src
@@ -490,7 +490,7 @@ jobs:
             echo "::endgroup::"
           } &
           pid_legacy=$!
-          
+
           # Analyse code quality of core section (/src/Core, /tests/Core)
           {
             echo "::group::Core Rector"
@@ -506,7 +506,7 @@ jobs:
             echo "::endgroup::"
           } &
           pid_core=$!
-          
+
           # Analyse code quality of new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
           {
             echo "::group::New Rector"
@@ -526,41 +526,41 @@ jobs:
             echo "::endgroup::"
           } &
           pid_new=$!
-          
+
           # Wait and capture exit codes
           exit_legacy=0
           exit_core=0
           exit_new=0
-          
+
           wait $pid_legacy || exit_legacy=$?
           wait $pid_core   || exit_core=$?
           wait $pid_new    || exit_new=$?
-          
+
           # Build summary
           echo "## ✅ Analyse Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "$exit_legacy" -eq 0 ]; then
             echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_legacy)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "$exit_core" -eq 0 ]; then
             echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_core)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "$exit_new" -eq 0 ]; then
             echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ✨ **New**: ❌ Failed (exit code: $exit_new)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Toutes les analyses ont été lancées en parallèle pour plus de rapidité 🚀" >> $GITHUB_STEP_SUMMARY
-          
+
           # Fail job if any block failed
           if [ "$exit_legacy" -ne 0 ] || [ "$exit_core" -ne 0 ] || [ "$exit_new" -ne 0 ]; then
             exit 1
