@@ -129,12 +129,12 @@ jobs:
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of php-cs-fixer on the legacy section
-        run: composer cs:legacy:www
-        working-directory: centreon-awie
-
       - name: Run of rector on all sections
         run: composer rector
+        working-directory: centreon-awie
+
+      - name: Run of php-cs-fixer on the legacy section
+        run: composer cs:legacy:www
         working-directory: centreon-awie
 
       - name: Run of phpstan on the legacy section at level 6

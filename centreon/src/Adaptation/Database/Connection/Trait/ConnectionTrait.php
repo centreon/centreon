@@ -157,9 +157,11 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
+
             if ([] === $columns) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
+
             if ($batchInsertParameters->isEmpty()) {
                 throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
             }
@@ -187,6 +189,7 @@ trait ConnectionTrait
                 if ($queryParameters->isEmpty()) {
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
                 }
+
                 if (\count($columns) !== $queryParameters->length()) {
                     throw ConnectionException::batchInsertQueryBadUsage('Columns and query parameters must have the same length');
                 }
@@ -198,6 +201,7 @@ trait ConnectionTrait
                     if (! empty($valuesInsertItem)) {
                         $valuesInsertItem .= ', ';
                     }
+
                     $parameterName = "{$queryParameter->getName()}_{$indexQueryParameterToInsert}";
                     $queryParameterToInsert = QueryParameter::create(
                         $parameterName,
@@ -405,6 +409,7 @@ trait ConnectionTrait
                 if (\count($row) < 2) {
                     throw ConnectionException::iterateKeyValueQueryBadFormat('The query must return at least two columns', $query);
                 }
+
                 [$key, $value] = $row;
 
                 yield $key => $value;

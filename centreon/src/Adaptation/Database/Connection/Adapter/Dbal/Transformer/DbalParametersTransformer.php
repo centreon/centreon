@@ -52,6 +52,7 @@ abstract readonly class DbalParametersTransformer
             if (str_starts_with($queryParameter->getName(), ':')) {
                 $name = mb_substr($queryParameter->getName(), 1);
             }
+
             $params[$name] = $queryParameter->getValue();
             if (null !== $queryParameter->getType()) {
                 $types[$name] = DbalParameterTypeTransformer::transformFromQueryParameterType(

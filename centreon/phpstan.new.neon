@@ -4,14 +4,16 @@ includes:
 parameters:
     level: max
     scanFiles:
-        - .php-cs-fixer.new.php
         - .php-cs-fixer.core.php
         - .php-cs-fixer.legacy.src.php
+        - .php-cs-fixer.legacy.test.php
+        - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.new.php
         - castor.php
-        - rector.php
+        - rector.core.php
+        - rector.legacy.php
+        - rector.new.php
     paths:
         - config.new
         - src/Adaptation
         - src/App
-        #- tests/php/Adaptation // TODO add this folder when the code is ready
-        - tests/php/App

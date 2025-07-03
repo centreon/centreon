@@ -163,61 +163,101 @@
   },
   "scripts": {
     "require:check": "../tools/vendor/bin/composer-require-checker check composer.json",
-    "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
-    "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
+    "rector:legacy": "../tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../tools/vendor/bin/rector --config=rector.legacy.php process",
+    "rector:core": "../tools/vendor/bin/rector process --config=rector.core.php --dry-run",
+    "rector:core:fix": "../tools/vendor/bin/rector --config=rector.core.php process",
+    "rector:new": "../tools/vendor/bin/rector process --config=rector.new.php --dry-run",
+    "rector:new:fix": "../tools/vendor/bin/rector process --config=rector.new.php",
+    "rector": [
+      "@rector:legacy",
+      "@rector:core",
+      "@rector:new"
+    ],
+    "rector:fix": [
+      "@rector:legacy:fix",
+      "@rector:core:fix",
+      "@rector:new:fix"
+    ],
     "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
     "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
+    "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
+    "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "cs:legacy:test": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.test.php --verbose --dry-run --diff",
+    "cs:legacy:test:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.test.php --verbose --diff",
+    "cs:legacy": [
+      "@cs:legacy:www",
+      "@cs:legacy:src",
+      "@cs:legacy:test"
+    ],
+    "cs:legacy:fix": [
+      "@cs:legacy:www:fix",
+      "@cs:legacy:src:fix",
+      "@cs:legacy:test:fix"
+    ],
     "cs:core": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",
     "cs:core:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff",
-    "cs:test": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.test.php --verbose --dry-run --diff",
-    "cs:test:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.test.php --verbose --diff",
     "cs:new": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff",
     "cs:new:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff",
-    "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
-    "stan:legacy:src:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
     "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:www:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:src:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:test": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
+    "stan:legacy": [
+      "@stan:legacy:www",
+      "@stan:legacy:src",
+      "@stan:legacy:test"
+    ],
     "stan:core": "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "stan:core:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
-    "stan:test": "../tools/vendor/bin/phpstan analyse -c phpstan.test.neon --memory-limit=1G",
-    "stan:test:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.test.neon --memory-limit=1G",
+    "stan:core:test": "../tools/vendor/bin/phpstan analyse -c phpstan.core.test.neon --memory-limit=1G",
     "stan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
-    "rector": "../tools/vendor/bin/rector process --dry-run",
-    "rector:fix": "../tools/vendor/bin/rector process",
     "dep:new": [
       "../tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
       "../tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
-    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "cs": [
-      "@cs:legacy:src",
-      "@cs:legacy:www",
+      "@cs:legacy",
       "@cs:core",
-      "@cs:test",
       "@cs:new"
     ],
     "cs:fix": [
-      "@cs:legacy:src:fix",
-      "@cs:legacy:www:fix",
+      "@cs:legacy:fix",
       "@cs:core:fix",
-      "@cs:test:fix",
       "@cs:new:fix"
     ],
     "stan": [
-      "@stan:legacy:src",
+      "@stan:legacy",
       "@stan:core",
-      "@stan:test",
       "@stan:new"
     ],
     "dep": [
       "@dep:new"
     ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
+    "core:check": [
+      "@rector:core",
+      "@cs:core",
+      "@stan:core"
+    ],
+    "new:check": [
+      "@rector:new",
+      "@cs:new",
+      "@stan:new",
+      "@dep:new"
+    ],
     "ci": [
-      "@symfony:check:ci",
-      "@cs",
+      "@symfony:check",
       "@rector",
+      "@cs",
       "@stan",
       "@dep",
       "@test"

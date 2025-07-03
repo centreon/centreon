@@ -7,7 +7,6 @@ parameters:
         - config/centreon.config.php.template
     scanFiles:
         - config/centreon.config.php.template
-        - www/install/functions.php
         - tests/phpstan_stubs/bootstrap.stub
         - tests/phpstan_stubs/legacy.stub
         - tests/php/bootstrap.php
@@ -15,12 +14,6 @@ parameters:
     level: 2
     paths:
         - tests/php/Core
-        - tests/php/Centreon
-        - tests/php/CentreonLegacy
-        - tests/php/CentreonRemote
-        - tests/php/Security
-        - tests/php/Utility
-        - tests/php/www
     ignoreErrors:
         -
             reportUnmatched: false

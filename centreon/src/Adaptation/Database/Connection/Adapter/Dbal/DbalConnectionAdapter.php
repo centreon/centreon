@@ -198,7 +198,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 throw ConnectionException::executeStatementBadFormat('Cannot use it with a SELECT query', $query);
             }
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return (int) $this->dbalConnection->executeStatement($query);
             }
 
@@ -238,7 +238,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchNumeric($query);
             }
 
@@ -275,7 +275,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAssociative($query);
             }
 
@@ -313,7 +313,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchOne($query);
             }
 
@@ -350,7 +350,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchFirstColumn($query);
             }
 
@@ -387,7 +387,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllNumeric($query);
             }
 
@@ -424,7 +424,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllAssociative($query);
             }
 
@@ -462,7 +462,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->fetchAllKeyValue($query);
             }
 
@@ -504,7 +504,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateNumeric($query);
             }
 
@@ -538,7 +538,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateAssociative($query);
             }
 
@@ -571,7 +571,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
 
-            if (null === $queryParameters) {
+            if (! $queryParameters instanceof QueryParameters) {
                 return $this->dbalConnection->iterateColumn($query);
             }
 
@@ -652,11 +652,10 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             // we check if the save points mode is available before run a nested transaction
-            if ($this->isTransactionActive()) {
-                if (! $this->dbalConnection->getDatabasePlatform()->supportsSavepoints()) {
-                    throw new ConnectionException('Start nested transaction failed', ConnectionException::ERROR_CODE_DATABASE_TRANSACTION);
-                }
+            if ($this->isTransactionActive() && ! $this->dbalConnection->getDatabasePlatform()->supportsSavepoints()) {
+                throw new ConnectionException('Start nested transaction failed', ConnectionException::ERROR_CODE_DATABASE_TRANSACTION);
             }
+
             $this->dbalConnection->beginTransaction();
         } catch (\Throwable $exception) {
             $this->writeDbLog(
@@ -726,6 +725,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 $driverNamePdo = $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME);
                 $driverName = is_string($driverNamePdo) ? 'pdo_' . $driverNamePdo : '';
             }
+
             if (empty($driverName) || ! \in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
                 $this->writeDbLog(
                     message: 'Unbuffered queries are not allowed with this driver',
@@ -750,13 +750,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         $this->allowUnbufferedQuery();
         $nativeConnection = $this->getNativeConnection();
-        if ($nativeConnection instanceof \PDO) {
-            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-                $this->writeDbLog(message: 'Error while starting an unbuffered query');
+        if ($nativeConnection instanceof \PDO && ! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+            $this->writeDbLog(message: 'Error while starting an unbuffered query');
 
-                throw ConnectionException::startUnbufferedQueryFailed();
-            }
+            throw ConnectionException::startUnbufferedQueryFailed();
         }
+
         $this->isBufferedQueryActive = false;
     }
 
@@ -783,13 +782,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             throw ConnectionException::stopUnbufferedQueryFailed('Unbuffered query not active');
         }
-        if ($nativeConnection instanceof \PDO) {
-            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-                $this->writeDbLog(message: 'Error while stopping an unbuffered query');
 
-                throw ConnectionException::stopUnbufferedQueryFailed('Unbuffered query failed');
-            }
+        if ($nativeConnection instanceof \PDO && ! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+            $this->writeDbLog(message: 'Error while stopping an unbuffered query');
+
+            throw ConnectionException::stopUnbufferedQueryFailed('Unbuffered query failed');
         }
+
         $this->isBufferedQueryActive = true;
     }
 
@@ -813,7 +812,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'query' => $query,
         ];
 
-        if (null !== $previous) {
+        if ($previous instanceof \Throwable) {
             ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
             Logger::create()->critical($message, $context);

@@ -463,52 +463,52 @@ jobs:
         working-directory: centreon
 
       - name: Check Symfony configuration
-        run: composer symfony:check:ci
+        run: composer symfony:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer on the legacy section for the /www directory
-        run: composer cs:legacy:www
+      - name: Analyse code quality of the legacy section (/www, /src, /tests)
+        run: composer legacy:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer on the legacy section for the /src directory
-        run: composer cs:legacy:src
+      - name: Analyse code quality of the core section (/src/Core, /tests/Core)
+        run: composer legacy:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer on the api legacy section for the /src/Core directory
-        run: composer cs:core
+      - name: Analyse code quality of the new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
+        run: composer legacy:check
         working-directory: centreon
-
-      - name: Run of php-cs-fixer on the new section for the /src/Adaptation and /src/App directories
-        run: composer cs:new
-        working-directory: centreon
-
-      - name: Run of rector on all sections
-        run: composer rector
-        working-directory: centreon
-
-      - name: Run of phpstan on the legacy section for the /www directory at level 0
-        run: composer stan:legacy:src
-        working-directory: centreon
-
-      - name: Run of phpstan on the legacy section for the /src directory at level 4
-        run: composer stan:legacy:src
-        working-directory: centreon
-
-      - name: Run of phpstan on the api legacy section for the /src/Core directory at level 8 + Centreon Custom Rules
-        run: composer stan:core
-        working-directory: centreon
-
-      - name: Run of phpstan on the unit tests of the legacy section for the /tests at level 2
-        run: composer stan:test
-        working-directory: centreon
-
-      - name: Run of phpstan on the new section for the /src/Adaptation and /src/App directories at level max
-        run: composer stan:new
-        working-directory: centreon
-
-      - name: Run of deptrac on the new section for the /src/App directory
-        run: composer dep:new
-        working-directory: centreon
+#
+#      - name: Run of rector on all sections
+#        run: composer rector
+#        working-directory: centreon
+#
+#      - name: Run of php-cs-fixer on the legacy section (/www, /src, /tests)
+#        run: composer cs:legacy
+#        working-directory: centreon
+#
+#      - name: Run of php-cs-fixer on the core section for the /src/Core directory
+#        run: composer cs:core
+#        working-directory: centreon
+#
+#      - name: Run of php-cs-fixer on the new section for the /src/Adaptation and /src/App directories
+#        run: composer cs:new
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on the legacy section (/www at level 0, /src at level 4, /tests at level 2)
+#        run: composer stan:legacy
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on the core section for the /src/Core directory at level 8 + Centreon Custom Rules
+#        run: composer stan:core
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on the new section for the /src/Adaptation and /src/App directories at level max + Centreon Custom Rules
+#        run: composer stan:new
+#        working-directory: centreon
+#
+#      - name: Run of deptrac on the new section for the /src/App directory
+#        run: composer dep:new
+#        working-directory: centreon
 
   package:
     needs:

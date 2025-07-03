@@ -57,7 +57,7 @@ class ConnectionException extends DatabaseException
     public static function connectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while connecting to the database';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -67,7 +67,7 @@ class ConnectionException extends DatabaseException
     public static function getNativeConnectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the native connection';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -81,7 +81,7 @@ class ConnectionException extends DatabaseException
     public static function getDatabaseNameFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the database name';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -489,7 +489,7 @@ class ConnectionException extends DatabaseException
     public static function setAutoCommitFailed(?\Throwable $exception = null): self
     {
         $message = 'Error while setting auto commit';
-        if (null !== $exception && ! empty($exception->getMessage())) {
+        if ($exception instanceof \Throwable && ! empty($exception->getMessage())) {
             $message .= " : {$exception->getMessage()}";
         }
 
@@ -512,7 +512,7 @@ class ConnectionException extends DatabaseException
     public static function commitTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction commit';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -526,7 +526,7 @@ class ConnectionException extends DatabaseException
     public static function rollbackTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction rollback';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

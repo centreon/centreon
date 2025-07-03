@@ -116,6 +116,7 @@ it('update with set several fields', function (): void {
     foreach ($sets as $column => $value) {
         $this->dbalQueryBuilderAdapterTest->set($column, $value);
     }
+
     $query = $this->dbalQueryBuilderAdapterTest->getQuery();
     expect($query)->toBeString()->toBe('UPDATE table SET field1 = value1, field2 = value2');
 });

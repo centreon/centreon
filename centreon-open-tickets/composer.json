@@ -58,14 +58,14 @@
   },
   "scripts": {
     "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
-    "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
-    "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
-    "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
-    "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
-    "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
-    "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "rector": "../tools/vendor/bin/rector process --dry-run",
     "rector:fix": "../tools/vendor/bin/rector process",
+    "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
+    "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
+    "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
+    "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
     "cs": [
@@ -81,8 +81,8 @@
       "@stan:legacy:src"
     ],
     "ci": [
-      "@cs",
       "@rector",
+      "@cs",
       "@stan",
       "@test"
     ]

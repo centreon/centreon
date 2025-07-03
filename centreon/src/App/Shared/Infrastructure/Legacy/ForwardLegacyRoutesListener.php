@@ -44,7 +44,7 @@ final readonly class ForwardLegacyRoutesListener
         try {
             // try to handle the request using the current app
             $this->routerListener->onKernelRequest($event);
-        } catch (NotFoundHttpException $e) {
+        } catch (NotFoundHttpException) {
             // if the route is not found in the current app, it may
             // be available in the legacy. Therefore, handle the request
             // using the legacy app

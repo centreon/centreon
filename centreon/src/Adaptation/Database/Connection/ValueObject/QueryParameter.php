@@ -49,9 +49,11 @@ final readonly class QueryParameter implements ValueObjectInterface
         if (empty($name)) {
             throw new ValueObjectException('Name of QueryParameter cannot be empty');
         }
+
         if (\is_object($value)) {
             throw new ValueObjectException('Value of QueryParameter cannot be an object');
         }
+
         if (QueryParameterTypeEnum::LARGE_OBJECT === $type && ! \is_string($value) && ! \is_resource($value)) {
             throw new ValueObjectException(\sprintf('Value of QueryParameter with type LARGE_OBJECT must be a string or a resource, %s given', \gettype($value)));
         }

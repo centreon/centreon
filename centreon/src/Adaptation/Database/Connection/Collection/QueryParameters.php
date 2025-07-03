@@ -43,7 +43,7 @@ class QueryParameters extends ObjectCollection
     public function getIntQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn (QueryParameter $queryParameter) => QueryParameterTypeEnum::INTEGER === $queryParameter->type
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::INTEGER === $queryParameter->type
         );
     }
 
@@ -53,7 +53,7 @@ class QueryParameters extends ObjectCollection
     public function getStringQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn (QueryParameter $queryParameter) => QueryParameterTypeEnum::STRING === $queryParameter->type
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::STRING === $queryParameter->type
         );
     }
 
@@ -63,7 +63,7 @@ class QueryParameters extends ObjectCollection
     public function getBoolQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn (QueryParameter $queryParameter) => QueryParameterTypeEnum::BOOLEAN === $queryParameter->type
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::BOOLEAN === $queryParameter->type
         );
     }
 
@@ -73,7 +73,7 @@ class QueryParameters extends ObjectCollection
     public function getNullQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn (QueryParameter $queryParameter) => QueryParameterTypeEnum::NULL === $queryParameter->type
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::NULL === $queryParameter->type
         );
     }
 
@@ -83,7 +83,7 @@ class QueryParameters extends ObjectCollection
     public function getLargeObjectQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn (QueryParameter $queryParameter) => QueryParameterTypeEnum::LARGE_OBJECT === $queryParameter->type
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::LARGE_OBJECT === $queryParameter->type
         );
     }
 

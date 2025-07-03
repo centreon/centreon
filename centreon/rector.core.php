@@ -21,24 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\ExpressionBuilder\Exception;
+$rectorConfig = require_once __DIR__ . '/../tools/rector/config/base.unstrict.php';
 
-use Adaptation\Database\Exception\DatabaseException;
-
-/**
- * Class.
- *
- * @class ExpressionBuilderException
- */
-class ExpressionBuilderException extends DatabaseException
-{
-    public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
-    {
-        $message = 'Error while instantiate the expression builder';
-        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
-            $message .= " : {$previous->getMessage()}";
-        }
-
-        return new self($message, self::ERROR_CODE_EXPRESSION_BUILDER, previous: $previous);
-    }
-}
+return $rectorConfig
+    ->withCache(__DIR__ . '/var/cache/rector.core')
+    ->withPaths([
+        // directories
+        __DIR__ . '/src/Core',
+        __DIR__ . '/tests/php/Core',
+    ]);

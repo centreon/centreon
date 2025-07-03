@@ -96,16 +96,16 @@ jobs:
         working-directory: centreon-open-tickets
         shell: bash
 
+      - name: Run of rector on all sections
+        run: composer rector
+        working-directory: centreon-open-tickets
+
       - name: Run of php-cs-fixer on the legacy section for the /www directory
         run: composer cs:legacy:www
         working-directory: centreon-open-tickets
 
       - name: Run of php-cs-fixer on the legacy section for the /src/CentreonOpenTickets directory
         run: composer cs:legacy:src
-        working-directory: centreon-open-tickets
-
-      - name: Run of rector on all sections
-        run: composer rector
         working-directory: centreon-open-tickets
 
       - name: Run of phpstan on the legacy section for the /www directory at level 2

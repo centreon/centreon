@@ -21,32 +21,24 @@
 
 declare(strict_types=1);
 
-$rectorConfig = require_once __DIR__ . '/../tools/rector/config/rector.php';
+$rectorConfig = require_once __DIR__ . '/../tools/rector/config/base.strict.php';
 
 return $rectorConfig
-    ->withCache(__DIR__ . '/var/cache/rector')
+    ->withCache(__DIR__ . '/var/cache/rector.new')
     ->withPaths([
         // directories
-        __DIR__ . '/api',
-        __DIR__ . '/config',
-        __DIR__ . '/cron',
-        __DIR__ . '/lib',
-        __DIR__ . '/libinstall',
-        __DIR__ . '/packaging',
-        __DIR__ . '/src',
-        __DIR__ . '/tests/php',
-        __DIR__ . '/tools',
-        __DIR__ . '/www',
+        __DIR__ . '/src/Adaptation',
+        __DIR__ . '/src/App',
+        __DIR__ . '/tests/php/Adaptation',
+        __DIR__ . '/tests/php/App',
         // files
         __DIR__ . '/.env.local.php',
         __DIR__ . '/.php-cs-fixer.core.php',
         __DIR__ . '/.php-cs-fixer.legacy.src.php',
+        __DIR__ . '/.php-cs-fixer.legacy.test.php',
+        __DIR__ . '/.php-cs-fixer.legacy.www.php',
         __DIR__ . '/.php-cs-fixer.new.php',
-        __DIR__ . '/rector.php',
-        __DIR__ . '/bootstrap.php',
-        __DIR__ . '/container.php',
-    ])
-    ->withSkip([
-        // directories
-        __DIR__ . '/www/class/centreon-clapi/',
+        __DIR__ . '/rector.core.php',
+        __DIR__ . '/rector.legacy.php',
+        __DIR__ . '/rector.new.php',
     ]);

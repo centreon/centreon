@@ -35,7 +35,7 @@ class QueryBuilderException extends DatabaseException
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the query builder';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -45,7 +45,7 @@ class QueryBuilderException extends DatabaseException
     public static function getExpressionBuilderFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while getting the expression builder';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

@@ -41,4 +41,4 @@ $finder = Finder::create()
 
 return $config
     ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.test.cache');
+    ->setCacheFile('.php-cs-fixer.legacy.test.cache');

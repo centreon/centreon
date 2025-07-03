@@ -34,14 +34,13 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    /** @var Kernel */
-    private static $instance;
+    private static ?Kernel $instance = null;
 
     /** @var string cache path */
-    private $cacheDir = '/var/cache/centreon/symfony';
+    private string $cacheDir = '/var/cache/centreon/symfony';
 
     /** @var string Log path */
-    private $logDir = '/var/log/centreon/symfony';
+    private string $logDir = '/var/log/centreon/symfony';
 
     /**
      * Kernel constructor.
@@ -52,6 +51,7 @@ class Kernel extends BaseKernel
         if (\defined('_CENTREON_LOG_')) {
             $this->logDir = _CENTREON_LOG_ . '/symfony';
         }
+
         if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
@@ -59,7 +59,7 @@ class Kernel extends BaseKernel
 
     public static function createForWeb(): self
     {
-        if (null === self::$instance) {
+        if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
             if (isset($_SERVER['APP_DEBUG']) && '1' === $_SERVER['APP_DEBUG']) {
                 umask(0000);
@@ -67,6 +67,7 @@ class Kernel extends BaseKernel
             } else {
                 $_SERVER['APP_DEBUG'] = '0';
             }
+
             $env = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
                 ? (string) $_SERVER['APP_ENV']
                 : 'prod';
@@ -86,6 +87,7 @@ class Kernel extends BaseKernel
         if (! is_array($contents)) {
             return;
         }
+
         foreach ($contents as $class => $envs) {
             if ((is_array($envs) && (($envs[$this->environment] ?? $envs['all'] ?? false)))) {
                 yield new $class();
