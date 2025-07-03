@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$rectorConfig = require_once __DIR__ . '/../tools/rector/config/rector.php';
+$rectorConfig = require_once __DIR__ . '/../tools/rector/config/base.unstrict.php';
 
 return $rectorConfig
     ->withCache(__DIR__ . '/var/cache/rector')
@@ -12,5 +12,5 @@ return $rectorConfig
         __DIR__ . '/www',
         // files
         __DIR__ . '/.php-cs-fixer.legacy.www.php',
-        __DIR__ . '/rector.php',
+        __DIR__ . '/rector.legacy.php',
     ]);

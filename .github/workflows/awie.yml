@@ -129,17 +129,21 @@ jobs:
         working-directory: centreon-awie
         shell: bash
 
-      - name: Run of rector on all sections
-        run: composer rector
+      - name: Analyse code quality of the legacy section (/www, /features)
+        run: composer legacy:check
         working-directory: centreon-awie
 
-      - name: Run of php-cs-fixer on the legacy section
-        run: composer cs:legacy:www
-        working-directory: centreon-awie
-
-      - name: Run of phpstan on the legacy section at level 6
-        run: composer stan:legacy:www
-        working-directory: centreon-awie
+#      - name: Run of rector on the legacy section
+#        run: composer rector:legacy
+#        working-directory: centreon-awie
+#
+#      - name: Run of php-cs-fixer on the legacy section
+#        run: composer cs:legacy
+#        working-directory: centreon-awie
+#
+#      - name: Run of phpstan on the legacy section at level 6
+#        run: composer stan:legacy
+#        working-directory: centreon-awie
 
   package:
     needs: [get-environment, check-version-consistency, backend-lint]
