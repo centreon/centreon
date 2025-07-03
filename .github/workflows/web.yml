@@ -474,7 +474,7 @@ jobs:
           # Analyse code quality of legacy section (/www, /src, /tests)
           {
             echo "::group::Legacy Rector"
-            composer rector:legacy
+            composer rector:legacy -- --no-progress-bar
             echo "::endgroup::"
 
             echo "::group::Legacy PHP CS Fixer"
@@ -484,9 +484,9 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::Legacy PHPStan"
-            composer stan:legacy:www
-            composer stan:legacy:src
-            composer stan:legacy:test
+            composer stan:legacy:www -- --no-progress
+            composer stan:legacy:src -- --no-progress
+            composer stan:legacy:test -- --no-progress
             echo "::endgroup::"
           } &
           pid_legacy=$!
@@ -494,7 +494,7 @@ jobs:
           # Analyse code quality of core section (/src/Core, /tests/Core)
           {
             echo "::group::Core Rector"
-            composer rector:core
+            composer rector:core -- --no-progress-bar
             echo "::endgroup::"
 
             echo "::group::Core PHP CS Fixer"
@@ -502,7 +502,7 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::Core PHPStan"
-            composer stan:core
+            composer stan:core -- --no-progress
             echo "::endgroup::"
           } &
           pid_core=$!
@@ -510,7 +510,7 @@ jobs:
           # Analyse code quality of new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
           {
             echo "::group::New Rector"
-            composer rector:new
+            composer rector:new -- --no-progress-bar
             echo "::endgroup::"
 
             echo "::group::New PHP CS Fixer"
@@ -518,11 +518,11 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::New PHPStan"
-            composer stan:new
+            composer stan:new -- --no-progress
             echo "::endgroup::"
 
             echo "::group::New Deptrac"
-            composer dep:new
+            composer dep:new -- --formatter=github
             echo "::endgroup::"
           } &
           pid_new=$!
