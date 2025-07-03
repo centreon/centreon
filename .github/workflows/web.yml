@@ -466,243 +466,101 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
-      - name: Run php-cs-fixer in parallel
-        working-directory: centreon
-        run: |
-          echo "GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY"
-          set -e
-
-          {
-            echo "::group::php-cs-fixer legacy"
-            composer cs:legacy:www -- --show-progress=none
-            composer cs:legacy:src -- --show-progress=none
-            composer cs:legacy:test -- --show-progress=none
-            echo "::endgroup::"
-          } &
-          pid_legacy=$!
-
-          {
-            echo "::group::php-cs-fixer core"
-            composer cs:core -- --show-progress=none
-            echo "::endgroup::"
-          } &
-          pid_core=$!
-
-          {
-            echo "::group::php-cs-fixer new"
-            composer cs:new -- --show-progress=none
-            echo "::endgroup::"
-          } &
-          pid_new=$!
-
-          exit_legacy=0
-          exit_core=0
-          exit_new=0
-
-          wait $pid_legacy || exit_legacy=$?
-          wait $pid_core   || exit_core=$?
-          wait $pid_new    || exit_new=$?
-
-          echo "## PHP CS Fixer Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$exit_legacy" -eq 0 ]; then
-            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_legacy)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_core" -eq 0 ]; then
-            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_core)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_new" -eq 0 ]; then
-            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ✨ **New**: ❌ Failed (exit code: $exit_new)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_legacy" -ne 0 ] || [ "$exit_core" -ne 0 ] || [ "$exit_new" -ne 0 ]; then
-            exit 1
-          fi
-
-      - name: Run PHPStan in parallel
-        working-directory: centreon
-        run: |
-          set -e
-
-          # === LEGACY ===
-          {
-            echo "::group::🏛️ PHPStan Legacy"
-            if composer stan:legacy:www --no-progress \
-            && composer stan:legacy:src --no-progress \
-            && composer stan:legacy:test --no-progress
-            then
-            echo "✅ PHPStan Legacy: Success"
-              exit 0
-              else
-              echo "❌ PHPStan Legacy: Failed"
-              exit 1
-              fi
-              echo "::endgroup::"
-          } &
-          pid_stan_legacy=$!
-
-          # === CORE ===
-          {
-            echo "::group::⚙️ PHPStan Core"
-            if composer stan:core --no-progress
-            then
-            echo "✅ PHPStan Core: Success"
-              exit 0
-              else
-              echo "❌ PHPStan Core: Failed"
-              exit 1
-              fi
-              echo "::endgroup::"
-          } &
-          pid_stan_core=$!
-
-          # === NEW ===
-          {
-            echo "::group::✨ PHPStan New"
-            if composer stan:new --no-progress
-            then
-            echo "✅ PHPStan New: Success"
-              exit 0
-              else
-              echo "❌ PHPStan New: Failed"
-              exit 1
-              fi
-              echo "::endgroup::"
-          } &
-          pid_stan_new=$!
-
-          # === Wait & collect exit codes ===
-          exit_stan_legacy=0
-          exit_stan_core=0
-          exit_stan_new=0
-
-          wait $pid_stan_legacy || exit_stan_legacy=$?
-          wait $pid_stan_core   || exit_stan_core=$?
-          wait $pid_stan_new    || exit_stan_new=$?
-
-          # === Summary for GitHub Step Summary ===
-          echo "## PHPStan Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$exit_stan_legacy" -eq 0 ]; then
-            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_stan_legacy)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_stan_core" -eq 0 ]; then
-            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_stan_core)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_stan_new" -eq 0 ]; then
-            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ✨ **New**: ❌ Failed (exit code: $exit_stan_new)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          # === Fail job if any failed ===
-          if [ "$exit_stan_legacy" -ne 0 ] || [ "$exit_stan_core" -ne 0 ] || [ "$exit_stan_new" -ne 0 ]; then
-          exit 1
-          fi
-
-      - name: Run Rector in parallel
+      # === Rector
+      - name: 🛠️ Rector checks
         working-directory: centreon
         run: |
           set -e
 
           {
             echo "::group::Rector Legacy"
-            composer rector:legacy -- --no-progress-bar
+            composer rector:legacy --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
             echo "::endgroup::"
           } &
-          pid_rector_legacy=$!
 
           {
             echo "::group::Rector Core"
-            composer rector:core -- --no-progress-bar
+            composer rector:core --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
             echo "::endgroup::"
           } &
-          pid_rector_core=$!
 
           {
             echo "::group::Rector New"
-            composer rector:new -- --no-progress-bar
+            composer rector:new --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
             echo "::endgroup::"
           } &
-          pid_rector_new=$!
 
-          exit_rector_legacy=0
-          exit_rector_core=0
-          exit_rector_new=0
+          wait
+          echo "### 🛠️ Rector finished" >> $GITHUB_STEP_SUMMARY
 
-          wait $pid_rector_legacy || exit_rector_legacy=$?
-          wait $pid_rector_core   || exit_rector_core=$?
-          wait $pid_rector_new    || exit_rector_new=$?
+      # === php-cs-fixer
+      - name: 🧹 php-cs-fixer checks
+        working-directory: centreon
+        run: |
+          set -e
 
-          echo "## Rector Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "::group::php-cs-fixer Legacy"
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
 
-          if [ "$exit_rector_legacy" -eq 0 ]; then
-            echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_rector_legacy)" >> $GITHUB_STEP_SUMMARY
-          fi
+          {
+            echo "::group::php-cs-fixer Core"
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
 
-          if [ "$exit_rector_core" -eq 0 ]; then
-            echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_rector_core)" >> $GITHUB_STEP_SUMMARY
-          fi
+          {
+            echo "::group::php-cs-fixer New"
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
 
-          if [ "$exit_rector_new" -eq 0 ]; then
-            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ✨ **New**: ❌ Failed (exit code: $exit_rector_new)" >> $GITHUB_STEP_SUMMARY
-          fi
+          wait
+          echo "### 🧹 php-cs-fixer finished" >> $GITHUB_STEP_SUMMARY
 
-          if [ "$exit_rector_legacy" -ne 0 ] || [ "$exit_rector_core" -ne 0 ] || [ "$exit_rector_new" -ne 0 ]; then
-            exit 1
-          fi
+      # === PHPStan
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: |
+          set -e
 
-      - name: Run Deptrac in parallel
+          {
+            echo "::group::PHPStan Legacy"
+            composer stan:legacy --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::PHPStan Core"
+            composer stan:core --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::PHPStan New"
+            composer stan:new --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          wait
+          echo "### 🔍 PHPStan finished" >> $GITHUB_STEP_SUMMARY
+
+      # === Deptrac
+      - name: 📐 Deptrac checks
         working-directory: centreon
         run: |
           set -e
 
           {
             echo "::group::Deptrac New"
-            composer dep:new -- --formatter=github-actions --no-progress
+            composer dep:new -- --formatter=github-actions && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
             echo "::endgroup::"
           } &
-          pid_dep_new=$!
 
-          exit_dep_new=0
-
-          wait $pid_dep_new    || exit_dep_new=$?
-
-          echo "## Deptrac Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$exit_dep_new" -eq 0 ]; then
-            echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ✨ **New**: ❌ Failed (exit code: $exit_dep_new)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "$exit_dep_new" -ne 0 ]; then
-            exit 1
-          fi
+          wait
+          echo "### 📐 Deptrac finished" >> $GITHUB_STEP_SUMMARY
 
 #      - name: Run analyses in parallel
 #        working-directory: centreon
