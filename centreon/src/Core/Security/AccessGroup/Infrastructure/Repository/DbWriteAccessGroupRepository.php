@@ -96,8 +96,22 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
         );
 
         $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
-
         $this->addLinksBetweenHostGroupAndResourceIds($hostGroupId, $aclResourceIds);
+    }
+
+    public function addLinksBetweenHostGroupAndResourceAccessGroup(int $hostGroupId, int $resourceAccessGroup): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`acl_resources_hg_relations` (acl_res_id, hg_hg_id)
+                    VALUES (:acl_group_id, :hg_hg_id)
+                    SQL
+            )
+        );
+        $statement->bindValue(':acl_group_id', $resourceAccessGroup, \PDO::PARAM_INT);
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     public function addLinksBetweenHostGroupAndResourceIds(int $hostGroupId, array $resourceIds): void
@@ -120,6 +134,44 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
         foreach ($resourceIds as $index => $resourceId) {
             $statement->bindValue(":acl_res_id_{$index}", $resourceId, \PDO::PARAM_INT);
         }
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function removeLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void
+    {
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] === $accessGroupsIds) {
+            return;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupsIds, ':group_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    DELETE FROM `:db`.`acl_resources_hg_relations`
+                    WHERE hg_hg_id = :hg_hg_id
+                    AND acl_res_id IN (
+                        SELECT acl_res_id
+                        FROM `:db`.`acl_res_group_relations`
+                        WHERE acl_group_id IN ({$bindQuery})
+                    )
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
         $statement->execute();
     }
 

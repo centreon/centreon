@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgent
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -69,16 +70,19 @@ it('should present an Error Response when an unexpected error occurs', function 
 });
 
 it('should present a FindConfigurationResponse when everything is ok', function () {
-    $configuration = new TelegrafConfigurationParameters([
-        'otel_server_address' => '10.10.10.10',
-        'otel_server_port' => 453,
-        'otel_public_certificate' => 'public_certif',
-        'otel_ca_certificate' => 'ca_certif',
-        'otel_private_key' => 'otel-key',
-        'conf_server_port' => 454,
-        'conf_certificate' => 'conf-certif',
-        'conf_private_key' => 'conf-key'
-    ]);
+    $configuration = new TelegrafConfigurationParameters(
+        [
+            'otel_server_address' => '10.10.10.10',
+            'otel_server_port' => 453,
+            'otel_public_certificate' => 'public_certif.crt',
+            'otel_ca_certificate' => 'ca_certif.cer',
+            'otel_private_key' => 'otel-key.key',
+            'conf_server_port' => 454,
+            'conf_certificate' => 'conf-certif.crt',
+            'conf_private_key' => 'conf-key.key'
+        ],
+        ConnectionModeEnum::SECURE
+    );
 
     $pollers = [
         new Poller(1, 'pollerOne'),
@@ -88,7 +92,14 @@ it('should present a FindConfigurationResponse when everything is ok', function 
     $this->readRepository
         ->expects($this->once())
         ->method('find')
-        ->willReturn(new AgentConfiguration(1, 'acOne', Type::TELEGRAF, $configuration));
+        ->willReturn(
+            new AgentConfiguration(
+                id: 1,
+                name: 'acOne',
+                type: Type::TELEGRAF,
+                connectionMode: ConnectionModeEnum::SECURE,
+                configuration: $configuration)
+        );
 
     $this->readRepository
         ->expects($this->once())
@@ -102,15 +113,16 @@ it('should present a FindConfigurationResponse when everything is ok', function 
         ->and($response->agentConfiguration->getId())->toBe(1)
         ->and($response->agentConfiguration->getName())->toBe('acOne')
         ->and($response->agentConfiguration->getType())->toBe(Type::TELEGRAF)
+        ->and($response->agentConfiguration->getConnectionMode())->toBe(ConnectionModeEnum::SECURE)
         ->and($response->agentConfiguration->getConfiguration()->getData())->toBe([
             'otel_server_address' => '10.10.10.10',
             'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
+            'otel_public_certificate' => '/etc/pki/public_certif.crt',
+            'otel_ca_certificate' => '/etc/pki/ca_certif.cer',
+            'otel_private_key' => '/etc/pki/otel-key.key',
             'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
+            'conf_certificate' => '/etc/pki/conf-certif.crt',
+            'conf_private_key' => '/etc/pki/conf-key.key'
         ])
         ->and($response->pollers[0]->getId())->toBe(1)
         ->and($response->pollers[0]->getName())->toBe('pollerOne')

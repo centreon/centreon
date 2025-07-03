@@ -72,6 +72,25 @@ interface WriteHostGroupRepositoryInterface
     public function unlinkFromHost(int $hostId, array $groupIds): void;
 
     /**
+     * Add a list of hosts to a host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     */
+    public function addHostLinks(int $hostGroupId, array $hostIds): void;
+
+    /**
+     * Delete a list of hosts from an host group.
+     *
+     * @param int $hostGroupId
+     * @param int[] $hostIds
+     * @return void
+     */
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void;
+
+    /**
      * Set an host group as enabled or disabled.
      *
      * @param int $hostGroupId

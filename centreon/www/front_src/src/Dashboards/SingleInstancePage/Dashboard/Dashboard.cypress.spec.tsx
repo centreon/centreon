@@ -221,7 +221,7 @@ const waitWidgetData = ({ widgetName, isExpanded }: WaitWidgetData) => {
   if (equals(widgetName, 'centreon-widget-graph')) {
     cy.waitForRequest(`@${widgetName}`);
     cy.fixture(fixturePath).then(({ metrics }) => {
-      checkElement({ content: metrics[0].legend, isExpanded });
+      checkElement({ content: metrics[0].metric, isExpanded });
     });
     return;
   }
@@ -627,7 +627,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
     });
-    it('expandes-reduces the widget when the corresponding button is clicked', () => {
+    it('expands-reduces the widget when the corresponding button is clicked', () => {
       federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
 
@@ -1084,7 +1084,7 @@ describe('Dashboard', () => {
 
       cy.findAllByTestId('See more on the Business Activity page')
         .eq(0)
-        .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
+        .should('have.attr', 'href', '/monitoring/bam/bas/1');
       cy.makeSnapshot();
     });
   });

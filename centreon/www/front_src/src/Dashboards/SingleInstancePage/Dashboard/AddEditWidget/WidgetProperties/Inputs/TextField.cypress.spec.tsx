@@ -115,10 +115,12 @@ describe('WidgetTextField', () => {
       });
 
       cy.findByLabelText('Text').clear().type('34');
+      cy.findByLabelText('Text').blur();
 
       cy.findByLabelText('Text').should('have.value', '20');
 
       cy.findByLabelText('Text').clear().type('-5');
+      cy.findByLabelText('Text').blur();
 
       cy.findByLabelText('Text').should('have.value', '-2');
 

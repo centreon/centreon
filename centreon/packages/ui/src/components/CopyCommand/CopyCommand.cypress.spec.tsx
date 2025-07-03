@@ -1,5 +1,4 @@
 import { ThemeMode, userAtom } from '@centreon/ui-context';
-import { mount } from 'cypress/react18';
 import { Provider, createStore } from 'jotai';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 import ThemeProvider from '../../ThemeProvider';
@@ -8,15 +7,17 @@ import CopyCommand, { CopyCommandProps } from './CopyCommand';
 const initialize = (props: CopyCommandProps & { theme?: ThemeMode }): void => {
   const store = createStore();
   store.set(userAtom, { themeMode: props.theme || ThemeMode.light });
-  mount(
-    <Provider store={store}>
-      <ThemeProvider>
-        <SnackbarProvider>
-          <CopyCommand {...props} />
-        </SnackbarProvider>
-      </ThemeProvider>
-    </Provider>
-  );
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <ThemeProvider>
+          <SnackbarProvider>
+            <CopyCommand {...props} />
+          </SnackbarProvider>
+        </ThemeProvider>
+      </Provider>
+    )
+  });
 };
 
 describe('CopyCommand', () => {

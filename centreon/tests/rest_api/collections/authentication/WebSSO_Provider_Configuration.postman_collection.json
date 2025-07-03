@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e52a8bfe-ffca-432a-afda-216f588085e9",
+		"_postman_id": "4829f9cd-af86-4d82-849a-027a3d78dc6b",
 		"name": "WebSSO_Provider_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-e52a8bfe-ffca-432a-afda-216f588085e9?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -78,9 +77,38 @@
 									"        \"pattern_matching_login\": null,\r",
 									"        \"pattern_replace_login\": null\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            is_active: { type: \"boolean\" },\r",
+									"            is_forced: { type: \"boolean\" },\r",
+									"            trusted_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            blacklist_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            login_header_attribute: { type: \"string\" },\r",
+									"            pattern_matching_login: { type: [\"string\", \"null\"] },\r",
+									"            pattern_replace_login: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"is_active\", \"is_forced\", \"trusted_client_addresses\", \"blacklist_client_addresses\", \"login_header_attribute\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -180,9 +208,38 @@
 									"    });\r",
 									"    pm.expect(responseJson.trusted_client_addresses).to.include(\"127.0.0.2\");\r",
 									"    pm.expect(responseJson.blacklist_client_addresses).to.include(\"127.0.0.3\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            is_active: { type: \"boolean\" },\r",
+									"            is_forced: { type: \"boolean\" },\r",
+									"            trusted_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            blacklist_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            login_header_attribute: { type: \"string\" },\r",
+									"            pattern_matching_login: { type: [\"string\", \"null\"] },\r",
+									"            pattern_replace_login: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"is_active\", \"is_forced\", \"trusted_client_addresses\", \"blacklist_client_addresses\", \"login_header_attribute\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -234,9 +291,22 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[is_active] The property is_active is required\\n[is_forced] The property is_forced is required\\n[trusted_client_addresses] The property trusted_client_addresses is required\\n[blacklist_client_addresses] The property blacklist_client_addresses is required\\n[login_header_attribute] The property login_header_attribute is required\\n[pattern_matching_login] The property pattern_matching_login is required\\n[pattern_replace_login] The property pattern_replace_login is required\\n\")\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -282,9 +352,22 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[is_active] String value found, but a boolean is required\\n[is_forced] String value found, but a boolean is required\\n[trusted_client_addresses[0]] Integer value found, but a string is required\\n[blacklist_client_addresses[0]] Integer value found, but a string is required\\n[login_header_attribute] Boolean value found, but a string or a null is required\\n[pattern_matching_login] Integer value found, but a string or a null is required\\n[pattern_replace_login] Boolean value found, but a string or a null is required\\n\")\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -330,9 +413,22 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[WebSSOConfiguration::blacklistClientAddresses] The value '.@' was expected to be a valid ip address\")\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -378,9 +474,22 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.be.eql(\"[WebSSOConfiguration::trustedClientAddresses] The value '.@' was expected to be a valid ip address\")\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1266,9 +1375,38 @@
 									"    });\r",
 									"    pm.expect(responseJson.trusted_client_addresses).to.include(\"127.0.0.5\");\r",
 									"    pm.expect(responseJson.blacklist_client_addresses).to.include(\"127.0.0.6\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the WebSSO Provider Configuration listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            is_active: { type: \"boolean\" },\r",
+									"            is_forced: { type: \"boolean\" },\r",
+									"            trusted_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            blacklist_client_addresses: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"string\"\r",
+									"                }\r",
+									"            },\r",
+									"            login_header_attribute: { type: \"string\" },\r",
+									"            pattern_matching_login: { type: [\"string\", \"null\"] },\r",
+									"            pattern_replace_login: { type: [\"string\", \"null\"] }\r",
+									"        },\r",
+									"        required: [\"is_active\", \"is_forced\", \"trusted_client_addresses\", \"blacklist_client_addresses\", \"login_header_attribute\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

@@ -50,14 +50,13 @@ class CmaValidator implements TypeValidatorInterface
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && (is_string($value) || is_null($value))
-            ) {
-                $this->validateFilename("configuration.{$key}", $value);
+            if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
+                if ($key === 'otel_ca_certificate' && is_null($value)) {
+                    continue;
+                }
+                $this->validateFilename("configuration.{$key}", $value, true);
+            } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
+                $this->validateFilename("configuration.{$key}", $value, false);
             }
 
             if ($key === 'hosts') {
@@ -69,7 +68,9 @@ class CmaValidator implements TypeValidatorInterface
                      *		poller_ca_name: ?string
                      *	} $host
                      */
-                    $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate']);
+                    if ($host['poller_ca_certificate'] !== null) {
+                        $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
+                    }
                 }
             }
         }
@@ -78,15 +79,17 @@ class CmaValidator implements TypeValidatorInterface
     /**
      * @param string $name
      * @param ?string $value
+     * @param bool $isCertificate
      *
      * @throws AgentConfigurationException
      */
-    private function validateFilename(string $name, ?string $value): void
+    private function validateFilename(string $name, ?string $value, bool $isCertificate = true): void
     {
-        if (
-            $value !== null
-            && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', $value)
-        ) {
+        $pattern = $isCertificate
+            ? '/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/'
+            : '/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/';
+
+        if ($value === null || preg_match($pattern, $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
         }
     }

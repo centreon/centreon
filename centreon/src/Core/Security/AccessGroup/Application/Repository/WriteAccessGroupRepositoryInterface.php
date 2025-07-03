@@ -51,6 +51,16 @@ interface WriteAccessGroupRepositoryInterface
      */
     public function addLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void;
 
+    public function addLinksBetweenHostGroupAndResourceAccessGroup(int $hostGroupId, int $resourceAccessGroup): void;
+
+    /**
+     * Remove links between a "Host Group" and multiple "Acl Groups".
+     *
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     */
+    public function removeLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void;
+
     /**
      * Add links between a "Service Group" and multiple "Acl Groups".
      *

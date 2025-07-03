@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Token\Application\UseCase\PartialUpdate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -37,7 +36,7 @@ use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateToken;
 use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateTokenRequest;
-use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\ApiToken;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -47,16 +46,16 @@ beforeEach(function (): void {
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
         $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class),
-        $this->dataStorageEngin = $this->createMock(DataStorageEngineInterface::class)
     );
-    $this->request = new PartialUpdateTokenRequest();
+    $this->request = new PartialUpdateTokenRequest(true);
+
     $this->linkedUser = ['id' => 23, 'name' => 'Jane Doe'];
     $this->creator = ['id' => 12, 'name' => 'John Doe'];
 
     $this->creationDate = new \DateTimeImmutable();
     $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y'));
 
-    $this->token = new Token(
+    $this->token = new ApiToken(
         name: new TrimmedString('my-token-name'),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
@@ -68,7 +67,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present an Error Response when a generic exception is thrown', function (): void {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -78,6 +77,11 @@ it('should present an Error Response when a generic exception is thrown', functi
         ->expects($this->once())
         ->method('findByNameAndUserId')
         ->willReturn($this->token);
+
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->writeTokenRepository
         ->expects($this->once())
@@ -94,7 +98,7 @@ it('should present an Error Response when a generic exception is thrown', functi
         ->toBe(TokenException::errorWhilePartiallyUpdatingToken()->getMessage());
 });
 
-it('should present a Forbidden Response when the user does not have sufficient rights', function (): void {
+it('should present a ForbiddenResponse when the user does not have sufficient rights', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -108,7 +112,7 @@ it('should present a Forbidden Response when the user does not have sufficient r
         ->toBe(TokenException::notAllowedToPartiallyUpdateToken()->getMessage());
 });
 
-it('should present a Not Found Response when no token exists for a given name and/or user ID', function (): void {
+it('should present a NotFoundResponse when no token exists for a given name and/or user ID', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -127,7 +131,7 @@ it('should present a Not Found Response when no token exists for a given name an
         ->toBe('Token not found');
 });
 
-it('should present a No Content Response when token is successfully revoked', function (): void {
+it('should present a NoContentResponse when token is successfully revoked', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -137,6 +141,15 @@ it('should present a No Content Response when token is successfully revoked', fu
         ->expects($this->once())
         ->method('findByNameAndUserId')
         ->willReturn($this->token);
+
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->writeTokenRepository
+        ->expects($this->once())
+        ->method('update');
 
     ($this->useCase)($this->request, $this->presenter, $this->token->getName(), $this->linkedUser['id']);
 

@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "cc107002-de26-4fce-8b84-2e832253d921",
+		"_postman_id": "75d99ae0-5ad2-48e1-b8ce-c406e31dcdf9",
 		"name": "TimePeriod",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-cc107002-de26-4fce-8b84-2e832253d921?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -1512,9 +1511,75 @@
 									"        pm.expect(responseJson.result[count].exceptions).to.be.an('array').that.is.empty;\r",
 									"    }\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1572,23 +1637,73 @@
 									"        \"name\": pm.collectionVariables.get(\"timePeriod1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"timePeriod1Alias\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.days[0]).to.include({day: 1, time_range: \"06:30-07:00\"});\r",
-									"    pm.expect(responseJson.days[1]).to.include({day: 7, time_range: \"06:30-07:00,09:00-10:30\"});\r",
+									"    pm.expect(responseJson.days[0]).to.include({ day: 1, time_range: \"06:30-07:00\" });\r",
+									"    pm.expect(responseJson.days[1]).to.include({ day: 7, time_range: \"06:30-07:00,09:00-10:30\" });\r",
 									"    pm.expect(responseJson.templates[0]).to.be.include({\r",
 									"        \"id\": 1,\r",
 									"        \"alias\": \"Always\"\r",
 									"    });\r",
 									"    pm.expect(responseJson.exceptions[0]).to.include({\r",
-									"        \"day_range\": \"monday 1\", \r",
+									"        \"day_range\": \"monday 1\",\r",
 									"        \"time_range\": \"06:00-07:00\"\r",
 									"    });\r",
 									"});\r",
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1599,14 +1714,15 @@
 									"pm.collectionVariables.set(\"timePeriod1Alias\", \"test_alias\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -1698,9 +1814,75 @@
 									"    pm.expect(responseJson.result[4].templates[0].id).to.be.eql(1);\r",
 									"    // Check the exception used in the fifth exception (monday 1, 06:00-07:00)\r",
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"monday 1\", time_range: \"06:00-07:00\"});\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1749,9 +1931,23 @@
 									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' could not be created, due to a conflict with an existing time period.\", function () {\r",
 									"    pm.response.to.have.status(409);\r",
 									"    pm.expect(responseJson.message).to.eql(\"The time period name '\" + pm.collectionVariables.get(\"timePeriod1Name\") + \"' already exists\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1760,14 +1956,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -1822,9 +2019,59 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1835,14 +2082,15 @@
 									"pm.collectionVariables.set(\"timePeriod2Alias\", \"test_alias\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -1879,9 +2127,24 @@
 									"pm.test(\"The time period could not be created, due to a wrong type of value for name and alias.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"name: This value should be of type string.\\nalias: This value should be of type string.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1890,14 +2153,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -2041,9 +2305,75 @@
 									"    pm.expect(responseJson.result[4].templates).to.be.an('array').that.is.empty;\r",
 									"    // Check the exception for the fifth time period (4 tuesday in July, 00:00-24:00)\r",
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2143,9 +2473,24 @@
 									"pm.test(\"The time period with name 'nonworkhours' could not be updated, due to a conflict with an existing time period.\", function () {\r",
 									"    pm.response.to.have.status(409);\r",
 									"    pm.expect(responseJson.message).to.eql(\"The time period name 'none_updated' already exists\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period update response\", function () {\r",
+									"\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2154,7 +2499,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2215,9 +2561,60 @@
 									"    // Check the exception of the time periods (monday 2, 06:00-16:00)\r",
 									"    pm.expect(responseJson.exceptions[0]).to.include({day_range: \"monday 2\", time_range: \"06:00-16:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            in_period: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2267,9 +2664,24 @@
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2278,14 +2690,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -2322,9 +2735,24 @@
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2333,14 +2761,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -2436,9 +2865,75 @@
 									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
 									"    // Check the exception of the fifth time period (4 tuesday in July, 00:00-24:00)  \r",
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2477,7 +2972,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user and clear collection variables",
+					"name": "Logout from admin user",
 					"event": [
 						{
 							"listen": "test",
@@ -2677,9 +3172,75 @@
 									"    pm.expect(responseJson.result[3].exceptions).to.be.an('array').that.is.empty;\r",
 									"    // Check the exceptions of the fifth time periods (4 tuesday in July, 00:00-24:00)\r",
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2751,9 +3312,59 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2765,14 +3376,15 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -2882,9 +3494,75 @@
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
 									"    // Check the exceptions of the sixth time period (none)\r",
 									"    pm.expect(responseJson.result[5].exceptions).to.be.an('array').that.is.empty;\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2936,9 +3614,23 @@
 									"pm.test(\"The time period could not be created, due to a conflict with an existing time period.\", function () {\r",
 									"    pm.response.to.have.status(409);\r",
 									"    pm.expect(responseJson.message).to.eql(\"The time period name 'test_name_by_user_RW' already exists\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2947,14 +3639,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -3014,9 +3707,59 @@
 									"\r",
 									"pm.test(\"The Location parameter is in the header.\", function () {\r",
 									"    pm.response.to.have.header(\"Location\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3027,14 +3770,15 @@
 									"pm.collectionVariables.set(\"timePeriod4Alias\", \"test_alias\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -3071,9 +3815,23 @@
 									"pm.test(\"The time period could not be created, due to a wrong type of value for days, templates and exceptions.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"days[0][day]: This value should be of type integer.\\ndays[0][time_range]: This value should not be null.\\ntemplates[0]: This value should be of type integer.\\nexceptions[0][day_range]: This value should be of type string.\\nexceptions[0][time_range]: This value should be of type string.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3082,14 +3840,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -3255,9 +4014,75 @@
 									"    pm.expect(responseJson.result[4].exceptions[0]).to.include({day_range: \"4 tuesday in July\", time_range: \"00:00-24:00\"});\r",
 									"    // Check the exceptions of the sixth time period (none)\r",
 									"    pm.expect(responseJson.result[5].exceptions).to.be.an('array').that.is.empty;\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3381,9 +4206,60 @@
 									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
 									"    pm.expect(responseJson.exceptions).to.be.an('array').that.is.empty;\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            in_period: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3436,9 +4312,23 @@
 									"pm.test(\"The time period with an empty name could not be created, due to the name being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"name: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3447,14 +4337,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -3494,9 +4385,23 @@
 									"pm.test(\"The time period with name 'test_name_with_empty_alias' and an empty name could not be created, due to the alias being mandatory.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
 									"    pm.expect(responseJson.message).to.eql(\"alias: This value is too short. It should have 1 character or more.\\n\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3505,14 +4410,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -3620,9 +4526,75 @@
 									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
 									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3873,9 +4845,75 @@
 									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
 									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3928,9 +4966,23 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3939,14 +4991,15 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -4054,9 +5107,75 @@
 									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
 									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4108,9 +5227,23 @@
 									"pm.test(\"The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4119,7 +5252,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4231,9 +5365,75 @@
 									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
 									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4286,9 +5486,22 @@
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
 									"});\r",
-									""
+									"\r",
+									"pm.test(\"Schema validation test for the time period update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4297,7 +5510,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4358,9 +5572,60 @@
 									"    pm.expect(responseJson.templates).to.be.an('array').that.is.empty;\r",
 									"    pm.expect(responseJson.exceptions).to.be.an('array').that.is.empty;\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            days: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        day: { type: \"integer\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"day\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            templates: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        alias: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"alias\"]\r",
+									"                }\r",
+									"            },\r",
+									"            exceptions: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        day_range: { type: \"string\" },\r",
+									"                        time_range: { type: \"string\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                }\r",
+									"            },\r",
+									"            in_period: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4481,9 +5746,75 @@
 									"    // Check the exceptions of the sixth time period (wednesday 4, 06:00-17:00)\r",
 									"    pm.expect(responseJson.result[5].exceptions[0]).to.include({day_range: \"wednesday 4\", time_range: \"06:00-17:00\"});\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time periods listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        days: {\r",
+									"                            type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    day: { type: \"integer\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"day\", \"time_range\"]\r",
+									"                            }\r",
+									"                        },\r",
+									"                        templates: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    alias: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"alias\"]\r",
+									"                            } },\r",
+									"                        exceptions: { type: \"array\",\r",
+									"                            items: {\r",
+									"                                type: \"object\",\r",
+									"                                properties: {\r",
+									"                                    id: { type: \"integer\" },\r",
+									"                                    day_range: { type: \"string\" },\r",
+									"                                    time_range: { type: \"string\" }\r",
+									"                                },\r",
+									"                                required: [\"id\", \"day_range\", \"time_range\"]\r",
+									"                            } },\r",
+									"                        in_period: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"days\", \"templates\", \"exceptions\", \"in_period\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
+									"    });"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4663,13 +5994,26 @@
 									"/  Check code status\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"\r",
 									"pm.test(\"The time period has not been  created, because the user does have the corrects rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4681,14 +6025,15 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
-                                                        {
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							},
@@ -4727,11 +6072,25 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period with name 'nonworkhours' has not been deleted, because the user does not have the correct rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
 									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4740,7 +6099,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4783,12 +6143,25 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The time period has not been updated, because the user does not have the corretcs rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
 									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit time periods\");\r",
 									"});\r",
-									""
+									"\r",
+									"pm.test(\"Schema validation test for the time period update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4797,7 +6170,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4840,10 +6214,25 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"List of time periods can't be displayed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
+									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4895,10 +6284,25 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"List of time periods can't be displayed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
+									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access time periods\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the time period listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4938,294 +6342,6 @@
 				},
 				{
 					"name": "Logout from user with no access",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Reset",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update of a time period (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The time period has been successfully updated.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"none\",\r\n    \"alias\": \"Never\",\r\n    \"days\": [],\r\n    \"templates\": [],\r\n    \"exceptions\": []\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/timeperiods/2",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"timeperiods",
-								"2"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a time period (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod2Alias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"timePeriod2Name\");\r",
-									"    pm.collectionVariables.unset(\"timePeriod2Alias\");\r",
-									"    pm.collectionVariables.unset(\"timePeriod2Id\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod2Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"timeperiods",
-								"{{timePeriod2Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a time period (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The time period with name '\" + pm.collectionVariables.get(\"timePeriod3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"timePeriod3Alias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"timePeriod3Name\");\r",
-									"    pm.collectionVariables.unset(\"timePeriod3Alias\");\r",
-									"    pm.collectionVariables.unset(\"timePeriod3Id\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/timeperiods/{{timePeriod3Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"timeperiods",
-								"{{timePeriod3Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout from admin user",
 					"event": [
 						{
 							"listen": "test",

@@ -1,6 +1,9 @@
 import { ReactElement, ReactNode, useMemo } from 'react';
 
-import { Button as MuiButton } from '@mui/material';
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps
+} from '@mui/material';
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import { DataTestAttributes } from '../../@types/data-attributes';
@@ -16,20 +19,21 @@ const muiVariantMap: Record<
   secondary: 'outlined'
 };
 
-export type ButtonProps = {
-  children: ReactNode;
-  className?: string;
-  disabled?: boolean;
-  icon?: string | ReactNode;
-  iconVariant?: 'none' | 'start' | 'end';
-  isDanger?: boolean;
-  onClick?: (e) => void;
-  ref?: React.Ref<HTMLButtonElement>;
-  size?: 'small' | 'medium' | 'large';
-  type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'secondary' | 'ghost';
-} & AriaLabelingAttributes &
-  DataTestAttributes;
+export type ButtonProps = AriaLabelingAttributes &
+  DataTestAttributes &
+  Omit<MuiButtonProps, 'variant'> & {
+    children: ReactNode;
+    className?: string;
+    disabled?: boolean;
+    icon?: string | ReactNode;
+    iconVariant?: 'none' | 'start' | 'end';
+    isDanger?: boolean;
+    onClick?: (e) => void;
+    ref?: React.Ref<HTMLButtonElement>;
+    size?: 'small' | 'medium' | 'large';
+    type?: 'button' | 'submit' | 'reset';
+    variant?: 'primary' | 'secondary' | 'ghost';
+  };
 
 const Button = ({
   children,

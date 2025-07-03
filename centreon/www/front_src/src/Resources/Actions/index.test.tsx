@@ -1,9 +1,3 @@
-import userEvent from '@testing-library/user-event';
-import axios from 'axios';
-import { Provider, createStore } from 'jotai';
-import mockDate from 'mockdate';
-import { equals, last, map, pick } from 'ramda';
-
 import { SeverityCode, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
@@ -16,13 +10,17 @@ import {
   RenderResult,
   act,
   fireEvent,
-  getFetchCall,
   mockResponse,
   render,
   resetMocks,
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
+import userEvent from '@testing-library/user-event';
+import axios from 'axios';
+import { Provider, createStore } from 'jotai';
+import mockDate from 'mockdate';
+import { equals, last, map, pick } from 'ramda';
 
 import useDetails from '../Details/useDetails';
 import useListing from '../Listing/useListing';
@@ -61,6 +59,12 @@ import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import Actions from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    status: 200,
+    json: () => Promise.resolve({ success: true })
+  })
+);
 
 const onRefresh = jest.fn();
 
@@ -537,8 +541,13 @@ describe(Actions, () => {
       };
 
       await waitFor(() => {
-        expect(getFetchCall(0)).toEqual(`${checkEndpoint}`);
-        expect(getFetchCall(0, 1)?.body).toEqual(JSON.stringify(payload));
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining(checkEndpoint),
+          expect.objectContaining({
+            method: 'POST',
+            body: expect.stringContaining(JSON.stringify(payload))
+          })
+        );
       });
     }
   );

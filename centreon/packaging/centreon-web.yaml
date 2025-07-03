@@ -234,21 +234,6 @@ contents:
       group: "centreon"
       mode: 0755
 
-  - src: "../composer.json"
-    dst: "/usr/share/centreon/composer.json"
-    file_info:
-      mode: 0664
-
-  - src: "../composer.lock"
-    dst: "/usr/share/centreon/composer.lock"
-    file_info:
-      mode: 0664
-
-  - src: "../symfony.lock"
-    dst: "/usr/share/centreon/symfony.lock"
-    file_info:
-      mode: 0664
-
   - src: "../bootstrap.php"
     dst: "/usr/share/centreon/bootstrap.php"
     file_info:
@@ -427,7 +412,8 @@ overrides:
     depends:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
-      - centreon-perl-libs
+      - centreon-perl-libs >= ${MAJOR_VERSION}
+      - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
@@ -514,7 +500,8 @@ overrides:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-perl-libs
+      - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
+      - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
