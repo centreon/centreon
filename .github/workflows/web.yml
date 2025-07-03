@@ -471,11 +471,11 @@ jobs:
         working-directory: centreon
 
       - name: Analyse code quality of the core section (/src/Core, /tests/Core)
-        run: composer legacy:check
+        run: composer core:check
         working-directory: centreon
 
       - name: Analyse code quality of the new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
-        run: composer legacy:check
+        run: composer new:check
         working-directory: centreon
 #
 #      - name: Run of rector on all sections
