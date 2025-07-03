@@ -449,12 +449,12 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install Dependencies for quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-progress --no-suggest --no-interaction
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: tools
         shell: bash
 
       - name: Install Dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-progress --no-suggest --no-interaction
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon
         shell: bash
 
@@ -467,6 +467,7 @@ jobs:
         working-directory: centreon
 
       - name: Run php-cs-fixer in parallel
+        working-directory: centreon
         run: |
           set -e
 
@@ -527,6 +528,7 @@ jobs:
           fi
 
       - name: Run PHPStan in parallel
+        working-directory: centreon
         run: |
           set -e
 
@@ -587,6 +589,7 @@ jobs:
           fi
 
       - name: Run Rector in parallel
+        working-directory: centreon
         run: |
           set -e
 
@@ -645,6 +648,7 @@ jobs:
           fi
 
       - name: Run Deptrac in parallel
+        working-directory: centreon
         run: |
           set -e
 
