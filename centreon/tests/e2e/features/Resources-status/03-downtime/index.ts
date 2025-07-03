@@ -10,13 +10,13 @@ import {
 const serviceInDtName = 'service1';
 const secondServiceInDtName = 'service2';
 
-const  clickToSearch = () => {
+const  clickToSearch = (count) => {
   cy.getIframeBody().then(($body) => {
-    const rows = Cypress.$($body).find('table.ListTable > tbody > tr.list_two');
-    if (rows.length !== 1) {
+    const rows = Cypress.$($body).find('table.ListTable > tbody > tr[class^="list_"]');
+    if (rows.length !== count) {
       cy.getIframeBody().find('input[name="SearchB"]').click();
       cy.wait('@getTimeZone');
-      clickToSearch();
+      clickToSearch(count);
     }
   });
 }
@@ -229,7 +229,7 @@ Given('that you have to go to the downtime page', () => {
 When('I search for the resource currently "In Downtime" in the list', () => {
   cy.wait('@getTimeZone').then(() => {
   cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
-  clickToSearch();
+  clickToSearch(1);
 
   cy.getIframeBody()
     .contains(serviceInDtName)
@@ -348,6 +348,8 @@ Given('multiple resources are in downtime', () => {
 
 When('I search for the resources currently "In Downtime" in the list', () => {
   cy.wait('@getTimeZone').then(() => {
+    cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
+    clickToSearch(2);
     cy.getIframeBody()
       .contains(serviceInDtName)
       .parent()
