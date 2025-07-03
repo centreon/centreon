@@ -496,11 +496,11 @@ jobs:
             echo "::group::Core Rector"
             composer rector:core
             echo "::endgroup::"
-          
+
             echo "::group::Core PHP CS Fixer"
             composer cs:core
             echo "::endgroup::"
-          
+
             echo "::group::Core PHPStan"
             composer stan:core
             echo "::endgroup::"
@@ -512,15 +512,15 @@ jobs:
             echo "::group::New Rector"
             composer rector:new
             echo "::endgroup::"
-          
+
             echo "::group::New PHP CS Fixer"
             composer cs:new
             echo "::endgroup::"
-          
+
             echo "::group::New PHPStan"
             composer stan:new
             echo "::endgroup::"
-          
+
             echo "::group::New Deptrac"
             composer dep:new
             echo "::endgroup::"
