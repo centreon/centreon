@@ -469,27 +469,28 @@ jobs:
       - name: Run php-cs-fixer in parallel
         working-directory: centreon
         run: |
+          echo "GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY"
           set -e
 
           {
             echo "::group::php-cs-fixer legacy"
-            composer cs:legacy:www -- --format=txt | cat
-            composer cs:legacy:src -- --format=txt | cat
-            composer cs:legacy:test -- --format=txt | cat
+            composer cs:legacy:www -- --format=txt --no-ansi
+            composer cs:legacy:src -- --format=txt --no-ansi
+            composer cs:legacy:test -- --format=txt --no-ansi
             echo "::endgroup::"
           } &
           pid_legacy=$!
 
           {
             echo "::group::php-cs-fixer core"
-            composer cs:core -- --format=txt | cat
+            composer cs:core -- --format=txt --no-ansi
             echo "::endgroup::"
           } &
           pid_core=$!
 
           {
             echo "::group::php-cs-fixer new"
-            composer cs:new -- --format=txt | cat
+            composer cs:new -- --format=txt --no-ansi
             echo "::endgroup::"
           } &
           pid_new=$!
@@ -654,7 +655,7 @@ jobs:
 
           {
             echo "::group::Deptrac New"
-            composer dep:new -- --formatter=github | cat
+            composer dep:new -- --formatter=github-actions --no-progress
             echo "::endgroup::"
           } &
           pid_dep_new=$!
