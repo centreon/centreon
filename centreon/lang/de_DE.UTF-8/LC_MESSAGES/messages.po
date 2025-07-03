@@ -20673,3 +20673,24 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
+
+# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host groups."
+# msgstr ""
+
+# msgid "Data is aggregated monthly over the last 12 months for graphs presenting host categories."
+# msgstr ""
+
+# msgid "Data is aggregated daily for graphs presenting hosts."
+# msgstr ""
+
+# msgid "If you want to display the graph with host categories and hosts, you must select only one hostgroup."
+# msgstr ""
+
+# msgid "Display with this resource type"
+# msgstr ""
+
+# msgid "Hostgroup availability history"
+# msgstr ""
+
+# msgid "Displays the availability history of hosts, host categories or hostgroups belonging to a hostgroup."
+# msgstr ""
