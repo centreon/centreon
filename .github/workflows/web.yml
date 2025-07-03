@@ -231,7 +231,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: ${{ env.base_directory }}
         shell: bash
 
