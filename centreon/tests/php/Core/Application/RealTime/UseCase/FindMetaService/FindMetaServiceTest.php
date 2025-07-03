@@ -238,8 +238,7 @@ it('should find the metaservice as non-admin', function (): void {
     expect($presenter->response->notificationNumber)->toBe($metaService->getNotificationNumber());
     expect($presenter->response->latency)->toBe($metaService->getLatency());
     expect($presenter->response->executionTime)->toBe($metaService->getExecutionTime());
-    expect($presenter->response->statusChangePercentage)
-        ->toBe($metaService->getStatusChangePercentage());
+    expect($presenter->response->statusChangePercentage)->toBe($metaService->getStatusChangePercentage());
     expect($presenter->response->hasActiveChecks)->toBe($metaService->hasActiveChecks());
     expect($presenter->response->hasPassiveChecks)->toBe($metaService->hasPassiveChecks());
     expect($presenter->response->checkAttempts)->toBe($metaService->getCheckAttempts());
@@ -248,7 +247,7 @@ it('should find the metaservice as non-admin', function (): void {
     expect($presenter->response->lastCheck)->toBe($metaService->getLastCheck());
     expect($presenter->response->nextCheck)->toBe($metaService->getNextCheck());
     expect($presenter->response->lastNotification)->toBe($metaService->getLastNotification());
-    expect($presenter->response->lastStatusChange, $metaService->getLastStatusChange());
+    expect($presenter->response->lastStatusChange)->toBe($metaService->getLastStatusChange());
     expect($presenter->response->status['code'])->toBe($metaService->getStatus()->getCode());
     expect($presenter->response->status['name'])->toBe($metaService->getStatus()->getName());
     expect($presenter->response->status['type'])->toBe($metaService->getStatus()->getType());
