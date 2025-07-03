@@ -95,14 +95,29 @@ const Resources = ({
       ? WidgetResourceType.hostGroup
       : resourceType;
 
+  const getDefaultSelectType = (currentResourceType: WidgetResourceType) => {
+    return selectType?.defaultResourceType.find(({ resourceType }) =>
+      equals(resourceType, currentResourceType)
+    );
+  };
+
   const getDefaultRequiredSelectType = (
     currentResourceType: WidgetResourceType
   ) => {
-    const defaultSelectedType = selectType?.defaultResourceType.find(
-      ({ resourceType }) => equals(resourceType, currentResourceType)
+    const defaultSelectedType = getDefaultSelectType(currentResourceType);
+    return Boolean(defaultSelectedType?.requied);
+  };
+
+  const getDefaultDisabledSelectType = (
+    currentResourceType: WidgetResourceType
+  ) => {
+    const defaultSelectedType = getDefaultSelectType(currentResourceType);
+    const { when, matches } = defaultSelectedType?.disabled || {};
+    const targetValue = value.find(
+      (item) => item[when] && equals(item[when], matches)
     );
 
-    return Boolean(defaultSelectedType?.requied);
+    return targetValue?.resources?.length <= 0;
   };
 
   return (
@@ -156,7 +171,8 @@ const Resources = ({
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    getResourceStatic(resource.resourceType)
+                    getResourceStatic(resource.resourceType) ||
+                    getDefaultDisabledSelectType(resource.resourceType)
                   }
                   label={t(labelSelectResourceType) as string}
                   options={getResourceTypeOptions(index, resource)}
