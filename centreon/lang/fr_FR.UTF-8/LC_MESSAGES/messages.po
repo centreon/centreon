@@ -5773,7 +5773,7 @@ msgid "Error on updating a host macro (Reason: %s)"
 msgstr "Erreur lors de la mise à jour d'une macro d'hôte (Raison : %s)"
 
 # msgid "You are not authorized to access the configuration"
-# msgstr "Vous n’êtes pas autorisé à accéder à la configuration"
+# msgstr "Vous n’avez pas la permission d'accéder à la configuration"
 #: centreon/src/Core/Application/Configuration/User/Exception/UserException.php
 #, php-format
 msgid "Error on updating an user"
@@ -17300,7 +17300,7 @@ msgstr "Point d'entrée d'information utilisateur"
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "User is not allowed to reach web application"
-msgstr "L'utilisateur n'est pas autorisé à joindre l'application web"
+msgstr "L'utilisateur n'a pas a permission de joindre l'application web"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "User lastname attribute"
@@ -18120,127 +18120,127 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "You are not allowed to access additional configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations additionnelles"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to access commands"
-msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+msgstr "Vous n'avez pas la permission d'accéder aux commandes"
 
 #: centreon/src/Core/Connector/Application/Exception/ConnectorException.php
 msgid "You are not allowed to access connectors"
-msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
+msgstr "Vous n'avez pas la permission d'accéder aux connecteurs"
 
 #: centreon/src/Core/Contact/Application/Exception/ContactGroupException.php
 msgid "You are not allowed to access contact groups"
-msgstr "Vous n'êtes pas autorisé à accéder aux groupes de contacts"
+msgstr "Vous n'avez pas la permission d'accéder aux groupes de contacts"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "You are not allowed to access dashboards"
-msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
+msgstr "Vous n'avez pas la permission d'accéder aux tableaux de bord"
 
 #: centreon/src/Core/GraphTemplate/Application/Exception/GraphTemplateException.php
 msgid "You are not allowed to access graph templates"
-msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
+msgstr "Vous n'avez pas la permission d'accéder aux modèles de graphique"
 
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "You are not allowed to access host categories"
-msgstr "Vous n'êtes pas autorisé à accéder aux catégories d'hôtes"
+msgstr "Vous n'avez pas la permission d'accéder aux catégories d'hôtes"
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "You are not allowed to access host groups"
-msgstr "Vous n'êtes pas autorisé à accéder aux groupes d'hôtes"
+msgstr "Vous n'avez pas la permission d'accéder aux groupes d'hôtes"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "You are not allowed to access host severities"
-msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
+msgstr "Vous n'avez pas la permission d'accéder aux sévérités d'hôtes"
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to access host templates"
-msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
+msgstr "Vous n'avez pas la permission d'accéder aux modèles d'hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
 msgstr ""
-"Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps réel"
+"Vous n'avez pas la permission d'accéder aux hôtes dans le cadre du temps réel"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "You are not allowed to access poller/agent configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations collecteur/agent"
+msgstr "Vous n'avez pas la permission d'accéder aux configurations collecteur/agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
-msgstr "Vous n'êtes pas autorisé à accéder aux catégories de services"
+msgstr "Vous n'avez pas la permission d'accéder aux catégories de services"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to access service groups"
-msgstr "Vous n'êtes pas autorisé à accéder aux groupes de services"
+msgstr "Vous n'avez pas la permission d'accéder aux groupes de services"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "You are not allowed to access service severities"
-msgstr "Vous n'êtes pas autorisé à accéder aux sévérités de services"
+msgstr "Vous n'avez pas la permission d'accéder aux sévérités de services"
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "You are not allowed to access service templates"
-msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
+msgstr "Vous n'avez pas la permission d'accéder aux modèles de service"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to access services"
-msgstr "Vous n'êtes pas autorisé à accéder aux services"
+msgstr "Vous n'avez pas la permission d'accéder aux services"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to access services in the real time context"
 msgstr ""
-"Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
+"Vous n'avez pas la permission d'accéder aux services dans le cadre du temps réel"
 
 #: centreon/src/Centreon/Application/Controller/FilterController.php
 msgid "You are not allowed to access the Resources Status page"
-msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+msgstr "Vous n'avez pas la permission d'accéder à la page Statut des ressources"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You are not allowed to access this contact"
-msgstr "Vous n'êtes pas autorisé à accéder à ce contact"
+msgstr "Vous n'avez pas la permission d'accéder à ce contact"
 
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 msgid "You are not allowed to access this contact group"
-msgstr "Vous n'êtes pas autorisé à accéder à ce groupe de contacts"
+msgstr "Vous n'avez pas la permission d'accéder à ce groupe de contacts"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "You are not allowed to access this host"
-msgstr "Vous n'êtes pas autorisé à accéder à cet hôte"
+msgstr "Vous n'avez pas la permission d'accéder à cet hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "You are not allowed to access this host category"
-msgstr "Vous n'êtes pas autorisé à accéder à cette catégorie d'hôte"
+msgstr "Vous n'avez pas la permission d'accéder à cette catégorie d'hôte"
 
 #: centreon/www/include/configuration/configObject/meta_service/metaService.php
 msgid "You are not allowed to access this meta service"
-msgstr "Vous n'êtes pas autorisé à accéder à ce méta-service"
+msgstr "Vous n'avez pas la permission d'accéder à ce méta-service"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "You are not allowed to access this monitoring instance"
-msgstr "Vous n'êtes pas autorisé à accéder à cette instance de supervision"
+msgstr "Vous n'avez pas la permission d'accéder à cette instance de supervision"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "You are not allowed to access this object configuration"
-msgstr "Vous n'êtes pas autorisé à accéder à la définition de l'objet"
+msgstr "Vous n'avez pas la permission d'accéder à la définition de l'objet"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "You are not allowed to access this service"
-msgstr "Vous n'êtes pas autorisé à accéder à ce service"
+msgstr "Vous n'avez pas la permission d'accéder à ce service"
 
 #: centreon/www/include/configuration/configObject/service_categories/formServiceCategories.php
 msgid "You are not allowed to access this service category"
-msgstr "Vous n'êtes pas autorisé à accéder à cette catégorie de services"
+msgstr "Vous n'avez pas la permission d'accéder à cette catégorie de services"
 
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 msgid "You are not allowed to access this service group"
-msgstr "Vous n'êtes pas autorisé à accéder à ce groupe de services"
+msgstr "Vous n'avez pas la permission d'accéder à ce groupe de services"
 
 #: centreon/src/Core/TimePeriod/Application/Exception/TimePeriodException.php
 msgid "You are not allowed to access time periods"
-msgstr "Vous n'êtes pas autorisé à accéder aux périodes de temps"
+msgstr "Vous n'avez pas la permission d'accéder aux périodes de temps"
 
 #: centreon/src/Core/User/Application/Exception/UserException.php
 msgid "You are not allowed to access users"
@@ -18248,7 +18248,7 @@ msgstr "Vous n'avez pas la permission d'accéder à la liste des utilisateurs"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to add a command"
-msgstr "Vous n'êtes pas autorisé à créer une commande"
+msgstr "Vous n'avez pas la permission de créer une commande"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to add a notification configuration"
@@ -18257,27 +18257,27 @@ msgstr ""
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to add a service"
-msgstr "Vous n'êtes pas autorisé à ajouter un service"
+msgstr "Vous n'avez pas la permission d'ajouter un service"
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "You are not allowed to add a service template"
-msgstr "Vous n'êtes pas autorisé à ajouter un modèle de service"
+msgstr "Vous n'avez pas la permission d'ajouter un modèle de service"
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to add host templates"
-msgstr "Vous n'êtes pas autorisé à créer des modèles d'hôtes"
+msgstr "Vous n'avez pas la permission de créer des modèles d'hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to add hosts"
-msgstr "Vous n'êtes pas autorisé à créer des hôtes"
+msgstr "Vous n'avez pas la permission de créer des hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to add media"
-msgstr "Vous n'êtes pas autorisé à ajouter des médias"
+msgstr "Vous n'avez pas la permission d'ajouter des médias"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to add tokens"
-msgstr "Vous n'êtes pas autorisé à ajouter des tokens"
+msgstr "Vous n'avez pas la permission d'ajouter des tokens"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
@@ -18287,15 +18287,15 @@ msgstr ""
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to create service categories"
-msgstr "Vous n'êtes pas autorisé à créer des catégories de services"
+msgstr "Vous n'avez pas la permission de créer des catégories de services"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "You are not allowed to create service severities"
-msgstr "Vous n'êtes pas autorisé à créer des sévérités de services"
+msgstr "Vous n'avez pas la permission de créer des sévérités de services"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "You are not allowed to create/modify a host severity"
-msgstr "Vous n'êtes pas autorisé à créer/modifier des sévérités d'hôtes"
+msgstr "Vous n'avez pas la permission de créer/modifier des sévérités d'hôtes"
 
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "You are not allowed to create/modify host categories"
@@ -18307,45 +18307,45 @@ msgstr "Vous n'avez pas la permission de supprimer un hôte"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to delete a notification configuration"
-msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notification"
+msgstr "Vous n'avez pas la permission de supprimer une configuration de notification"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to delete a service"
-msgstr "Vous n'êtes pas autorisé à supprimer un service"
+msgstr "Vous n'avez pas la permission de supprimer un service"
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "You are not allowed to delete a service template"
-msgstr "Vous n'êtes pas autorisé à supprimer un modèle de service"
+msgstr "Vous n'avez pas la permission de supprimer un modèle de service"
 
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "You are not allowed to delete host categories"
-msgstr "Vous n'êtes pas autorisé à supprimer des catégories d'hôtes"
+msgstr "Vous n'avez pas la permission de supprimer des catégories d'hôtes"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "You are not allowed to delete host severities"
-msgstr "Vous n'êtes pas autorisé à supprimer des sévérités d'hôtes"
+msgstr "Vous n'avez pas la permission de supprimer des sévérités d'hôtes"
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to delete host templates"
-msgstr "Vous n'êtes pas autorisé à supprimer des modèles d'hôtes"
+msgstr "Vous n'avez pas la permission de supprimer des modèles d'hôtes"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to delete service categories"
-msgstr "Vous n'êtes pas autorisé à supprimer des catégories de services"
+msgstr "Vous n'avez pas la permission de supprimer des catégories de services"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "You are not allowed to delete service severities"
-msgstr "Vous n'êtes pas autorisé à supprimer des sévérités de services"
+msgstr "Vous n'avez pas la permission de supprimer des sévérités de services"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to delete tokens"
-msgstr "Vous n'êtes pas autorisé à supprimer des tokens"
+msgstr "Vous n'avez pas la permission de supprimer des tokens"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'êtes pas autorisé à supprimer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de supprimer des tokens liés à l'ID d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "You are not allowed to disconnect this user"
@@ -18353,25 +18353,25 @@ msgstr "Vous n'avez pas la permission de déconnecter cet utilisateur"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to display the details of the notification"
-msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
+msgstr "Vous n'avez pas la permission d'afficher les détails de la notification"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "You are not allowed to edit a broker configuration"
-msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
+msgstr "Vous n'avez pas la permission d'éditer une configuration Broker"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to edit a host"
-msgstr "Vous n'êtes pas autorisé à éditer un hôte"
+msgstr "Vous n'avez pas la permission d'éditer un hôte"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to edit a service"
-msgstr "Vous n'êtes pas autorisé à éditer un service"
+msgstr "Vous n'avez pas la permission d'éditer un service"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
 msgid "You are not allowed to edit access rights on the dashboard #%d"
 msgstr ""
-"Vous n'êtes pas autorisé à éditer les droits d'accès du tableau de bord #%d"
+"Vous n'avez pas la permission d'éditer les droits d'accès du tableau de bord #%d"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "You are not allowed to edit service severities"
@@ -18379,27 +18379,27 @@ msgstr "Vous n'avez pas la permission d'éditer les criticités de services"
 
 #: centreon/src/Core/TimePeriod/Application/Exception/TimePeriodException.php
 msgid "You are not allowed to edit time periods"
-msgstr "Vous n'êtes pas autorisé à éditer des périodes de temps"
+msgstr "Vous n'avez pas la permission d'éditer des périodes de temps"
 
 #: centreon/src/Core/Contact/Application/Exception/ContactTemplateException.php
 msgid "You are not allowed to list contact templates"
-msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
+msgstr "Vous n'avez pas la permission de lister les modèles de contact"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to list hosts"
-msgstr "Vous n'êtes pas autorisé à lister les hôtes"
+msgstr "Vous n'avez pas la permission de lister les hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to list media"
-msgstr "Vous n'êtes pas autorisé à lister les médias"
+msgstr "Vous n'avez pas la permission de lister les médias"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to list notification resources"
-msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
+msgstr "Vous n'avez pas la permission d'afficher les ressources des notifications"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to list notifications configurations"
-msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications"
+msgstr "Vous n'avez pas la permission de lister les configurations de notifications"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "You are not allowed to list resource access rules"
@@ -18409,50 +18409,50 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "You are not allowed to log in"
-msgstr "Vous n'êtes pas autorisé à vous connecter"
+msgstr "Vous n'avez pas la permission de vous connecter"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to partially update a notification configuration"
 msgstr ""
-"Vous n'êtes pas autorisé à effectuer la modification partielle d'une "
+"Vous n'avez pas la permission d'effectuer la modification partielle d'une "
 "configuration de notification"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "You are not allowed to partially update the token"
-msgstr "Vous n'êtes pas autorisé à mettre à jour partiellement le jeton"
+msgstr "Vous n'avez pas la permission de mettre à jour partiellement le jeton"
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to perform write actions on host templates"
 msgstr ""
-"Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les modèles "
+"Vous n'avez pas la permission d'effectuer des actions d'écriture sur les modèles "
 "d'hôte"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "You are not allowed to perform write operations on dashboards"
 msgstr ""
-"Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux "
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les tableaux "
 "de bord"
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "You are not allowed to perform write operations on host groups"
 msgstr ""
-"Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes "
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les groupes "
 "d'hôtes"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to perform write operations on service groups"
 msgstr ""
-"Vous n'êtes pas autorisé à faire des opérations d'écriture sur les groupes "
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les groupes "
 "de services"
 
 #: centreon/www/include/core/errors/alt_error.php
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "You are not allowed to reach this page"
-msgstr "Vous n'êtes pas autorisé à accéder à cette page"
+msgstr "Vous n'avez pas la permission d'accéder à cette page"
 
 #: centreon/www/install/front_translate.php
 msgid "You are not allowed to see this page"
-msgstr "Vous n'êtes pas autorisé à voir cette page"
+msgstr "Vous n'avez pas la permission de voir cette page"
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "You are not allowed to update a service template"
@@ -18465,7 +18465,7 @@ msgstr "Vous n'avez pas la permission de mettre à jour des médias"
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to update the notification configuration"
 msgstr ""
-"Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
+"Vous n'avez pas la permission de mettre à jour la configuration de la notification"
 
 #: centreon/www/install/front_translate.php
 msgid "You are not authorized to access the configuration"
@@ -18499,8 +18499,8 @@ msgid ""
 "You can't edit this downtime because you don't have access to all of its "
 "resources"
 msgstr ""
-"Vous ne pouvez pas éditer cette plage de maintenance car vous n'êtes pas "
-"autorisé à accéder à toutes les ressources liées"
+"Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la permission "
+"d'accéder à toutes les ressources liées"
 
 #: centreon/www/install/smarty_translate.php
 msgid "You cannot add more charts. The maximum charts is "
@@ -18529,7 +18529,7 @@ msgstr ""
 #, php-format
 msgid "You cannot view access rights on the dashboard #%d"
 msgstr ""
-"Vous n'êtes pas autorisé à consulter les droits d'accès du tableau de bord "
+"Vous n'avez pas la permission de consulter les droits d'accès du tableau de bord "
 "#%d"
 
 #: centreon/src/Centreon/Domain/PlatformInformation/Exception/PlatformInformationException.php
@@ -20130,7 +20130,8 @@ msgstr ""
 #: unknown
 msgid "Commands containing a request body are not allowed at the moment"
 msgstr ""
-"Les commandes contenant un corp ne sont pas autorisées pour le moment"
+"Les commandes contenant un corps de requête ne sont pas autorisées "
+"pour le moment"
 
 #: unknown
 msgid "Communication port"
@@ -23691,24 +23692,24 @@ msgstr ""
 
 #: unknown
 msgid "You are not allowed to access this host group"
-msgstr "Vous n'êtes pas autorisé à accéder à ce groupe d'hôte"
+msgstr "Vous n'avez pas la permission d'accéder à ce groupe d'hôte"
 
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr ""
-"Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de créer des tokens liés à l'ID d'utilisateur %d"
 
 #: unknown
 msgid "You are not allowed to create host categories"
-msgstr "Vous n'êtes pas autorisé à créer des catégories d'hôtes"
+msgstr "Vous n'avez pas la permission de créer des catégories d'hôtes"
 
 #: unknown
 msgid "You are not allowed to list authentication tokens"
-msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
+msgstr "Vous n'avez pas la permission de lister les jetons d'authentification"
 
 #: unknown
 msgid "You are not authorized to access this resource"
-msgstr "Vous n'êtes pas autorisé à accéder à cette ressource"
+msgstr "Vous n'avez pas la permission d'accéder à cette ressource"
 
 #: unknown
 msgid "You are not in an access group"
@@ -23741,8 +23742,8 @@ msgid ""
 "You can't edit this hostgroup because you don't have access to all its "
 "resources"
 msgstr ""
-"Vous ne pouvez pas éditer groupe d'hote car vous n'êtes pas autorisé à "
-"accéder à toutes les ressources liées"
+"Vous ne pouvez pas éditer groupe d'hote car vous n'avez pas la permission "
+"d'accéder à toutes les ressources liées"
 
 #: unknown
 msgid "You cannot add the same dashboard to a playlist several times."
