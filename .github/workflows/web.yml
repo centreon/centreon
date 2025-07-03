@@ -500,7 +500,9 @@ jobs:
 
           {
             echo "::group::php-cs-fixer Legacy"
-            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
+            composer cs:legacy:www -- --format=txt --show-progress=none \
+            && composer cs:legacy:src -- --format=txt --show-progress=none \
+            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
@@ -526,19 +528,23 @@ jobs:
 
           {
             echo "::group::PHPStan Legacy"
-            composer stan:legacy -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
+            composer stan:legacy:www -- --no-progress \
+            && composer stan:legacy:src -- --no-progress \
+            && composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::PHPStan Core"
-            composer stan:core -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
+            composer stan:core:src -- --no-progress \
+            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::PHPStan New"
-            composer stan:new -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
+            composer stan:new:src -- --no-progress \
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 

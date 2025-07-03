@@ -210,10 +210,19 @@
       "@stan:legacy:src",
       "@stan:legacy:test"
     ],
-    "stan:core": "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
+    "stan:core:src": "../tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "stan:core:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
     "stan:core:test": "../tools/vendor/bin/phpstan analyse -c phpstan.core.test.neon --memory-limit=1G",
-    "stan:new": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
+    "stan:core": [
+      "@stan:core:src",
+      "@stan:core:test"
+    ],
+    "stan:new:src": "../tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
+    "stan:new:test": "../tools/vendor/bin/phpstan analyse -c phpstan.new.test.neon --memory-limit=1G",
+    "stan:new": [
+      "@stan:new:src",
+      "@stan:new:test"
+    ],
     "dep:new": [
       "../tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
       "../tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
