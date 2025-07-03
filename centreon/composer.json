@@ -98,9 +98,6 @@
     "symfony/web-profiler-bundle": "7.3.*",
     "zircote/swagger-php": "4.10.*"
   },
-  "conflict": {
-    "symfony/symfony": "*"
-  },
   "replace": {
     "paragonie/random_compat": "2.*",
     "symfony/polyfill-ctype": "*",
@@ -156,7 +153,7 @@
   },
   "scripts": {
     "test": "pest --do-not-cache-result",
-    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
     "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",
     "phpcs:unstrict": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
     "phpcs:strict:exec": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff",
