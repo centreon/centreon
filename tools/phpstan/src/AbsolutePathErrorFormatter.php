@@ -114,10 +114,6 @@ class AbsolutePathErrorFormatter implements ErrorFormatter
 
     /**
      * Escapes values for using in XML.
-     *
-     * @param string $string
-     *
-     * @return string
      */
     protected function escape(string $string): string
     {
@@ -126,8 +122,6 @@ class AbsolutePathErrorFormatter implements ErrorFormatter
 
     /**
      * Group errors by file.
-     *
-     * @param AnalysisResult $analysisResult
      *
      * @return array<string, array<Error>> array that have as key the absolute path of file
      *                                     and as value an array with occurred errors

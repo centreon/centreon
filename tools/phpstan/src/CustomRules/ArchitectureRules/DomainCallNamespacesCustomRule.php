@@ -48,7 +48,6 @@ final class DomainCallNamespacesCustomRule implements Rule
 
     /**
      * @param CollectedDataNode $node
-     * @param Scope $scope
      * @return list<\PHPStan\Rules\RuleError>
      */
     public function processNode(Node $node, Scope $scope): array

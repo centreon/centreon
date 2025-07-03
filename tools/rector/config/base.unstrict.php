@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 
-$rectorRules = require_once __DIR__ . '/rector.rules.php';
+$rectorRules = require_once __DIR__ . '/rules.unstrict.php';
 
 return RectorConfig::configure()
     ->withParallel()
     ->withRules($rectorRules)
     ->withBootstrapFiles([
-        __DIR__ . '/rector.bootstrap.php',
+        __DIR__ . '/centreon.bootstrap.php',
     ]);

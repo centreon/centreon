@@ -31,15 +31,15 @@
   },
   "scripts": {
     "require:check": "composer-require-checker check composer.json",
+    "rector": "rector process --dry-run",
+    "rector:fix": "rector process",
     "cs": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --dry-run --diff",
     "cs:fix": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --diff",
     "stan": "phpstan analyse -c phpstan.tools.neon --memory-limit=512M",
-    "rector": "rector process --dry-run",
-    "rector:fix": "rector process",
     "ci": [
+      "@rector",
       "@cs",
-      "@stan",
-      "@rector"
+      "@stan"
     ]
   }
 }

@@ -37,10 +37,6 @@ trait CentreonRuleTrait
 
     /**
      * Tells whether the class FQCN extends an Exception.
-     *
-     * @param ?string $classFqcn
-     *
-     * @return bool
      */
     private function extendsAnException(?string $classFqcn): bool
     {
@@ -53,8 +49,6 @@ trait CentreonRuleTrait
     /**
      * Tells whether the class short name or FQCN is valid for a Repository.
      *
-     * @param string $className
-     *
      * @return null|non-empty-string
      */
     private function getRepositoryName(string $className): ?string
@@ -66,8 +60,6 @@ trait CentreonRuleTrait
     /**
      * Tells whether the class short name or FQCN is valid for a Repository Interface.
      *
-     * @param string $className
-     *
      * @return null|non-empty-string
      */
     private function getRepositoryInterfaceName(string $className): ?string
@@ -78,10 +70,6 @@ trait CentreonRuleTrait
 
     /**
      * This method checks if a file is a Use Case.
-     *
-     * @param string $filename
-     *
-     * @return bool
      */
     private function fileIsUseCase(string $filename): bool
     {

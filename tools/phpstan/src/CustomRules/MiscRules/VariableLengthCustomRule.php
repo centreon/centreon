@@ -77,17 +77,13 @@ class VariableLengthCustomRule implements Rule
     /**
      * This method returns variable name from a scanned node if the node refers to
      * variable/property/parameter.
-     *
-     * @param Node $node
-     *
-     * @return string|null
      */
     private function getVariableNameFromNode(Node $node): ?string
     {
         // FIXME Although PHPStan\Node\ClassPropertyNode is covered by backward compatibility promise, this instanceof assumption might break because it's not guaranteed to always stay the same.
         // https://phpstan.org/developing-extensions/backward-compatibility-promise
         if ($node instanceof \PHPStan\Node\ClassPropertyNode) {
-            return (string) $node->getName();
+            return $node->getName();
         }
 
         return match (true) {

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-$rectorConfig = require_once __DIR__ . '/rector/config/rector.php';
+$rectorConfig = require_once __DIR__ . '/rector/config/base.strict.php';
 
 return $rectorConfig
     ->withCache(__DIR__ . '/var/cache/rector')

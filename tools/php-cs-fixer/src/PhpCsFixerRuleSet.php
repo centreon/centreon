@@ -70,11 +70,11 @@ class PhpCsFixerRuleSet
             'explicit_string_variable' => true,
             'fully_qualified_strict_types' => true,
             'general_phpdoc_tag_rename' => ['case_sensitive' => true, 'replacements' => ['inheritdoc' => 'inheritDoc']],
-             'header_comment' => [
-                 'header' => self::getLicenseHeaderAsPhpComment(),
-                 'location' => 'after_open',
-                 'separate' => 'both',
-             ],
+            'header_comment' => [
+                'header' => self::getLicenseHeaderAsPhpComment(),
+                'location' => 'after_open',
+                'separate' => 'both',
+            ],
             'heredoc_indentation' => true,
             'heredoc_to_nowdoc' => true,
             'include' => true,
@@ -213,10 +213,8 @@ class PhpCsFixerRuleSet
 
     /**
      * This method returns the license header as a PHP comment.
-     *
-     * @return string
      */
-    private static function getLicenseHeaderAsPhpComment()
+    private static function getLicenseHeaderAsPhpComment(): string
     {
         $year = 2025;
 

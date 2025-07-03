@@ -36,8 +36,6 @@ class CentreonRuleErrorBuilder
      * This method builds a custom error message for PHPStan custom rules by overloading its
      * parent's method message.
      *
-     * @param string $message
-     *
      * @return RuleErrorBuilder<RuleError>
      */
     public static function message(string $message): RuleErrorBuilder

@@ -42,14 +42,14 @@ jobs:
         working-directory: tools
         shell: bash
 
-      - name: Run of php-cs-fixer
+      - name: Run of rector with strict config
+        run: composer rector
+        working-directory: tools
+
+      - name: Run of php-cs-fixer with strict config
         run: composer cs
         working-directory: tools
 
       - name: Run of phpstan at level max
         run: composer stan
-        working-directory: tools
-
-      - name: Run of rector on all sections
-        run: composer rector
         working-directory: tools
