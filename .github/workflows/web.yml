@@ -474,24 +474,23 @@ jobs:
 
           {
             echo "::group::Rector Legacy"
-            composer rector:legacy --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::Rector Core"
-            composer rector:core --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::Rector New"
-            composer rector:new --no-progess-bar && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           wait
-          echo "### 🛠️ Rector finished" >> $GITHUB_STEP_SUMMARY
 
       # === php-cs-fixer
       - name: 🧹 php-cs-fixer checks
@@ -501,24 +500,23 @@ jobs:
 
           {
             echo "::group::php-cs-fixer Legacy"
-            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::php-cs-fixer Core"
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::php-cs-fixer New"
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           wait
-          echo "### 🧹 php-cs-fixer finished" >> $GITHUB_STEP_SUMMARY
 
       # === PHPStan
       - name: 🔍 PHPStan checks
@@ -528,24 +526,23 @@ jobs:
 
           {
             echo "::group::PHPStan Legacy"
-            composer stan:legacy --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer stan:legacy -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::PHPStan Core"
-            composer stan:core --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer stan:core -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           {
             echo "::group::PHPStan New"
-            composer stan:new --no-progress && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer stan:new -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           wait
-          echo "### 🔍 PHPStan finished" >> $GITHUB_STEP_SUMMARY
 
       # === Deptrac
       - name: 📐 Deptrac checks
@@ -555,12 +552,11 @@ jobs:
 
           {
             echo "::group::Deptrac New"
-            composer dep:new -- --formatter=github-actions && echo "✅ Success" || { echo "❌ Failed"; exit 1; }
+            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
           wait
-          echo "### 📐 Deptrac finished" >> $GITHUB_STEP_SUMMARY
 
 #      - name: Run analyses in parallel
 #        working-directory: centreon
