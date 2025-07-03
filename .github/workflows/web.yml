@@ -467,6 +467,7 @@ jobs:
         working-directory: centreon
 
       - name: Run analyses in parallel
+        working-directory: centreon
         run: |
           # legacy
           echo "::group::Legacy Rector"
