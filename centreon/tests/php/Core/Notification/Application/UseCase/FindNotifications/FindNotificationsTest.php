@@ -53,47 +53,47 @@ beforeEach(function (): void {
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 });
 
-// it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
-//     $contact = (new Contact())->setAdmin(false)->setId(1);
+it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
+    $contact = (new Contact())->setAdmin(false)->setId(1);
 
-//     (new FindNotifications(
-//         $contact,
-//         $this->notificationRepository,
-//         $this->repositoryProvider,
-//         $this->readAccessGroupRepository,
-//         $this->requestParameters
-//     ))($this->presenter);
+    (new FindNotifications(
+        $contact,
+        $this->notificationRepository,
+        $this->repositoryProvider,
+        $this->readAccessGroupRepository,
+        $this->requestParameters
+    ))($this->presenter);
 
-//     expect($this->presenter->responseStatus)
-//         ->toBeInstanceOf(ForbiddenResponse::class)
-//         ->and($this->presenter->responseStatus?->getMessage())
-//         ->toBe(NotificationException::listNotAllowed()->getMessage());
-// });
+    expect($this->presenter->responseStatus)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->responseStatus?->getMessage())
+        ->toBe(NotificationException::listNotAllowed()->getMessage());
+})->skip();
 
-// it('should present an empty response when no notifications are configured', function (): void {
-//     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
-//         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
-//     );
+it('should present an empty response when no notifications are configured', function (): void {
+    $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
+        [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
+    );
 
-//     $this->notificationRepository
-//         ->expects($this->once())
-//         ->method('findAll')
-//         ->willReturn([]);
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('findAll')
+        ->willReturn([]);
 
-//     (new FindNotifications(
-//         $contact,
-//         $this->notificationRepository,
-//         $this->repositoryProvider,
-//         $this->readAccessGroupRepository,
-//         $this->requestParameters
-//     ))($this->presenter);
+    (new FindNotifications(
+        $contact,
+        $this->notificationRepository,
+        $this->repositoryProvider,
+        $this->readAccessGroupRepository,
+        $this->requestParameters
+    ))($this->presenter);
 
-//     expect($this->presenter->response)
-//         ->toBeInstanceOf(FindNotificationsResponse::class)
-//         ->and($this->presenter->response->notifications)
-//         ->toBeArray()
-//         ->toBeEmpty();
-// });
+    expect($this->presenter->response)
+        ->toBeInstanceOf(FindNotificationsResponse::class)
+        ->and($this->presenter->response->notifications)
+        ->toBeArray()
+        ->toBeEmpty();
+})->skip();
 
 it('should get the resources count with ACL calculation when the user is not admin', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
