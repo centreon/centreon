@@ -474,23 +474,23 @@ jobs:
 
           {
             echo "::group::php-cs-fixer legacy"
-            composer cs:legacy:www -- --format=txt --no-ansi
-            composer cs:legacy:src -- --format=txt --no-ansi
-            composer cs:legacy:test -- --format=txt --no-ansi
+            composer cs:legacy:www -- --show-progress=none
+            composer cs:legacy:src -- --show-progress=none
+            composer cs:legacy:test -- --show-progress=none
             echo "::endgroup::"
           } &
           pid_legacy=$!
 
           {
             echo "::group::php-cs-fixer core"
-            composer cs:core -- --format=txt --no-ansi
+            composer cs:core -- --show-progress=none
             echo "::endgroup::"
           } &
           pid_core=$!
 
           {
             echo "::group::php-cs-fixer new"
-            composer cs:new -- --format=txt --no-ansi
+            composer cs:new -- --show-progress=none
             echo "::endgroup::"
           } &
           pid_new=$!
@@ -533,29 +533,54 @@ jobs:
         run: |
           set -e
 
+          # === LEGACY ===
           {
-            echo "::group::PHPStan Legacy"
-            composer stan:legacy:www -- --no-progress
-            composer stan:legacy:src -- --no-progress
-            composer stan:legacy:test -- --no-progress
-            echo "::endgroup::"
+            echo "::group::🏛️ PHPStan Legacy"
+            if composer stan:legacy:www --no-progress \
+            && composer stan:legacy:src --no-progress \
+            && composer stan:legacy:test --no-progress
+            then
+            echo "✅ PHPStan Legacy: Success"
+              exit 0
+              else
+              echo "❌ PHPStan Legacy: Failed"
+              exit 1
+              fi
+              echo "::endgroup::"
           } &
           pid_stan_legacy=$!
 
+          # === CORE ===
           {
-            echo "::group::PHPStan Core"
-            composer stan:core -- --no-progress
-            echo "::endgroup::"
+            echo "::group::⚙️ PHPStan Core"
+            if composer stan:core --no-progress
+            then
+            echo "✅ PHPStan Core: Success"
+              exit 0
+              else
+              echo "❌ PHPStan Core: Failed"
+              exit 1
+              fi
+              echo "::endgroup::"
           } &
           pid_stan_core=$!
 
+          # === NEW ===
           {
-            echo "::group::PHPStan New"
-            composer stan:new -- --no-progress
-            echo "::endgroup::"
+            echo "::group::✨ PHPStan New"
+            if composer stan:new --no-progress
+            then
+            echo "✅ PHPStan New: Success"
+              exit 0
+              else
+              echo "❌ PHPStan New: Failed"
+              exit 1
+              fi
+              echo "::endgroup::"
           } &
           pid_stan_new=$!
 
+          # === Wait & collect exit codes ===
           exit_stan_legacy=0
           exit_stan_core=0
           exit_stan_new=0
@@ -564,6 +589,7 @@ jobs:
           wait $pid_stan_core   || exit_stan_core=$?
           wait $pid_stan_new    || exit_stan_new=$?
 
+          # === Summary for GitHub Step Summary ===
           echo "## PHPStan Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -572,21 +598,22 @@ jobs:
           else
             echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_stan_legacy)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
           if [ "$exit_stan_core" -eq 0 ]; then
             echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_stan_core)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
           if [ "$exit_stan_new" -eq 0 ]; then
             echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ✨ **New**: ❌ Failed (exit code: $exit_stan_new)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
+          # === Fail job if any failed ===
           if [ "$exit_stan_legacy" -ne 0 ] || [ "$exit_stan_core" -ne 0 ] || [ "$exit_stan_new" -ne 0 ]; then
-            exit 1
+          exit 1
           fi
 
       - name: Run Rector in parallel
