@@ -598,19 +598,19 @@ jobs:
           else
             echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_stan_legacy)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "$exit_stan_core" -eq 0 ]; then
             echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_stan_core)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           if [ "$exit_stan_new" -eq 0 ]; then
             echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ✨ **New**: ❌ Failed (exit code: $exit_stan_new)" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # === Fail job if any failed ===
           if [ "$exit_stan_legacy" -ne 0 ] || [ "$exit_stan_core" -ne 0 ] || [ "$exit_stan_new" -ne 0 ]; then
           exit 1
