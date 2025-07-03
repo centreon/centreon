@@ -476,13 +476,13 @@ jobs:
             echo "::group::Legacy Rector"
             composer rector:legacy
             echo "::endgroup::"
-            
+          
             echo "::group::Legacy PHP CS Fixer"
             composer cs:legacy:www
             composer cs:legacy:src
             composer cs:legacy:test
             echo "::endgroup::"
-            
+          
             echo "::group::Legacy PHPStan"
             composer stan:legacy:www
             composer stan:legacy:src
@@ -496,11 +496,11 @@ jobs:
             echo "::group::Core Rector"
             composer rector:core
             echo "::endgroup::"
-            
+          
             echo "::group::Core PHP CS Fixer"
             composer cs:core
             echo "::endgroup::"
-            
+          
             echo "::group::Core PHPStan"
             composer stan:core
             echo "::endgroup::"
@@ -512,15 +512,15 @@ jobs:
             echo "::group::New Rector"
             composer rector:new
             echo "::endgroup::"
-            
+          
             echo "::group::New PHP CS Fixer"
             composer cs:new
             echo "::endgroup::"
-            
+          
             echo "::group::New PHPStan"
             composer stan:new
             echo "::endgroup::"
-            
+          
             echo "::group::New Deptrac"
             composer dep:new
             echo "::endgroup::"
@@ -531,116 +531,40 @@ jobs:
           exit_legacy=0
           exit_core=0
           exit_new=0
-
+          
           wait $pid_legacy || exit_legacy=$?
           wait $pid_core   || exit_core=$?
           wait $pid_new    || exit_new=$?
-
+          
           # Build summary
           echo "## ✅ Analyse Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
+          
           if [ "$exit_legacy" -eq 0 ]; then
             echo "- 🏛️ **Legacy**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- 🏛️ **Legacy**: ❌ Failed (exit code: $exit_legacy)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
           if [ "$exit_core" -eq 0 ]; then
             echo "- ⚙️ **Core**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ⚙️ **Core**: ❌ Failed (exit code: $exit_core)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
           if [ "$exit_new" -eq 0 ]; then
             echo "- ✨ **New**: ✅ Success" >> $GITHUB_STEP_SUMMARY
           else
             echo "- ✨ **New**: ❌ Failed (exit code: $exit_new)" >> $GITHUB_STEP_SUMMARY
           fi
-
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Toutes les analyses ont été lancées en parallèle pour plus de rapidité 🚀" >> $GITHUB_STEP_SUMMARY
-
+          
           # Fail job if any block failed
           if [ "$exit_legacy" -ne 0 ] || [ "$exit_core" -ne 0 ] || [ "$exit_new" -ne 0 ]; then
             exit 1
           fi
-
-#      - name: Summary
-#        run: |
-#          echo "## ✅ Analyse Summary" >> $GITHUB_STEP_SUMMARY
-#          echo "" >> $GITHUB_STEP_SUMMARY
-#
-#          echo "### 🏛️ Legacy" >> $GITHUB_STEP_SUMMARY
-#          echo "- Rector: \`composer rector:legacy\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHP CS Fixer:" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer cs:legacy:www\`" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer cs:legacy:src\`" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer cs:legacy:test\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHPStan:" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer stan:legacy:www\`" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer stan:legacy:src\`" >> $GITHUB_STEP_SUMMARY
-#          echo "  - \`composer stan:legacy:test\`" >> $GITHUB_STEP_SUMMARY
-#          echo "" >> $GITHUB_STEP_SUMMARY
-#
-#          echo "### ⚙️ Core" >> $GITHUB_STEP_SUMMARY
-#          echo "- Rector: \`composer rector:core\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHP CS Fixer: \`composer cs:core\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHPStan: \`composer stan:core\`" >> $GITHUB_STEP_SUMMARY
-#          echo "" >> $GITHUB_STEP_SUMMARY
-#
-#          echo "### ✨ New" >> $GITHUB_STEP_SUMMARY
-#          echo "- Rector: \`composer rector:new\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHP CS Fixer: \`composer cs:new\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- PHPStan: \`composer stan:new\`" >> $GITHUB_STEP_SUMMARY
-#          echo "- Deptrac: \`composer dep:new\`" >> $GITHUB_STEP_SUMMARY
-#          echo "" >> $GITHUB_STEP_SUMMARY
-#
-#          echo "✅ Toutes les analyses ont été parallélisées pour plus de rapidité 🚀" >> $GITHUB_STEP_SUMMARY
-
-  #      - name: Analyse code quality of the legacy section (/www, /src, /tests)
-  #        run: composer legacy:check
-  #        working-directory: centreon
-  #
-  #      - name: Analyse code quality of the core section (/src/Core, /tests/Core)
-  #        run: composer core:check
-  #        working-directory: centreon
-  #
-  #      - name: Analyse code quality of the new section (/src/Adaptation, /src/App, /tests/Adaptation, /tests/App)
-  #        run: composer new:check
-  #        working-directory: centreon
-  #
-  #      - name: Run of rector on all sections
-  #        run: composer rector
-  #        working-directory: centreon
-  #
-  #      - name: Run of php-cs-fixer on the legacy section (/www, /src, /tests)
-  #        run: composer cs:legacy
-  #        working-directory: centreon
-  #
-  #      - name: Run of php-cs-fixer on the core section for the /src/Core directory
-  #        run: composer cs:core
-  #        working-directory: centreon
-  #
-  #      - name: Run of php-cs-fixer on the new section for the /src/Adaptation and /src/App directories
-  #        run: composer cs:new
-  #        working-directory: centreon
-  #
-  #      - name: Run of phpstan on the legacy section (/www at level 0, /src at level 4, /tests at level 2)
-  #        run: composer stan:legacy
-  #        working-directory: centreon
-  #
-  #      - name: Run of phpstan on the core section for the /src/Core directory at level 8 + Centreon Custom Rules
-  #        run: composer stan:core
-  #        working-directory: centreon
-  #
-  #      - name: Run of phpstan on the new section for the /src/Adaptation and /src/App directories at level max + Centreon Custom Rules
-  #        run: composer stan:new
-  #        working-directory: centreon
-  #
-  #      - name: Run of deptrac on the new section for the /src/App directory
-  #        run: composer dep:new
-  #        working-directory: centreon
 
   package:
     needs:
