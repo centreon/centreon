@@ -3,7 +3,7 @@
   "version": "25.07",
   "description": "Centreon - Tools for development",
   "require": {
-    "php": "8.2",
+    "php": "8.2.*",
     "ext-mbstring": "*",
     "deptrac/deptrac": "3.0.*",
     "friendsofphp/php-cs-fixer": "3.76.*",

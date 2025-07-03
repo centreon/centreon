@@ -1,12 +1,16 @@
 parameters:
+
     level: 3
+
     scanFiles:
         - ../tools/phpstan/config/centreon.stub
+
     paths:
         - config
         - packaging
         - widgets
         - www
+
     ignoreErrors:
         -   # Ignore path problems
             reportUnmatched: false

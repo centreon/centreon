@@ -4,7 +4,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.2",
+    "php": "8.2.*",
     "ext-gettext": "*",
     "ext-pdo": "*"
   },
@@ -40,6 +40,9 @@
     "cs:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
     "stan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=512M",
+    "rector": [
+      "@rector:legacy"
+    ],
     "cs": [
       "@cs:legacy"
     ],
@@ -55,9 +58,7 @@
       "@stan:legacy"
     ],
     "ci": [
-      "@rector",
-      "@cs",
-      "@stan"
+      "@legacy:check"
     ]
   },
   "extra": {

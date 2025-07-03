@@ -9,7 +9,7 @@
   ],
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.2",
+    "php": "8.2.*",
     "ext-curl": "*",
     "ext-ctype": "*",
     "ext-fileinfo": "*",
@@ -58,16 +58,27 @@
   },
   "scripts": {
     "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
-    "rector": "../tools/vendor/bin/rector process --dry-run",
-    "rector:fix": "../tools/vendor/bin/rector process",
+    "rector:legacy": "../tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../tools/vendor/bin/rector process --config=rector.legacy.php",
     "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
     "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
     "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
     "cs:legacy:src:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "cs:legacy": [
+        "@cs:legacy:www",
+        "@cs:legacy:src"
+    ],
     "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy": [
+        "@stan:legacy:www",
+        "@stan:legacy:src"
+    ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
+    "rector": [
+      "@rector:legacy"
+    ],
     "cs": [
       "@cs:legacy:www",
       "@cs:legacy:src"
@@ -80,11 +91,13 @@
       "@stan:legacy:www",
       "@stan:legacy:src"
     ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
     "ci": [
-      "@rector",
-      "@cs",
-      "@stan",
-      "@test"
+      "@legacy:check"
     ]
   },
   "extra": {

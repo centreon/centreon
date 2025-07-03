@@ -27,12 +27,12 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php'
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/src',
+        __DIR__ . '/src/CentreonOpenTickets',
     ])
     ->append([
         __DIR__ . '/.php-cs-fixer.legacy.src.php',
         __DIR__ . '/.php-cs-fixer.legacy.www.php',
-        __DIR__ . '/rector.php',
+        __DIR__ . '/rector.legacy.php',
     ]);
 
 return $config

@@ -4,7 +4,7 @@
   "type": "project",
   "license": "Apache-2.0",
   "require": {
-    "php": "8.2",
+    "php": "8.2.*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*",
@@ -65,9 +65,7 @@
       "@stan:legacy"
     ],
     "ci": [
-      "@rector",
-      "@cs",
-      "@stan"
+      "@legacy:check"
     ]
   },
   "extra": {

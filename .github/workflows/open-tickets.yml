@@ -96,25 +96,29 @@ jobs:
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of rector on all sections
-        run: composer rector
+      - name: Analyse code quality of the legacy section (/config, /packaging, /widgets /src/CentreonOpenTickets, /www)
+        run: composer legacy:check
         working-directory: centreon-open-tickets
 
-      - name: Run of php-cs-fixer on the legacy section for the /www directory
-        run: composer cs:legacy:www
-        working-directory: centreon-open-tickets
-
-      - name: Run of php-cs-fixer on the legacy section for the /src/CentreonOpenTickets directory
-        run: composer cs:legacy:src
-        working-directory: centreon-open-tickets
-
-      - name: Run of phpstan on the legacy section for the /www directory at level 2
-        run: composer stan:legacy:www
-        working-directory: centreon-open-tickets
-
-      - name: Run of phpstan on the legacy section for the /src/CentreonOpenTickets directory at level 9
-        run: composer stan:legacy:src
-        working-directory: centreon-open-tickets
+#      - name: Run of rector on all sections
+#        run: composer rector
+#        working-directory: centreon-open-tickets
+#
+#      - name: Run of php-cs-fixer on the legacy section for the /www directory
+#        run: composer cs:legacy:www
+#        working-directory: centreon-open-tickets
+#
+#      - name: Run of php-cs-fixer on the legacy section for the /src/CentreonOpenTickets directory
+#        run: composer cs:legacy:src
+#        working-directory: centreon-open-tickets
+#
+#      - name: Run of phpstan on the legacy section for the /www directory at level 2
+#        run: composer stan:legacy:www
+#        working-directory: centreon-open-tickets
+#
+#      - name: Run of phpstan on the legacy section for the /src/CentreonOpenTickets directory at level 9
+#        run: composer stan:legacy:src
+#        working-directory: centreon-open-tickets
 
   backend-unit-test:
     runs-on: ubuntu-24.04
