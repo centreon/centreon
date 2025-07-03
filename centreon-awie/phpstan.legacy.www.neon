@@ -1,10 +1,12 @@
 parameters:
+
     level: 6
 
     scanFiles:
         - ../tools/phpstan/config/centreon.stub
         - .php-cs-fixer.legacy.www.php
         - rector.legacy.php
+
     paths:
         - features
         - www

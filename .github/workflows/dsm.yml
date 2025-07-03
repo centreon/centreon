@@ -89,17 +89,21 @@ jobs:
         working-directory: centreon-dsm
         shell: bash
 
-      - name: Run of rector on all sections
-        run: composer rector
+      - name: Analyse code quality of the legacy section (/www)
+        run: composer legacy:check
         working-directory: centreon-dsm
 
-      - name: Run of php-cs-fixer on the legacy section
-        run: composer cs:legacy:www
-        working-directory: centreon-dsm
-
-      - name: Run of phpstan on the legacy section at level 0
-        run: composer stan:legacy:www
-        working-directory: centreon-dsm
+#      - name: Run of rector on all sections
+#        run: composer rector
+#        working-directory: centreon-dsm
+#
+#      - name: Run of php-cs-fixer on the legacy section
+#        run: composer cs:legacy:www
+#        working-directory: centreon-dsm
+#
+#      - name: Run of phpstan on the legacy section at level 0
+#        run: composer stan:legacy:www
+#        working-directory: centreon-dsm
 
   package:
     needs: [get-environment, check-version-consistency, backend-lint]

@@ -1,9 +1,15 @@
 parameters:
+
     level: 0
+
     scanFiles:
         - vendor/centreon/centreon/www/include/common/common-Func.php
+        - .php-cs-fixer.legacy.www.php
+        - rector.legacy.php
+
     paths:
         - www
+
     ignoreErrors:
         - # Ignore path problems
           message: '#is not a file or it does not exist.#'
