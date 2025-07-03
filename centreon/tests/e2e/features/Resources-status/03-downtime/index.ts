@@ -10,6 +10,17 @@ import {
 const serviceInDtName = 'service1';
 const secondServiceInDtName = 'service2';
 
+const  clickToSearch = () => {
+  cy.getIframeBody().then(($body) => {
+    const rows = Cypress.$($body).find('table.ListTable > tbody > tr.list_two');
+    if (rows.length !== 1) {
+      cy.getIframeBody().find('input[name="SearchB"]').click();
+      cy.wait('@getTimeZone');
+      clickToSearch();
+    }
+  });
+}
+
 beforeEach(() => {
   cy.startContainers();
 
@@ -217,29 +228,16 @@ Given('that you have to go to the downtime page', () => {
 
 When('I search for the resource currently "In Downtime" in the list', () => {
   cy.wait('@getTimeZone').then(() => {
-    cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
-    cy.waitUntil(
-      () => {
-        return cy.getIframeBody()
-        .find('table.ListTable > tbody')
-        .find('tr')
-        .then(($rows) => {
-            const count = $rows.length;
-            if (count !== 2) {
-              cy.getIframeBody().find('input[name="SearchB"]').click();
-            }
-            return count === 2;
-          });
-      },
-      { interval: 10000, timeout: 600000 }
-    );
-    cy.getIframeBody()
-      .contains(serviceInDtName)
-      .parent()
-      .parent()
-      .find('input[type="checkbox"]:first')
-      .as('serviceInDT');
-  });
+  cy.waitForElementInIframe("#main-content", 'a:contains("Add a downtime")');
+  clickToSearch();
+
+  cy.getIframeBody()
+    .contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .as('serviceInDT');
+});
 });
 
 Then('the user starts downtime configuration on the resource', () => {
