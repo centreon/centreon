@@ -81,7 +81,7 @@ Then(
         subMenu: 'ACL'
       });
       cy.wait('@getTimeZone');
-
+      cy.waitForElementInIframe('#main-content', `td.ListColLeft > a:contains("${ACLGroup[1].name}")`);
       cy.getIframeBody()
         .contains('td.ListColLeft > a', ACLGroup[1].name)
         .click();
