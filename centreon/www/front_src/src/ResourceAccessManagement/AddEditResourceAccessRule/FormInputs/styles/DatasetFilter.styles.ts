@@ -2,12 +2,6 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useDatasetFilterStyles = makeStyles()((theme) => ({
   resourceComposition: {
-    [theme.breakpoints.down('xl')]: {
-      height: '21vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
     height: 'auto',
     marginBottom: theme.spacing(1.5),
     overflow: 'auto',

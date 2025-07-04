@@ -63,7 +63,7 @@ When('the administrator activates the auto-import option for SAML', () => {
 
   configureSAML();
 
-  cy.getByLabel({ label: 'Auto import users' }).click();
+  cy.get('[data-testid="Auto import users-header"]').click();
 
   cy.getByLabel({
     label: 'Enable auto import',

@@ -43,6 +43,7 @@ import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
 import RadioInput from './Radio';
+import { SubgroupDivider } from './SubGroupDivider';
 import SwitchInput from './Switch';
 import TextInput from './Text';
 import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
@@ -82,6 +83,11 @@ export const getInput = cond<
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
   [equals(InputType.File) as (b: InputType) => boolean, always(File)],
+  [equals(InputType.Text) as (b: InputType) => boolean, always(TextInput)],
+  [
+    equals(InputType.Divider) as (b: InputType) => boolean,
+    always(SubgroupDivider)
+  ],
   [T, always(TextInput)]
 ]);
 

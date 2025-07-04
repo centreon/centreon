@@ -58,7 +58,7 @@ When(
 
     configureSAML();
 
-    cy.getByLabel({ label: 'Authentication conditions' }).click();
+    cy.get('[data-testid="Authentication conditions-header"]').click();
 
     cy.getByLabel({
       label: 'Enable conditions on identity provider',
