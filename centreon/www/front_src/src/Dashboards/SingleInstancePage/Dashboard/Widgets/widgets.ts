@@ -60,6 +60,13 @@ const internalWidgets: Array<
     panelDefaultWidth: 12
   },
   {
+    name: 'baavailabilityhistory',
+    panelMinHeight: 3,
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
+  },
+  {
     name: 'groupmonitoring',
     panelMinWidth: 8,
     panelMinHeight: 3,
