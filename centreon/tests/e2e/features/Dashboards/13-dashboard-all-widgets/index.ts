@@ -236,7 +236,7 @@ When('the dashboard administrator adds a Single metric widget', () => {
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
   cy.waitUntilPingExists();
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-  cy.contains('rta (ms)').realClick();
+  cy.getByTestId({ testId: 'rta' }).realClick();
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.get('.MuiAlert-message').should('not.exist');
 });
