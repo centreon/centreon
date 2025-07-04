@@ -229,7 +229,7 @@ final class FindNotifications
             }
             $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
             $notificationDto->timeperiodName = $notification->getTimePeriod()->getName();
-            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
+            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()] ?? [];
 
             $notificationDtos[] = $notificationDto;
         }

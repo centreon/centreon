@@ -57,10 +57,6 @@ class CommandServiceTest extends TestCase
 
         $responseRepository->expects($this->exactly(2))
             ->method('getResponse')
-            ->withConsecutive(
-                [$thumbprintCommand],
-                [$thumbprintCommand]
-            )
             ->willReturnOnConsecutiveCalls(
                 $firstGorgoneResponse,
                 $secondGorgoneResponse

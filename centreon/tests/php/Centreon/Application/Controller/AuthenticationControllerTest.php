@@ -25,6 +25,7 @@ use FOS\RestBundle\View\View;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Centreon\Domain\Authentication\UseCase\Logout;
@@ -162,20 +163,14 @@ class AuthenticationControllerTest extends TestCase
         );
     }
 
-    /**
-     * test logout
-     */
     public function testLogout(): void
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request->headers = new class () {
-            public function get(): string
-            {
-                return 'token';
-            }
-        };
+        $this->request->headers = new HeaderBag([
+            'X-AUTH-TOKEN' => 'token',
+        ]);
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
@@ -187,20 +182,12 @@ class AuthenticationControllerTest extends TestCase
         );
     }
 
-    /**
-     * test logout with bad token
-     */
     public function testLogoutFailed(): void
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request->headers = new class () {
-            public function get(): void
-            {
-                return;
-            }
-        };
+        $this->request->headers = new HeaderBag();
 
         $view = $authenticationController->logout($this->request, $this->logout);
 

@@ -134,10 +134,6 @@ class TimelineControllerTest extends TestCase
             ->willReturn(true);
         $this->container->expects($this->any())
             ->method('get')
-            ->withConsecutive(
-                [$this->equalTo('security.authorization_checker')],
-                [$this->equalTo('security.token_storage')]
-            )
             ->willReturnOnConsecutiveCalls(
                 $authorizationChecker,
                 $tokenStorage
