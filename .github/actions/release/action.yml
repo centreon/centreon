@@ -116,7 +116,7 @@ runs:
         echo "Creating release tags."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
-            git tag -a "$TAG" -m "$TAG"
+            git tag -a "$TAG" -m "$TAG" "${{ inputs.github_ref_name }}"
             git push --follow-tags
             echo "::notice::Tagging stable branch with $TAG."
           else
