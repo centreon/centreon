@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Domain\Common\GeoCoords;
-use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
@@ -265,7 +259,7 @@ it(
         $this->writeHostGroupRepository
             ->expects($this->once())
             ->method('addHostLinks')
-            ->with($this->updateHostGroupRequest->id, [1,2]);
+            ->with($this->updateHostGroupRequest->id, [1, 2]);
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
 
@@ -295,7 +289,7 @@ it(
             ->expects($this->once())
             ->method('existByTypeAndResourceId')
             ->willReturn([
-                1,2,3
+                1, 2, 3,
             ]);
 
         $this->readResourceAccessRepository
@@ -309,7 +303,7 @@ it(
                         parentId: null,
                         resourceAccessGroupId: 1,
                         aclGroupId: 1,
-                        resourceIds: [1,2,3]
+                        resourceIds: [1, 2, 3]
                     ),
                     new DatasetFilterRelation(
                         datasetFilterId: 2,
@@ -317,7 +311,7 @@ it(
                         parentId: null,
                         resourceAccessGroupId: 2,
                         aclGroupId: 2,
-                        resourceIds: [1,5,6]
+                        resourceIds: [1, 5, 6]
                     ),
                 ],
                 []

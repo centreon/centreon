@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -44,12 +44,12 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_POST['widgetId'])) {
     exit;
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/host-monitoring/src/";
+$path = $centreon_path . 'www/widgets/host-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -63,27 +63,27 @@ $canDoAction = false;
 if ($admin) {
     $canDoAction = true;
 }
-$actions = "<option value='0'>-- " . _("More actions") . " -- </option>";
-if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='72'>" . _("Acknowledge") . "</option>";
+$actions = "<option value='0'>-- " . _('More actions') . ' -- </option>';
+if ($canDoAction || $centreon->user->access->checkAction('host_acknowledgement')) {
+    $actions .= "<option value='72'>" . _('Acknowledge') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_disacknowledgement")) {
-    $actions .= "<option value='73'>" . _("Remove Acknowledgement") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_disacknowledgement')) {
+    $actions .= "<option value='73'>" . _('Remove Acknowledgement') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime")) {
-    $actions .= "<option value='75'>" . _("Set Downtime") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_schedule_downtime')) {
+    $actions .= "<option value='75'>" . _('Set Downtime') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
-    $actions .= "<option value='82'>" . _("Enable Host Notification") . "</option>";
-    $actions .= "<option value='83'>" . _("Disable Host Notification") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_notifications')) {
+    $actions .= "<option value='82'>" . _('Enable Host Notification') . '</option>';
+    $actions .= "<option value='83'>" . _('Disable Host Notification') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
-    $actions .= "<option value='92'>" . _("Enable Host Check") . "</option>";
-    $actions .= "<option value='93'>" . _("Disable Host Check") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_checks')) {
+    $actions .= "<option value='92'>" . _('Enable Host Check') . '</option>';
+    $actions .= "<option value='93'>" . _('Disable Host Check') . '</option>';
 }
 
-$template->assign("widgetId", $widgetId);
-$template->assign("actions", $actions);
+$template->assign('widgetId', $widgetId);
+$template->assign('actions', $actions);
 $template->display('toolbar.ihtml');
 
 ?>
@@ -91,7 +91,7 @@ $template->display('toolbar.ihtml');
 <script type='text/javascript'>
 
     var tab = new Array();
-    var actions = "<?php echo $actions;?>";
+    var actions = "<?php echo $actions; ?>";
     var widget_id = "<?php echo $widgetId; ?>";
 
     jQuery(function () {

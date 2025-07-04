@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,14 +87,12 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                         'categories' => $response->categories,
                         'templates' => $response->templates,
                         'macros' => array_map(
-                            function ($macro) {
-                                return [
-                                    'name' => $macro['name'],
-                                    'value' => $macro['isPassword'] ? null : $macro['value'],
-                                    'is_password' => $macro['isPassword'],
-                                    'description' => $this->emptyStringAsNull($macro['description']),
-                                ];
-                            },
+                            fn ($macro) => [
+                                'name' => $macro['name'],
+                                'value' => $macro['isPassword'] ? null : $macro['value'],
+                                'is_password' => $macro['isPassword'],
+                                'description' => $this->emptyStringAsNull($macro['description']),
+                            ],
                             $response->macros
                         ),
                     ]

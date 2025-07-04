@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Filter\Interfaces;
@@ -31,8 +32,8 @@ interface FilterRepositoryInterface
      * Add filter.
      *
      * @param Filter $filter
-     * @return int created filter id
      * @throws FilterException
+     * @return int created filter id
      */
     public function addFilter(Filter $filter): int;
 
@@ -40,8 +41,8 @@ interface FilterRepositoryInterface
      * Update filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function updateFilter(Filter $filter): void;
 
@@ -49,8 +50,8 @@ interface FilterRepositoryInterface
      * Delete filter.
      *
      * @param Filter $filter
-     * @return void
      * @throws FilterException
+     * @return void
      */
     public function deleteFilter(Filter $filter): void;
 
@@ -58,8 +59,8 @@ interface FilterRepositoryInterface
      * Find filters linked to a user id using request parameters.
      *
      * @param int $userId current user id
-     * @return Filter[]
      * @throws \Exception
+     * @return Filter[]
      */
     public function findFiltersByUserIdWithRequestParameters(int $userId, string $pageName): array;
 
@@ -68,15 +69,15 @@ interface FilterRepositoryInterface
      *
      * @param int $userId current user id
      * @param string $pageName page name
-     * @return Filter[]
      * @throws \Exception
+     * @return Filter[]
      */
     public function findFiltersByUserIdWithoutRequestParameters(int $userId, string $pageName): array;
 
     /**
      * Find filter by id
      *
-     * @param integer $userId
+     * @param int $userId
      * @param string $pageName
      * @param string $name
      * @return Filter|null
@@ -89,8 +90,8 @@ interface FilterRepositoryInterface
      * @param int $userId current user id
      * @param string $pageName page name
      * @param int $filterId Filter id to search
-     * @return Filter
      * @throws FilterException
+     * @return Filter
      */
     public function findFilterByUserIdAndId(int $userId, string $pageName, int $filterId): ?Filter;
 }

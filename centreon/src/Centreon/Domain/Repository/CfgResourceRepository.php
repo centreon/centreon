@@ -1,4 +1,24 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -14,21 +34,21 @@ class CfgResourceRepository extends ServiceEntityRepository
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT
-    t.*,
-    GROUP_CONCAT(crir.instance_id) AS _instance_id
-FROM cfg_resource AS t
-INNER JOIN cfg_resource_instance_relations AS crir ON crir.resource_id = t.resource_id
-WHERE crir.instance_id IN ({$ids})
-GROUP BY t.resource_id
-SQL;
+            SELECT
+                t.*,
+                GROUP_CONCAT(crir.instance_id) AS _instance_id
+            FROM cfg_resource AS t
+            INNER JOIN cfg_resource_instance_relations AS crir ON crir.resource_id = t.resource_id
+            WHERE crir.instance_id IN ({$ids})
+            GROUP BY t.resource_id
+            SQL;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -44,10 +64,10 @@ SQL;
 
     public function truncate(): void
     {
-        $sql = <<<SQL
-TRUNCATE TABLE `cfg_resource`;
-TRUNCATE TABLE `cfg_resource_instance_relations`
-SQL;
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `cfg_resource`;
+            TRUNCATE TABLE `cfg_resource_instance_relations`
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }

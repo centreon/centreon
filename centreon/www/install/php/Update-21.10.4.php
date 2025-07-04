@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,10 @@
  *
  */
 
-
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 21.10.4: ';
 
 /**
@@ -46,18 +45,19 @@ try {
         cleanDuplicateHostMacros($pearDB, $centreonLog, $cache, (int) $hostId);
     }
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
 
 /**
@@ -105,8 +105,8 @@ function cleanDuplicateHostMacros(
 ): void {
     global $versionOfTheUpgrade;
 
-    if (!isset($cache[$srcHostId]['htpl']) || !isset($cache[$srcHostId]['macros'])) {
-        return ;
+    if (! isset($cache[$srcHostId]['htpl']) || ! isset($cache[$srcHostId]['macros'])) {
+        return;
     }
 
     $loop = [];
@@ -130,7 +130,7 @@ function cleanDuplicateHostMacros(
                 if ($cache[$hostId]['macros'][$macroName]['host_macro_value'] === $macro['host_macro_value']) {
                     $centreonLog->insertLog(
                         4,
-                        $versionOfTheUpgrade . "host " . $cache[$hostId]['host_name'] . " delete macro " . $macroName
+                        $versionOfTheUpgrade . 'host ' . $cache[$hostId]['host_name'] . ' delete macro ' . $macroName
                     );
                     $db->query(
                         'DELETE FROM on_demand_macro_host WHERE host_macro_id = ' . (int) $macro['host_macro_id']
@@ -146,10 +146,10 @@ function cleanDuplicateHostMacros(
 
     // clean empty macros with no macros inherited
     foreach ($macros as $macroName => $macro) {
-        if (!isset($macro['checked']) && empty($macro['host_macro_value'])) {
+        if (! isset($macro['checked']) && empty($macro['host_macro_value'])) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . "host " . $cache[$srcHostId]['host_name'] . " delete macro " . $macroName
+                $versionOfTheUpgrade . 'host ' . $cache[$srcHostId]['host_name'] . ' delete macro ' . $macroName
             );
             $db->query(
                 'DELETE FROM on_demand_macro_host WHERE host_macro_id = ' . (int) $macro['host_macro_id']

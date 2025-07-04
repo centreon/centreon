@@ -158,7 +158,7 @@ final class DeleteHostGroups
         $lastDependencyIds = $this->readNotificationRepository
             ->findLastNotificationDependencyIdsByHostGroup($hostGroupId);
 
-        if (! empty($lastDependencyIds)) {
+        if ($lastDependencyIds !== []) {
             $this->writeNotificationRepository->deleteDependencies($lastDependencyIds);
         }
     }
@@ -176,7 +176,7 @@ final class DeleteHostGroups
             $this->readServiceRepository->findServiceRelationsByHostGroupId($hostGroupId),
             fn (ServiceRelation $relation): bool => $relation->hasOnlyOneHostGroup()
         );
-        if (! empty($lastRelations)) {
+        if ($lastRelations !== []) {
             $this->writeServiceRepository->deleteByIds(
                 ...array_map(fn (ServiceRelation $relation) => $relation->getServiceId(), $lastRelations)
             );
@@ -196,8 +196,8 @@ final class DeleteHostGroups
             ->findDatasetResourceIdsByHostGroupId($hostGroupId);
 
         foreach ($datasetResourceIds as $datasetFilterId => &$resourceIds) {
-            $resourceIds = array_filter($resourceIds, fn($resourceId) => $resourceId !== $hostGroupId);
-            if (empty($resourceIds)) {
+            $resourceIds = array_filter($resourceIds, fn ($resourceId) => $resourceId !== $hostGroupId);
+            if ($resourceIds === []) {
                 $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterId);
             } else {
                 $this->writeResourceAccessRepository->updateDatasetResources($datasetFilterId, $resourceIds);

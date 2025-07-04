@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain;
@@ -32,7 +34,7 @@ class VersionHelper
     public const LT = '<';
     public const GT = '>';
     public const LE = '<=';
-    public const GE = ">=";
+    public const GE = '>=';
 
     /**
      * Compare two version numbers.
@@ -60,6 +62,7 @@ class VersionHelper
         if ($depthVersion2 > $depthVersion1) {
             $version1 = self::regularizeDepthVersion($version1, $depthVersion2, $floatSeparationSymbol);
         }
+
         return version_compare($version1, $version2, $operator);
     }
 
@@ -76,13 +79,16 @@ class VersionHelper
         $actualDepth = substr_count($version, $glue);
         if ($actualDepth == $depth) {
             return $version;
-        } elseif ($actualDepth > $depth) {
+        }
+        if ($actualDepth > $depth) {
             $parts = array_slice(explode($glue, $version), 0, ($depth + 1));
+
             return implode($glue, $parts);
         }
         for ($loop = $actualDepth; $loop < $depth; $loop++) {
             $version .= $glue . '0';
         }
+
         return $version;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,12 @@ use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
 
 beforeEach(function (): void {
-    $this->createAc = function (array $fields = []): NewAgentConfiguration {
-        return new NewAgentConfiguration(
-            name: $fields['name'] ?? 'ac-name',
-            type: Type::TELEGRAF,
-            connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
-            configuration: $this->createMock(ConfigurationParametersInterface::class)
-        );
-    };
+    $this->createAc = fn (array $fields = []): NewAgentConfiguration => new NewAgentConfiguration(
+        name: $fields['name'] ?? 'ac-name',
+        type: Type::TELEGRAF,
+        connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
+        configuration: $this->createMock(ConfigurationParametersInterface::class)
+    );
 });
 
 it('should return properly set instance', function (): void {
@@ -51,7 +49,7 @@ it('should return properly set instance', function (): void {
 
 it(
     'should throw an exception when name is an empty string',
-    fn() => ($this->createAc)(['name' => ''])
+    fn () => ($this->createAc)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('NewAgentConfiguration::name')->getMessage()
@@ -85,7 +83,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when {$field} is too long",
-        fn() => ($this->createAc)([$field => $tooLong])
+        fn () => ($this->createAc)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewAgentConfiguration::{$field}")->getMessage()

@@ -37,47 +37,45 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
-include "./include/common/autoNumLimit.php";
+include './include/common/autoNumLimit.php';
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchSC'] ?? $_GET['searchSC'] ?? null
 );
 
 if (isset($_POST['searchSC']) || isset($_GET['searchSC'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]["search"] = $search;
+    $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
-    $search = $centreon->historySearch[$url]["search"] ?? null;
+    // restoring saved values
+    $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
 $searchTool = null;
 if ($search) {
-    $searchTool .= "WHERE (sc_name LIKE '%" . $search . "%' " .
-    "OR sc_description LIKE '%" . $search . "%') ";
+    $searchTool .= "WHERE (sc_name LIKE '%" . $search . "%' "
+    . "OR sc_description LIKE '%" . $search . "%') ";
 }
 
-$aclCond = "";
-if (!$oreon->user->admin && $scString != "''") {
-    $clause = is_null($searchTool) ? " WHERE " : " AND ";
-    $aclCond .= $acl->queryBuilder($clause, "sc_id", $scString);
+$aclCond = '';
+if (! $oreon->user->admin && $scString != "''") {
+    $clause = is_null($searchTool) ? ' WHERE ' : ' AND ';
+    $aclCond .= $acl->queryBuilder($clause, 'sc_id', $scString);
 }
 
-/*
- * Services Categories Lists
- */
+// Services Categories Lists
 $dbResult = $pearDB->query(
-    "SELECT SQL_CALC_FOUND_ROWS * FROM service_categories " . $searchTool . $aclCond .
-    "ORDER BY sc_name LIMIT " . $num * $limit . ", " . $limit
+    'SELECT SQL_CALC_FOUND_ROWS * FROM service_categories ' . $searchTool . $aclCond
+    . 'ORDER BY sc_name LIMIT ' . $num * $limit . ', ' . $limit
 );
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -86,63 +84,61 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("Description"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_linked_svc", _("Number of linked services"));
-$tpl->assign("headerMenu_sc_type", _("Type"));
-$tpl->assign("headerMenu_options", _("Options"));
+// start header menu
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('Description'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_linked_svc', _('Number of linked services'));
+$tpl->assign('headerMenu_sc_type', _('Type'));
+$tpl->assign('headerMenu_options', _('Options'));
 
 $search = tidySearchKey($search, $advanced_search);
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
-$statement = $pearDB->prepare("SELECT COUNT(*) FROM `service_categories_relation` WHERE `sc_id` = :sc_id");
+$statement = $pearDB->prepare('SELECT COUNT(*) FROM `service_categories_relation` WHERE `sc_id` = :sc_id');
 for ($i = 0; $sc = $dbResult->fetch(); $i++) {
-    $moptions = "";
-    $statement->bindValue(':sc_id', (int) $sc['sc_id'], \PDO::PARAM_INT);
+    $moptions = '';
+    $statement->bindValue(':sc_id', (int) $sc['sc_id'], PDO::PARAM_INT);
     $statement->execute();
     $nb_svc = $statement->fetch();
 
-    $selectedElements = $form->addElement('checkbox', "select[" . $sc['sc_id'] . "]");
+    $selectedElements = $form->addElement('checkbox', 'select[' . $sc['sc_id'] . ']');
 
-    if ($sc["sc_activate"]) {
-        $moptions .= "<a href='main.php?p=" . $p . "&sc_id=" . $sc['sc_id'] . "&o=u&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Disabled") . "'></a>&nbsp;&nbsp;";
+    if ($sc['sc_activate']) {
+        $moptions .= "<a href='main.php?p=" . $p . '&sc_id=' . $sc['sc_id'] . '&o=u&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
     } else {
-        $moptions .= "<a href='main.php?p=" . $p . "&sc_id=" . $sc['sc_id'] . "&o=s&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' class='ico-14 margin_right' " .
-            "border='0' alt='" . _("Enabled") . "'></a>&nbsp;&nbsp;";
+        $moptions .= "<a href='main.php?p=" . $p . '&sc_id=' . $sc['sc_id'] . '&o=s&limit=' . $limit
+            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' "
+            . "border='0' alt='" . _('Enabled') . "'></a>&nbsp;&nbsp;";
     }
-    $moptions .= "&nbsp;";
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
-        "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" " .
-        "name='dupNbr[" . $sc['sc_id'] . "]' />";
+    $moptions .= '&nbsp;';
+    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
+        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
+        . "name='dupNbr[" . $sc['sc_id'] . "]' />";
 
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "sc_name" => htmlentities($sc["sc_name"], ENT_QUOTES, "UTF-8"), "sc_link" => "main.php?p=" . $p . "&o=c&sc_id=" . $sc['sc_id'], "sc_description" => htmlentities($sc["sc_description"], ENT_QUOTES, "UTF-8"), "svc_linked" => $nb_svc["COUNT(*)"], "sc_type" => ($sc['level'] ? _('Severity') . ' (' . $sc['level'] . ')' : _('Regular')), "sc_activated" => $sc["sc_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $sc["sc_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'sc_name' => htmlentities($sc['sc_name'], ENT_QUOTES, 'UTF-8'), 'sc_link' => 'main.php?p=' . $p . '&o=c&sc_id=' . $sc['sc_id'], 'sc_description' => htmlentities($sc['sc_description'], ENT_QUOTES, 'UTF-8'), 'svc_linked' => $nb_svc['COUNT(*)'], 'sc_type' => ($sc['level'] ? _('Severity') . ' (' . $sc['level'] . ')' : _('Regular')), 'sc_activated' => $sc['sc_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $sc['sc_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
-$tpl->assign('msg', ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add")]);
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
 ?>
 <script type="text/javascript">
@@ -151,48 +147,48 @@ $tpl->assign('msg', ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add")])
     }
 </script>
 <?php
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 " .
-    "||this.form.elements['o1'].selectedIndex == 5){" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "this.form.elements['o1'].selectedIndex = 0"];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 "
+    . "||this.form.elements['o1'].selectedIndex == 5){"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3 || " .
-    "this.form.elements['o2'].selectedIndex == 4 ||this.form.elements['o2'].selectedIndex == 5){" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "this.form.elements['o2'].selectedIndex = 0"];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3 || "
+    . "this.form.elements['o2'].selectedIndex == 4 ||this.form.elements['o2'].selectedIndex == 5){"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "this.form.elements['o2'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions"), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);
@@ -212,4 +208,4 @@ $tpl->assign('searchSC', $search);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listServiceCategories.ihtml");
+$tpl->display('listServiceCategories.ihtml');

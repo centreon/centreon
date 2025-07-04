@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\User\Application\Exception\UserException;
@@ -170,9 +169,9 @@ it(
             ->willReturn(false);
 
         $this->readAccessGroupRepository
-             ->expects($this->exactly(2))
-             ->method('findByContact')
-             ->willReturn([]);
+            ->expects($this->exactly(2))
+            ->method('findByContact')
+            ->willReturn([]);
 
         $this->user
             ->expects($this->exactly(2))

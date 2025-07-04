@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -51,27 +36,35 @@ class Servicegroup extends AbstractObject
 
     /** @var int */
     private $use_cache = 1;
+
     /** @var int */
     private $done_cache = 0;
 
     /** @var array */
     private $sg = [];
+
     /** @var array */
     private $sg_relation_cache = [];
+
     /** @var string */
     protected $generate_filename = self::SERVICEGROUP_FILENAME;
+
     /** @var string */
     protected string $object_name = self::SERVICEGROUP_OBJECT_NAME;
+
     /** @var string */
     protected $attributes_select = '
         sg_id,
         sg_name as servicegroup_name,
         sg_alias as alias
     ';
+
     /** @var null */
     protected $stmt_sg = null;
+
     /** @var null */
     protected $stmt_service_sg = null;
+
     /** @var null */
     protected $stmt_stpl_sg = null;
 
@@ -91,14 +84,14 @@ class Servicegroup extends AbstractObject
     /**
      * @param $sg_id
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getServicegroupFromId($sg_id): void
     {
         if (is_null($this->stmt_sg)) {
             $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
-                $this->attributes_select
+                {$this->attributes_select}
             FROM servicegroup
             WHERE sg_id = :sg_id AND sg_activate = '1'
             ");
@@ -121,12 +114,12 @@ class Servicegroup extends AbstractObject
      * @param $host_id
      * @param $host_name
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name)
     {
-        if (!isset($this->sg[$sg_id])) {
+        if (! isset($this->sg[$sg_id])) {
             $this->getServicegroupFromId($sg_id);
         }
         if (is_null($this->sg[$sg_id]) || isset($this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id])) {
@@ -134,12 +127,13 @@ class Servicegroup extends AbstractObject
         }
 
         $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
+
         return 0;
     }
 
     /**
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     private function buildCache()
     {
@@ -167,12 +161,12 @@ class Servicegroup extends AbstractObject
     /**
      * @param $service_id
      *
-     * @return array|mixed
      * @throws PDOException
+     * @return array|mixed
      */
     public function getServiceGroupsForStpl($service_id)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->sg_relation_cache[$service_id])) {
             return $this->sg_relation_cache[$service_id];
         }
@@ -181,7 +175,7 @@ class Servicegroup extends AbstractObject
         }
 
         if (is_null($this->stmt_stpl_sg)) {
-            # Meaning, linked with the host or hostgroup (for the null expression)
+            // Meaning, linked with the host or hostgroup (for the null expression)
             $this->stmt_stpl_sg = $this->backend_instance->db->prepare(
                 "SELECT servicegroup_sg_id, host_host_id, service_service_id
                 FROM servicegroup_relation sgr, servicegroup sg
@@ -195,6 +189,7 @@ class Servicegroup extends AbstractObject
             $this->stmt_stpl_sg->fetchAll(PDO::FETCH_ASSOC),
             $this->sg_relation_cache[$service_id]
         );
+
         return $this->sg_relation_cache[$service_id];
     }
 
@@ -202,12 +197,12 @@ class Servicegroup extends AbstractObject
      * @param $host_id
      * @param $service_id
      *
-     * @return array|mixed
      * @throws PDOException
+     * @return array|mixed
      */
     public function getServiceGroupsForService($host_id, $service_id)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->sg_relation_cache[$service_id])) {
             return $this->sg_relation_cache[$service_id];
         }
@@ -216,7 +211,7 @@ class Servicegroup extends AbstractObject
         }
 
         if (is_null($this->stmt_service_sg)) {
-            # Meaning, linked with the host or hostgroup (for the null expression)
+            // Meaning, linked with the host or hostgroup (for the null expression)
             $this->stmt_service_sg = $this->backend_instance->db->prepare(
                 "SELECT servicegroup_sg_id, host_host_id, service_service_id
                 FROM servicegroup_relation sgr, servicegroup sg
@@ -231,6 +226,7 @@ class Servicegroup extends AbstractObject
             $this->stmt_service_sg->fetchAll(PDO::FETCH_ASSOC),
             $this->sg_relation_cache[$service_id]
         );
+
         return $this->sg_relation_cache[$service_id];
     }
 
@@ -320,18 +316,19 @@ class Servicegroup extends AbstractObject
             }
             $result[$id] = &$value;
         }
+
         return $result;
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset(): void
     {
         parent::reset();
         foreach ($this->sg as &$value) {
-            if (!is_null($value)) {
+            if (! is_null($value)) {
                 $value['members_cache'] = [];
                 $value['members'] = [];
             }

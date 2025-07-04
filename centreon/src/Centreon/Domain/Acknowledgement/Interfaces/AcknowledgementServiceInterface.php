@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Acknowledgement\Interfaces;
@@ -37,34 +38,34 @@ interface AcknowledgementServiceInterface extends ContactFilterInterface
      * Find one acknowledgement.
      *
      * @param int $acknowledgementId Acknowledgement id
-     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      * @throws \Exception
+     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      */
     public function findOneAcknowledgement(int $acknowledgementId): ?Acknowledgement;
 
     /**
      * Find all acknowledgements.
      *
-     * @return Acknowledgement[]
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgements(): array;
 
     /**
      * Find all acknowledgements of all hosts.
      *
-     * @return Acknowledgement[]
      * @throws RequestParametersTranslatorException
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findHostsAcknowledgements(): array;
 
     /**
      * Find all acknowledgements of all services.
      *
-     * @return Acknowledgement[]
      * @throws RequestParametersTranslatorException
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findServicesAcknowledgements(): array;
 
@@ -72,9 +73,9 @@ interface AcknowledgementServiceInterface extends ContactFilterInterface
      * Find all acknowledgements by host id.
      *
      * @param int $hostId
-     * @return Acknowledgement[]
      * @throws RequestParametersTranslatorException
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgementsByHost(int $hostId): array;
 
@@ -83,9 +84,9 @@ interface AcknowledgementServiceInterface extends ContactFilterInterface
      *
      * @param int $hostId
      * @param int $serviceId
-     * @return Acknowledgement[]
      * @throws RequestParametersTranslatorException
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgementsByService(int $hostId, int $serviceId): array;
 
@@ -93,9 +94,9 @@ interface AcknowledgementServiceInterface extends ContactFilterInterface
      * Find all acknowledgements by metaservice id.
      *
      * @param int $metaId
-     * @return Acknowledgement[]
      * @throws RequestParametersTranslatorException
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgementsByMetaService(int $metaId): array;
 

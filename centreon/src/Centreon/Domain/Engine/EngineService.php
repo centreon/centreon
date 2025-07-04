@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,31 +18,31 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Engine;
 
+use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Check\Check;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Engine\Exception\EngineConfigurationException;
-use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Downtime\Downtime;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Downtime\DowntimeService;
-use Centreon\Domain\Acknowledgement\Acknowledgement;
+use Centreon\Domain\Engine\Exception\EngineConfigurationException;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationRepositoryInterface;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
+use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
+use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Monitoring\Comment\Comment;
+use Centreon\Domain\Monitoring\Comment\CommentService;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResultService;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\Service\AbstractCentreonService;
 use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Acknowledgement\AcknowledgementService;
-use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
-use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResultService;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationRepositoryInterface;
-use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Monitoring\Comment\CommentService;
 
 /**
  * This class is designed to send external command for Engine
@@ -54,21 +54,14 @@ class EngineService extends AbstractCentreonService implements
     EngineServiceInterface,
     EngineConfigurationServiceInterface
 {
-    /**
-     * @var EngineRepositoryInterface
-     */
+    /** @var EngineRepositoryInterface */
     private $engineRepository;
 
-    /**
-     * @var EntityValidator
-     */
+    /** @var EntityValidator */
     private $validator;
 
-    /**
-     * @var EngineConfigurationRepositoryInterface
-     */
+    /** @var EngineConfigurationRepositoryInterface */
     private $engineConfigurationRepository;
-
     private const ACKNOWLEDGEMENT_WITH_STICKY_OPTION = 2;
     private const ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION = 0;
 
@@ -300,6 +293,7 @@ class EngineService extends AbstractCentreonService implements
     {
         try {
             Assertion::notNull($monitoringServer->getId(), 'MonitoringServer::id');
+
             return $this->engineConfigurationRepository->findEngineConfigurationByMonitoringServerId(
                 $monitoringServer->getId()
             );
@@ -667,13 +661,13 @@ class EngineService extends AbstractCentreonService implements
      *
      * @param int $pollerId Id of the poller
      * @param \DateTime|null $date date of the command
-     * @return string Returns the new generated command header
      * @throws \Exception
+     * @return string Returns the new generated command header
      */
-    private function createCommandHeader(int $pollerId, \DateTime $date = null): string
+    private function createCommandHeader(int $pollerId, ?\DateTime $date = null): string
     {
         return sprintf(
-            "%s:%d:[%d] ",
+            '%s:%d:[%d] ',
             'EXTERNALCMD',
             $pollerId,
             $date ? $date->getTimestamp() : (new \DateTime())->getTimestamp()

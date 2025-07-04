@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,7 +190,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $countStatement->execute();
-        
+
         $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
         $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
         $numberOfRows = $countResult ? current($countResult) : 0;
@@ -236,7 +236,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 SQL;
             $aclSearch = <<<SQL
                 AND acls.group_id IN ({$aclBindQuery})
-                SQL; 
+                SQL;
         }
 
         return <<<SQL
@@ -337,8 +337,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sqlTranslator->addNormalizer(
             'status',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */

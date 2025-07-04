@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\PartialUpdateDashboard;
@@ -49,8 +50,8 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
         PartialUpdateDashboardInput $dashboardInputValidator
     ): PartialUpdateDashboardRequest {
         $name = empty($dashboardInputValidator->name) ? new NoValue() : $dashboardInputValidator->name;
-        $description = $dashboardInputValidator->description === null ? new NoValue(
-        ) : $dashboardInputValidator->description;
+        $description = $dashboardInputValidator->description ?? new NoValue(
+        );
 
         return new PartialUpdateDashboardRequest(
             name: $name,
@@ -142,11 +143,12 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
                 layout: $panelLayoutRequestDto,
                 widgetType: $panel['widget_type'],
                 widgetSettings: ! is_array(
-                    json_decode($panel['widget_settings'], true))
+                    json_decode($panel['widget_settings'], true)
+                )
                     ? [] : json_decode(
-                    $panel['widget_settings'],
-                    true
-                ),
+                        $panel['widget_settings'],
+                        true
+                    ),
             );
         }
 

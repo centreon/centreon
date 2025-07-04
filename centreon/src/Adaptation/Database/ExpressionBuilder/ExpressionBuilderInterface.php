@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,22 +26,14 @@ namespace Adaptation\Database\ExpressionBuilder;
 use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 
 /**
- * Interface
+ * Interface.
  *
  * @class   ExpressionBuilderInterface
- * @package Adaptation\Database
- *
- * To dynamically create SQL query parts.
  */
 interface ExpressionBuilderInterface
 {
     /**
      * Creates a conjunction of the given expressions.
-     *
-     * @param string $expression
-     * @param string ...$expressions
-     *
-     * @return string
      *
      * @example
      *         method : and("field1 = :value1", ["field2 = :value2","field3 = :value3"])
@@ -51,11 +43,6 @@ interface ExpressionBuilderInterface
 
     /**
      * Creates a disjunction of the given expressions.
-     *
-     * @param string $expression
-     * @param string ...$expressions
-     *
-     * @return string
      *
      * @example
      *         method : or("field1 = :value1", ["field2 = :value2","field3 = :value3"])
@@ -69,8 +56,6 @@ interface ExpressionBuilderInterface
      * @param string $leftExpression the left expression
      * @param ComparisonOperatorEnum $operator the comparison operator
      * @param string $rightExpression the right expression
-     *
-     * @return string
      *
      * @example
      *          method : comparison('field1', '=', ':value1')
@@ -91,8 +76,6 @@ interface ExpressionBuilderInterface
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
      *
-     * @return string
-     *
      * @example
      *         method : equal('field1', ':value1')
      *         return : "field1 = :value1"
@@ -107,8 +90,6 @@ interface ExpressionBuilderInterface
      *
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
-     *
-     * @return string
      *
      * @example
      *         method : notEqual('field1', ':value1')
@@ -125,8 +106,6 @@ interface ExpressionBuilderInterface
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
      *
-     * @return string
-     *
      * @example
      *         method : lowerThan('field1', ':value1')
      *         return : "field1 < :value1"
@@ -142,8 +121,6 @@ interface ExpressionBuilderInterface
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
      *
-     * @return string
-     *
      * @example
      *         method : lowerThanEqual('field1', ':value1')
      *         return : "field1 <= :value1"
@@ -157,8 +134,6 @@ interface ExpressionBuilderInterface
      *
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
-     *
-     * @return string
      *
      * @example
      *         method : greaterThan('field1', ':value1')
@@ -175,8 +150,6 @@ interface ExpressionBuilderInterface
      * @param string $leftExpression the left expression
      * @param string $rightExpression the right expression
      *
-     * @return string
-     *
      * @example
      *         method : greaterThanEqual('field1', ':value1')
      *         return : "field1 >= :value1"
@@ -188,8 +161,6 @@ interface ExpressionBuilderInterface
      *
      * @param string $expression the expression to be restricted by IS NULL
      *
-     * @return string
-     *
      * @example
      *         method : isNull('field1')
      *         return : "field1 IS NULL"
@@ -200,8 +171,6 @@ interface ExpressionBuilderInterface
      * Creates an IS NOT NULL expression with the given arguments.
      *
      * @param string $expression the expression to be restricted by IS NOT NULL
-     *
-     * @return string
      *
      * @example
      *         method : isNotNull('field1')
@@ -216,8 +185,6 @@ interface ExpressionBuilderInterface
      * @param string $pattern The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\'  (optional)
      *
-     * @return string
-     *
      * @example
      *         method : like('field1', ':value1')
      *         return : "field1 LIKE :value1"
@@ -227,13 +194,11 @@ interface ExpressionBuilderInterface
     public function like(string $expression, string $pattern, ?string $escapeChar = null): string;
 
     /**
-     * Creates a NOT LIKE comparison expression
+     * Creates a NOT LIKE comparison expression.
      *
      * @param string $expression The expression to be inspected by the NOT LIKE comparison
      * @param string $pattern The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\' (optional)
-     *
-     * @return string
      *
      * @example
      *         method : notLike('field1', ':value1')
@@ -249,8 +214,6 @@ interface ExpressionBuilderInterface
      * @param string $expressionToBeMatched the SQL expression to be matched against the set
      * @param string|string[] $set the SQL expression or an array of SQL expressions representing the set
      *
-     * @return string
-     *
      * @example
      *          method : in('field1', [:value1, :value2, :value3])
      *          return : "field1 IN (:value1, :value2, :value3)"
@@ -262,8 +225,6 @@ interface ExpressionBuilderInterface
      *
      * @param string $expressionToBeMatched the SQL expression to be matched against the set
      * @param string|string[] $set the SQL expression or an array of SQL expressions representing the set
-     *
-     * @return string
      *
      * @example
      *          method : notIn('field1', [:value1, :value2, :value3])

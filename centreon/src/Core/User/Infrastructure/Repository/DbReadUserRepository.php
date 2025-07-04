@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
         [$binValues, $subRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');

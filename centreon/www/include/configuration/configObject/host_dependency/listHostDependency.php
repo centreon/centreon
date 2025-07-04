@@ -19,12 +19,12 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -35,14 +35,14 @@ include './include/common/autoNumLimit.php';
 $rawSearch = $_POST['searchHD'] ?? $_GET['searchHD'] ?? null;
 
 if ($rawSearch !== null) {
-    //saving filters values
+    // saving filters values
     $search = HtmlSanitizer::createFromString((string) $rawSearch)
         ->removeTags()
         ->sanitize()
         ->getString();
     $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
+    // restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
@@ -52,18 +52,18 @@ try {
     $qb = $db->createQueryBuilder();
 
     $qb->select('dep.dep_id', 'dep.dep_name', 'dep.dep_description')
-       ->distinct()
-       ->from('dependency', 'dep')
-       ->innerJoin('dep', 'dependency_hostParent_relation', 'dhpr', 'dhpr.dependency_dep_id = dep.dep_id');
+        ->distinct()
+        ->from('dependency', 'dep')
+        ->innerJoin('dep', 'dependency_hostParent_relation', 'dhpr', 'dhpr.dependency_dep_id = dep.dep_id');
 
     if (! $centreon->user->admin) {
         $qb->innerJoin(
             'dep',
-            "$dbmon.centreon_acl",
+            "{$dbmon}.centreon_acl",
             'acl',
             'dhpr.host_host_id = acl.host_id'
         )
-        ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
+            ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
     }
 
     $params = null;
@@ -75,7 +75,7 @@ try {
                 $qb->expr()->like('dep.dep_description', ':search')
             )
         );
-        $params = QueryParameters::create([QueryParameter::string('search', "%$search%")]);
+        $params = QueryParameters::create([QueryParameter::string('search', "%{$search}%")]);
 
     }
 
@@ -97,11 +97,11 @@ try {
     if (! $centreon->user->admin) {
         $countQueryBuilder->innerJoin(
             'dep',
-            "$dbmon.centreon_acl",
+            "{$dbmon}.centreon_acl",
             'acl',
             'dhpr.host_host_id = acl.host_id'
         )
-        ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
+            ->andWhere("acl.group_id IN ({$acl->getAccessGroupsString()})");
     }
     if ($search !== null && $search !== '') {
         $countQueryBuilder->andWhere(
@@ -115,7 +115,7 @@ try {
     $countSql = $countQueryBuilder->getQuery();
     $countResult = $pearDB->fetchAssociative($countSql, $params);
     $rows = (int) ($countResult['total'] ?? 0);
-} catch (ValueObjectException | CollectionException | ConnectionException $exception) {
+} catch (ValueObjectException|CollectionException|ConnectionException $exception) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
         'Error while fetching host dependencies',
@@ -131,7 +131,7 @@ try {
 }
 
 // Pagination setup
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -143,12 +143,14 @@ $tpl->assign('headerMenu_options', _('Options'));
 
 // Build search form & results
 $searchKey = tidySearchKey($search, $advanced_search);
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=$p");
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p={$p}");
 $form->addElement(
-    'submit','Search',_('Search'),
+    'submit',
+    'Search',
+    _('Search'),
     [
         'class' => 'btc bt_success',
-        'onClick' => "window.history.replaceState('', '', '?p=$p');"
+        'onClick' => "window.history.replaceState('', '', '?p={$p}');",
     ]
 );
 
@@ -156,7 +158,7 @@ $elemArr = [];
 $style = 'one';
 foreach ($dependencies as $dep) {
     $depId = (int) $dep['dep_id'];
-    $checkbox = $form->addElement('checkbox', "select[$depId]");
+    $checkbox = $form->addElement('checkbox', "select[{$depId}]");
     $dupInput = sprintf(
         '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" style="margin-bottom:0;" name="dupNbr[%d]"/>',
         $depId
@@ -167,7 +169,7 @@ foreach ($dependencies as $dep) {
         'RowMenu_select' => $checkbox->toHtml(),
         'RowMenu_name' => CentreonUtils::escapeSecure(myDecode((string) $dep['dep_name'])),
         'RowMenu_description' => CentreonUtils::escapeSecure(myDecode((string) $dep['dep_description'])),
-        'RowMenu_link' => "main.php?p=$p&o=c&dep_id=$depId",
+        'RowMenu_link' => "main.php?p={$p}&o=c&dep_id={$depId}",
         'RowMenu_options' => $dupInput,
     ];
     $style = ($style === 'one') ? 'two' : 'one';
@@ -177,11 +179,10 @@ $tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign('msg', [
-    'addL' => "main.php?p=$p&o=a",
+    'addL' => "main.php?p={$p}&o=a",
     'addT' => _('Add'),
     'delConfirm' => _('Do you confirm the deletion ?'),
 ]);
-
 
 // Toolbar select
 ?>
@@ -191,46 +192,46 @@ $tpl->assign('msg', [
     }
 </script>
 <?php
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    ""];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    ""];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);

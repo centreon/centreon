@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -41,13 +27,12 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonInstance.class.php";
-require_once "Centreon/Object/Broker/Broker.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonInstance.class.php';
+require_once 'Centreon/Object/Broker/Broker.php';
 
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonConfigCentreonBroker.php";
-
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonConfigCentreonBroker.php';
 
 /**
  * Class
@@ -59,14 +44,16 @@ class CentreonCentbrokerCfg extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_INSTANCE = 1;
-    public const UNKNOWNCOMBO = "Unknown combination";
-    public const INVALIDFIELD = "Invalid field";
-    public const NOENTRYFOUND = "No entry found";
+    public const UNKNOWNCOMBO = 'Unknown combination';
+    public const INVALIDFIELD = 'Invalid field';
+    public const NOENTRYFOUND = 'No entry found';
 
     /** @var CentreonInstance */
     protected $instanceObj;
+
     /** @var CentreonConfigCentreonBroker */
     protected $brokerObj;
+
     /** @var string[] */
     public static $aDepends = ['INSTANCE'];
 
@@ -85,15 +72,15 @@ class CentreonCentbrokerCfg extends CentreonObject
         $this->object = new Centreon_Object_Broker($dependencyInjector);
         $this->params = ['config_filename' => 'central-broker.json', 'config_activate' => '1'];
         $this->insertParams = ['name', 'ns_nagios_server'];
-        $this->action = "CENTBROKERCFG";
+        $this->action = 'CENTBROKERCFG';
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->activateField = "config_activate";
+        $this->activateField = 'config_activate';
     }
 
     /**
      * @param $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -110,8 +97,8 @@ class CentreonCentbrokerCfg extends CentreonObject
 
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters)
     {
@@ -122,31 +109,32 @@ class CentreonCentbrokerCfg extends CentreonObject
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
-            if ($params[1] == "instance" || $params[1] == "ns_nagios_server") {
-                $params[1] = "ns_nagios_server";
+            if ($params[1] == 'instance' || $params[1] == 'ns_nagios_server') {
+                $params[1] = 'ns_nagios_server';
                 $params[2] = $this->instanceObj->getInstanceId($params[2]);
-            } elseif (!preg_match('/^config_/', $params[1])) {
+            } elseif (! preg_match('/^config_/', $params[1])) {
                 $parametersWithoutPrefix = [
-                    "event_queue_max_size",
-                    "event_queues_total_size",
-                    "cache_directory",
-                    "stats_activate",
-                    "daemon",
-                    "pool_size",
-                    "command_file",
-                    "log_directory",
-                    "log_filename",
+                    'event_queue_max_size',
+                    'event_queues_total_size',
+                    'cache_directory',
+                    'stats_activate',
+                    'daemon',
+                    'pool_size',
+                    'command_file',
+                    'log_directory',
+                    'log_filename',
                 ];
-                if (!in_array($params[1], $parametersWithoutPrefix)) {
+                if (! in_array($params[1], $parametersWithoutPrefix)) {
                     $params[1] = 'config_' . $params[1];
                 }
             }
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -159,17 +147,17 @@ class CentreonCentbrokerCfg extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
-        $params = ["config_id", "config_name", "ns_nagios_server"];
-        $paramString = str_replace("_", " ", implode($this->delim, $params));
-        $paramString = str_replace("ns nagios server", "instance", $paramString);
+        $params = ['config_id', 'config_name', 'ns_nagios_server'];
+        $paramString = str_replace('_', ' ', implode($this->delim, $params));
+        $paramString = str_replace('ns nagios server', 'instance', $paramString);
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
         foreach ($elements as $tab) {
-            $str = "";
+            $str = '';
             foreach ($tab as $key => $value) {
-                if ($key == "ns_nagios_server") {
+                if ($key == 'ns_nagios_server') {
                     $value = $this->instanceObj->getInstanceName($value);
                 }
                 $str .= $value . $this->delim;
@@ -182,8 +170,8 @@ class CentreonCentbrokerCfg extends CentreonObject
     /**
      * get list of multi select fields
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getMultiselect()
     {
@@ -197,6 +185,7 @@ class CentreonCentbrokerCfg extends CentreonObject
             $arr[$row['fieldname']]['groupid'] = $row['cb_fieldgroup_id'];
             $arr[$row['fieldname']]['groupname'] = $row['groupname'];
         }
+
         return $arr;
     }
 
@@ -209,39 +198,39 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     public function __call($name, $arg)
     {
-        /* Get the method name */
+        // Get the method name
         $name = strtolower($name);
 
-        /* Get the action and the object */
-        if (preg_match("/^(list|get|set|add|del)(input|output)/", $name, $matches)) {
+        // Get the action and the object
+        if (preg_match('/^(list|get|set|add|del)(input|output)/', $name, $matches)) {
             $tagName = $matches[2];
 
-            /* Parse arguments */
-            if (!isset($arg[0])) {
+            // Parse arguments
+            if (! isset($arg[0])) {
                 throw new CentreonClapiException(self::MISSINGPARAMETER);
             }
             $args = explode($this->delim, $arg[0]);
             $configIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-            if (!count($configIds)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
+            if (! count($configIds)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
             }
 
             $configId = $configIds[0];
 
             switch ($matches[1]) {
-                case "list":
+                case 'list':
                     $this->listFlow($configId, $tagName, $args);
                     break;
-                case "get":
+                case 'get':
                     $this->getFlow($configId, $tagName, $args);
                     break;
-                case "set":
+                case 'set':
                     $this->setFlow($configId, $tagName, $args);
                     break;
-                case "add":
+                case 'add':
                     $this->addFlow($configId, $tagName, $args);
                     break;
-                case "del":
+                case 'del':
                     $this->delFlow($configId, $tagName, $args);
                     break;
             }
@@ -261,12 +250,12 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function listFlow($configId, $tagName, $args): void
     {
-        $query = "SELECT config_group_id as id, config_value as name "
-            . "FROM cfg_centreonbroker_info "
-            . "WHERE config_id = ? "
-            . "AND config_group = ? "
+        $query = 'SELECT config_group_id as id, config_value as name '
+            . 'FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = ? '
+            . 'AND config_group = ? '
             . "AND config_key = 'name' "
-            . "ORDER BY config_group_id ";
+            . 'ORDER BY config_group_id ';
         $res = $this->db->query($query, [$configId, $tagName]);
 
         echo "id;name\n";
@@ -287,16 +276,16 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function getFlow($configId, $tagName, $args): void
     {
-        if (!isset($args[1]) || $args[1] == '') {
+        if (! isset($args[1]) || $args[1] == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $query = "SELECT config_key, config_value "
-            . "FROM cfg_centreonbroker_info "
-            . "WHERE config_id = ? "
-            . "AND config_group_id = ? "
-            . "AND config_group = ? "
-            . "ORDER BY config_key ";
+        $query = 'SELECT config_key, config_value '
+            . 'FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = ? '
+            . 'AND config_group_id = ? '
+            . 'AND config_group = ? '
+            . 'ORDER BY config_key ';
         $res = $this->db->query($query, [$configId, $args[1], $tagName]);
 
         echo "parameter key;parameter value\n";
@@ -319,7 +308,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function setFlow($configId, $tagName, $args): void
     {
-        if (!isset($args[3])) {
+        if (! isset($args[3])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
@@ -329,20 +318,20 @@ class CentreonCentbrokerCfg extends CentreonObject
 
         $multiselect = $this->getMultiselect();
 
-        $query = "DELETE FROM cfg_centreonbroker_info "
-            . "WHERE config_id = :config_id "
-            . "AND config_group_id = :config_group_id "
-            . "AND config_key = :config_key "
-            . "AND config_group = :config_group ";
+        $query = 'DELETE FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = :config_id '
+            . 'AND config_group_id = :config_group_id '
+            . 'AND config_key = :config_key '
+            . 'AND config_group = :config_group ';
         $this->db->query(
             $query,
             [':config_id' => $configId, ':config_group_id' => $args[1], ':config_key' => $args[2], ':config_group' => $tagName]
         );
-        $sql = "INSERT INTO cfg_centreonbroker_info "
-            . "(config_id, config_group_id, config_key, "
-            . "config_value, config_group, grp_level, "
-            . "parent_grp_id, subgrp_id) "
-            . "VALUES (?,?,?,?,?,?,?,?)";
+        $sql = 'INSERT INTO cfg_centreonbroker_info '
+            . '(config_id, config_group_id, config_key, '
+            . 'config_value, config_group, grp_level, '
+            . 'parent_grp_id, subgrp_id) '
+            . 'VALUES (?,?,?,?,?,?,?,?)';
 
         $grplvl = 0;
         $parentgrpid = null;
@@ -376,7 +365,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function addFlow($configId, $tagName, $args): void
     {
-        if (!isset($args[2])) {
+        if (! isset($args[2])) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
@@ -406,11 +395,11 @@ class CentreonCentbrokerCfg extends CentreonObject
             $defaultValues[$field['fieldname']] = $field['value'];
         }
 
-        $sql = "SELECT config_value " .
-            "FROM cfg_centreonbroker_info " .
-            "WHERE config_id = ? " .
-            "AND config_key = 'name' " .
-            "AND config_group = ? ";
+        $sql = 'SELECT config_value '
+            . 'FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = ? '
+            . "AND config_key = 'name' "
+            . 'AND config_group = ? ';
         $res = $this->db->query($sql, [$configId, $tagName]);
 
         $listName = [];
@@ -423,20 +412,20 @@ class CentreonCentbrokerCfg extends CentreonObject
         }
 
         $blockId = $this->getBlockId($tagName, $args[2]);
-        $sql = "SELECT MAX(config_group_id) as max_id "
-            . "FROM cfg_centreonbroker_info "
-            . "WHERE config_id = ? "
-            . "AND config_group = ? ";
+        $sql = 'SELECT MAX(config_group_id) as max_id '
+            . 'FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = ? '
+            . 'AND config_group = ? ';
         $res = $this->db->query($sql, [$configId, $tagName]);
         $row = $res->fetch();
         $i = isset($row['max_id']) ? $row['max_id'] + 1 : 0;
         unset($res);
 
-        $sql = "INSERT INTO cfg_centreonbroker_info "
-            . "(config_id, config_key, config_value, "
-            . "config_group, config_group_id) "
-            . "VALUES (:config_id, :config_key, :config_value, "
-            . ":config_group, :config_group_id)";
+        $sql = 'INSERT INTO cfg_centreonbroker_info '
+            . '(config_id, config_key, config_value, '
+            . 'config_group, config_group_id) '
+            . 'VALUES (:config_id, :config_key, :config_value, '
+            . ':config_group, :config_group_id)';
 
         $sqlParams = [':config_id' => $configId, ':config_key' => 'blockId', ':config_value' => $blockId, ':config_group' => $tagName, ':config_group_id' => $i];
         $this->db->query($sql, $sqlParams);
@@ -472,14 +461,14 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     private function delFlow($configId, $tagName, $args): void
     {
-        if (!isset($args[1]) || $args[1] == '') {
+        if (! isset($args[1]) || $args[1] == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $sql = "DELETE FROM cfg_centreonbroker_info "
-            . "WHERE config_id = ? "
-            . "AND config_group_id = ? "
-            . "AND config_group = ? ";
+        $sql = 'DELETE FROM cfg_centreonbroker_info '
+            . 'WHERE config_id = ? '
+            . 'AND config_group_id = ? '
+            . 'AND config_group = ? ';
         $this->db->query($sql, [$configId, $args[1], $tagName]);
     }
 
@@ -491,24 +480,24 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function getTypeList($tagName = ""): void
+    public function getTypeList($tagName = ''): void
     {
-        if ($tagName == "") {
+        if ($tagName == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $sql = "SELECT ct.cb_type_id, ct.type_shortname, ct.type_name
+        $sql = 'SELECT ct.cb_type_id, ct.type_shortname, ct.type_name
         		FROM cb_tag_type_relation cttr, cb_type ct, cb_tag ca
         		WHERE ct.cb_type_id = cttr.cb_type_id
         		AND cttr.cb_tag_id = ca.cb_tag_id
         		AND ca.tagname = ?
-        		ORDER BY ct.type_name";
+        		ORDER BY ct.type_name';
         $res = $this->db->query($sql, [$tagName]);
         $rows = $res->fetchAll();
-        if (!count($rows)) {
-            throw new CentreonClapiException(self::NOENTRYFOUND . " for " . $tagName);
+        if (! count($rows)) {
+            throw new CentreonClapiException(self::NOENTRYFOUND . ' for ' . $tagName);
         }
-        echo "type id" . $this->delim . "short name" . $this->delim . "name\n";
+        echo 'type id' . $this->delim . 'short name' . $this->delim . "name\n";
         foreach ($rows as $row) {
             echo $row['cb_type_id'] . $this->delim . $row['type_shortname'] . $this->delim . $row['type_name'] . "\n";
         }
@@ -525,25 +514,25 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     public function getFieldList($typeName): void
     {
-        if ($typeName == "") {
+        if ($typeName == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $sql = "SELECT f.cb_field_id, f.fieldname, f.displayname, f.fieldtype
+        $sql = 'SELECT f.cb_field_id, f.fieldname, f.displayname, f.fieldtype
         		FROM cb_type_field_relation tfr, cb_field f, cb_type ct
         		WHERE ct.cb_type_id = tfr.cb_type_id
         		AND tfr.cb_field_id = f.cb_field_id
         		AND ct.type_shortname = ?
-        		ORDER BY f.fieldname";
+        		ORDER BY f.fieldname';
         $res = $this->db->query($sql, [$typeName]);
         $rows = $res->fetchAll();
-        if (!count($rows)) {
-            throw new CentreonClapiException(self::NOENTRYFOUND . " for " . $typeName);
+        if (! count($rows)) {
+            throw new CentreonClapiException(self::NOENTRYFOUND . ' for ' . $typeName);
         }
-        echo "field id" . $this->delim . "short name" . $this->delim . "name\n";
+        echo 'field id' . $this->delim . 'short name' . $this->delim . "name\n";
         foreach ($rows as $row) {
             echo $row['cb_field_id'] . $this->delim . $row['fieldname'];
             if ($row['fieldtype'] == 'select' || $row['fieldtype'] == 'multiselect') {
-                echo "*";
+                echo '*';
             }
             echo $this->delim . $row['displayname'] . $this->delim . $row['fieldtype'] . "\n";
         }
@@ -560,19 +549,19 @@ class CentreonCentbrokerCfg extends CentreonObject
      */
     public function getValueList($selectName): void
     {
-        if ($selectName == "") {
+        if ($selectName == '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $sql = "SELECT value_value
+        $sql = 'SELECT value_value
         		FROM cb_list_values lv, cb_list l, cb_field f
         		WHERE lv.cb_list_id = l.cb_list_id
         		AND l.cb_field_id = f.cb_field_id
         		AND f.fieldname = ?
-        		ORDER BY lv.value_value";
+        		ORDER BY lv.value_value';
         $res = $this->db->query($sql, [$selectName]);
         $rows = $res->fetchAll();
-        if (!count($rows)) {
-            throw new CentreonClapiException(self::NOENTRYFOUND . " for " . $selectName);
+        if (! count($rows)) {
+            throw new CentreonClapiException(self::NOENTRYFOUND . ' for ' . $selectName);
         }
         echo "possible values\n";
         foreach ($rows as $row) {
@@ -586,24 +575,25 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param string $tagName
      * @param string $typeName
      *
-     * @return string
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return string
      */
     protected function getBlockId($tagName, $typeName)
     {
-        $sql = "SELECT cttr.cb_tag_id, cttr.cb_type_id
+        $sql = 'SELECT cttr.cb_tag_id, cttr.cb_type_id
         		FROM cb_tag, cb_type, cb_tag_type_relation cttr
         		WHERE cb_tag.cb_tag_id = cttr.cb_tag_id
         		AND cttr.cb_type_id = cb_type.cb_type_id
         		AND cb_tag.tagname = ?
-        		AND cb_type.type_shortname = ?";
+        		AND cb_type.type_shortname = ?';
         $res = $this->db->query($sql, [$tagName, $typeName]);
         $row = $res->fetch();
-        if (!isset($row['cb_type_id']) || !isset($row['cb_tag_id'])) {
+        if (! isset($row['cb_type_id']) || ! isset($row['cb_tag_id'])) {
             throw new CentreonClapiException(self::UNKNOWNCOMBO . ': ' . $tagName . '/' . $typeName);
         }
-        return $row['cb_tag_id'] . "_" . $row['cb_type_id'];
+
+        return $row['cb_tag_id'] . '_' . $row['cb_type_id'];
     }
 
     /**
@@ -613,8 +603,8 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param string $tagName
      * @param array $args | index 1 => config group id, 2 => config_key, 3 => config_value
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     protected function fieldIsValid($configId, $tagName, $args)
     {
@@ -627,32 +617,32 @@ class CentreonCentbrokerCfg extends CentreonObject
         $res = $this->db->query($sql, [$configId, $args[1], $tagName]);
         $row = $res->fetch();
         unset($res);
-        if (!isset($row['config_value'])) {
+        if (! isset($row['config_value'])) {
             return false;
         }
 
         [$tagId, $typeId] = explode('_', $row['config_value']);
-        $sql = "SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
+        $sql = 'SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
         		FROM cb_type_field_relation ctfr, cb_field cf, cb_type ct
         		WHERE ctfr.cb_field_id = cf.cb_field_id
         		AND ctfr.cb_type_id = ct.cb_type_id
         		AND cf.fieldname = ?
-        		AND ctfr.cb_type_id = ?";
+        		AND ctfr.cb_type_id = ?';
         $res = $this->db->query($sql, [$args[2], $typeId]);
         $row = $res->fetch();
         unset($res);
-        if (!isset($row['fieldtype'])) {
-            $sql = "SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
+        if (! isset($row['fieldtype'])) {
+            $sql = 'SELECT fieldtype, cf.cb_field_id, ct.cb_module_id
         			FROM cb_type_field_relation ctfr, cb_field cf, cb_type ct
         			WHERE ctfr.cb_field_id = cf.cb_field_id
         			AND ctfr.cb_type_id = ct.cb_type_id
-        			AND ctfr.cb_type_id = ?";
+        			AND ctfr.cb_type_id = ?';
             $res = $this->db->query($sql, [$typeId]);
             $rows = $res->fetchAll();
             unset($res);
             $found = false;
             foreach ($rows as $row) {
-                $sql = "SELECT fieldtype, cf.cb_field_id
+                $sql = 'SELECT fieldtype, cf.cb_field_id
     					FROM cb_module_relation cmr, cb_type ct, cb_type_field_relation ctfr, cb_field cf
                         WHERE cmr.cb_module_id = ?
                         AND cf.fieldname = ?
@@ -660,7 +650,7 @@ class CentreonCentbrokerCfg extends CentreonObject
                         AND cmr.module_depend_id = ct.cb_module_id
                         AND ct.cb_type_id = ctfr.cb_type_id
                         AND ctfr.cb_field_id = cf.cb_field_id
-                        ORDER BY fieldname";
+                        ORDER BY fieldname';
                 $res = $this->db->query($sql, [$row['cb_module_id'], $args[2]]);
                 $row = $res->fetch();
                 if (isset($row['fieldtype'])) {
@@ -677,55 +667,56 @@ class CentreonCentbrokerCfg extends CentreonObject
             return true;
         }
         if ($row['fieldtype'] == 'select') {
-            $sql = "SELECT value_value
+            $sql = 'SELECT value_value
         	    FROM cb_list cl, cb_list_values clv, cb_field cf
         	    WHERE cl.cb_list_id = clv.cb_list_id
         		AND cl.cb_field_id = cf.cb_field_id
             	AND cf.cb_field_id = ?
             	AND cf.fieldname = ?
-            	AND clv.value_value = ?";
+            	AND clv.value_value = ?';
             $res = $this->db->query($sql, [$row['cb_field_id'], $args[2], $args[3]]);
             $row = $res->fetch();
-            if (!isset($row['value_value'])) {
+            if (! isset($row['value_value'])) {
                 return false;
             }
         } else {
             $vals = explode(',', $args[3]);
-            $sql = "SELECT value_value
+            $sql = 'SELECT value_value
         	    FROM cb_list cl, cb_list_values clv, cb_field cf
         	    WHERE cl.cb_list_id = clv.cb_list_id
         		AND cl.cb_field_id = cf.cb_field_id
             	AND cf.cb_field_id = ?
-            	AND cf.fieldname = ?";
+            	AND cf.fieldname = ?';
             $res = $this->db->query($sql, [$row['cb_field_id'], $args[2]]);
             $allowedValues = [];
             while ($row = $res->fetch()) {
                 $allowedValues[] = $row['value_value'];
             }
             foreach ($vals as $v) {
-                if (!in_array($v, $allowedValues)) {
+                if (! in_array($v, $allowedValues)) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 
     /**
      * @param null $filterName
      *
-     * @return bool|void
      * @throws PDOException
+     * @return bool|void
      */
     public function export($filterName = null)
     {
-        if (!$this->canBeExported($filterName)) {
+        if (! $this->canBeExported($filterName)) {
             return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
         $filters = [];
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
         $elements = $this->object->getList(
@@ -738,45 +729,45 @@ class CentreonCentbrokerCfg extends CentreonObject
             'AND'
         );
         foreach ($elements as $element) {
-            $addStr = $this->action . $this->delim . "ADD" .
-                $this->delim . $element['config_name'] .
-                $this->delim . $this->instanceObj->getInstanceName($element['ns_nagios_server']);
+            $addStr = $this->action . $this->delim . 'ADD'
+                . $this->delim . $element['config_name']
+                . $this->delim . $this->instanceObj->getInstanceName($element['ns_nagios_server']);
             echo $addStr . "\n";
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "filename" . $this->delim
+                . 'filename' . $this->delim
                 . $element['config_filename'] . "\n";
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "cache_directory" . $this->delim
+                . 'cache_directory' . $this->delim
                 . $element['cache_directory'] . "\n";
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "stats_activate" . $this->delim
+                . 'stats_activate' . $this->delim
                 . $element['stats_activate'] . "\n";
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "daemon" . $this->delim
+                . 'daemon' . $this->delim
                 . $element['daemon'] . "\n";
             $poolSize = empty($element['pool_size']) ? '' : $element['pool_size'];
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "pool_size" . $this->delim
+                . 'pool_size' . $this->delim
                 . $poolSize . "\n";
             echo $this->action . $this->delim
-                . "SETPARAM" . $this->delim
+                . 'SETPARAM' . $this->delim
                 . $element['config_name'] . $this->delim
-                . "event_queues_total_size" . $this->delim
+                . 'event_queues_total_size' . $this->delim
                 . ($element['event_queues_total_size'] ?? '') . "\n";
-            $sql = "SELECT config_key, config_value, config_group, config_group_id
+            $sql = 'SELECT config_key, config_value, config_group, config_group_id
             		FROM cfg_centreonbroker_info
             		WHERE config_id = ?
-            		ORDER BY config_group_id";
+            		ORDER BY config_group_id';
             $res = $this->db->query($sql, [$element['config_id']]);
             $blockId = [];
             $categories = [];
@@ -791,23 +782,23 @@ class CentreonCentbrokerCfg extends CentreonObject
                     && $row['config_key'] != 'filters'
                     && $row['config_key'] != 'category'
                 ) {
-                    if (!isset($setParamStr[$row['config_group'] . '_' . $row['config_group_id']])) {
-                        $setParamStr[$row['config_group'] . '_' . $row['config_group_id']] = "";
+                    if (! isset($setParamStr[$row['config_group'] . '_' . $row['config_group_id']])) {
+                        $setParamStr[$row['config_group'] . '_' . $row['config_group_id']] = '';
                     }
                     $row['config_value'] = CentreonUtils::convertLineBreak($row['config_value']);
                     if ($row['config_value'] != '') {
-                        $setParamStr[$row['config_group'] . '_' . $row['config_group_id']] .=
-                            $this->action . $this->delim . "SET" . strtoupper($row['config_group']) .
-                            $this->delim . $element['config_name'] .
-                            $this->delim . $row['config_group_id'] .
-                            $this->delim . $row['config_key'] .
-                            $this->delim . $row['config_value'] . "\n";
+                        $setParamStr[$row['config_group'] . '_' . $row['config_group_id']]
+                            .= $this->action . $this->delim . 'SET' . strtoupper($row['config_group'])
+                            . $this->delim . $element['config_name']
+                            . $this->delim . $row['config_group_id']
+                            . $this->delim . $row['config_key']
+                            . $this->delim . $row['config_value'] . "\n";
                     }
                 } elseif ($row['config_key'] == 'name') {
-                    $addParamStr[$row['config_group'] . '_' . $row['config_group_id']] =
-                        $this->action . $this->delim . "ADD" . strtoupper($row['config_group']) .
-                        $this->delim . $element['config_name'] .
-                        $this->delim . $row['config_value'];
+                    $addParamStr[$row['config_group'] . '_' . $row['config_group_id']]
+                        = $this->action . $this->delim . 'ADD' . strtoupper($row['config_group'])
+                        . $this->delim . $element['config_name']
+                        . $this->delim . $row['config_value'];
                 } elseif ($row['config_key'] == 'blockId') {
                     $blockId[$row['config_group'] . '_' . $row['config_group_id']] = $row['config_value'];
                 } elseif ($row['config_key'] == 'category') {
@@ -815,10 +806,10 @@ class CentreonCentbrokerCfg extends CentreonObject
                 }
             }
             foreach ($addParamStr as $id => $add) {
-                if (isset($blockId[$id]) && isset($setParamStr[$id])) {
+                if (isset($blockId[$id], $setParamStr[$id])) {
                     [$tag, $type] = explode('_', $blockId[$id]);
                     $resType = $this->db->query(
-                        "SELECT type_shortname FROM cb_type WHERE cb_type_id = ?",
+                        'SELECT type_shortname FROM cb_type WHERE cb_type_id = ?',
                         [$type]
                     );
                     $rowType = $resType->fetch();
@@ -830,7 +821,7 @@ class CentreonCentbrokerCfg extends CentreonObject
                 }
                 if (isset($categories[$id])) {
                     [$configGroup, $configGroupId] = explode('_', $id);
-                    echo $this->action . $this->delim . "SET" . strtoupper($configGroup)
+                    echo $this->action . $this->delim . 'SET' . strtoupper($configGroup)
                         . $this->delim . $element['config_name']
                         . $this->delim . $configGroupId
                         . $this->delim . 'category'

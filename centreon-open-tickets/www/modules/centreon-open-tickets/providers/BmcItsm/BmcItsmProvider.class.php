@@ -1,22 +1,22 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class BmcItsmProvider extends AbstractProvider
@@ -29,8 +29,10 @@ class BmcItsmProvider extends AbstractProvider
 
     /** @var string */
     protected $ws_error;
+
     /** @var null|array */
     protected $otrs_call_response;
+
     /** @var string */
     protected $_ticket_number;
 
@@ -38,18 +40,26 @@ class BmcItsmProvider extends AbstractProvider
     {
     }
 
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     /**
      * Set default extra value
      */
     protected function setDefaultValueExtra()
     {
-        $this->default_data['endpoint'] = 'http://127.0.0.1/arsys/services/' .
-            'ARService?server=XXXX&webService=HPD_IncidentInterface_Create_WS';
+        $this->default_data['endpoint'] = 'http://127.0.0.1/arsys/services/'
+            . 'ARService?server=XXXX&webService=HPD_IncidentInterface_Create_WS';
         $this->default_data['namespace'] = 'IncidentInterface_Create_WS';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => $this->internal_arguments['Subject']['id'], 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-            '/Abstract/templates/display_title.ihtml"}'], ['Arg' => $this->internal_arguments['Content']['id'], 'Value' => '{$body}'], ['Arg' => $this->internal_arguments['Action']['id'], 'Value' => 'CREATE'], ['Arg' => $this->internal_arguments['Status']['id'], 'Value' => 'Assigned'], ['Arg' => $this->internal_arguments['Source']['id'], 'Value' => 'Supervision'], ['Arg' => $this->internal_arguments['Type Service']['id'], 'Value' => 'Infrastructure Event']];
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => $this->internal_arguments['Subject']['id'], 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers'
+            . '/Abstract/templates/display_title.ihtml"}'], ['Arg' => $this->internal_arguments['Content']['id'], 'Value' => '{$body}'], ['Arg' => $this->internal_arguments['Action']['id'], 'Value' => 'CREATE'], ['Arg' => $this->internal_arguments['Status']['id'], 'Value' => 'Assigned'], ['Arg' => $this->internal_arguments['Source']['id'], 'Value' => 'Supervision'], ['Arg' => $this->internal_arguments['Type Service']['id'], 'Value' => 'Infrastructure Event']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -108,35 +118,35 @@ class BmcItsmProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/BmcItsm/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["bmcitsm" => _("BMC ITSM")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['bmcitsm' => _('BMC ITSM')]);
 
         // Form
-        $endpoint_html = '<input size="50" name="endpoint" type="text" value="' .
-            $this->getFormValue('endpoint') . '" />';
-        $namespace_html = '<input size="50" name="namespace" type="text" value="' .
-            $this->getFormValue('namespace') . '" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->getFormValue('password') . '" autocomplete="off" />';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $endpoint_html = '<input size="50" name="endpoint" type="text" value="'
+            . $this->getFormValue('endpoint') . '" />';
+        $namespace_html = '<input size="50" name="namespace" type="text" value="'
+            . $this->getFormValue('namespace') . '" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $password_html = '<input size="50" name="password" type="password" value="'
+            . $this->getFormValue('password') . '" autocomplete="off" />';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['endpoint' => ['label' => _("Endpoint") . $this->required_field, 'html' => $endpoint_html], 'namespace' => ['label' => _("Namespace"), 'html' => $namespace_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
+        $array_form = ['endpoint' => ['label' => _('Endpoint') . $this->required_field, 'html' => $endpoint_html], 'namespace' => ['label' => _('Namespace'), 'html' => $namespace_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('Password') . $this->required_field, 'html' => $password_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">';
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">';
         ksort($this->internal_arguments);
         foreach ($this->internal_arguments as $label => $array) {
             $mappingTicketArg_html .= '<option value="' . $array['id'] . '">' . _($label) . '</options>';
         }
         $mappingTicketArg_html .= '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -148,13 +158,6 @@ class BmcItsmProvider extends AbstractProvider
      */
     protected function getConfigContainer2Extra()
     {
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
     }
 
     protected function saveConfigExtra()
@@ -176,7 +179,7 @@ class BmcItsmProvider extends AbstractProvider
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -204,6 +207,7 @@ class BmcItsmProvider extends AbstractProvider
         $code = $this->createTicketBmcItsm($ticket_arguments);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
+
             return $result;
         }
 
@@ -219,7 +223,6 @@ class BmcItsmProvider extends AbstractProvider
     }
 
     /**
-     *
      * REST API
      *
      * @param string $error
@@ -232,13 +235,13 @@ class BmcItsmProvider extends AbstractProvider
 
     protected function createTicketBmcItsm($ticket_arguments)
     {
-        $data = "<?xml version=\"1.0\"?>
-<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:" .
-            $this->rule_data['namespace'] . "\">
+        $data = '<?xml version="1.0"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:'
+            . $this->rule_data['namespace'] . '">
    <soapenv:Header>
       <urn:AuthenticationInfo>
-         <urn:userName>" . $this->rule_data['username'] . "</urn:userName>
-         <urn:password>" . $this->rule_data['password'] . "</urn:password>
+         <urn:userName>' . $this->rule_data['username'] . '</urn:userName>
+         <urn:password>' . $this->rule_data['password'] . '</urn:password>
          <!--Optional:-->
          <urn:authentication></urn:authentication>
          <!--Optional:-->
@@ -249,18 +252,18 @@ class BmcItsmProvider extends AbstractProvider
    </soapenv:Header>
    <soapenv:Body>
       <urn:HelpDesk_Submit_Service>
-";
+';
         foreach ($this->_itsm_fields as $field) {
             if (isset($ticket_arguments[$field]) && $ticket_arguments[$field] != '') {
-                $data .= "<urn:" . $field . ">" . $ticket_arguments[$field] . "</urn:" . $field . ">";
+                $data .= '<urn:' . $field . '>' . $ticket_arguments[$field] . '</urn:' . $field . '>';
             } elseif ($this->_set_empty_xml == 1) {
-                $data .= "<urn:" . $field . "></urn:" . $field . ">";
+                $data .= '<urn:' . $field . '></urn:' . $field . '>';
             }
         }
-        $data .= "</urn:HelpDesk_Submit_Service>
+        $data .= '</urn:HelpDesk_Submit_Service>
    </soapenv:Body>
 </soapenv:Envelope>
-";
+';
 
         if ($this->callSOAP($data) == 1) {
             return -1;
@@ -276,11 +279,12 @@ class BmcItsmProvider extends AbstractProvider
         $base_url = $this->rule_data['endpoint'];
         $ch = curl_init($base_url);
         if ($ch == false) {
-            $this->setWsError("cannot init curl object");
+            $this->setWsError('cannot init curl object');
+
             return 1;
         }
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -296,6 +300,7 @@ class BmcItsmProvider extends AbstractProvider
 
         if ($result == false) {
             $this->setWsError(curl_error($ch));
+
             return 1;
         }
 
@@ -309,12 +314,14 @@ class BmcItsmProvider extends AbstractProvider
         *    <soapenv:Fault><faultcode>soapenv:Server.userException</faultcode><faultstring>java.lang.NullPointerException</faultstring><detail><ns1:hostname xmlns:ns1="http://xml.apache.org/axis/">xxxx.localdomain</ns1:hostname></detail></soapenv:Fault></soapenv:Body></soapenv:Envelope>
         */
 
-        if (!preg_match('/Incident_Number>(.*?)</', $result, $matches)) {
+        if (! preg_match('/Incident_Number>(.*?)</', $result, $matches)) {
             $this->setWsError($result);
+
             return 1;
         }
 
         $this->_ticket_number = $matches[1];
+
         return 0;
     }
 }

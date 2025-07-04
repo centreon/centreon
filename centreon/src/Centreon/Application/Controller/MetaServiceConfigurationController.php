@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,16 +18,17 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurations;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceConfiguration;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\MetaServiceConfiguration\API\Model\MetaServiceConfigurationV2110Factory;
+use FOS\RestBundle\View\View;
 
 /**
  * This class is designed to provide APIs for the context of meta service configuration.
@@ -40,8 +41,8 @@ class MetaServiceConfigurationController extends AbstractController
      * @param RequestParametersInterface $requestParameters
      * @param FindOneMetaServiceConfiguration $findMetaServiceConfiguration
      * @param int $metaId
-     * @return View
      * @throws MetaServiceConfigurationException
+     * @return View
      */
     public function findOneMetaServiceConfiguration(
         RequestParametersInterface $requestParameters,
@@ -50,10 +51,11 @@ class MetaServiceConfigurationController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetaServiceConfiguration->execute($metaId);
+
         return $this->view(
             [
                 'result' => MetaServiceConfigurationV2110Factory::createOneFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }
@@ -61,8 +63,8 @@ class MetaServiceConfigurationController extends AbstractController
     /**
      * @param RequestParametersInterface $requestParameters
      * @param FindMetaServicesConfigurations $findMetasServicesConfigurations
-     * @return View
      * @throws MetaServiceConfigurationException
+     * @return View
      */
     public function findMetaServicesConfigurations(
         RequestParametersInterface $requestParameters,
@@ -70,10 +72,11 @@ class MetaServiceConfigurationController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetasServicesConfigurations->execute();
+
         return $this->view(
             [
                 'result' => MetaServiceConfigurationV2110Factory::createAllFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }

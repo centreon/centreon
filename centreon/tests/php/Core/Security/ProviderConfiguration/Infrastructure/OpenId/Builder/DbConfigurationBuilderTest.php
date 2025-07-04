@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,14 @@ namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\OpenId\Builde
 
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 beforeEach(function (): void {
     $this->customConfiguration = [
@@ -63,8 +63,8 @@ beforeEach(function (): void {
             new Endpoint(Endpoint::INTROSPECTION, ''),
             []
         ),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
-        "redirect_url" => null
+        'groups_mapping' => new GroupsMapping(false, '', new Endpoint(), []),
+        'redirect_url' => null,
     ];
 });
 
@@ -72,14 +72,14 @@ it('should throw an exception when a mandatory parameter is empty and configurat
     $this->customConfiguration['base_url'] = null;
     $configuration = new Configuration(
         2,
-        strtolower(Provider::OPENID),
+        mb_strtolower(Provider::OPENID),
         Provider::OPENID,
         json_encode($this->customConfiguration),
         true,
         false
     );
     $configuration->setCustomConfiguration(new CustomConfiguration($this->customConfiguration));
-})->throws(ConfigurationException::class, "Missing mandatory parameters: base_url");
+})->throws(ConfigurationException::class, 'Missing mandatory parameters: base_url');
 
 it(
     'should throw an exception when both userinformation and introspection '
@@ -89,7 +89,7 @@ it(
         $this->customConfiguration['introspection_token_endpoint'] = null;
         $configuration = new Configuration(
             2,
-            strtolower(Provider::OPENID),
+            mb_strtolower(Provider::OPENID),
             Provider::OPENID,
             json_encode($this->customConfiguration),
             true,
@@ -110,7 +110,7 @@ it(
         $this->customConfiguration['fullname_bind_attribute'] = null;
         $configuration = new Configuration(
             2,
-            strtolower(Provider::OPENID),
+            mb_strtolower(Provider::OPENID),
             Provider::OPENID,
             json_encode($this->customConfiguration),
             true,
@@ -126,20 +126,19 @@ it(
 );
 
 it('should return a Provider when all mandatory parameters are present', function (): void {
-
     // Note: contact_template and contact_group are overridden
     $this->customConfiguration['contact_template'] = new ContactTemplate(1, 'contact_template');
     $this->customConfiguration['contact_group'] = new ContactGroup(1, 'contact_group', 'contact_group');
     $this->customConfiguration['authentication_conditions'] = new AuthenticationConditions(
         true,
-        "info.groups",
+        'info.groups',
         new Endpoint(),
-        ["groupA", "groupB"]
+        ['groupA', 'groupB']
     );
 
     $configuration = new Configuration(
         2,
-        strtolower(Provider::OPENID),
+        mb_strtolower(Provider::OPENID),
         Provider::OPENID,
         json_encode($this->customConfiguration),
         true,

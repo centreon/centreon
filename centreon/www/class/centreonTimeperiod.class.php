@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -57,27 +43,27 @@ class CentreonTimeperiod
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tp' . $v . ',';
-                $queryValues['tp' . $v] = (int)$v;
+                $queryValues['tp' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timeperiods
-        $query = 'SELECT tp_id, tp_name FROM timeperiod ' .
-            'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
+        // get list of selected timeperiods
+        $query = 'SELECT tp_id, tp_name FROM timeperiod '
+            . 'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
         $stmt = $this->db->prepare($query);
 
         if ($queryValues !== []) {
@@ -97,8 +83,8 @@ class CentreonTimeperiod
     /**
      * @param string $name
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function getTimperiodIdByName($name)
     {
@@ -107,7 +93,7 @@ class CentreonTimeperiod
 
         $res = $this->db->query($query);
 
-        if (!$res->rowCount()) {
+        if (! $res->rowCount()) {
             return null;
         }
         $row = $res->fetchRow();
@@ -118,19 +104,20 @@ class CentreonTimeperiod
     /**
      * @param int $tpId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function getTimeperiodException($tpId)
     {
-        $query = "SELECT `exception_id` FROM `timeperiod_exceptions`
-                WHERE `timeperiod_id` = " . (int)$tpId;
+        $query = 'SELECT `exception_id` FROM `timeperiod_exceptions`
+                WHERE `timeperiod_id` = ' . (int) $tpId;
         $res = $this->db->query($query);
-        if (!$res->rowCount()) {
+        if (! $res->rowCount()) {
             return null;
         }
 
         $row = $res->fetchRow();
+
         return $row['exception_id'];
     }
 
@@ -142,9 +129,9 @@ class CentreonTimeperiod
      */
     public function insert($parameters): void
     {
-        $sQuery = "INSERT INTO `timeperiod` "
-            . "(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, "
-            . "`tp_thursday`, `tp_friday`, `tp_saturday`) "
+        $sQuery = 'INSERT INTO `timeperiod` '
+            . '(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, '
+            . '`tp_thursday`, `tp_friday`, `tp_saturday`) '
             . "VALUES ('" . $parameters['name'] . "',"
             . "'" . $parameters['alias'] . "',"
             . "'" . $parameters['sunday'] . "',"
@@ -168,9 +155,8 @@ class CentreonTimeperiod
      * @param string|int $tp_id
      * @param array $parameters
      *
-     * @return void
-     *
      * @throws Exception
+     * @return void
      */
     public function update($tp_id, $parameters): void
     {
@@ -183,7 +169,7 @@ class CentreonTimeperiod
             . "`tp_thursday` = '" . $parameters['thursday'] . "',"
             . "`tp_friday` = '" . $parameters['friday'] . "',"
             . "`tp_saturday` = '" . $parameters['saturday'] . "'"
-            . " WHERE `tp_id` = " . $tp_id;
+            . ' WHERE `tp_id` = ' . $tp_id;
 
         try {
             $this->db->query($sQuery);
@@ -202,9 +188,9 @@ class CentreonTimeperiod
     public function setTimeperiodException($tpId, $parameters): void
     {
         foreach ($parameters as $exception) {
-            $sQuery = "INSERT INTO `timeperiod_exceptions` "
-                . "(`timeperiod_id`, `days`, `timerange`) "
-                . "VALUES (" . (int)$tpId . ","
+            $sQuery = 'INSERT INTO `timeperiod_exceptions` '
+                . '(`timeperiod_id`, `days`, `timerange`) '
+                . 'VALUES (' . (int) $tpId . ','
                 . "'" . $exception['days'] . "',"
                 . "'" . $exception['timerange'] . "')";
 
@@ -225,9 +211,9 @@ class CentreonTimeperiod
      */
     public function setTimeperiodDependency($timeperiodId, $depId): void
     {
-        $sQuery = "INSERT INTO `timeperiod_include_relations` "
-            . "(`timeperiod_id`,`timeperiod_include_id`) "
-            . "VALUES (" . (int)$timeperiodId . "," . (int)$depId . ")";
+        $sQuery = 'INSERT INTO `timeperiod_include_relations` '
+            . '(`timeperiod_id`,`timeperiod_include_id`) '
+            . 'VALUES (' . (int) $timeperiodId . ',' . (int) $depId . ')';
 
         try {
             $this->db->query($sQuery);
@@ -244,7 +230,7 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodException($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = ' . (int) $tpId;
 
         try {
             $res = $this->db->query($sQuery);
@@ -261,7 +247,7 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodInclude($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = ' . (int) $tpId;
 
         try {
             $this->db->query($sQuery);
@@ -294,8 +280,8 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedHostsByName($timeperiodName, $register = false)
     {
@@ -330,8 +316,8 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedServicesByName($timeperiodName, $register = false)
     {
@@ -364,8 +350,8 @@ class CentreonTimeperiod
      * Returns array of Contacts linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedContactsByName($timeperiodName)
     {
@@ -392,8 +378,8 @@ class CentreonTimeperiod
      * Returns array of Timeperiods linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedTimeperiodsByName($timeperiodName)
     {

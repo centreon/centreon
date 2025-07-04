@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,19 +26,14 @@ namespace Adaptation\Database\QueryBuilder;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 
 /**
- * Interface QueryBuilderInterface
+ * Interface QueryBuilderInterface.
  *
  * @class   QueryBuilderInterface
- * @package Adaptation\Database
- *
- * To dynamically create SQL queries.
  */
 interface QueryBuilderInterface
 {
     /**
-     * To build where clauses easier
-     *
-     * @return ExpressionBuilderInterface
+     * To build where clauses easier.
      */
     public function expr(): ExpressionBuilderInterface;
 
@@ -128,7 +123,7 @@ interface QueryBuilderInterface
 
     /**
      * Turns the query being built into a bulk update query that ranges over
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -146,7 +141,7 @@ interface QueryBuilderInterface
 
     /**
      * Turns the query being built into an insert query that inserts into
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -355,6 +350,7 @@ interface QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface this QueryBuilder instance
+     *
      * @see where()
      */
     public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): self;
@@ -369,6 +365,7 @@ interface QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface this QueryBuilder instance
+     *
      * @see where()
      *
      * <code>
@@ -523,18 +520,8 @@ interface QueryBuilderInterface
      */
     public function addOrderBy(string $sort, ?string $order = null): self;
 
-    /**
-     * @param int $limit
-     *
-     * @return QueryBuilderInterface
-     */
     public function limit(int $limit): self;
 
-    /**
-     * @param int $offset
-     *
-     * @return QueryBuilderInterface
-     */
     public function offset(int $offset): self;
 
     /**

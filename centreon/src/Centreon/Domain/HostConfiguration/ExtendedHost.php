@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,30 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration;
 
 class ExtendedHost
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notes;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notesUrl;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $actionUrl;
 
     /**
@@ -59,6 +52,7 @@ class ExtendedHost
     public function setId(int $id): ExtendedHost
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -77,6 +71,7 @@ class ExtendedHost
     public function setNotes(?string $notes): ExtendedHost
     {
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -95,6 +90,7 @@ class ExtendedHost
     public function setNotesUrl(?string $notesUrl): ExtendedHost
     {
         $this->notesUrl = $notesUrl;
+
         return $this;
     }
 
@@ -113,6 +109,7 @@ class ExtendedHost
     public function setActionUrl(?string $actionUrl): ExtendedHost
     {
         $this->actionUrl = $actionUrl;
+
         return $this;
     }
 }

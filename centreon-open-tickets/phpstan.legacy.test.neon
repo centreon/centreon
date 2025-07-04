@@ -1,0 +1,10 @@
+includes:
+    - ../tools/phpstan/config/common.neon
+    - phpstan.legacy.test.baseline.neon
+
+parameters:
+
+    level: max
+
+    paths:
+        - tests/php/CentreonOpenTickets

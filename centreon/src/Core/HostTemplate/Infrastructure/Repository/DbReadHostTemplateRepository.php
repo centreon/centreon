@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,8 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
 {
-    use LoggerTrait, HostCategoryRepositoryTrait;
+    use LoggerTrait;
+    use HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -207,7 +208,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -410,7 +411,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get a host template with ID #' . $hostTemplateId);
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -509,7 +510,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $bindValues[':tpl_' . $index] = $templateId;
         }
 
-        $hostTemplateIdsQuery = implode(', ',array_keys($bindValues));
+        $hostTemplateIdsQuery = implode(', ', array_keys($bindValues));
         $request = $this->translateDbName(
             <<<SQL
                 SELECT
@@ -624,12 +625,13 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $hostTemplateIdsFound = [];
         $concatenator = new SqlConcatenator();
 
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT host_id
-            FROM `:db`.host
-            WHERE host_register = '0'
-                AND host_id IN (:host_ids)
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT host_id
+                FROM `:db`.host
+                WHERE host_register = '0'
+                    AND host_id IN (:host_ids)
+                SQL
         );
         $concatenator->defineSelect($request);
         $concatenator->storeBindValueMultiple(':host_ids', $hostTemplateIds, \PDO::PARAM_INT);

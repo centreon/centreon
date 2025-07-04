@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -68,8 +54,7 @@ class CentreonXML
      */
     protected function cleanStr($str)
     {
-        $str = preg_replace('/[\x00-\x09\x0B-\x0C\x0E-\x1F\x0D]/', "", $str);
-        return $str;
+        return preg_replace('/[\x00-\x09\x0B-\x0C\x0E-\x1F\x0D]/', '', $str);
     }
 
     /**
@@ -107,7 +92,7 @@ class CentreonXML
     {
         $txt = $this->cleanStr($txt);
         $txt = html_entity_decode($txt);
-        if ($encode || !$this->is_utf8($txt)) {
+        if ($encode || ! $this->is_utf8($txt)) {
             $this->buffer->writeCData(mb_convert_encoding($txt, 'UTF-8', 'ISO-8859-1'));
         } elseif ($cdata) {
             $this->buffer->writeCData($txt);
@@ -125,9 +110,10 @@ class CentreonXML
      */
     protected function is_utf8($string)
     {
-        if (mb_detect_encoding($string, "UTF-8", true) == "UTF-8") {
+        if (mb_detect_encoding($string, 'UTF-8', true) == 'UTF-8') {
             return 1;
         }
+
         return 0;
     }
 
@@ -145,7 +131,7 @@ class CentreonXML
         $this->startElement($element_tag);
         $element_value = $this->cleanStr($element_value);
         $element_value = html_entity_decode($element_value);
-        if ($encode || !$this->is_utf8($element_value)) {
+        if ($encode || ! $this->is_utf8($element_value)) {
             $this->buffer->writeCData(mb_convert_encoding($element_value, 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeCData($element_value);
@@ -181,25 +167,25 @@ class CentreonXML
     public function output(): void
     {
         $this->buffer->endDocument();
-        print $this->buffer->outputMemory(true);
+        echo $this->buffer->outputMemory(true);
     }
 
     /**
      * @param string|null $filename
      *
-     * @return void
      * @throws RuntimeException
+     * @return void
      */
     public function outputFile($filename = null): void
     {
         $this->buffer->endDocument();
         $content = $this->buffer->outputMemory(true);
         if ($handle = fopen($filename, 'w')) {
-            if (strcmp($content, "") && !fwrite($handle, $content)) {
+            if (strcmp($content, '') && ! fwrite($handle, $content)) {
                 throw new RuntimeException('Cannot write to file "' . $filename . '"');
             }
         } else {
-            print "Can't open file: $filename";
+            echo "Can't open file: {$filename}";
         }
     }
 }

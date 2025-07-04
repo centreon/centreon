@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2012 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -43,6 +29,7 @@ class CentreonCriticality
 {
     /** @var CentreonDB */
     protected $db;
+
     /** @var array */
     protected $tree;
 
@@ -62,14 +49,15 @@ class CentreonCriticality
      * @param int $critId
      * @param bool $service
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getData($critId, $service = false)
     {
         if ($service === false) {
             return $this->getDataForHosts($critId);
         }
+
         return $this->getDataForServices($critId);
     }
 
@@ -78,26 +66,27 @@ class CentreonCriticality
      *
      * @param int $critId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getDataForHosts($critId)
     {
         static $data = [];
-        
-        if (!isset($data[$critId])) {
-            $sql = "SELECT hc_id, hc_name, level, icon_id, hc_comment
+
+        if (! isset($data[$critId])) {
+            $sql = 'SELECT hc_id, hc_name, level, icon_id, hc_comment
                     FROM hostcategories 
                     WHERE level IS NOT NULL
-                    ORDER BY level DESC";
+                    ORDER BY level DESC';
             $res = $this->db->query($sql);
             while ($row = $res->fetchRow()) {
-                if (!isset($data[$row['hc_id']])) {
+                if (! isset($data[$row['hc_id']])) {
                     $row['name'] = $row['hc_name'];
                     $data[$row['hc_id']] = $row;
                 }
             }
         }
+
         return $data[$critId] ?? null;
     }
 
@@ -106,29 +95,30 @@ class CentreonCriticality
      *
      * @param int $critId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getDataForServices($critId)
     {
         static $data = [];
-        
-        if (!isset($data[$critId])) {
-            $sql = "SELECT sc_id, sc_name, level, icon_id, sc_description
+
+        if (! isset($data[$critId])) {
+            $sql = 'SELECT sc_id, sc_name, level, icon_id, sc_description
                     FROM service_categories 
                     WHERE level IS NOT NULL
-                    ORDER BY level DESC";
+                    ORDER BY level DESC';
             $res = $this->db->query($sql);
             while ($row = $res->fetchRow()) {
-                if (!isset($data[$row['sc_id']])) {
+                if (! isset($data[$row['sc_id']])) {
                     $row['name'] = $row['sc_name'];
                     $data[$row['sc_id']] = $row;
                 }
             }
         }
+
         return $data[$critId] ?? null;
     }
-    
+
     /**
      * Get list of criticality
      *
@@ -137,12 +127,13 @@ class CentreonCriticality
      * @param string $sort
      * @param int $offset
      * @param int $limit
+     * @param mixed $service
      * @paaram bool $service
      * @return array
      */
     public function getList(
         $searchString = null,
-        $orderBy = "level",
+        $orderBy = 'level',
         $sort = 'ASC',
         $offset = null,
         $limit = null,
@@ -165,12 +156,15 @@ class CentreonCriticality
                 $limit
             );
         }
+
         return $elements;
     }
 
     /**
      * Get real time host criticality id
      *
+     * @param mixed $db
+     * @param mixed $hostId
      */
     public function getRealtimeHostCriticalityId($db, $hostId)
     {
@@ -187,13 +181,15 @@ class CentreonCriticality
                 $ids[$row['host_id']] = $row['criticality'];
             }
         }
+
         return $ids[$hostId] ?? 0;
     }
-
 
     /**
      * Get real time service criticality id
      *
+     * @param mixed $db
+     * @param mixed $serviceId
      */
     public function getRealtimeServiceCriticalityId($db, $serviceId)
     {
@@ -210,6 +206,7 @@ class CentreonCriticality
                 $ids[$row['service_id']] = $row['criticality'];
             }
         }
+
         return $ids[$serviceId] ?? 0;
     }
 
@@ -222,27 +219,27 @@ class CentreonCriticality
      * @param null $offset
      * @param null $limit
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getListForHosts(
         $searchString = null,
-        $orderBy = "level",
+        $orderBy = 'level',
         $sort = 'ASC',
         $offset = null,
         $limit = null
     ) {
-        $sql = "SELECT hc_id, hc_name, level, icon_id, hc_comment
+        $sql = 'SELECT hc_id, hc_name, level, icon_id, hc_comment
                 FROM hostcategories 
-                WHERE level IS NOT NULL ";
-        if (!is_null($searchString) && $searchString != "") {
-            $sql .= " AND hc_name LIKE '%".$this->db->escape($searchString)."%' ";
+                WHERE level IS NOT NULL ';
+        if (! is_null($searchString) && $searchString != '') {
+            $sql .= " AND hc_name LIKE '%" . $this->db->escape($searchString) . "%' ";
         }
-        if (!is_null($orderBy) && !is_null($sort)) {
-            $sql .= " ORDER BY $orderBy $sort ";
+        if (! is_null($orderBy) && ! is_null($sort)) {
+            $sql .= " ORDER BY {$orderBy} {$sort} ";
         }
-        if (!is_null($offset) && !is_null($limit)) {
-            $sql .= " LIMIT $offset,$limit";
+        if (! is_null($offset) && ! is_null($limit)) {
+            $sql .= " LIMIT {$offset},{$limit}";
         }
         $res = $this->db->query($sql);
         $elements = [];
@@ -253,6 +250,7 @@ class CentreonCriticality
             $elements[$row['hc_id']]['icon_id'] = $row['icon_id'];
             $elements[$row['hc_id']]['comments'] = $row['hc_comment'];
         }
+
         return $elements;
     }
 
@@ -265,27 +263,27 @@ class CentreonCriticality
      * @param null $offset
      * @param null $limit
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function getListForServices(
         $searchString = null,
-        $orderBy = "level",
+        $orderBy = 'level',
         $sort = 'ASC',
         $offset = null,
         $limit = null
     ) {
-        $sql = "SELECT sc_id, sc_name, level, icon_id, sc_description
+        $sql = 'SELECT sc_id, sc_name, level, icon_id, sc_description
                 FROM service_categories 
-                WHERE level IS NOT NULL ";
-        if (!is_null($searchString) && $searchString != "") {
-            $sql .= " AND sc_name LIKE '%".$this->db->escape($searchString)."%' ";
+                WHERE level IS NOT NULL ';
+        if (! is_null($searchString) && $searchString != '') {
+            $sql .= " AND sc_name LIKE '%" . $this->db->escape($searchString) . "%' ";
         }
-        if (!is_null($orderBy) && !is_null($sort)) {
-            $sql .= " ORDER BY $orderBy $sort ";
+        if (! is_null($orderBy) && ! is_null($sort)) {
+            $sql .= " ORDER BY {$orderBy} {$sort} ";
         }
-        if (!is_null($offset) && !is_null($limit)) {
-            $sql .= " LIMIT $offset,$limit";
+        if (! is_null($offset) && ! is_null($limit)) {
+            $sql .= " LIMIT {$offset},{$limit}";
         }
         $res = $this->db->query($sql);
         $elements = [];
@@ -296,6 +294,7 @@ class CentreonCriticality
             $elements[$row['sc_id']]['icon_id'] = $row['icon_id'];
             $elements[$row['sc_id']]['description'] = $row['sc_description'];
         }
+
         return $elements;
     }
 
@@ -303,26 +302,27 @@ class CentreonCriticality
      * Create a buffer with all criticality informations
      *
      * @param $service_id
-     * return array
+     *                   return array
      *
-     * @return int|mixed
      * @throws PDOException
+     * @return int|mixed
      */
     public function criticitiesConfigOnSTpl($service_id)
     {
         global $pearDB, $critCache;
 
-        if (!count($this->tree)) {
+        if (! count($this->tree)) {
             $request = "SELECT service_id, service_template_model_stm_id FROM service
                 WHERE service_register = '0' AND service_activate = '1' ORDER BY service_template_model_stm_id ASC";
             $RES = $pearDB->query($request);
             while ($data = $RES->fetchRow()) {
-                $this->tree[$data['service_id']] = $this->getServiceCriticality($data["service_id"]);
+                $this->tree[$data['service_id']] = $this->getServiceCriticality($data['service_id']);
             }
         }
         if (isset($this->tree[$service_id]) && $this->tree[$service_id] != 0) {
             return $this->tree[$service_id];
         }
+
         return 0;
     }
 
@@ -330,42 +330,43 @@ class CentreonCriticality
      * Get service criticality
      *
      * @param $service_id
-     * return array
+     *                   return array
      *
-     * @return int|mixed
      * @throws PDOException
+     * @return int|mixed
      */
     protected function getServiceCriticality($service_id)
     {
         global $pearDB;
 
-        if (!isset($service_id) || $service_id == 0) {
+        if (! isset($service_id) || $service_id == 0) {
             return 0;
         }
 
         $request = "SELECT service_id, service_template_model_stm_id FROM service
             WHERE service_register = '0' AND service_activate = '1'
-                AND service_id = $service_id ORDER BY service_template_model_stm_id ASC";
+                AND service_id = {$service_id} ORDER BY service_template_model_stm_id ASC";
         $RES = $pearDB->query($request);
         if (isset($RES) && $RES->rowCount()) {
             while ($data = $RES->fetchRow()) {
                 $request2 = "select sr.* FROM service_categories_relation sr, service_categories sc
                     WHERE sr.sc_id = sc.sc_id
-                        AND sr.service_service_id = '".$data['service_id']."'
+                        AND sr.service_service_id = '" . $data['service_id'] . "'
                         AND sc.level IS NOT NULL";
                 $RES2 = $pearDB->query($request2);
                 if ($RES2->rowCount() != 0) {
                     $criticity = $RES2->fetchRow();
                     if ($criticity['sc_id'] && isset($criticity['sc_id'])) {
-                        return $criticity["sc_id"];
-                    } else {
-                        return 0;
+                        return $criticity['sc_id'];
                     }
-                } else {
-                    return $this->getServiceCriticality($data["service_template_model_stm_id"]);
+
+                    return 0;
                 }
+
+                return $this->getServiceCriticality($data['service_template_model_stm_id']);
             }
         }
+
         return 0;
     }
 }

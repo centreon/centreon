@@ -1,29 +1,44 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Infrastructure\Service;
 
-use Psr\Container\ContainerInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Psr\Container\ContainerInterface;
 
 /**
  * Compatibility with Doctrine
  */
 class CentreonDBManagerService
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultManager = 'configuration_db';
 
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     private $manager;
 
     /**
      * Construct
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -35,15 +50,13 @@ class CentreonDBManagerService
 
     public function getAdapter(string $alias): CentreonDBAdapter
     {
-        $manager = $this->manager[$alias] ?? null;
-
-        return $manager;
+        return $this->manager[$alias] ?? null;
     }
 
     /**
      * Get default adapter with DB connection
      *
-     * @return \Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter
+     * @return CentreonDBAdapter
      */
     public function getDefaultAdapter(): CentreonDBAdapter
     {
@@ -55,9 +68,7 @@ class CentreonDBManagerService
      */
     public function getRepository($repository): mixed
     {
-        $manager = $this->manager[$this->defaultManager]
+        return $this->manager[$this->defaultManager]
             ->getRepository($repository);
-
-        return $manager;
     }
 }

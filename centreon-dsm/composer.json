@@ -3,16 +3,14 @@
   "version": "25.07",
   "type": "project",
   "license": "GPL-2.0-only",
+  "require": {
+    "php": "8.2.*",
+    "ext-gettext": "*",
+    "ext-pdo": "*"
+  },
   "require-dev": {
-    "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
-    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
-    "friendsofphp/php-cs-fixer": "3.64.*",
-    "phpcompatibility/php-compatibility": "9.3.*",
-    "phpstan/phpstan": "1.12.*",
-    "rector/rector": "1.2.*",
-    "squizlabs/php_codesniffer": "3.10.*"
+    "centreon/centreon-test-lib": "dev-master"
   },
   "repositories": [
     {
@@ -31,19 +29,37 @@
     },
     "allow-plugins": {
       "symfony/flex": false,
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "symfony/runtime": true
     }
   },
   "scripts": {
-    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
-    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
-    "phpcs:ci": "@phpcs",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=0 --memory-limit=512M --debug",
-    "phpstan:ci": "@phpstan --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug"
+    "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
+    "rector:legacy": "../tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../tools/vendor/bin/rector --config=rector.legacy.php process",
+    "cs:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
+    "cs:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
+    "stan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=512M",
+    "rector": [
+      "@rector:legacy"
+    ],
+    "cs": [
+      "@cs:legacy"
+    ],
+    "cs:fix": [
+      "@cs:legacy:fix"
+    ],
+    "stan": [
+      "@stan:legacy"
+    ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
+    "ci": [
+      "@legacy:check"
+    ]
   },
   "extra": {
     "symfony": {

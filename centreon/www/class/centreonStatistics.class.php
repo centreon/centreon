@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,16 +74,17 @@ class CentreonStatistics
     public function getCentreonUUID()
     {
         $centreonUUID = new CentreonUUID($this->dbConfig);
+
         return [
-            'CentreonUUID' => $centreonUUID->getUUID()
+            'CentreonUUID' => $centreonUUID->getUUID(),
         ];
     }
 
     /**
      * get Centreon information
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getPlatformInfo()
     {
@@ -107,13 +108,14 @@ class CentreonStatistics
     /**
      * get version of Centreon Web
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getVersion()
     {
-        $dbStorage = new CentreonDB("centstorage");
+        $dbStorage = new CentreonDB('centstorage');
         $centreonVersion = new CentreonVersion($this->dbConfig, $dbStorage);
+
         return [
             'core' => $centreonVersion->getCore(),
             'modules' => $centreonVersion->getModules(),
@@ -133,28 +135,28 @@ class CentreonStatistics
         $defaultTimezone = $oTimezone->getCentreonTimezone();
         $timezoneById = $oTimezone->getList();
 
-        if (!empty($defaultTimezone) && !empty($timezoneById[$defaultTimezone])) {
+        if (! empty($defaultTimezone) && ! empty($timezoneById[$defaultTimezone])) {
             $timezone = $timezoneById[$defaultTimezone];
         } else {
             $timezone = date_default_timezone_get();
         }
 
         return [
-            'timezone' => $timezone
+            'timezone' => $timezone,
         ];
     }
 
     /**
      * get LDAP configured authentications options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getLDAPAuthenticationOptions()
     {
         $data = [];
 
-        # Get the number of LDAP directories configured by LDAP configuration
+        // Get the number of LDAP directories configured by LDAP configuration
         $query = <<<'SQL'
             SELECT ar.ar_id, COUNT(arh.auth_ressource_id) AS configured_ad
             FROM auth_ressource_host AS arh
@@ -165,11 +167,11 @@ class CentreonStatistics
         $result = $this->dbConfig->query($query);
         while ($row = $result->fetch()) {
             $data[$row['ar_id']] = [
-                "nb_ar_servers" => $row['configured_ad']
+                'nb_ar_servers' => $row['configured_ad'],
             ];
         }
 
-        # Get configured options by LDAP configuration
+        // Get configured options by LDAP configuration
         $query = <<<'SQL'
             SELECT ar.ar_id, ari.ari_name, ari.ari_value
             FROM auth_ressource_host AS arh
@@ -189,8 +191,8 @@ class CentreonStatistics
     /**
      * get Local / SSO configured authentications options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getNewAuthenticationOptions()
     {
@@ -207,12 +209,11 @@ class CentreonStatistics
                     break;
                 case 'web-sso':
                     $data['web-sso'] = [
-                        'is_forced' => (bool)$row['is_forced'],
+                        'is_forced' => (bool) $row['is_forced'],
                         'trusted_client_addresses' => count($customConfiguration['trusted_client_addresses'] ?? []),
-                        'blacklist_client_addresses'
-                            => count($customConfiguration['blacklist_client_addresses'] ?? []),
-                        'pattern_matching_login' => (bool)$customConfiguration['pattern_matching_login'],
-                        'pattern_replace_login' => (bool)$customConfiguration['pattern_replace_login'],
+                        'blacklist_client_addresses' => count($customConfiguration['blacklist_client_addresses'] ?? []),
+                        'pattern_matching_login' => (bool) $customConfiguration['pattern_matching_login'],
+                        'pattern_replace_login' => (bool) $customConfiguration['pattern_replace_login'],
                     ];
                     break;
                 case 'openid':
@@ -220,32 +221,30 @@ class CentreonStatistics
                     $groupsMapping = $customConfiguration['groups_mapping'];
                     $rolesMapping = $customConfiguration['roles_mapping'];
                     $data['openid'] = [
-                        'is_forced' => (bool)$row['is_forced'],
+                        'is_forced' => (bool) $row['is_forced'],
                         'authenticationConditions' => [
-                            'is_enabled' => (bool)$authenticationConditions['is_enabled'],
-                            'trusted_client_addresses'
-                                => count($authenticationConditions['trusted_client_addresses'] ?? []),
-                            'blacklist_client_addresses'
-                                => count($authenticationConditions['blacklist_client_addresses'] ?? []),
-                            'authorized_values' => count($authenticationConditions['authorized_values'] ?? [])
+                            'is_enabled' => (bool) $authenticationConditions['is_enabled'],
+                            'trusted_client_addresses' => count($authenticationConditions['trusted_client_addresses'] ?? []),
+                            'blacklist_client_addresses' => count($authenticationConditions['blacklist_client_addresses'] ?? []),
+                            'authorized_values' => count($authenticationConditions['authorized_values'] ?? []),
                         ],
                         'groups_mapping' => [
-                            'is_enabled' => (bool)$groupsMapping['is_enabled'],
-                            'relations' => $this->getContactGroupRelationsByProviderType('openid')
+                            'is_enabled' => (bool) $groupsMapping['is_enabled'],
+                            'relations' => $this->getContactGroupRelationsByProviderType('openid'),
                         ],
                         'roles_mapping' => [
-                            'is_enabled' => (bool)$rolesMapping['is_enabled'],
-                            'apply_only_first_role' => (bool)$rolesMapping['apply_only_first_role'],
+                            'is_enabled' => (bool) $rolesMapping['is_enabled'],
+                            'apply_only_first_role' => (bool) $rolesMapping['apply_only_first_role'],
                             'relations' => $this->getAclRelationsByProviderType('openid'),
                         ],
-                        'introspection_token_endpoint' => (bool)$customConfiguration['introspection_token_endpoint'],
-                        'userinfo_endpoint' => (bool)$customConfiguration['userinfo_endpoint'],
-                        'endsession_endpoint' => (bool)$customConfiguration['endsession_endpoint'],
+                        'introspection_token_endpoint' => (bool) $customConfiguration['introspection_token_endpoint'],
+                        'userinfo_endpoint' => (bool) $customConfiguration['userinfo_endpoint'],
+                        'endsession_endpoint' => (bool) $customConfiguration['endsession_endpoint'],
                         'connection_scopes' => count($customConfiguration['connection_scopes'] ?? []),
                         'authentication_type' => $customConfiguration['authentication_type'],
-                        'verify_peer' => (bool)$customConfiguration['verify_peer'],
-                        'auto_import' => (bool)$customConfiguration['auto_import'],
-                        'redirect_url' => $customConfiguration['redirect_url'] !== null
+                        'verify_peer' => (bool) $customConfiguration['verify_peer'],
+                        'auto_import' => (bool) $customConfiguration['auto_import'],
+                        'redirect_url' => $customConfiguration['redirect_url'] !== null,
                     ];
                     break;
                 case 'saml':
@@ -253,24 +252,24 @@ class CentreonStatistics
                     $groupsMapping = $customConfiguration['groups_mapping'];
                     $rolesMapping = $customConfiguration['roles_mapping'];
                     $data['saml'] = [
-                        'is_forced' => (bool)$row['is_forced'],
+                        'is_forced' => (bool) $row['is_forced'],
                         'authenticationConditions' => [
-                            'is_enabled' => (bool)$authenticationConditions['is_enabled'],
-                            'authorized_values' => count($authenticationConditions['authorized_values'] ?? [])
+                            'is_enabled' => (bool) $authenticationConditions['is_enabled'],
+                            'authorized_values' => count($authenticationConditions['authorized_values'] ?? []),
                         ],
                         'groups_mapping' => [
-                            'is_enabled' => (bool)$groupsMapping['is_enabled'],
+                            'is_enabled' => (bool) $groupsMapping['is_enabled'],
                             'relations' => $this->getContactGroupRelationsByProviderType('saml'),
                         ],
                         'roles_mapping' => [
-                            'is_enabled' => (bool)$rolesMapping['is_enabled'],
-                            'apply_only_first_role' => (bool)$rolesMapping['apply_only_first_role'],
+                            'is_enabled' => (bool) $rolesMapping['is_enabled'],
+                            'apply_only_first_role' => (bool) $rolesMapping['apply_only_first_role'],
                             'relations' => $this->getAclRelationsByProviderType('saml'),
                         ],
-                        'auto_import' => (bool)$customConfiguration['auto_import'],
-                        'logout_from' => (bool)$customConfiguration['logout_from'] === true ?
-                            'Only Centreon' :
-                            'Centreon + Idp'
+                        'auto_import' => (bool) $customConfiguration['auto_import'],
+                        'logout_from' => (bool) $customConfiguration['logout_from'] === true
+                            ? 'Only Centreon'
+                            : 'Centreon + Idp',
                     ];
                     break;
             }
@@ -282,8 +281,8 @@ class CentreonStatistics
     /**
      * get configured authentications options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getAuthenticationOptions()
     {
@@ -296,8 +295,8 @@ class CentreonStatistics
     /**
      * get info about manually managed API tokens
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getApiTokensInfo()
     {
@@ -354,7 +353,7 @@ class CentreonStatistics
 
         $data = [
             'extension' => [
-                'widgets' => $centreonVersion->getWidgetsUsage()
+                'widgets' => $centreonVersion->getWidgetsUsage(),
             ],
         ];
 
@@ -394,7 +393,7 @@ class CentreonStatistics
                 SQL
         );
 
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+        foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $data[$row['type']] = $row['value'];
         }
 
@@ -447,6 +446,7 @@ class CentreonStatistics
     }
 
     /**
+     * @throws PDOException
      * @return array{
      *     total: int,
      *     avg_hg_notification?: float,
@@ -455,7 +455,6 @@ class CentreonStatistics
      *     avg_contact_notification?: float,
      *     avg_cg_notification?: float
      * }
-     * @throws PDOException
      */
     private function getAdditionalNotificationInformation(): array
     {
@@ -485,12 +484,12 @@ class CentreonStatistics
         $data['avg_contact_notification'] = $avgGetValue('notification_user_relation');
         $data['avg_cg_notification'] = $avgGetValue('notification_contactgroup_relation');
 
-        return array_filter($data, static fn(mixed $value): bool => null !== $value);
+        return array_filter($data, static fn (mixed $value): bool => null !== $value);
     }
 
     /**
-     * @return array<string,array<string, array{widget_number: int, metric_number?: int}>>
      * @throws PDOException
+     * @return array<string,array<string, array{widget_number: int, metric_number?: int}>>
      */
     private function getAdditionalDashboardsInformation(): array
     {
@@ -505,8 +504,7 @@ class CentreonStatistics
                 SQL
         );
 
-        $extractMetricInformationFromWidgetSettings = function (array $widgetSettings): int|null
-        {
+        $extractMetricInformationFromWidgetSettings = function (array $widgetSettings): int|null {
             return array_key_exists('metrics', $widgetSettings['data'])
                 ? count($widgetSettings['data']['metrics'])
                 : null;
@@ -523,7 +521,7 @@ class CentreonStatistics
             }
 
             if (array_key_exists($widgetName, $data[$dashboardId])) {
-                $data[$dashboardId][$widgetName]['widget_number'] += 1;
+                ++$data[$dashboardId][$widgetName]['widget_number'];
 
                 if ($data[$dashboardId][$widgetName]['metric_number'] !== null) {
                     $data[$dashboardId][$widgetName]['metric_number'] += $extractMetricInformationFromWidgetSettings($widgetSettings);
@@ -538,54 +536,54 @@ class CentreonStatistics
     }
 
     /**
-     * @return array<string,array{rotation_time: int, dashboards_count: int, shared_users_groups_count: int}>
      * @throws PDOException
+     * @return array<string,array{rotation_time: int, dashboards_count: int, shared_users_groups_count: int}>
      */
     private function getAdditionalDashboardPlaylistsInformation(): array
     {
         $data = [];
         $statement = $this->dbConfig->query(
-            <<<SQL
-                SELECT
-                    dp.name,
-                    dp.rotation_time,
-                    COALESCE(viewer_contacts.viewer_count, 0) AS viewer_contacts,
-                    COALESCE(editor_contacts.editor_count, 0) AS editor_contacts,
-                    COALESCE(viewer_contactgroups.viewer_group_count, 0) AS viewer_contactgroups,
-                    COALESCE(editor_contactgroups.editor_group_count, 0) AS editor_contactgroups,
-                    COALESCE(dashboard_rels.dashboard_count, 0) AS dashboard_count
-                FROM
-                    dashboard_playlist dp
-                LEFT JOIN (
-                    SELECT playlist_id, COUNT(*) AS viewer_count
-                    FROM dashboard_playlist_contact_relation
-                    WHERE role = 'viewer'
-                    GROUP BY playlist_id
-                ) AS viewer_contacts ON dp.id = viewer_contacts.playlist_id
-                LEFT JOIN (
-                    SELECT playlist_id, COUNT(*) AS editor_count
-                    FROM dashboard_playlist_contact_relation
-                    WHERE role = 'editor'
-                    GROUP BY playlist_id
-                ) AS editor_contacts ON dp.id = editor_contacts.playlist_id
-                LEFT JOIN (
-                    SELECT playlist_id, COUNT(*) AS viewer_group_count
-                    FROM dashboard_playlist_contactgroup_relation
-                    WHERE role = 'viewer'
-                    GROUP BY playlist_id
-                ) AS viewer_contactgroups ON dp.id = viewer_contactgroups.playlist_id
-                LEFT JOIN (
-                    SELECT playlist_id, COUNT(*) AS editor_group_count
-                    FROM dashboard_playlist_contactgroup_relation
-                    WHERE role = 'editor'
-                    GROUP BY playlist_id
-                ) AS editor_contactgroups ON dp.id = editor_contactgroups.playlist_id
-                LEFT JOIN (
-                    SELECT playlist_id, COUNT(*) AS dashboard_count
-                    FROM dashboard_playlist_relation
-                    GROUP BY playlist_id
-                ) AS dashboard_rels ON dp.id = dashboard_rels.playlist_id
-            SQL
+            <<<'SQL'
+                    SELECT
+                        dp.name,
+                        dp.rotation_time,
+                        COALESCE(viewer_contacts.viewer_count, 0) AS viewer_contacts,
+                        COALESCE(editor_contacts.editor_count, 0) AS editor_contacts,
+                        COALESCE(viewer_contactgroups.viewer_group_count, 0) AS viewer_contactgroups,
+                        COALESCE(editor_contactgroups.editor_group_count, 0) AS editor_contactgroups,
+                        COALESCE(dashboard_rels.dashboard_count, 0) AS dashboard_count
+                    FROM
+                        dashboard_playlist dp
+                    LEFT JOIN (
+                        SELECT playlist_id, COUNT(*) AS viewer_count
+                        FROM dashboard_playlist_contact_relation
+                        WHERE role = 'viewer'
+                        GROUP BY playlist_id
+                    ) AS viewer_contacts ON dp.id = viewer_contacts.playlist_id
+                    LEFT JOIN (
+                        SELECT playlist_id, COUNT(*) AS editor_count
+                        FROM dashboard_playlist_contact_relation
+                        WHERE role = 'editor'
+                        GROUP BY playlist_id
+                    ) AS editor_contacts ON dp.id = editor_contacts.playlist_id
+                    LEFT JOIN (
+                        SELECT playlist_id, COUNT(*) AS viewer_group_count
+                        FROM dashboard_playlist_contactgroup_relation
+                        WHERE role = 'viewer'
+                        GROUP BY playlist_id
+                    ) AS viewer_contactgroups ON dp.id = viewer_contactgroups.playlist_id
+                    LEFT JOIN (
+                        SELECT playlist_id, COUNT(*) AS editor_group_count
+                        FROM dashboard_playlist_contactgroup_relation
+                        WHERE role = 'editor'
+                        GROUP BY playlist_id
+                    ) AS editor_contactgroups ON dp.id = editor_contactgroups.playlist_id
+                    LEFT JOIN (
+                        SELECT playlist_id, COUNT(*) AS dashboard_count
+                        FROM dashboard_playlist_relation
+                        GROUP BY playlist_id
+                    ) AS dashboard_rels ON dp.id = dashboard_rels.playlist_id
+                SQL
         );
 
         while (false !== ($record = $statement->fetch(PDO::FETCH_ASSOC))) {
@@ -603,20 +601,20 @@ class CentreonStatistics
     }
 
     /**
+     * @throws PDOException
      * @return array{
      *     nb_users: int,
      *     avg_filters_per_user: float,
      *     max_filters_user: int
      * }
-     * @throws PDOException
      */
     private function getAdditionalUserFiltersInformation(): array
     {
         $data = [];
 
-        $filtersPerUserRequest = <<<SQL
-            SELECT COUNT(id) as count FROM user_filter GROUP BY user_id;
-        SQL;
+        $filtersPerUserRequest = <<<'SQL'
+                SELECT COUNT(id) as count FROM user_filter GROUP BY user_id;
+            SQL;
 
         $statement = $this->dbConfig->query($filtersPerUserRequest);
 

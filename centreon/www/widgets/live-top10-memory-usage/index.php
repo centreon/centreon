@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
@@ -47,7 +32,7 @@ require_once __DIR__ . '/src/function.php';
 
 session_start();
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
@@ -71,23 +56,24 @@ try {
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = (int)$preferences['refresh_interval'];
+    $autoRefresh = (int) $preferences['refresh_interval'];
     if ($autoRefresh < 5) {
         $autoRefresh = 30;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 if ($centreon->user->admin == 0) {
@@ -97,12 +83,12 @@ if ($centreon->user->admin == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/live-top10-memory-usage/src/";
+$path = $centreon_path . 'www/widgets/live-top10-memory-usage/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $data = [];
 try {
-    $query = "SELECT
+    $query = 'SELECT
             1 AS REALTIME,
             i.host_name,
             i.service_description,
@@ -112,23 +98,23 @@ try {
             s.state AS status
         FROM
             metrics m,
-            hosts h "
-        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-        . " , index_data i
+            hosts h '
+        . ($preferences['host_group'] ? ', hosts_hostgroups hg ' : '')
+        . ($centreon->user->admin == 0 ? ', centreon_acl acl ' : '')
+        . ' , index_data i
         LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
         WHERE i.service_description LIKE :service_description
             AND i.id = m.index_id
             AND m.metric_name LIKE :metric_name
-            AND i.host_id = h.host_id "
+            AND i.host_id = h.host_id '
         . ($preferences['host_group']
-            ? "AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id " : "");
+            ? 'AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id ' : '');
     if ($centreon->user->admin == 0) {
-        $query .= "AND i.host_id = acl.host_id
+        $query .= 'AND i.host_id = acl.host_id
             AND i.service_id = acl.service_id
-            AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
+            AND acl.group_id IN (' . ($grouplistStr != '' ? $grouplistStr : 0) . ')';
     }
-    $query .= "AND s.enabled = 1
+    $query .= 'AND s.enabled = 1
             AND h.enabled = 1
         GROUP BY i.host_id,
             i.service_id,
@@ -138,7 +124,7 @@ try {
             m.current_value,
             m.max
         ORDER BY ratio DESC
-        LIMIT :nb_lin;";
+        LIMIT :nb_lin;';
 
     $numLine = 1;
     $in = 0;
@@ -182,7 +168,7 @@ try {
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error fetching memory usage data: " . $e->getMessage(),
+        message: 'Error fetching memory usage data: ' . $e->getMessage(),
         exception: $e
     );
 

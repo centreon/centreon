@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ final class FindFavoriteDashboards
     {
         try {
             $profile = $this->userProfileReader->findByContact($this->contact);
-            $this->usersFavoriteDashboards = $profile !== null ? $profile->getFavoriteDashboards(): [];
+            $this->usersFavoriteDashboards = $profile !== null ? $profile->getFavoriteDashboards() : [];
 
             if ($this->usersFavoriteDashboards === []) {
                 return new FindFavoriteDashboardsResponse([]);
@@ -279,8 +279,7 @@ final class FindFavoriteDashboards
                     'name' => $contactShare->getContactName(),
                     'email' => $contactShare->getContactEmail(),
                     'role' => $contactShare->getRole(),
-                ]
-                , $contactShares[$dashboard->getId()]);
+                ], $contactShares[$dashboard->getId()]);
             }
 
             if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
@@ -290,7 +289,8 @@ final class FindFavoriteDashboards
                         'name' => $contactGroupShare->getContactGroupName(),
                         'role' => $contactGroupShare->getRole(),
                     ],
-                    $contactGroupShares[$dashboard->getId()]);
+                    $contactGroupShares[$dashboard->getId()]
+                );
             }
 
             if ($thumbnail !== null) {

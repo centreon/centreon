@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class Graph extends AbstractObject
 {
     /** @var array|null */
     private $graphs = null;
+
     /** @var string */
     protected $table = 'giv_graphs_template';
+
     /** @var string */
     protected $generateFilename = 'graph.infile';
+
     /** @var string */
     protected $attributesSelect = '
         graph_id,
@@ -54,6 +58,7 @@ class Graph extends AbstractObject
         scaled,
         comment
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'graph_id',
@@ -69,7 +74,7 @@ class Graph extends AbstractObject
         'stacked',
         'split_component',
         'scaled',
-        'comment'
+        'comment',
     ];
 
     /**
@@ -80,7 +85,7 @@ class Graph extends AbstractObject
     private function getGraph(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
+            "SELECT {$this->attributesSelect}
             FROM giv_graphs_template"
         );
         $stmt->execute();
@@ -92,8 +97,8 @@ class Graph extends AbstractObject
      *
      * @param null|int $graphId
      *
-     * @return string|null
      * @throws \Exception
+     * @return string|null
      */
     public function getGraphFromId(?int $graphId)
     {
@@ -102,7 +107,7 @@ class Graph extends AbstractObject
         }
 
         $result = null;
-        if (!is_null($graphId) && isset($this->graphs[$graphId])) {
+        if (! is_null($graphId) && isset($this->graphs[$graphId])) {
             $result = $this->graphs[$graphId]['name'];
             if ($this->checkGenerate($graphId)) {
                 return $result;

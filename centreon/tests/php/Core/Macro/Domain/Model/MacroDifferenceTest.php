@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 
 beforeEach(function (): void {
-
     // DIRECT MACROS - not changed
     $this->hostMacroA = new Macro(1, 'NAMEA', 'valueA');
     $this->hostMacroB = new Macro(1, 'NAMEB', 'valueB');
@@ -80,7 +79,6 @@ beforeEach(function (): void {
     $this->commandMacroO = new CommandMacro(1, CommandMacroType::Host, 'NAMEO');
     $this->hostMacroO = new Macro(1, 'NAMEO', 'valueO');
     $this->hostMacroO_edit = new Macro(1, 'NAMEO', '');
-
 });
 
 it('should compute macros has expected', function (): void {
@@ -97,11 +95,11 @@ it('should compute macros has expected', function (): void {
         $this->hostMacroO->getName() => $this->hostMacroO,
     ];
     $inheritedMacros = [
-         $this->hostMacroH->getName() => $this->hostMacroH,
-         $this->hostMacroI->getName() => $this->hostMacroI,
-         $this->hostMacroJ->getName() => $this->hostMacroJ,
-         $this->hostMacroK->getName() => $this->hostMacroK,
-         $this->hostMacroL_inherited->getName() => $this->hostMacroL_inherited,
+        $this->hostMacroH->getName() => $this->hostMacroH,
+        $this->hostMacroI->getName() => $this->hostMacroI,
+        $this->hostMacroJ->getName() => $this->hostMacroJ,
+        $this->hostMacroK->getName() => $this->hostMacroK,
+        $this->hostMacroL_inherited->getName() => $this->hostMacroL_inherited,
     ];
     $commandMacros = [
         $this->commandMacroM->getName() => $this->commandMacroM,
@@ -157,4 +155,4 @@ it('should compute macros has expected', function (): void {
         ->and($macrosDiff->updatedMacros)->toBe($updatedMacros)
         ->and($macrosDiff->removedMacros)->tobe($removedMacros)
         ->and($macrosDiff->unchangedMacros)->toBe($unchangedMacros);
- });
+});

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,15 +34,11 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
-    DeleteVaultConfiguration,
-    DeleteVaultConfigurationRequest
+    DeleteVaultConfiguration
 };
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
-use Security\Encryption;
 
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
@@ -83,12 +79,11 @@ it('should present NotFoundResponse when vault configuration does not exist for 
         ->willReturn(false);
 
     $presenter = new DeleteVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new deleteVaultConfiguration(
+    $useCase = new DeleteVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
         $this->user
     );
-
 
     $useCase($presenter);
 

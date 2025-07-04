@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,15 +38,15 @@ abstract class ServerConnectionConfigurationService
 {
     use VaultTrait;
 
-    protected string|null $serverIp;
+    protected string|null $serverIp = null;
 
-    protected string|null $centralIp;
+    protected string|null $centralIp = null;
 
-    protected string|null $dbUser;
+    protected string|null $dbUser = null;
 
-    protected string|null $dbPassword;
+    protected string|null $dbPassword = null;
 
-    protected string|null $name;
+    protected string|null $name = null;
 
     protected bool $onePeerRetention = false;
 
@@ -58,8 +58,7 @@ abstract class ServerConnectionConfigurationService
 
     public function __construct(
         protected CentreonDBAdapter $dbAdapter
-    )
-    {
+    ) {
     }
 
     /**

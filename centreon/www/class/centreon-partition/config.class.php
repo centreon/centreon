@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -41,18 +27,22 @@
  * @package  Centreon
  * @author   qgarnier <qgarnier@centreon.com>
  * @license  GPLv2 http://www.gnu.org/licenses
- * @link     http://www.centreon.com
+ * @see     http://www.centreon.com
  */
 class Config
 {
     /** @var string */
     public $XMLFile;
+
     /** @var array */
     private $defaultConfiguration;
+
     /** @var array */
     public $tables = [];
+
     /** @var CentreonDB */
     public $centstorageDb;
+
     /** @var CentreonDB */
     private $centreonDb;
 
@@ -75,17 +65,17 @@ class Config
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function loadCentreonDefaultConfiguration(): void
     {
-        $queryOptions = 'SELECT `opt`.`key`, `opt`.`value` ' .
-            'FROM `options` opt ' .
-            'WHERE `opt`.`key` IN (' .
-            "'partitioning_backup_directory', 'partitioning_backup_format', " .
-            "'partitioning_retention', 'partitioning_retention_forward'" .
-            ')';
+        $queryOptions = 'SELECT `opt`.`key`, `opt`.`value` '
+            . 'FROM `options` opt '
+            . 'WHERE `opt`.`key` IN ('
+            . "'partitioning_backup_directory', 'partitioning_backup_format', "
+            . "'partitioning_retention', 'partitioning_retention_forward'"
+            . ')';
         $res = $this->centreonDb->query($queryOptions);
 
         while ($row = $res->fetchRow()) {
@@ -98,54 +88,54 @@ class Config
      *
      * @param string $xmlfile the xml file name
      *
-     * @return null
      * @throws Exception
+     * @return null
      */
     public function parseXML($xmlfile): void
     {
-        if (!file_exists($xmlfile)) {
-            throw new \Exception("Config file '" . $xmlfile . "' does not exist\n");
+        if (! file_exists($xmlfile)) {
+            throw new Exception("Config file '" . $xmlfile . "' does not exist\n");
         }
         $node = new SimpleXMLElement(file_get_contents($xmlfile));
         foreach ($node->table as $table_config) {
             $table = new MysqlTable(
                 $this->centstorageDb,
-                (string) $table_config["name"],
+                (string) $table_config['name'],
                 (string) dbcstg
             );
-            if (!is_null($table->getName()) && !is_null($table->getSchema())) {
+            if (! is_null($table->getName()) && ! is_null($table->getSchema())) {
                 $table->setActivate((string) $table_config->activate);
                 $table->setColumn((string) $table_config->column);
                 $table->setType((string) $table_config->type);
                 $table->setDuration('daily');
                 $table->setTimezone((string) $table_config->timezone);
-                
+
                 if (isset($this->defaultConfiguration['partitioning_retention'])) {
                     $table->setRetention((string) $this->defaultConfiguration['partitioning_retention']);
                 } else {
                     $table->setRetention('365');
                 }
-    
+
                 if (isset($this->defaultConfiguration['partitioning_retention_forward'])) {
                     $table->setRetentionForward((string) $this->defaultConfiguration['partitioning_retention_forward']);
                 } else {
                     $table->setRetentionForward('10');
                 }
-    
+
                 if (isset($this->defaultConfiguration['partitioning_backup_directory'])) {
                     $table->setBackupFolder((string) $this->defaultConfiguration['partitioning_backup_directory']);
                 } else {
                     $table->setBackupFolder('/var/backups/');
                 }
-                
+
                 $table->setBackupFormat('%Y-%m-%d');
-                
+
                 $table->setCreateStmt((string) $table_config->createstmt);
                 $this->tables[$table->getName()] = $table;
             }
         }
     }
-    
+
     /**
      * Return all tables partitioning properties
      *
@@ -153,9 +143,9 @@ class Config
      */
     public function getTables()
     {
-        return ($this->tables);
+        return $this->tables;
     }
-    
+
     /**
      * Return partitioning properties for a specific table
      *
@@ -167,13 +157,13 @@ class Config
     {
         foreach ($this->tables as $key => $instance) {
             if ($key == $name) {
-                return ($instance);
+                return $instance;
             }
         }
 
-        return (null);
+        return null;
     }
-    
+
     /**
      * Check if each table property is set
      *
@@ -182,11 +172,11 @@ class Config
     public function isValid()
     {
         foreach ($this->tables as $key => $inst) {
-            if (!$inst->isValid()) {
-                return (false);
+            if (! $inst->isValid()) {
+                return false;
             }
         }
 
-        return (true);
+        return true;
     }
 }

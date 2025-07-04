@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,10 +34,9 @@ use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Interface
+ * Interface.
  *
  * @class   ConnectionInterface
- * @package Adaptation\Database\Connection
  */
 interface ConnectionInterface
 {
@@ -49,12 +48,9 @@ interface ConnectionInterface
     ];
 
     /**
-     * Factory
-     *
-     * @param ConnectionConfig $connectionConfig
+     * Factory.
      *
      * @throws ConnectionException
-     * @return ConnectionInterface
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): self;
 
@@ -62,7 +58,6 @@ interface ConnectionInterface
      * To create an instance of the query builder.
      *
      * @throws QueryBuilderException
-     * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface;
 
@@ -70,20 +65,15 @@ interface ConnectionInterface
      * To create an instance of the expression builder.
      *
      * @throws ExpressionBuilderException
-     * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface;
 
-    /**
-     * @return ConnectionConfig
-     */
     public function getConnectionConfig(): ConnectionConfig;
 
     /**
      * Return the database name if it exists.
      *
      * @throws ConnectionException
-     * @return string|null
      */
     public function getDatabaseName(): ?string;
 
@@ -91,6 +81,7 @@ interface ConnectionInterface
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @throws ConnectionException
+     *
      * @return object|resource
      */
     public function getNativeConnection(): mixed;
@@ -100,23 +91,16 @@ interface ConnectionInterface
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @throws ConnectionException
-     * @return string
      */
     public function getLastInsertId(): string;
 
     /**
      * Check if a connection with the database exist.
-     *
-     * @return bool
      */
     public function isConnected(): bool;
 
     /**
      * The usage of this method is discouraged. Use prepared statements.
-     *
-     * @param string $value
-     *
-     * @return string
      */
     public function quoteString(string $value): string;
 
@@ -134,11 +118,7 @@ interface ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -151,11 +131,7 @@ interface ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
@@ -168,12 +144,9 @@ interface ConnectionInterface
      *
      * Could be only used for several INSERT.
      *
-     * @param string $tableName
      * @param array<string> $columns
-     * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
-     * @return int
      *
      * @example $batchInsertParameters = BatchInsertParameters::create([
      *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
@@ -189,11 +162,7 @@ interface ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -206,11 +175,7 @@ interface ConnectionInterface
      *
      * Could be only used for DELETE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
@@ -226,10 +191,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -243,10 +206,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -261,10 +222,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
@@ -278,10 +237,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -295,10 +252,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -312,10 +267,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -330,10 +283,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<int|string,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -349,10 +300,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -368,10 +317,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -389,10 +336,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -409,11 +354,9 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     *
+     * @return \Traversable<int,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
@@ -430,10 +373,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -452,10 +393,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -481,7 +420,6 @@ interface ConnectionInterface
      * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startTransaction(): void;
 
@@ -489,7 +427,6 @@ interface ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function commitTransaction(): bool;
 
@@ -497,7 +434,6 @@ interface ConnectionInterface
      * To cancel a transaction.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function rollBackTransaction(): bool;
 
@@ -507,7 +443,6 @@ interface ConnectionInterface
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
-     * @return bool
      */
     public function allowUnbufferedQuery(): bool;
 
@@ -515,14 +450,11 @@ interface ConnectionInterface
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startUnbufferedQuery(): void;
 
     /**
      * Checks whether an unbuffered query is currently active.
-     *
-     * @return bool
      */
     public function isUnbufferedQueryActive(): bool;
 
@@ -530,7 +462,6 @@ interface ConnectionInterface
      * To close an unbuffered query.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function stopUnbufferedQuery(): void;
 }

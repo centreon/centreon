@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class HostGroup extends AbstractObject
 {
     /** @var array */
     private $hg = [];
+
     /** @var string */
     protected $table = 'hostgroup';
+
     /** @var string */
     protected $generateFilename = 'hostgroups.infile';
+
     /** @var string */
     protected $attributesSelect = '
         hg_id,
@@ -45,6 +49,7 @@ class HostGroup extends AbstractObject
         hg_icon_image,
         geo_coords,
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'hg_id',
@@ -53,6 +58,7 @@ class HostGroup extends AbstractObject
         'hg_icon_image',
         'geo_coords',
     ];
+
     /** @var null */
     protected $stmtHg = null;
 
@@ -66,7 +72,7 @@ class HostGroup extends AbstractObject
     {
         if (is_null($this->stmtHg)) {
             $this->stmtHg = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect
+                "SELECT {$this->attributesSelect}
                 FROM hostgroup
                 WHERE hg_id = :hg_id AND hg_activate = '1'"
             );
@@ -88,12 +94,12 @@ class HostGroup extends AbstractObject
      * @param int $hostId
      * @param string $hostName
      *
-     * @return int
      * @throws \Exception
+     * @return int
      */
     public function addHostInHg(int $hgId, int $hostId, string $hostName)
     {
-        if (!isset($this->hg[$hgId])) {
+        if (! isset($this->hg[$hgId])) {
             $this->getHostgroupFromId($hgId);
             $this->generateObjectInFile($this->hg[$hgId], $hgId);
             Media::getInstance($this->dependencyInjector)->getMediaPathFromId($this->hg[$hgId]['hg_icon_image']);
@@ -104,14 +110,15 @@ class HostGroup extends AbstractObject
         }
 
         $this->hg[$hgId]['members'][$hostId] = $hostName;
+
         return 0;
     }
 
     /**
      * Generate objects
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     public function generateObjects(): void
     {
@@ -139,6 +146,7 @@ class HostGroup extends AbstractObject
             }
             $result[$id] = &$value;
         }
+
         return $result;
     }
 
@@ -147,8 +155,8 @@ class HostGroup extends AbstractObject
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {

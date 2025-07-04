@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
@@ -35,23 +36,17 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public const SERIALIZER_GROUP_MAIN = 'sg_main';
     public const SERIALIZER_GROUP_WITH_HOST = 'sg_with_host';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var Host[]
-     */
+    /** @var Host[] */
     private $hosts = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -75,6 +70,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setId(int $id): ServiceGroup
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -85,9 +81,9 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function addHost(Host $host): ServiceGroup
     {
         $this->hosts[] = $host;
+
         return $this;
     }
-
 
     /**
      * @return Host[]
@@ -104,6 +100,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setHosts(array $hosts): ServiceGroup
     {
         $this->hosts = $hosts;
+
         return $this;
     }
 
@@ -120,6 +117,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -138,6 +136,7 @@ class ServiceGroup implements EntityDescriptorMetadataInterface
     public function setName(?string $name): ServiceGroup
     {
         $this->name = $name;
+
         return $this;
     }
 }

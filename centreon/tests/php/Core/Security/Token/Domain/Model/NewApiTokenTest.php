@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,19 +31,17 @@ use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\Token;
 
 beforeEach(function (): void {
-    $this->createToken = static function (array $fields = []): NewToken {
-        return new NewApiToken(
-            ...[
-                'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
-                'userId' => 23,
-                'configurationProviderId' => 1,
-                'name' => new TrimmedString('token-name'),
-                'creatorId' => 12,
-                'creatorName' => new TrimmedString('John Doe'),
-                ...$fields,
-            ]
-        );
-    };
+    $this->createToken = static fn (array $fields = []): NewToken => new NewApiToken(
+        ...[
+            'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
+            'userId' => 23,
+            'configurationProviderId' => 1,
+            'name' => new TrimmedString('token-name'),
+            'creatorId' => 12,
+            'creatorName' => new TrimmedString('John Doe'),
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set token instance', function (): void {
@@ -63,7 +61,7 @@ foreach (
 ) {
     it(
         "should throw an exception when token {$field} is an empty string",
-        fn() => ($this->createToken)([$field => new TrimmedString('    ')])
+        fn () => ($this->createToken)([$field => new TrimmedString('    ')])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::notEmptyString("NewApiToken::{$field}")->getMessage()
@@ -97,7 +95,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when token {$field} is too long",
-        fn() => ($this->createToken)([$field => new TrimmedString($tooLong)])
+        fn () => ($this->createToken)([$field => new TrimmedString($tooLong)])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewApiToken::{$field}")->getMessage()
@@ -114,7 +112,7 @@ foreach (
 ) {
     it(
         "should throw an exception when token {$field} is not > 0",
-        fn() => ($this->createToken)([$field => 0])
+        fn () => ($this->createToken)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "NewApiToken::{$field}")->getMessage()

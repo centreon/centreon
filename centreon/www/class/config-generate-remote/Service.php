@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
+use PDO;
 
 /**
  * Class
@@ -33,16 +34,22 @@ class Service extends AbstractService
 {
     /** @var int */
     private $useCache = 0;
+
     /** @var int */
     private $useCachePoller = 1;
+
     /** @var int */
     private $doneCache = 0;
+
     /** @var array|null */
     protected $serviceCache = null;
+
     /** @var string */
     protected $table = 'service';
+
     /** @var string */
     protected $generateFilename = 'services.infile';
+
     /** @var int|null */
     public $pollerId = null; // for by poller cache
 
@@ -93,11 +100,11 @@ class Service extends AbstractService
      */
     private function getServiceByPollerCache(): void
     {
-        $query = "SELECT $this->attributesSelect FROM ns_host_relation, host_service_relation, service " .
-            "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-            "service.service_id WHERE ns_host_relation.nagios_server_id = :server_id " .
-            "AND ns_host_relation.host_host_id = host_service_relation.host_host_id " .
-            "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
+        $query = "SELECT {$this->attributesSelect} FROM ns_host_relation, host_service_relation, service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . 'service.service_id WHERE ns_host_relation.nagios_server_id = :server_id '
+            . 'AND ns_host_relation.host_host_id = host_service_relation.host_host_id '
+            . "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->bindParam(':server_id', $this->pollerId, PDO::PARAM_INT);
         $stmt->execute();
@@ -112,9 +119,9 @@ class Service extends AbstractService
      */
     private function getServiceCache(): void
     {
-        $query = "SELECT $this->attributesSelect FROM service " .
-            "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-            "service.service_id WHERE service_register = '1' AND service_activate = '1'";
+        $query = "SELECT {$this->attributesSelect} FROM service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . "service.service_id WHERE service_register = '1' AND service_activate = '1'";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->serviceCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -141,9 +148,9 @@ class Service extends AbstractService
     private function getServiceFromId(int $serviceId): void
     {
         if (is_null($this->stmtService)) {
-            $query = "SELECT $this->attributesSelect FROM service " .
-                "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-                "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
+            $query = "SELECT {$this->attributesSelect} FROM service "
+                . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+                . "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
             $this->stmtService = $this->backendInstance->db->prepare($query);
         }
         $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
@@ -161,12 +168,13 @@ class Service extends AbstractService
      */
     protected function getSeverity($hostId, int $serviceId)
     {
-        $severityId =
-            ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
-        if (!is_null($severityId)) {
+        $severityId
+            = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
+        if (! is_null($severityId)) {
             Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
                 ->addRelation($severityId, $serviceId);
         }
+
         return null;
     }
 
@@ -187,8 +195,8 @@ class Service extends AbstractService
      */
     private function buildCache()
     {
-        if ($this->doneCache == 1 ||
-            ($this->useCache == 0 && $this->useCachePoller == 0)
+        if ($this->doneCache == 1
+            || ($this->useCache == 0 && $this->useCachePoller == 0)
         ) {
             return 0;
         }
@@ -224,10 +232,10 @@ class Service extends AbstractService
             return $this->serviceCache[$serviceId]['service_description'];
         }
 
-        if (($this->useCache == 0 || $by_hg == 1) && !isset($this->serviceCache[$serviceId])) {
+        if (($this->useCache == 0 || $by_hg == 1) && ! isset($this->serviceCache[$serviceId])) {
             $this->getServiceFromId($serviceId);
         }
-        if (!isset($this->serviceCache[$serviceId]) || is_null($this->serviceCache[$serviceId])) {
+        if (! isset($this->serviceCache[$serviceId]) || is_null($this->serviceCache[$serviceId])) {
             return null;
         }
         if ($this->checkGenerate($hostId . '.' . $serviceId)) {
@@ -266,6 +274,7 @@ class Service extends AbstractService
             $hostId . '.' . $serviceId
         );
         $this->clean($this->serviceCache[$serviceId]);
+
         return $this->serviceCache[$serviceId]['service_description'];
     }
 

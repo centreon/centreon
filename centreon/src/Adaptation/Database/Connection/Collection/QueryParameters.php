@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,66 +29,61 @@ use Core\Common\Domain\Collection\ObjectCollection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class   QueryParameters
- * @package Adaptation\Database\Connection\Collection
+ *
  * @extends ObjectCollection<QueryParameter>
  */
 class QueryParameters extends ObjectCollection
 {
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getIntQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INTEGER
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::INTEGER === $queryParameter->type
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getStringQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::STRING === $queryParameter->type
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getBoolQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::BOOLEAN === $queryParameter->type
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getNullQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::NULL === $queryParameter->type
         );
     }
 
     /**
      * @throws CollectionException
-     * @return static
      */
     public function getLargeObjectQueryParameters(): static
     {
         return $this->filterOnValue(
-            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
+            fn (QueryParameter $queryParameter): bool => QueryParameterTypeEnum::LARGE_OBJECT === $queryParameter->type
         );
     }
 

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,31 +18,32 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Application\RealTime\UseCase\FindHost;
 
-use Core\Domain\RealTime\Model\Icon;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Hostgroup;
-use Tests\Core\Domain\RealTime\Model\HostTest;
-use Core\Domain\RealTime\Model\Acknowledgement;
-use Core\Severity\RealTime\Domain\Model\Severity;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\RealTime\UseCase\FindHost\FindHost;
-use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
-use Core\Infrastructure\RealTime\Api\FindHost\FindHostPresenter;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
+use Core\Application\RealTime\UseCase\FindHost\FindHost;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
+use Core\Domain\RealTime\Model\Hostgroup;
+use Core\Domain\RealTime\Model\Icon;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\RealTime\Api\FindHost\FindHostPresenter;
+use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
+use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
+use Tests\Core\Domain\RealTime\Model\HostTest;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(ReadHostRepositoryInterface::class);

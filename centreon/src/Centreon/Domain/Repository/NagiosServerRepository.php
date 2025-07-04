@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,19 +22,18 @@
 namespace Centreon\Domain\Repository;
 
 use Centreon\Domain\Entity\NagiosServer;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class NagiosServerRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
-
     private const CONCORDANCE_ARRAY = [
         'id' => 'id',
         'name' => 'name',
@@ -63,7 +62,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         'engineVersion' => 'engine_version',
         'centreonbrokerLogsPath' => 'centreonbroker_logs_path',
         'remoteId' => 'remote_id',
-        'remoteServerUseAsProxy' => 'remote_server_use_as_proxy'
+        'remoteServerUseAsProxy' => 'remote_server_use_as_proxy',
     ];
 
     /**
@@ -74,7 +73,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         $this->db = $db;
     }
 
-     /**
+    /**
      * Check list of IDs
      *
      * @return bool
@@ -85,11 +84,11 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
-        $collector = new StatementCollector;
+        $collector = new StatementCollector();
 
         $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.`nagios_server`';
 
@@ -122,7 +121,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             }
         }
 
-        if (!empty($ordering['field'])) {
+        if (! empty($ordering['field'])) {
             $sql .= ' ORDER BY `' . self::CONCORDANCE_ARRAY[$ordering['field']] . '` '
                 . $ordering['order'];
         } else {
@@ -194,7 +193,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {
@@ -210,7 +209,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
@@ -235,11 +234,11 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
      */
     public function truncate(): void
     {
-        $sql = <<<SQL
-TRUNCATE TABLE `nagios_server`;
-TRUNCATE TABLE `cfg_nagios`;
-TRUNCATE TABLE `cfg_nagios_broker_module`
-SQL;
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `nagios_server`;
+            TRUNCATE TABLE `cfg_nagios`;
+            TRUNCATE TABLE `cfg_nagios_broker_module`
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }
@@ -268,10 +267,10 @@ SQL;
         $stmt = $this->db->prepare($query);
         $stmt->execute();
 
-        if (!$stmt->rowCount()) {
+        if (! $stmt->rowCount()) {
             return null;
         }
 
-        return (int)$stmt->fetch()['id'];
+        return (int) $stmt->fetch()['id'];
     }
 }

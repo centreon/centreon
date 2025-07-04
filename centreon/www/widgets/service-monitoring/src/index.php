@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -48,7 +33,7 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 
@@ -60,7 +45,7 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 // Smarty template initialization
 $template = SmartyBC::createSmartyTemplate($centreon_path . 'www/widgets/service-monitoring/src/', './');
 
-/* Init Objects */
+// Init Objects
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
@@ -76,7 +61,7 @@ $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' 
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
 /**
- * @var $dbb CentreonDB
+ * @var CentreonDB $dbb
  */
 $dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
@@ -162,7 +147,7 @@ if (isset($preferences['acknowledgement_filter']) &&  $preferences['acknowledgem
     )';
 }
 
-if (!$centreon->user->admin) {
+if (! $centreon->user->admin) {
     $query .= ' , centreon_acl acl ';
 }
 
@@ -181,7 +166,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
         $mainQueryParameters[] = [
             'parameter' => ':host_name_search',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => PDO::PARAM_STR,
         ];
         $hostNameCondition = 'h.name ' . CentreonUtils::operandToMysqlFormat($op) . ' :host_name_search ';
         $query = CentreonUtils::conditionBuilder($query, $hostNameCondition);
@@ -197,10 +182,10 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         $mainQueryParameters[] = [
             'parameter' => ':service_description',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => PDO::PARAM_STR,
         ];
-        $serviceDescriptionCondition = 's.description ' .
-            CentreonUtils::operandToMysqlFormat($op) . ' :service_description ';
+        $serviceDescriptionCondition = 's.description '
+            . CentreonUtils::operandToMysqlFormat($op) . ' :service_description ';
         $query = CentreonUtils::conditionBuilder($query, $serviceDescriptionCondition);
     }
 }
@@ -221,14 +206,12 @@ if (isset($preferences['svc_pending']) && $preferences['svc_pending']) {
     $stateTab[] = 4;
 }
 
-
 if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
     $query = CentreonUtils::conditionBuilder($query, ' h.state != 1 ');
 }
 if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
     $query = CentreonUtils::conditionBuilder($query, ' h.state != 2 ');
 }
-
 
 if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' s.state IN (' . implode(',', $stateTab) . ')');
@@ -275,7 +258,7 @@ if (isset($preferences['poller']) && $preferences['poller']) {
     $mainQueryParameters[] = [
         'parameter' => ':instance_id',
         'value' => $preferences['poller'],
-        'type' => PDO::PARAM_INT
+        'type' => PDO::PARAM_INT,
     ];
     $instanceIdCondition = ' i.instance_id = :instance_id';
     $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
@@ -288,20 +271,20 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         if ($queryHG != '') {
             $queryHG .= ', ';
         }
-        $queryHG .= ":id_" . $result;
+        $queryHG .= ':id_' . $result;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $result,
-            'value' => (int)$result,
-            'type' => PDO::PARAM_INT
+            'value' => (int) $result,
+            'type' => PDO::PARAM_INT,
         ];
     }
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.host_id IN (
+        ' s.host_id IN (
             SELECT host_host_id
-            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation
-            WHERE hostgroup_hg_id IN (" . $queryHG . ")
-        )"
+            FROM `' . $conf_centreon['db'] . '`.hostgroup_relation
+            WHERE hostgroup_hg_id IN (' . $queryHG . ')
+        )'
     );
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
@@ -311,31 +294,31 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
         if ($querySG != '') {
             $querySG .= ', ';
         }
-        $querySG .= ":id_" . $resultSG;
+        $querySG .= ':id_' . $resultSG;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $resultSG,
-            'value' => (int)$resultSG,
-            'type' => PDO::PARAM_INT
+            'value' => (int) $resultSG,
+            'type' => PDO::PARAM_INT,
         ];
     }
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.service_id IN (
+        ' s.service_id IN (
             SELECT DISTINCT service_id
             FROM services_servicegroups
-            WHERE servicegroup_id IN (" . $querySG . ")
-        )"
+            WHERE servicegroup_id IN (' . $querySG . ')
+        )'
     );
 }
-if (!empty($preferences['criticality_filter'])) {
+if (! empty($preferences['criticality_filter'])) {
     $tab = explode(',', $preferences['criticality_filter']);
     $labels = [];
     foreach ($tab as $p) {
-        $labels[] = ":id_" . $p;
+        $labels[] = ':id_' . $p;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $p,
-            'value' => (int)$p,
-            'type' => PDO::PARAM_INT
+            'value' => (int) $p,
+            'type' => PDO::PARAM_INT,
         ];
     }
     $query = CentreonUtils::conditionBuilder(
@@ -343,7 +326,7 @@ if (!empty($preferences['criticality_filter'])) {
         'cv2.value IN (' . implode(',', $labels) . ')'
     );
 }
-if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
+if (isset($preferences['output_search']) && $preferences['output_search'] != '') {
     $tab = explode(' ', $preferences['output_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
@@ -353,18 +336,18 @@ if (isset($preferences['output_search']) && $preferences['output_search'] != "")
         $mainQueryParameters[] = [
             'parameter' => ':service_output',
             'value' => $search,
-            'type' => PDO::PARAM_STR
+            'type' => PDO::PARAM_STR,
         ];
         $serviceOutputCondition = 's.output ' . CentreonUtils::operandToMysqlFormat($op) . ' :service_output ';
         $query = CentreonUtils::conditionBuilder($query, $serviceOutputCondition);
     }
 }
-if (!$centreon->user->admin) {
+if (! $centreon->user->admin) {
     $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
     $groupList = $aclObj->getAccessGroupsString();
-    $query .= " AND h.host_id = acl.host_id
+    $query .= ' AND h.host_id = acl.host_id
         AND acl.service_id = s.service_id
-        AND acl.group_id IN (" . $groupList . ") ";
+        AND acl.group_id IN (' . $groupList . ') ';
 }
 $orderByClause = 'hostname ASC ';
 
@@ -404,7 +387,7 @@ $allowedOrderColumns = [
     's_notes_url',
     'criticality_id',
     'criticality_level',
-    'icon_image'
+    'icon_image',
 ];
 $allowedDirections = ['ASC', 'DESC'];
 
@@ -431,11 +414,11 @@ if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
 }
 
 if (trim($orderByClause)) {
-    $query .= "ORDER BY " . $orderByClause;
+    $query .= 'ORDER BY ' . $orderByClause;
 }
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
-$query .= " LIMIT " . ($page * $num) . "," . $num;
+$query .= ' LIMIT ' . ($page * $num) . ',' . $num;
 
 $res = $dbb->prepare($query);
 
@@ -469,7 +452,7 @@ while ($row = $res->fetch()) {
     $dataKey = $row['host_id'] . '_' . $row['service_id'];
 
     // last_check
-    $valueLastCheck = (int)$row['last_check'];
+    $valueLastCheck = (int) $row['last_check'];
     $valueLastCheckTimestamp = time() - $valueLastCheck;
     if (
         $valueLastCheckTimestamp > 0
@@ -480,7 +463,7 @@ while ($row = $res->fetch()) {
     $data[$dataKey]['last_check'] = $valueLastCheck;
 
     // last_state_change
-    $valueLastState = (int)$row['last_state_change'];
+    $valueLastState = (int) $row['last_state_change'];
     if ($valueLastState > 0) {
         $valueLastStateTimestamp = time() - $valueLastState;
         $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
@@ -490,7 +473,7 @@ while ($row = $res->fetch()) {
     $data[$dataKey]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
-    $valueLastHardState = (int)$row['last_hard_state_change'];
+    $valueLastHardState = (int) $row['last_hard_state_change'];
     if ($valueLastHardState > 0) {
         $valueLastHardStateTimestamp = time() - $valueLastHardState;
         $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
@@ -500,8 +483,8 @@ while ($row = $res->fetch()) {
     $data[$dataKey]['last_hard_state_change'] = $valueLastHardState;
 
     // check_attempt
-    $valueCheckAttempt = $row['check_attempt'] . "/" .
-        $row['max_check_attempts'] . " (" . $aStateType[$row['state_type']] . ")";
+    $valueCheckAttempt = $row['check_attempt'] . '/'
+        . $row['max_check_attempts'] . ' (' . $aStateType[$row['state_type']] . ')';
     $data[$dataKey]['check_attempt'] = $valueCheckAttempt;
 
     // s_state
@@ -515,9 +498,9 @@ while ($row = $res->fetch()) {
     // output
     $data[$dataKey]['output'] = htmlspecialchars(substr($row['output'], 0, $outputLength));
 
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
+        Centreon\Application\Controller\MonitoringResourceController::class
     );
     $data[$dataKey]['h_details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
@@ -541,7 +524,7 @@ while ($row = $res->fetch()) {
     if ($valueHActionUrl) {
         if (preg_match('#^\./(.+)#', $valueHActionUrl, $matches)) {
             $valueHActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueHActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueHActionUrl)) {
             $valueHActionUrl = '//' . $valueHActionUrl;
         }
 
@@ -559,7 +542,7 @@ while ($row = $res->fetch()) {
     if ($valueHNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueHNotesUrl, $matches)) {
             $valueHNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueHNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueHNotesUrl)) {
             $valueHNotesUrl = '//' . $valueHNotesUrl;
         }
 
@@ -577,7 +560,7 @@ while ($row = $res->fetch()) {
     if ($valueSActionUrl) {
         if (preg_match('#^\./(.+)#', $valueSActionUrl, $matches)) {
             $valueSActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueSActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueSActionUrl)) {
             $valueSActionUrl = '//' . $valueSActionUrl;
         }
         $valueSActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString(
@@ -596,7 +579,7 @@ while ($row = $res->fetch()) {
     if ($valueSNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueSNotesUrl, $matches)) {
             $valueSNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueSNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueSNotesUrl)) {
             $valueSNotesUrl = '//' . $valueSNotesUrl;
         }
         $valueSNotesUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString(
@@ -615,10 +598,10 @@ while ($row = $res->fetch()) {
         $critData = $criticality->getData($row['criticality_id'], 1);
 
         // get criticality icon path
-        $valueCriticalityId = "";
+        $valueCriticalityId = '';
         if (isset($critData['icon_id'])) {
-            $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
-                "' title='" . $critData["sc_name"] . "' width='16' height='16'>";
+            $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id'])
+                . "' title='" . $critData['sc_name'] . "' width='16' height='16'>";
         }
 
         $data[$dataKey]['criticality_id'] = $valueCriticalityId;
@@ -634,7 +617,7 @@ while ($row = $res->fetch()) {
             $commentSql = 'SELECT 1 AS REALTIME, comment_data AS data FROM downtimes';
         }
 
-        $commentSql .= " WHERE host_id = " . $row['host_id'] . " AND service_id = " . $row['service_id'];
+        $commentSql .= ' WHERE host_id = ' . $row['host_id'] . ' AND service_id = ' . $row['service_id'];
         $commentSql .= ' ORDER BY entry_time DESC LIMIT 1';
         $commentResult = $dbb->query($commentSql);
 
@@ -651,8 +634,8 @@ while ($row = $res->fetch()) {
     $data[$dataKey]['encoded_hostname'] = urlencode($data[$dataKey]['hostname']);
 }
 
-$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-    ? (int)$preferences['refresh_interval']
+$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+    ? (int) $preferences['refresh_interval']
     : 30;
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);

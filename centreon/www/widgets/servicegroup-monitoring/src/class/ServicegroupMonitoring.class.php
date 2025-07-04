@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -68,18 +53,18 @@ class ServicegroupMonitoring
                 AND h.enabled = 1
                 AND ssg.servicegroup_id = sg.servicegroup_id
                 AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= $aclObj->queryBuilder("AND", "h.host_id", $aclObj->getHostsString("ID", $this->dbb));
+        if (! $admin) {
+            $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $this->dbb));
         }
-        $query .= " ORDER BY h.name ";
+        $query .= ' ORDER BY h.name ';
         $res = $this->dbb->query($query);
         $tab = [];
         $detailTab = [];
         while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
+            if (! isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
-            if (!isset($detailTab[$row['name']])) {
+            if (! isset($detailTab[$row['name']])) {
                 $detailTab[$row['name']] = [];
             }
             foreach ($row as $key => $val) {
@@ -90,6 +75,7 @@ class ServicegroupMonitoring
         if ($detailFlag == true) {
             return $detailTab;
         }
+
         return $tab;
     }
 
@@ -105,10 +91,10 @@ class ServicegroupMonitoring
      */
     public function getServiceStates($sgName, $admin, $aclObj, $preferences, $detailFlag = false): array
     {
-        $query = "SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
-            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ";
-        if (!$admin) {
-            $query .= ", centreon_acl acl ";
+        $query = 'SELECT DISTINCT h.host_id, s.state, h.name, s.service_id, s.description, ssg.servicegroup_id
+            FROM `services_servicegroups` ssg, `services` s, `hosts` h, `servicegroups` sg ';
+        if (! $admin) {
+            $query .= ', centreon_acl acl ';
         }
         $query .= "WHERE h.host_id = s.host_id
                 AND h.name NOT LIKE '_Module_%'
@@ -117,23 +103,23 @@ class ServicegroupMonitoring
                 AND ssg.service_id = s.service_id
                 AND ssg.servicegroup_id = sg.servicegroup_id
                 AND sg.name = '" . $this->dbb->escape($sgName) . "' ";
-        if (!$admin) {
-            $query .= " AND h.host_id = acl.host_id
+        if (! $admin) {
+            $query .= ' AND h.host_id = acl.host_id
                 AND acl.service_id = s.service_id
-                AND acl.group_id IN (" . $aclObj->getAccessGroupsString() . ") ";
+                AND acl.group_id IN (' . $aclObj->getAccessGroupsString() . ') ';
         }
-        $query .= " ORDER BY h.name ";
+        $query .= ' ORDER BY h.name ';
         $res = $this->dbb->query($query);
         $tab = [];
         $detailTab = [];
         while ($row = $res->fetch()) {
-            if (!isset($tab[$row['state']])) {
+            if (! isset($tab[$row['state']])) {
                 $tab[$row['state']] = 0;
             }
-            if (!isset($detailTab[$row['host_id']])) {
+            if (! isset($detailTab[$row['host_id']])) {
                 $detailTab[$row['host_id']] = [];
             }
-            if (isset($detailTab[$row['name']]) && !isset($detailTab[$row['name']][$row['service_id']])) {
+            if (isset($detailTab[$row['name']]) && ! isset($detailTab[$row['name']][$row['service_id']])) {
                 $detailTab[$row['host_id']][$row['service_id']] = [];
             }
             foreach ($row as $key => $val) {
@@ -144,6 +130,7 @@ class ServicegroupMonitoring
         if ($detailFlag == true) {
             return $detailTab;
         }
+
         return $tab;
     }
 }

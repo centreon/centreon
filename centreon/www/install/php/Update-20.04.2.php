@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,9 +30,7 @@ $errorMessage = '';
  * Queries needing exception management BUT no rollback if failing
  */
 try {
-    /*
-     * Get timezones and add "Asia/Yangon" if doesn't exist
-     */
+    // Get timezones and add "Asia/Yangon" if doesn't exist
     $errorMessage = 'Cannot retrieve timezone list';
     $res = $pearDB->query(
         "SELECT timezone_name FROM timezone
@@ -46,13 +44,14 @@ try {
             VALUE ("Asia/Yangon", "+06:30", "+06:30", NULL)'
         );
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . $e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, $e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, $e->getCode(), $e);
 }

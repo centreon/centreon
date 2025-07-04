@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willThrowException(new Exception);
+        ->willThrowException(new Exception());
 
     ($this->useCase)(new PartialUpdateServiceRequest(), $this->presenter, $this->service->getId());
 

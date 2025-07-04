@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,8 +98,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         int $inputOutputId,
         BrokerInputOutput|NewBrokerInputOutput $inputOutput,
         array $fields
-    ): void
-    {
+    ): void {
         $query = <<<'SQL'
             INSERT INTO `:db`.`cfg_centreonbroker_info` (
                 config_id,
@@ -329,6 +328,6 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->execute();
 
-       return ((int) $statement->fetchColumn()) + 1;
+        return ((int) $statement->fetchColumn()) + 1;
     }
 }

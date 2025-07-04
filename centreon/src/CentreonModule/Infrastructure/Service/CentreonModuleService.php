@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class CentreonModuleService
      * @param bool|null $updated
      * @param array<mixed>|null $typeList
      *
-     * @return array<string|int,\CentreonModule\Infrastructure\Entity\Module[]>
+     * @return array<string|int,Module[]>
      */
     public function getList(
         ?string $search = null,
@@ -161,9 +161,9 @@ class CentreonModuleService
      * - To install (then by name)
      * - Installed (then by name)
      *
-     * @param \CentreonModule\Infrastructure\Entity\Module[] $list
+     * @param Module[] $list
      *
-     * @return \CentreonModule\Infrastructure\Entity\Module[]
+     * @return Module[]
      */
     protected function sortList(array $list): array
     {

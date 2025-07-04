@@ -9,6 +9,7 @@ xunit-reports
 **/vendor/
 **/nbproject/
 **/.project
+**/var
 
 # front development files
 **/node_modules/
@@ -24,6 +25,7 @@ centreon/.com.google.Chrome*
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache
+.php-cs-fixer.*.cache
 checkstyle.core.xml
 
 # continuous integration and testing files

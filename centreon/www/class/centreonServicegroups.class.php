@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -42,8 +28,10 @@ class CentreonServicegroups
 {
     /** @var CentreonDB */
     private $DB;
+
     /** @var */
     private $relationCache;
+
     /** @var */
     private $dataTree;
 
@@ -60,27 +48,27 @@ class CentreonServicegroups
     /**
      * @param null $sgId
      *
-     * @return array|void
      * @throws PDOException
+     * @return array|void
      */
     public function getServiceGroupServices($sgId = null)
     {
-        if (!$sgId) {
+        if (! $sgId) {
             return;
         }
 
         $services = [];
-        $query = "SELECT host_host_id, service_service_id "
-            . "FROM servicegroup_relation "
-            . "WHERE servicegroup_sg_id = " . $sgId . " "
-            . "AND host_host_id IS NOT NULL "
-            . "UNION "
-            . "SELECT hgr.host_host_id, hsr.service_service_id "
-            . "FROM servicegroup_relation sgr, host_service_relation hsr, hostgroup_relation hgr "
-            . "WHERE sgr.servicegroup_sg_id = " . $sgId . " "
-            . "AND sgr.hostgroup_hg_id = hsr.hostgroup_hg_id "
-            . "AND hsr.service_service_id = sgr.service_service_id "
-            . "AND sgr.hostgroup_hg_id = hgr.hostgroup_hg_id ";
+        $query = 'SELECT host_host_id, service_service_id '
+            . 'FROM servicegroup_relation '
+            . 'WHERE servicegroup_sg_id = ' . $sgId . ' '
+            . 'AND host_host_id IS NOT NULL '
+            . 'UNION '
+            . 'SELECT hgr.host_host_id, hsr.service_service_id '
+            . 'FROM servicegroup_relation sgr, host_service_relation hsr, hostgroup_relation hgr '
+            . 'WHERE sgr.servicegroup_sg_id = ' . $sgId . ' '
+            . 'AND sgr.hostgroup_hg_id = hsr.hostgroup_hg_id '
+            . 'AND hsr.service_service_id = sgr.service_service_id '
+            . 'AND sgr.hostgroup_hg_id = hgr.hostgroup_hg_id ';
 
         $res = $this->DB->query($query);
         while ($row = $res->fetchRow()) {
@@ -94,7 +82,7 @@ class CentreonServicegroups
     /**
      * Returns a filtered array with only integer ids
      *
-     * @param  int[] $ids
+     * @param int[] $ids
      * @return int[] filtered
      */
     private function filteredArrayId(array $ids): array
@@ -114,7 +102,7 @@ class CentreonServicegroups
     {
         $servicesGroups = [];
 
-        if (!empty($serviceGroupsIds)) {
+        if (! empty($serviceGroupsIds)) {
             /* checking here that the array provided as parameter
              * is exclusively made of integers (servicegroup ids)
              */
@@ -130,8 +118,8 @@ class CentreonServicegroups
                 }
 
                 $stmt = $this->DB->prepare(
-                    'SELECT sg_id, sg_name FROM servicegroup ' .
-                    'WHERE sg_id IN ( ' . implode(',', array_keys($sgParams)) . ' )'
+                    'SELECT sg_id, sg_name FROM servicegroup '
+                    . 'WHERE sg_id IN ( ' . implode(',', array_keys($sgParams)) . ' )'
                 );
 
                 foreach ($sgParams as $index => $value) {
@@ -143,7 +131,7 @@ class CentreonServicegroups
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $servicesGroups[] = [
                         'id' => $row['sg_id'],
-                        'name' => $row['sg_name']
+                        'name' => $row['sg_name'],
                     ];
                 }
             }
@@ -152,9 +140,7 @@ class CentreonServicegroups
         return $servicesGroups;
     }
 
-
     /**
-     *
      * @param type $field
      * @return string
      */
@@ -229,7 +215,7 @@ class CentreonServicegroups
 
         global $centreon;
         $sgAcl = [];
-        # get list of authorized servicegroups
+        // get list of authorized servicegroups
         if (
             ! $centreon->user->access->admin
             && $centreon->user->access->hasAccessToAllServiceGroups === false
@@ -256,13 +242,13 @@ class CentreonServicegroups
         }
 
         $request = <<<SQL
-            SELECT
-                sg_id,
-                sg_name
-            FROM servicegroup
-            $whereCondition
-            ORDER BY sg_name
-        SQL;
+                SELECT
+                    sg_id,
+                    sg_name
+                FROM servicegroup
+                {$whereCondition}
+                ORDER BY sg_name
+            SQL;
 
         $statement = $this->DB->prepare($request);
 
@@ -272,7 +258,7 @@ class CentreonServicegroups
         $statement->execute();
 
         while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
-            # hide unauthorized servicegroups
+            // hide unauthorized servicegroups
             $hide = false;
             if (
                 ! $centreon->user->access->admin
@@ -284,18 +270,18 @@ class CentreonServicegroups
             $items[] = [
                 'id' => $record['sg_id'],
                 'text' => $record['sg_name'],
-                'hide' => $hide
+                'hide' => $hide,
             ];
         }
+
         return $items;
     }
 
     /**
      * @param string $sgName
      *
+     * @throws Throwable
      * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
-     *@throws Throwable
-     *
      */
     public function getServicesByServicegroupName(string $sgName): array
     {
@@ -322,15 +308,15 @@ class CentreonServicegroups
                 'sg_name' => $sgName,
             ];
         }
+
         return $serviceList;
     }
 
     /**
      * @param string $sgName
      *
+     * @throws Throwable
      * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
-     *@throws Throwable
-     *
      */
     public function getServicesThroughtServiceTemplatesByServicegroupName(string $sgName): array
     {
@@ -367,6 +353,7 @@ class CentreonServicegroups
                 'sg_name' => $sgName,
             ];
         }
+
         return $serviceList;
     }
 
@@ -378,7 +365,7 @@ class CentreonServicegroups
     {
         static $ids = [];
 
-        if (!isset($ids[$sgName])) {
+        if (! isset($ids[$sgName])) {
             $query = "SELECT sg_id FROM servicegroup WHERE sg_name = '" . $this->DB->escape($sgName) . "'";
             $res = $this->DB->query($query);
             if ($res->numRows()) {
@@ -386,6 +373,7 @@ class CentreonServicegroups
                 $ids[$sgName] = $row['sg_id'];
             }
         }
+
         return $ids[$sgName] ?? 0;
     }
 }

@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2014 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -42,16 +28,16 @@ use Centreon_Object_Service_Group;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonHost.class.php";
-require_once "centreonService.class.php";
-require_once "Centreon/Object/Downtime/Downtime.php";
-require_once "Centreon/Object/Host/Host.php";
-require_once "Centreon/Object/Host/Group.php";
-require_once "Centreon/Object/Service/Group.php";
-require_once "Centreon/Object/Relation/Downtime/Host.php";
-require_once "Centreon/Object/Relation/Downtime/Hostgroup.php";
-require_once "Centreon/Object/Relation/Downtime/Servicegroup.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonHost.class.php';
+require_once 'centreonService.class.php';
+require_once 'Centreon/Object/Downtime/Downtime.php';
+require_once 'Centreon/Object/Host/Host.php';
+require_once 'Centreon/Object/Host/Group.php';
+require_once 'Centreon/Object/Service/Group.php';
+require_once 'Centreon/Object/Relation/Downtime/Host.php';
+require_once 'Centreon/Object/Relation/Downtime/Hostgroup.php';
+require_once 'Centreon/Object/Relation/Downtime/Servicegroup.php';
 
 /**
  * Class
@@ -67,10 +53,13 @@ class CentreonDowntime extends CentreonObject
 
     /** @var int[] */
     protected $weekDays = ['monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6, 'sunday' => 7];
+
     /** @var CentreonService */
     protected $serviceObj;
+
     /** @var string[] */
     protected $availableCycles = ['first', 'second', 'third', 'fourth', 'last'];
+
     /** @var string[] */
     public static $aDepends = ['SERVICE', 'HOST'];
 
@@ -86,7 +75,7 @@ class CentreonDowntime extends CentreonObject
         parent::__construct($dependencyInjector);
         $this->serviceObj = new CentreonService($dependencyInjector);
         $this->object = new Centreon_Object_Downtime($dependencyInjector);
-        $this->action = "DOWNTIME";
+        $this->action = 'DOWNTIME';
         $this->insertParams = ['dt_name', 'dt_description'];
         $this->exportExcludedParams = array_merge(
             $this->insertParams,
@@ -109,10 +98,10 @@ class CentreonDowntime extends CentreonObject
         $filter = [];
         if (isset($parameters) && $parameters !== '') {
             $filter = explode(';', $parameters);
-            $filters = [$this->object->getUniqueLabelField() => "%" . $filter[0] . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $filter[0] . '%'];
         }
         $params = ['dt_id', 'dt_name', 'dt_description', 'dt_activate'];
-        $paramString = str_replace("dt_", "", implode($this->delim, $params));
+        $paramString = str_replace('dt_', '', implode($this->delim, $params));
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
 
         if (empty($elements)) {
@@ -151,24 +140,24 @@ class CentreonDowntime extends CentreonObject
                 if (isset($filter[1])) {
                     switch (strtolower($filter[1])) {
                         case 'host':
-                            $filterList = $this->listHosts($element["dt_id"]);
+                            $filterList = $this->listHosts($element['dt_id']);
                             break;
                         case 'hg':
-                            $filterList = $this->listHostGroups($element["dt_id"]);
+                            $filterList = $this->listHostGroups($element['dt_id']);
                             break;
                         case 'service':
-                            $filterList = $this->listServices($element["dt_id"]);
+                            $filterList = $this->listServices($element['dt_id']);
                             break;
                         case 'sg':
-                            $filterList = $this->listServiceGroups($element["dt_id"]);
+                            $filterList = $this->listServiceGroups($element['dt_id']);
                             break;
                         default:
                             throw new CentreonClapiException(self::UNKNOWNPARAMETER);
                     }
                 } else {
-                    $filterList = $this->listResources($element["dt_id"]);
+                    $filterList = $this->listResources($element['dt_id']);
                 }
-                if (!empty($filterList)) {
+                if (! empty($filterList)) {
                     echo implode($this->delim, $element) . ';' . $filterList . "\n";
                 }
             }
@@ -177,8 +166,8 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param null $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function initInsertParameters($parameters = null): void
     {
@@ -195,8 +184,8 @@ class CentreonDowntime extends CentreonObject
 
     /**
      * @param null $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters = null)
     {
@@ -207,15 +196,16 @@ class CentreonDowntime extends CentreonObject
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
-            if (!preg_match("/^dt_/", $params[1])) {
-                $params[1] = "dt_" . $params[1];
+            if (! preg_match('/^dt_/', $params[1])) {
+                $params[1] = 'dt_' . $params[1];
             }
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -259,10 +249,10 @@ class CentreonDowntime extends CentreonObject
         if (count($tmp) != 6) {
             throw new CentreonClapiException('Incorrect number of parameters');
         }
-        if (!is_numeric($tmp[3])) {
+        if (! is_numeric($tmp[3])) {
             throw new CentreonClapiException('Incorrect fixed parameters');
         }
-        if ($tmp[3] == 0 && !is_numeric($tmp[4])) {
+        if ($tmp[3] == 0 && ! is_numeric($tmp[4])) {
             throw new CentreonClapiException('Incorrect duration parameters: mandatory for flexible downtimes');
         }
 
@@ -275,7 +265,7 @@ class CentreonDowntime extends CentreonObject
         $daysOfWeek = explode(',', strtolower($tmp[5]));
         $days = [];
         foreach ($daysOfWeek as $dayOfWeek) {
-            if (!isset($this->weekDays[$dayOfWeek]) && !in_array($dayOfWeek, $this->weekDays)) {
+            if (! isset($this->weekDays[$dayOfWeek]) && ! in_array($dayOfWeek, $this->weekDays)) {
                 throw new CentreonClapiException(sprintf('Invalid period format %s', $dayOfWeek));
             }
             $days[] = is_numeric($dayOfWeek) ? $dayOfWeek : $this->weekDays[$dayOfWeek];
@@ -298,10 +288,10 @@ class CentreonDowntime extends CentreonObject
         if (count($tmp) != 6) {
             throw new CentreonClapiException('Incorrect number of parameters');
         }
-        if (!is_numeric($tmp[3])) {
+        if (! is_numeric($tmp[3])) {
             throw new CentreonClapiException('Incorrect fixed parameters');
         }
-        if (!is_numeric($tmp[4])) {
+        if (! is_numeric($tmp[4])) {
             throw new CentreonClapiException('Incorrect duration parameters');
         }
 
@@ -331,10 +321,10 @@ class CentreonDowntime extends CentreonObject
         if (count($tmp) != 7) {
             throw new CentreonClapiException('Incorrect number of parameters');
         }
-        if (!is_numeric($tmp[3])) {
+        if (! is_numeric($tmp[3])) {
             throw new CentreonClapiException('Incorrect fixed parameters');
         }
-        if (!is_numeric($tmp[4])) {
+        if (! is_numeric($tmp[4])) {
             throw new CentreonClapiException('Incorrect duration parameters');
         }
         $p = [];
@@ -344,7 +334,7 @@ class CentreonDowntime extends CentreonObject
         $p[':fixed'] = $tmp[3];
         $p[':duration'] = $tmp[4];
         $dayOfWeek = strtolower($tmp[5]);
-        if (!isset($this->weekDays[$dayOfWeek]) && !in_array($dayOfWeek, $this->weekDays)) {
+        if (! isset($this->weekDays[$dayOfWeek]) && ! in_array($dayOfWeek, $this->weekDays)) {
             throw new CentreonClapiException(sprintf('Invalid period format %s', $dayOfWeek));
         }
         $p[':day_of_week'] = is_numeric($dayOfWeek) ? $dayOfWeek : $this->weekDays[$dayOfWeek];
@@ -352,7 +342,7 @@ class CentreonDowntime extends CentreonObject
 
         $cycle = strtolower($tmp[6]);
 
-        if (!in_array($cycle, $this->availableCycles)) {
+        if (! in_array($cycle, $this->availableCycles)) {
             throw new CentreonClapiException(
                 sprintf('Invalid cycle format %s. Must be "first", "second, "third", "fourth" or "last"', $cycle)
             );
@@ -376,7 +366,7 @@ class CentreonDowntime extends CentreonObject
         if (count($tmp) != 2) {
             throw new CentreonClapiException('Incorrect number of parameters');
         }
-        $sql = "DELETE FROM downtime_period
+        $sql = 'DELETE FROM downtime_period
             WHERE dt_id = ?
             AND dtp_start_time = ?
             AND dtp_end_time = ?
@@ -384,12 +374,12 @@ class CentreonDowntime extends CentreonObject
             AND dtp_duration = ?
             AND dtp_day_of_week = ?
             AND dtp_day_of_month = ?
-            AND dtp_month_cycle = ?";
+            AND dtp_month_cycle = ?';
 
         $period = $this->getPeriods($this->getObjectId($tmp[0]), $tmp[1]);
         $periodParams = [];
         foreach ($period as $k => $v) {
-            if ($v == "") {
+            if ($v == '') {
                 $sql = str_replace("{$k} = ?", "{$k} IS NULL", $sql);
             } else {
                 $periodParams[] = $v;
@@ -401,106 +391,109 @@ class CentreonDowntime extends CentreonObject
     /**
      * @param $downtimeId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function listHosts($downtimeId)
     {
         // hosts
-        $sql = "SELECT host_name
+        $sql = 'SELECT host_name
             FROM downtime_host_relation dhr, host h
             WHERE h.host_id = dhr.host_host_id
-            AND dhr.dt_id = ?";
+            AND dhr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $hosts = [];
         foreach ($rows as $row) {
             $hosts[] = $row['host_name'];
         }
-        return implode("|", $hosts);
+
+        return implode('|', $hosts);
     }
 
     /**
      * @param $downtimeId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function listHostGroups($downtimeId)
     {
         // host groups
-        $sql = "SELECT hg_name
+        $sql = 'SELECT hg_name
             FROM downtime_hostgroup_relation dhr, hostgroup hg
             WHERE hg.hg_id = dhr.hg_hg_id
-            AND dhr.dt_id = ?";
+            AND dhr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $hostgroups = [];
         foreach ($rows as $row) {
             $hostgroups[] = $row['hg_name'];
         }
-        return implode("|", $hostgroups);
+
+        return implode('|', $hostgroups);
     }
 
     /**
      * @param $downtimeId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function listServices($downtimeId)
     {
         // services
-        $sql = "SELECT host_name, service_description
+        $sql = 'SELECT host_name, service_description
             FROM downtime_service_relation dsr, host h, service s
             WHERE h.host_id = dsr.host_host_id
             AND dsr.service_service_id = s.service_id
-            AND dsr.dt_id = ?";
+            AND dsr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $services = [];
         foreach ($rows as $row) {
             $services[] = $row['host_name'] . ',' . $row['service_description'];
         }
-        return implode("|", $services);
+
+        return implode('|', $services);
     }
 
     /**
      * @param $downtimeId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function listServiceGroups($downtimeId)
     {
         // service groups
-        $sql = "SELECT sg_name
+        $sql = 'SELECT sg_name
             FROM downtime_servicegroup_relation dsr, servicegroup sg
             WHERE sg.sg_id = dsr.sg_sg_id
-            AND dsr.dt_id = ?";
+            AND dsr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $servicegroups = [];
         foreach ($rows as $row) {
             $servicegroups[] = $row['sg_name'];
         }
-        return implode("|", $servicegroups);
-    }
 
+        return implode('|', $servicegroups);
+    }
 
     /**
      * @param $downtimeId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function listResources($downtimeId)
     {
         // hosts
-        $sql = "SELECT host_name
+        $sql = 'SELECT host_name
             FROM downtime_host_relation dhr, host h
             WHERE h.host_id = dhr.host_host_id
-            AND dhr.dt_id = ?";
+            AND dhr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $hosts = [];
@@ -509,10 +502,10 @@ class CentreonDowntime extends CentreonObject
         }
 
         // host groups
-        $sql = "SELECT hg_name
+        $sql = 'SELECT hg_name
             FROM downtime_hostgroup_relation dhr, hostgroup hg
             WHERE hg.hg_id = dhr.hg_hg_id
-            AND dhr.dt_id = ?";
+            AND dhr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $hostgroups = [];
@@ -521,11 +514,11 @@ class CentreonDowntime extends CentreonObject
         }
 
         // services
-        $sql = "SELECT host_name, service_description
+        $sql = 'SELECT host_name, service_description
             FROM downtime_service_relation dsr, host h, service s
             WHERE h.host_id = dsr.host_host_id
             AND dsr.service_service_id = s.service_id
-            AND dsr.dt_id = ?";
+            AND dsr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $services = [];
@@ -534,10 +527,10 @@ class CentreonDowntime extends CentreonObject
         }
 
         // service groups
-        $sql = "SELECT sg_name
+        $sql = 'SELECT sg_name
             FROM downtime_servicegroup_relation dsr, servicegroup sg
             WHERE sg.sg_id = dsr.sg_sg_id
-            AND dsr.dt_id = ?";
+            AND dsr.dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
         $servicegroups = [];
@@ -545,8 +538,8 @@ class CentreonDowntime extends CentreonObject
             $servicegroups[] = $row['sg_name'];
         }
 
-        return implode("|", $hosts) . $this->delim . implode("|", $hostgroups) . $this->delim .
-            implode("|", $services) . $this->delim . implode("|", $servicegroups);
+        return implode('|', $hosts) . $this->delim . implode('|', $hostgroups) . $this->delim
+            . implode('|', $services) . $this->delim . implode('|', $servicegroups);
     }
 
     /**
@@ -573,12 +566,12 @@ class CentreonDowntime extends CentreonObject
     {
         $tmp = explode($this->delim, $parameters);
         if (count($tmp) != 2) {
-            throw new CentreonClapiException("Missing parameters");
+            throw new CentreonClapiException('Missing parameters');
         }
 
-        /* delete all host relationships */
+        // delete all host relationships
         $downtimeId = $this->getObjectId($tmp[0]);
-        $this->db->query("DELETE FROM downtime_host_relation WHERE dt_id = ?", [$downtimeId]);
+        $this->db->query('DELETE FROM downtime_host_relation WHERE dt_id = ?', [$downtimeId]);
 
         $this->addhost($parameters);
     }
@@ -621,12 +614,12 @@ class CentreonDowntime extends CentreonObject
     {
         $tmp = explode($this->delim, $parameters);
         if (count($tmp) != 2) {
-            throw new CentreonClapiException("Missing parameters");
+            throw new CentreonClapiException('Missing parameters');
         }
 
-        /* delete all host group relationships */
+        // delete all host group relationships
         $downtimeId = $this->getObjectId($tmp[0]);
-        $this->db->query("DELETE FROM downtime_hostgroup_relation WHERE dt_id = ?", [$downtimeId]);
+        $this->db->query('DELETE FROM downtime_hostgroup_relation WHERE dt_id = ?', [$downtimeId]);
 
         $this->addhostgroup($parameters);
     }
@@ -660,15 +653,15 @@ class CentreonDowntime extends CentreonObject
             throw new CentreonClapiException('Missing parameters');
         }
 
-        /* init var */
+        // init var
         $downtimeId = $this->getObjectId($tmp[0]);
         if ($downtimeId == 0) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $tmp[0]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $tmp[0]);
         }
 
         $resources = explode('|', $tmp[1]);
 
-        /* retrieve object ids */
+        // retrieve object ids
         $objectIds = [];
         foreach ($resources as $resource) {
             $tmp = explode(',', $resource);
@@ -680,18 +673,17 @@ class CentreonDowntime extends CentreonObject
 
             $ids = $this->serviceObj->getHostAndServiceId($host, $service);
 
-            /* object does not exist */
-            if (!count($ids)) {
+            // object does not exist
+            if (! count($ids)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
 
-
-            /* checks whether or not relationship already exists */
-            $sql = "SELECT *
+            // checks whether or not relationship already exists
+            $sql = 'SELECT *
                 FROM downtime_service_relation
                 WHERE dt_id = ?
                 AND host_host_id = ?
-                AND service_service_id = ?";
+                AND service_service_id = ?';
             $stmt = $this->db->query($sql, [$downtimeId, $ids[0], $ids[1]]);
             if ($stmt->rowCount()) {
                 throw new CentreonClapiException(
@@ -706,8 +698,8 @@ class CentreonDowntime extends CentreonObject
             $objectIds[] = $ids;
         }
 
-        /* insert relationship */
-        $sql = "INSERT INTO downtime_service_relation (dt_id, host_host_id, service_service_id) VALUES (?, ?, ?)";
+        // insert relationship
+        $sql = 'INSERT INTO downtime_service_relation (dt_id, host_host_id, service_service_id) VALUES (?, ?, ?)';
 
         foreach ($objectIds as $id) {
             $this->db->query($sql, [$downtimeId, $id[0], $id[1]]);
@@ -724,12 +716,12 @@ class CentreonDowntime extends CentreonObject
     {
         $tmp = explode($this->delim, $parameters);
         if (count($tmp) != 2) {
-            throw new CentreonClapiException("Missing parameters");
+            throw new CentreonClapiException('Missing parameters');
         }
 
-        /* delete all service relationships */
+        // delete all service relationships
         $downtimeId = $this->getObjectId($tmp[0]);
-        $this->db->query("DELETE FROM downtime_service_relation WHERE dt_id = ?", [$downtimeId]);
+        $this->db->query('DELETE FROM downtime_service_relation WHERE dt_id = ?', [$downtimeId]);
 
         $this->addservice($parameters);
     }
@@ -747,11 +739,11 @@ class CentreonDowntime extends CentreonObject
             throw new CentreonClapiException('Missing parameters');
         }
 
-        /* init var */
+        // init var
         $downtimeId = $this->getObjectId($tmp[0]);
         $resources = explode('|', $tmp[1]);
 
-        /* retrieve object ids */
+        // retrieve object ids
         $objectIds = [];
         foreach ($resources as $resource) {
             $tmp = explode(',', $resource);
@@ -763,19 +755,19 @@ class CentreonDowntime extends CentreonObject
 
             $ids = $this->serviceObj->getHostAndServiceId($host, $service);
 
-            /* object does not exist */
-            if (!count($ids)) {
+            // object does not exist
+            if (! count($ids)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
 
-            /* checks whether or not relationship already exists */
-            $sql = "SELECT *
+            // checks whether or not relationship already exists
+            $sql = 'SELECT *
                 FROM downtime_service_relation
                 WHERE dt_id = ?
                 AND host_host_id = ?
-                AND service_service_id = ?";
+                AND service_service_id = ?';
             $stmt = $this->db->query($sql, [$downtimeId, $ids[0], $ids[1]]);
-            if (!$stmt->rowCount()) {
+            if (! $stmt->rowCount()) {
                 throw new CentreonClapiException(
                     sprintf(
                         'Relationship with %s / %s does not exist',
@@ -788,11 +780,11 @@ class CentreonDowntime extends CentreonObject
             $objectIds[] = $ids;
         }
 
-        /* delete relationship */
-        $sql = "DELETE FROM downtime_service_relation
+        // delete relationship
+        $sql = 'DELETE FROM downtime_service_relation
             WHERE dt_id = ?
             AND host_host_id = ?
-            AND service_service_id = ?";
+            AND service_service_id = ?';
         foreach ($objectIds as $id) {
             $this->db->query($sql, [$downtimeId, $id[0], $id[1]]);
         }
@@ -822,12 +814,12 @@ class CentreonDowntime extends CentreonObject
     {
         $tmp = explode($this->delim, $parameters);
         if (count($tmp) != 2) {
-            throw new CentreonClapiException("Missing parameters");
+            throw new CentreonClapiException('Missing parameters');
         }
 
-        /* delete all service group relationships */
+        // delete all service group relationships
         $downtimeId = $this->getObjectId($tmp[0]);
-        $this->db->query("DELETE FROM downtime_servicegroup_relation WHERE dt_id = ?", [$downtimeId]);
+        $this->db->query('DELETE FROM downtime_servicegroup_relation WHERE dt_id = ?', [$downtimeId]);
 
         $this->addservicegroup($parameters);
     }
@@ -851,13 +843,13 @@ class CentreonDowntime extends CentreonObject
      *
      * @param null $filterName
      *
-     * @return false|void
      * @throws PDOException
+     * @return false|void
      */
     public function export($filterName = null)
     {
         // generic add & setparam
-        if (!parent::export($filterName)) {
+        if (! parent::export($filterName)) {
             return false;
         }
 
@@ -878,15 +870,15 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportPeriods()
     {
-        $sql = "SELECT dt_name, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
+        $sql = 'SELECT dt_name, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
             dtp_day_of_week, dtp_day_of_month, dtp_month_cycle
             FROM downtime d, downtime_period p
-            WHERE d.dt_id = p.dt_id";
+            WHERE d.dt_id = p.dt_id';
         $stmt = $this->db->query($sql);
         $rows = $stmt->fetchAll();
         foreach ($rows as $row) {
@@ -894,10 +886,10 @@ class CentreonDowntime extends CentreonObject
             $extraData = [];
             $row['dtp_start_time'] = preg_replace('/:00$/', '', $row['dtp_start_time']);
             $row['dtp_end_time'] = preg_replace('/:00$/', '', $row['dtp_end_time']);
-            if (!$row['dtp_day_of_month'] && $row['dtp_month_cycle'] == 'all') { // weekly
+            if (! $row['dtp_day_of_month'] && $row['dtp_month_cycle'] == 'all') { // weekly
                 $periodType = 'ADDWEEKLYPERIOD';
                 $extraData[] = $row['dtp_day_of_week'];
-            } elseif (!$row['dtp_day_of_week'] && $row['dtp_month_cycle'] == 'none') { // monthly
+            } elseif (! $row['dtp_day_of_week'] && $row['dtp_month_cycle'] == 'none') { // monthly
                 $periodType = 'ADDMONTHLYPERIOD';
                 $extraData[] = $row['dtp_day_of_month'];
             } elseif ($row['dtp_month_cycle'] == 'last' || $row['dtp_month_cycle'] == 'first') { // specific
@@ -905,7 +897,7 @@ class CentreonDowntime extends CentreonObject
                 $extraData[] = $row['dtp_day_of_week'];
                 $extraData[] = $row['dtp_month_cycle'];
             }
-            if (!is_null($periodType)) {
+            if (! is_null($periodType)) {
                 echo
                     implode(
                         $this->delim,
@@ -919,34 +911,34 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportHostRel()
     {
-        $sql = "SELECT dt_name, host_name as object_name
+        $sql = 'SELECT dt_name, host_name as object_name
             FROM downtime d, host o, downtime_host_relation rel
             WHERE d.dt_id = rel.dt_id
-            AND rel.host_host_id = o.host_id";
+            AND rel.host_host_id = o.host_id';
         $this->exportGenericRel('ADDHOST', $sql);
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportHostgroupRel()
     {
-        $sql = "SELECT dt_name, hg_name as object_name
+        $sql = 'SELECT dt_name, hg_name as object_name
             FROM downtime d, hostgroup o, downtime_hostgroup_relation rel
             WHERE d.dt_id = rel.dt_id
-            AND rel.hg_hg_id = o.hg_id";
+            AND rel.hg_hg_id = o.hg_id';
         $this->exportGenericRel('ADDHOSTGROUP', $sql);
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportServiceRel()
     {
@@ -959,15 +951,15 @@ class CentreonDowntime extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportServicegroupRel()
     {
-        $sql = "SELECT dt_name, sg_name as object_name
+        $sql = 'SELECT dt_name, sg_name as object_name
             FROM downtime d, servicegroup o, downtime_servicegroup_relation rel
             WHERE d.dt_id = rel.dt_id
-            AND rel.sg_sg_id = o.sg_id";
+            AND rel.sg_sg_id = o.sg_id';
         $this->exportGenericRel('ADDSERVICEGROUP', $sql);
     }
 
@@ -1000,23 +992,23 @@ class CentreonDowntime extends CentreonObject
      */
     protected function insertPeriod($p)
     {
-        /* check time periods */
+        // check time periods
         $p[':start_time'] .= ':00';
         $p[':end_time'] .= ':00';
-        if (!preg_match('/^(\d+):(\d+):00$/', $p[':start_time'])) {
+        if (! preg_match('/^(\d+):(\d+):00$/', $p[':start_time'])) {
             throw new CentreonClapiException(sprintf('Invalid start time %s', $p[':start_time']));
         }
-        if (!preg_match('/^(\d+):(\d+):00$/', $p[':end_time'])) {
+        if (! preg_match('/^(\d+):(\d+):00$/', $p[':end_time'])) {
             throw new CentreonClapiException(sprintf('Invalid end time %s', $p[':end_time']));
         }
 
-        /* handle fixed / duration */
+        // handle fixed / duration
         if ($p[':fixed']) {
             $p[':duration'] = null;
         }
 
-        /* delete duplicate period */
-        $sql = "DELETE FROM downtime_period
+        // delete duplicate period
+        $sql = 'DELETE FROM downtime_period
             WHERE dt_id = :dt_id
             AND dtp_start_time = :start_time
             AND dtp_end_time = :end_time
@@ -1024,10 +1016,10 @@ class CentreonDowntime extends CentreonObject
             AND dtp_duration = :duration
             AND dtp_day_of_week = :day_of_week
             AND dtp_day_of_month = :day_of_month
-            AND dtp_month_cycle = :month_cycle";
+            AND dtp_month_cycle = :month_cycle';
         $delParams = [];
         foreach ($p as $k => $v) {
-            if ($v == "") {
+            if ($v == '') {
                 $sql = str_replace("= {$k}", 'IS NULL', $sql);
             } else {
                 $delParams[$k] = $v;
@@ -1035,11 +1027,11 @@ class CentreonDowntime extends CentreonObject
         }
         $this->db->query($sql, $delParams);
 
-        $sql = "INSERT INTO downtime_period
+        $sql = 'INSERT INTO downtime_period
             (dt_id, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
             dtp_day_of_week, dtp_day_of_month, dtp_month_cycle)
             VALUES (:dt_id, :start_time, :end_time, :fixed, :duration,
-                :day_of_week, :day_of_month, :month_cycle)";
+                :day_of_week, :day_of_month, :month_cycle)';
         $this->db->query($sql, $p);
     }
 
@@ -1049,20 +1041,20 @@ class CentreonDowntime extends CentreonObject
      * @param $downtimeId
      * @param null $position
      *
-     * @return mixed
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return mixed
      */
     protected function getPeriods($downtimeId, $position = null)
     {
-        $sql = "SELECT dt_id, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
+        $sql = 'SELECT dt_id, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
             dtp_day_of_week, dtp_day_of_month, dtp_month_cycle
             FROM downtime_period
-            WHERE dt_id = ?";
+            WHERE dt_id = ?';
         $stmt = $this->db->query($sql, [$downtimeId]);
         $rows = $stmt->fetchAll();
 
-        if (!is_null($position)) {
+        if (! is_null($position)) {
             $cur = 1;
             foreach ($rows as $row) {
                 if ($cur == $position) {
@@ -1070,6 +1062,7 @@ class CentreonDowntime extends CentreonObject
                 }
                 $cur++;
             }
+
             throw new CentreonClapiException(sprintf('Could not find position %s', $position));
         }
 
@@ -1094,21 +1087,21 @@ class CentreonDowntime extends CentreonObject
             throw new CentreonClapiException('Missing parameters');
         }
 
-        /* init var */
+        // init var
         $downtimeId = $this->getObjectId($tmp[0]);
         $resources = explode('|', $tmp[1]);
 
-        /* retrieve object ids */
+        // retrieve object ids
         $objectIds = [];
         foreach ($resources as $resource) {
             $ids = $object->getIdByParameter($object->getUniqueLabelField(), [$resource]);
 
-            /* object does not exist */
-            if (!count($ids)) {
+            // object does not exist
+            if (! count($ids)) {
                 throw new CentreonClapiException(sprintf('Unknown object named %s', $resource));
             }
 
-            /* checks whether or not relationship already exists */
+            // checks whether or not relationship already exists
             $sql = "SELECT * FROM {$relTable} WHERE dt_id = ? AND {$relField} = ?";
             $stmt = $this->db->query($sql, [$downtimeId, $ids[0]]);
             if ($stmt->rowCount()) {
@@ -1118,7 +1111,7 @@ class CentreonDowntime extends CentreonObject
             $objectIds[] = $ids[0];
         }
 
-        /* insert relationship */
+        // insert relationship
         $sql = "INSERT INTO {$relTable} (dt_id, {$relField}) VALUES (?, ?)";
         foreach ($objectIds as $id) {
             $this->db->query($sql, [$downtimeId, $id]);
@@ -1143,24 +1136,24 @@ class CentreonDowntime extends CentreonObject
             throw new CentreonClapiException('Missing parameters');
         }
 
-        /* init var */
+        // init var
         $downtimeId = $this->getObjectId($tmp[0]);
         $resources = explode('|', $tmp[1]);
 
-        /* retrieve object ids */
+        // retrieve object ids
         $objectIds = [];
         foreach ($resources as $resource) {
             $ids = $object->getIdByParameter($object->getUniqueLabelField(), [$resource]);
 
-            /* object does not exist */
-            if (!count($ids)) {
+            // object does not exist
+            if (! count($ids)) {
                 throw new CentreonClapiException(sprintf('Unknown object named %s', $resource));
             }
 
-            /* checks whether or not relationship already exists */
+            // checks whether or not relationship already exists
             $sql = "SELECT * FROM {$relTable} WHERE dt_id = ? AND {$relField} = ?";
             $stmt = $this->db->query($sql, [$downtimeId, $ids[0]]);
-            if (!$stmt->rowCount()) {
+            if (! $stmt->rowCount()) {
                 throw new CentreonClapiException(
                     sprintf(
                         'Cannot remove relationship with %s as the relationship does not exist',
@@ -1172,7 +1165,7 @@ class CentreonDowntime extends CentreonObject
             $objectIds[] = $ids[0];
         }
 
-        /* delete relationship */
+        // delete relationship
         $sql = "DELETE FROM {$relTable} WHERE dt_id = ? AND {$relField} = ?";
         foreach ($objectIds as $id) {
             $this->db->query($sql, [$downtimeId, $id]);

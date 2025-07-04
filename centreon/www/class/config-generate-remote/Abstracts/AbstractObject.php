@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use Exception;
 use ConfigGenerateRemote\Backend;
 use ConfigGenerateRemote\Manifest;
+use Exception;
 use Pimple\Container;
 
 /**
@@ -35,39 +36,52 @@ abstract class AbstractObject
 {
     /** @var array */
     public $attributes_array;
+
     /** @var array */
     public $attributes_hash;
+
     /** @var array */
     public $attributes_default;
+
     /** @var Backend|null */
     protected $backendInstance = null;
+
     /** @var string|null */
     protected $generateFilename = null;
+
     /** @var string|null */
     protected $table = null;
+
     /** @var array */
     protected $exported = [];
+
     /** @var resource|null */
     protected $fp = null;
+
     /** @var string */
     protected $type = 'infile';
+
     /** @var string */
     protected $subdir = 'configuration';
 
     /** @var array */
     protected $attributesWrite = [];
+
     /** @var array */
     protected $attributesArray = [];
 
     /** @var bool */
     protected $engine = true;
+
     /** @var bool */
     protected $broker = false;
+
     /** @var Container */
     protected $dependencyInjector;
 
     /** @var string|null */
     protected $fieldSeparatorInfile = null;
+
     /** @var string|null */
     protected $lineSeparatorInfile = null;
 
@@ -82,7 +96,7 @@ abstract class AbstractObject
         static $instances = [];
         $calledClass = static::class;
 
-        if (!isset($instances[$calledClass])) {
+        if (! isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
         }
 
@@ -117,7 +131,7 @@ abstract class AbstractObject
      */
     public function closeFile(): void
     {
-        if (!is_null($this->fp)) {
+        if (! is_null($this->fp)) {
             fclose($this->fp);
         }
         $this->fp = null;
@@ -128,8 +142,8 @@ abstract class AbstractObject
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {
@@ -145,13 +159,13 @@ abstract class AbstractObject
      *
      * @param string $dir
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function createFile(string $dir): void
     {
         $fullFile = $dir . '/' . $this->subdir . '/' . $this->generateFilename;
-        if (!($this->fp = @fopen($fullFile, 'a+'))) {
+        if (! ($this->fp = @fopen($fullFile, 'a+'))) {
             throw new Exception("Cannot open file (writing permission) '" . $fullFile . "'");
         }
 
@@ -214,8 +228,8 @@ abstract class AbstractObject
      * @param array $object
      * @param int|string|null $id
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function generateObjectInFile(array $object, $id = null): void
     {
@@ -223,7 +237,7 @@ abstract class AbstractObject
             $this->createFile($this->backendInstance->getPath());
         }
         $this->writeObject($object);
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             $this->exported[$id] = 1;
         }
     }
@@ -237,31 +251,31 @@ abstract class AbstractObject
     private function writeNoObject(array $object): void
     {
         foreach ($this->attributes_array as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && is_array($object[$attr])) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && is_array($object[$attr])) {
                 foreach ($object[$attr] as $v) {
-                    fwrite($this->fp, $this->toUTF8($attr . "=" . $v . "\n"));
+                    fwrite($this->fp, $this->toUTF8($attr . '=' . $v . "\n"));
                 }
             }
         }
 
         foreach ($this->attributes_hash as &$attr) {
-            if (!isset($object[$attr])) {
+            if (! isset($object[$attr])) {
                 continue;
             }
             foreach ($object[$attr] as $key => &$value) {
-                fwrite($this->fp, $this->toUTF8($key . "=" . $value . "\n"));
+                fwrite($this->fp, $this->toUTF8($key . '=' . $value . "\n"));
             }
         }
 
         foreach ($this->attributesWrite as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && $object[$attr] != '') {
-                fwrite($this->fp, $this->toUTF8($attr . "=" . $object[$attr] . "\n"));
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != '') {
+                fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
             }
         }
 
         foreach ($this->attributes_default as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && $object[$attr] != 2) {
-                fwrite($this->fp, $this->toUTF8($attr . "=" . $object[$attr] . "\n"));
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != 2) {
+                fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
             }
         }
     }
@@ -271,8 +285,8 @@ abstract class AbstractObject
      *
      * @param array $object
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function generateFile(array $object): void
     {
@@ -291,11 +305,7 @@ abstract class AbstractObject
      */
     public function checkGenerate($id): bool
     {
-        if (isset($this->exported[$id])) {
-            return true;
-        }
-
-        return false;
+        return (bool) (isset($this->exported[$id]));
     }
 
     /**

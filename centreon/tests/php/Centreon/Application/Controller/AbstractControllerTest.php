@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 beforeEach(function (): void {
-    $this->validateDataSentController = new class extends AbstractController {
+    $this->validateDataSentController = new class () extends AbstractController {
         // We expose a public method to make the protected function testable.
         public function testValidateDataSent(Request $request, string $jsonSchema): ?string
         {

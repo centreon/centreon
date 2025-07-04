@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class WidgetSource extends SourceAbstract
      * @param bool|null $installed
      * @param bool|null $updated
      *
-     * @return array<int,\CentreonModule\Infrastructure\Entity\Module>
+     * @return array<int,Module>
      */
     public function getList(?string $search = null, ?bool $installed = null, ?bool $updated = null): array
     {
@@ -127,7 +127,7 @@ class WidgetSource extends SourceAbstract
 
         $xml = simplexml_load_file($configFile);
 
-        $entity = new Module;
+        $entity = new Module();
         $entity->setId(basename(dirname($configFile)));
         $entity->setPath(dirname($configFile));
         $entity->setType(static::TYPE);

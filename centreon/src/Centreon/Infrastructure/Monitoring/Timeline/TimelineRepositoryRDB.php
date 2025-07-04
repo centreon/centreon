@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,25 +18,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\Timeline;
 
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Entity\EntityCreator;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Monitoring\ResourceStatus;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Entity\EntityCreator;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\ResourceStatus;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
 use Centreon\Domain\Monitoring\Timeline\TimelineContact;
+use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for timeline events.
@@ -45,19 +46,13 @@ use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface;
  */
 final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements TimelineRepositoryInterface
 {
-    /**
-     * @var AccessGroup[] List of access group used to filter the requests
-     */
+    /** @var AccessGroup[] List of access group used to filter the requests */
     private $accessGroups = [];
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     public function __construct(DatabaseConnection $pdo)
@@ -109,15 +104,15 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     /**
      * find timeline events
      *
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return TimelineEvent[]
      */
     private function findTimelineEvents(int $hostId, ?int $serviceId): array
     {
         $timelineEvents = [];
 
-        if (!$this->hasEnoughRightsToContinue()) {
+        if (! $this->hasEnoughRightsToContinue()) {
             return $timelineEvents;
         }
 
@@ -129,7 +124,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
 
         $collector = new StatementCollector();
 
-        $request = "
+        $request = '
             SELECT SQL_CALC_FOUND_ROWS
                 1 AS REALTIME,
                 log.id,
@@ -145,7 +140,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
                 log.status_severity_code,
                 log.tries
             FROM (
-        ";
+        ';
 
         $subRequests = [];
 
@@ -176,8 +171,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
          */
         $this->sqlRequestTranslator->addNormalizer(
             'date',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 public function normalize($valueToNormalize)
                 {
                     return (new \Datetime($valueToNormalize))->getTimestamp();
@@ -194,17 +188,17 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
         }
 
         // set ACL limitations
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             $request .= ($whereCondition === true) ? ' AND ' : ' WHERE ';
             $request .= $this->translateDbName(
-                "EXISTS (SELECT host_id FROM `:dbstg`.`centreon_acl` acl WHERE acl.host_id = :host_id"
+                'EXISTS (SELECT host_id FROM `:dbstg`.`centreon_acl` acl WHERE acl.host_id = :host_id'
             );
             $collector->addValue(':host_id', $hostId, \PDO::PARAM_INT);
             if ($serviceId !== null) {
-                $request .= " AND acl.service_id = :service_id";
+                $request .= ' AND acl.service_id = :service_id';
                 $collector->addValue(':service_id', $serviceId, \PDO::PARAM_INT);
             }
-            $request .= " AND acl.group_id IN (" . $this->accessGroupIdToString($this->accessGroups) . ")) ";
+            $request .= ' AND acl.group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ')) ';
         }
 
         // Sort
@@ -263,8 +257,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
      * get subquery to find status events
      *
      * @param StatementCollector $collector
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return string subquery
      */
     private function prepareQueryForTimelineStatusEvents(
@@ -341,8 +335,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
      * get subquery to find notification events
      *
      * @param StatementCollector $collector
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return string subquery
      */
     private function prepareQueryForTimelineNotificationEvents(
@@ -378,9 +372,9 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
             FROM `:dbstg`.`logs` l
             LEFT JOIN `:db`.contact AS `c` ON c.contact_name = l.notification_contact
             WHERE l.host_id = :host_id
-            AND (l.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR l.service_id IS NULL)') . "
+            AND (l.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR l.service_id IS NULL)') . '
             AND l.msg_type IN (2,3)
-        ");
+        ');
 
         $collector->addValue(':host_id', $hostId, \PDO::PARAM_INT);
         if ($serviceId === null) {
@@ -418,8 +412,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
      * get subquery to find downtime events
      *
      * @param StatementCollector $collector
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return string subquery
      */
     private function prepareQueryForTimelineDowntimeEvents(
@@ -443,9 +437,9 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
             FROM `:dbstg`.`downtimes` d
             LEFT JOIN `:db`.contact AS `c` ON c.contact_alias = d.author
             WHERE d.host_id = :host_id
-            AND (d.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR d.service_id IS NULL)') . "
-            AND d.actual_start_time < " . time() . "
-        ");
+            AND (d.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR d.service_id IS NULL)') . '
+            AND d.actual_start_time < ' . time() . '
+        ');
 
         $collector->addValue(':host_id', $hostId, \PDO::PARAM_INT);
         if ($serviceId !== null) {
@@ -459,8 +453,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
      * get subquery to find acknowledgement events
      *
      * @param StatementCollector $collector
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return string subquery
      */
     private function prepareQueryForTimelineAcknowledgementEvents(
@@ -484,8 +478,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
             FROM `:dbstg`.`acknowledgements` a
             LEFT JOIN `:db`.contact AS `c` ON c.contact_alias = a.author
             WHERE a.host_id = :host_id
-            AND (a.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR a.service_id IS NULL)') . "
-        ");
+            AND (a.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR a.service_id IS NULL)') . '
+        ');
 
         $collector->addValue(':host_id', $hostId, \PDO::PARAM_INT);
         if ($serviceId !== null) {
@@ -499,8 +493,8 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
      * get subquery to find acknowledgement events
      *
      * @param StatementCollector $collector
-     * @param integer $hostId
-     * @param integer|null $serviceId
+     * @param int $hostId
+     * @param int|null $serviceId
      * @return string subquery
      */
     private function prepareQueryForTimelineCommentEvents(
@@ -524,9 +518,9 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
             FROM `:dbstg`.`comments` c
             LEFT JOIN `:db`.contact AS `ct` ON ct.contact_alias = c.author
             WHERE c.host_id = :host_id
-            AND (c.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR c.service_id IS NULL)') . "
+            AND (c.service_id = " . ($serviceId !== null ? ':service_id)' : '0 OR c.service_id IS NULL)') . '
             AND source = 1 AND c.deletion_time IS NULL
-        ");
+        ');
 
         $collector->addValue(':host_id', $hostId, \PDO::PARAM_INT);
         if ($serviceId !== null) {
@@ -539,7 +533,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     /**
      * Check if contact is an admin
      *
-     * @return boolean
+     * @return bool
      */
     private function isAdmin(): bool
     {

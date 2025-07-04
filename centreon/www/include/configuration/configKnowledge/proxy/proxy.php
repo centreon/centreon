@@ -1,103 +1,83 @@
 <?php
+
 /*
- * Copyright 2005-2019 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
- * SVN : $URL: http://svn.centreon.com/trunk/centreon/www/include/monitoring/status/Services/service.php $
- * SVN : $Id: service.php 8549 2009-07-01 16:20:26Z shotamchay $
- *
  */
 
-ini_set("display_errors", "On");
+ini_set('display_errors', 'On');
 $centreon_path = realpath(__DIR__ . '/../../../../../');
 global $etc_centreon;
 
-require_once $centreon_path . "/config/centreon.config.php";
+require_once $centreon_path . '/config/centreon.config.php';
 
 set_include_path(
-    get_include_path() .
-    PATH_SEPARATOR . $centreon_path . "www/class/centreon-knowledge/" .
-    PATH_SEPARATOR . $centreon_path . "www/"
+    get_include_path()
+    . PATH_SEPARATOR . $centreon_path . 'www/class/centreon-knowledge/'
+    . PATH_SEPARATOR . $centreon_path . 'www/'
 );
 
-require_once "include/common/common-Func.php";
-require_once "class/centreonLog.class.php";
+require_once 'include/common/common-Func.php';
+require_once 'class/centreonLog.class.php';
 require_once $centreon_path . '/bootstrap.php';
-require_once "class/centreon-knowledge/procedures.class.php";
-require_once "class/centreon-knowledge/ProceduresProxy.class.php";
+require_once 'class/centreon-knowledge/procedures.class.php';
+require_once 'class/centreon-knowledge/ProceduresProxy.class.php';
 
-$modules_path = $centreon_path . "www/include/configuration/configKnowledge/";
+$modules_path = $centreon_path . 'www/include/configuration/configKnowledge/';
 require_once $modules_path . 'functions.php';
 
-/*
- * DB connexion
- */
+// DB connexion
 $pearDB = $dependencyInjector['configuration_db'];
 
 try {
     $wikiConf = getWikiConfig($pearDB);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     echo $e->getMessage();
+
     exit();
 }
 
 $wikiURL = $wikiConf['kb_wiki_url'];
 $proxy = new ProceduresProxy($pearDB);
 
-/*
- * Check if user want host or service procedures
- */
+// Check if user want host or service procedures
 $url = null;
 
-if (isset($_GET["host_name"])) {
-    $hostName = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['host_name']);
+if (isset($_GET['host_name'])) {
+    $hostName = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['host_name']);
 }
-if (isset($_GET["service_description"])) {
-    $serviceDescription = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['service_description']);
+if (isset($_GET['service_description'])) {
+    $serviceDescription = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['service_description']);
 }
 
-if (!empty($hostName) && !empty($serviceDescription)) {
+if (! empty($hostName) && ! empty($serviceDescription)) {
     $url = $proxy->getServiceUrl($hostName, $serviceDescription);
-} elseif (!empty($hostName)) {
+} elseif (! empty($hostName)) {
     $url = $proxy->getHostUrl($hostName);
 }
 
-if (!empty($url)) {
-    header("Location: " . $url);
-} elseif (!empty($hostName) && !empty($serviceDescription)) {
-    header("Location: $wikiURL/?title=Service_:_" . $hostName . "_/_" . $serviceDescription);
-} elseif (!empty($hostname)) {
-    header("Location: $wikiURL/?title=Host_:_" . $hostName);
+if (! empty($url)) {
+    header('Location: ' . $url);
+} elseif (! empty($hostName) && ! empty($serviceDescription)) {
+    header("Location: {$wikiURL}/?title=Service_:_" . $hostName . '_/_' . $serviceDescription);
+} elseif (! empty($hostname)) {
+    header("Location: {$wikiURL}/?title=Host_:_" . $hostName);
 } else {
-    header("Location: " . $wikiURL);
+    header('Location: ' . $wikiURL);
 }
 
 exit();

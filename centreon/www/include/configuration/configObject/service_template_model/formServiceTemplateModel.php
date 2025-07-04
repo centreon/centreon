@@ -67,7 +67,7 @@ $datasetRoutes = [
     'default_traps' => BASE_ROUTE . '?object=centreon_configuration_trap&action=defaultValues&target=service&field=service_traps&id=' . $service_id,
     'default_graph_templates' => BASE_ROUTE . '?object=centreon_configuration_graphtemplate&action=defaultValues&target=service&field=graph_id&id=' . $service_id,
     'default_service_categories' => BASE_ROUTE . '?object=centreon_configuration_servicecategory&action=defaultValues&target=service&field=service_categories&id=' . $service_id,
-    'default_host_templates' => BASE_ROUTE . '?object=centreon_configuration_hosttemplate&action=defaultValues&target=servicetemplates&field=service_hPars&id=' . $service_id
+    'default_host_templates' => BASE_ROUTE . '?object=centreon_configuration_hosttemplate&action=defaultValues&target=servicetemplates&field=service_hPars&id=' . $service_id,
 ];
 
 $attributes = [
@@ -197,7 +197,7 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
             ON esi.service_service_id = srv.service_id
         WHERE srv.service_id = :service_id  LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     // Set base value
     $service_list = $statement->fetch() ?: [];
@@ -226,7 +226,7 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
         WHERE scr.service_service_id = :service_id AND sc.level IS NOT NULL
         ORDER BY sc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -371,9 +371,9 @@ if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
 }
 
 $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
 ];
 $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
 if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
@@ -382,8 +382,8 @@ if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
 
 $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
 $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
 );
 $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
 
@@ -716,7 +716,7 @@ if (! $isCloudPlatform) {
 
     $form->addElement('select2', 'graph_id', _('Graph Template'), [], $attributes['graph_templates']);
 } else {
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'classification', _('Classification'));
 }
 
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsTextLong);
@@ -759,7 +759,7 @@ $cloneSetMacro = [
         'macroFrom[#index#]',
         'direct',
         ['id' => 'macroFrom_#index#']
-    )
+    ),
 ];
 
 /**
@@ -786,7 +786,6 @@ if ($o === SERVICE_TEMPLATE_ADD) {
 
 $form->addElement('header', 'links', _('Relations'));
 
-
 if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $mc_mod_Pars = [
         $form->createElement('radio', 'mc_mod_Pars', null, _('Incremental'), '0'),
@@ -808,7 +807,6 @@ if ($o === SERVICE_TEMPLATE_ADD) {
 }
 
 $form->addElement('header', 'treatment', _('Data Processing'));
-
 
 // Sort 4 - Extended Infos
 if ($o === SERVICE_TEMPLATE_ADD) {

@@ -36,8 +36,6 @@ use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\DeleteToken\DeleteToken;
 use Core\Security\Token\Domain\Model\ApiToken;
-use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -136,10 +134,10 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-   $this->readTokenRepository
-       ->expects($this->once())
-       ->method('findByNameAndUserId')
-       ->willReturn($this->token);
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->willReturn($this->token);
 
     $this->user
         ->expects($this->once())

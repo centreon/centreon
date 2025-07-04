@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -445,13 +445,14 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             'logout_from',
         ];
 
+        $emptyParameters = [];
         foreach ($mandatoryFields as $key) {
             if (! array_key_exists($key, $json)) {
                 $emptyParameters[] = $key;
             }
         }
 
-        if (! empty($emptyParameters)) {
+        if ($emptyParameters !== []) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
@@ -495,7 +496,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,8 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
     private const VERTICAL_INHERITANCE_MODE = 1;
 
     /** @var AccessGroup[] */
@@ -110,8 +111,7 @@ final class PartialUpdateHost
         PartialUpdateHostRequest $request,
         PresenterInterface $presenter,
         int $hostId
-    ): void
-    {
+    ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
                 $this->error(
@@ -186,7 +186,7 @@ final class PartialUpdateHost
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             if ($previousMonitoringServer !== $host->getMonitoringServerId()) {
                 // Monitoring server has changed, notify previous monitoring server of configuration changes.
-                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer);
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer);
             }
 
             $this->dataStorageEngine->commitTransaction();
@@ -213,160 +213,160 @@ final class PartialUpdateHost
             ? (int) $inheritanceMode[0]->getValue()
             : null;
 
-        if (! $dto->name instanceOf NoValue) {
+        if (! $dto->name instanceof NoValue) {
             $this->validation->assertIsValidName($dto->name, $host);
             $host->setName($dto->name);
         }
 
-        if (! $dto->address instanceOf NoValue) {
+        if (! $dto->address instanceof NoValue) {
             $host->setAddress($dto->address);
         }
 
-        if (! $dto->monitoringServerId instanceOf NoValue) {
+        if (! $dto->monitoringServerId instanceof NoValue) {
             $this->validation->assertIsValidMonitoringServer($dto->monitoringServerId);
             $host->setMonitoringServerId($dto->monitoringServerId);
         }
 
-        if (! $dto->alias instanceOf NoValue) {
+        if (! $dto->alias instanceof NoValue) {
             $host->setAlias($dto->alias ?? '');
         }
 
-        if (! $dto->snmpCommunity instanceOf NoValue) {
+        if (! $dto->snmpCommunity instanceof NoValue) {
             $host->setSnmpCommunity($dto->snmpCommunity ?? '');
         }
 
-        if (! $dto->noteUrl instanceOf NoValue) {
+        if (! $dto->noteUrl instanceof NoValue) {
             $host->setNoteUrl($dto->noteUrl ?? '');
         }
 
-        if (! $dto->note instanceOf NoValue) {
+        if (! $dto->note instanceof NoValue) {
             $host->setNote($dto->note ?? '');
         }
 
-        if (! $dto->actionUrl instanceOf NoValue) {
+        if (! $dto->actionUrl instanceof NoValue) {
             $host->setActionUrl($dto->actionUrl ?? '');
         }
 
-        if (! $dto->iconId instanceOf NoValue) {
+        if (! $dto->iconId instanceof NoValue) {
             $this->validation->assertIsValidIcon($dto->iconId);
             $host->setIconId($dto->iconId);
         }
 
-        if (! $dto->iconAlternative instanceOf NoValue) {
+        if (! $dto->iconAlternative instanceof NoValue) {
             $host->setIconAlternative($dto->iconAlternative ?? '');
         }
 
-        if (! $dto->comment instanceOf NoValue) {
+        if (! $dto->comment instanceof NoValue) {
             $host->setComment($dto->comment ?? '');
         }
 
-        if (! $dto->checkCommandArgs instanceOf NoValue) {
+        if (! $dto->checkCommandArgs instanceof NoValue) {
             $host->setCheckCommandArgs($dto->checkCommandArgs);
         }
 
-        if (! $dto->eventHandlerCommandArgs instanceOf NoValue) {
+        if (! $dto->eventHandlerCommandArgs instanceof NoValue) {
             $host->setEventHandlerCommandArgs($dto->eventHandlerCommandArgs);
         }
 
-        if (! $dto->timezoneId instanceOf NoValue) {
+        if (! $dto->timezoneId instanceof NoValue) {
             $this->validation->assertIsValidTimezone($dto->timezoneId);
             $host->setTimezoneId($dto->timezoneId);
         }
 
-        if (! $dto->severityId instanceOf NoValue) {
+        if (! $dto->severityId instanceof NoValue) {
             $this->validation->assertIsValidSeverity($dto->severityId);
             $host->setSeverityId($dto->severityId);
         }
 
-        if (! $dto->checkCommandId instanceOf NoValue) {
+        if (! $dto->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
             $host->setCheckCommandId($dto->checkCommandId);
         }
 
-        if (! $dto->checkTimeperiodId instanceOf NoValue) {
+        if (! $dto->checkTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->checkTimeperiodId, 'checkTimeperiodId');
             $host->setCheckTimeperiodId($dto->checkTimeperiodId);
         }
 
-        if (! $dto->notificationTimeperiodId instanceOf NoValue) {
+        if (! $dto->notificationTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->notificationTimeperiodId, 'notificationTimeperiodId');
             $host->setNotificationTimeperiodId($dto->notificationTimeperiodId);
         }
 
-        if (! $dto->eventHandlerCommandId instanceOf NoValue) {
+        if (! $dto->eventHandlerCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->eventHandlerCommandId, null, 'eventHandlerCommandId');
             $host->setEventHandlerCommandId($dto->eventHandlerCommandId);
         }
 
-        if (! $dto->maxCheckAttempts instanceOf NoValue) {
+        if (! $dto->maxCheckAttempts instanceof NoValue) {
             $host->setMaxCheckAttempts($dto->maxCheckAttempts);
         }
 
-        if (! $dto->normalCheckInterval instanceOf NoValue) {
+        if (! $dto->normalCheckInterval instanceof NoValue) {
             $host->setNormalCheckInterval($dto->normalCheckInterval);
         }
 
-        if (! $dto->retryCheckInterval instanceOf NoValue) {
+        if (! $dto->retryCheckInterval instanceof NoValue) {
             $host->setRetryCheckInterval($dto->retryCheckInterval);
         }
 
-        if (! $dto->notificationInterval instanceOf NoValue) {
+        if (! $dto->notificationInterval instanceof NoValue) {
             $host->setNotificationInterval($dto->notificationInterval);
         }
 
-        if (! $dto->firstNotificationDelay instanceOf NoValue) {
+        if (! $dto->firstNotificationDelay instanceof NoValue) {
             $host->setFirstNotificationDelay($dto->firstNotificationDelay);
         }
 
-        if (! $dto->recoveryNotificationDelay instanceOf NoValue) {
+        if (! $dto->recoveryNotificationDelay instanceof NoValue) {
             $host->setRecoveryNotificationDelay($dto->recoveryNotificationDelay);
         }
 
-        if (! $dto->acknowledgementTimeout instanceOf NoValue) {
+        if (! $dto->acknowledgementTimeout instanceof NoValue) {
             $host->setAcknowledgementTimeout($dto->acknowledgementTimeout);
         }
 
-        if (! $dto->freshnessThreshold instanceOf NoValue) {
+        if (! $dto->freshnessThreshold instanceof NoValue) {
             $host->setFreshnessThreshold($dto->freshnessThreshold);
         }
 
-        if (! $dto->lowFlapThreshold instanceOf NoValue) {
+        if (! $dto->lowFlapThreshold instanceof NoValue) {
             $host->setLowFlapThreshold($dto->lowFlapThreshold);
         }
 
-        if (! $dto->highFlapThreshold instanceOf NoValue) {
+        if (! $dto->highFlapThreshold instanceof NoValue) {
             $host->setHighFlapThreshold($dto->highFlapThreshold);
         }
 
-        if (! $dto->isActivated instanceOf NoValue) {
+        if (! $dto->isActivated instanceof NoValue) {
             $host->setIsActivated($dto->isActivated);
         }
 
-        if (! $dto->activeCheckEnabled instanceOf NoValue) {
+        if (! $dto->activeCheckEnabled instanceof NoValue) {
             $host->setActiveCheckEnabled(YesNoDefaultConverter::fromScalar($dto->activeCheckEnabled));
         }
 
-        if (! $dto->passiveCheckEnabled instanceOf NoValue) {
+        if (! $dto->passiveCheckEnabled instanceof NoValue) {
             $host->setPassiveCheckEnabled(YesNoDefaultConverter::fromScalar($dto->passiveCheckEnabled));
         }
 
-        if (! $dto->notificationEnabled instanceOf NoValue) {
+        if (! $dto->notificationEnabled instanceof NoValue) {
             $host->setNotificationEnabled(YesNoDefaultConverter::fromScalar($dto->notificationEnabled));
         }
 
-        if (! $dto->freshnessChecked instanceOf NoValue) {
+        if (! $dto->freshnessChecked instanceof NoValue) {
             $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
         }
 
-        if (! $dto->flapDetectionEnabled instanceOf NoValue) {
+        if (! $dto->flapDetectionEnabled instanceof NoValue) {
             $host->setFlapDetectionEnabled(YesNoDefaultConverter::fromScalar($dto->flapDetectionEnabled));
         }
 
-        if (! $dto->eventHandlerEnabled instanceOf NoValue) {
+        if (! $dto->eventHandlerEnabled instanceof NoValue) {
             $host->setEventHandlerEnabled(YesNoDefaultConverter::fromScalar($dto->eventHandlerEnabled));
         }
 
-        if (! $dto->snmpVersion instanceOf NoValue) {
+        if (! $dto->snmpVersion instanceof NoValue) {
             $host->setSnmpVersion(
                 $dto->snmpVersion === '' || $dto->snmpVersion === null
                     ? null
@@ -374,7 +374,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->geoCoordinates instanceOf NoValue) {
+        if (! $dto->geoCoordinates instanceof NoValue) {
             $host->setGeoCoordinates(
                 $dto->geoCoordinates === '' || $dto->geoCoordinates === null
                     ? null
@@ -382,7 +382,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->notificationOptions instanceOf NoValue) {
+        if (! $dto->notificationOptions instanceof NoValue) {
             $host->setNotificationOptions(
                 $dto->notificationOptions === null
                     ? []
@@ -390,13 +390,13 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->addInheritedContactGroup instanceOf NoValue) {
+        if (! $dto->addInheritedContactGroup instanceof NoValue) {
             $host->setAddInheritedContactGroup(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContactGroup : false
             );
         }
 
-        if (! $dto->addInheritedContact instanceOf NoValue) {
+        if (! $dto->addInheritedContact instanceof NoValue) {
             $host->setAddInheritedContact(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContact : false
             );
@@ -404,7 +404,7 @@ final class PartialUpdateHost
 
         if (
             $this->writeVaultRepository->isVaultConfigured()
-            && ! $dto->snmpCommunity instanceOf NoValue
+            && ! $dto->snmpCommunity instanceof NoValue
             && ! $this->isAVaultPath((string) $dto->snmpCommunity)
         ) {
             $vaultPaths = $this->writeVaultRepository->upsert(
@@ -431,7 +431,7 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'categories' => $dto->categories]
         );
 
-        if ($dto->categories instanceOf NoValue) {
+        if ($dto->categories instanceof NoValue) {
             $this->info('Categories not provided, nothing to update');
 
             return;
@@ -450,7 +450,7 @@ final class PartialUpdateHost
         }
 
         $originalCategoryIds = array_map(
-            static fn(HostCategory $category): int => $category->getId(),
+            static fn (HostCategory $category): int => $category->getId(),
             $originalCategories
         );
 
@@ -476,7 +476,7 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'groups' => $dto->groups]
         );
 
-        if ($dto->groups instanceOf NoValue) {
+        if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
             return;
@@ -495,7 +495,7 @@ final class PartialUpdateHost
         }
 
         $originalGroupIds = array_map(
-            static fn(HostGroup $group): int => $group->getId(),
+            static fn (HostGroup $group): int => $group->getId(),
             $originalGroups
         );
 
@@ -520,7 +520,7 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'template_ids' => $dto->templates]
         );
 
-        if ($dto->templates instanceOf NoValue) {
+        if ($dto->templates instanceof NoValue) {
             $this->info('Parent templates not provided, nothing to update');
 
             return;
@@ -554,7 +554,7 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'macros' => $dto->macros]
         );
 
-        if ($dto->macros instanceOf NoValue) {
+        if ($dto->macros instanceof NoValue) {
             $this->info('Macros not provided, nothing to update');
 
             return;
@@ -724,7 +724,7 @@ final class PartialUpdateHost
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

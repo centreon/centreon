@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +47,7 @@ afterEach(function (): void {
     }
 });
 
-it('test log a native exception', function () {
+it('test log a native exception', function (): void {
     $this->exceptionLogger->log(new \LogicException('logic_exception_message'));
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -55,7 +56,7 @@ it('test log a native exception', function () {
     );
 });
 
-it('test log an exception that extends BusinessLogicException without context and previous', function () {
+it('test log an exception that extends BusinessLogicException without context and previous', function (): void {
     $this->exceptionLogger->log(new RepositoryException('repository_exception_message'));
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -64,7 +65,7 @@ it('test log an exception that extends BusinessLogicException without context an
     );
 });
 
-it('test log an exception that extends BusinessLogicException with context without previous', function () {
+it('test log an exception that extends BusinessLogicException with context without previous', function (): void {
     $this->exceptionLogger->log(new RepositoryException('repository_exception_message', ['contact' => 1]));
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -75,7 +76,7 @@ it('test log an exception that extends BusinessLogicException with context witho
 
 it(
     'test log an exception that extends BusinessLogicException with context with a previous (native exception)',
-    function () {
+    function (): void {
         $this->exceptionLogger->log(
             new RepositoryException(
                 'repository_exception_message',
@@ -91,10 +92,9 @@ it(
     }
 );
 
-
 it(
     'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException',
-    function () {
+    function (): void {
         $this->exceptionLogger->log(
             new RepositoryException(
                 'repository_exception_message',
@@ -112,7 +112,7 @@ it(
 
 it(
     'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context',
-    function () {
+    function (): void {
         $this->exceptionLogger->log(
             new RepositoryException(
                 'repository_exception_message',
@@ -130,7 +130,7 @@ it(
 
 it(
     'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context and a previous exception',
-    function () {
+    function (): void {
         function testExceptionLogger(int $int, string $string): void
         {
             throw new RepositoryException(
@@ -153,5 +153,5 @@ it(
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain('test_exception_logger.CRITICAL: repository_exception_message')
             ->and($contentLog)->toContain('{"custom":{"name":"John Doe","age":42,"from_exception":[{"contact":1},{"contact":2}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 19) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 16) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 13) . ',"code":0,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}],"traces":[{"file":"' . __FILE__ . '","line":' . (__LINE__ - 8) . ',"function":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}');
-        }
+    }
 );

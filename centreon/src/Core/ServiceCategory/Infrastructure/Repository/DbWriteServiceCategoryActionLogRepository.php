@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,8 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         } catch (\Throwable $ex) {
             $this->error(
                 'Error while deleting a service category',
-                ['serviceCategoryId' => $serviceCategoryId, 'trace' => (string) $ex]);
+                ['serviceCategoryId' => $serviceCategoryId, 'trace' => (string) $ex]
+            );
 
             throw $ex;
         }
@@ -107,7 +108,8 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         } catch (\Throwable $ex) {
             $this->error(
                 'Error while adding a service category',
-                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]);
+                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]
+            );
 
             throw $ex;
         }

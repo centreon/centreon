@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -45,43 +31,55 @@ class Contactgroup extends AbstractObject
 {
     /** @var int */
     protected $use_cache = 1;
+
     /** @var int */
     private $done_cache = 0;
+
     /** @var array */
     private $cg_service_linked_cache = [];
+
     /** @var array */
     protected $cg_cache = [];
+
     /** @var null */
     protected $cg = null;
+
     /** @var string */
     protected $generate_filename = 'contactgroups.cfg';
+
     /** @var string */
     protected string $object_name = 'contactgroup';
+
     /** @var string */
     protected $attributes_select = '
         cg_id,
         cg_name as contactgroup_name,
         cg_alias as alias
     ';
+
     /** @var string[] */
     protected $attributes_write = ['contactgroup_name', 'alias'];
+
     /** @var string[] */
     protected $attributes_array = ['members'];
+
     /** @var null */
     protected $stmt_cg = null;
+
     /** @var null */
     protected $stmt_contact = null;
+
     /** @var null */
     protected $stmt_cg_service = null;
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getCgCache()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
-                    $this->attributes_select
+                    {$this->attributes_select}
                 FROM contactgroup
                 WHERE cg_activate = '1'
         ");
@@ -114,7 +112,7 @@ class Contactgroup extends AbstractObject
      * @see Contactgroup::getCgCache()
      * @see Contactgroup::getCgForServiceCache()
      */
-    protected function buildCache() : void
+    protected function buildCache(): void
     {
         if ($this->done_cache == 1) {
             return;
@@ -128,10 +126,10 @@ class Contactgroup extends AbstractObject
     /**
      * @param int $serviceId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
-    public function getCgForService(int $serviceId) : array
+    public function getCgForService(int $serviceId): array
     {
         $this->buildCache();
 
@@ -156,14 +154,15 @@ class Contactgroup extends AbstractObject
         $this->stmt_cg_service->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
         $this->stmt_cg_service->execute();
         $this->cg_service_linked_cache[$serviceId] = $this->stmt_cg_service->fetchAll(PDO::FETCH_COLUMN);
+
         return $this->cg_service_linked_cache[$serviceId];
     }
 
     /**
      * @param int $cgId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getCgFromId(int $cgId): array
     {
@@ -178,6 +177,7 @@ class Contactgroup extends AbstractObject
         $this->stmt_cg->execute();
         $results = $this->stmt_cg->fetchAll(PDO::FETCH_ASSOC);
         $this->cg[$cgId] = array_pop($results);
+
         return $this->cg[$cgId];
     }
 
@@ -191,13 +191,13 @@ class Contactgroup extends AbstractObject
      */
     public function getContactFromCgId(int $cgId): void
     {
-        if (!isset($this->cg[$cgId]['members_cache'])) {
+        if (! isset($this->cg[$cgId]['members_cache'])) {
             if (is_null($this->stmt_contact)) {
-                $this->stmt_contact = $this->backend_instance->db->prepare("
+                $this->stmt_contact = $this->backend_instance->db->prepare('
                     SELECT contact_contact_id
                     FROM contactgroup_contact_relation
                     WHERE contactgroup_cg_id = :cg_id
-                ");
+                ');
             }
             $this->stmt_contact->bindParam(':cg_id', $cgId, PDO::PARAM_INT);
             $this->stmt_contact->execute();
@@ -209,7 +209,7 @@ class Contactgroup extends AbstractObject
         foreach ($this->cg[$cgId]['members_cache'] as $contact_id) {
             $member = $contact->generateFromContactId($contact_id);
             // Can have contact template in a contact group ???!!
-            if (!is_null($member) && !$contact->isTemplate($contact_id)) {
+            if (! is_null($member) && ! $contact->isTemplate($contact_id)) {
                 $this->cg[$cgId]['members'][] = $member;
             }
         }
@@ -218,11 +218,11 @@ class Contactgroup extends AbstractObject
     /**
      * @param int $cgId
      *
-     * @return string|null contactgroup_name
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return string|null contactgroup_name
      */
     public function generateFromCgId(int $cgId): ?string
     {
@@ -233,11 +233,11 @@ class Contactgroup extends AbstractObject
         $this->buildCache();
 
         if ($this->use_cache == 1) {
-            if (!isset($this->cg_cache[$cgId])) {
+            if (! isset($this->cg_cache[$cgId])) {
                 return null;
             }
             $this->cg[$cgId] = &$this->cg_cache[$cgId];
-        } elseif (!isset($this->cg[$cgId])) {
+        } elseif (! isset($this->cg[$cgId])) {
             $this->getCgFromId($cgId);
         }
 
@@ -251,6 +251,7 @@ class Contactgroup extends AbstractObject
         $this->getContactFromCgId($cgId);
 
         $this->generateObjectInFile($this->cg[$cgId], $cgId);
+
         return $this->cg[$cgId]['contactgroup_name'];
     }
 }

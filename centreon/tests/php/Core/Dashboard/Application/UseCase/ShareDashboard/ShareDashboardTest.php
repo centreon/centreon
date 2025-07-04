@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,7 +314,8 @@ it('should present an Invalid Argument Response when the contact groups have ins
         ->toBe(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2])->getMessage());
 });
 
-it('should present an Invalid Argument Response when the user is not admin '
+it(
+    'should present an Invalid Argument Response when the user is not admin '
     . 'and the request contact groups are not members of his contact groups',
     function (): void {
         $request = new ShareDashboardRequest();
@@ -345,9 +346,10 @@ it('should present an Invalid Argument Response when the user is not admin '
         expect($response)->toBeInstanceOf(InvalidArgumentResponse::class)
             ->and($response->getMessage())
             ->toBe(DashboardException::contactGroupIsNotInUserContactGroups([2])->getMessage());
-});
+    }
+);
 
-it ('should present an Error Response when an unhandled error occurs', function (): void {
+it('should present an Error Response when an unhandled error occurs', function (): void {
     $request = new ShareDashboardRequest();
     $request->dashboardId = 1;
     $request->contactGroups = [

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,8 @@ use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
  * @class ExportResourcesRequest
  * @package Core\Resources\Application\UseCase\ExportResources
  */
-final readonly class ExportResourcesRequest {
+final readonly class ExportResourcesRequest
+{
     /**
      * ExportResourcesRequest constructor
      *
@@ -53,8 +54,7 @@ final readonly class ExportResourcesRequest {
         public StringCollection $columns,
         public int $contactId,
         public bool $isAdmin
-    )
-    {
+    ) {
         $this->validateRequest();
     }
 

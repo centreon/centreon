@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Psr\Log\LogLevel;
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../config/centreon.config.php');
 if ($configFile !== false) {
     require_once $configFile;
 }
@@ -42,13 +42,13 @@ require_once __DIR__ . '/centreonLog.class.php';
  * Class
  *
  * @class       CentreonDB
+ * @extends     \PDO
  * @description used to manage DB connection
  */
 class CentreonDB extends PDO implements ConnectionInterface
 {
     use ConnectionTrait;
-
-    public const DRIVER_PDO_MYSQL = "mysql";
+    public const DRIVER_PDO_MYSQL = 'mysql';
     public const LABEL_DB_CONFIGURATION = 'centreon';
     public const LABEL_DB_REALTIME = 'centstorage';
 
@@ -70,9 +70,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     /** @var CentreonLog */
     protected $logger;
 
-    /*
-     * Statistics
-     */
+    // Statistics
 
     /** @var int */
     protected $requestExecuted;
@@ -106,7 +104,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param int $retry
      * @param ConnectionConfig|null $connectionConfig
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         string $dbLabel = self::LABEL_DB_CONFIGURATION,
@@ -132,19 +130,17 @@ class CentreonDB extends PDO implements ConnectionInterface
         $this->retry = $retry;
 
         $this->options = [
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_STATEMENT_CLASS => [
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_STATEMENT_CLASS => [
                 CentreonDBStatement::class,
                 [$this->logger],
             ],
-            \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
-            \PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+            PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
-        /*
-         * Init request statistics
-         */
+        // Init request statistics
         $this->requestExecuted = 0;
         $this->requestSuccessful = 0;
         $this->lineRead = 0;
@@ -156,18 +152,18 @@ class CentreonDB extends PDO implements ConnectionInterface
                 $this->connectionConfig->getPassword(),
                 $this->options
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->writeDbLog(
                 message: "Unable to connect to database : {$e->getMessage()}",
                 customContext: ['dsn_mysql' => $this->connectionConfig->getMysqlDsn()],
                 previous: $e,
             );
-            if (PHP_SAPI !== "cli") {
+            if (PHP_SAPI !== 'cli') {
                 $this->displayConnectionErrorPage(
-                    $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
+                    $e->getCode() === 2002 ? 'Unable to connect to database' : $e->getMessage()
                 );
             } else {
-                throw new \Exception($e->getMessage());
+                throw new Exception($e->getMessage());
             }
         }
     }
@@ -234,9 +230,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return \PDO
+     * @return PDO
      */
-    public function getNativeConnection(): \PDO
+    public function getNativeConnection(): PDO
     {
         return $this;
     }
@@ -252,7 +248,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             return (string) $this->lastInsertId();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to get last insert id',
                 previous: $exception,
@@ -335,7 +331,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
 
             $pdoStatement = $this->prepare($query);
 
@@ -347,8 +343,8 @@ class CentreonDB extends PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : PDO::PARAM_STR
                     );
                 }
             }
@@ -356,7 +352,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoStatement->execute();
 
             return $pdoStatement->rowCount();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to execute statement',
                 customContext: ['query_parameters' => $queryParameters],
@@ -367,7 +363,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             throw ConnectionException::executeStatementFailed($exception, $query, $queryParameters);
         } finally {
             // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
                 CentreonDBStatement::class,
                 [$this->logger],
             ]);
@@ -398,8 +394,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch(\PDO::FETCH_NUM);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetch(PDO::FETCH_NUM);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch numeric query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -432,8 +428,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch(\PDO::FETCH_ASSOC);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch associative query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -467,8 +463,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch(\PDO::FETCH_COLUMN);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetch(PDO::FETCH_COLUMN);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch one query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -501,8 +497,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetchAll(PDO::FETCH_COLUMN);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch by column query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -535,8 +531,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll(\PDO::FETCH_NUM);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetchAll(PDO::FETCH_NUM);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all numeric query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -569,8 +565,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll(\PDO::FETCH_ASSOC);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all associative query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -604,8 +600,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll(\PDO::FETCH_KEY_PAIR);
-        } catch (\Throwable $exception) {
+            return $pdoStatement->fetchAll(PDO::FETCH_KEY_PAIR);
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all key value query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -628,7 +624,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     * @return Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
@@ -637,15 +633,15 @@ class CentreonDB extends PDO implements ConnectionInterface
      *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
      *          }
      */
-    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): Traversable
     {
         try {
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
+            while (($row = $pdoStatement->fetch(PDO::FETCH_NUM)) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to iterate numeric query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -667,7 +663,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \Traversable<int,array<string,mixed>>
+     * @return Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
@@ -676,15 +672,15 @@ class CentreonDB extends PDO implements ConnectionInterface
      *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
      *          }
      */
-    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): Traversable
     {
         try {
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            while (($row = $pdoStatement->fetch(PDO::FETCH_ASSOC)) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to iterate associative query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -705,7 +701,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
+     * @return Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
@@ -714,15 +710,15 @@ class CentreonDB extends PDO implements ConnectionInterface
      *              // $value = 'Jean'
      *          }
      */
-    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): Traversable
     {
         try {
             $this->validateSelectQuery($query);
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
+            while (($row = $pdoStatement->fetch(PDO::FETCH_COLUMN)) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to iterate by column query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -757,7 +753,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->beginTransaction();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to start transaction',
                 previous: $exception,
@@ -781,7 +777,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             return true;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to commit transaction',
                 previous: $exception,
@@ -805,7 +801,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             return true;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to rollback transaction',
                 previous: $exception,
@@ -824,7 +820,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function allowUnbufferedQuery(): bool
     {
-        $currentDriverName = "pdo_{$this->getAttribute(\PDO::ATTR_DRIVER_NAME)}";
+        $currentDriverName = "pdo_{$this->getAttribute(PDO::ATTR_DRIVER_NAME)}";
         if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             $this->writeDbLog(
                 message: 'Unbuffered queries are not allowed with this driver',
@@ -846,7 +842,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function startUnbufferedQuery(): void
     {
         $this->allowUnbufferedQuery();
-        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+        if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
             $this->writeDbLog(message: 'Error while starting an unbuffered query');
 
             throw ConnectionException::startUnbufferedQueryFailed();
@@ -881,7 +877,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 'Error while stopping an unbuffered query, no unbuffered query is currently active'
             );
         }
-        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+        if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
             $this->writeDbLog(message: 'Error while stopping an unbuffered query');
 
             throw ConnectionException::stopUnbufferedQueryFailed('Error while stopping an unbuffered query');
@@ -892,16 +888,16 @@ class CentreonDB extends PDO implements ConnectionInterface
     // --------------------------------------- BASE METHODS -----------------------------------------
 
     /**
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      *
      * @throws ConnectionException
      * @return bool
      */
-    public function closeQuery(\PDOStatement $pdoStatement): bool
+    public function closeQuery(PDOStatement $pdoStatement): bool
     {
         try {
             return $pdoStatement->closeCursor();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: "Error while closing the \PDOStatement cursor: {$exception->getMessage()}",
                 query: $pdoStatement->queryString,
@@ -922,7 +918,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     protected function displayConnectionErrorPage($msg = null): void
     {
         if (! $msg) {
-            $msg = _("Connection failed, please contact your administrator");
+            $msg = _('Connection failed, please contact your administrator');
         }
         echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -947,6 +943,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                   </center>
                 </body>
               </html>';
+
         exit;
     }
 
@@ -969,18 +966,16 @@ class CentreonDB extends PDO implements ConnectionInterface
             'dbsize' => 0,
             'rows' => 0,
             'datafree' => 0,
-            'indexsize' => 0
+            'indexsize' => 0,
         ];
-        /*
-         * Get Version
-         */
-        if ($res = $this->query("SELECT VERSION() AS mysql_version")) {
+        // Get Version
+        if ($res = $this->query('SELECT VERSION() AS mysql_version')) {
             $row = $res->fetch();
             $versionInformation = explode('-', $row['mysql_version']);
-            $info["version"] = $versionInformation[0];
-            $info["engine"] = $versionInformation[1] ?? 'MySQL';
+            $info['version'] = $versionInformation[0];
+            $info['engine'] = $versionInformation[1] ?? 'MySQL';
             if ($dbResult = $this->query(
-                "SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseNameConfiguration() . "`"
+                'SHOW TABLE STATUS FROM `' . $this->connectionConfig->getDatabaseNameConfiguration() . '`'
             )) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
@@ -991,7 +986,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 $dbResult->closeCursor();
             }
             foreach ($info as $key => $value) {
-                if ($key != "rows" && $key != "version" && $key != "engine") {
+                if ($key != 'rows' && $key != 'version' && $key != 'engine') {
                     $info[$key] = round($value / $unitMultiple, 2);
                 }
             }
@@ -1009,7 +1004,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @return int
      */
-    public function isColumnExist(string $table = null, string $column = null): int
+    public function isColumnExist(?string $table = null, ?string $column = null): int
     {
         if (! $table || ! $column) {
             return -1;
@@ -1018,11 +1013,11 @@ class CentreonDB extends PDO implements ConnectionInterface
         $table = HtmlAnalyzer::sanitizeAndRemoveTags($table);
         $column = HtmlAnalyzer::sanitizeAndRemoveTags($column);
 
-        $query = "SELECT COLUMN_NAME
+        $query = 'SELECT COLUMN_NAME
             FROM INFORMATION_SCHEMA.COLUMNS
             WHERE TABLE_SCHEMA = :dbName
             AND TABLE_NAME = :tableName
-            AND COLUMN_NAME = :columnName";
+            AND COLUMN_NAME = :columnName';
 
         $stmt = $this->prepare($query);
 
@@ -1066,12 +1061,12 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         $statement = $this->prepare(
             <<<'SQL'
-            SELECT 1
-            FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = :table_name
-              AND INDEX_NAME = :index_name;
-            SQL
+                SELECT 1
+                FROM information_schema.STATISTICS
+                WHERE TABLE_SCHEMA = :db_name
+                  AND TABLE_NAME = :table_name
+                  AND INDEX_NAME = :index_name;
+                SQL
         );
         $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseNameConfiguration());
         $statement->bindValue(':table_name', $table);
@@ -1095,12 +1090,12 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         $statement = $this->prepare(
             <<<'SQL'
-            SELECT 1
-            FROM information_schema.TABLE_CONSTRAINTS
-            WHERE CONSTRAINT_SCHEMA = :db_name
-              AND TABLE_NAME = :table_name
-              AND CONSTRAINT_NAME = :constraint_name;
-            SQL
+                SELECT 1
+                FROM information_schema.TABLE_CONSTRAINTS
+                WHERE CONSTRAINT_SCHEMA = :db_name
+                  AND TABLE_NAME = :table_name
+                  AND CONSTRAINT_NAME = :constraint_name;
+                SQL
         );
         $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseNameConfiguration());
         $statement->bindValue(':table_name', $table);
@@ -1142,7 +1137,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 return $result['COLUMN_TYPE'];
             }
 
-            throw new PDOException("Unable to get column type");
+            throw new PDOException('Unable to get column type');
         } catch (PDOException $e) {
             $this->writeDbLog(
                 message: 'Error while checking if the column exists',
@@ -1169,17 +1164,17 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return \PDOStatement
+     * @return PDOStatement
      */
     private function executeSelectQuery(
         string $query,
         ?QueryParameters $queryParameters = null
-    ): \PDOStatement {
+    ): PDOStatement {
         try {
             $this->validateSelectQuery($query);
 
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
 
             $pdoStatement = $this->prepare($query);
 
@@ -1191,8 +1186,8 @@ class CentreonDB extends PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : PDO::PARAM_STR
                     );
                 }
             }
@@ -1200,7 +1195,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoStatement->execute();
 
             return $pdoStatement;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->writeDbLog(
                 message: 'Error while executing the select query',
                 customContext: ['query_parameters' => $queryParameters],
@@ -1215,7 +1210,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
         } finally {
             // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
                 CentreonDBStatement::class,
                 [$this->logger],
             ]);
@@ -1228,13 +1223,13 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string $message
      * @param array<string,mixed> $customContext
      * @param string $query
-     * @param \Throwable|null $previous
+     * @param Throwable|null $previous
      */
     protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?Throwable $previous = null
     ): void {
         // prepare context of the database exception
         $context = [
@@ -1250,7 +1245,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         }
     }
 
-    //******************************************** DEPRECATED METHODS ***********************************************//
+    // ******************************************** DEPRECATED METHODS ***********************************************//
 
     /**
      * Factory for singleton
@@ -1279,12 +1274,12 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param array $options
      *
      * @throws CentreonDbException
-     * @return \PDOStatement|bool
+     * @return PDOStatement|bool
      *
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function prepareQuery(string $query, array $options = []): \PDOStatement|bool
+    public function prepareQuery(string $query, array $options = []): PDOStatement|bool
     {
         try {
             if (empty($query)) {
@@ -1295,15 +1290,16 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
 
             return parent::prepare($query, $options);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
-                message: "Error while preparing query",
+                message: 'Error while preparing query',
                 query: $query,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while preparing the query: {$e->getMessage()}",
                 context: ['query' => $query],
@@ -1311,7 +1307,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
         } finally {
             // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
                 CentreonDBStatement::class,
                 [$this->logger],
             ]);
@@ -1321,7 +1317,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
      *
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      * @param int|string $paramName
      * @param mixed $value
      * @param int $type
@@ -1333,22 +1329,22 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @see        ConnectionInterface
      */
     public function makeBindValue(
-        \PDOStatement $pdoStatement,
+        PDOStatement $pdoStatement,
         int|string $paramName,
         mixed $value,
-        int $type = \PDO::PARAM_STR
+        int $type = PDO::PARAM_STR
     ): bool {
         try {
             if (empty($paramName)) {
                 throw new CentreonDbException(
-                    "paramName must to be filled, empty given",
+                    'paramName must to be filled, empty given',
                     ['param_name' => $paramName]
                 );
             }
             if (
                 ! in_array(
                     $type,
-                    [\PDO::PARAM_STR, \PDO::PARAM_BOOL, \PDO::PARAM_INT, \PDO::PARAM_NULL],
+                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
                     true
                 )
             ) {
@@ -1359,24 +1355,25 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             return $pdoStatement->bindValue($paramName, $value, $type);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
                 message: "Error while binding value for param {$paramName} : {$e->getMessage()}",
                 customContext: [
                     'param_name' => $paramName,
                     'param_value' => $value,
-                    'param_type' => $type
+                    'param_type' => $type,
                 ],
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while binding value for param {$paramName} : {$e->getMessage()}",
                 context: [
                     'query' => $pdoStatement->queryString,
                     'param_name' => $paramName,
                     'param_value' => $value,
-                    'param_type' => $type
+                    'param_type' => $type,
                 ],
                 previous: $e
             );
@@ -1384,7 +1381,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      * @param int|string $paramName
      * @param mixed $var
      * @param int $type
@@ -1397,23 +1394,23 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @see        ConnectionInterface
      */
     public function makeBindParam(
-        \PDOStatement $pdoStatement,
+        PDOStatement $pdoStatement,
         int|string $paramName,
         mixed &$var,
-        int $type = \PDO::PARAM_STR,
+        int $type = PDO::PARAM_STR,
         int $maxLength = 0
     ): bool {
         try {
             if (empty($paramName)) {
                 throw new CentreonDbException(
-                    "paramName must to be filled, empty given",
+                    'paramName must to be filled, empty given',
                     ['param_name' => $paramName]
                 );
             }
             if (
                 ! in_array(
                     $type,
-                    [\PDO::PARAM_STR, \PDO::PARAM_BOOL, \PDO::PARAM_INT, \PDO::PARAM_NULL],
+                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
                     true
                 )
             ) {
@@ -1424,18 +1421,19 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
                 message: "Error while binding param {$paramName} : {$e->getMessage()}",
                 customContext: [
                     'param_name' => $paramName,
                     'param_var' => $var,
                     'param_type' => $type,
-                    'param_max_length' => $maxLength
+                    'param_max_length' => $maxLength,
                 ],
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while binding param {$paramName} : {$e->getMessage()}",
                 context: [
@@ -1443,7 +1441,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     'param_name' => $paramName,
                     'param_var' => $var,
                     'param_type' => $type,
-                    'param_max_length' => $maxLength
+                    'param_max_length' => $maxLength,
                 ],
                 previous: $e
             );
@@ -1453,7 +1451,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Prefer to use fetchNumeric() or fetchAssociative() instead of this method.
      *
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      *
      * @throws CentreonDbException
      *
@@ -1462,11 +1460,11 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function fetch(\PDOStatement $pdoStatement): mixed
+    public function fetch(PDOStatement $pdoStatement): mixed
     {
         try {
             return $pdoStatement->fetch();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             try {
                 $this->closeQuery($pdoStatement);
             } catch (ConnectionException $e) {
@@ -1475,6 +1473,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     query: $pdoStatement->queryString,
                     previous: $e,
                 );
+
                 throw new CentreonDbException(
                     message: "Error while closing the query : {$e->getMessage()}",
                     context: ['query' => $pdoStatement->queryString],
@@ -1486,6 +1485,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while fetching the row : {$e->getMessage()}",
                 context: ['query' => $pdoStatement->queryString],
@@ -1497,7 +1497,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Prefer to use fetchAllNumeric() or fetchAllAssociative() instead of this method.
      *
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      *
      * @throws CentreonDbException
      *
@@ -1506,16 +1506,17 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function fetchAll(\PDOStatement $pdoStatement): array
+    public function fetchAll(PDOStatement $pdoStatement): array
     {
         try {
             return $pdoStatement->fetchAll();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
                 message: "Error while fetching all the rows : {$e->getMessage()}",
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while fetching all the rows : {$e->getMessage()}",
                 context: ['query' => $pdoStatement->queryString],
@@ -1530,6 +1531,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     query: $pdoStatement->queryString,
                     previous: $e,
                 );
+
                 throw new CentreonDbException(
                     message: "Error while closing the query : {$e->getMessage()}",
                     context: ['query' => $pdoStatement->queryString],
@@ -1540,7 +1542,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      * @param array|null $bindParams
      *
      * @throws CentreonDbException
@@ -1549,24 +1551,25 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function execute(\PDOStatement $pdoStatement, ?array $bindParams = null)
+    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
     {
         try {
             if ($bindParams === []) {
                 throw new CentreonDbException(
-                    "To execute the query, bindParams must be a filled array or null, empty array given",
+                    'To execute the query, bindParams must be a filled array or null, empty array given',
                     ['bind_params' => $bindParams]
                 );
             }
 
             return $pdoStatement->execute($bindParams);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
                 message: "Error while executing the query : {$e->getMessage()}",
                 customContext: ['bind_params' => $bindParams],
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while executing the query : {$e->getMessage()}",
                 context: ['query' => $pdoStatement->queryString, 'bind_params' => $bindParams],
@@ -1589,9 +1592,10 @@ class CentreonDB extends PDO implements ConnectionInterface
         $quotedString = parent::quote($string, $type);
         if ($quotedString === false) {
             $this->writeDbLog(
-                message: "Error while quoting the string",
+                message: 'Error while quoting the string',
                 customContext: ['string' => $string],
             );
+
             throw new CentreonDbException("Error while quoting the string: {$string}");
         }
 
@@ -1605,7 +1609,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * This method does not support PDO binding types.
      *
-     * @param       $query
+     * @param $query
      * @param int $fetchMode
      * @param array $fetchModeArgs
      *
@@ -1637,7 +1641,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
 
             return $stmt;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->writeDbLog(
                 message: "Error while executing the query: {$e->getMessage()}",
                 customContext: [
@@ -1647,6 +1651,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw new CentreonDbException(
                 message: "Error while executing the query: {$e->getMessage()}",
                 context: [
@@ -1664,7 +1669,6 @@ class CentreonDB extends PDO implements ConnectionInterface
             ]);
         }
     }
-
 
     /**
      * When $withParamType is true, $bindParams must have an array as value like ['value', PDO::PARAM_*]
@@ -1692,7 +1696,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
             if ($bindParams === []) {
                 throw new CentreonDbException(
-                    "Binding parameters are empty",
+                    'Binding parameters are empty',
                     ['bind_params' => $bindParams]
                 );
             }
@@ -1727,7 +1731,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             }
 
             return $pdoStatement->execute();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = "Error while executing the prepared query: {$e->getMessage()}";
             $this->writeDbLog(
                 message: $message,
@@ -1735,12 +1739,13 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $pdoStatement->queryString,
                 previous: $e
             );
+
             throw new CentreonDbException(
                 message: $message,
                 context: [
                     'query' => $pdoStatement->queryString,
                     'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType
+                    'with_param_type' => $withParamType,
                 ],
                 previous: $e
             );
@@ -1754,7 +1759,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * @param \PDOStatement $pdoStatement
+     * @param PDOStatement $pdoStatement
      * @param int $column
      *
      * @throws CentreonDbException
@@ -1764,27 +1769,29 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Instead use {@see CentreonDB::fetchFirstColumn()}
      * @see        CentreonDB::fetchFirstColumn()
      */
-    public function fetchColumn(\PDOStatement $pdoStatement, int $column = 0): mixed
+    public function fetchColumn(PDOStatement $pdoStatement, int $column = 0): mixed
     {
         try {
             return $pdoStatement->fetchColumn($column);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             try {
                 $this->closeQuery($pdoStatement);
             } catch (ConnectionException $e) {
                 $this->writeDbLog(
-                    message: "Error while closing the query",
+                    message: 'Error while closing the query',
                     previous: $e,
                 );
+
                 throw new CentreonDbException($message, previous: $e);
             }
             $message = "Error while fetching all the rows by column: {$e->getMessage()}";
             $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, previous: $e);
             $options = ['query' => $pdoStatement->queryString];
-            if ($e instanceof \PDOException) {
+            if ($e instanceof PDOException) {
                 $options['pdo_error_code'] = $e->getCode();
                 $options['pdo_error_infos'] = $e->errorInfo;
             }
+
             throw new CentreonDbException($message, $options, $e);
         }
     }
@@ -1809,7 +1816,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoSth = $this->executeQuery($query, PDO::FETCH_COLUMN, [$column]);
 
             return $this->fetchAll($pdoSth);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new CentreonDbException(
                 "Error while fetching data with executeQueryFetchColumn() : {$e->getMessage()}",
                 [
@@ -1839,7 +1846,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoSth = $this->executeQuery($query);
 
             return $this->fetchAll($pdoSth);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new CentreonDbException(
                 "Error while fetching data with executeQueryFetchAll() : {$e->getMessage()}",
                 ['query' => $query],
@@ -1856,13 +1863,11 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function autoCommit($val): void
     {
-        /* Deprecated */
+        // Deprecated
     }
 
     /**
      * Escapes a string for query
-     *
-     * @access     public
      *
      * @param string $str
      * @param bool $htmlSpecialChars | htmlspecialchars() is used when true
@@ -1902,9 +1907,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $parameters = [$parameters];
         }
 
-        /*
-         * Launch request
-         */
+        // Launch request
         $sth = null;
         try {
             if (is_null($parameters)) {
@@ -1916,7 +1919,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         } catch (PDOException $e) {
             // skip if we use CentreonDBStatement::execute method
             if (is_null($parameters)) {
-                $queryString = str_replace(["`", '*'], ["", "\*"], $queryString);
+                $queryString = str_replace(['`', '*'], ['', "\*"], $queryString);
                 $this->writeDbLog(
                     'Error while using CentreonDb::query',
                     ['bind_params' => $parameters],
@@ -1924,6 +1927,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     previous: $e
                 );
             }
+
             throw $e;
         }
 
@@ -1936,14 +1940,12 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * launch a getAll
      *
-     * @access     public
-     *
      * @param string $query_string query
      * @param array<mixed> $placeHolders
      *
      * @throws PDOException
      *
-     * @return array|false  getAll result
+     * @return array|false getAll result
      *
      * @deprecated Instead use {@see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()}
      * @see        CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()
@@ -1962,6 +1964,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $query_string,
                 previous: $e
             );
+
             throw new PDOException($e->getMessage(), hexdec($e->getCode()));
         }
 
@@ -1977,10 +1980,10 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function numberRows(): int
     {
         $number = 0;
-        $dbResult = $this->query("SELECT FOUND_ROWS() AS number");
+        $dbResult = $this->query('SELECT FOUND_ROWS() AS number');
         $data = $dbResult->fetch();
-        if (isset($data["number"])) {
-            $number = $data["number"];
+        if (isset($data['number'])) {
+            $number = $data['number'];
         }
 
         return (int) $number;
@@ -1999,5 +2002,4 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         return 0;
     }
-
 }

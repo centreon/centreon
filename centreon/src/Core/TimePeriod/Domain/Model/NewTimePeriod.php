@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return NewExtraTimePeriod[]
+     * @return list<NewExtraTimePeriod>
      */
     public function getExtraTimePeriods(): array
     {
@@ -114,7 +114,7 @@ class NewTimePeriod
     }
 
     /**
-     * @return int[]
+     * @return list<int>
      */
     public function getTemplates(): array
     {

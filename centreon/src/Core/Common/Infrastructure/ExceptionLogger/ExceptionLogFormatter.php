@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,8 +44,8 @@ abstract class ExceptionLogFormatter
     {
         $customContext = self::formatCustomContext($throwable, $customContext);
         $exceptionContext = self::formatExceptionContext($throwable);
-        $context = ! empty($customContext) ? $customContext : null;
-        $context['exception'] = ! empty($exceptionContext) ? $exceptionContext : null;
+        $context = $customContext !== [] ? $customContext : null;
+        $context['exception'] = $exceptionContext !== [] ? $exceptionContext : null;
 
         return $context;
     }
@@ -92,7 +92,7 @@ abstract class ExceptionLogFormatter
             if (array_key_exists('previous', $firstThrowableContext)) {
                 unset($firstThrowableContext['previous']);
             }
-            $firstThrowableContext = ! empty($firstThrowableContext) ? [$firstThrowableContext] : [];
+            $firstThrowableContext = $firstThrowableContext !== [] ? [$firstThrowableContext] : [];
             $contextExceptions = array_merge($firstThrowableContext, $previousListContext);
 
             $customContext['from_exception'] = $contextExceptions;

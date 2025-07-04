@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,27 +18,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Application\RealTime\UseCase\FindMetaService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Tests\Core\Domain\RealTime\Model\MetaServiceTest;
-use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Application\RealTime\UseCase\FindMetaService\FindMetaService;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as ReadMetaServiceConfigurationRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface;
+use Core\Application\RealTime\UseCase\FindMetaService\FindMetaService;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\RealTime\Api\FindMetaService\FindMetaServicePresenter;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
-use Tests\Core\Application\RealTime\UseCase\FindMetaService\FindMetaServicePresenterStub;
+use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Domain\Configuration\MetaServiceTest as MetaServiceConfigurationTest;
-use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as
-    ReadMetaServiceConfigurationRepositoryInterface;
+use Tests\Core\Domain\RealTime\Model\MetaServiceTest;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(ReadMetaServiceRepositoryInterface::class);
@@ -248,7 +247,7 @@ it('should find the metaservice as non-admin', function (): void {
     expect($presenter->response->lastCheck)->toBe($metaService->getLastCheck());
     expect($presenter->response->nextCheck)->toBe($metaService->getNextCheck());
     expect($presenter->response->lastNotification)->toBe($metaService->getLastNotification());
-    expect($presenter->response->lastStatusChange, $metaService->getLastStatusChange());
+    expect($presenter->response->lastStatusChange)->toBe($metaService->getLastStatusChange());
     expect($presenter->response->status['code'])->toBe($metaService->getStatus()->getCode());
     expect($presenter->response->status['name'])->toBe($metaService->getStatus()->getName());
     expect($presenter->response->status['type'])->toBe($metaService->getStatus()->getType());

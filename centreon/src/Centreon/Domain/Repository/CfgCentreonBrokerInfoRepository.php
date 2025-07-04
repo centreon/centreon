@@ -1,8 +1,28 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
 use Centreon\Domain\Entity\CfgCentreonBrokerInfo;
+use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 /**
@@ -33,7 +53,7 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
         $stmt->execute();
 
         $row = $stmt->fetch();
-        if (!is_null($row['max_config_group_id'])) {
+        if (! is_null($row['max_config_group_id'])) {
             // to get the new new config group id, we need to increment the max exsting one
             $configGroupId = $row['max_config_group_id'] + 1;
         }
@@ -48,7 +68,7 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
      */
     public function add(CfgCentreonBrokerInfo $brokerInfoEntity): void
     {
-        $sql = "INSERT INTO " . $brokerInfoEntity::TABLE . ' '
+        $sql = 'INSERT INTO ' . $brokerInfoEntity::TABLE . ' '
             . '(config_id, config_group, config_group_id, config_key, config_value) '
             . 'VALUES (:config_id, :config_group, :config_group_id, :config_key, :config_value)';
         $stmt = $this->db->prepare($sql);
@@ -69,18 +89,18 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
     public function export(array $pollerIds): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
         $ids = join(',', $pollerIds);
 
         $sql = <<<SQL
-SELECT t.*
-FROM cfg_centreonbroker_info AS t
-INNER JOIN cfg_centreonbroker AS cci ON cci.config_id = t.config_id
-WHERE cci.ns_nagios_server IN ({$ids})
-SQL;
+            SELECT t.*
+            FROM cfg_centreonbroker_info AS t
+            INNER JOIN cfg_centreonbroker AS cci ON cci.config_id = t.config_id
+            WHERE cci.ns_nagios_server IN ({$ids})
+            SQL;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

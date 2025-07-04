@@ -1,0 +1,16 @@
+parameters:
+
+    level: 6
+
+    scanFiles:
+        - ../tools/phpstan/config/centreon.stub
+        - .php-cs-fixer.legacy.www.php
+        - rector.legacy.php
+
+    paths:
+        - features
+        - www
+
+    ignoreErrors:
+        - # Ignore problem with path of centreon for modules
+          message: '#^Path in require_once\(\) "../centreon/www/modules/#'

@@ -33,28 +33,28 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 require_once './class/centreonBroker.class.php';
 
-const DELETE_GRAPH = "ed";
-const RRD_ABSOLUTE = "dst_a";
-const RRD_COUNTER = "dst_c";
-const RRD_DERIVE = "dst_d";
-const RRD_GAUGE = "dst_g";
-const HIDE_GRAPH = "hg";
-const SHOW_GRAPH = "nhg";
-const LOCK_SERVICE = "lk";
-const UNLOCK_SERVICE = "nlk";
+const DELETE_GRAPH = 'ed';
+const RRD_ABSOLUTE = 'dst_a';
+const RRD_COUNTER = 'dst_c';
+const RRD_DERIVE = 'dst_d';
+const RRD_GAUGE = 'dst_g';
+const HIDE_GRAPH = 'hg';
+const SHOW_GRAPH = 'nhg';
+const LOCK_SERVICE = 'lk';
+const UNLOCK_SERVICE = 'nlk';
 
-$indexId = filter_var($_GET["index_id"], FILTER_VALIDATE_INT);
+$indexId = filter_var($_GET['index_id'], FILTER_VALIDATE_INT);
 
-if ((isset($_POST["o1"]) && $_POST["o1"]) || (isset($_POST["o2"]) && $_POST["o2"])) {
-    //filter integer keys
+if ((isset($_POST['o1']) && $_POST['o1']) || (isset($_POST['o2']) && $_POST['o2'])) {
+    // filter integer keys
     $selected = array_filter(
-        $_POST["select"],
+        $_POST['select'],
         function ($k) {
             if (is_int($k)) {
                 return $k;
@@ -63,118 +63,116 @@ if ((isset($_POST["o1"]) && $_POST["o1"]) || (isset($_POST["o2"]) && $_POST["o2"
         ARRAY_FILTER_USE_KEY
     );
 
-    if ($_POST["o1"] == DELETE_GRAPH || $_POST["o2"] == DELETE_GRAPH) {
+    if ($_POST['o1'] == DELETE_GRAPH || $_POST['o2'] == DELETE_GRAPH) {
         $listMetricsId = array_keys($selected);
         if ($listMetricsId !== []) {
             $brk = new CentreonBroker($pearDB);
-            $pearDBO->query("UPDATE metrics SET to_delete = 1 WHERE metric_id IN (" .
-                implode(', ', $listMetricsId) . ")");
+            $pearDBO->query('UPDATE metrics SET to_delete = 1 WHERE metric_id IN ('
+                . implode(', ', $listMetricsId) . ')');
             $brk->reload();
-            $pearDB->query("DELETE FROM ods_view_details WHERE metric_id IN (" .
-                implode(', ', $listMetricsId) . ")");
+            $pearDB->query('DELETE FROM ods_view_details WHERE metric_id IN ('
+                . implode(', ', $listMetricsId) . ')');
         }
-    } elseif ($_POST["o1"] == HIDE_GRAPH || $_POST["o2"] == HIDE_GRAPH) {
+    } elseif ($_POST['o1'] == HIDE_GRAPH || $_POST['o2'] == HIDE_GRAPH) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `hidden` = '1' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `hidden` = '1' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == SHOW_GRAPH || $_POST["o2"] == SHOW_GRAPH) {
+    } elseif ($_POST['o1'] == SHOW_GRAPH || $_POST['o2'] == SHOW_GRAPH) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `hidden` = '0' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `hidden` = '0' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == LOCK_SERVICE || $_POST["o2"] == LOCK_SERVICE) {
+    } elseif ($_POST['o1'] == LOCK_SERVICE || $_POST['o2'] == LOCK_SERVICE) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `locked` = '1' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `locked` = '1' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == UNLOCK_SERVICE || $_POST["o2"] == UNLOCK_SERVICE) {
+    } elseif ($_POST['o1'] == UNLOCK_SERVICE || $_POST['o2'] == UNLOCK_SERVICE) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `locked` = '0' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `locked` = '0' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == RRD_GAUGE || $_POST["o2"] == RRD_GAUGE) {
+    } elseif ($_POST['o1'] == RRD_GAUGE || $_POST['o2'] == RRD_GAUGE) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `data_source_type` = '0' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `data_source_type` = '0' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == RRD_COUNTER || $_POST["o2"] == RRD_COUNTER) {
+    } elseif ($_POST['o1'] == RRD_COUNTER || $_POST['o2'] == RRD_COUNTER) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `data_source_type` = '1' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `data_source_type` = '1' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == RRD_DERIVE || $_POST["o2"] == RRD_DERIVE) {
+    } elseif ($_POST['o1'] == RRD_DERIVE || $_POST['o2'] == RRD_DERIVE) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `data_source_type` = '2' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `data_source_type` = '2' WHERE `metric_id` = " . (int) $id);
         }
-    } elseif ($_POST["o1"] == RRD_ABSOLUTE || $_POST["o2"] == RRD_ABSOLUTE) {
+    } elseif ($_POST['o1'] == RRD_ABSOLUTE || $_POST['o2'] == RRD_ABSOLUTE) {
         foreach (array_keys($selected) as $id) {
-            $pearDBO->query("UPDATE metrics SET `data_source_type` = '3' WHERE `metric_id` = " . (int)$id);
+            $pearDBO->query("UPDATE metrics SET `data_source_type` = '3' WHERE `metric_id` = " . (int) $id);
         }
     }
 }
 
-$query = "SELECT COUNT(*) FROM metrics WHERE to_delete = 0 AND index_id = :indexId";
+$query = 'SELECT COUNT(*) FROM metrics WHERE to_delete = 0 AND index_id = :indexId';
 $stmt = $pearDBO->prepare($query);
 $stmt->bindParam(':indexId', $indexId, PDO::PARAM_INT);
 $stmt->execute();
-$tmp = $stmt->fetch(\PDO::FETCH_ASSOC);
-$rows = $tmp["COUNT(*)"];
+$tmp = $stmt->fetch(PDO::FETCH_ASSOC);
+$rows = $tmp['COUNT(*)'];
 
-$tab_class = ["0" => "list_one", "1" => "list_two"];
-$storage_type = [0 => "RRDTool", 2 => "RRDTool & MySQL"];
-$yesOrNo = [null => "No", 0 => "No", 1 => "Yes", 2 => "Rebuilding"];
-$rrd_dst = [0 => "GAUGE", 1 => "COUNTER", 2 => "DERIVE", 3 => "ABSOLUTE"];
+$tab_class = ['0' => 'list_one', '1' => 'list_two'];
+$storage_type = [0 => 'RRDTool', 2 => 'RRDTool & MySQL'];
+$yesOrNo = [null => 'No', 0 => 'No', 1 => 'Yes', 2 => 'Rebuilding'];
+$rrd_dst = [0 => 'GAUGE', 1 => 'COUNTER', 2 => 'DERIVE', 3 => 'ABSOLUTE'];
 
-$query = "SELECT * FROM metrics WHERE to_delete = 0 AND index_id = :indexId ORDER BY metric_name";
+$query = 'SELECT * FROM metrics WHERE to_delete = 0 AND index_id = :indexId ORDER BY metric_name';
 $stmt2 = $pearDBO->prepare($query);
 $stmt2->bindParam(':indexId', $indexId, PDO::PARAM_INT);
 $stmt2->execute();
 unset($data);
-for ($im = 0; $metrics = $stmt2->fetch(\PDO::FETCH_ASSOC); $im++) {
+for ($im = 0; $metrics = $stmt2->fetch(PDO::FETCH_ASSOC); $im++) {
     $metric = [];
-    $metric["metric_id"] = $metrics["metric_id"];
-    $metric["class"] = $tab_class[$im % 2];
-    $metric["metric_name"] = str_replace("#S#", "/", $metrics["metric_name"]);
-    $metric["metric_name"] = str_replace("#BS#", "\\", $metric["metric_name"]);
-    $metric["unit_name"] = $metrics["unit_name"];
-    if (!isset($metrics["data_source_type"]) ||
-        isset($metrics["data_source_type"]) &&
-        $metrics["data_source_type"] == null
+    $metric['metric_id'] = $metrics['metric_id'];
+    $metric['class'] = $tab_class[$im % 2];
+    $metric['metric_name'] = str_replace('#S#', '/', $metrics['metric_name']);
+    $metric['metric_name'] = str_replace('#BS#', '\\', $metric['metric_name']);
+    $metric['unit_name'] = $metrics['unit_name'];
+    if (! isset($metrics['data_source_type'])
+        || isset($metrics['data_source_type'])
+        && $metrics['data_source_type'] == null
     ) {
-        $metric["data_source_type"] = $rrd_dst["0"];
+        $metric['data_source_type'] = $rrd_dst['0'];
     } else {
-        $metric["data_source_type"] = $rrd_dst[$metrics["data_source_type"]];
+        $metric['data_source_type'] = $rrd_dst[$metrics['data_source_type']];
     }
-    $metric["hidden"] = $yesOrNo[$metrics["hidden"]];
-    $metric["locked"] = $yesOrNo[$metrics["locked"]];
-    $metric["min"] = $metrics["min"];
-    $metric["max"] = $metrics["max"];
-    $metric["warn"] = $metrics["warn"];
-    $metric["crit"] = $metrics["crit"];
+    $metric['hidden'] = $yesOrNo[$metrics['hidden']];
+    $metric['locked'] = $yesOrNo[$metrics['locked']];
+    $metric['min'] = $metrics['min'];
+    $metric['max'] = $metrics['max'];
+    $metric['warn'] = $metrics['warn'];
+    $metric['crit'] = $metrics['crit'];
 
-    $metric["path"] = _CENTREON_VARLIB_ . '/metrics/' . $metric["metric_id"] . ".rrd";
+    $metric['path'] = _CENTREON_VARLIB_ . '/metrics/' . $metric['metric_id'] . '.rrd';
 
     $data[$im] = $metric;
     unset($metric);
 }
 
-include_once "./include/common/checkPagination.php";
+include_once './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-$form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 
-/*
- * Toolbar select
- */
+// Toolbar select
 ?>
     <script type="text/javascript">
         var confirm_messages = [
-            '<?php echo _("Do you confirm the deletion ?") ?>',
-            '<?php echo _("Do you confirm the change of the RRD data source type ? " .
-                "If yes, you must rebuild the RRD Database") ?>',
-            '<?php echo _("Do you confirm the change of the RRD data source type ? " .
-                "If yes, you must rebuild the RRD Database") ?>',
-            '<?php echo _("Do you confirm the change of the RRD data source type ? " .
-                "If yes, you must rebuild the RRD Database") ?>',
-            '<?php echo _("Do you confirm the change of the RRD data source type ? " .
-                "If yes, you must rebuild the RRD Database") ?>'
+            '<?php echo _('Do you confirm the deletion ?'); ?>',
+            '<?php echo _('Do you confirm the change of the RRD data source type ? '
+                . 'If yes, you must rebuild the RRD Database'); ?>',
+            '<?php echo _('Do you confirm the change of the RRD data source type ? '
+                . 'If yes, you must rebuild the RRD Database'); ?>',
+            '<?php echo _('Do you confirm the change of the RRD data source type ? '
+                . 'If yes, you must rebuild the RRD Database'); ?>',
+            '<?php echo _('Do you confirm the change of the RRD data source type ? '
+                . 'If yes, you must rebuild the RRD Database'); ?>'
         ];
 
         function setO(_i) {
@@ -192,7 +190,7 @@ $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
         }
     </script>
 <?php
-$actions = [null => _("More actions..."), "ed" => _("Delete graphs"), "dst_a" => _("Set RRD Data Source Type to ABSOLUTE"), "dst_c" => _("Set RRD Data Source Type to COUNTER"), "dst_d" => _("Set RRD Data Source Type to DERIVE"), "dst_g" => _("Set RRD Data Source Type to GAUGE"), "hg" => _("Hide graphs of selected Services"), "nhg" => _("Stop hiding graphs of selected Services"), "lk" => _("Lock Services"), "nlk" => _("Unlock Services")];
+$actions = [null => _('More actions...'), 'ed' => _('Delete graphs'), 'dst_a' => _('Set RRD Data Source Type to ABSOLUTE'), 'dst_c' => _('Set RRD Data Source Type to COUNTER'), 'dst_d' => _('Set RRD Data Source Type to DERIVE'), 'dst_g' => _('Set RRD Data Source Type to GAUGE'), 'hg' => _('Hide graphs of selected Services'), 'nhg' => _('Stop hiding graphs of selected Services'), 'lk' => _('Lock Services'), 'nlk' => _('Unlock Services')];
 $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:on_action_change('o1')"]);
 $form->setDefaults(['o1' => null]);
 
@@ -209,24 +207,24 @@ $o2->setSelected(null);
 
 $tpl->assign('limit', $limit);
 
-$tpl->assign("p", $p);
+$tpl->assign('p', $p);
 $tpl->assign('o', $o);
-$tpl->assign("num", $num);
-$tpl->assign("limit", $limit);
-$tpl->assign("Metric", _("Metric"));
-$tpl->assign("Unit", _("Unit"));
-$tpl->assign("Warning", _("Warning"));
-$tpl->assign("Critical", _("Critical"));
-$tpl->assign("Min", _("Min"));
-$tpl->assign("Max", _("Max"));
-$tpl->assign("NumberOfValues", _("Number of values"));
-$tpl->assign("DataSourceType", _("Data source type"));
-$tpl->assign("Hidden", _("Hidden"));
-$tpl->assign("Locked", _("Locked"));
+$tpl->assign('num', $num);
+$tpl->assign('limit', $limit);
+$tpl->assign('Metric', _('Metric'));
+$tpl->assign('Unit', _('Unit'));
+$tpl->assign('Warning', _('Warning'));
+$tpl->assign('Critical', _('Critical'));
+$tpl->assign('Min', _('Min'));
+$tpl->assign('Max', _('Max'));
+$tpl->assign('NumberOfValues', _('Number of values'));
+$tpl->assign('DataSourceType', _('Data source type'));
+$tpl->assign('Hidden', _('Hidden'));
+$tpl->assign('Locked', _('Locked'));
 
-$tpl->assign("data", $data);
+$tpl->assign('data', $data);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("viewMetrics.ihtml");
+$tpl->display('viewMetrics.ihtml');

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Downtime;
@@ -25,10 +26,10 @@ namespace Centreon\Infrastructure\Downtime;
 use Centreon\Domain\Downtime\Downtime;
 use Centreon\Domain\Downtime\Interfaces\DowntimeRepositoryInterface;
 use Centreon\Domain\Entity\EntityCreator;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Downtime repository for MySQL
@@ -37,18 +38,13 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
-    /**
-     * @var AccessGroup[] List of access group used to filter the requests
-     */
+    /** @var AccessGroup[] List of access group used to filter the requests */
     private $accessGroups;
-    /**
-     * @var array<string, string>
-     */
+
+    /** @var array<string, string> */
     private $downtimeConcordanceArray = [
         // Relation for downtime
         'id' => 'dwt.downtime_id',
@@ -88,6 +84,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     public function forAccessGroups(array $accessGroups): DowntimeRepositoryInterface
     {
         $this->accessGroups = $accessGroups;
+
         return $this;
     }
 
@@ -115,7 +112,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     }
 
     /**
-     * @return bool Return TRUE if the contact is an admin or has at least one access group.
+     * @return bool return TRUE if the contact is an admin or has at least one access group
      */
     private function hasNotEnoughRightsToContinue(): bool
     {
@@ -124,8 +121,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
 
     /**
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function findHostDowntimes(bool $isAdmin = false): array
     {
@@ -134,8 +131,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id
                   AND acl.service_id IS NULL
                 INNER JOIN `:db`.`acl_groups` acg
@@ -145,8 +142,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                     . $this->accessGroupIdToString($this->accessGroups) . ')';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             INNER JOIN `:dbstg`.hosts
                 ON hosts.host_id = dwt.host_id
@@ -185,16 +182,16 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
      *
      * @param int $downtimeId Downtime id
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Downtime|null Return NULL if the downtime has not been found
      * @throws \Exception
+     * @return Downtime|null Return NULL if the downtime has not been found
      */
     private function findOneDowntime(int $downtimeId, bool $isAdmin = false): ?Downtime
     {
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id
                   AND (acl.service_id = dwt.service_id OR acl.service_id IS NULL)
                 INNER JOIN `:db`.`acl_groups` acg
@@ -204,8 +201,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 . $this->accessGroupIdToString($this->accessGroups) . ')';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             LEFT JOIN `:db`.`contact`
                 ON contact.contact_alias = dwt.author'
@@ -223,9 +220,9 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 Downtime::class,
                 $row
             );
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -254,15 +251,15 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
      * Find all downtimes.
      *
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function findDowntimes(bool $isAdmin): array
     {
         $serviceConcordanceArray = [
             // Relation for service
             'service.id' => 'srv.service_id',
-            'service.display_name' => 'srv.display_name'
+            'service.display_name' => 'srv.display_name',
         ];
 
         /*
@@ -283,8 +280,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id
                   AND (acl.service_id = dwt.service_id OR acl.service_id IS NULL)
                 INNER JOIN `:db`.`acl_groups` acg
@@ -300,8 +297,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                  AND srv.host_id = hosts.host_id '
             : '';
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             LEFT JOIN `:db`.`contact`
               ON contact.contact_alias = dwt.author
@@ -338,11 +335,11 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     /**
      * Find all downtimes for a host.
      *
-     * @param int $hostId Host id for which we want to find downtimes.
+     * @param int $hostId host id for which we want to find downtimes
      * @param bool $withServices
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function findDowntimesByHost(int $hostId, bool $withServices, bool $isAdmin = false): array
     {
@@ -367,8 +364,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id'
                 . ($withServices ? '' : ' AND acl.service_id IS NULL')
                 . ' INNER JOIN `:db`.`acl_groups` acg
@@ -378,8 +375,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 . $this->accessGroupIdToString($this->accessGroups) . ')';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             LEFT JOIN `:db`.`contact`
                 ON contact.contact_alias = dwt.author
@@ -423,8 +420,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
      * Find all downtimes of all services.
      *
      * @param bool $isAdmin $isAdmin Indicates whether user is an admin
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function findServicesDowntimes(bool $isAdmin): array
     {
@@ -433,8 +430,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id
                   AND acl.service_id = dwt.service_id
                 INNER JOIN `:db`.`acl_groups` acg
@@ -444,8 +441,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 . $this->accessGroupIdToString($this->accessGroups) . ')';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             INNER JOIN `:dbstg`.hosts
                 ON hosts.host_id = dwt.host_id
@@ -487,8 +484,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
      * @param int $hostId Host id linked to this service
      * @param int $serviceId Service id for which we want to find downtimes
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function findDowntimesByService(int $hostId, int $serviceId, bool $isAdmin): array
     {
@@ -510,8 +507,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = dwt.host_id
                   AND acl.service_id = dwt.service_id
                 INNER JOIN `:db`.`acl_groups` acg
@@ -521,8 +518,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
                 . $this->accessGroupIdToString($this->accessGroups) . ')';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT dwt.*, contact.contact_id AS author_id
             FROM `:dbstg`.downtimes dwt
             INNER JOIN `:dbstg`.hosts
                 ON hosts.host_id = dwt.host_id
@@ -537,6 +534,7 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
 
         $this->sqlRequestTranslator->addSearchValue(':host_id', [\PDO::PARAM_INT => $hostId]);
         $this->sqlRequestTranslator->addSearchValue(':service_id', [\PDO::PARAM_INT => $serviceId]);
+
         return $this->processRequest($request);
     }
 
@@ -544,8 +542,8 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
      * Execute the request and retrieve the downtimes list
      *
      * @param string $request Request to execute
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     private function processRequest(string $request): array
     {
@@ -553,11 +551,11 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= !is_null($searchRequest) ? $searchRequest : '';
+        $request .= ! is_null($searchRequest) ? $searchRequest : '';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest) ? $sortRequest : ' ORDER BY dwt.downtime_id DESC';
+        $request .= ! is_null($sortRequest) ? $sortRequest : ' ORDER BY dwt.downtime_id DESC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2017 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -47,16 +32,16 @@ use PDOException;
 use Pimple\Container;
 use Throwable;
 
-require_once "centreonObject.class.php";
-require_once "centreonHost.class.php";
-require_once "centreonService.class.php";
-require_once "Centreon/Object/Downtime/RtDowntime.php";
-require_once "Centreon/Object/Host/Host.php";
-require_once "Centreon/Object/Host/Group.php";
-require_once "Centreon/Object/Service/Group.php";
-require_once "Centreon/Object/Relation/Downtime/Host.php";
-require_once "Centreon/Object/Relation/Downtime/Hostgroup.php";
-require_once "Centreon/Object/Relation/Downtime/Servicegroup.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonHost.class.php';
+require_once 'centreonService.class.php';
+require_once 'Centreon/Object/Downtime/RtDowntime.php';
+require_once 'Centreon/Object/Host/Host.php';
+require_once 'Centreon/Object/Host/Group.php';
+require_once 'Centreon/Object/Service/Group.php';
+require_once 'Centreon/Object/Relation/Downtime/Host.php';
+require_once 'Centreon/Object/Relation/Downtime/Hostgroup.php';
+require_once 'Centreon/Object/Relation/Downtime/Servicegroup.php';
 require_once dirname(__FILE__, 2) . '/centreonExternalCommand.class.php';
 require_once dirname(__FILE__, 2) . '/centreonDB.class.php';
 require_once dirname(__FILE__, 2) . '/centreonUser.class.php';
@@ -64,7 +49,7 @@ require_once dirname(__FILE__, 2) . '/centreonGMT.class.php';
 require_once dirname(__FILE__, 2) . '/centreonHostgroups.class.php';
 require_once dirname(__FILE__, 2) . '/centreonServicegroups.class.php';
 require_once dirname(__FILE__, 2) . '/centreonInstance.class.php';
-require_once __DIR__ . "/Validator/RtValidator.php";
+require_once __DIR__ . '/Validator/RtValidator.php';
 
 /**
  * Class
@@ -76,26 +61,35 @@ class CentreonRtDowntime extends CentreonObject
 {
     /** @var CentreonHostgroups */
     public $hgObject;
+
     /** @var CentreonServicegroups */
     public $sgObject;
+
     /** @var \CentreonInstance */
     public $instanceObject;
+
     /** @var CentreonGMT */
     public $GMTObject;
+
     /** @var CentreonExternalCommand */
     public $externalCmdObj;
 
     /** @var string[] */
     protected $downtimeType = ['HOST', 'SVC', 'HG', 'SG', 'INSTANCE'];
+
     /** @var array */
     protected $dHosts;
+
     /** @var array */
     protected $dServices;
+
     /** @var CentreonHost */
     protected $hostObject;
+
     /** @var CentreonService */
     protected $serviceObject;
-    /** @var Validator\RtValidator */
+
+    /** @var RtValidator */
     protected $rtValidator;
 
     /**
@@ -116,7 +110,7 @@ class CentreonRtDowntime extends CentreonObject
         $this->instanceObject = new \CentreonInstance($this->db);
         $this->GMTObject = new CentreonGMT();
         $this->externalCmdObj = new CentreonExternalCommand();
-        $this->action = "RTDOWNTIME";
+        $this->action = 'RTDOWNTIME';
         $this->externalCmdObj->setUserAlias(CentreonUtils::getUserName());
         $this->externalCmdObj->setUserId(CentreonUtils::getUserId());
         $this->rtValidator = new RtValidator($this->hostObject, $this->serviceObject);
@@ -130,13 +124,14 @@ class CentreonRtDowntime extends CentreonObject
     private function validateDate($date, $format = 'Y/m/d H:i')
     {
         $d = DateTime::createFromFormat($format, $date);
+
         return $d && $d->format($format) == $date;
     }
 
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     private function parseParameters($parameters)
     {
@@ -144,7 +139,7 @@ class CentreonRtDowntime extends CentreonObject
         [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', $parameters);
 
         // Check if object type is supported
-        if (!in_array(strtoupper($type), $this->downtimeType)) {
+        if (! in_array(strtoupper($type), $this->downtimeType)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
@@ -152,26 +147,26 @@ class CentreonRtDowntime extends CentreonObject
         $checkStart = $this->validateDate($start);
         $checkEnd = $this->validateDate($end);
 
-        if (!$checkStart || !$checkEnd) {
+        if (! $checkStart || ! $checkEnd) {
             throw new CentreonClapiException('Wrong date format, expected : YYYY/MM/DD HH:mm');
         }
 
         // Check if fixed is 0 or 1
-        if (!preg_match('/^(0|1)$/', $fixed)) {
+        if (! preg_match('/^(0|1)$/', $fixed)) {
             throw new CentreonClapiException('Bad fixed parameter (0 or 1)');
         }
 
         // Check duration parameters
         if (
-            ($fixed == 0 && (!preg_match('/^\d+$/', $duration) || $duration <= 0))
-            || ($fixed == 1 && !preg_match('/(^$)||(^\d+$)/', $duration))
+            ($fixed == 0 && (! preg_match('/^\d+$/', $duration) || $duration <= 0))
+            || ($fixed == 1 && ! preg_match('/(^$)||(^\d+$)/', $duration))
         ) {
             throw new CentreonClapiException('Bad duration parameter');
         }
 
         // Check if host with services
         if (strtoupper($type) === 'HOST') {
-            if (!preg_match('/^(0|1)$/', $withServices)) {
+            if (! preg_match('/^(0|1)$/', $withServices)) {
                 throw new CentreonClapiException('Bad "apply to services" parameter (0 or 1)');
             }
         }
@@ -187,8 +182,8 @@ class CentreonRtDowntime extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     private function parseShowParameters($parameters)
     {
@@ -218,18 +213,18 @@ class CentreonRtDowntime extends CentreonObject
                 throw new CentreonClapiException(self::UNKNOWNPARAMETER . ' : ' . $parsedParameters['type']);
             }
             $method = 'show' . ucfirst(strtolower($parsedParameters['type']));
-            $this->$method($parsedParameters['resource']);
+            $this->{$method}($parsedParameters['resource']);
         } else {
             $this->dHosts = $this->object->getHostDowntimes();
             $this->dServices = $this->object->getSvcDowntimes();
 
-            //all host
+            // all host
             $hostsToReturn = [];
             foreach ($this->dHosts as $host) {
                 $hostsToReturn[] = $host['name'];
             }
 
-            //all service
+            // all service
             $servicesToReturn = [];
             foreach ($this->dServices as $service) {
                 $servicesToReturn[] = $service['name'] . ',' . $service['description'];
@@ -252,7 +247,7 @@ class CentreonRtDowntime extends CentreonObject
 
         $fields = ['id', 'host_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
-        if (!empty($hostList)) {
+        if (! empty($hostList)) {
             $hostList = array_filter(explode('|', $hostList));
             $db = $this->db;
             $hostList = array_map(
@@ -281,7 +276,7 @@ class CentreonRtDowntime extends CentreonObject
         $this->GMTObject->getMyGTMFromUser(CentreonUtils::getuserId());
 
         echo implode($this->delim, $fields) . "\n";
-        //Separates hosts
+        // Separates hosts
         if (count($hostDowntimesList)) {
             foreach ($hostDowntimesList as $hostDowntime) {
                 $url = '';
@@ -319,6 +314,7 @@ class CentreonRtDowntime extends CentreonObject
 
         if ($unknownHost !== []) {
             echo "\n";
+
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' : Host : ' . implode('|', $unknownHost) . "\n");
         }
     }
@@ -335,7 +331,7 @@ class CentreonRtDowntime extends CentreonObject
 
         $fields = ['id', 'host_name', 'service_name', 'author', 'actual_start_time', 'actual_end_time', 'start_time', 'end_time', 'comment_data', 'duration', 'fixed', 'url'];
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $svcList = array_filter(explode('|', $svcList));
             $db = $this->db;
             $svcList = array_map(
@@ -359,7 +355,7 @@ class CentreonRtDowntime extends CentreonObject
             if ($existingService !== []) {
                 foreach ($existingService as $svc) {
                     $tmpDowntime = $this->object->getSvcDowntimes($svc);
-                    if (!empty($tmpDowntime)) {
+                    if (! empty($tmpDowntime)) {
                         $serviceDowntimesList = $tmpDowntime;
                     }
                 }
@@ -371,16 +367,16 @@ class CentreonRtDowntime extends CentreonObject
         // Init user timezone
         $this->GMTObject->getMyGTMFromUser(CentreonUtils::getuserId());
 
-        //Separates hosts and services
+        // Separates hosts and services
         echo implode($this->delim, $fields) . "\n";
 
         if (count($serviceDowntimesList)) {
             foreach ($serviceDowntimesList as $serviceDowntime) {
                 $url = '';
                 if (isset($_SERVER['HTTP_HOST'])) {
-                    $url = $this->getBaseUrl() .
-                        '/' . 'main.php?p=210&search_host=' . $serviceDowntime['name'] .
-                        '&search_service=' . $serviceDowntime['description'];
+                    $url = $this->getBaseUrl()
+                        . '/' . 'main.php?p=210&search_host=' . $serviceDowntime['name']
+                        . '&search_service=' . $serviceDowntime['description'];
                 }
 
                 $serviceDowntime['actual_start_time'] = $this->GMTObject->getDate(
@@ -413,6 +409,7 @@ class CentreonRtDowntime extends CentreonObject
 
         if ($unknownService !== []) {
             echo "\n";
+
             throw new CentreonClapiException(
                 self::OBJECT_NOT_FOUND . ' : Service : ' . implode('|', $unknownService) . "\n"
             );
@@ -431,7 +428,7 @@ class CentreonRtDowntime extends CentreonObject
         // to choose the best add (addHostDowntime, addSvcDowntime etc.)
         $method = 'add' . ucfirst(strtolower($parsedParameters['type'])) . 'Downtime';
         if ((strtolower($parsedParameters['type']) === 'host') || (strtolower($parsedParameters['type']) === 'hg')) {
-            $this->$method(
+            $this->{$method}(
                 $parsedParameters['resource'],
                 $parsedParameters['start'],
                 $parsedParameters['end'],
@@ -441,7 +438,7 @@ class CentreonRtDowntime extends CentreonObject
                 $parsedParameters['withServices']
             );
         } else {
-            $this->$method(
+            $this->{$method}(
                 $parsedParameters['resource'],
                 $parsedParameters['start'],
                 $parsedParameters['end'],
@@ -471,7 +468,7 @@ class CentreonRtDowntime extends CentreonObject
         $comment,
         $withServices = true
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $unknownHost = [];
@@ -515,7 +512,7 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $unknownService = [];
@@ -571,7 +568,7 @@ class CentreonRtDowntime extends CentreonObject
         $comment,
         $withServices = true
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $existingHg = [];
@@ -589,7 +586,7 @@ class CentreonRtDowntime extends CentreonObject
         if ($existingHg !== []) {
             foreach ($existingHg as $hg) {
                 $hostList = $this->hgObject->getHostsByHostgroupName($hg);
-                //check add services with host
+                // check add services with host
                 foreach ($hostList as $host) {
                     $this->externalCmdObj->addHostDowntime(
                         $host['host'],
@@ -688,7 +685,7 @@ class CentreonRtDowntime extends CentreonObject
         $duration,
         $comment
     ): void {
-        if ($resource === "") {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
@@ -707,7 +704,7 @@ class CentreonRtDowntime extends CentreonObject
         if ($existingPoller !== []) {
             foreach ($existingPoller as $poller) {
                 $hostList = $this->instanceObject->getHostsByInstance($poller);
-                //check add services with host with true in last param
+                // check add services with host with true in last param
                 foreach ($hostList as $host) {
                     $this->externalCmdObj->addHostDowntime(
                         $host['host'],
@@ -740,7 +737,7 @@ class CentreonRtDowntime extends CentreonObject
         $unknownDowntime = [];
 
         foreach ($listDowntime as $downtime) {
-            if (!is_numeric($downtime)) {
+            if (! is_numeric($downtime)) {
                 $unknownDowntime[] = $downtime;
             } else {
                 $infoDowntime = $this->object->getCurrentDowntime($downtime);

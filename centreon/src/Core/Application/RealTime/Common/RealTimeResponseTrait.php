@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ trait RealTimeResponseTrait
     public function downtimesToArray(array $downtimes): array
     {
         return array_map(
-            fn(Downtime $downtime) => [
+            fn (Downtime $downtime) => [
                 'start_time' => $downtime->getStartTime(),
                 'end_time' => $downtime->getEndTime(),
                 'actual_start_time' => $downtime->getActualStartTime(),
@@ -138,7 +138,7 @@ trait RealTimeResponseTrait
     private function tagsToArray(array $tags): array
     {
         return array_map(
-            fn(Tag $tag) => [
+            fn (Tag $tag) => [
                 'id' => $tag->getId(),
                 'name' => $tag->getName(),
             ],

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
@@ -35,23 +36,17 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public const SERIALIZER_GROUP_MAIN = 'hg_main';
     public const SERIALIZER_GROUP_WITH_HOST = 'hg_with_host';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var Host[]
-     */
+    /** @var Host[] */
     private $hosts = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -75,6 +70,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setId(int $id): HostGroup
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -93,6 +89,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setName(?string $name): HostGroup
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -103,6 +100,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function addHost(Host $host): HostGroup
     {
         $this->hosts[] = $host;
+
         return $this;
     }
 
@@ -127,6 +125,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -137,6 +136,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setHosts(array $hosts): HostGroup
     {
         $this->hosts = $hosts;
+
         return $this;
     }
 }

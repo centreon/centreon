@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,13 +26,16 @@ declare(strict_types=1);
  *
  * @class HtmlSanitizer
  */
-final class HtmlSanitizer {
+final class HtmlSanitizer
+{
     /**
      * HtmlSanitizer constructor
      *
      * @param string $string
      */
-    private function __construct(private string $string) {}
+    private function __construct(private string $string)
+    {
+    }
 
     /**
      * @param string $string
@@ -47,7 +50,8 @@ final class HtmlSanitizer {
     /**
      * @return HtmlSanitizer
      */
-    public function sanitize(): self {
+    public function sanitize(): self
+    {
         $this->string = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         return $this;

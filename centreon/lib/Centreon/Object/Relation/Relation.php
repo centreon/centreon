@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -45,14 +30,19 @@ abstract class Centreon_Object_Relation
 {
     /** @var string */
     public $firstObject;
+
     /** @var string */
     public $secondObject;
+
     /** @var mixed */
     protected $db;
+
     /** @var null */
     protected $relationTable = null;
+
     /** @var null */
     protected $firstKey = null;
+
     /** @var null */
     protected $secondKey = null;
 
@@ -75,7 +65,7 @@ abstract class Centreon_Object_Relation
      */
     public function insert($fkey, $skey = null): void
     {
-        $sql = "INSERT INTO $this->relationTable ($this->firstKey, $this->secondKey) VALUES (?, ?)";
+        $sql = "INSERT INTO {$this->relationTable} ({$this->firstKey}, {$this->secondKey}) VALUES (?, ?)";
         $this->db->query($sql, [$fkey, $skey]);
     }
 
@@ -88,14 +78,14 @@ abstract class Centreon_Object_Relation
      */
     public function delete($fkey, $skey = null): void
     {
-        if (isset($fkey) && isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";
+        if (isset($fkey, $skey)) {
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ? AND {$this->secondKey} = ?";
             $args = [$fkey, $skey];
         } elseif (isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->secondKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->secondKey} = ?";
             $args = [$skey];
         } else {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
             $args = [$fkey];
         }
         $this->db->query($sql, $args);
@@ -110,21 +100,21 @@ abstract class Centreon_Object_Relation
     protected function getResult($sql, $params = [])
     {
         $res = $this->db->query($sql, $params);
-        $result = $res->fetchAll();
 
-        return $result;
+        return $res->fetchAll();
     }
 
     /**
      * Get relation Ids
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getRelations()
     {
-        $sql = 'SELECT ' . $this->firstKey . ',' . $this->secondKey . ' ' .
-            'FROM ' . $this->relationTable;
+        $sql = 'SELECT ' . $this->firstKey . ',' . $this->secondKey . ' '
+            . 'FROM ' . $this->relationTable;
+
         return $this->getResult($sql);
     }
 
@@ -139,8 +129,8 @@ abstract class Centreon_Object_Relation
      * @param string $sort
      * @param array $filters
      * @param string $filterType
-     * @return false|mixed
      * @throws Exception
+     * @return false|mixed
      */
     public function getMergedParameters(
         $firstTableParams = [],
@@ -148,59 +138,58 @@ abstract class Centreon_Object_Relation
         $count = -1,
         $offset = 0,
         $order = null,
-        $sort = "ASC",
+        $sort = 'ASC',
         $filters = [],
-        $filterType = "OR"
+        $filterType = 'OR'
     ) {
-        if (!isset($this->firstObject) || !isset($this->secondObject)) {
+        if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
-        $fString = "";
-        $sString = "";
+        $fString = '';
+        $sString = '';
         foreach ($firstTableParams as $fparams) {
-            if ($fString != "") {
-                $fString .= ",";
+            if ($fString != '') {
+                $fString .= ',';
             }
-            $fString .= $this->firstObject->getTableName() . "." . $fparams;
+            $fString .= $this->firstObject->getTableName() . '.' . $fparams;
         }
         foreach ($secondTableParams as $sparams) {
-            if ($fString != "" || $sString != "") {
-                $sString .= ",";
+            if ($fString != '' || $sString != '') {
+                $sString .= ',';
             }
-            $sString .= $this->secondObject->getTableName() . "." . $sparams;
+            $sString .= $this->secondObject->getTableName() . '.' . $sparams;
         }
-        $sql = "SELECT " . $fString . $sString . " FROM " . $this->firstObject->getTableName() . "," .
-            $this->secondObject->getTableName() . "," . $this->relationTable .
-            " WHERE " . $this->firstObject->getTableName() . "." .
-            $this->firstObject->getPrimaryKey() . " = " . $this->relationTable . "." . $this->firstKey .
-            " AND " . $this->relationTable . "." . $this->secondKey . " = " . $this->secondObject->getTableName() .
-            "." . $this->secondObject->getPrimaryKey();
+        $sql = 'SELECT ' . $fString . $sString . ' FROM ' . $this->firstObject->getTableName() . ','
+            . $this->secondObject->getTableName() . ',' . $this->relationTable
+            . ' WHERE ' . $this->firstObject->getTableName() . '.'
+            . $this->firstObject->getPrimaryKey() . ' = ' . $this->relationTable . '.' . $this->firstKey
+            . ' AND ' . $this->relationTable . '.' . $this->secondKey . ' = ' . $this->secondObject->getTableName()
+            . '.' . $this->secondObject->getPrimaryKey();
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if (is_array($rawvalue)) {
-                    $sql .= " $filterType $key IN (" . str_repeat('?,', count($rawvalue) - 1) . '?) ';
+                    $sql .= " {$filterType} {$key} IN (" . str_repeat('?,', count($rawvalue) - 1) . '?) ';
                     $filterTab = array_merge($filterTab, $rawvalue);
                 } else {
-                    $sql .= " $filterType $key LIKE ? ";
+                    $sql .= " {$filterType} {$key} LIKE ? ";
                     $value = trim($rawvalue);
-                    $value = str_replace("\\", "\\\\", $value);
-                    $value = str_replace("_", "\_", $value);
-                    $value = str_replace(" ", "\ ", $value);
+                    $value = str_replace('\\', '\\\\', $value);
+                    $value = str_replace('_', "\_", $value);
+                    $value = str_replace(' ', "\ ", $value);
                     $filterTab[] = $value;
                 }
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        $result = $this->getResult($sql, $filterTab);
-        return $result;
-    }
 
+        return $this->getResult($sql, $filterTab);
+    }
 
     /**
      * Get target id from source id
@@ -212,15 +201,16 @@ abstract class Centreon_Object_Relation
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
-        if (!is_array($sourceId)) {
+        if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
-        $sql = "SELECT $targetKey FROM $this->relationTable WHERE $sourceKey = ?";
+        $sql = "SELECT {$targetKey} FROM {$this->relationTable} WHERE {$sourceKey} = ?";
         $result = $this->getResult($sql, $sourceId);
         $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$targetKey];
         }
+
         return $tab;
     }
 
@@ -230,16 +220,16 @@ abstract class Centreon_Object_Relation
      *
      * @param string $name
      * @param array $args
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function __call($name, $args = [])
     {
-        if (!count($args)) {
+        if (! count($args)) {
             throw new Exception('Missing arguments');
         }
-        if (!isset($this->secondKey)) {
-            throw new Exception("Not a relation table");
+        if (! isset($this->secondKey)) {
+            throw new Exception('Not a relation table');
         }
         if (preg_match('/^get([a-zA-Z0-9_]+)From([a-zA-Z0-9_]+)/', $name, $matches)) {
             if (
@@ -248,8 +238,10 @@ abstract class Centreon_Object_Relation
             ) {
                 throw new Exception('Unknown field');
             }
+
             return $this->getTargetIdFromSourceId($matches[1], $matches[2], $args);
-        } elseif (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
+        }
+        if (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
             if ($matches[1] == $this->firstKey) {
                 $this->delete($args[0]);
             } elseif ($matches[1] == $this->secondKey) {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@
 
 namespace CentreonLegacy\Core\Utils;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Utils
 {
@@ -68,6 +70,8 @@ class Utils
      * @param array $customMacros
      * @param mixed $monitoring
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
     public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
@@ -100,6 +104,8 @@ class Utils
     /**
      * @param string $fileName
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
     public function executePhpFile($fileName): void
@@ -218,7 +224,7 @@ class Utils
         if (isset($patternData[1])) {
             return $patternData[0];
         }
-  
-            return;
+
+        return;
     }
 }

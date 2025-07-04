@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,18 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\HostGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Monitoring\HostGroup;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Entity\EntityCreator;
+use Centreon\Domain\Monitoring\HostGroup;
 use Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupRepositoryInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the real time monitoring of hostgroups.
@@ -37,14 +38,10 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements HostGroupRepositoryInterface
 {
-    /**
-     * @var AccessGroup[] List of access group used to filter the requests
-     */
+    /** @var AccessGroup[] List of access group used to filter the requests */
     private $accessGroups = [];
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -63,6 +60,7 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
     public function filterByAccessGroups(?array $accessGroups): HostGroupRepositoryInterface
     {
         $this->accessGroups = $accessGroups;
+
         return $this;
     }
 
@@ -79,12 +77,12 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
 
         $bindValues = [];
         $subRequest = '';
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             $bindValues[':contact_id'] = [\PDO::PARAM_INT => $this->contact->getId()];
 
             // Not an admin, we must to filter on contact
-            $subRequest .=
-                ' INNER JOIN `:db`.acl_resources_hg_relations hgr
+            $subRequest
+                .= ' INNER JOIN `:db`.acl_resources_hg_relations hgr
                     ON hgr.hg_hg_id = hg.hostgroup_id
                 INNER JOIN `:db`.acl_resources res
                     ON res.acl_res_id = hgr.acl_res_id
@@ -106,8 +104,8 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
-            $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg '
+            . $subRequest;
         $request = $this->translateDbName($request);
 
         $bindHostGroupNames = [];
@@ -154,12 +152,12 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
 
         $bindValues = [];
         $subRequest = '';
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             $bindValues[':contact_id'] = [\PDO::PARAM_INT => $this->contact->getId()];
 
             // Not an admin, we must to filter on contact
-            $subRequest .=
-                ' INNER JOIN `:db`.acl_resources_hg_relations hgr
+            $subRequest
+                .= ' INNER JOIN `:db`.acl_resources_hg_relations hgr
                     ON hgr.hg_hg_id = hg.hostgroup_id
                 INNER JOIN `:db`.acl_resources res
                     ON res.acl_res_id = hgr.acl_res_id
@@ -181,8 +179,8 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
-            $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg '
+            . $subRequest;
         $request = $this->translateDbName($request);
 
         $bindHostGroupIds = [];
@@ -239,12 +237,12 @@ final class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements Host
     }
 
     /**
-     * @return bool Return FALSE if the contact is an admin or has at least one access group.
+     * @return bool return FALSE if the contact is an admin or has at least one access group
      */
     private function hasNotEnoughRightsToContinue(): bool
     {
         return ($this->contact !== null)
-            ? !($this->contact->isAdmin() || count($this->accessGroups) > 0)
+            ? ! ($this->contact->isAdmin() || count($this->accessGroups) > 0)
             : count($this->accessGroups) == 0;
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone;
@@ -31,24 +32,16 @@ namespace Centreon\Domain\Gorgone;
  */
 class ActionLog
 {
-    /**
-     * @var \DateTime Creation time of the response
-     */
+    /** @var \DateTime Creation time of the response */
     private $creationTime;
 
-    /**
-     * @var \DateTime Event time of the response
-     */
+    /** @var \DateTime Event time of the response */
     private $eventTime;
 
-    /**
-     * @var int Id of the action log
-     */
+    /** @var int Id of the action log */
     private $id;
 
-    /**
-     * @var string Token of the response
-     */
+    /** @var string Token of the response */
     private $token;
 
     /**
@@ -59,23 +52,22 @@ class ActionLog
      */
     private $code;
 
-    /**
-     * @var string Response data
-     */
+    /** @var string Response data */
     private $data;
 
     /**
      * Factory to create a action log based on the Gorgone response.
      *
      * @param array<string, string> $details Details used to create an action log
-     * @return ActionLog
      * @throws \Exception
+     * @return ActionLog
      */
     public static function create(array $details): ActionLog
     {
         if (empty($details['token'])) {
             throw new \LogicException('Token can not empty, null or not defined');
         }
+
         return (new ActionLog($details['token']))
             ->setId((int) ($details['id'] ?? 0))
             ->setCode((int) ($details['code'] ?? 0))
@@ -110,6 +102,7 @@ class ActionLog
     public function setCreationTime(\DateTime $creationTime): ActionLog
     {
         $this->creationTime = $creationTime;
+
         return $this;
     }
 
@@ -130,6 +123,7 @@ class ActionLog
     public function setEventTime(\DateTime $eventTime): ActionLog
     {
         $this->eventTime = $eventTime;
+
         return $this;
     }
 
@@ -148,6 +142,7 @@ class ActionLog
     public function setId(int $id): ActionLog
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -176,6 +171,7 @@ class ActionLog
     public function setCode(int $code): ActionLog
     {
         $this->code = $code;
+
         return $this;
     }
 
@@ -196,6 +192,7 @@ class ActionLog
     public function setData(string $data): ActionLog
     {
         $this->data = $data;
+
         return $this;
     }
 }

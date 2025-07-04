@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +21,6 @@
 
 class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
 {
-
     /**
      * Tries to find the element value from the values array
      * This is a modified version of the original _findValue()
@@ -38,25 +38,26 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
         $elementName = $this->getName();
         if (isset($values[$elementName])) {
             return $values[$elementName];
-        } elseif (strpos($elementName, '[')) {
+        }
+        if (strpos($elementName, '[')) {
             $myVar = "['" . str_replace(
                 ['\\', '\'', ']', '['],
                 ['\\\\', '\\\'', '', "']['"],
                 $elementName
             ) . "']";
 
-            /* patch for centreon */
+            // patch for centreon
             if (preg_match('/\[(.+)\]$/', $elementName, $matches)) {
-                if (isset($values[$matches[1]]) && !isset($values[$matches[1]][$matches[1]])) {
+                if (isset($values[$matches[1]]) && ! isset($values[$matches[1]][$matches[1]])) {
                     return $values[$matches[1]];
                 }
             }
-            /* end of patch */
+            // end of patch
 
-            return eval("return (isset(\$values$myVar)) ? \$values$myVar : null;");
-        } else {
-            return null;
+            return eval("return (isset(\$values{$myVar})) ? \$values{$myVar} : null;");
         }
+
+        return null;
     }
 
     /**

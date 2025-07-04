@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\AddNotification\Validator;
 
@@ -47,7 +47,6 @@ beforeEach(function (): void {
 
 it('should throw a NotificationException if users and contact groups are empty', function (): void {
     $this->validator->validateUsersAndContactGroups([], [], $this->user);
-
 })->throws(NotificationException::class)
     ->expectExceptionMessage(NotificationException::emptyArrayNotAllowed('users, contact groups')->getMessage());
 
@@ -64,6 +63,5 @@ it('should throw a NotificationException if at least one of the user IDs does no
         ->willReturn([$requestUsers[0]]);
 
     $this->validator->validateUsersAndContactGroups($requestUsers, [], $this->user);
-
 })->throws(NotificationException::class)
     ->expectExceptionMessage(NotificationException::invalidId('users')->getMessage());

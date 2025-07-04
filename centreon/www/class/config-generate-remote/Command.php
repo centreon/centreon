@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class Command extends AbstractObject
 {
     /** @var array|null */
     private $commands = null;
+
     /** @var string */
     protected $table = 'command';
+
     /** @var string */
     protected $generateFilename = 'commands.infile';
+
     /** @var string */
     protected $attributesSelect = '
         command_id,
@@ -46,6 +50,7 @@ class Command extends AbstractObject
         enable_shell,
         graph_id
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'command_id',
@@ -53,7 +58,7 @@ class Command extends AbstractObject
         'command_line',
         'command_type',
         'enable_shell',
-        'graph_id'
+        'graph_id',
     ];
 
     /**
@@ -63,7 +68,7 @@ class Command extends AbstractObject
      */
     private function getCommands(): void
     {
-        $query = "SELECT $this->attributesSelect FROM command";
+        $query = "SELECT {$this->attributesSelect} FROM command";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
@@ -74,8 +79,8 @@ class Command extends AbstractObject
      *
      * @param null|int $commandId
      *
-     * @return string|null
      * @throws \Exception
+     * @return string|null
      */
     public function generateFromCommandId(?int $commandId): ?string
     {
@@ -83,7 +88,7 @@ class Command extends AbstractObject
             $this->getCommands();
         }
 
-        if (!isset($this->commands[$commandId])) {
+        if (! isset($this->commands[$commandId])) {
             return null;
         }
         if ($this->checkGenerate($commandId)) {

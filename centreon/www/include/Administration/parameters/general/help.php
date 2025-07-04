@@ -1,4 +1,24 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 $help = [];
 
 /**
@@ -6,24 +26,22 @@ $help = [];
  */
 $help['tip_send_statistics'] = dgettext(
     'help',
-    'I agree to participate to the Centreon Customer Experience Improvement Program whereby anonymous information ' .
-    'about the usage of this server may be sent to Centreon. This information will solely be used to improve the ' .
-    'software user experience. I will be able to opt-out at anytime. Refer to ' .
-    '<a style="text-decoration: underline" href="http://ceip.centreon.com/">ceip.centreon.com</a> ' .
-    ' for further details.'
+    'I agree to participate to the Centreon Customer Experience Improvement Program whereby anonymous information '
+    . 'about the usage of this server may be sent to Centreon. This information will solely be used to improve the '
+    . 'software user experience. I will be able to opt-out at anytime. Refer to '
+    . '<a style="text-decoration: underline" href="http://ceip.centreon.com/">ceip.centreon.com</a> '
+    . ' for further details.'
 );
 
 /**
  * Centreon information
  */
-
 $help['tip_directory'] = dgettext('help', 'Application directory of Centreon.');
 $help['tip_centreon_web_directory'] = dgettext('help', 'Centreon Web URI.');
 
 /**
  * Maximum page size
  */
-
 $help['tip_limit_per_page'] = dgettext('help', 'Default number of displayed elements in listing pages.');
 $help['tip_limit_per_page_for_monitoring'] = dgettext(
     'help',
@@ -32,21 +50,18 @@ $help['tip_limit_per_page_for_monitoring'] = dgettext(
 $help['tip_graph_per_page_for_performances'] = dgettext('help', 'Number of performance graphs displayed per page.');
 $help['tip_select_paginagion_size'] = dgettext('help', 'The number elements loaded in async select.');
 
-
 /**
  * Sessions Properties
  */
-
 $help['tip_sessions_expiration_time'] = dgettext(
     'help',
-    'Life duration of sessions. The value in minutes cannot be greater than the session.gc_maxlifetime value set ' .
-    'in your php centreon.ini file.'
+    'Life duration of sessions. The value in minutes cannot be greater than the session.gc_maxlifetime value set '
+    . 'in your php centreon.ini file.'
 );
 
 /**
  * Refresh Properties
  */
-
 $help['tip_refresh_interval'] = dgettext('help', 'Refresh interval.');
 $help['tip_refresh_interval_for_statistics'] = dgettext('help', 'Refresh interval used for statistics (top counters). Minimum value: 10');
 $help['tip_refresh_interval_for_monitoring'] = dgettext('help', 'Refresh interval used in monitoring consoles. Minimum value: 10');
@@ -59,20 +74,17 @@ $help['tip_first_refresh_delay_for_monitoring'] = dgettext('help', 'First refres
 /**
  * Display Options
  */
-
 $help['tip_display_template'] = dgettext('help', 'CSS theme.');
 
 /**
  * Problem display properties
  */
-
 $help['tip_sort_problems_by'] = dgettext('help', 'Default sort in monitoring consoles.');
 $help['tip_order_sort_problems'] = dgettext('help', 'Default order in monitoring consoles.');
 
 /**
  * Notification
  */
-
 $help['tip_notification_inheritance'] = dgettext(
     'help',
     'Notification inheritance for hosts and services. Vertical for the legacy mode, Close for the first valid object '
@@ -82,14 +94,12 @@ $help['tip_notification_inheritance'] = dgettext(
 /**
  * Authentication properties
  */
-
 $help['tip_enable_autologin'] = dgettext('help', 'Enables Autologin.');
 $help['tip_display_autologin_shortcut'] = dgettext('help', 'Displays Autologin shortcut.');
 
 /**
  * Time Zone
  */
-
 $help['tip_default_timezone'] = dgettext('help', 'Default host and contact timezone.');
 
 /**
@@ -206,18 +216,14 @@ $help['strict_hostParent_poller_management'] = dgettext(
     . ' but kept with Centreon Broker Correlation module.'
 );
 
-/*
- * Support Informations
- */
+// Support Informations
 $help['tip_centreon_support_email'] = dgettext(
     'help',
     'Centreon Support email: this email is uses in the Centreon footer in order to have a quick'
     . ' link in order to open an issue to your help desk.'
 );
 
-/*
- * Proxy options
- */
+// Proxy options
 $help['tip_proxy_url'] = dgettext(
     'help',
     'URL of the proxy.'
@@ -235,16 +241,14 @@ $help['tip_proxy_password'] = dgettext(
     'Password of the proxy (Only if you use basic authentication).'
 );
 
-/*
- * Chart options
- */
+// Chart options
 $help['tip_display_downtime_chart'] = dgettext(
     'help',
-    'If this option is enable, the downtimes and acknowledgments will be displayed on metric chart.<br>' .
-    '<b>Warning</b> : This option can slow down the display of chart.'
+    'If this option is enable, the downtimes and acknowledgments will be displayed on metric chart.<br>'
+    . '<b>Warning</b> : This option can slow down the display of chart.'
 );
 $help['tip_display_comment_chart'] = dgettext(
     'help',
-    'If this option is enabled, the comments will be displayed on the status chart.<br>' .
-    '<b>Warning</b> : This option can slow down the display of the chart.'
+    'If this option is enabled, the comments will be displayed on the status chart.<br>'
+    . '<b>Warning</b> : This option can slow down the display of the chart.'
 );

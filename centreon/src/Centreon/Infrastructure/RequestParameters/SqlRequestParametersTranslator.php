@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\RequestParameters;
@@ -33,33 +34,25 @@ use Utility\SqlConcatenator;
  */
 class SqlRequestParametersTranslator
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $aggregateOperators = [
         RequestParameters::AGGREGATE_OPERATOR_OR,
-        RequestParameters::AGGREGATE_OPERATOR_AND
+        RequestParameters::AGGREGATE_OPERATOR_AND,
     ];
 
     /**
-     * @var array<string, string> $concordanceArray Concordance table between the search column
-     * and the real column name in the database. ['id' => 'my_table_id', ...]
+     * @var array<string, string> Concordance table between the search column
+     *                            and the real column name in the database. ['id' => 'my_table_id', ...]
      */
     private $concordanceArray = [];
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private $searchValues = [];
 
-    /**
-     * @var array<string, NormalizerInterface>
-     */
+    /** @var array<string, NormalizerInterface> */
     private $normalizers = [];
 
-    /**
-     * @var RequestParametersInterface
-     */
+    /** @var RequestParametersInterface */
     private $requestParameters;
 
     /**
@@ -76,10 +69,10 @@ class SqlRequestParametersTranslator
      *
      * @param array<mixed, mixed> $search Array containing search parameters
      * @param string|null $aggregateOperator Aggregate operator
-     * @return string Return the processed database query
      * @throws RequestParametersTranslatorException
+     * @return string Return the processed database query
      */
-    private function createDatabaseQuery(array $search, string $aggregateOperator = null): string
+    private function createDatabaseQuery(array $search, ?string $aggregateOperator = null): string
     {
         $databaseQuery = '';
         $databaseSubQuery = '';
@@ -99,18 +92,18 @@ class SqlRequestParametersTranslator
                     // Recursive call until to read key/value data
                     $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
                 }
-            } elseif (!is_int($key)) {
+            } elseif (! is_int($key)) {
                 // It's a pair on key/value to translate into a database query
                 if (is_object($searchRequests)) {
                     $searchRequests = (array) $searchRequests;
                 }
                 $databaseSubQuery = $this->createQueryOnKeyValue($key, $searchRequests);
             }
-            if (!empty($databaseQuery)) {
+            if (! empty($databaseQuery)) {
                 if (is_null($aggregateOperator)) {
                     $aggregateOperator = RequestParameters::AGGREGATE_OPERATOR_AND;
                 }
-                if (!empty($databaseSubQuery)) {
+                if (! empty($databaseSubQuery)) {
                     $databaseQuery .= ' '
                         . $this->translateAggregateOperator($aggregateOperator)
                         . ' '
@@ -120,7 +113,8 @@ class SqlRequestParametersTranslator
                 $databaseQuery .= $databaseSubQuery;
             }
         }
-        return count($search) > 1 && !empty($databaseQuery)
+
+        return count($search) > 1 && ! empty($databaseQuery)
             ? '(' . $databaseQuery . ')'
             : $databaseQuery;
     }
@@ -155,17 +149,18 @@ class SqlRequestParametersTranslator
      *      list($whereQuery, $bindValues) = $pagination->createQuery([...]);
      * </code>
      *
-     * @return string|null SQL request according to the search parameters
      * @throws RequestParametersTranslatorException
+     * @return string|null SQL request according to the search parameters
      */
     public function translateSearchParameterToSql(): ?string
     {
         $whereQuery = '';
         $search = $this->requestParameters->getSearch();
-        if (!empty($search) && is_array($search)) {
+        if (! empty($search) && is_array($search)) {
             $whereQuery .= $this->createDatabaseQuery($search);
         }
-        return !empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
+
+        return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
     }
 
     /**
@@ -178,7 +173,7 @@ class SqlRequestParametersTranslator
         $orderQuery = '';
         foreach ($this->requestParameters->getSort() as $name => $order) {
             if (array_key_exists($name, $this->concordanceArray)) {
-                if (!empty($orderQuery)) {
+                if (! empty($orderQuery)) {
                     $orderQuery .= ', ';
                 }
                 $orderQuery .= sprintf(
@@ -189,7 +184,8 @@ class SqlRequestParametersTranslator
                 );
             }
         }
-        return !empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
+
+        return ! empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
     }
 
     /**
@@ -215,11 +211,10 @@ class SqlRequestParametersTranslator
     }
 
     /**
-     *
      * @param string $key Key representing the entity to search
-     * @param mixed $valueOrArray Mixed value or array representing the value to search.
-     * @return string Part of the database query.
+     * @param mixed $valueOrArray mixed value or array representing the value to search
      * @throws RequestParametersTranslatorException
+     * @return string part of the database query
      */
     private function createQueryOnKeyValue(string $key, $valueOrArray): string
     {
@@ -357,8 +352,8 @@ class SqlRequestParametersTranslator
 
     /**
      * @param string $aggregateOperator
-     * @return string
      * @throws RequestParametersTranslatorException
+     * @return string
      */
     private function translateAggregateOperator(string $aggregateOperator): string
     {
@@ -519,6 +514,7 @@ class SqlRequestParametersTranslator
         if (array_key_exists($propertyName, $this->normalizers)) {
             return $this->normalizers[$propertyName]->normalize($valueToNormalize);
         }
+
         return $valueToNormalize;
     }
 }

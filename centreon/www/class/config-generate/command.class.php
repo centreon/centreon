@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2023 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -46,10 +31,13 @@ class Command extends AbstractObject
 
     /** @var null */
     private $mail_bin = null;
+
     /** @var string */
     protected $generate_filename = 'commands.cfg';
+
     /** @var string */
     protected string $object_name = 'command';
+
     /** @var string */
     protected $attributes_select = '
         command_id,
@@ -58,6 +46,7 @@ class Command extends AbstractObject
         connector.name as connector,
         enable_shell
     ';
+
     /** @var string[] */
     protected $attributes_write = ['command_name', 'command_line', 'connector'];
 
@@ -66,17 +55,17 @@ class Command extends AbstractObject
      */
     private function createCommandsCache(): void
     {
-        $query = "SELECT $this->attributes_select FROM command " .
-            "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' " .
-            "AND command.command_activate = '1'";
+        $query = "SELECT {$this->attributes_select} FROM command "
+            . "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' "
+            . "AND command.command_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->execute();
         $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getMailBin(): void
     {
@@ -92,11 +81,11 @@ class Command extends AbstractObject
     /**
      * @param $command_id
      *
-     * @return mixed|null
      * @throws LogicException
      * @throws PDOException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return mixed|null
      */
     public function generateFromCommandId($command_id)
     {
@@ -105,7 +94,7 @@ class Command extends AbstractObject
             $this->createCommandsCache();
         }
 
-        if (!isset($this->commands[$command_id])) {
+        if (! isset($this->commands[$command_id])) {
             return null;
         }
         if ($this->checkGenerate($command_id)) {
@@ -120,24 +109,22 @@ class Command extends AbstractObject
             $this->getVaultConfigurationStatus();
         }
 
-        /*
-         * enable_shell is 0 we remove it
-         */
+        // enable_shell is 0 we remove it
         $command_line = html_entity_decode($this->commands[$command_id]['command_line_base'] ?? '');
-        $command_line = str_replace('#BR#', "\\n", $command_line);
-        $command_line = str_replace("@MAILER@", $this->mail_bin, $command_line);
+        $command_line = str_replace('#BR#', '\\n', $command_line);
+        $command_line = str_replace('@MAILER@', $this->mail_bin, $command_line);
         $command_line = str_replace("\n", " \\\n", $command_line);
-        $command_line = str_replace("\r", "", $command_line);
+        $command_line = str_replace("\r", '', $command_line);
 
         if (
             $this->isVaultEnabled
-            && preg_match("/\\\$CENTREONPLUGINS\\\$\\/centreon/", $command_line)
+            && preg_match('/\\$CENTREONPLUGINS\\$\\/centreon/', $command_line)
         ) {
-            $command_line .= " --pass-manager=centreonvault";
+            $command_line .= ' --pass-manager=centreonvault';
         }
 
-        if (!is_null($this->commands[$command_id]['enable_shell']) &&
-            $this->commands[$command_id]['enable_shell'] == 1
+        if (! is_null($this->commands[$command_id]['enable_shell'])
+            && $this->commands[$command_id]['enable_shell'] == 1
         ) {
             $command_line = '/bin/sh -c ' . escapeshellarg($command_line);
         }
@@ -146,6 +133,7 @@ class Command extends AbstractObject
             array_merge($this->commands[$command_id], ['command_line' => $command_line]),
             $command_id
         );
+
         return $this->commands[$command_id]['command_name'];
     }
 
@@ -165,6 +153,7 @@ class Command extends AbstractObject
         if (is_null($this->commands)) {
             $this->createCommandsCache();
         }
+
         return $this->commands[$commandId] ?? null;
     }
 }

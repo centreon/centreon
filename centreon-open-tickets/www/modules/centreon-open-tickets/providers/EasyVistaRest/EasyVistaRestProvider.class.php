@@ -1,31 +1,27 @@
 <?php
+
 /*
- * Copyright 2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class EasyVistaRestProvider extends AbstractProvider
 {
-    protected $close_advanced = 1;
-    protected $proxy_enabled = 1;
-
     public const EZV_ASSET_TYPE = 16;
-
     public const ARG_TITLE = 1;
     public const ARG_URGENCY_ID = 2;
     public const ARG_REQUESTOR_NAME = 3;
@@ -41,7 +37,10 @@ class EasyVistaRestProvider extends AbstractProvider
     public const ARG_CATALOG_GUID = 13;
     public const ARG_CATALOG_CODE = 14;
     public const ARG_CUSTOM_EZV = 15;
-    
+
+    protected $close_advanced = 1;
+
+    protected $proxy_enabled = 1;
 
     protected $internal_arg_name = [
         self::ARG_TITLE => 'title',
@@ -57,12 +56,89 @@ class EasyVistaRestProvider extends AbstractProvider
         self::ARG_ASSET_NAME => 'asset',
         self::ARG_LOCATION_CODE => 'requester',
         self::ARG_CATALOG_GUID => 'catalog_guid',
-        self::ARG_CATALOG_CODE => 'catalog_code'
-    ];  
+        self::ARG_CATALOG_CODE => 'catalog_code',
+    ];
 
     /*
-    * Set default values for our rule form options
+    * checks if all mandatory fields have been filled
+    *
+    * @return {array} telling us if there is a missing parameter
     */
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    public static function test($info): void
+    {
+        // not implemented because there's no known url to test the api connection
+    }
+
+    /*
+    * check if the close option is enabled, if so, try to close every selected ticket
+    *
+    * @param {array} $tickets
+    *
+    * @return void
+    */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->closeTicketEzv($k);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
+
+    // webservice methods
+    public function getHostgroups($centreon_path, $data)
+    {
+        $hostCount = count($data['host_list']);
+        $listIds = '';
+
+        $queryValues = [];
+        foreach ($data['host_list'] as $hostId) {
+            $listIds .= ':hId_' . $hostId . ', ';
+            $queryValues[':hId_' . $hostId] = (int) $hostId;
+        }
+
+        $listIds = rtrim($listIds, ', ');
+
+        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
+        $db_storage = new CentreonDBManager('centstorage');
+
+        $query = 'SELECT name FROM hostgroups WHERE hostgroup_id IN'
+            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
+            . ' GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)';
+
+        $dbQuery = $db_storage->prepare($query);
+        foreach ($queryValues as $bindName => $bindValue) {
+            $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
+        }
+        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT)
+
+        . $dbQuery->execute();
+
+        $result = [];
+        while ($row = $dbQuery->fetch()) {
+            array_push($result, $row['name']);
+        }
+
+        return $result;
+    }
+
+    // Set default values for our rule form options
     protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
@@ -76,61 +152,61 @@ class EasyVistaRestProvider extends AbstractProvider
         $this->default_data['clones']['mappingTicket'] = [
             [
                 'Arg' => self::ARG_TITLE,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-                    '/Abstract/templates/display_title.ihtml"}'
+                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers'
+                    . '/Abstract/templates/display_title.ihtml"}',
             ],
             [
                 'Arg' => self::ARG_DESCRIPTION,
-                'Value' => '{$body}'
+                'Value' => '{$body}',
             ],
             [
                 'Arg' => self::ARG_URGENCY_ID,
-                'Value' => '{$select.ezv_urgency.id}'
+                'Value' => '{$select.ezv_urgency.id}',
             ],
             [
                 'Arg' => self::ARG_REQUESTOR_NAME,
-                'Value' => '{$select.ezv_requestor_name.id}'
+                'Value' => '{$select.ezv_requestor_name.id}',
             ],
             [
                 'Arg' => self::ARG_RECIPIENT_NAME,
-                'Value' => '{$select.ezv_recipient_name.id}'
+                'Value' => '{$select.ezv_recipient_name.id}',
             ],
             [
                 'Arg' => self::ARG_PHONE,
-                'Value' => '{$select.ezv_phone.id}'
+                'Value' => '{$select.ezv_phone.id}',
             ],
             [
                 'Arg' => self::ARG_ORIGIN,
-                'Value' => '{$select.ezv_origin.value}'
+                'Value' => '{$select.ezv_origin.value}',
             ],
             [
                 'Arg' => self::ARG_IMPACT_ID,
-                'Value' => '{$select.ezv_impact_id.id}'
+                'Value' => '{$select.ezv_impact_id.id}',
             ],
             [
                 'Arg' => self::ARG_DEPARTMENT_CODE,
-                'Value' => '{$select.ezv_department_code.value}'
+                'Value' => '{$select.ezv_department_code.value}',
             ],
             [
                 'Arg' => self::ARG_CI_NAME,
-                'Value' => '{$select.ezv_ci_name.value}'
+                'Value' => '{$select.ezv_ci_name.value}',
             ],
             [
                 'Arg' => self::ARG_ASSET_NAME,
-                'Value' => '{$select.ezv_asset_name.value}'
+                'Value' => '{$select.ezv_asset_name.value}',
             ],
             [
                 'Arg' => self::ARG_LOCATION_CODE,
-                'Value' => '{$select.ezv_location_code.value}'
+                'Value' => '{$select.ezv_location_code.value}',
             ],
             [
                 'Arg' => self::ARG_CATALOG_GUID,
-                'Value' => '{$select.ezv_catalog_guid.id}'
+                'Value' => '{$select.ezv_catalog_guid.id}',
             ],
             [
                 'Arg' => self::ARG_CATALOG_CODE,
-                'Value' => '{$select.ezv_catalog_code.id}'
-            ]
+                'Value' => '{$select.ezv_catalog_code.id}',
+            ],
         ];
     }
 
@@ -210,34 +286,30 @@ class EasyVistaRestProvider extends AbstractProvider
         }
     }
 
-    /*
-    * Initiate your html configuration and let Smarty display it in the rule form
-    */
+    // Initiate your html configuration and let Smarty display it in the rule form
     protected function getConfigContainer1Extra()
     {
         $tpl = $this->initSmartyTemplate('providers/EasyVistaRest/templates');
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
-        $tpl->assign('header', ['EasyVistaRest' => _("Easyvista Rest Api")]);
+        $tpl->assign('header', ['EasyVistaRest' => _('Easyvista Rest Api')]);
         $tpl->assign('webServiceUrl', './api/internal.php');
 
-        /*
-        * we create the html that is going to be displayed
-        */
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $api_path_html = '<input size="50" name="api_path" type="text" value="' .
-            $this->getFormValue('api_path') . '" />';
-        $protocol_html = '<input size="50" name="protocol" type="text" value="' .
-            $this->getFormValue('protocol') . '" />';
-        $account_html = '<input size="50" name="account" type="text" value="' .
-            $this->getFormValue('account') . '" autocomplete="off" />';
-        $token_html = '<input size="50" name="token" type="token" value="' .
-            $this->getFormValue('token') . '" autocomplete="off" />';
-        $timeout_html = '<input size="50" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" :>';
-        $use_token_html = '<input size="50" name="use_token" type="text" value="' .
-            $this->getFormValue('use_token') . '" :>';
+        // we create the html that is going to be displayed
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $api_path_html = '<input size="50" name="api_path" type="text" value="'
+            . $this->getFormValue('api_path') . '" />';
+        $protocol_html = '<input size="50" name="protocol" type="text" value="'
+            . $this->getFormValue('protocol') . '" />';
+        $account_html = '<input size="50" name="account" type="text" value="'
+            . $this->getFormValue('account') . '" autocomplete="off" />';
+        $token_html = '<input size="50" name="token" type="token" value="'
+            . $this->getFormValue('token') . '" autocomplete="off" />';
+        $timeout_html = '<input size="50" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" :>';
+        $use_token_html = '<input size="50" name="use_token" type="text" value="'
+            . $this->getFormValue('use_token') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = [
@@ -248,33 +320,33 @@ class EasyVistaRestProvider extends AbstractProvider
             'token' => ['label' => _('Bearer token or account password') . $this->required_field, 'html' => $token_html],
             'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html],
             'use_token' => ['label' => _('Use token'), 'html' => $use_token_html],
-            //we add a key to our array
+            // we add a key to our array
             'mappingTicketLabel' => ['label' => _('Mapping ticket arguments')],
         ];
 
         // html
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" ' .
-            'name="mappingTicketValue[#index#]" size="20" type="text"';
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" '
+            . 'name="mappingTicketValue[#index#]" size="20" type="text"';
 
         // html code for a dropdown list where we will be able to select something from the following list
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" ' .
-            'name="mappingTicketArg[#index#]" type="select-one">' .
-            '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>' .
-            '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency') . '</option>' .
-            '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requester') . '</option>' .
-            '<option value="' . self::ARG_RECIPIENT_NAME . '">' ._('Recipient') . '</option>' .
-            '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</option>' .
-            '<option value="' . self::ARG_ORIGIN . '">' ._('Origin') . '</option>' .
-            '<option value="' . self::ARG_IMPACT_ID . '">' . _('Impact') . '</option>' .
-            '<option value="' . self::ARG_DESCRIPTION . '">' ._('Description') . '</option>' .
-            '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department') . '</option>' .
-            '<option value="' . self::ARG_CI_NAME . '">' . _('CI') . '</option>' .
-            '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset') . '</option>' .
-            '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location') . '</option>' .
-            '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</option>' .
-            '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog code') . '</option>' .
-            '<option value="' . self::ARG_CUSTOM_EZV . '">' ._('Custom Field') . '</option>' .
-            '</select>';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" '
+            . 'name="mappingTicketArg[#index#]" type="select-one">'
+            . '<option value="' . self::ARG_TITLE . '">' . _('Title') . '</option>'
+            . '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency') . '</option>'
+            . '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requester') . '</option>'
+            . '<option value="' . self::ARG_RECIPIENT_NAME . '">' . _('Recipient') . '</option>'
+            . '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</option>'
+            . '<option value="' . self::ARG_ORIGIN . '">' . _('Origin') . '</option>'
+            . '<option value="' . self::ARG_IMPACT_ID . '">' . _('Impact') . '</option>'
+            . '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</option>'
+            . '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department') . '</option>'
+            . '<option value="' . self::ARG_CI_NAME . '">' . _('CI') . '</option>'
+            . '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset') . '</option>'
+            . '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location') . '</option>'
+            . '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</option>'
+            . '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog code') . '</option>'
+            . '<option value="' . self::ARG_CUSTOM_EZV . '">' . _('Custom Field') . '</option>'
+            . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
         $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
@@ -288,9 +360,7 @@ class EasyVistaRestProvider extends AbstractProvider
     {
     }
 
-    /*
-    * Saves the rule form in the database
-    */
+    // Saves the rule form in the database
     protected function saveConfigExtra()
     {
         $this->save_config['simple']['address'] = $this->submitted_config['address'];
@@ -312,9 +382,7 @@ class EasyVistaRestProvider extends AbstractProvider
     */
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::EZV_ASSET_TYPE . '">Asset</option>';
-
-        return $str;
+        return '<option value="' . self::EZV_ASSET_TYPE . '">Asset</option>';
     }
 
     protected function assignOthers($entry, &$groups_order, &$groups)
@@ -327,8 +395,8 @@ class EasyVistaRestProvider extends AbstractProvider
     protected function assignEzvAssets($entry, &$groups_order, &$groups)
     {
         // add a label to our entry and activate sorting or not.
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .
-        (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : '' ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
+        $groups[$entry['Id']] = ['label' => _($entry['Label'])
+        . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         // adds our entry in the group order array
         $groups_order[] = $entry['Id'];
 
@@ -339,7 +407,7 @@ class EasyVistaRestProvider extends AbstractProvider
                 $listAssets = $this->getAssets($entry['Filter']);
                 $this->setCache($entry['Id'], $listAssets, 8 * 3600);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
         }
@@ -358,32 +426,20 @@ class EasyVistaRestProvider extends AbstractProvider
     {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/assets?fields=asset_tag,HREF';
-        
-        if (!empty($filter)) {
-            $info['query_endpoint'] .= "&" . $filter;
+
+        if (! empty($filter)) {
+            $info['query_endpoint'] .= '&' . $filter;
         }
 
-        $info['method'] = "GET";
+        $info['method'] = 'GET';
 
         // try to get assets from ezv
         try {
             // the variable is going to be used outside of this method.
-            $result= $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+            $result = $this->curlQuery($info);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
-
-        return $result;
-    }
-
-    /*
-    * checks if all mandatory fields have been filled
-    *
-    * @return {array} telling us if there is a missing parameter
-    */
-    public function validateFormatPopup() {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
 
         return $result;
     }
@@ -437,26 +493,23 @@ class EasyVistaRestProvider extends AbstractProvider
         // we try to open the ticket
         try {
             $ticketId = $this->createTicket($ticketArguments);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
+
             return $result;
         }
 
         // we save ticket data in our database
         $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
-        return $result;
-    }
 
-    public static function test($info): void
-    {
-        // not implemented because there's no known url to test the api connection
+        return $result;
     }
 
     protected function curlQuery($info)
     {
         // check if php curl is installed
-        if (!extension_loaded("curl")) {
-            throw new \Exception("couldn't find php curl", 10);
+        if (! extension_loaded('curl')) {
+            throw new Exception("couldn't find php curl", 10);
         }
 
         $curl = curl_init();
@@ -465,11 +518,11 @@ class EasyVistaRestProvider extends AbstractProvider
             . $this->getFormValue('api_path') . $info['query_endpoint'];
 
         $info['headers'] = [
-            "content-type: application/json"
+            'content-type: application/json',
         ];
 
         if ($this->getFormValue(('use_token') == 1)) {
-            array_push($info['headers'], "Authorization: Bearer " . $this->getFormValue('token'));
+            array_push($info['headers'], 'Authorization: Bearer ' . $this->getFormValue('token'));
         }
 
         // initiate our curl options
@@ -481,11 +534,11 @@ class EasyVistaRestProvider extends AbstractProvider
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
 
         if ($this->getFormValue('use_token') != 1) {
-            curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('account') . ":" . $this->getFormValue('token'));
+            curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('account') . ':' . $this->getFormValue('token'));
         }
 
         // add postData if needed
-        if (!empty($info['data'])) {
+        if (! empty($info['data'])) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($info['data']));
         }
 
@@ -525,8 +578,8 @@ class EasyVistaRestProvider extends AbstractProvider
 
         // 200 for get operations and 201 for post
         if ($httpCode != 200 && $httpCode != 201) {
-            throw new \Exception("An error happened with endpoint: " . $apiAddress
-                . ". Easyvista response is: " . $curlResult);
+            throw new Exception('An error happened with endpoint: ' . $apiAddress
+                . '. Easyvista response is: ' . $curlResult);
         }
 
         return json_decode($curlResult, true);
@@ -537,58 +590,58 @@ class EasyVistaRestProvider extends AbstractProvider
         // $file = fopen("/var/log/php-fpm/ezv", "a") or die ("Unable to open file!");
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/requests';
-        $info['method'] = "POST";
+        $info['method'] = 'POST';
         $info['data'] = [
             'requests' => [
                 [
                     'catalog_guid' => $ticketArguments[$this->internal_arg_name[self::ARG_CATALOG_GUID]],
                     'catalog_code' => $ticketArguments[$this->internal_arg_name[self::ARG_CATALOG_CODE]],
-                    'title' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]]
-                ]
-            ]
+                    'title' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]],
+                ],
+            ],
         ];
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_ASSET_NAME]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_ASSET_NAME]])) {
             $info['data']['requests'][0]['asset_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_ASSET_NAME]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_URGENCY_ID]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_URGENCY_ID]])) {
             $info['data']['requests'][0]['urgency_id'] = $ticketArguments[$this->internal_arg_name[self::ARG_URGENCY_ID]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]])) {
             $info['data']['requests'][0]['requester_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_NAME]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_NAME]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_NAME]])) {
             $info['data']['requests'][0]['recipient_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_NAME]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_PHONE]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_PHONE]])) {
             $info['data']['requests'][0]['phone'] = $ticketArguments[$this->internal_arg_name[self::ARG_PHONE]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_ORIGIN]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_ORIGIN]])) {
             $info['data']['requests'][0]['origin'] = $ticketArguments[$this->internal_arg_name[self::ARG_ORIGIN]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_IMPACT_ID]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_IMPACT_ID]])) {
             $info['data']['requests'][0]['impact_id'] = $ticketArguments[$this->internal_arg_name[self::ARG_IMPACT_ID]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_DESCRIPTION]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_DESCRIPTION]])) {
             $info['data']['requests'][0]['description'] = $ticketArguments[$this->internal_arg_name[self::ARG_DESCRIPTION]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_DEPARTMENT_CODE]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_DEPARTMENT_CODE]])) {
             $info['data']['requests'][0]['department_code'] = $ticketArguments[$this->internal_arg_name[self::ARG_DEPARTMENT_CODE]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_CI_NAME]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_CI_NAME]])) {
             $info['data']['requests'][0]['ci_name'] = $ticketArguments[$this->internal_arg_name[self::ARG_CI_NAME]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]])) {
             $info['data']['requests'][0]['location_code'] = $ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]];
         }
 
@@ -599,18 +652,18 @@ class EasyVistaRestProvider extends AbstractProvider
             }
         }
 
-//         fwrite($file, print_r("\n ticketargs \n",true));
-//         fwrite($file, print_r($ticketArguments,true));
-        
-// fwrite($file, print_r("\n info \n",true));
-// fwrite($file, print_r(json_encode($info['data']),true));
-        $result=$this->curlQuery($info);
+        //         fwrite($file, print_r("\n ticketargs \n",true));
+        //         fwrite($file, print_r($ticketArguments,true));
+
+        // fwrite($file, print_r("\n info \n",true));
+        // fwrite($file, print_r(json_encode($info['data']),true));
+        $result = $this->curlQuery($info);
         preg_match('~' . $this->getFormValue('address') . $this->getFormValue('api_path') . $info['query_endpoint'] . '/(.*)$~', $result['HREF'], $match);
-        $ticketId=$match[1];
-// fclose($file);
+
+        return $match[1];
+        // fclose($file);
 
         // return 1234;
-        return $ticketId;
     }
 
     protected function closeTicketEzv($ticketId)
@@ -620,75 +673,15 @@ class EasyVistaRestProvider extends AbstractProvider
         $info['method'] = 0;
         $info['custom_request'] = 'PUT';
         $info['data'] = [
-            'closed' => []
+            'closed' => [],
         ];
 
         try {
             $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return void
-    */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (\Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
-    }
-
-    // webservice methods
-    public function getHostgroups($centreon_path, $data) {
-        $hostCount = count($data['host_list']);
-        $listIds = "";
-
-        $queryValues = [];
-        foreach ($data['host_list'] as $hostId) {
-            $listIds .= ':hId_' . $hostId . ', ';
-            $queryValues[':hId_' . $hostId] = (int)$hostId;
-        }
-
-        $listIds = rtrim($listIds, ', ');
-
-        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
-        $db_storage = new CentreonDBManager('centstorage');
-
-        $query = "SELECT name FROM hostgroups WHERE hostgroup_id IN"
-            . " (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (" . $listIds .")"
-            . " GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)";
-        
-        $dbQuery = $db_storage->prepare($query);
-        foreach ($queryValues as $bindName => $bindValue) {
-            $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
-        }
-        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT).
-
-        $dbQuery->execute();
-
-        $result = [];
-        while ($row = $dbQuery->fetch()) {
-            array_push($result, $row['name']);
-        }
-
-        return $result;
     }
 }

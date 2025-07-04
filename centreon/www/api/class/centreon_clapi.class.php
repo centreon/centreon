@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -39,7 +25,7 @@ use CentreonClapi\CentreonObject;
 use Pimple\Container;
 
 require_once __DIR__ . '/../../include/common/csvFunctions.php';
-require_once __DIR__ . "/webService.class.php";
+require_once __DIR__ . '/webService.class.php';
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
@@ -53,9 +39,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php'
  */
 class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiInterface
 {
-    /**
-     * @var Container
-     */
+    /** @var Container */
     private $dependencyInjector;
 
     /**
@@ -73,11 +57,11 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      *
      * @global Centreon $centreon
      * @global array $conf_centreon
-     * @return array
      * @throws RestBadRequestException
      * @throws RestNotFoundException
      * @throws RestConflictException
      * @throws RestInternalServerErrorException
+     * @return array
      */
     public function postAction()
     {
@@ -104,10 +88,10 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         CentreonClapi\CentreonUtils::setUserName($username);
 
         if (false === isset($this->arguments['action'])) {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
-        /* Prepare options table */
+        // Prepare options table
         $action = $this->arguments['action'];
 
         $options = [];
@@ -123,7 +107,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             }
         }
 
-        /* Load and execute clapi option */
+        // Load and execute clapi option
         try {
             $clapi = new CentreonAPI(
                 $username,
@@ -166,6 +150,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             if (str_starts_with($message, CentreonObject::OBJECTNOTLINKED)) {
                 throw new RestBadRequestException($message);
             }
+
             throw new RestInternalServerErrorException($message);
         }
         if ($retCode != 0) {
@@ -173,9 +158,9 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
             if (preg_match('/^Object ([\w\d ]+) not found in Centreon API.$/', $contents)) {
                 throw new RestBadRequestException($contents);
             }
+
             throw new RestInternalServerErrorException($contents);
         }
-
 
         if (preg_match("/^.*;.*(?:\n|$)/", $contents)) {
             $result = csvToArray($contents, true);
@@ -190,7 +175,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         } else {
             $result = [];
             foreach (explode("\n", $contents) as &$line) {
-                if (trim($line) !== '' && !str_starts_with($line, 'Return code end :')) {
+                if (trim($line) !== '' && ! str_starts_with($line, 'Return code end :')) {
                     $result[] = $line;
                 }
             }
@@ -212,14 +197,10 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->is_admin())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
@@ -231,6 +212,6 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
      */
     private function clearCarriageReturns(&$item): void
     {
-        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", "<br/>"], '', $item) : $item;
+        $item = (is_string($item)) ? str_replace(["\n", "\t", "\r", '<br/>'], '', $item) : $item;
     }
 }

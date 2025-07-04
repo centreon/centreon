@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\HostConfiguration\Exception\HostCommandException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface;
 use Centreon\Domain\Macro\Interfaces\MacroInterface;
-use Centreon\Domain\HostConfiguration\Exception\HostCommandException;
+use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Service\AbstractCentreonService;
 use Centreon\Domain\ServiceConfiguration\Exception\ServiceCommandException;
+use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
  * Monitoring class used to manage the real time services and hosts
@@ -43,7 +43,8 @@ use Centreon\Domain\ServiceConfiguration\Exception\ServiceCommandException;
  */
 class MonitoringService extends AbstractCentreonService implements MonitoringServiceInterface
 {
-    use CommandLineTrait, LoggerTrait;
+    use CommandLineTrait;
+    use LoggerTrait;
 
     /**
      * @param MonitoringRepositoryInterface $monitoringRepository
@@ -104,13 +105,14 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
         if ($withServices && $hosts !== []) {
             $hosts = $this->completeHostsWithTheirServices($hosts);
         }
+
         return $hosts;
     }
 
     /**
      * @inheritDoc
      */
-    public function findHostGroups(bool $withHosts = false, bool $withServices = false, int $hostId = null): array
+    public function findHostGroups(bool $withHosts = false, bool $withServices = false, ?int $hostId = null): array
     {
         // Find hosts groups only
         $hostGroups = $this->monitoringRepository->findHostGroups($hostId);
@@ -132,7 +134,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                         // We keep the host ids if we must to retrieve their services
                         if ($withServices) {
                             foreach ($hostGroup->getHosts() as $host) {
-                                if (!in_array($host->getId(), $hostIds)) {
+                                if (! in_array($host->getId(), $hostIds)) {
                                     $hostIds[] = $host->getId();
                                 }
                             }
@@ -164,9 +166,10 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     {
         $host = $this->monitoringRepository->findOneHost($hostId);
 
-        if (!empty($host)) {
+        if (! empty($host)) {
             $host = $this->completeHostsWithTheirServices([$host])[0];
         }
+
         return $host;
     }
 
@@ -248,7 +251,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
      */
     public function isHostExists(int $hostId): bool
     {
-        return !is_null($this->findOneHost($hostId));
+        return ! is_null($this->findOneHost($hostId));
     }
 
     /**
@@ -257,7 +260,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
      */
     public function isServiceExists(int $hostId, int $serviceId): bool
     {
-        return !is_null($this->findOneService($hostId, $serviceId));
+        return ! is_null($this->findOneService($hostId, $serviceId));
     }
 
     /**
@@ -272,8 +275,8 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
      * Completes hosts with their services.
      *
      * @param Host[] $hosts Host list for which we want to complete with their services
-     * @return Host[] Returns the host list with their services
      * @throws \Exception
+     * @return Host[] Returns the host list with their services
      */
     private function completeHostsWithTheirServices(array $hosts): array
     {
@@ -288,6 +291,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                 $host->setServices($services[$host->getId()]);
             }
         }
+
         return $hosts;
     }
 
@@ -302,6 +306,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                 throw new MonitoringServiceException('Service not found');
             }
             $this->hidePasswordInServiceCommandLine($service);
+
             return $service->getCommandLine();
         } catch (MonitoringServiceException $ex) {
             throw $ex;
@@ -340,7 +345,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
             $replacementValue
         );
 
-        if (!empty($builtCommand)) {
+        if (! empty($builtCommand)) {
             $monitoringHost->setCheckCommand($builtCommand);
         }
     }
@@ -367,11 +372,12 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
             if (preg_match('/^meta_[0-9]+$/', $monitoringService->getDescription())) {
                 // For META SERVICE we can define the configuration command line with the monitoring command line
                 $monitoringService->setCommandLine($monitoringCommand);
+
                 return;
-            } else {
-                // The service is not a META SERVICE
-                throw ServiceCommandException::notFound($monitoringService->getId());
             }
+
+            // The service is not a META SERVICE
+            throw ServiceCommandException::notFound($monitoringService->getId());
         }
 
         $hostMacros = $this->hostConfiguration->findHostMacrosFromCommandLine(
@@ -395,7 +401,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
             $replacementValue
         );
 
-        if (!empty($builtCommand)) {
+        if (! empty($builtCommand)) {
             $monitoringService->setCommandLine($builtCommand);
         }
     }

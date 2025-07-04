@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone;
@@ -25,9 +26,9 @@ namespace Centreon\Domain\Gorgone;
 use Centreon\Domain\Gorgone\Command\EmptyCommand;
 use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 use Centreon\Domain\Gorgone\Interfaces\CommandRepositoryInterface;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseRepositoryInterface;
-use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Infrastructure\Gorgone\CommandRepositoryException;
 
 /**
@@ -37,9 +38,7 @@ use Centreon\Infrastructure\Gorgone\CommandRepositoryException;
  */
 class GorgoneService implements GorgoneServiceInterface
 {
-    /**
-     * @var CommandRepositoryInterface
-     */
+    /** @var CommandRepositoryInterface */
     private $commandRepository;
 
     /**
@@ -67,6 +66,7 @@ class GorgoneService implements GorgoneServiceInterface
             throw new GorgoneException(_('Error when connecting to the Gorgone server'), 0, $ex);
         }
         $command->setToken($responseToken);
+
         return Response::create($command);
     }
 
@@ -77,6 +77,7 @@ class GorgoneService implements GorgoneServiceInterface
     {
         $emptyCommand = new EmptyCommand($monitoringInstanceId);
         $emptyCommand->setToken($token);
+
         return Response::create($emptyCommand);
     }
 }

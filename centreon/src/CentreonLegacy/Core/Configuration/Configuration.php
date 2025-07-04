@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,17 +75,17 @@ class Configuration
         return $value;
     }
 
-    public function getFinder() : ?Finder
+    public function getFinder(): ?Finder
     {
         return $this->finder;
     }
 
-    public function getModulePath() : string
+    public function getModulePath(): string
     {
         return $this->centreonPath . ModuleSource::PATH;
     }
 
-    public function getWidgetPath() : string
+    public function getWidgetPath(): string
     {
         return $this->centreonPath . WidgetSource::PATH;
     }
@@ -97,7 +97,7 @@ class Configuration
      *
      * @return array
      */
-    public function getModuleConfig(string $moduleFolder) : array
+    public function getModuleConfig(string $moduleFolder): array
     {
         $configVars = [];
         $filesIterator = $this->getFinder()

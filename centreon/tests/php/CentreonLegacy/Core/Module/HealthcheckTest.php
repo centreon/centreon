@@ -1,30 +1,33 @@
 <?php
-/**
- * Copyright 2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace CentreonLegacy\Core\Module;
 
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonLegacy\ServiceProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Module;
-use CentreonLegacy\ServiceProvider;
-use CentreonLegacy\Core\Configuration\Configuration;
-use CentreonLegacy\Core\Module\Exception;
 
 /**
  * @group CentreonLegacy
@@ -34,12 +37,12 @@ class HealthcheckTest extends TestCase
 {
     /** @var FileSystem */
     public $fs;
-    /** @var (Configuration&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+
+    /** @var MockObject&ServiceContainer */
     public $container;
-    /** @var (Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+
+    /** @var MockObject&Healthcheck */
     public $service;
-    /** @var */
-    protected $isModuleFs;
 
     public function setUp(): void
     {
@@ -70,7 +73,7 @@ class HealthcheckTest extends TestCase
                 })
             );
 
-        $this->service = $this->getMockBuilder(Module\Healthcheck::class)
+        $this->service = $this->getMockBuilder(Healthcheck::class)
             ->setConstructorArgs([
                 new Container($this->container),
             ])
@@ -106,16 +109,22 @@ class HealthcheckTest extends TestCase
     ) {
         $this->service
             ->method('getRequirements')
-            ->will($this->returnCallback(function (
-                    $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
+            ->will($this->returnCallback(
+                function (
+                    $checklistDir,
+                    &$message,
+                    &$customAction,
+                    &$warning,
+                    &$critical,
+                    &$licenseExpiration
+                ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
                     $message = $messageV ?: [];
                     $customAction = $customActionV;
                     $warning = $warningV;
                     $critical = $criticalV;
                     $licenseExpiration = $licenseExpirationV;
                 }
-        ));
+            ));
     }
 
     public function testCheckWithDotModuleName(): void
@@ -156,7 +165,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
 
         $this->setRequirementMockMethodValue($valueMessages, null, false, true);
@@ -200,7 +209,8 @@ class HealthcheckTest extends TestCase
             [
                 'customAction' => $valueCustomAction['action'],
                 'customActionName' => $valueCustomAction['name'],
-            ], $this->service->getCustomAction()
+            ],
+            $this->service->getCustomAction()
         );
     }
 
@@ -223,7 +233,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
         $value = [
             'status' => 'critical',
@@ -247,7 +257,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
         $value = [
             'status' => 'warning',
@@ -278,12 +288,18 @@ class HealthcheckTest extends TestCase
 
         $this->service
             ->method('getRequirements')
-            ->will($this->returnCallback(function (
-                    $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($valueException): void {
+            ->will($this->returnCallback(
+                function (
+                    $checklistDir,
+                    &$message,
+                    &$customAction,
+                    &$warning,
+                    &$critical,
+                    &$licenseExpiration
+                ) use ($valueException): void {
                     throw new \Exception($valueException);
                 }
-        ));
+            ));
 
         $result = $this->service->checkPrepareResponse($module);
 
@@ -314,10 +330,9 @@ class HealthcheckTest extends TestCase
 
     public function testReset(): void
     {
-        $value = '';
-
-        $result = $this->service->reset();
-
-        $this->assertEquals($result, $value);
+        $this->service->reset();
+        $this->assertEquals(null, $this->service->getMessages());
+        $this->assertEquals(null, $this->service->getCustomAction());
+        $this->assertEquals(null, $this->service->getLicenseExpiration());
     }
 }

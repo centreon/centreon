@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +16,10 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 namespace Tests\App;
 
@@ -28,6 +29,6 @@ final class TmpTest extends TestCase
 {
     public function testNothing(): void
     {
-        static::assertTrue(true);
+        // self::assertTrue(true); // Comment to avoid errors by phpstan
     }
 }

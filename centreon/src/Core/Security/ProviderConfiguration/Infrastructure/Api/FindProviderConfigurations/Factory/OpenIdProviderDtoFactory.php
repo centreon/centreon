@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,8 @@ class OpenIdProviderDtoFactory implements ProviderConfigurationDtoFactoryInterfa
         return $customConfiguration->getBaseUrl() . '/'
             . ltrim($authorizationEndpointBase ?? '', '/')
             . '?' . $queryParams
-            . (! empty($customConfiguration->getConnectionScopes())
+            . (
+                ! empty($customConfiguration->getConnectionScopes())
                 ? '&scope=' . implode('%20', $customConfiguration->getConnectionScopes())
                 : ''
             );

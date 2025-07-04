@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\MonitoringServer;
@@ -41,11 +42,10 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  */
 class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements MonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use SqlMultipleBindTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db)
@@ -88,8 +88,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $result['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -103,7 +105,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'name',
             'is_localhost' => 'localhost',
             'address' => 'ns_ip_address',
-            'is_activate' => 'ns_activate'
+            'is_activate' => 'ns_activate',
         ]);
 
         // Search
@@ -128,7 +130,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'name',
             'is_localhost' => 'localhost',
             'address' => 'ns_ip_address',
-            'is_activate' => 'ns_activate'
+            'is_activate' => 'ns_activate',
         ]);
 
         // Search
@@ -170,7 +172,6 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
      * @throws \Exception
      *
      * @return MonitoringServer[]
-     *
      */
     private function findServers(
         ?string $searchRequest,
@@ -187,7 +188,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         if ($accessGroups !== []) {
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
@@ -251,6 +252,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             }
             $servers[] = $server;
         }
+
         return $servers;
     }
 
@@ -275,8 +277,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $record['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -290,7 +294,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -360,8 +364,10 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
             if ((int) $record['last_restart'] === 0) {
                 $server->setLastRestart(null);
             }
+
             return $server;
         }
+
         return null;
     }
 
@@ -390,6 +396,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 ->setIsActivate($record['resource_activate'] === '1')
                 ->setPath($record['resource_line']);
         }
+
         return null;
     }
 
@@ -420,7 +427,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function deleteServer(int $monitoringServerId): void
     {
-        $statement = $this->db->prepare($this->translateDbName("DELETE FROM `:db`.nagios_server WHERE id = :id"));
+        $statement = $this->db->prepare($this->translateDbName('DELETE FROM `:db`.nagios_server WHERE id = :id'));
         $statement->bindValue(':id', $monitoringServerId, \PDO::PARAM_INT);
         $statement->execute();
     }
@@ -436,6 +443,7 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
         if ($statement !== false) {
             return $statement->fetchAll(\PDO::FETCH_COLUMN);
         }
+
         return [];
     }
 }

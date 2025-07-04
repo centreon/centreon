@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -48,10 +33,13 @@ class HostTemplate extends AbstractHost
 {
     /** @var array|null */
     public $hosts = null;
+
     /** @var string */
     protected $generate_filename = 'hostTemplates.cfg';
+
     /** @var string */
     protected string $object_name = 'host';
+
     /** @var string */
     protected $attributes_select = '
         host_id,
@@ -103,8 +91,10 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords as 3d_coords,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributes_write = ['name', 'alias', 'display_name', 'timezone', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', '2d_coords', '3d_coords', 'acknowledgement_timeout'];
+
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -135,8 +125,8 @@ class HostTemplate extends AbstractHost
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getHosts(): void
     {
@@ -153,8 +143,8 @@ class HostTemplate extends AbstractHost
     /**
      * @param $host_id
      *
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     private function getSeverity($host_id)
     {
@@ -162,12 +152,12 @@ class HostTemplate extends AbstractHost
             return 0;
         }
 
-        $this->hosts[$host_id]['severity_id'] =
-            Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
-        $severity =
-            Severity::getInstance($this->dependencyInjector)
+        $this->hosts[$host_id]['severity_id']
+            = Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
+        $severity
+            = Severity::getInstance($this->dependencyInjector)
                 ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
-        if (!is_null($severity)) {
+        if (! is_null($severity)) {
             $macros = [
                 '_CRITICALITY_LEVEL' => $severity['level'],
                 '_CRITICALITY_ID' => $severity['hc_id'],
@@ -181,11 +171,11 @@ class HostTemplate extends AbstractHost
     /**
      * @param $host_id
      *
-     * @return mixed|null
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return mixed|null
      */
     public function generateFromHostId($host_id)
     {
@@ -193,14 +183,14 @@ class HostTemplate extends AbstractHost
             $this->getHosts();
         }
 
-        if (!isset($this->hosts[$host_id])) {
+        if (! isset($this->hosts[$host_id])) {
             return null;
         }
         if ($this->checkGenerate($host_id)) {
             return $this->hosts[$host_id]['name'];
         }
 
-        # Avoid infinite loop!
+        // Avoid infinite loop!
         if (isset($this->loop_htpl[$host_id])) {
             return $this->hosts[$host_id]['name'];
         }
@@ -224,12 +214,13 @@ class HostTemplate extends AbstractHost
         $this->getSeverity($host_id);
 
         $this->generateObjectInFile($this->hosts[$host_id], $host_id);
+
         return $this->hosts[$host_id]['name'];
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset(): void
     {

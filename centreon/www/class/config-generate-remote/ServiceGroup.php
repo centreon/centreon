@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 use Pimple\Container;
 
@@ -36,17 +37,22 @@ class ServiceGroup extends AbstractObject
 {
     /** @var int */
     private $useCache = 1;
+
     /** @var int */
     private $doneCache = 0;
 
     /** @var array */
     private $sg = [];
+
     /** @var array */
     private $sgRelationCache = [];
+
     /** @var string */
     protected $table = 'servicegroup';
+
     /** @var string */
     protected $generateFilename = 'servicegroups.infile';
+
     /** @var string */
     protected $attributesSelect = '
         sg_id,
@@ -54,17 +60,21 @@ class ServiceGroup extends AbstractObject
         sg_alias,
         geo_coords
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'sg_id',
         'sg_name',
         'sg_alias',
-        'geo_coords'
+        'geo_coords',
     ];
+
     /** @var PDOStatement */
     protected $stmtSg = null;
+
     /** @var PDOStatement */
     protected $stmtServiceSg = null;
+
     /** @var PDOStatement */
     protected $stmtStplSg = null;
 
@@ -89,7 +99,7 @@ class ServiceGroup extends AbstractObject
     {
         if (is_null($this->stmtSg)) {
             $this->stmtSg = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect
+                "SELECT {$this->attributesSelect}
                 FROM servicegroup
                 WHERE sg_id = :sg_id AND sg_activate = '1'"
             );
@@ -114,12 +124,12 @@ class ServiceGroup extends AbstractObject
      * @param int $hostId
      * @param string $hostName
      *
-     * @return int
      * @throws Exception
+     * @return int
      */
     public function addServiceInSg(int $sgId, int $serviceId, string $serviceDescription, int $hostId, string $hostName)
     {
-        if (!isset($this->sg[$sgId])) {
+        if (! isset($this->sg[$sgId])) {
             $this->getServicegroupFromId($sgId);
             $this->generateObjectInFile($this->sg[$sgId], $sgId);
         }
@@ -128,6 +138,7 @@ class ServiceGroup extends AbstractObject
         }
 
         $this->sg[$sgId]['members_cache'][$hostId . '_' . $serviceId] = [$hostName, $serviceDescription];
+
         return 0;
     }
 
@@ -142,10 +153,10 @@ class ServiceGroup extends AbstractObject
             return 0;
         }
 
-        $stmt = $this->backendInstance->db->prepare("SELECT 
+        $stmt = $this->backendInstance->db->prepare('SELECT 
                   service_service_id, servicegroup_sg_id, host_host_id
                 FROM servicegroup_relation
-        ");
+        ');
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if (isset($this->sgRelationCache[$value['service_service_id']])) {
@@ -177,9 +188,9 @@ class ServiceGroup extends AbstractObject
         if (is_null($this->stmtStplSg)) {
             // Meaning, linked with the host or hostgroup (for the null expression)
             $this->stmtStplSg = $this->backendInstance->db->prepare(
-                "SELECT servicegroup_sg_id, host_host_id, service_service_id
+                'SELECT servicegroup_sg_id, host_host_id, service_service_id
                 FROM servicegroup_relation
-                WHERE service_service_id = :service_id"
+                WHERE service_service_id = :service_id'
             );
         }
         $this->stmtStplSg->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
@@ -188,6 +199,7 @@ class ServiceGroup extends AbstractObject
             $this->stmtStplSg->fetchAll(PDO::FETCH_ASSOC),
             $this->sgRelationCache[$serviceId]
         );
+
         return $this->sgRelationCache[$serviceId];
     }
 
@@ -211,10 +223,10 @@ class ServiceGroup extends AbstractObject
         if (is_null($this->stmtServiceSg)) {
             // Meaning, linked with the host or hostgroup (for the null expression)
             $this->stmtServiceSg = $this->backendInstance->db->prepare(
-                "SELECT servicegroup_sg_id, host_host_id, service_service_id
+                'SELECT servicegroup_sg_id, host_host_id, service_service_id
                 FROM servicegroup_relation
                 WHERE service_service_id = :service_id
-                AND (host_host_id = :host_id OR host_host_id IS NULL)"
+                AND (host_host_id = :host_id OR host_host_id IS NULL)'
             );
         }
         $this->stmtServiceSg->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
@@ -224,6 +236,7 @@ class ServiceGroup extends AbstractObject
             $this->stmtServiceSg->fetchAll(PDO::FETCH_ASSOC),
             $this->sgRelationCache[$serviceId]
         );
+
         return $this->sgRelationCache[$serviceId];
     }
 
@@ -232,8 +245,8 @@ class ServiceGroup extends AbstractObject
      *
      * @param int $sgId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateObject(int $sgId)
     {
@@ -247,8 +260,8 @@ class ServiceGroup extends AbstractObject
     /**
      * Generate objects
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateObjects(): void
     {
@@ -276,6 +289,7 @@ class ServiceGroup extends AbstractObject
             }
             $result[$id] = &$value;
         }
+
         return $result;
     }
 
@@ -284,8 +298,8 @@ class ServiceGroup extends AbstractObject
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {

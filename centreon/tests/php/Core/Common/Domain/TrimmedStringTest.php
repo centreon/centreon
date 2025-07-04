@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,15 @@ use Core\Common\Domain\TrimmedString;
 
 it(
     'should trim a string',
-    fn() => expect((new TrimmedString('  Hello World !  '))->value)
+    fn () => expect((new TrimmedString('  Hello World !  '))->value)
         ->toBe('Hello World !')
 );
 
 it(
     'should trim a Stringable',
-    fn() => expect(
+    fn () => expect(
         (new TrimmedString(
-            new class implements \Stringable {
+            new class () implements \Stringable {
                 public function __toString(): string
                 {
                     return '  Hello World !  ';
@@ -47,6 +47,6 @@ it(
 
 it(
     'should implements a Stringable',
-    fn() => expect((string) new TrimmedString('  Hello World !  '))
+    fn () => expect((string) new TrimmedString('  Hello World !  '))
         ->toBe('Hello World !')
 );

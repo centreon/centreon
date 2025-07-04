@@ -1,33 +1,19 @@
 <?php
-/**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -47,19 +33,21 @@ class CentreonUtils
      * Remove all <script> data
      */
     public const ESCAPE_LEGACY_METHOD = 0;
+
     /**
      * Convert all html tags into HTML entities except links
      */
     public const ESCAPE_ALL_EXCEPT_LINK = 1;
+
     /**
      * Convert all html tags into HTML entities
      */
     public const ESCAPE_ALL = 2;
+
     /**
      * Remove all specific characters defined in the configuration > pollers > engine > admin, illegal characters field
      */
     public const ESCAPE_ILLEGAL_CHARS = 4;
-
 
     /**
      * Defines all self-closing html tags allowed
@@ -96,8 +84,9 @@ class CentreonUtils
             }
         }
         if ($arrData === []) {
-            $arrData = "";
+            $arrData = '';
         }
+
         return $arrData;
     }
 
@@ -114,14 +103,15 @@ class CentreonUtils
     {
         if (preg_match('/ WHERE /', $query)) {
             if ($or === true) {
-                $query .= " OR ";
+                $query .= ' OR ';
             } else {
-                $query .= " AND ";
+                $query .= ' AND ';
             }
         } else {
-            $query .= " WHERE ";
+            $query .= ' WHERE ';
         }
-        $query .= $condition . " ";
+        $query .= $condition . ' ';
+
         return $query;
     }
 
@@ -129,36 +119,37 @@ class CentreonUtils
      * Get datetime timestamp
      *
      * @param string $datetime
-     * @return int
      * @throws Exception
+     * @return int
      */
     public static function getDateTimeTimestamp($datetime)
     {
         static $db;
         static $centreonGmt;
 
-        $invalidString = "Date format is not valid";
-        if (!isset($db)) {
+        $invalidString = 'Date format is not valid';
+        if (! isset($db)) {
             $db = new CentreonDB();
         }
-        if (!isset($centreonGmt)) {
+        if (! isset($centreonGmt)) {
             $centreonGmt = new CentreonGMT($db);
         }
         $centreonGmt->getMyGMTFromSession(session_id(), $db);
         $datetime = trim($datetime);
-        $res = explode(" ", $datetime);
+        $res = explode(' ', $datetime);
         if (count($res) != 2) {
             throw new Exception($invalidString);
         }
-        $res1 = explode("/", $res[0]);
+        $res1 = explode('/', $res[0]);
         if (count($res1) != 3) {
             throw new Exception($invalidString);
         }
-        $res2 = explode(":", $res[1]);
+        $res2 = explode(':', $res[1]);
         if (count($res2) != 2) {
             throw new Exception($invalidString);
         }
         $timestamp = $centreonGmt->getUTCDateFromString($datetime);
+
         return $timestamp;
     }
 
@@ -170,42 +161,43 @@ class CentreonUtils
      */
     public static function operandToMysqlFormat($str)
     {
-        $result = "";
+        $result = '';
         switch ($str) {
-            case "gt":
-                $result = ">";
+            case 'gt':
+                $result = '>';
                 break;
-            case "lt":
-                $result = "<";
+            case 'lt':
+                $result = '<';
                 break;
-            case "gte":
-                $result = ">=";
+            case 'gte':
+                $result = '>=';
                 break;
-            case "lte":
-                $result = "<=";
+            case 'lte':
+                $result = '<=';
                 break;
-            case "eq":
-                $result = "=";
+            case 'eq':
+                $result = '=';
                 break;
-            case "ne":
-                $result = "!=";
+            case 'ne':
+                $result = '!=';
                 break;
-            case "like":
-                $result = "LIKE";
+            case 'like':
+                $result = 'LIKE';
                 break;
-            case "notlike":
-                $result = "NOT LIKE";
+            case 'notlike':
+                $result = 'NOT LIKE';
                 break;
-            case "regex":
-                $result = "REGEXP";
+            case 'regex':
+                $result = 'REGEXP';
                 break;
-            case "notregex":
-                $result = "NOT REGEXP";
+            case 'notregex':
+                $result = 'NOT REGEXP';
                 break;
             default:
-                $result = "";
+                $result = '';
                 break;
         }
+
         return $result;
     }
 
@@ -215,8 +207,8 @@ class CentreonUtils
      * @param HTML_QuickFormCustom $form
      * @param string $key
      *
-     * @return array
      * @throws InvalidArgumentException
+     * @return array
      */
     public static function mergeWithInitialValues($form, $key)
     {
@@ -225,13 +217,14 @@ class CentreonUtils
             $initForm = $form->getElement('initialValues');
             $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
             $initialValues = unserialize($initForm, ['allowed_classes' => false]);
-            if (!empty($initialValues) && isset($initialValues[$key])) {
+            if (! empty($initialValues) && isset($initialValues[$key])) {
                 $init = $initialValues[$key];
             }
-            $result = array_merge((array)$form->getSubmitValue($key), $init);
+            $result = array_merge((array) $form->getSubmitValue($key), $init);
         } catch (HTML_QuickForm_Error $e) {
             $result = (array) $form->getSubmitValue($key);
         }
+
         return $result;
     }
 
@@ -241,24 +234,25 @@ class CentreonUtils
      *
      * @param array $arr
      * @param bool $transformKey | string will be formed with keys when true,
-     *                             otherwise values will be used
+     *                           otherwise values will be used
      * @return string
      */
     public static function toStringWithQuotes($arr = [], $transformKey = true)
     {
-        $string = "";
+        $string = '';
         $first = true;
         foreach ($arr as $key => $value) {
             if ($first) {
                 $first = false;
             } else {
-                $string .= ", ";
+                $string .= ', ';
             }
             $string .= $transformKey ? "'" . $key . "'" : "'" . $value . "'";
         }
-        if ($string == "") {
+        if ($string == '') {
             $string = "''";
         }
+
         return $string;
     }
 
@@ -269,13 +263,12 @@ class CentreonUtils
      *
      * @param int $depth Indicates the depth of comparison, if 0 it means "unlimited"
      */
-    public static function compareVersion($currentVersion, $targetVersion, $delimiter = ".", $depth = 0)
+    public static function compareVersion($currentVersion, $targetVersion, $delimiter = '.', $depth = 0)
     {
         $currentVersionExplode = explode($delimiter, $currentVersion);
         $targetVersionExplode = explode($delimiter, $targetVersion);
         $isCurrentSuperior = false;
         $isCurrentEqual = false;
-
 
         $maxRecursion = $depth == 0 ? count($currentVersionExplode) : $depth;
 
@@ -284,23 +277,24 @@ class CentreonUtils
                 $isCurrentSuperior = true;
                 $isCurrentEqual = false;
                 break;
-            } elseif ($currentVersionExplode[$i] < $targetVersionExplode[$i]) {
+            }
+            if ($currentVersionExplode[$i] < $targetVersionExplode[$i]) {
                 $isCurrentSuperior = false;
                 $isCurrentEqual = false;
                 break;
-            } else {
-                $isCurrentEqual = true;
             }
-        }
+            $isCurrentEqual = true;
 
+        }
 
         if ($isCurrentSuperior) {
             return 1;
-        } elseif (($isCurrentSuperior === false) && $isCurrentEqual) {
-            return 2;
-        } else {
-            return 0;
         }
+        if (($isCurrentSuperior === false) && $isCurrentEqual) {
+            return 2;
+        }
+
+        return 0;
     }
 
     /**
@@ -322,13 +316,14 @@ class CentreonUtils
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(["/<script.*?\/script>/si", "/<input[^>]+\>/si"], "", $stringToEscape ?? '');
+                return preg_replace(["/<script.*?\/script>/si", "/<input[^>]+\>/si"], '', $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
                 return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
                 return self::escapeAll($stringToEscape);
             case self::ESCAPE_ILLEGAL_CHARS:
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
+
                 return str_replace(str_split($chars), '', $stringToEscape);
             default: return false;
         }
@@ -384,7 +379,7 @@ class CentreonUtils
         $stringToEscape,
         $tagsNotToEscape = []
     ) {
-        if (!is_array($tagsNotToEscape)) {
+        if (! is_array($tagsNotToEscape)) {
             // Do nothing if the tag list is empty
             return $stringToEscape;
         }
@@ -398,7 +393,7 @@ class CentreonUtils
         for ($indexTag = 0; $indexTag < $counter; $indexTag++) {
             $linkToken = "{{__TAG{$indexTag}x__}}";
             $currentTag = $tagsNotToEscape[$indexTag];
-            if (!in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
+            if (! in_array($currentTag, self::$selfclosingHtmlTagsAllowed)) {
                 // The current tag is not self-closing tag allowed
                 $index = 0;
                 $tagsFound = [];
@@ -423,7 +418,7 @@ class CentreonUtils
                     $linkToken,
                     $stringToEscape
                 );
-                $tagsFound = ["<$currentTag/>"];
+                $tagsFound = ["<{$currentTag}/>"];
             }
             $tagOccurences[$linkToken] = $tagsFound;
         }
@@ -463,26 +458,27 @@ class CentreonUtils
      * @param string $html HTML to analyse
      *
      * @return array (('tag'=> html tag; 'start' => start position of tag,
-     * 'length'=> length between start and end of tag), ...)
+     *               'length'=> length between start and end of tag), ...)
      */
     public static function getHtmlTags($tag, $html)
     {
         $occurrences = false;
         $start = 0;
         if (
-            ($start = stripos($html, "<$tag", $start)) !== false &&
-            ($end = stripos($html, "</$tag>", strlen("</$tag>")))
+            ($start = stripos($html, "<{$tag}", $start)) !== false
+            && ($end = stripos($html, "</{$tag}>", strlen("</{$tag}>")))
         ) {
-            if (!is_array($occurrences[$tag])) {
+            if (! is_array($occurrences[$tag])) {
                 $occurrences[$tag] = [];
             }
-            $occurrences =
-                ['tag' => substr(
+            $occurrences
+                = ['tag' => substr(
                     $html,
                     $start,
-                    $end + strlen("</$tag>") - $start
-                ), 'start' => $start, 'length' => $end + strlen("</$tag>") - $start];
+                    $end + strlen("</{$tag}>") - $start
+                ), 'start' => $start, 'length' => $end + strlen("</{$tag}>") - $start];
         }
+
         return $occurrences;
     }
 
@@ -493,14 +489,11 @@ class CentreonUtils
      */
     public static function validateGeoCoords($coords): bool
     {
-        if (
+        return (bool) (
             preg_match(
                 '/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/',
                 $coords
             )
-        ) {
-            return true;
-        }
-        return false;
+        );
     }
 }

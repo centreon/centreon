@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 
 /**
@@ -35,19 +36,23 @@ class Resource extends AbstractObject
 {
     /** @var string */
     protected $table = 'cfg_resource';
+
     /** @var string */
     protected $generateFilename = 'resource.infile';
+
     /** @var string|null */
     protected $objectName = null;
+
     /** @var PDOStatement */
     protected $stmt = null;
+
     /** @var string[] */
     protected $attributesWrite = [
         'resource_id',
         'resource_name',
         'resource_line',
         'resource_comment',
-        'resource_activate'
+        'resource_activate',
     ];
 
     /**
@@ -55,8 +60,8 @@ class Resource extends AbstractObject
      *
      * @param null|int $pollerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateFromPollerId(?int $pollerId)
     {
@@ -65,8 +70,8 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $query =
-                "SELECT cfg_resource.resource_id, resource_name, resource_line, resource_comment, resource_activate
+            $query
+                = "SELECT cfg_resource.resource_id, resource_name, resource_line, resource_comment, resource_activate
                 FROM cfg_resource_instance_relations, cfg_resource
                 WHERE instance_id = :poller_id
                 AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id

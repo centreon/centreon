@@ -1,0 +1,22 @@
+includes:
+    - phpstan.legacy.src.baseline.neon
+
+parameters:
+    bootstrapFiles:
+        - config/centreon.config.php.template
+    scanFiles:
+        - config/centreon.config.php.template
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+    excludePaths:
+        analyseAndScan:
+            - src/App
+            - src/Core
+            - src/Adaptation
+    level: 4
+    paths:
+        - src
+
+services:
+    errorFormatter.absolute:
+        class: Tools\PhpStan\AbsolutePathErrorFormatter

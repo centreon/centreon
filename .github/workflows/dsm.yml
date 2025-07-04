@@ -79,14 +79,66 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-dsm
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon-dsm
         shell: bash
 
-      - name: Run of phpstan on /www at level 0
-        run: vendor/bin/phpstan analyse --no-progress --level=0 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-dsm
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
+
+          {
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy (www): Success" || { echo "❌ Rector Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🧹 PHP-CS-Fixer checks
+        working-directory: centreon-dsm
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy" && set -e
+
+          {
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www): Success" || { echo "❌ PHP-CS-Fixer Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-dsm
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy" && set -e
+
+          {
+            composer stan:legacy -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
 
   package:
     needs: [get-environment, check-version-consistency, backend-lint]

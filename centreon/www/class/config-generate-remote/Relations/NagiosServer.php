@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +34,10 @@ class NagiosServer extends AbstractObject
 {
     /** @var string */
     protected $table = 'nagios_server';
+
     /** @var string */
     protected $generateFilename = 'nagios_server.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'id',
@@ -65,7 +68,7 @@ class NagiosServer extends AbstractObject
         'engine_version',
         'centreonbroker_logs_path',
         'remote_id',
-        'remote_server_use_as_proxy'
+        'remote_server_use_as_proxy',
     ];
 
     /**
@@ -74,8 +77,8 @@ class NagiosServer extends AbstractObject
      * @param array $object
      * @param int $id
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function add(array $object, int $id)
     {

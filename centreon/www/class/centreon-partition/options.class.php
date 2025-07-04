@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -41,19 +27,23 @@
  */
 class Options
 {
-    const INFO = "info";
-    const DEBUG = "debug";
-    const WARNING = "warning";
-    const ERROR = "error";
+    public const INFO = 'info';
+    public const DEBUG = 'debug';
+    public const WARNING = 'warning';
+    public const ERROR = 'error';
 
     /** @var array|false|false[]|string[] */
     public $options;
+
     /** @var string */
     public $shortopts;
+
     /** @var string */
-    public $verbosity = "info";
+    public $verbosity = 'info';
+
     /** @var mixed */
     public $confFile;
+
     /** @var string */
     public $version = '1.1';
 
@@ -62,18 +52,18 @@ class Options
      */
     public function __construct()
     {
-        $this->shortopts .= "o:"; /** Optimize */
-        $this->shortopts .= "m:"; /** Migrate Partition */
-        $this->shortopts .= "c:"; /** Create table with Partition */
-        $this->shortopts .= "b:"; /** Backup Partitions */
-        $this->shortopts .= "p:"; /** Purge Partitions */
-        $this->shortopts .= "l:"; /** List all partitions from a table */
-        $this->shortopts .= "s:"; /** Schema for table which table partitions will be listed */
-        $this->shortopts .= "h"; /** Help */
+        $this->shortopts .= 'o:'; /** Optimize */
+        $this->shortopts .= 'm:'; /** Migrate Partition */
+        $this->shortopts .= 'c:'; /** Create table with Partition */
+        $this->shortopts .= 'b:'; /** Backup Partitions */
+        $this->shortopts .= 'p:'; /** Purge Partitions */
+        $this->shortopts .= 'l:'; /** List all partitions from a table */
+        $this->shortopts .= 's:'; /** Schema for table which table partitions will be listed */
+        $this->shortopts .= 'h'; /** Help */
         $this->options = getopt($this->shortopts);
         $this->updateVerboseLevel();
     }
-    
+
     /**
      * get option value
      *
@@ -83,11 +73,9 @@ class Options
      */
     public function getOptionValue($label)
     {
-        $value = $this->options[$label] ?? null;
-
-        return $value;
+        return $this->options[$label] ?? null;
     }
-    
+
     /**
      * Check options and print help if necessary
      *
@@ -95,18 +83,17 @@ class Options
      */
     public function isMissingOptions()
     {
-        if (!isset($this->options) || count($this->options) == 0) {
-            return(true);
-        } elseif (isset($this->options["h"])) {
-            return(true);
-        } elseif (!isset($this->options["m"]) && !isset($this->options["u"]) &&
-                !isset($this->options["c"]) && !isset($this->options["p"])
-                && !isset($this->options["l"]) && !isset($this->options["b"]) &&
-                !isset($this->options["o"])) {
-            return(true);
+        if (! isset($this->options) || count($this->options) == 0) {
+            return true;
+        }
+        if (isset($this->options['h'])) {
+            return true;
         }
 
-        return (false);
+        return (bool) (! isset($this->options['m']) && ! isset($this->options['u'])
+                && ! isset($this->options['c']) && ! isset($this->options['p'])
+                && ! isset($this->options['l']) && ! isset($this->options['b'])
+                && ! isset($this->options['o']));
     }
 
     /**
@@ -116,14 +103,15 @@ class Options
      */
     public function isMigration()
     {
-        if (isset($this->options["m"]) && file_exists($this->options["m"])) {
-            $this->confFile = $this->options["m"];
-            return (true);
+        if (isset($this->options['m']) && file_exists($this->options['m'])) {
+            $this->confFile = $this->options['m'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if partitions initialization option is set
      *
@@ -131,14 +119,15 @@ class Options
      */
     public function isCreation()
     {
-        if (isset($this->options["c"]) && file_exists($this->options["c"])) {
-            $this->confFile = $this->options["c"];
-            return (true);
+        if (isset($this->options['c']) && file_exists($this->options['c'])) {
+            $this->confFile = $this->options['c'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if partitionned table update option is set
      *
@@ -146,14 +135,15 @@ class Options
      */
     public function isUpdate()
     {
-        if (isset($this->options["u"]) && file_exists($this->options["u"])) {
-            $this->confFile = $this->options["u"];
-            return (true);
+        if (isset($this->options['u']) && file_exists($this->options['u'])) {
+            $this->confFile = $this->options['u'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if backup option is set
      *
@@ -161,14 +151,15 @@ class Options
      */
     public function isBackup()
     {
-        if (isset($this->options["b"]) && is_writable($this->options["b"])) {
-            $this->confFile = $this->options["b"];
-            return (true);
+        if (isset($this->options['b']) && is_writable($this->options['b'])) {
+            $this->confFile = $this->options['b'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if optimize option is set
      *
@@ -176,14 +167,15 @@ class Options
      */
     public function isOptimize()
     {
-        if (isset($this->options["o"]) && is_writable($this->options["o"])) {
-            $this->confFile = $this->options["o"];
-            return (true);
+        if (isset($this->options['o']) && is_writable($this->options['o'])) {
+            $this->confFile = $this->options['o'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if purge option is set
      *
@@ -191,14 +183,15 @@ class Options
      */
     public function isPurge()
     {
-        if (isset($this->options["p"]) && is_writable($this->options["p"])) {
-            $this->confFile = $this->options["p"];
-            return (true);
+        if (isset($this->options['p']) && is_writable($this->options['p'])) {
+            $this->confFile = $this->options['p'];
+
+            return true;
         }
 
-        return(false);
+        return false;
     }
-    
+
     /**
      * Check if parts list option is set
      *
@@ -206,14 +199,10 @@ class Options
      */
     public function isPartList()
     {
-        if (isset($this->options["l"]) && $this->options["l"] != ""
-            && isset($this->options["s"]) && $this->options["s"] != "") {
-            return (true);
-        }
-
-        return(false);
+        return (bool) (isset($this->options['l']) && $this->options['l'] != ''
+            && isset($this->options['s']) && $this->options['s'] != '');
     }
-    
+
     /**
      * Update verbose level of program
      *
@@ -221,11 +210,11 @@ class Options
      */
     private function updateVerboseLevel(): void
     {
-        if (isset($this->options) && isset($this->options["v"])) {
+        if (isset($this->options, $this->options['v'])) {
             $this->verbosity = $verbosity;
         }
     }
-    
+
     /**
      * returns verbose level of program
      *
@@ -235,7 +224,7 @@ class Options
     {
         return $this->verbosity;
     }
-    
+
     /**
      * returns centreon partitioning $confFile
      *
@@ -245,7 +234,7 @@ class Options
     {
         return $this->confFile;
     }
-    
+
     /**
      * Print program usage
      *
@@ -253,7 +242,7 @@ class Options
      */
     public function printHelp(): void
     {
-        echo "Version: $this->version\n";
+        echo "Version: {$this->version}\n";
         echo "Program options:\n";
         echo "    -h  print program usage\n";
         echo "Execution mode:\n";

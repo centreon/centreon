@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ it('should throw an exception when host macro description is too long', function
 
 it('should resolve macro inheritance', function (): void {
     $templateId = 1;
-    $templateInheritanceLine= [2, 3, 4];
+    $templateInheritanceLine = [2, 3, 4];
     $macros = [
         $macroA = new Macro(1, 'nameA', 'valueA'),
         $macroB2 = new Macro(1, 'nameB', 'valueB-edited'),
@@ -100,10 +100,10 @@ it('should resolve macro inheritance', function (): void {
         $macroA->getName() => $macroA,
         $macroB2->getName() => $macroB2,
     ])
-    ->and($inheritedMacros)->toBe([
-        $macroC->getName() => $macroC,
-        $macroD->getName() => $macroD,
-        $macroE2->getName() => $macroE2,
-        $macroB1->getName() => $macroB1,
-    ]);
+        ->and($inheritedMacros)->toBe([
+            $macroC->getName() => $macroC,
+            $macroD->getName() => $macroD,
+            $macroE2->getName() => $macroE2,
+            $macroB1->getName() => $macroB1,
+        ]);
 });

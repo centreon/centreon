@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -769,7 +769,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             }
 
             $contactGroupIds = array_map(
-                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
                 $contactGroups
             );
 
@@ -1142,7 +1142,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ? explode(',', $contactRole['topologies'])
                 : [];
             $roles = array_map(
-                static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                     $topology
                 ),
                 $topologies
@@ -1172,7 +1172,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         $topologies = explode(',', $contactRole['topologies']);
         $roles = array_map(
-            static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                 $topology
             ),
             $topologies

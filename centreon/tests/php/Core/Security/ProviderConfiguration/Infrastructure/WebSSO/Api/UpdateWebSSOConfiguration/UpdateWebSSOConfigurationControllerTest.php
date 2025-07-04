@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\UpdateWebSSOConfiguration;
 
 use Centreon\Domain\Contact\Contact;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOConfiguration\{
     UpdateWebSSOConfiguration,
     UpdateWebSSOConfigurationPresenterInterface
@@ -36,6 +31,11 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\UpdateWebSSOC
 use Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\UpdateWebSSOConfiguration\{
     UpdateWebSSOConfigurationController
 };
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 beforeEach(function (): void {
     $this->useCase = $this->createMock(UpdateWebSSOConfiguration::class);
@@ -89,7 +89,7 @@ it('throws an exception when the request body is invalid', function (): void {
     $controller = new UpdateWebSSOConfigurationController();
     $controller->setContainer($this->container);
     $invalidPayload = json_encode([
-        'is_active' => true
+        'is_active' => true,
     ]);
     $this->request
         ->expects($this->once())
@@ -103,13 +103,13 @@ it('show the response when everything is valid', function (): void {
     $controller = new UpdateWebSSOConfigurationController();
     $controller->setContainer($this->container);
     $validPayload = json_encode([
-        "is_active" => true,
-        "is_forced" =>  false,
-        "trusted_client_addresses" => [],
-        "blacklist_client_addresses" => [],
-        "login_header_attribute" => 'HTTP_AUTH_USER',
-        "pattern_matching_login" => '/@.*/',
-        "pattern_replace_login" => 'sso_',
+        'is_active' => true,
+        'is_forced' =>  false,
+        'trusted_client_addresses' => [],
+        'blacklist_client_addresses' => [],
+        'login_header_attribute' => 'HTTP_AUTH_USER',
+        'pattern_matching_login' => '/@.*/',
+        'pattern_replace_login' => 'sso_',
     ]);
 
     $this->request

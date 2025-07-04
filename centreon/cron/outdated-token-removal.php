@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,32 +20,30 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-require_once realpath(__DIR__ . "/../config/centreon.config.php");
-include_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-include_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
+include_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+include_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
 $centreonDbName = $conf_centreon['db'];
 $centreonLog = new CentreonLog();
 
-/*
-* Init DB connections
-*/
+// Init DB connections
 $pearDB = new CentreonDB();
 
 $pearDB->beginTransaction();
 try {
-   deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
-   deleteExpiredProviderTokens($centreonLog, $pearDB);
-   deleteExpiredSessions($centreonLog, $pearDB);
+    deleteExpiredProviderRefreshTokens($centreonLog, $pearDB);
+    deleteExpiredProviderTokens($centreonLog, $pearDB);
+    deleteExpiredSessions($centreonLog, $pearDB);
 
-   $pearDB->commit();
-} catch (\Throwable) {
+    $pearDB->commit();
+} catch (Throwable) {
     $pearDB->rollBack();
     $centreonLog->info(
         CentreonLog::TYPE_BUSINESS_LOG,
-        "TokenRemoval CRON: failed to delete old tokens"
+        'TokenRemoval CRON: failed to delete old tokens'
     );
 }
 

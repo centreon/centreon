@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -42,20 +27,21 @@ use CentreonModule\ServiceProvider;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
-$factory = new \CentreonLegacy\Core\Utils\Factory($dependencyInjector);
+$factory = new CentreonLegacy\Core\Utils\Factory($dependencyInjector);
 $utils = $factory->newUtils();
-$step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
+$step = new CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 
 try {
-    $link = new \PDO(
+    $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
         $parameters['root_password']
     );
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
+
     exit;
 }
 
@@ -64,8 +50,8 @@ try {
  */
 try {
     $result = $link->query('use `' . $parameters['db_configuration'] . '`');
-    if (!$result) {
-        throw new \Exception('Cannot access to "' . $parameters['db_configuration'] . '" database');
+    if (! $result) {
+        throw new Exception('Cannot access to "' . $parameters['db_configuration'] . '" database');
     }
 
     $macros = array_merge(
@@ -88,16 +74,17 @@ try {
     /**
      * @var CentreonModuleService
      */
-    $moduleService = \Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
+    $moduleService = Centreon\LegacyContainer::getInstance()[ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, false, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
         if ($widget->isInternal()) {
             $moduleService->install($widget->getId(), 'widget');
         }
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
+
     exit;
 }
 
@@ -124,32 +111,33 @@ if ($row = $centralServerQuery->fetch()) {
             '0'
         )
     ");
-    $stmt->bindValue(':centralAddress', $_SERVER['SERVER_ADDR'], \PDO::PARAM_STR);
-    $stmt->bindValue(':hostname', $hostName, \PDO::PARAM_STR);
-    $stmt->bindValue(':name', $row['name'], \PDO::PARAM_STR);
-    $stmt->bindValue(':id', (int)$row['id'], \PDO::PARAM_INT);
+    $stmt->bindValue(':centralAddress', $_SERVER['SERVER_ADDR'], PDO::PARAM_STR);
+    $stmt->bindValue(':hostname', $hostName, PDO::PARAM_STR);
+    $stmt->bindValue(':name', $row['name'], PDO::PARAM_STR);
+    $stmt->bindValue(':id', (int) $row['id'], PDO::PARAM_INT);
     $stmt->execute();
 }
 
 // Manage timezone
 $timezone = date_default_timezone_get();
-$statement = $link->prepare("SELECT timezone_id FROM timezone WHERE timezone_name= :timezone_name");
-$statement->bindValue(':timezone_name', $timezone, \PDO::PARAM_STR);
-if (!$statement->execute()) {
+$statement = $link->prepare('SELECT timezone_id FROM timezone WHERE timezone_name= :timezone_name');
+$statement->bindValue(':timezone_name', $timezone, PDO::PARAM_STR);
+if (! $statement->execute()) {
     $return['msg'] = _('Cannot get timezone information');
     echo json_encode($return);
+
     exit;
 }
-if ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+if ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
     $timezoneId = $row['timezone_id'];
 } else {
-    $timezoneId = '334'; # Europe/London timezone
+    $timezoneId = '334'; // Europe/London timezone
 }
 $statement = $link->prepare("INSERT INTO `options` (`key`, `value`) VALUES ('gmt', :value)");
-$statement->bindValue(':value', $timezoneId, \PDO::PARAM_STR);
+$statement->bindValue(':value', $timezoneId, PDO::PARAM_STR);
 $statement->execute();
 
-# Generate random key for this instance and set it to be not central and not remote
+// Generate random key for this instance and set it to be not central and not remote
 $informationsTableInsert = "INSERT INTO `informations` (`key`,`value`) VALUES
     ('isRemote', 'no'),
     ('isCentral', 'yes')";
@@ -158,11 +146,12 @@ $link->exec($informationsTableInsert);
 
 splitQueries('../../insertACL.sql', ';', $link, '../../tmp/insertACL');
 
-/* Get Centreon version */
+// Get Centreon version
 $res = $link->query("SELECT `value` FROM informations WHERE `key` = 'version'");
-if (!$res) {
+if (! $res) {
     $return['msg'] = _('Cannot get Centreon version');
     echo json_encode($return);
+
     exit;
 }
 $row = $res->fetch();
@@ -170,4 +159,5 @@ $step->setVersion($row['value']);
 
 $return['result'] = 0;
 echo json_encode($return);
+
 exit;

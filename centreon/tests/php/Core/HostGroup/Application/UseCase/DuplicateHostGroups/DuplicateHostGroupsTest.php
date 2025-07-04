@@ -21,7 +21,6 @@
 
 namespace Tests\Core\HostGroup\Application\UseCase\DuplicateHostGroups;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
@@ -38,7 +37,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new DuplicateHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),

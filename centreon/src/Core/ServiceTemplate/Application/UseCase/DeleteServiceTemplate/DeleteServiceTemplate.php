@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryIn
 
 final class DeleteServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param ReadServiceTemplateRepositoryInterface $readRepository
@@ -57,7 +58,7 @@ final class DeleteServiceTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
-         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**

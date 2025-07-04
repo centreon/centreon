@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@
  *
  */
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2.post : ';
 
 /**
@@ -28,7 +28,7 @@ $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2.post : ';
 try {
     $pearDB->beginTransaction();
     // Remove data inserted in 20.10.0-beta1
-    $pearDB->query("DELETE FROM `platform_topology`");
+    $pearDB->query('DELETE FROM `platform_topology`');
 
     /**
      * register server to 'platform_status' table
@@ -54,15 +54,15 @@ try {
     // Insert the server in 'platform_topology' table
     if ($row = $serverQuery->fetch()) {
         $errorMessage = "Unable to insert server in 'platform_topology' table.";
-        $stmt = $pearDB->prepare("
+        $stmt = $pearDB->prepare('
             INSERT INTO `platform_topology` (`address`, `name`, `hostname`, `type`, `parent_id`, `server_id`)
             VALUES (:centralAddress, :name, :hostname, :type, NULL, :id)
-        ");
-        $stmt->bindValue(':centralAddress', $_SERVER['SERVER_ADDR'], \PDO::PARAM_STR);
-        $stmt->bindValue(':name', $row['name'], \PDO::PARAM_STR);
-        $stmt->bindValue(':hostname', $hostName, \PDO::PARAM_STR);
-        $stmt->bindValue(':type', $type, \PDO::PARAM_STR);
-        $stmt->bindValue(':id', (int)$row['id'], \PDO::PARAM_INT);
+        ');
+        $stmt->bindValue(':centralAddress', $_SERVER['SERVER_ADDR'], PDO::PARAM_STR);
+        $stmt->bindValue(':name', $row['name'], PDO::PARAM_STR);
+        $stmt->bindValue(':hostname', $hostName, PDO::PARAM_STR);
+        $stmt->bindValue(':type', $type, PDO::PARAM_STR);
+        $stmt->bindValue(':id', (int) $row['id'], PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -81,16 +81,16 @@ try {
         FROM nagios_server WHERE localhost != '1' ORDER BY `remote_id`"
     );
     while ($row = $childStmt->fetch()) {
-        //check for remote or poller child types
+        // check for remote or poller child types
         $remoteServerQuery = $pearDB->prepare(
-            "SELECT ns.id FROM nagios_server ns
-            INNER JOIN remote_servers rs ON rs.ip = ns.ns_ip_address WHERE ip = :ipAddress"
+            'SELECT ns.id FROM nagios_server ns
+            INNER JOIN remote_servers rs ON rs.ip = ns.ns_ip_address WHERE ip = :ipAddress'
         );
-        $remoteServerQuery->bindValue(':ipAddress', $row['ns_ip_address'], \PDO::PARAM_STR);
+        $remoteServerQuery->bindValue(':ipAddress', $row['ns_ip_address'], PDO::PARAM_STR);
         $remoteServerQuery->execute();
         $remoteId = $remoteServerQuery->fetchColumn();
-        if (!empty($remoteId)) {
-            //is remote
+        if (! empty($remoteId)) {
+            // is remote
             $serverType = 'remote';
             $parent = $parentId;
         } else {
@@ -98,7 +98,7 @@ try {
             $findParent = $pearDB->prepare('
                 SELECT id from platform_topology WHERE `server_id` = :remoteId
             ');
-            $findParent->bindValue(':remoteId', (int) $row['remote_id'], \PDO::PARAM_INT);
+            $findParent->bindValue(':remoteId', (int) $row['remote_id'], PDO::PARAM_INT);
             $findParent->execute();
             $parent = $findParent->fetchColumn();
             if ($parent === false) {
@@ -106,31 +106,32 @@ try {
             }
         }
 
-        $errorMessage = "Unable to insert " . $serverType . ":" . $row['name'] . " in 'topology' table.";
+        $errorMessage = 'Unable to insert ' . $serverType . ':' . $row['name'] . " in 'topology' table.";
         $stmt = $pearDB->prepare(
-            "INSERT INTO `platform_topology` (`address`, `name`, `type`, `parent_id`, `server_id`)
-            VALUES (:centralAddress, :name, :serverType, :parent, :id)"
+            'INSERT INTO `platform_topology` (`address`, `name`, `type`, `parent_id`, `server_id`)
+            VALUES (:centralAddress, :name, :serverType, :parent, :id)'
         );
-        $stmt->bindValue(':centralAddress', $row['ns_ip_address'], \PDO::PARAM_STR);
-        $stmt->bindValue(':name', $row['name'], \PDO::PARAM_STR);
-        $stmt->bindValue(':serverType', $serverType, \PDO::PARAM_STR);
-        $stmt->bindValue(':parent', (int) $parent, \PDO::PARAM_INT);
-        $stmt->bindValue(':id', (int) $row['id'], \PDO::PARAM_INT);
+        $stmt->bindValue(':centralAddress', $row['ns_ip_address'], PDO::PARAM_STR);
+        $stmt->bindValue(':name', $row['name'], PDO::PARAM_STR);
+        $stmt->bindValue(':serverType', $serverType, PDO::PARAM_STR);
+        $stmt->bindValue(':parent', (int) $parent, PDO::PARAM_INT);
+        $stmt->bindValue(':id', (int) $row['id'], PDO::PARAM_INT);
         $stmt->execute();
     }
 
     $pearDB->commit();
-    $errorMessage = "";
-} catch (\Exception $e) {
-    include_once __DIR__ . "/../../class/centreonLog.class.php";
+    $errorMessage = '';
+} catch (Exception $e) {
+    include_once __DIR__ . '/../../class/centreonLog.class.php';
     $centreonLog = new CentreonLog();
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

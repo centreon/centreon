@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractHost;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractHost;
 use PDOException;
 use PDOStatement;
 
@@ -36,22 +37,31 @@ class Host extends AbstractHost
 {
     /** @var array */
     protected $hostsByName = [];
+
     /** @var array|null */
     protected $hosts = null;
+
     /** @var string */
     protected $table = 'host';
+
     /** @var string */
     protected $generateFilename = 'hosts.infile';
+
     /** @var PDOStatement|null */
     protected $stmtHg = null;
+
     /** @var PDOStatement|null */
     protected $stmtParent = null;
+
     /** @var PDOStatement|null */
     protected $stmtService = null;
+
     /** @var PDOStatement|null */
     protected $stmtServiceSg = null;
+
     /** @var array */
     protected $generatedParentship = [];
+
     /** @var array */
     protected $generatedHosts = [];
 
@@ -60,12 +70,12 @@ class Host extends AbstractHost
      *
      * @param array $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getHostGroups(array &$host): void
     {
-        if (!isset($host['hg'])) {
+        if (! isset($host['hg'])) {
             if (is_null($this->stmtHg)) {
                 $this->stmtHg = $this->backendInstance->db->prepare("SELECT
                     hostgroup_hg_id
@@ -95,17 +105,17 @@ class Host extends AbstractHost
      *
      * @param array $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getServices(array &$host): void
     {
         if (is_null($this->stmtService)) {
-            $this->stmtService = $this->backendInstance->db->prepare("SELECT
+            $this->stmtService = $this->backendInstance->db->prepare('SELECT
                     service_service_id
                 FROM host_service_relation
                 WHERE host_host_id = :host_id AND service_service_id IS NOT NULL
-                ");
+                ');
         }
         $this->stmtService->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
         $this->stmtService->execute();
@@ -124,8 +134,8 @@ class Host extends AbstractHost
      *
      * @param array $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getServicesByHg(array &$host)
     {
@@ -133,9 +143,9 @@ class Host extends AbstractHost
             return 1;
         }
         if (is_null($this->stmtServiceSg)) {
-            $query = "SELECT host_service_relation.hostgroup_hg_id, service_service_id FROM host_service_relation " .
-                "JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = " .
-                "host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id";
+            $query = 'SELECT host_service_relation.hostgroup_hg_id, service_service_id FROM host_service_relation '
+                . 'JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = '
+                . 'host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id';
             $this->stmtServiceSg = $this->backendInstance->db->prepare($query);
         }
         $this->stmtServiceSg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -153,13 +163,13 @@ class Host extends AbstractHost
     /**
      * Get linked severity
      *
-     * @param Integer $hostIdArg
+     * @param int $hostIdArg
      * @return void
      */
     protected function getSeverity($hostIdArg)
     {
         $severityId = HostCategory::getInstance($this->dependencyInjector)->getHostSeverityByHostId($hostIdArg);
-        if (!is_null($severityId)) {
+        if (! is_null($severityId)) {
             Relations\HostCategoriesRelation::getInstance($this->dependencyInjector)->addRelation($severityId, $hostIdArg);
         }
     }
@@ -186,7 +196,7 @@ class Host extends AbstractHost
     {
         // We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
+            "SELECT {$this->attributesSelect}
             FROM ns_host_relation, host
             LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
             WHERE ns_host_relation.nagios_server_id = :server_id
@@ -335,8 +345,8 @@ class Host extends AbstractHost
      * @param bool $resetParent
      * @param bool $createfile
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset($resetParent = false, $createfile = false): void
     {

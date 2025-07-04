@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
@@ -37,9 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class MonitoringServicesController extends AbstractController
 {
-    /**
-     * @var MonitoringServiceInterface
-     */
+    /** @var MonitoringServiceInterface */
     private $monitoring;
 
     /**
@@ -55,8 +54,8 @@ class MonitoringServicesController extends AbstractController
     /**
      * Entry point to get all real time services.
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServices(RequestParametersInterface $requestParameters): View
     {
@@ -68,14 +67,14 @@ class MonitoringServicesController extends AbstractController
             ->setGroups([
                 Service::SERIALIZER_GROUP_MAIN,
                 Service::SERIALIZER_GROUP_WITH_HOST,
-                Host::SERIALIZER_GROUP_MIN
+                Host::SERIALIZER_GROUP_MIN,
             ])
             ->enableMaxDepth();
 
         return $this->view(
             [
                 'result' => $services,
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -83,8 +82,8 @@ class MonitoringServicesController extends AbstractController
     /**
      * Entry point to get all real time services based on a service group
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServicesByServiceGroups(RequestParametersInterface $requestParameters): View
     {
@@ -115,7 +114,7 @@ class MonitoringServicesController extends AbstractController
         return $this->view(
             [
                 'result' => $servicesByServiceGroups,
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -124,8 +123,8 @@ class MonitoringServicesController extends AbstractController
      * Entry point to get all servicegroups attached to host-service
      *
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServiceGroupsByHostAndService(
         int $hostId,
@@ -144,11 +143,11 @@ class MonitoringServicesController extends AbstractController
             return $this->view(
                 [
                     'result' => $serviceGroups,
-                    'meta' => $requestParameters->toArray()
+                    'meta' => $requestParameters->toArray(),
                 ]
             )->setContext($context);
-        } else {
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
         }
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 }

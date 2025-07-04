@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -57,11 +42,11 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonService.class.php";
-require_once "centreonCommand.class.php";
-require_once "Centreon/Object/Relation/Service/Template/Host.php";
-require_once "Centreon/Object/Host/Template.php";
-require_once "Centreon/Object/Service/Template.php";
+require_once 'centreonService.class.php';
+require_once 'centreonCommand.class.php';
+require_once 'Centreon/Object/Relation/Service/Template/Host.php';
+require_once 'Centreon/Object/Host/Template.php';
+require_once 'Centreon/Object/Service/Template.php';
 
 /**
  * Class
@@ -76,14 +61,14 @@ class CentreonServiceTemplate extends CentreonObject
     public const ORDER_SVCALIAS = 1;
     public const ORDER_SVCTPL = 2;
     public const NB_UPDATE_PARAMS = 3;
-    public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
+    public const UNKNOWN_NOTIFICATION_OPTIONS = 'Invalid notifications options';
 
     /** @var string[] */
     public static $aDepends = ['CMD', 'TP', 'TRAP', 'HTPL'];
 
     /**
      * @var array
-     * Contains : list of authorized notifications_options for this objects
+     *            Contains : list of authorized notifications_options for this objects
      */
     public static $aAuthorizedNotificationsOptions = ['w' => 'Warning', 'u' => 'Unreachable', 'c' => 'Critical', 'r' => 'Recovery', 'f' => 'Flapping', 's' => 'Downtime Scheduled'];
 
@@ -107,7 +92,7 @@ class CentreonServiceTemplate extends CentreonObject
             $this->insertParams,
             [$this->object->getPrimaryKey(), 'children']
         );
-        $this->action = "STPL";
+        $this->action = 'STPL';
         $this->nbOfCompulsoryParams = count($this->insertParams);
         $this->activateField = 'service_activate';
     }
@@ -117,24 +102,22 @@ class CentreonServiceTemplate extends CentreonObject
      *
      * @param string $serviceDescription
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     protected function serviceExists($serviceDescription)
     {
         $elements = $this->object->getList(
-            "service_description",
+            'service_description',
             -1,
             0,
             null,
             null,
             ['service_description' => $serviceDescription, 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (count($elements)) {
-            return true;
-        }
-        return false;
+
+        return (bool) (count($elements));
     }
 
     /**
@@ -149,7 +132,7 @@ class CentreonServiceTemplate extends CentreonObject
     {
         $filters = ['service_register' => $this->register];
         if (isset($parameters)) {
-            $filters["service_description"] = "%" . $parameters . "%";
+            $filters['service_description'] = '%' . $parameters . '%';
         }
         $commandObject = new Centreon_Object_Command($this->dependencyInjector);
         $paramsSvc = ['service_id', 'service_description', 'service_alias', 'command_command_id', 'command_command_id_arg', 'service_normal_check_interval', 'service_retry_check_interval', 'service_max_check_attempts', 'service_active_checks_enabled', 'service_passive_checks_enabled'];
@@ -160,12 +143,12 @@ class CentreonServiceTemplate extends CentreonObject
             null,
             null,
             $filters,
-            "AND"
+            'AND'
         );
-        $paramSvcString = str_replace("service_", "", implode($this->delim, $paramsSvc));
-        $paramSvcString = str_replace("command_command_id", "check command", $paramSvcString);
-        $paramSvcString = str_replace("command_command_id_arg", "check command arguments", $paramSvcString);
-        $paramSvcString = str_replace("_", " ", $paramSvcString);
+        $paramSvcString = str_replace('service_', '', implode($this->delim, $paramsSvc));
+        $paramSvcString = str_replace('command_command_id', 'check command', $paramSvcString);
+        $paramSvcString = str_replace('command_command_id_arg', 'check command arguments', $paramSvcString);
+        $paramSvcString = str_replace('_', ' ', $paramSvcString);
         echo $paramSvcString . "\n";
         foreach ($elements as $tab) {
             if (isset($tab['command_command_id']) && $tab['command_command_id']) {
@@ -201,106 +184,106 @@ class CentreonServiceTemplate extends CentreonObject
         if (($objectId = $this->getObjectId($params[self::ORDER_SVCDESC])) != 0) {
             $listParam = explode('|', $params[1]);
             $exportedFields = [];
-            $resultString = "";
+            $resultString = '';
             foreach ($listParam as $paramSearch) {
-                $paramString = !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
+                $paramString = ! $paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
-                if (!in_array($field, $authorizeParam)) {
+                if (! in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;
                 } else {
                     $extended = false;
                     switch ($paramSearch) {
-                        case "check_command":
-                            $field = "command_command_id";
+                        case 'check_command':
+                            $field = 'command_command_id';
                             break;
-                        case "check_command_arguments":
-                            $field = "command_command_id_arg";
+                        case 'check_command_arguments':
+                            $field = 'command_command_id_arg';
                             break;
-                        case "event_handler":
-                            $field = "command_command_id2";
+                        case 'event_handler':
+                            $field = 'command_command_id2';
                             break;
-                        case "event_handler_arguments":
-                            $field = "command_command_id_arg2";
+                        case 'event_handler_arguments':
+                            $field = 'command_command_id_arg2';
                             break;
-                        case "check_period":
-                            $field = "timeperiod_tp_id";
+                        case 'check_period':
+                            $field = 'timeperiod_tp_id';
                             break;
-                        case "notification_period":
-                            $field = "timeperiod_tp_id2";
+                        case 'notification_period':
+                            $field = 'timeperiod_tp_id2';
                             break;
-                        case "template":
-                            $field = "service_template_model_stm_id";
+                        case 'template':
+                            $field = 'service_template_model_stm_id';
                             break;
-                        case "contact_additive_inheritance":
-                        case "cg_additive_inheritance":
-                        case "geo_coords":
+                        case 'contact_additive_inheritance':
+                        case 'cg_additive_inheritance':
+                        case 'geo_coords':
                             break;
-                        case "notes":
+                        case 'notes':
                             $extended = true;
                             break;
-                        case "notes_url":
+                        case 'notes_url':
                             $extended = true;
                             break;
-                        case "action_url":
+                        case 'action_url':
                             $extended = true;
                             break;
-                        case "icon_image":
+                        case 'icon_image':
                             $extended = true;
                             break;
-                        case "icon_image_alt":
+                        case 'icon_image_alt':
                             $extended = true;
                             break;
                         default:
-                            if (!preg_match("/^service_/", $paramSearch)) {
-                                $field = "service_" . $paramSearch;
+                            if (! preg_match('/^service_/', $paramSearch)) {
+                                $field = 'service_' . $paramSearch;
                             }
                             break;
                     }
 
-                    if (!$extended) {
+                    if (! $extended) {
                         $ret = $this->object->getParameters($objectId, $field);
                         $ret = $ret[$field];
                     } else {
-                        $field = "esi_" . $field;
+                        $field = 'esi_' . $field;
                         $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
                         $ret = $extended->getParameters($objectId, $field);
                         $ret = $ret[$field];
                     }
 
                     switch ($paramSearch) {
-                        case "check_command":
-                        case "event_handler":
+                        case 'check_command':
+                        case 'event_handler':
                             $commandObject = new CentreonCommand($this->dependencyInjector);
                             $field = $commandObject->object->getUniqueLabelField();
                             $ret = $commandObject->object->getParameters($ret, $field);
                             $ret = $ret[$field];
                             break;
-                        case "check_period":
-                        case "notification_period":
+                        case 'check_period':
+                        case 'notification_period':
                             $tpObj = new CentreonTimePeriod($this->dependencyInjector);
                             $field = $tpObj->object->getUniqueLabelField();
                             $ret = $tpObj->object->getParameters($ret, $field);
                             $ret = $ret[$field];
                             break;
-                        case "template":
+                        case 'template':
                             $tplObj = new CentreonServiceTemplate($this->dependencyInjector);
                             $field = $tplObj->object->getUniqueLabelField();
                             $ret = $tplObj->object->getParameters($ret, $field);
                             $ret = $ret[$field];
                             break;
                     }
-                    if (!isset($exportedFields[$paramSearch])) {
+                    if (! isset($exportedFields[$paramSearch])) {
                         $resultString .= $this->csvEscape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
 
         if ($unknownParam !== []) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . implode('|', $unknownParam));
         }
         echo implode(';', array_unique(explode(';', $paramString))) . "\n";
         echo substr($resultString, 0, -1) . "\n";
@@ -316,21 +299,22 @@ class CentreonServiceTemplate extends CentreonObject
     {
         static $table;
 
-        if (!isset($table)) {
-            $table = ["command_command_id" => "check_command", "command_command_id2" => "event_handler", "timeperiod_tp_id" => "check_period", "timeperiod_tp_id2" => "notification_period", "command_command_id_arg" => "check_command_arguments", "command_command_id_arg2" => "event_handler_arguments"];
+        if (! isset($table)) {
+            $table = ['command_command_id' => 'check_command', 'command_command_id2' => 'event_handler', 'timeperiod_tp_id' => 'check_period', 'timeperiod_tp_id2' => 'notification_period', 'command_command_id_arg' => 'check_command_arguments', 'command_command_id_arg2' => 'event_handler_arguments'];
         }
-        if (preg_match("/^esi_/", $columnName)) {
-            return substr($columnName, strlen("esi_"));
+        if (preg_match('/^esi_/', $columnName)) {
+            return substr($columnName, strlen('esi_'));
         }
+
         return $table[$columnName] ?? $columnName;
     }
 
     /**
      * @param $parameters
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -353,10 +337,10 @@ class CentreonServiceTemplate extends CentreonObject
                 null,
                 null,
                 ['service_description' => $template, 'service_register' => '0'],
-                "AND"
+                'AND'
             );
-            if (!count($tmp)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $template);
+            if (! count($tmp)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $template);
             }
             $addParams['service_template_model_stm_id'] = $tmp[0][$this->object->getPrimaryKey()];
         }
@@ -372,28 +356,27 @@ class CentreonServiceTemplate extends CentreonObject
         $extended->insert([$extended->getUniqueLabelField() => $serviceId]);
     }
 
-
     /**
      * Delete service template
      *
      * @param string $objectName
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function del($objectName): void
     {
         $serviceDesc = $objectName;
         $elements = $this->object->getList(
-            "service_id",
+            'service_id',
             -1,
             0,
             null,
             null,
             ['service_description' => $serviceDesc, 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (!count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $serviceDesc);
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $serviceDesc);
         }
         $this->object->delete($elements[0]['service_id']);
     }
@@ -401,9 +384,9 @@ class CentreonServiceTemplate extends CentreonObject
     /**
      * @param null $parameters
      *
-     * @return array
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return array
      */
     public function initUpdateParameters($parameters = null)
     {
@@ -413,49 +396,49 @@ class CentreonServiceTemplate extends CentreonObject
         }
         $serviceDesc = $params[0];
         $elements = $this->object->getList(
-            "service_id",
+            'service_id',
             -1,
             0,
             null,
             null,
             ['service_description' => $serviceDesc, 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (!count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $serviceDesc);
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $serviceDesc);
         }
         $objectId = $elements[0]['service_id'];
         $extended = false;
         $commandObject = new CentreonCommand($this->dependencyInjector);
         switch ($params[1]) {
-            case "check_command":
-                $params[1] = "command_command_id";
+            case 'check_command':
+                $params[1] = 'command_command_id';
                 $params[2] = $commandObject->getId($params[2]);
                 break;
-            case "check_command_arguments":
-                $params[1] = "command_command_id_arg";
+            case 'check_command_arguments':
+                $params[1] = 'command_command_id_arg';
                 break;
-            case "event_handler":
-                $params[1] = "command_command_id2";
+            case 'event_handler':
+                $params[1] = 'command_command_id2';
                 $params[2] = $commandObject->getId($params[2]);
                 break;
-            case "event_handler_arguments":
-                $params[1] = "command_command_id_arg2";
+            case 'event_handler_arguments':
+                $params[1] = 'command_command_id_arg2';
                 break;
-            case "check_period":
-                $params[1] = "timeperiod_tp_id";
+            case 'check_period':
+                $params[1] = 'timeperiod_tp_id';
                 $tpObj = new CentreonTimePeriod($this->dependencyInjector);
                 $params[2] = $tpObj->getTimeperiodId($params[2]);
                 break;
-            case "notification_period":
-                $params[1] = "timeperiod_tp_id2";
+            case 'notification_period':
+                $params[1] = 'timeperiod_tp_id2';
                 $tpObj = new CentreonTimePeriod($this->dependencyInjector);
                 $params[2] = $tpObj->getTimeperiodId($params[2]);
                 break;
-            case "flap_detection_options":
+            case 'flap_detection_options':
                 break;
-            case "template":
-                $params[1] = "service_template_model_stm_id";
+            case 'template':
+                $params[1] = 'service_template_model_stm_id';
                 $tmp = $this->object->getList(
                     $this->object->getPrimaryKey(),
                     -1,
@@ -463,70 +446,71 @@ class CentreonServiceTemplate extends CentreonObject
                     null,
                     null,
                     ['service_description' => $params[2], 'service_register' => '0'],
-                    "AND"
+                    'AND'
                 );
-                if (!count($tmp)) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                if (! count($tmp)) {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
                 }
                 $params[2] = $tmp[0][$this->object->getPrimaryKey()];
                 break;
-            case "graphtemplate":
+            case 'graphtemplate':
                 $extended = true;
                 $graphObj = new Centreon_Object_Graph_Template($this->dependencyInjector);
                 $tmp = $graphObj->getIdByParameter($graphObj->getUniqueLabelField(), $params[2]);
-                if (!count($tmp)) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
+                if (! count($tmp)) {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
                 }
-                $params[1] = "graph_id";
+                $params[1] = 'graph_id';
                 $params[2] = $tmp[0];
                 break;
-            case "contact_additive_inheritance":
-            case "cg_additive_inheritance":
+            case 'contact_additive_inheritance':
+            case 'cg_additive_inheritance':
                 break;
-            case "notes":
-            case "notes_url":
-            case "action_url":
-            case "icon_image":
-            case "icon_image_alt":
+            case 'notes':
+            case 'notes_url':
+            case 'action_url':
+            case 'icon_image':
+            case 'icon_image_alt':
                 $extended = true;
                 break;
-            case "service_notification_options":
-                $aNotifs = explode(",", $params[2]);
+            case 'service_notification_options':
+                $aNotifs = explode(',', $params[2]);
                 foreach ($aNotifs as $notif) {
-                    if (!array_key_exists($notif, self::$aAuthorizedNotificationsOptions)) {
+                    if (! array_key_exists($notif, self::$aAuthorizedNotificationsOptions)) {
                         throw new CentreonClapiException(self::UNKNOWN_NOTIFICATION_OPTIONS);
                     }
                 }
                 break;
             default:
-                if (!preg_match("/^service_/", $params[1])) {
-                    $params[1] = "service_" . $params[1];
+                if (! preg_match('/^service_/', $params[1])) {
+                    $params[1] = 'service_' . $params[1];
                 }
                 break;
         }
         if ($extended == false) {
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            if ($params[1] != "graph_id") {
-                $params[1] = "esi_" . $params[1];
-                if ($params[1] == "esi_icon_image") {
-                    if ($params[2]) {
-                        $id = CentreonUtils::getImageId($params[2], $this->db);
-                        if (is_null($id)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[2]);
-                        }
-                        $params[2] = $id;
-                    } else {
-                        $params[2] = null;
+        }
+        if ($params[1] != 'graph_id') {
+            $params[1] = 'esi_' . $params[1];
+            if ($params[1] == 'esi_icon_image') {
+                if ($params[2]) {
+                    $id = CentreonUtils::getImageId($params[2], $this->db);
+                    if (is_null($id)) {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[2]);
                     }
+                    $params[2] = $id;
+                } else {
+                    $params[2] = null;
                 }
             }
-            $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
-            $extended->update($objectId, [$params[1] => $params[2]]);
-            return [];
         }
+        $extended = new Centreon_Object_Service_Extended($this->dependencyInjector);
+        $extended->update($objectId, [$params[1] => $params[2]]);
+
+        return [];
     }
 
     /**
@@ -541,6 +525,7 @@ class CentreonServiceTemplate extends CentreonObject
         if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
             $strippedMacro = $matches[1];
         }
+
         return $strippedMacro;
     }
 
@@ -553,6 +538,7 @@ class CentreonServiceTemplate extends CentreonObject
     protected function stripMacro($macroName)
     {
         $strippedMacro = $this->extractMacroName($macroName);
+
         return strtolower($strippedMacro);
     }
 
@@ -564,44 +550,43 @@ class CentreonServiceTemplate extends CentreonObject
      */
     protected function wrapMacro($macroName)
     {
-        $wrappedMacro = "\$_SERVICE" . strtoupper($macroName) . "\$";
-        return $wrappedMacro;
+        return '$_SERVICE' . strtoupper($macroName) . '$';
     }
 
     /**
      * Get macro list of a service template
      *
      * @param string $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function getmacro($parameters): void
     {
         $serviceDesc = $parameters;
         $elements = $this->object->getList(
-            "service_id",
+            'service_id',
             -1,
             0,
             null,
             null,
             ['service_description' => $serviceDesc, 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (!count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $serviceDesc);
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $serviceDesc);
         }
         $macroObj = new Centreon_Object_Service_Macro_Custom($this->dependencyInjector);
         $macroList = $macroObj->getList(
-            ["svc_macro_name", "svc_macro_value", "description", "is_password"],
+            ['svc_macro_name', 'svc_macro_value', 'description', 'is_password'],
             -1,
             0,
             null,
             null,
-            ["svc_svc_id" => $elements[0]['service_id']]
+            ['svc_svc_id' => $elements[0]['service_id']]
         );
         echo "macro name;macro value;description;is_password\n";
         foreach ($macroList as $macro) {
-            $password = !empty($macro['is_password']) ? (int)$macro['is_password'] : 0;
+            $password = ! empty($macro['is_password']) ? (int) $macro['is_password'] : 0;
             echo $this->csvEscape($this->extractMacroName($macro['svc_macro_name'])) . $this->delim
             . $this->csvEscape($macro['svc_macro_value']) . $this->delim
             . $this->csvEscape($macro['description']) . $this->delim
@@ -613,8 +598,8 @@ class CentreonServiceTemplate extends CentreonObject
      * Inserts/updates custom macro
      *
      * @param string $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function setmacro($parameters): void
     {
@@ -627,19 +612,19 @@ class CentreonServiceTemplate extends CentreonObject
         $macroName = $params[1];
         $macroValue = $params[2];
         $macroDescription = $params[3] ?? '';
-        $macroPassword = !empty($params[4]) ? (int)$params[4] : 0;
+        $macroPassword = ! empty($params[4]) ? (int) $params[4] : 0;
 
         $elements = $this->object->getList(
-            "service_id",
+            'service_id',
             -1,
             0,
             null,
             null,
             ['service_description' => $serviceDescription, 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (!count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $serviceDescription);
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $serviceDescription);
         }
         $macroObj = new Centreon_Object_Service_Macro_Custom($this->dependencyInjector);
         $macroList = $macroObj->getList(
@@ -648,8 +633,8 @@ class CentreonServiceTemplate extends CentreonObject
             0,
             null,
             null,
-            ["svc_svc_id" => $elements[0]['service_id'], "svc_macro_name" => $this->wrapMacro($macroName)],
-            "AND"
+            ['svc_svc_id' => $elements[0]['service_id'], 'svc_macro_name' => $this->wrapMacro($macroName)],
+            'AND'
         );
         if (count($macroList)) {
             $macroObj->update(
@@ -667,8 +652,8 @@ class CentreonServiceTemplate extends CentreonObject
      * Delete custom macro
      *
      * @param string $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function delmacro($parameters): void
     {
@@ -677,16 +662,16 @@ class CentreonServiceTemplate extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $elements = $this->object->getList(
-            "service_id",
+            'service_id',
             -1,
             0,
             null,
             null,
             ['service_description' => $params[0], 'service_register' => 0],
-            "AND"
+            'AND'
         );
-        if (!count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[0]);
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[0]);
         }
         $macroObj = new Centreon_Object_Service_Macro_Custom($this->dependencyInjector);
         $macroList = $macroObj->getList(
@@ -695,8 +680,8 @@ class CentreonServiceTemplate extends CentreonObject
             0,
             null,
             null,
-            ["svc_svc_id" => $elements[0]['service_id'], "svc_macro_name" => $this->wrapMacro($params[1])],
-            "AND"
+            ['svc_svc_id' => $elements[0]['service_id'], 'svc_macro_name' => $this->wrapMacro($params[1])],
+            'AND'
         );
         if (count($macroList)) {
             $macroObj->delete($macroList[0][$macroObj->getPrimaryKey()]);
@@ -717,7 +702,7 @@ class CentreonServiceTemplate extends CentreonObject
         }
 
         if (($serviceId = $this->getObjectId($params[self::ORDER_SVCDESC])) == 0) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_SVCDESC]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_SVCDESC]);
         }
 
         $severityObj = new Centreon_Object_Service_Category($this->dependencyInjector);
@@ -725,8 +710,8 @@ class CentreonServiceTemplate extends CentreonObject
             $severityObj->getUniqueLabelField(),
             $params[1]
         );
-        if (!isset($severity[0])) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[1]);
+        if (! isset($severity[0])) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[1]);
         }
         $severityId = $severity[0];
         $severity = $severityObj->getParameters(
@@ -736,15 +721,15 @@ class CentreonServiceTemplate extends CentreonObject
         if ($severity['level']) {
             // can't delete with generic method
             $this->db->query(
-                "DELETE FROM service_categories_relation
+                'DELETE FROM service_categories_relation
                  WHERE service_service_id = ?
-                 AND sc_id IN (SELECT sc_id FROM service_categories WHERE level > 0)",
+                 AND sc_id IN (SELECT sc_id FROM service_categories WHERE level > 0)',
                 $serviceId
             );
             $rel = new Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
             $rel->insert($severityId, $serviceId);
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[1]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[1]);
         }
     }
 
@@ -762,14 +747,14 @@ class CentreonServiceTemplate extends CentreonObject
         }
 
         if (($serviceId = $this->getObjectId($params[self::ORDER_SVCDESC])) == 0) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_SVCDESC]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_SVCDESC]);
         }
 
         // can't delete with generic method
         $this->db->query(
-            "DELETE FROM service_categories_relation
+            'DELETE FROM service_categories_relation
              WHERE service_service_id = ?
-             AND sc_id IN (SELECT sc_id FROM service_categories WHERE level > 0)",
+             AND sc_id IN (SELECT sc_id FROM service_categories WHERE level > 0)',
             $serviceId
         );
     }
@@ -928,6 +913,7 @@ class CentreonServiceTemplate extends CentreonObject
                 $branch[] = $data;
             }
         }
+
         return $branch;
     }
 
@@ -946,16 +932,16 @@ class CentreonServiceTemplate extends CentreonObject
         $extendedObj = new Centreon_Object_Service_Extended($this->dependencyInjector);
         $macroObj = new Centreon_Object_Service_Macro_Custom($this->dependencyInjector);
         foreach ($tree as $element) {
-            $addStr = $this->action . $this->delim . "ADD";
+            $addStr = $this->action . $this->delim . 'ADD';
             foreach ($this->insertParams as $param) {
                 $addStr .= $this->delim;
-                if ($param == "service_template_model_stm_id") {
+                if ($param == 'service_template_model_stm_id') {
                     $tmp = $this->object->getParameters($element[$param], 'service_description');
-                    if (isset($tmp) && isset($tmp['service_description']) && $tmp['service_description']) {
+                    if (isset($tmp, $tmp['service_description'])   && $tmp['service_description']) {
                         $element[$param] = $tmp['service_description'];
                     }
-                    if (!$element[$param]) {
-                        $element[$param] = "";
+                    if (! $element[$param]) {
+                        $element[$param] = '';
                     }
                 }
                 $addStr .= $element[$param];
@@ -963,17 +949,17 @@ class CentreonServiceTemplate extends CentreonObject
             $addStr .= "\n";
             echo $addStr;
             foreach ($element as $parameter => $value) {
-                if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
+                if (! in_array($parameter, $this->exportExcludedParams) && ! is_null($value) && $value != '') {
                     $action_tmp = null;
-                    if ($parameter == "timeperiod_tp_id" || $parameter == "timeperiod_tp_id2") {
+                    if ($parameter == 'timeperiod_tp_id' || $parameter == 'timeperiod_tp_id2') {
                         $tmpObj = $tpObj;
-                    } elseif ($parameter == "command_command_id" || $parameter == "command_command_id2") {
+                    } elseif ($parameter == 'command_command_id' || $parameter == 'command_command_id2') {
                         $tmpObj = $commandObj;
                     }
                     if (isset($tmpObj)) {
                         $labelField = $tmpObj->getObject()->getUniqueLabelField();
                         $tmp = $tmpObj->getObject()->getParameters($value, $labelField);
-                        if (isset($tmp) && isset($tmp[$labelField])) {
+                        if (isset($tmp, $tmp[$labelField])) {
                             $value = $tmp[$labelField];
                             $tmpObj::getInstance()->export($value);
                         }
@@ -981,7 +967,7 @@ class CentreonServiceTemplate extends CentreonObject
                     }
                     $value = CentreonUtils::convertLineBreak($value);
                     echo $this->action . $this->delim
-                        . "setparam" . $this->delim
+                        . 'setparam' . $this->delim
                         . $element['service_description']
                         . $this->delim . $this->getClapiActionName($parameter) . $this->delim
                         . $value . "\n";
@@ -989,14 +975,14 @@ class CentreonServiceTemplate extends CentreonObject
             }
             $params = $extendedObj->getParameters(
                 $element[$this->object->getPrimaryKey()],
-                ["esi_notes", "esi_notes_url", "esi_action_url", "esi_icon_image", "esi_icon_image_alt"]
+                ['esi_notes', 'esi_notes_url', 'esi_action_url', 'esi_icon_image', 'esi_icon_image_alt']
             );
             if (isset($params) && is_array($params)) {
                 foreach ($params as $k => $v) {
-                    if (!is_null($v) && $v != "") {
+                    if (! is_null($v) && $v != '') {
                         $v = CentreonUtils::convertLineBreak($v);
                         echo $this->action . $this->delim
-                            . "setparam" . $this->delim
+                            . 'setparam' . $this->delim
                             . $element['service_description'] . $this->delim
                             . $this->getClapiActionName($k) . $this->delim
                             . $v . "\n";
@@ -1004,17 +990,17 @@ class CentreonServiceTemplate extends CentreonObject
                 }
             }
             $macros = $macroObj->getList(
-                "*",
+                '*',
                 -1,
                 0,
                 null,
                 null,
                 ['svc_svc_id' => $element[$this->object->getPrimaryKey()]],
-                "AND"
+                'AND'
             );
             foreach ($macros as $macro) {
                 echo $this->action . $this->delim
-                    . "setmacro" . $this->delim
+                    . 'setmacro' . $this->delim
                     . $element['service_description'] . $this->delim
                     . $this->stripMacro($macro['svc_macro_name']) . $this->delim
                     . $macro['svc_macro_value'] . "\n";
@@ -1028,36 +1014,35 @@ class CentreonServiceTemplate extends CentreonObject
     /**
      * @param null $filterName
      *
-     * @return bool|void
      * @throws Exception
+     * @return bool|void
      */
     public function export($filterName = null)
     {
-        if (!$this->canBeExported($filterName)) {
+        if (! $this->canBeExported($filterName)) {
             return false;
         }
         $filterId = null;
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filterId = $this->getObjectId($filterName);
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = ["service_register" => $this->register];
-        if (!is_null($filterName)) {
+        $filters = ['service_register' => $this->register];
+        if (! is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
         $elements = $this->object->getList(
-            "*",
+            '*',
             -1,
             0,
             $labelField,
             'ASC',
             $filters,
-            "AND"
+            'AND'
         );
 
-
-        # No need to sort all service templates. We only export the current
+        // No need to sort all service templates. We only export the current
         if (is_null($filterId)) {
             $templateTree = $this->sortTemplates($elements);
             $this->parseTemplateTree($templateTree);
@@ -1067,48 +1052,48 @@ class CentreonServiceTemplate extends CentreonObject
 
         // contact groups
         $cgRel = new Centreon_Object_Relation_Contact_Group_Service($this->dependencyInjector);
-        $filters_cgRel = ["service_register" => $this->register];
-        if (!is_null($filterId)) {
+        $filters_cgRel = ['service_register' => $this->register];
+        if (! is_null($filterId)) {
             $filters_cgRel['service_id'] = $filterId;
         }
         $elements = $cgRel->getMergedParameters(
-            ["cg_name", "cg_id"],
+            ['cg_name', 'cg_id'],
             ['service_description'],
             -1,
             0,
             null,
             null,
             $filters_cgRel,
-            "AND"
+            'AND'
         );
         foreach ($elements as $element) {
             CentreonContactGroup::getInstance()->export($element['cg_name']);
             echo $this->action . $this->delim
-                . "addcontactgroup" . $this->delim
+                . 'addcontactgroup' . $this->delim
                 . $element['service_description'] . $this->delim
                 . $element['cg_name'] . "\n";
         }
 
         // contacts
         $contactRel = new Centreon_Object_Relation_Contact_Service($this->dependencyInjector);
-        $filters_contactRel = ["service_register" => $this->register];
-        if (!is_null($filterId)) {
+        $filters_contactRel = ['service_register' => $this->register];
+        if (! is_null($filterId)) {
             $filters_contactRel['service_id'] = $filterId;
         }
         $elements = $contactRel->getMergedParameters(
-            ["contact_alias", "contact_id"],
+            ['contact_alias', 'contact_id'],
             ['service_description'],
             -1,
             0,
             null,
             null,
             $filters_contactRel,
-            "AND"
+            'AND'
         );
         foreach ($elements as $element) {
             CentreonContact::getInstance()->export($element['contact_alias']);
             echo $this->action . $this->delim
-                . "addcontact" . $this->delim
+                . 'addcontact' . $this->delim
                 . $element['service_description'] . $this->delim
                 . $element['contact_alias'] . "\n";
         }
@@ -1116,17 +1101,17 @@ class CentreonServiceTemplate extends CentreonObject
         // macros
         $macroObj = new Centreon_Object_Service_Macro_Custom($this->dependencyInjector);
         $macros = $macroObj->getList(
-            "*",
+            '*',
             -1,
             0,
             null,
             null,
             ['svc_svc_id' => $element[$this->object->getPrimaryKey()] ?? null],
-            "AND"
+            'AND'
         );
         foreach ($macros as $macro) {
             echo $this->action . $this->delim
-                . "setmacro" . $this->delim
+                . 'setmacro' . $this->delim
                 . $element['service_description'] . $this->delim
                 . $this->stripMacro($macro['svc_macro_name']) . $this->delim
                 . $macro['svc_macro_value'] . $this->delim
@@ -1135,47 +1120,47 @@ class CentreonServiceTemplate extends CentreonObject
 
         // traps
         $trapRel = new Centreon_Object_Relation_Trap_Service($this->dependencyInjector);
-        $filters_trapRel = ["service_register" => $this->register];
-        if (!is_null($filterId)) {
+        $filters_trapRel = ['service_register' => $this->register];
+        if (! is_null($filterId)) {
             $filters_trapRel['traps_service_relation.service_id'] = $filterId;
         }
         $telements = $trapRel->getMergedParameters(
-            ["traps_name", "traps_id"],
+            ['traps_name', 'traps_id'],
             ['service_description'],
             -1,
             0,
             null,
             null,
             $filters_trapRel,
-            "AND"
+            'AND'
         );
         foreach ($telements as $telement) {
             CentreonTrap::getInstance()->export($telement['traps_name']);
             echo $this->action . $this->delim
-                . "addtrap" . $this->delim
+                . 'addtrap' . $this->delim
                 . $telement['service_description'] . $this->delim
                 . $telement['traps_name'] . "\n";
         }
 
         // hosts
         $hostRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-        $filters_hostRel = ["service_register" => $this->register];
-        if (!is_null($filterId)) {
+        $filters_hostRel = ['service_register' => $this->register];
+        if (! is_null($filterId)) {
             $filters_hostRel['service_id'] = $filterId;
         }
         $helements = $hostRel->getMergedParameters(
-            ["host_name", "host_id"],
+            ['host_name', 'host_id'],
             ['service_description'],
             -1,
             0,
             'service_description,host_name',
             'ASC',
             $filters_hostRel,
-            "AND"
+            'AND'
         );
         foreach ($helements as $helement) {
             echo $this->action . $this->delim
-                . "addhosttemplate" . $this->delim
+                . 'addhosttemplate' . $this->delim
                 . $helement['service_description'] . $this->delim
                 . $helement['host_name'] . "\n";
         }

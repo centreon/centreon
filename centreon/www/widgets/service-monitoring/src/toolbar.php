@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
@@ -44,13 +44,14 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 
 session_start();
-if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
-    print "Session Errors";
+if (! isset($_SESSION['centreon']) || ! isset($_POST['widgetId'])) {
+    echo 'Session Errors';
+
     exit;
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/service-monitoring/src/";
+$path = $centreon_path . 'www/widgets/service-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -64,58 +65,58 @@ $canDoAction = false;
 if ($admin) {
     $canDoAction = true;
 }
-$actions = "<option value='0'>-- " . _("More actions") . " -- </option>";
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_check")) {
-    $actions .= "<option value='3'>" . _("Service: Schedule Immediate Check") . "</option>";
+$actions = "<option value='0'>-- " . _('More actions') . ' -- </option>';
+if ($canDoAction || $centreon->user->access->checkAction('service_schedule_check')) {
+    $actions .= "<option value='3'>" . _('Service: Schedule Immediate Check') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_forced_check")) {
-    $actions .= "<option value='4'>" . _("Service: Schedule Immediate Forced Check") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_schedule_forced_check')) {
+    $actions .= "<option value='4'>" . _('Service: Schedule Immediate Forced Check') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_acknowledgement")) {
-    $actions .= "<option value='70'>" . _("Service: Acknowledge") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_acknowledgement')) {
+    $actions .= "<option value='70'>" . _('Service: Acknowledge') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_disacknowledgement")) {
-    $actions .= "<option value='71'>" . _("Service: Remove Acknowledgement") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_disacknowledgement')) {
+    $actions .= "<option value='71'>" . _('Service: Remove Acknowledgement') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_schedule_downtime")) {
-    $actions .= "<option value='74'>" . _("Service: Set Downtime") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_schedule_downtime')) {
+    $actions .= "<option value='74'>" . _('Service: Set Downtime') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_notifications")) {
-    $actions .= "<option value='80'>" . _("Service: Enable Notification") . "</option>";
-    $actions .= "<option value='81'>" . _("Service: Disable Notification") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_notifications')) {
+    $actions .= "<option value='80'>" . _('Service: Enable Notification') . '</option>';
+    $actions .= "<option value='81'>" . _('Service: Disable Notification') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("service_checks")) {
-    $actions .= "<option value='90'>" . _("Service: Enable Check") . "</option>";
-    $actions .= "<option value='91'>" . _("Service: Disable Check") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('service_checks')) {
+    $actions .= "<option value='90'>" . _('Service: Enable Check') . '</option>';
+    $actions .= "<option value='91'>" . _('Service: Disable Check') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_acknowledgement")) {
-    $actions .= "<option value='72'>" . _("Host: Acknowledge") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_acknowledgement')) {
+    $actions .= "<option value='72'>" . _('Host: Acknowledge') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_disacknowledgement")) {
-    $actions .= "<option value='73'>" . _("Host: Remove Acknowledgement") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_disacknowledgement')) {
+    $actions .= "<option value='73'>" . _('Host: Remove Acknowledgement') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_schedule_downtime")) {
-    $actions .= "<option value='75'>" . _("Host: Set Downtime") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_schedule_downtime')) {
+    $actions .= "<option value='75'>" . _('Host: Set Downtime') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_notifications")) {
-    $actions .= "<option value='82'>" . _("Host: Enable Host Notification") . "</option>";
-    $actions .= "<option value='83'>" . _("Host: Disable Host Notification") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_notifications')) {
+    $actions .= "<option value='82'>" . _('Host: Enable Host Notification') . '</option>';
+    $actions .= "<option value='83'>" . _('Host: Disable Host Notification') . '</option>';
 }
-if ($canDoAction || $centreon->user->access->checkAction("host_checks")) {
-    $actions .= "<option value='92'>" . _("Host: Enable Host Check") . "</option>";
-    $actions .= "<option value='93'>" . _("Host: Disable Host Check") . "</option>";
+if ($canDoAction || $centreon->user->access->checkAction('host_checks')) {
+    $actions .= "<option value='92'>" . _('Host: Enable Host Check') . '</option>';
+    $actions .= "<option value='93'>" . _('Host: Disable Host Check') . '</option>';
 }
 
-$template->assign("widgetId", $widgetId);
-$template->assign("actions", $actions);
+$template->assign('widgetId', $widgetId);
+$template->assign('actions', $actions);
 $template->display('toolbar.ihtml');
 
 ?>
 <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
 <script type='text/javascript'>
     var tab = new Array();
-    var actions = "<?php echo $actions;?>";
-    var wid = "<?php echo $widgetId;?>";
+    var actions = "<?php echo $actions; ?>";
+    var wid = "<?php echo $widgetId; ?>";
 
 
     jQuery(function () {

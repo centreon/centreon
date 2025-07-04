@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.10.3: ';
 $errorMessage = '';
 
-$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
-    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+$dropColumnVersionFromDashboardWidgetsTable = function (CentreonDB $pearDB): void {
+    if ($pearDB->isColumnExist('dashboard_widgets', 'version')) {
         $pearDB->query(
             <<<'SQL'
                     ALTER TABLE dashboard_widgets
@@ -39,27 +39,27 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
     }
 };
 
-$populateDashboardTables = function(CentreonDb $pearDB): void {
-  $statement = $pearDB->query(
-      <<<'SQL'
-          SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
-          SQL
-  );
-  if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
-      $pearDB->query(
-          <<<'SQL'
-              INSERT INTO `dashboard_widgets` (`name`)
-              VALUES
-                  ('centreon-widget-statusgrid')
-              SQL
-      );
-  }
+$populateDashboardTables = function (CentreonDb $pearDB): void {
+    $statement = $pearDB->query(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'
+            SQL
+    );
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES
+                    ('centreon-widget-statusgrid')
+                SQL
+        );
+    }
 };
 
 try {
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
     $populateDashboardTables($pearDB);
-} catch (\Exception $e) {
+} catch (Exception $e) {
 
     $centreonLog->insertLog(
         4,
@@ -69,5 +69,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

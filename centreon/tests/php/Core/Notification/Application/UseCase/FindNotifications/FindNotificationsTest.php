@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 use Core\Notification\Application\UseCase\FindNotifications\NotificationDto;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -100,9 +100,9 @@ it('should get the resources count with ACL calculation when the user is not adm
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1, 'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2, 'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3, 'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -158,9 +158,9 @@ it('should get the resources count without ACL calculation when the user is admi
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1, 'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2, 'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3, 'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -205,9 +205,9 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1, 'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2, 'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3, 'notification-three', new TimePeriod(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())

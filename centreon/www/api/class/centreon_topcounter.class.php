@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -90,8 +75,8 @@ class CentreonTopCounter extends CentreonWebService
     /**
      * Get refresh interval of top counter
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function initRefreshInterval(): void
     {
@@ -100,7 +85,7 @@ class CentreonTopCounter extends CentreonWebService
         $query = 'SELECT `value` FROM options WHERE `key` = "AjaxTimeReloadStatistic"';
         $res = $this->pearDB->query($query);
         if ($row = $res->fetch()) {
-            $refreshInterval = (int)$row['value'];
+            $refreshInterval = (int) $row['value'];
         }
 
         $this->refreshTime = $refreshInterval;
@@ -116,10 +101,10 @@ class CentreonTopCounter extends CentreonWebService
             session_start();
             $_SESSION['centreon'] = $this->centreon;
             session_write_close();
-            if (isset($tabActionACL["top_counter"])) {
+            if (isset($tabActionACL['top_counter'])) {
                 $this->hasAccessToTopCounter = true;
             }
-            if (isset($tabActionACL["poller_stats"])) {
+            if (isset($tabActionACL['poller_stats'])) {
                 $this->hasAccessToPollers = true;
             }
         } else {
@@ -128,8 +113,8 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         if (
-            isset($this->centreon->user->access->topology[50104]) &&
-            $this->centreon->user->access->topology[50104] === 1
+            isset($this->centreon->user->access->topology[50104])
+            && $this->centreon->user->access->topology[50104] === 1
         ) {
             $this->hasAccessToProfile = true;
         }
@@ -156,8 +141,8 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return bool[]
      * @throws CentreonDbException
+     * @return bool[]
      */
     public function getAutologout()
     {
@@ -178,21 +163,21 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method PUT
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function putAutoLoginToken(): void
     {
         $userId = $this->arguments['userId'];
         $autoLoginKey = $this->arguments['token'];
 
-        $query = "UPDATE contact SET contact_autologin_key = :autoKey WHERE contact_id = :userId";
+        $query = 'UPDATE contact SET contact_autologin_key = :autoKey WHERE contact_id = :userId';
         $stmt = $this->pearDB->prepare($query);
         $stmt->bindParam(':autoKey', $autoLoginKey, PDO::PARAM_STR);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $res = $stmt->execute();
 
-        if (!$res) {
+        if (! $res) {
             throw new Exception('Error while update autologinKey ' . $autoLoginKey);
         }
 
@@ -207,9 +192,9 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return array
      * @throws RestInternalServerErrorException
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function getUser()
     {
@@ -218,7 +203,7 @@ class CentreonTopCounter extends CentreonWebService
             : $this->centreon->user->lang;
         $autoLoginKey = null;
 
-        $this->soundNotificationsEnabled = isset($_SESSION['disable_sound']) ? !$_SESSION['disable_sound'] : true;
+        $this->soundNotificationsEnabled = isset($_SESSION['disable_sound']) ? ! $_SESSION['disable_sound'] : true;
 
         // Is the autologin feature enabled ?
         try {
@@ -245,8 +230,8 @@ class CentreonTopCounter extends CentreonWebService
         // If the autologin feature is enabled then fetch the autologin key
         // And display the shortcut if the option is enabled
         if (
-            isset($rowEnableAutoLogin['value'])
-            && isset($rowEnableShortcut['value'])
+            isset($rowEnableAutoLogin['value'], $rowEnableShortcut['value'])
+
             && $rowEnableAutoLogin['value'] === '1'
             && $rowEnableShortcut['value'] === '1'
         ) {
@@ -287,8 +272,8 @@ class CentreonTopCounter extends CentreonWebService
      * null : never expired
      * int : number of seconds before expiration
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     private function getPasswordRemainingTime(): ?int
     {
@@ -304,7 +289,7 @@ class CentreonTopCounter extends CentreonWebService
             $expirationDelay = $passwordPolicy['password_expiration']['expiration_delay'];
             $excludedUsers = $passwordPolicy['password_expiration']['excluded_users'];
 
-            if ($expirationDelay !== null && !in_array($this->centreon->user->alias, $excludedUsers)) {
+            if ($expirationDelay !== null && ! in_array($this->centreon->user->alias, $excludedUsers)) {
                 $passwordRemainingTime = $passwordCreationDate->getTimestamp() + $expirationDelay - time();
                 if ($passwordRemainingTime < 0) {
                     $passwordRemainingTime = 0;
@@ -320,13 +305,13 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return array
      * @throws RestInternalServerErrorException
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function getPollersStatus()
     {
-        if (!$this->hasAccessToPollers) {
+        if (! $this->hasAccessToPollers) {
             throw new RestUnauthorizedException("You're not authorized to access poller datas");
         }
 
@@ -354,20 +339,19 @@ class CentreonTopCounter extends CentreonWebService
         return $result;
     }
 
-
     /**
      * Get the list of pollers by status type
      *
      * Method GET
      *
-     * @return array
      * @throws RestBadRequestException
      * @throws RestInternalServerErrorException
+     * @return array
      */
     public function getPollers()
     {
         $listType = ['configuration', 'stability', 'database', 'latency'];
-        if (!isset($this->arguments['type']) || !in_array($this->arguments['type'], $listType)) {
+        if (! isset($this->arguments['type']) || ! in_array($this->arguments['type'], $listType)) {
             throw new RestBadRequestException('Missing type argument or bad type name.');
         }
 
@@ -375,7 +359,7 @@ class CentreonTopCounter extends CentreonWebService
             'type' => $this->arguments['type'],
             'pollers' => [],
             'total' => 0,
-            'refreshTime' => $this->refreshTime
+            'refreshTime' => $this->refreshTime,
         ];
 
         if ($this->arguments['type'] === 'configuration') {
@@ -409,6 +393,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         $result['total'] = count($pollers);
+
         return $result;
     }
 
@@ -417,13 +402,13 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return array
      * @throws RestInternalServerErrorException
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function getPollersListIssues()
     {
-        if (!$this->hasAccessToPollers) {
+        if (! $this->hasAccessToPollers) {
             throw new RestUnauthorizedException(_("You're not authorized to access poller data"));
         }
 
@@ -437,7 +422,7 @@ class CentreonTopCounter extends CentreonWebService
         $latCri = 0;
 
         foreach ($pollers as $poller) {
-            //stability
+            // stability
             if ($poller['stability'] === 1) {
                 $result['issues']['stability']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => ''];
                 $staWar++;
@@ -446,7 +431,7 @@ class CentreonTopCounter extends CentreonWebService
                 $staCri++;
             }
 
-            //database
+            // database
             if ($poller['database']['state'] === 1) {
                 $result['issues']['database']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['database']['time']];
                 $datWar++;
@@ -455,7 +440,7 @@ class CentreonTopCounter extends CentreonWebService
                 $datCri++;
             }
 
-            //latency
+            // latency
             if ($poller['latency']['state'] === 1) {
                 $result['issues']['latency']['warning']['poller'][] = ['id' => $poller['id'], 'name' => $poller['name'], 'since' => $poller['latency']['time']];
                 $latWar++;
@@ -465,7 +450,7 @@ class CentreonTopCounter extends CentreonWebService
             }
         }
 
-        //total and unset empty
+        // total and unset empty
         $staTotal = $staWar + $staCri;
         if ($staTotal === 0) {
             unset($result['issues']['stability']);
@@ -525,19 +510,19 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return array|mixed
      * @throws RestInternalServerErrorException
      * @throws RestUnauthorizedException
+     * @return array|mixed
      */
     public function getHosts_status()
     {
-        if (!$this->hasAccessToTopCounter) {
+        if (! $this->hasAccessToTopCounter) {
             throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
-            isset($_SESSION['topCounterHostStatus']) &&
-            (time() - $this->refreshTime) < $_SESSION['topCounterHostStatus']['time']
+            isset($_SESSION['topCounterHostStatus'])
+            && (time() - $this->refreshTime) < $_SESSION['topCounterHostStatus']['time']
         ) {
             return $_SESSION['topCounterHostStatus'];
         }
@@ -557,7 +542,7 @@ class CentreonTopCounter extends CentreonWebService
             AND h.enabled = 1
             AND h.name NOT LIKE "\_Module\_%"';
 
-        if (!$this->centreon->user->admin) {
+        if (! $this->centreon->user->admin) {
             $query .= ' AND EXISTS (
                 SELECT a.host_id FROM centreon_acl a
                   WHERE a.host_id = h.host_id
@@ -575,6 +560,7 @@ class CentreonTopCounter extends CentreonWebService
         $result = ['down' => ['total' => $row['down_total'], 'unhandled' => $row['down_unhandled']], 'unreachable' => ['total' => $row['unreachable_total'], 'unhandled' => $row['unreachable_unhandled']], 'ok' => $row['up_total'], 'pending' => $row['pending_total'], 'total' => $row['up_total'] + $row['pending_total'] + $row['down_total'] + $row['unreachable_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterHostStatus', $result);
+
         return $result;
     }
 
@@ -583,19 +569,19 @@ class CentreonTopCounter extends CentreonWebService
      *
      * Method GET
      *
-     * @return array|mixed
      * @throws RestInternalServerErrorException
      * @throws RestUnauthorizedException
+     * @return array|mixed
      */
     public function getServicesStatus()
     {
-        if (!$this->hasAccessToTopCounter) {
+        if (! $this->hasAccessToTopCounter) {
             throw new RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
-            isset($_SESSION['topCounterServiceStatus']) &&
-            (time() - $this->refreshTime) < $_SESSION['topCounterServiceStatus']['time']
+            isset($_SESSION['topCounterServiceStatus'])
+            && (time() - $this->refreshTime) < $_SESSION['topCounterServiceStatus']['time']
         ) {
             return $_SESSION['topCounterServiceStatus'];
         }
@@ -622,7 +608,7 @@ class CentreonTopCounter extends CentreonWebService
             AND (h.name NOT LIKE "\_Module\_%" OR h.name LIKE "\_Module\_Meta%")
             AND s.enabled = 1
             AND h.host_id = s.host_id';
-        if (!$this->centreon->user->admin) {
+        if (! $this->centreon->user->admin) {
             $query .= ' AND EXISTS (
                 SELECT a.service_id FROM centreon_acl a
                     WHERE a.host_id = h.host_id
@@ -639,10 +625,11 @@ class CentreonTopCounter extends CentreonWebService
 
         $row = $res->fetch();
 
-        $result = ['critical' => ['total' => $row['critical_total'], 'unhandled' => $row['critical_unhandled']], 'warning' => ['total' => $row['warning_total'], 'unhandled' => $row['warning_unhandled']], 'unknown' => ['total' => $row['unknown_total'], 'unhandled' => $row['unknown_unhandled']], 'ok' => $row['ok_total'], 'pending' => $row['pending_total'], 'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total'] +
-            $row['warning_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
+        $result = ['critical' => ['total' => $row['critical_total'], 'unhandled' => $row['critical_unhandled']], 'warning' => ['total' => $row['warning_total'], 'unhandled' => $row['warning_unhandled']], 'unknown' => ['total' => $row['unknown_total'], 'unhandled' => $row['unknown_unhandled']], 'ok' => $row['ok_total'], 'pending' => $row['pending_total'], 'total' => $row['ok_total'] + $row['pending_total'] + $row['critical_total'] + $row['unknown_total']
+            + $row['warning_total'], 'refreshTime' => $this->refreshTime, 'time' => time()];
 
         CentreonSession::writeSessionClose('topCounterServiceStatus', $result);
+
         return $result;
     }
 
@@ -650,8 +637,8 @@ class CentreonTopCounter extends CentreonWebService
      * Get intervals for refreshing header data
      * Method: GET
      *
-     * @return array
      * @throws RestInternalServerErrorException
+     * @return array
      */
     public function getRefreshIntervals()
     {
@@ -674,18 +661,18 @@ class CentreonTopCounter extends CentreonWebService
     /**
      * Get the configured pollers
      *
-     * @return array
      * @throws RestInternalServerErrorException
+     * @return array
      */
     protected function pollersList()
     {
-        /* Get the list of configured pollers */
+        // Get the list of configured pollers
         $listPoller = [];
         $query = 'SELECT id, name, last_restart, updated FROM nagios_server WHERE ns_activate = "1"';
 
-        /* Add ACL */
+        // Add ACL
         $aclPoller = $this->centreon->user->access->getPollerString('id');
-        if (!$this->centreon->user->admin) {
+        if (! $this->centreon->user->admin) {
             if ($aclPoller === '') {
                 return [];
             }
@@ -704,14 +691,15 @@ class CentreonTopCounter extends CentreonWebService
         while ($row = $res->fetch()) {
             $listPoller[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'lastRestart' => $row['last_restart'], 'updated' => $row['updated']];
         }
+
         return $listPoller;
     }
 
     /**
      * Get information for pollers
      *
-     * @return array
      * @throws RestInternalServerErrorException
+     * @return array
      */
     protected function pollersStatusList()
     {
@@ -721,7 +709,7 @@ class CentreonTopCounter extends CentreonWebService
             $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
         }
 
-        /* Get status of pollers */
+        // Get status of pollers
         $query = 'SELECT 1 AS REALTIME, instance_id, last_alive, running FROM instances
             WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
 
@@ -732,7 +720,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         while ($row = $res->fetch()) {
-            /* Test if poller running and activity */
+            // Test if poller running and activity
             if (time() - $row['last_alive'] >= $this->timeUnit * 10) {
                 $listPoller[$row['instance_id']]['stability'] = 2;
                 $listPoller[$row['instance_id']]['database']['state'] = 2;
@@ -746,7 +734,7 @@ class CentreonTopCounter extends CentreonWebService
                 $listPoller[$row['instance_id']]['stability'] = 2;
             }
         }
-        /* Get latency */
+        // Get latency
         $query = 'SELECT 1 AS REALTIME, n.stat_value, i.instance_id
             FROM nagios_stats n, instances i
             WHERE n.stat_label = "Service Check Latency"
@@ -784,13 +772,9 @@ class CentreonTopCounter extends CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->hasAccessRestApiRealtime())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 }

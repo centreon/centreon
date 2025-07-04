@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,8 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
@@ -195,7 +196,7 @@ final class PartialUpdateServiceTemplate
         $this->info('Original service categories found', ['service_categories' => $originalServiceCategories]);
 
         $originalServiceCategoriesIds = array_map(
-            static fn(ServiceCategory $serviceCategory): int => $serviceCategory->getId(),
+            static fn (ServiceCategory $serviceCategory): int => $serviceCategory->getId(),
             $originalServiceCategories
         );
 
@@ -674,7 +675,7 @@ final class PartialUpdateServiceTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

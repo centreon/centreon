@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,22 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *Controller
+ *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Application\Controller\AbstractController;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * This class is design to manage all API REST about metric requests
@@ -39,14 +40,10 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
  */
 class MetricController extends AbstractController
 {
-    /**
-     * @var MetricServiceInterface
-     */
+    /** @var MetricServiceInterface */
     private $metricService;
 
-    /**
-     * @var MonitoringServiceInterface
-     */
+    /** @var MonitoringServiceInterface */
     private $monitoringService;
 
     /**
@@ -66,8 +63,8 @@ class MetricController extends AbstractController
     /**
      * find a service from host id and service id
      *
-     * @return Service if the service is found
      * @throws EntityNotFoundException if the host or service is not found
+     * @return Service if the service is found
      */
     private function findService(int $hostId, int $serviceId): Service
     {
@@ -98,7 +95,7 @@ class MetricController extends AbstractController
     /**
      * convert timestamp to DateTime
      *
-     * @param integer $timestamp
+     * @param int $timestamp
      * @param \DateTimeZone $timezone
      * @return \DateTime
      */
@@ -139,10 +136,10 @@ class MetricController extends AbstractController
      * Validate and extract start/end dates from request parameters
      *
      * @param RequestParametersInterface $requestParameters
-     * @return array<\DateTime>
-     * @example [new \Datetime('yesterday'), new \Datetime('today')]
      * @throws NotFoundHttpException
      * @throws \LogicException
+     * @return array<\DateTime>
+     * @example [new \Datetime('yesterday'), new \Datetime('today')]
      */
     private function extractDatesFromRequestParameters(RequestParametersInterface $requestParameters): array
     {
@@ -172,8 +169,8 @@ class MetricController extends AbstractController
      * @param int $serviceId
      * @param \DateTime $start
      * @param \DateTime $end
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServiceMetrics(
         int $hostId,
@@ -204,8 +201,8 @@ class MetricController extends AbstractController
      * @param int $serviceId
      * @param \DateTime $start
      * @param \DateTime $end
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServiceStatus(
         int $hostId,
@@ -234,8 +231,8 @@ class MetricController extends AbstractController
      *
      * @param int $hostId
      * @param int $serviceId
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
@@ -267,8 +264,8 @@ class MetricController extends AbstractController
      *
      * @param int $hostId
      * @param int $serviceId
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getServiceStatusMetrics(
         RequestParametersInterface $requestParameters,
@@ -297,8 +294,8 @@ class MetricController extends AbstractController
      * Entry point to get meta service performance metrics
      *
      * @param int $metaId
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getMetaServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
@@ -335,8 +332,8 @@ class MetricController extends AbstractController
      * Entry point to get metaservice status metrics
      *
      * @param int $metaId
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function getMetaServiceStatusMetrics(
         RequestParametersInterface $requestParameters,

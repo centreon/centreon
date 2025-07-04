@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurati
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\AgentConfigurationDto;
@@ -36,6 +35,7 @@ use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -51,7 +51,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Forbidden Response when user does not have topology role', function () {
+it('should present a Forbidden Response when user does not have topology role', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -65,7 +65,7 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should retrieve agent configurations without calculating ACL for an admin', function () {
+it('should retrieve agent configurations without calculating ACL for an admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -83,7 +83,7 @@ it('should retrieve agent configurations without calculating ACL for an admin', 
     ($this->useCase)($this->presenter);
 });
 
-it('should retrieve agent configurations without calculating ACL for a non admin', function () {
+it('should retrieve agent configurations without calculating ACL for a non admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -101,7 +101,7 @@ it('should retrieve agent configurations without calculating ACL for a non admin
     ($this->useCase)($this->presenter);
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -125,7 +125,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(AgentConfigurationException::errorWhileRetrievingObjects()->getMessage());
 });
 
-it('should present a FindAgentConfigurationsResponse when no errors occurred', function () {
+it('should present a FindAgentConfigurationsResponse when no errors occurred', function (): void {
     $acOne = new AgentConfiguration(
         id: 1,
         name: 'acOne',
@@ -140,7 +140,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'otel_private_key' => 'otel-key',
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
-                'conf_private_key' => 'conf-key'
+                'conf_private_key' => 'conf-key',
             ]
         )
     );
@@ -159,7 +159,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'otel_private_key' => 'otel-key',
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
-                'conf_private_key' => 'conf-key'
+                'conf_private_key' => 'conf-key',
             ]
         )
     );

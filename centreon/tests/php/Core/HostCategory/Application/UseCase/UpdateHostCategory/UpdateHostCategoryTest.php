@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -38,7 +39,6 @@ use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Application\Common\UseCase\NotFoundResponse;
 
 beforeEach(function (): void {
     $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class);
@@ -65,9 +65,9 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->user
-    ->expects($this->once())
-    ->method('isAdmin')
-    ->willReturn(true);
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('exists')
@@ -253,4 +253,3 @@ it('should return created object on success', function (): void {
 
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
-

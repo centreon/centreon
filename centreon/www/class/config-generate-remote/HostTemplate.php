@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractHost;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class HostTemplate extends AbstractHost
 {
     /** @var array|null */
     public $hosts = null;
+
     /** @var string */
     protected $generateFilename = 'hostTemplates.infile';
+
     /** @var string */
     protected $table = 'host';
+
     /** @var string */
     protected $attributesSelect = '
         host_id,
@@ -88,6 +92,7 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords,
         host_acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'host_id',
@@ -114,7 +119,7 @@ class HostTemplate extends AbstractHost
         'host_snmp_version',
         'host_register',
         'host_location',
-        'host_acknowledgement_timeout'
+        'host_acknowledgement_timeout',
     ];
 
     /**
@@ -125,7 +130,7 @@ class HostTemplate extends AbstractHost
     private function getHosts(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
+            "SELECT {$this->attributesSelect}
             FROM host
             LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
             WHERE host.host_register = '0' AND host.host_activate = '1'"
@@ -137,7 +142,7 @@ class HostTemplate extends AbstractHost
     /**
      * Get severity from host id
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @return int|void
      */
     private function getSeverity(int $hostId)
@@ -146,9 +151,9 @@ class HostTemplate extends AbstractHost
             return 0;
         }
 
-        $this->hosts[$hostId]['severity_id'] =
-            HostCategory::getInstance($this->dependencyInjector)->getHostSeverityByHostId($hostId);
-        if (!is_null($this->hosts[$hostId]['severity_id'])) {
+        $this->hosts[$hostId]['severity_id']
+            = HostCategory::getInstance($this->dependencyInjector)->getHostSeverityByHostId($hostId);
+        if (! is_null($this->hosts[$hostId]['severity_id'])) {
             Relations\HostCategoriesRelation::getInstance($this->dependencyInjector)
                 ->addRelation($this->hosts[$hostId]['severity_id'], $hostId);
         }
@@ -157,7 +162,7 @@ class HostTemplate extends AbstractHost
     /**
      * Generate from host id and get host name
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @return null|string
      */
     public function generateFromHostId(int $hostId)
@@ -166,7 +171,7 @@ class HostTemplate extends AbstractHost
             $this->getHosts();
         }
 
-        if (!isset($this->hosts[$hostId])) {
+        if (! isset($this->hosts[$hostId])) {
             return null;
         }
         if ($this->checkGenerate($hostId)) {
@@ -196,13 +201,14 @@ class HostTemplate extends AbstractHost
         Relations\ExtendedHostInformation::getInstance($this->dependencyInjector)->add($extendedInformation, $hostId);
 
         $this->generateObjectInFile($this->hosts[$hostId], $hostId);
+
         return $this->hosts[$hostId]['host_name'];
     }
 
     /**
      * Reset object
      *
-     * @param boolean $createfile
+     * @param bool $createfile
      * @return void
      */
     public function reset($createfile = false): void

@@ -1,22 +1,26 @@
 <?php
-/**
- * Copyright 2016 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
 /**
  * Class
@@ -28,10 +32,13 @@ class CentreonRestHttp
 {
     /** @var string The content type : default application/json */
     private $contentType = 'application/json';
+
     /** @var string|null using a proxy */
     private $proxy = null;
+
     /** @var string proxy authentication information */
     private $proxyAuthentication = null;
+
     /** @var CentreonLog|null logFileThe The log file for call errors */
     private $logObj = null;
 
@@ -47,7 +54,7 @@ class CentreonRestHttp
     {
         $this->getProxy();
         $this->contentType = $contentType;
-        if (!is_null($logFile)) {
+        if (! is_null($logFile)) {
             $this->logObj = new CentreonLog([4 => $logFile]);
         }
     }
@@ -81,7 +88,6 @@ class CentreonRestHttp
      * @param bool $noCheckCertificate To disable CURLOPT_SSL_VERIFYPEER
      * @param bool $noProxy To disable CURLOPT_PROXY
      *
-     * @return array The result content
      * @throws RestBadRequestException
      * @throws RestConflictException
      * @throws RestForbiddenException
@@ -89,10 +95,11 @@ class CentreonRestHttp
      * @throws RestMethodNotAllowedException
      * @throws RestNotFoundException
      * @throws RestUnauthorizedException
+     * @return array The result content
      */
     public function call($url, $method = 'GET', $data = null, $headers = [], $throwContent = false, $noCheckCertificate = false, $noProxy = false)
     {
-        /* Add content type to headers */
+        // Add content type to headers
         $headers[] = 'Content-type: ' . $this->contentType;
         $headers[] = 'Connection: close';
 
@@ -108,9 +115,9 @@ class CentreonRestHttp
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         }
 
-        if (!$noProxy && !is_null($this->proxy)) {
+        if (! $noProxy && ! is_null($this->proxy)) {
             curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
-            if (!is_null($this->proxyAuthentication)) {
+            if (! is_null($this->proxyAuthentication)) {
                 curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
                 curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->proxyAuthentication);
             }
@@ -128,7 +135,7 @@ class CentreonRestHttp
                 break;
         }
 
-        if (!is_null($data)) {
+        if (! is_null($data)) {
             if (isset($this->contentType) && $this->contentType == 'application/json') {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             } else {
@@ -138,7 +145,7 @@ class CentreonRestHttp
 
         $result = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (!$http_code) {
+        if (! $http_code) {
             $http_code = 404;
         }
 
@@ -149,14 +156,14 @@ class CentreonRestHttp
             $decodedContent = json_decode($result, true);
 
             // if it is not possible to parse json, then result is probably a string
-            if (!is_array($decodedContent) && is_string($result)) {
+            if (! is_array($decodedContent) && is_string($result)) {
                 $decodedContent = [
-                    'message' => $result
+                    'message' => $result,
                 ];
             }
         }
 
-        /* Manage HTTP status code */
+        // Manage HTTP status code
         $exceptionClass = null;
         $logMessage = 'Unknown HTTP error';
         switch ($http_code) {
@@ -189,7 +196,7 @@ class CentreonRestHttp
                 break;
         }
 
-        if (!is_null($exceptionClass)) {
+        if (! is_null($exceptionClass)) {
             if ($throwContent && is_array($decodedContent)) {
                 $message = json_encode($decodedContent);
             } elseif (isset($decodedContent['message'])) {
@@ -198,10 +205,11 @@ class CentreonRestHttp
                 $message = $logMessage;
             }
             $this->insertLog($message, $url, $exceptionClass);
+
             throw new $exceptionClass($message);
         }
 
-        /* Return the content */
+        // Return the content
         return $decodedContent;
     }
 
@@ -213,7 +221,7 @@ class CentreonRestHttp
      */
     public function setProxy($url, $port): void
     {
-        if (isset($url) && !empty($url)) {
+        if (isset($url) && ! empty($url)) {
             $this->proxy = $url;
             if ($port) {
                 $this->proxy .= ':' . $port;
@@ -222,8 +230,8 @@ class CentreonRestHttp
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getProxy(): void
     {
@@ -238,15 +246,15 @@ class CentreonRestHttp
             $dataProxy[$row['key']] = $row['value'];
         }
 
-        if (isset($dataProxy['proxy_url']) && !empty($dataProxy['proxy_url'])) {
+        if (isset($dataProxy['proxy_url']) && ! empty($dataProxy['proxy_url'])) {
             $this->proxy = $dataProxy['proxy_url'];
             if ($dataProxy['proxy_port']) {
                 $this->proxy .= ':' . $dataProxy['proxy_port'];
             }
 
-            /* Proxy basic authentication */
-            if (isset($dataProxy['proxy_user']) && !empty($dataProxy['proxy_user']) &&
-                isset($dataProxy['proxy_password']) && !empty($dataProxy['proxy_password'])) {
+            // Proxy basic authentication
+            if (isset($dataProxy['proxy_user']) && ! empty($dataProxy['proxy_user'])
+                && isset($dataProxy['proxy_password']) && ! empty($dataProxy['proxy_password'])) {
                 $this->proxyAuthentication = $dataProxy['proxy_user'] . ':' . $dataProxy['proxy_password'];
             }
         }

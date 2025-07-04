@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
     public function __construct(
         private readonly EncryptionInterface $encryption,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-    )
-    {
+    ) {
         $this->readVaultRepository->setCustomPath(AbstractVaultRepository::ACC_VAULT_PATH);
     }
 
@@ -89,7 +88,7 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
         $vaultDatas = $this->readVaultRepository->findFromPath($vaultPath);
 
         foreach ($data['vcenters'] as $index => $vcenter) {
-            if (in_array($vcenter['name']. '_username', array_keys($vaultDatas), true)) {
+            if (in_array($vcenter['name'] . '_username', array_keys($vaultDatas), true)) {
                 $data['vcenters'][$index]['username'] = $vaultDatas[$vcenter['name'] . '_username'];
                 $data['vcenters'][$index]['password'] = $vaultDatas[$vcenter['name'] . '_password'];
             }

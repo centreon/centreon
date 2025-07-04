@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Message;
 
 beforeEach(function (): void {
     $this->channel = Channel::Slack;

@@ -1,14 +1,13 @@
 <?php
 
 /*
- *
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,8 +39,9 @@ class PlatformRelation
      */
     private const AVAILABLE_RELATIONS = [
         self::NORMAL_RELATION,
-        self::PEER_RETENTION_RELATION
+        self::PEER_RETENTION_RELATION,
     ];
+
     /**
      * Source node in relation
      *
@@ -66,7 +66,7 @@ class PlatformRelation
     /**
      * Get the value of source
      *
-     * @return  int
+     * @return int
      */
     public function getSource(): int
     {
@@ -78,7 +78,7 @@ class PlatformRelation
      *
      * @param int $source
      *
-     * @return  self
+     * @return self
      */
     public function setSource(int $source): self
     {
@@ -90,7 +90,7 @@ class PlatformRelation
     /**
      * Get the value of relation
      *
-     * @return  string
+     * @return string
      */
     public function getRelation(): string
     {
@@ -102,12 +102,12 @@ class PlatformRelation
      *
      * @param string|null $relation
      *
-     * @return  self
+     * @return self
      */
     public function setRelation(?string $relation): self
     {
-        //Set relation to normal if invalid relation type is given to be able to compute the relation
-        if (null !== $relation && !in_array($relation, self::AVAILABLE_RELATIONS)) {
+        // Set relation to normal if invalid relation type is given to be able to compute the relation
+        if (null !== $relation && ! in_array($relation, self::AVAILABLE_RELATIONS)) {
             $this->relation = self::NORMAL_RELATION;
         } else {
             $this->relation = $relation;
@@ -119,7 +119,7 @@ class PlatformRelation
     /**
      * Get the value of target
      *
-     * @return  int
+     * @return int
      */
     public function getTarget(): int
     {
@@ -131,7 +131,7 @@ class PlatformRelation
      *
      * @param int $target
      *
-     * @return  self
+     * @return self
      */
     public function setTarget(int $target): self
     {

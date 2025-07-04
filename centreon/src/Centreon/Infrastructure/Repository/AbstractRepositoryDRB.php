@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +18,18 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
-use JsonSchema\Constraints\Constraint;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
 
 /**
  * Class
@@ -73,6 +75,7 @@ class AbstractRepositoryDRB
         foreach ($accessGroups as $accessGroup) {
             $ids[] = $accessGroup->getId();
         }
+
         return implode(',', $ids);
     }
 
@@ -89,6 +92,7 @@ class AbstractRepositoryDRB
 
         if (is_array($decodedRecord) === false) {
             $this->critical('The property get from dbms is not a valid json');
+
             throw new RepositoryException('Invalid Json format');
         }
 
@@ -108,6 +112,7 @@ class AbstractRepositoryDRB
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
             $this->critical($message);
+
             throw new RepositoryException('Some properties doesn\'t match the json schema :' . $message);
         }
     }

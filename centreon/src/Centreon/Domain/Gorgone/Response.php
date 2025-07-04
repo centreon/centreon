@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone;
 
+use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseRepositoryInterface;
-use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 
 /**
  * This class is design to represent a response of the Gorgone server and can be used to retrieve all action logs
@@ -34,40 +35,28 @@ use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
  */
 class Response implements ResponseInterface
 {
-    /**
-     * @var CommandInterface Command sent to the Gorgone server
-     */
+    /** @var CommandInterface Command sent to the Gorgone server */
     private $command;
 
-    /**
-     * @var string|null Error message
-     */
+    /** @var string|null Error message */
     private $error;
 
-    /**
-     * @var string|null Message received by the Gorgone server based on the command sent
-     */
+    /** @var string|null Message received by the Gorgone server based on the command sent */
     private $message;
 
     /**
-     * @var string|null Token assigned by the Gorgone server to this response which must be equal to the
-     * associated command.
+     * @var string|null token assigned by the Gorgone server to this response which must be equal to the
+     *                  associated command
      */
     private $token;
 
-    /**
-     * @var ActionLog[] Action logs based on the command sent to the Gorgone server.
-     */
+    /** @var ActionLog[] action logs based on the command sent to the Gorgone server */
     private $actionLogs = [];
 
-    /**
-     * @var ResponseRepositoryInterface
-     */
+    /** @var ResponseRepositoryInterface */
     private static $staticResponseRepository;
 
-    /**
-     * @var ResponseRepositoryInterface
-     */
+    /** @var ResponseRepositoryInterface */
     private $responseRepository;
 
     /**
@@ -118,8 +107,8 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return ActionLog[]
      * @throws \Exception
+     * @return ActionLog[]
      * @see Response::$actionLogs
      */
     public function getActionLogs(): array
@@ -136,19 +125,20 @@ class Response implements ResponseInterface
             }
         }
         $this->message = isset($jsonResponse['message']) ? (string) $jsonResponse['message'] : null;
+
         return $this->actionLogs;
     }
 
     /**
-     * @return ActionLog|null
      * @throws \Exception
+     * @return ActionLog|null
      */
     public function getLastActionLog(): ?ActionLog
     {
         $this->getActionLogs();
+
         return $this->actionLogs[count($this->actionLogs) - 1] ?? null;
     }
-
 
     /**
      * @inheritDoc

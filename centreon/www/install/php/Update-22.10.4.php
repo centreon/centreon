@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.10.4: ';
 $errorMessage = '';
 
@@ -32,8 +32,7 @@ $errorMessage = '';
  *
  * @param CentreonDB $pearDB
  */
-$decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
-{
+$decodeIllegalCharactersNagios = function (CentreonDB $pearDB): void {
     $configs = $pearDB->query(
         <<<'SQL'
             SELECT
@@ -66,27 +65,27 @@ $decodeIllegalCharactersNagios = function(CentreonDB $pearDB): void
             continue;
         }
 
-        $statement->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
-        $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
-        $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+        $statement->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], PDO::PARAM_STR);
+        $statement->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], PDO::PARAM_STR);
+        $statement->bindValue(':nagios_id', $modified['nagios_id'], PDO::PARAM_INT);
         $statement->execute();
     }
 };
 
 try {
     if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-        $errorMessage = "Impossible to update cfg_centreonbroker table";
+        $errorMessage = 'Impossible to update cfg_centreonbroker table';
         $pearDB->query(
-            "ALTER TABLE `cfg_centreonbroker`
+            'ALTER TABLE `cfg_centreonbroker`
             ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-            AFTER `event_queue_max_size`"
+            AFTER `event_queue_max_size`'
         );
     }
 
     // Transactional queries
     $pearDB->beginTransaction();
 
-    $errorMessage = "Impossible to delete color picker topology_js entries";
+    $errorMessage = 'Impossible to delete color picker topology_js entries';
     $pearDB->query(
         "DELETE FROM `topology_JS`
         WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
@@ -96,7 +95,7 @@ try {
     $decodeIllegalCharactersNagios($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -109,5 +108,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

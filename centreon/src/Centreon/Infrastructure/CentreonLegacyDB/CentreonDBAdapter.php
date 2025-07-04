@@ -1,71 +1,59 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace Centreon\Infrastructure\CentreonLegacyDB;
 
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use ReflectionClass;
+use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use CentreonDB;
+use ReflectionClass;
 
 /**
  * Executes commands against Centreon database backend.
  */
 class CentreonDBAdapter
 {
-    /** @var \CentreonDB */
+    /** @var CentreonDB */
     private $db;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var CentreonDBManagerService */
     protected $manager;
+
     private $count = 0;
+
     private $error = false;
+
     private $errorInfo = '';
+
     private $query;
+
     private $result;
 
     /**
      * Construct
      *
-     * @param \CentreonDB $db
-     * @param \Centreon\Infrastructure\Service\CentreonDBManagerService $manager
+     * @param CentreonDB $db
+     * @param CentreonDBManagerService $manager
      */
-    public function __construct(CentreonDB $db, CentreonDBManagerService $manager = null)
+    public function __construct(CentreonDB $db, ?CentreonDBManagerService $manager = null)
     {
         $this->db = $db;
         $this->manager = $manager;
@@ -81,9 +69,7 @@ class CentreonDBAdapter
             throw new NotFoundException(sprintf('Repository %s must implement %s', $repository, $interface));
         }
 
-        $repositoryInstance = new $repository($this->db, $this->manager);
-
-        return $repositoryInstance;
+        return new $repository($this->db, $this->manager);
     }
 
     public function getCentreonDBInstance(): CentreonDB
@@ -93,11 +79,10 @@ class CentreonDBAdapter
 
     /**
      * @param string $query
-     * @param array  $params
+     * @param array $params
      *
-     * @return $this
      * @throws \Exception
-     *
+     * @return $this
      */
     public function query($query, $params = [])
     {
@@ -106,7 +91,7 @@ class CentreonDBAdapter
 
         $this->query = $this->db->prepare($query);
 
-        if (!$this->query) {
+        if (! $this->query) {
             throw new \Exception('Error at preparing the query.');
         }
 
@@ -126,7 +111,7 @@ class CentreonDBAdapter
             if ($result && $isSelect) {
                 $this->result = $this->query->fetchAll(\PDO::FETCH_OBJ);
                 $this->count = $this->query->rowCount();
-            } elseif (!$result) {
+            } elseif (! $result) {
                 $this->error = true;
                 $this->errorInfo = $this->query->errorInfo();
             }
@@ -139,15 +124,14 @@ class CentreonDBAdapter
 
     /**
      * @param string $table
-     * @param array  $fields
+     * @param array $fields
      *
-     * @return int Last inserted ID
      * @throws \Exception
-     *
+     * @return int Last inserted ID
      */
     public function insert($table, array $fields)
     {
-        if (!$fields) {
+        if (! $fields) {
             throw new \Exception("The argument `fields` can't be empty");
         }
 
@@ -182,15 +166,14 @@ class CentreonDBAdapter
     /**
      * Insert data using load data infile
      *
-     * @param string $file         Path and name of file to load
-     * @param string $table        Table name
-     * @param array  $fieldsClause Values of subclauses of FIELDS clause
-     * @param array  $linesClause  Values of subclauses of LINES clause
-     * @param array  $columns      Columns name
+     * @param string $file Path and name of file to load
+     * @param string $table Table name
+     * @param array $fieldsClause Values of subclauses of FIELDS clause
+     * @param array $linesClause Values of subclauses of LINES clause
+     * @param array $columns Columns name
      *
-     * @return void
      * @throws \Exception
-     *
+     * @return void
      */
     public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns): void
     {
@@ -203,13 +186,13 @@ class CentreonDBAdapter
         // (`col_name`, `col_name`,...)
 
         // Construct SQL statement
-        $sql = "LOAD DATA LOCAL INFILE '$file'";
-        $sql .= " INTO TABLE $table";
-        $sql .= " FIELDS TERMINATED BY '" . $fieldsClause["terminated_by"] . "' ENCLOSED BY '"
-            . $fieldsClause["enclosed_by"] . "' ESCAPED BY '" . $fieldsClause["escaped_by"] . "'";
-        $sql .= " LINES TERMINATED BY '" . $linesClause["terminated_by"] . "' STARTING BY '"
-            . $linesClause["starting_by"] . "'";
-        $sql .= " (`" . implode("`, `", $columns) . "`)";
+        $sql = "LOAD DATA LOCAL INFILE '{$file}'";
+        $sql .= " INTO TABLE {$table}";
+        $sql .= " FIELDS TERMINATED BY '" . $fieldsClause['terminated_by'] . "' ENCLOSED BY '"
+            . $fieldsClause['enclosed_by'] . "' ESCAPED BY '" . $fieldsClause['escaped_by'] . "'";
+        $sql .= " LINES TERMINATED BY '" . $linesClause['terminated_by'] . "' STARTING BY '"
+            . $linesClause['starting_by'] . "'";
+        $sql .= ' (`' . implode('`, `', $columns) . '`)';
 
         // Prepare PDO statement.
         $stmt = $this->db->prepare($sql);
@@ -224,12 +207,11 @@ class CentreonDBAdapter
 
     /**
      * @param string $table
-     * @param array  $fields
-     * @param int    $id
+     * @param array $fields
+     * @param int $id
      *
-     * @return bool|int Updated ID
      * @throws \Exception
-     *
+     * @return bool|int Updated ID
      */
     public function update($table, array $fields, int $id)
     {
@@ -242,7 +224,7 @@ class CentreonDBAdapter
             array_push($keyValues, [$key, $value]);
         }
 
-        $sql = "UPDATE {$table} SET " . implode(', ', $keys) . " WHERE id = :id";
+        $sql = "UPDATE {$table} SET " . implode(', ', $keys) . ' WHERE id = :id';
 
         $qq = $this->db->prepare($sql);
         $qq->bindParam(':id', $id);
@@ -259,7 +241,6 @@ class CentreonDBAdapter
 
         return $result;
     }
-
 
     public function results()
     {
@@ -278,7 +259,7 @@ class CentreonDBAdapter
 
     public function passes()
     {
-        return !$this->error;
+        return ! $this->error;
     }
 
     public function errorInfo()

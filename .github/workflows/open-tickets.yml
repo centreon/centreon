@@ -86,18 +86,81 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install Dependencies for quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: tools
+        shell: bash
+
+      - name: Install Dependencies for centreon-open-tickets
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
 
-      - name: Run of phpstan on /src at level max
-        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+          {
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy (config, packaging, src, tests, widgets, www): Success" || { echo "❌ Rector Legacy (config, packaging, src, tests, widgets, www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src" && set -e
+
+          {
+            composer cs:legacy:www -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (config, packaging, widgets, www): Success" || { echo "❌ PHP-CS-Fixer Legacy (config, packaging, widgets, www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:legacy:src -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (src, tests): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
+
+          {
+            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (config, packaging, widgets, www): Success" || { echo "❌ PHPStan Legacy (config, packaging, widgets, www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (tests): Success" || { echo "❌ PHPStan Legacy (tests): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
 
   backend-unit-test:
     runs-on: ubuntu-24.04

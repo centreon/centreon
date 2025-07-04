@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,9 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @param string $value
      */
-    public function __construct(protected string $value) {}
+    public function __construct(protected string $value)
+    {
+    }
 
     /**
      * @return string
@@ -157,7 +159,7 @@ readonly class LiteralString implements ValueObjectInterface
     {
         if (! $object instanceof static) {
             throw new ValueObjectException(
-                'Equal checking failed because not a ' . $this::class . ', ' . $object::class . ' given',
+                'Equal checking failed because not a ' . static::class . ', ' . $object::class . ' given',
             );
         }
 

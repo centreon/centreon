@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,14 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryProvi
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotification\FindNotification;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationResponse;
-use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
 use Core\Notification\Domain\Model\HostEvent;
 use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\Contact as NotificationContact;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\FindNotification\FindNotificationPresenterStub;
 

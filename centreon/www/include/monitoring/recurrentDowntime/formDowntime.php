@@ -1,42 +1,25 @@
 <?php
-/**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
- * SVN : $URL$
- * SVN : $Id$
- *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -90,9 +73,7 @@ function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources,
     return true;
 }
 
-/*
- * QuickForm Rules
- */
+// QuickForm Rules
 function testDowntimeNameExistence($downtimeName = null)
 {
     global $pearDB, $form;
@@ -104,12 +85,11 @@ function testDowntimeNameExistence($downtimeName = null)
     $res = $pearDB->query("SELECT dt_id FROM downtime WHERE dt_name = '" . $pearDB->escape($downtimeName) . "'");
     $d = $res->fetchRow();
     $nbRes = $res->rowCount();
-    if ($nbRes && $d["dt_id"] == $id) {
+    if ($nbRes && $d['dt_id'] == $id) {
         return true;
-    } elseif ($nbRes && $d["dt_id"] != $id) {
-        return false;
     }
-    return true;
+
+    return ! ($nbRes && $d['dt_id'] != $id);
 }
 
 if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {
@@ -118,18 +98,16 @@ if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {
     $o = 'a';
 }
 
-/*
- * Var information to format the element
- */
-$attrsText = ["size" => "30"];
-$attrsText2 = ["size" => "6"];
-$attrsTextLong = ["size" => "70"];
-$attrsAdvSelect_small = ["style" => "width: 270px; height: 70px;"];
-$attrsAdvSelect = ["style" => "width: 270px; height: 100px;"];
-$attrsAdvSelect_big = ["style" => "width: 270px; height: 200px;"];
-$attrsTextarea = ["rows" => "5", "cols" => "40"];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />' .
-    '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+// Var information to format the element
+$attrsText = ['size' => '30'];
+$attrsText2 = ['size' => '6'];
+$attrsTextLong = ['size' => '70'];
+$attrsAdvSelect_small = ['style' => 'width: 270px; height: 70px;'];
+$attrsAdvSelect = ['style' => 'width: 270px; height: 100px;'];
+$attrsAdvSelect_big = ['style' => 'width: 270px; height: 200px;'];
+$attrsTextarea = ['rows' => '5', 'cols' => '40'];
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
+    . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
 $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostsRoute, 'multiple' => true, 'linkedObject' => 'centreonHost', 'showDisabled' => true];
@@ -137,36 +115,31 @@ $hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centre
 $attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonHostgroups', 'showDisabled' => true];
 $servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
 $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicesRoute, 'multiple' => true, 'linkedObject' => 'centreonService', 'showDisabled' => true];
-$servicegroupsRoute = './include/common/webServices/rest/internal.php' .
-    '?object=centreon_configuration_servicegroup&action=list';
+$servicegroupsRoute = './include/common/webServices/rest/internal.php'
+    . '?object=centreon_configuration_servicegroup&action=list';
 $attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicegroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonServicegroups', 'showDisabled' => true];
 
-/*
- * Init QuickFrom
- */
-$form = new HTML_QuickFormCustom('form_dt', 'post', "?p=$p");
-if ($o == "a") {
-    $form->addElement('header', 'title', _("Add a downtime"));
-} elseif ($o == "c") {
-    $form->addElement('header', 'title', _("Modify a downtime"));
-} elseif ($o == "w") {
-    $form->addElement('header', 'title', _("View a downtime"));
+// Init QuickFrom
+$form = new HTML_QuickFormCustom('form_dt', 'post', "?p={$p}");
+if ($o == 'a') {
+    $form->addElement('header', 'title', _('Add a downtime'));
+} elseif ($o == 'c') {
+    $form->addElement('header', 'title', _('Modify a downtime'));
+} elseif ($o == 'w') {
+    $form->addElement('header', 'title', _('View a downtime'));
 }
 
+$form->addElement('header', 'periods', _('Periods'));
 
-$form->addElement('header', 'periods', _("Periods"));
+// Tab 1
+$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'linkManagement', _('Links Management'));
+$form->addElement('text', 'downtime_name', _('Name'), $attrsText);
+$form->addElement('text', 'downtime_description', _('Alias'), $attrsTextLong);
 
-/*
- * Tab 1
- */
-$form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'linkManagement', _("Links Management"));
-$form->addElement('text', 'downtime_name', _("Name"), $attrsText);
-$form->addElement('text', 'downtime_description', _("Alias"), $attrsTextLong);
-
-$donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _("Yes"), '1');
-$donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _("No"), '0');
-$form->addGroup($donwtime_activate, 'downtime_activate', _("Enable"), '&nbsp;');
+$donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _('Yes'), '1');
+$donwtime_activate[] = $form->createElement('radio', 'downtime_activate', null, _('No'), '0');
+$form->addGroup($donwtime_activate, 'downtime_activate', _('Enable'), '&nbsp;');
 $form->setDefaults(['downtime_activate' => '1']);
 
 $page = $form->addElement('hidden', 'p');
@@ -179,58 +152,52 @@ $form->addElement('hidden', 'dt_id');
  * Tab 2
  * Hosts
  */
-$routeAttrHosts = './include/common/webServices/rest/internal.php?object=centreon_configuration_host' .
-    '&action=defaultValues&target=downtime&field=host_relation&id=' . $downtime_id;
+$routeAttrHosts = './include/common/webServices/rest/internal.php?object=centreon_configuration_host'
+    . '&action=defaultValues&target=downtime&field=host_relation&id=' . $downtime_id;
 $attrHost1 = array_merge(
     $attrHosts,
     ['defaultDatasetRoute' => $routeAttrHosts]
 );
 
-$form->addElement('select2', 'host_relation', _("Linked with Hosts"), [], $attrHost1);
+$form->addElement('select2', 'host_relation', _('Linked with Hosts'), [], $attrHost1);
 
-/*
- * Hostgroups
- */
-$routeAttrHostgroup = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup' .
-    '&action=defaultValues&target=downtime&field=hostgroup_relation&id=' . $downtime_id;
+// Hostgroups
+$routeAttrHostgroup = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup'
+    . '&action=defaultValues&target=downtime&field=hostgroup_relation&id=' . $downtime_id;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
     ['defaultDatasetRoute' => $routeAttrHostgroup],
 );
-$form->addElement('select2', 'hostgroup_relation', _("Linked with Host Groups"), [], $attrHostgroup1);
+$form->addElement('select2', 'hostgroup_relation', _('Linked with Host Groups'), [], $attrHostgroup1);
 
-/*
- * Service
- */
-$routeAttrService = './include/common/webServices/rest/internal.php?object=centreon_configuration_service' .
-    '&action=defaultValues&target=downtime&field=svc_relation&id=' . $downtime_id;
+// Service
+$routeAttrService = './include/common/webServices/rest/internal.php?object=centreon_configuration_service'
+    . '&action=defaultValues&target=downtime&field=svc_relation&id=' . $downtime_id;
 $attrService1 = array_merge(
     $attrServices,
     ['defaultDatasetRoute' => $routeAttrService]
 );
-$form->addElement('select2', 'svc_relation', _("Linked with Services"), [], $attrService1);
+$form->addElement('select2', 'svc_relation', _('Linked with Services'), [], $attrService1);
 
-/*
- * Servicegroups
- */
-$routeAttrServicegroup = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup' .
-    '&action=defaultValues&target=downtime&field=svcgroup_relation&id=' . $downtime_id;
+// Servicegroups
+$routeAttrServicegroup = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicegroup'
+    . '&action=defaultValues&target=downtime&field=svcgroup_relation&id=' . $downtime_id;
 $attrServicegroup1 = array_merge(
     $attrServicegroups,
     ['defaultDatasetRoute' => $routeAttrServicegroup]
 );
-$form->addElement('select2', 'svcgroup_relation', _("Linked with Service Groups"), [], $attrServicegroup1);
+$form->addElement('select2', 'svcgroup_relation', _('Linked with Service Groups'), [], $attrServicegroup1);
 
-$form->addRule('downtime_name', _("Name"), 'required');
+$form->addRule('downtime_name', _('Name'), 'required');
 $form->registerRule('exist', 'callback', 'testDowntimeNameExistence');
-$form->addRule('downtime_name', _("Name is already in use"), 'exist');
+$form->addRule('downtime_name', _('Name is already in use'), 'exist');
 
-$form->setRequiredNote("<i class='red'>*</i>&nbsp;" . _("Required fields"));
+$form->setRequiredNote("<i class='red'>*</i>&nbsp;" . _('Required fields'));
 
-if ($o == "c" || $o == 'w') {
+if ($o == 'c' || $o == 'w') {
     $infos = $downtime->getInfos((int) $id);
     $relations = $downtime->getRelations((int) $id);
-    $extractRelationId = static fn(array $item): string => (string) ($item['id'] ?? '');
+    $extractRelationId = static fn (array $item): string => (string) ($item['id'] ?? '');
     $default_dt = [
         'dt_id' => $id,
         'downtime_name' => $infos['name'],
@@ -243,7 +210,6 @@ if ($o == "c" || $o == 'w') {
     ];
 }
 
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
@@ -254,13 +220,13 @@ $tpl = SmartyBC::createSmartyTemplate($path);
  * $o = c - Edit the recurrent downtime
  * $o = a - Add a recurrent downtime
  */
-if ($o == "w") {
-    if (!$min && $centreon->user->access->page($p) != 2) {
-        $form->addElement("button", "change", _("Modify"), ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'", "class" => "btc bt_default"]);
+if ($o == 'w') {
+    if (! $min && $centreon->user->access->page($p) != 2) {
+        $form->addElement('button', 'change', _('Modify'), ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&dt_id=' . $id . "'", 'class' => 'btc bt_default']);
     }
     $form->setDefaults($default_dt);
     $form->freeze();
-} elseif ($o == "c") {
+} elseif ($o == 'c') {
     /**
      * Only search for ACL if the user is not admin
      */
@@ -268,7 +234,7 @@ if ($o == "w") {
     $userIsAdmin = $centreon->user->admin;
 
     if ($userIsAdmin !== '1') {
-        require_once _CENTREON_PATH_ . "/www/class/centreonACL.class.php";
+        require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
         $userAcl = new CentreonACL($userId, $userIsAdmin);
 
         if (
@@ -276,7 +242,7 @@ if ($o == "w") {
             || ! checkResourcesRelations($userAcl, $relations['hostgroups'], 'hostgroups')
             || ! checkResourcesRelations($userAcl, $relations['servicegroups'], 'servicegroups')
         ) {
-            $form->addElement('text', 'msgacl', _("error"), 'error');
+            $form->addElement('text', 'msgacl', _('error'), 'error');
             $form->freeze();
         }
     }
@@ -284,41 +250,39 @@ if ($o == "w") {
     $subC = $form->addElement(
         'button',
         'submitC',
-        _("Save"),
-        ["onClick" => "validForm();", "class" => "btc bt_success"]
+        _('Save'),
+        ['onClick' => 'validForm();', 'class' => 'btc bt_success']
     );
     $res = $form->addElement(
         'button',
         'reset',
-        _("Reset"),
-        ["onClick" => "history.go(0);", "class" => "btc bt_default"]
+        _('Reset'),
+        ['onClick' => 'history.go(0);', 'class' => 'btc bt_default']
     );
     $form->setDefaults($default_dt);
-} elseif ($o == "a") {
+} elseif ($o == 'a') {
     $subA = $form->addElement(
         'button',
         'submitA',
-        _("Save"),
-        ["onClick" => "validForm();", "class" => "btc bt_success"]
+        _('Save'),
+        ['onClick' => 'validForm();', 'class' => 'btc bt_success']
     );
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
-$tpl->assign("sort1", _("Downtime Configuration"));
-$tpl->assign("sort2", _("Relations"));
-$tpl->assign("periods", _("Periods"));
-$tpl->assign("period", _("Period"));
-$tpl->assign("add", _("Add new period"));
+$tpl->assign('sort1', _('Downtime Configuration'));
+$tpl->assign('sort2', _('Relations'));
+$tpl->assign('periods', _('Periods'));
+$tpl->assign('period', _('Period'));
+$tpl->assign('add', _('Add new period'));
 
-/*
- * prepare help texts
- */
-$helptext = "";
-include_once("help.php");
+// prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
 $valid = false;
 
@@ -332,7 +296,7 @@ if ($form->validate()) {
         }
         if (strtotime($periods['start_period']) > $time_end_period) {
             $valid = false;
-            $tpl->assign('period_err', _("The end time must be greater than the start time."));
+            $tpl->assign('period_err', _('The end time must be greater than the start time.'));
         }
     }
     /** validate that at least one relation has been configured */
@@ -365,12 +329,12 @@ if ($form->validate()) {
                 if (isset($values['svcgroup_relation'])) {
                     $downtime->addRelations($id, $values['svcgroup_relation'], 'svcgrp');
                 }
-                $o = "w";
+                $o = 'w';
                 $form->addElement(
-                    "button",
-                    "change",
-                    _("Modify"),
-                    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'"]
+                    'button',
+                    'change',
+                    _('Modify'),
+                    ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&dt_id=' . $id . "'"]
                 );
                 $form->freeze();
                 $valid = true;
@@ -396,12 +360,12 @@ if ($form->validate()) {
             if (isset($values['svcgroup_relation'])) {
                 $downtime->addRelations($id, $values['svcgroup_relation'], 'svcgrp');
             }
-            $o = "w";
+            $o = 'w';
             $form->addElement(
-                "button",
-                "change",
-                _("Modify"),
-                ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&dt_id=" . $id . "'"]
+                'button',
+                'change',
+                _('Modify'),
+                ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&dt_id=' . $id . "'"]
             );
             $form->freeze();
             $valid = true;
@@ -409,28 +373,28 @@ if ($form->validate()) {
     }
 
     if ($valid) {
-        require_once($path . "listDowntime.php");
+        require_once $path . 'listDowntime.php';
     }
 
-    if (!$valid) {
+    if (! $valid) {
         $form->setDefaults($values);
     }
 }
-if (!$valid) {
+if (! $valid) {
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
     $renderer->setRequiredTemplate('{$label}&nbsp;<i class="red">*</i>');
     $renderer->setErrorTemplate('<i class="red">{$error}</i><br />{$html}');
     if ($o == 'w') {
-        $tpl->assign("time_period", _("Time period"));
-        $tpl->assign("days", _("Days"));
-        $tpl->assign("seconds", _("Seconds"));
-        $tpl->assign("downtime_type", _("Downtime type"));
-        $tpl->assign("fixed", _("Fixed"));
-        $tpl->assign("flexible", _("Flexible"));
-        $tpl->assign("weekly_basis", _("Weekly basis"));
-        $tpl->assign("monthly_basis", _("Monthly basis"));
-        $tpl->assign("specific_date", _("Specific date"));
-        $tpl->assign("week_days", [1 => _("Monday"), 2 => _("Tuesday"), 3 => _("Wednesday"), 4 => _("Thursday"), 5 => _("Friday"), 6 => _("Saturday"), 7 => _("Sunday")]);
+        $tpl->assign('time_period', _('Time period'));
+        $tpl->assign('days', _('Days'));
+        $tpl->assign('seconds', _('Seconds'));
+        $tpl->assign('downtime_type', _('Downtime type'));
+        $tpl->assign('fixed', _('Fixed'));
+        $tpl->assign('flexible', _('Flexible'));
+        $tpl->assign('weekly_basis', _('Weekly basis'));
+        $tpl->assign('monthly_basis', _('Monthly basis'));
+        $tpl->assign('specific_date', _('Specific date'));
+        $tpl->assign('week_days', [1 => _('Monday'), 2 => _('Tuesday'), 3 => _('Wednesday'), 4 => _('Thursday'), 5 => _('Friday'), 6 => _('Saturday'), 7 => _('Sunday')]);
         $tpl->assign('periods_tab', $downtime->getPeriods($id));
     }
 
@@ -441,5 +405,5 @@ if (!$valid) {
     $tpl->assign('p', $p);
     $tpl->assign('form', $renderer->toArray());
 
-    $tpl->display("formDowntime.html");
+    $tpl->display('formDowntime.html');
 }

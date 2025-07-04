@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,12 +52,12 @@ use Core\Security\Token\Domain\Model\JwtToken;
  */
 class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implements ReadAgentConfigurationRepositoryInterface
 {
-    use RepositoryTrait, MonitoringServerRepositoryTrait;
+    use RepositoryTrait;
+    use MonitoringServerRepositoryTrait;
 
     public function __construct(
         DatabaseConnection $db
-    )
-    {
+    ) {
         $this->db = $db;
     }
 
@@ -265,7 +265,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 

@@ -1,41 +1,27 @@
 <?php
+
 /*
- * Copyright 2005-2019 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wiki.class.php";
+require_once realpath(__DIR__ . '/../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wiki.class.php';
 
 /**
  * Class
@@ -46,27 +32,36 @@ class WikiApi
 {
     /** @var never[] */
     public $cookies = [];
+
     /** @var CentreonDB */
     private $db;
+
     /** @var Wiki */
     private $wikiObj;
+
     /** @var string */
     private $url;
+
     /** @var string */
     private $username;
+
     /** @var string */
     private $password;
+
     /** @var float */
     private $version;
+
     /** @var CurlHandle|false */
     private $curl;
+
     /** @var bool */
     private $loggedIn;
+
     /** @var array */
     private $tokens;
+
     /** @var mixed */
     private $noSslCertificate;
-
     public const PROXY_URL = './include/configuration/configKnowledge/proxy/proxy.php';
 
     /**
@@ -104,8 +99,8 @@ class WikiApi
     }
 
     /**
-     * @return float
      * @throws Exception
+     * @return float
      */
     public function getWikiVersion()
     {
@@ -117,15 +112,15 @@ class WikiApi
         $version = $result['query']['general']['generator'];
         $version = explode(' ', $version);
         if (isset($version[1])) {
-            return (float)$version[1];
-        } else {
-            throw new \Exception("An error occured, please check your Knowledge base configuration");
+            return (float) $version[1];
         }
+
+        throw new Exception('An error occured, please check your Knowledge base configuration');
     }
 
     /**
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function login()
     {
@@ -139,7 +134,7 @@ class WikiApi
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
         if ($result === false) {
-            throw new \Exception("curl error");
+            throw new Exception('curl error');
         }
         $decoded = json_decode($result, true);
 
@@ -149,7 +144,7 @@ class WikiApi
         $postfields = [
             'action' => 'login',
             'lgname' => $this->username,
-            'format' => 'json'
+            'format' => 'json',
         ];
 
         $postfields['lgpassword'] = $this->password;
@@ -158,7 +153,7 @@ class WikiApi
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
         if ($result === false) {
-            throw new \Exception("curl error");
+            throw new Exception('curl error');
         }
 
         $decoded = json_decode($result, true);
@@ -219,8 +214,8 @@ class WikiApi
      * @param $oldTitle
      * @param $newTitle
      *
-     * @return true
      * @throws Exception
+     * @return true
      */
     public function movePage($oldTitle = '', $newTitle = '')
     {
@@ -240,8 +235,8 @@ class WikiApi
      *
      * @param string $title
      *
-     * @return bool
      * @throws Exception
+     * @return bool
      */
     public function deletePage($title = '')
     {
@@ -254,11 +249,9 @@ class WikiApi
 
         if (isset($deleteResult->error)) {
             return false;
-        } elseif (isset($deleteResult->delete)) {
-            return true;
-        } else {
-            return false;
         }
+
+        return (bool) (isset($deleteResult->delete));
     }
 
     /**
@@ -328,25 +321,22 @@ class WikiApi
             $type = trim($objectFlag[0]);
             switch ($type) {
                 case 'Host':
-                    if (!in_array($pages[$i]->title, $hosts)) {
+                    if (! in_array($pages[$i]->title, $hosts)) {
                         $hosts[] = $pages[$i]->title;
                     }
                     break;
-
                 case 'Host-Template':
-                    if (!in_array($pages[$i]->title, $hostsTemplates)) {
+                    if (! in_array($pages[$i]->title, $hostsTemplates)) {
                         $hostsTemplates[] = $pages[$i]->title;
                     }
                     break;
-
                 case 'Service':
-                    if (!in_array($pages[$i]->title, $services)) {
+                    if (! in_array($pages[$i]->title, $services)) {
                         $services[] = $pages[$i]->title;
                     }
                     break;
-
                 case 'Service-Template':
-                    if (!in_array($pages[$i]->title, $servicesTemplates)) {
+                    if (! in_array($pages[$i]->title, $servicesTemplates)) {
                         $servicesTemplates[] = $pages[$i]->title;
                     }
                     break;
@@ -357,8 +347,8 @@ class WikiApi
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function synchronize(): void
     {
@@ -374,7 +364,6 @@ class WikiApi
                         $this->updateLinkForHost($objName);
                     }
                     break;
-
                 case 'hostTemplates':
                     foreach ($object as $entity) {
                         $objName = str_replace('Host-Template : ', '', $entity);
@@ -382,7 +371,6 @@ class WikiApi
                         $this->updateLinkForHost($objName);
                     }
                     break;
-
                 case 'services':
                     foreach ($object as $entity) {
                         $objName = str_replace('Service : ', '', $entity);
@@ -392,7 +380,6 @@ class WikiApi
                         }
                     }
                     break;
-
                 case 'serviceTemplates':
                     foreach ($object as $entity) {
                         $objName = str_replace('Service-Template : ', '', $entity);
@@ -420,12 +407,12 @@ class WikiApi
         if ($hostRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$';
             $statement = $this->db->prepare(
-                "UPDATE extended_host_information " .
-                "SET ehi_notes_url = :url " .
-                "WHERE host_host_id = :hostId"
+                'UPDATE extended_host_information '
+                . 'SET ehi_notes_url = :url '
+                . 'WHERE host_host_id = :hostId'
             );
-            $statement->bindValue(':url', $url, \PDO::PARAM_STR);
-            $statement->bindValue(':hostId', $hostRow['host_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':url', $url, PDO::PARAM_STR);
+            $statement->bindValue(':hostId', $hostRow['host_id'], PDO::PARAM_INT);
             $statement->execute();
         }
     }
@@ -439,24 +426,24 @@ class WikiApi
     public function updateLinkForService($hostName, $serviceDescription): void
     {
         $resService = $this->db->query(
-            "SELECT service_id " .
-            "FROM service, host, host_service_relation " .
-            "WHERE host.host_name LIKE '" . $hostName . "' " .
-            "AND service.service_description LIKE '" . $serviceDescription . "' " .
-            "AND host_service_relation.host_host_id = host.host_id " .
-            "AND host_service_relation.service_service_id = service.service_id "
+            'SELECT service_id '
+            . 'FROM service, host, host_service_relation '
+            . "WHERE host.host_name LIKE '" . $hostName . "' "
+            . "AND service.service_description LIKE '" . $serviceDescription . "' "
+            . 'AND host_service_relation.host_host_id = host.host_id '
+            . 'AND host_service_relation.service_service_id = service.service_id '
         );
         $serviceRow = $resService->fetch();
 
         if ($serviceRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$&service_description=$SERVICEDESC$';
             $statement = $this->db->prepare(
-                "UPDATE extended_service_information " .
-                "SET esi_notes_url = :url " .
-                "WHERE service_service_id = :serviceId"
+                'UPDATE extended_service_information '
+                . 'SET esi_notes_url = :url '
+                . 'WHERE service_service_id = :serviceId'
             );
-            $statement->bindValue(':url', $url, \PDO::PARAM_STR);
-            $statement->bindValue(':serviceId', $serviceRow['service_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':url', $url, PDO::PARAM_STR);
+            $statement->bindValue(':serviceId', $serviceRow['service_id'], PDO::PARAM_INT);
             $statement->execute();
         }
     }
@@ -469,20 +456,20 @@ class WikiApi
     public function updateLinkForServiceTemplate($serviceName): void
     {
         $resService = $this->db->query(
-            "SELECT service_id FROM service " .
-            "WHERE service_description LIKE '" . $serviceName . "' "
+            'SELECT service_id FROM service '
+            . "WHERE service_description LIKE '" . $serviceName . "' "
         );
         $serviceTemplateRow = $resService->fetch();
 
         if ($serviceTemplateRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$&service_description=$SERVICEDESC$';
             $statement = $this->db->prepare(
-                "UPDATE extended_service_information " .
-                "SET esi_notes_url = :url " .
-                "WHERE service_service_id = :serviceId"
+                'UPDATE extended_service_information '
+                . 'SET esi_notes_url = :url '
+                . 'WHERE service_service_id = :serviceId'
             );
-            $statement->bindValue(':url', $url, \PDO::PARAM_STR);
-            $statement->bindValue(':serviceId', $serviceTemplateRow['service_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':url', $url, PDO::PARAM_STR);
+            $statement->bindValue(':serviceId', $serviceTemplateRow['service_id'], PDO::PARAM_INT);
             $statement->execute();
         }
     }
@@ -492,8 +479,8 @@ class WikiApi
      *
      * @param string $title
      *
-     * @return object
      * @throws Exception
+     * @return object
      */
     private function deleteMWPage($title = '')
     {
@@ -504,6 +491,7 @@ class WikiApi
         $postfields = ['action' => 'delete', 'title' => $title, 'token' => $token, 'format' => 'json'];
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
+
         return json_decode($result);
     }
 }

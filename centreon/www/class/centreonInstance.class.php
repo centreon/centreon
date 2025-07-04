@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -43,15 +29,20 @@ class CentreonInstance
 {
     /** @var array */
     public $paramsByName;
+
     /** @var CentreonDB */
     protected $db;
+
     /** @var CentreonDB */
     protected $dbo;
+
     /** @var array */
     protected $params;
+
     /** @var array */
     protected $instances;
-    /** @var CentreonInstance|null $staticInstance */
+
+    /** @var CentreonInstance|null */
     private static ?CentreonInstance $staticInstance = null;
 
     /**
@@ -65,7 +56,7 @@ class CentreonInstance
     public function __construct($db, $dbo = null)
     {
         $this->db = $db;
-        if (!empty($dbo)) {
+        if (! empty($dbo)) {
             $this->dbo = $dbo;
         }
         $this->instances = [];
@@ -76,8 +67,8 @@ class CentreonInstance
      * @param CentreonDB $db
      * @param CentreonDB|null $dbo
      *
-     * @return CentreonInstance
      * @throws PDOException
+     * @return CentreonInstance
      */
     public static function getInstance(CentreonDB $db, ?CentreonDB $dbo = null): CentreonInstance
     {
@@ -87,14 +78,14 @@ class CentreonInstance
     /**
      * Initialize Parameters
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function initParams()
     {
         $this->params = [];
         $this->paramsByName = [];
-        $query = "SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server";
+        $query = 'SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server';
         $res = $this->db->query($query);
         while ($row = $res->fetchRow()) {
             $instanceId = $row['id'];
@@ -112,7 +103,7 @@ class CentreonInstance
     /**
      * Returns a filtered array with only integer ids
      *
-     * @param  int[] $ids
+     * @param int[] $ids
      * @return int[] filtered
      */
     private function filteredArrayId(array $ids): array
@@ -127,14 +118,14 @@ class CentreonInstance
      *
      * @param int[] $pollerIds
      *
-     * @return array $pollers [['instance_id => integer, 'name' => string],...]
      * @throws PDOException
+     * @return array $pollers [['instance_id => integer, 'name' => string],...]
      */
     public function getInstancesMonitoring($pollerIds = [])
     {
         $pollers = [];
 
-        if (!empty($pollerIds)) {
+        if (! empty($pollerIds)) {
             /* checking here that the array provided as parameter
              * is exclusively made of integers (servicegroup ids)
              */
@@ -149,18 +140,18 @@ class CentreonInstance
                     $pollerParams[':pollerId' . $index] = $filteredPollerId;
                 }
                 $stmt = $this->db->prepare(
-                    'SELECT i.instance_id, i.name FROM instances i ' .
-                    'WHERE i.instance_id IN ( ' . implode(',', array_keys($pollerParams)) . ' )'
+                    'SELECT i.instance_id, i.name FROM instances i '
+                    . 'WHERE i.instance_id IN ( ' . implode(',', array_keys($pollerParams)) . ' )'
                 );
                 foreach ($pollerParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
                 $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $pollers[] = [
                         'id' => $row['instance_id'],
-                        'name' => $row['name']
+                        'name' => $row['name'],
                     ];
                 }
             }
@@ -179,12 +170,13 @@ class CentreonInstance
     public function getParam($instance, $paramName)
     {
         if (is_numeric($instance)) {
-            if (isset($this->params[$instance]) && isset($this->params[$instance][$paramName])) {
+            if (isset($this->params[$instance], $this->params[$instance][$paramName])) {
                 return $this->params[$instance][$paramName];
             }
-        } elseif (isset($this->paramsByName[$instance]) && isset($this->paramsByName[$instance][$paramName])) {
+        } elseif (isset($this->paramsByName[$instance], $this->paramsByName[$instance][$paramName])) {
             return $this->paramsByName[$instance][$paramName];
         }
+
         return null;
     }
 
@@ -203,22 +195,23 @@ class CentreonInstance
      *
      * @param int $pollerId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getCommandData($pollerId)
     {
-        $sql = "SELECT c.command_id, c.command_name, c.command_line 
+        $sql = 'SELECT c.command_id, c.command_name, c.command_line 
             FROM command c, poller_command_relations pcr
             WHERE pcr.poller_id = ?
             AND pcr.command_id = c.command_id
-            ORDER BY pcr.command_order";
+            ORDER BY pcr.command_order';
         $res = $this->db->prepare($sql);
         $res->execute([$pollerId]);
         $arr = [];
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
+
         return $arr;
     }
 
@@ -227,18 +220,18 @@ class CentreonInstance
      *
      * @param int|null $pollerId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getCommandsFromPollerId($pollerId = null)
     {
         $arr = [];
         $i = 0;
-        if (!isset($_REQUEST['pollercmd']) && $pollerId) {
-            $sql = "SELECT command_id 
+        if (! isset($_REQUEST['pollercmd']) && $pollerId) {
+            $sql = 'SELECT command_id 
                 FROM poller_command_relations 
                 WHERE poller_id = ?
-                ORDER BY command_order";
+                ORDER BY command_order';
             $res = $this->db->prepare($sql);
             $res->execute([$pollerId]);
             while ($row = $res->fetchRow()) {
@@ -251,6 +244,7 @@ class CentreonInstance
                 $i++;
             }
         }
+
         return $arr;
     }
 
@@ -260,23 +254,23 @@ class CentreonInstance
      * @param int $pollerId
      * @param array $commands
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function setCommands($pollerId, $commands): void
     {
-        $this->db->query("DELETE FROM poller_command_relations
-                WHERE poller_id = " . $this->db->escape($pollerId));
+        $this->db->query('DELETE FROM poller_command_relations
+                WHERE poller_id = ' . $this->db->escape($pollerId));
 
         $stored = [];
         $i = 1;
         foreach ($commands as $value) {
-            if ($value != "" &&
-                !isset($stored[$value])
+            if ($value != ''
+                && ! isset($stored[$value])
             ) {
-                $this->db->query("INSERT INTO poller_command_relations
+                $this->db->query('INSERT INTO poller_command_relations
                         (`poller_id`, `command_id`, `command_order`) 
-                        VALUES (" . $this->db->escape($pollerId) . ", " . $this->db->escape($value) . ", " . $i . ")");
+                        VALUES (' . $this->db->escape($pollerId) . ', ' . $this->db->escape($value) . ', ' . $i . ')');
                 $stored[$value] = true;
                 $i++;
             }
@@ -287,8 +281,8 @@ class CentreonInstance
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
@@ -302,7 +296,7 @@ class CentreonInstance
         }
 
         // get list of authorized pollers
-        if (!$centreon->user->access->admin) {
+        if (! $centreon->user->access->admin) {
             $pollerAcl = $centreon->user->access->getPollers();
         }
 
@@ -312,18 +306,18 @@ class CentreonInstance
             $multipleValues = explode(',', $v);
             foreach ($multipleValues as $item) {
                 $listValues .= ':pId_' . $item . ', ';
-                $queryValues['pId_' . $item] = (int)$item;
+                $queryValues['pId_' . $item] = (int) $item;
             }
         }
         $listValues = rtrim($listValues, ', ');
-        $selectedInstances .= " AND rel.instance_id IN ($listValues) ";
+        $selectedInstances .= " AND rel.instance_id IN ({$listValues}) ";
 
-        $query = 'SELECT DISTINCT p.name as name, p.id  as id FROM cfg_resource r, nagios_server p, ' .
-            'cfg_resource_instance_relations rel ' .
-            ' WHERE r.resource_id = rel.resource_id' .
-            ' AND p.id = rel.instance_id ' .
-            ' AND p.id IN (' . $listValues . ')' . $selectedInstances .
-            ' ORDER BY p.name';
+        $query = 'SELECT DISTINCT p.name as name, p.id  as id FROM cfg_resource r, nagios_server p, '
+            . 'cfg_resource_instance_relations rel '
+            . ' WHERE r.resource_id = rel.resource_id'
+            . ' AND p.id = rel.instance_id '
+            . ' AND p.id IN (' . $listValues . ')' . $selectedInstances
+            . ' ORDER BY p.name';
 
         $stmt = $this->db->prepare($query);
         foreach ($queryValues as $key => $id) {
@@ -335,14 +329,14 @@ class CentreonInstance
             if (
                 ! $centreon->user->access->admin
                 && count($pollerAcl)
-                && !in_array($data['id'], array_keys($pollerAcl))
+                && ! in_array($data['id'], array_keys($pollerAcl))
             ) {
                 $hide = true;
             }
             $items[] = [
                 'id' => $data['id'],
                 'text' => HtmlSanitizer::createFromString($data['name'])->sanitize()->getString(),
-                'hide' => $hide
+                'hide' => $hide,
             ];
         }
 
@@ -352,38 +346,39 @@ class CentreonInstance
     /**
      * @param string $instanceName
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getHostsByInstance($instanceName)
     {
         $instanceList = [];
 
-        $query = "SELECT host_name, name " .
-            " FROM host h, nagios_server ns, ns_host_relation nshr " .
-            " WHERE ns.name = '" . $this->db->escape($instanceName) . "'" .
-            " AND nshr.host_host_id = h.host_id " .
-            " AND h.host_activate = '1' " .
-            " ORDER BY h.host_name";
+        $query = 'SELECT host_name, name '
+            . ' FROM host h, nagios_server ns, ns_host_relation nshr '
+            . " WHERE ns.name = '" . $this->db->escape($instanceName) . "'"
+            . ' AND nshr.host_host_id = h.host_id '
+            . " AND h.host_activate = '1' "
+            . ' ORDER BY h.host_name';
         $result = $this->db->query($query);
 
         while ($elem = $result->fetchrow()) {
             $instanceList[] = ['host' => $elem['host_name'], 'name' => $instanceName];
         }
+
         return $instanceList;
     }
 
     /**
      * @param string $instanceName
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     public function getInstanceId($instanceName)
     {
-        $query = "SELECT ns.id " .
-            " FROM nagios_server ns " .
-            " WHERE ns.name = '" . $this->db->escape($instanceName) . "'";
+        $query = 'SELECT ns.id '
+            . ' FROM nagios_server ns '
+            . " WHERE ns.name = '" . $this->db->escape($instanceName) . "'";
         $result = $this->db->query($query);
 
         return $result->fetchrow();

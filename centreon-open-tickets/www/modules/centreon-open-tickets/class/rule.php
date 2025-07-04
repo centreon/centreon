@@ -1,28 +1,29 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class Centreon_OpenTickets_Rule
 {
     /** @var CentreonDB */
     protected $_db;
+
     protected $_provider = null;
 
     /**
@@ -34,35 +35,6 @@ class Centreon_OpenTickets_Rule
     public function __construct($db)
     {
         $this->_db = $db;
-    }
-
-    /**
-     * Sets the activate field
-     *
-     * @param array $select
-     * @param int $val
-     * @return void
-     */
-    protected function _setActivate($select, $val)
-    {
-        $query = "UPDATE mod_open_tickets_rule SET `activate` = '" . $val . "' WHERE rule_id IN (";
-        $ruleList = "";
-        $ruleListAppend = "";
-        if (is_array($select)) {
-            foreach ($select as $key => $value) {
-                $ruleList .= $ruleListAppend . "'" . $key . "'";
-                $ruleListAppend = ', ';
-            }
-        }
-        if (isset($_REQUEST['rule_id'])) {
-            $ruleList .= $ruleListAppend . "'" . $_REQUEST['rule_id'] . "'";
-        }
-        $query .= $ruleList;
-        $query .= ")";
-        if (!$ruleList) {
-            return null;
-        }
-        $this->_db->query($query);
     }
 
     public function getAliasAndProviderId($rule_id)
@@ -83,60 +55,11 @@ class Centreon_OpenTickets_Rule
         return $result;
     }
 
-    protected function loadProvider($rule_id, $provider_id, $widget_id, $uniq_id = null)
-    {
-        global $centreon_path, $register_providers;
-
-        if (!is_null($this->_provider)) {
-            return ;
-        }
-
-        $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
-        require_once $centreon_open_tickets_path . 'providers/register.php';
-        require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
-
-        $provider_name = null;
-        foreach ($register_providers as $name => $id) {
-            if ($id == $provider_id) {
-                $provider_name = $name;
-                break;
-            }
-        }
-
-        if (is_null($provider_name)
-            || !file_exists(
-                $centreon_open_tickets_path .
-                'providers/' .
-                $provider_name . '/' .
-                $provider_name .
-                'Provider.class.php'
-            )
-        ) {
-            throw new Exception(sprintf('Cannot find provider'));
-        }
-
-        include_once $centreon_open_tickets_path .
-            'providers/' .
-            $provider_name . '/' .
-            $provider_name .
-            'Provider.class.php';
-        $classname = $provider_name . 'Provider';
-        $this->_provider = new $classname(
-            $this,
-            $centreon_path,
-            $centreon_open_tickets_path,
-            $rule_id,
-            null,
-            $provider_id
-        );
-        $this->_provider->setWidgetId($widget_id);
-        $this->_provider->setUniqId($uniq_id);
-    }
-
     public function getUrl($rule_id, $ticket_id, $data, $widget_id)
     {
         $infos = $this->getAliasAndProviderId($rule_id);
         $this->loadProvider($rule_id, $infos['provider_id'], $widget_id);
+
         return $this->_provider->getUrl($ticket_id, $data);
     }
 
@@ -144,7 +67,7 @@ class Centreon_OpenTickets_Rule
     {
         $result = ['ticket_id' => null];
 
-        if (!$rule_id) {
+        if (! $rule_id) {
             return $result;
         }
 
@@ -191,8 +114,8 @@ class Centreon_OpenTickets_Rule
 
             foreach ($selectedValues as $key => $value) {
                 [$hostId, $serviceId] = explode(';', $value);
-                $selectedStr .=
-                    $selectedStrAppend
+                $selectedStr
+                    .= $selectedStrAppend
                     . 'services.host_id = :host_id_' . $key
                     . ' AND services.service_id = :service_id_' . $key;
                 $selectedStr2 .= $selectedStrAppend
@@ -206,22 +129,22 @@ class Centreon_OpenTickets_Rule
             }
 
             $query = <<<SQL
-                SELECT
-                    services.*,
-                    hosts.address,
-                    hosts.state AS host_state,
-                    hosts.host_id,
-                    hosts.name AS host_name,
-                    hosts.instance_id
-                FROM services
-                INNER JOIN hosts
-                    ON services.host_id = hosts.host_id
-                WHERE ($selectedStr)
-            SQL;
+                    SELECT
+                        services.*,
+                        hosts.address,
+                        hosts.state AS host_state,
+                        hosts.host_id,
+                        hosts.name AS host_name,
+                        hosts.instance_id
+                    FROM services
+                    INNER JOIN hosts
+                        ON services.host_id = hosts.host_id
+                    WHERE ({$selectedStr})
+                SQL;
 
-            if (!$centreon_bg->is_admin) {
+            if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
-                foreach (explode(',', str_replace("'", "", $centreon_bg->grouplistStr)) as $aclId) {
+                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
                         $aclGroupIdsCondition .= ':acl_' . $aclId;
                     } else {
@@ -231,13 +154,13 @@ class Centreon_OpenTickets_Rule
                 }
 
                 $query .= <<<SQL
-                    AND EXISTS (
-                        SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
-                        AND hosts.host_id = centreon_acl.host_id
-                        AND services.service_id = centreon_acl.service_id
-                    )
-                SQL;
+                        AND EXISTS (
+                            SELECT * FROM centreon_acl
+                            WHERE centreon_acl.group_id IN ({$aclGroupIdsCondition})
+                            AND hosts.host_id = centreon_acl.host_id
+                            AND services.service_id = centreon_acl.service_id
+                        )
+                    SQL;
             }
 
             $graphQuery = <<<SQL
@@ -248,7 +171,7 @@ class Centreon_OpenTickets_Rule
                 FROM index_data
                 INNER JOIN metrics
                     ON index_data.id = metrics.index_id
-                WHERE ($selectedStr2)
+                WHERE ({$selectedStr2})
                 GROUP BY host_id, service_id
                 SQL;
 
@@ -279,14 +202,14 @@ class Centreon_OpenTickets_Rule
             } catch (CentreonDbException $e) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
-                    "rule:loadSelection Error while retrieving hosts and services",
+                    'rule:loadSelection Error while retrieving hosts and services',
                     ['selection' => $selection],
                     $e
                 );
 
                 return $selected;
             }
-        // cmd 4 = open a ticket on hosts
+            // cmd 4 = open a ticket on hosts
         } elseif ($cmd == 4) {
             $hostsSelectedStr = '';
             $hostsSelectedStrAppend = '';
@@ -301,10 +224,10 @@ class Centreon_OpenTickets_Rule
             $query = <<<SQL
                 SELECT *
                 FROM hosts
-                WHERE host_id IN ($hostsSelectedStr)
+                WHERE host_id IN ({$hostsSelectedStr})
                 SQL;
 
-            if (!$centreon_bg->is_admin) {
+            if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
                 foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
@@ -316,12 +239,12 @@ class Centreon_OpenTickets_Rule
                 }
 
                 $query .= <<<SQL
-                    AND EXISTS (
-                        SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
-                        AND hosts.host_id = centreon_acl.host_id
-                    )
-                SQL;
+                        AND EXISTS (
+                            SELECT * FROM centreon_acl
+                            WHERE centreon_acl.group_id IN ({$aclGroupIdsCondition})
+                            AND hosts.host_id = centreon_acl.host_id
+                        )
+                    SQL;
             }
 
             try {
@@ -342,7 +265,7 @@ class Centreon_OpenTickets_Rule
             } catch (CentreonDbException $e) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
-                    "rule:loadSelection Error while retrieving hosts and services",
+                    'rule:loadSelection Error while retrieving hosts and services',
                     ['selection' => $selection],
                     $e
                 );
@@ -372,10 +295,10 @@ class Centreon_OpenTickets_Rule
 
         $nrule_id = $rule_id;
         $dbResult = $this->_db->query(
-            "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" .
-            $this->_db->escape($rule_id) . "' LIMIT 1"
+            "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '"
+            . $this->_db->escape($rule_id) . "' LIMIT 1"
         );
-        if (!($row = $dbResult->fetch())) {
+        if (! ($row = $dbResult->fetch())) {
             $this->_db->query(
                 "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `activate`) VALUES (
                     '" . $this->_db->escape($datas['rule_alias']) . "',
@@ -387,7 +310,7 @@ class Centreon_OpenTickets_Rule
         } else {
             $this->_db->query(
                 "UPDATE mod_open_tickets_rule SET 
-                    `alias` = '" . $this->_db->escape($datas['rule_alias']) ."',
+                    `alias` = '" . $this->_db->escape($datas['rule_alias']) . "',
                     `provider_id` = '" . $datas['provider_id'] . "'
                 WHERE rule_id = '" . $this->_db->escape($rule_id) . "'"
             );
@@ -437,7 +360,7 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $dbResult = $this->_db->query(
-            "SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r ORDER BY r.alias"
+            'SELECT r.rule_id, r.activate, r.alias FROM mod_open_tickets_rule r ORDER BY r.alias'
         );
         while (($row = $dbResult->fetch())) {
             $result[$row['rule_id']] = $row['alias'];
@@ -456,7 +379,7 @@ class Centreon_OpenTickets_Rule
         $dbResult = $this->_db->query(
             "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $this->_db->escape($rule_id) . "' LIMIT 1"
         );
-        if (!($row = $dbResult->fetch())) {
+        if (! ($row = $dbResult->fetch())) {
             return $result;
         }
         $result['provider_id'] = $row['provider_id'];
@@ -469,10 +392,10 @@ class Centreon_OpenTickets_Rule
             ORDER BY uniq_id, `order` ASC"
         );
         while (($row = $dbResult->fetch())) {
-            if (!isset($result['clones'][$row['uniq_id']])) {
+            if (! isset($result['clones'][$row['uniq_id']])) {
                 $result['clones'][$row['uniq_id']] = [];
             }
-            if (!isset($result['clones'][$row['uniq_id']][$row['order']])) {
+            if (! isset($result['clones'][$row['uniq_id']][$row['order']])) {
                 $result['clones'][$row['uniq_id']][$row['order']] = [];
             }
             $result['clones'][$row['uniq_id']][$row['order']][$row['label']] = $row['value'];
@@ -524,7 +447,7 @@ class Centreon_OpenTickets_Rule
             $res = $this->_db->query(
                 "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $ruleId . "' LIMIT 1"
             );
-            if (!$res->rowCount()) {
+            if (! $res->rowCount()) {
                 throw new Exception(sprintf('Rule ID: %d not found', $ruleId));
             }
             $row = $res->fetch();
@@ -532,7 +455,7 @@ class Centreon_OpenTickets_Rule
             $i = 1;
             if (isset($duplicateNb[$ruleId]) && $duplicateNb[$ruleId] > 0) {
                 for ($j = 1; $j <= $duplicateNb[$ruleId]; $j++) {
-                    $name = $row['alias'] . "_" . $j;
+                    $name = $row['alias'] . '_' . $j;
                     $res2 = $this->_db->query(
                         "SELECT `rule_id`
                         FROM `mod_open_tickets_rule`
@@ -541,7 +464,7 @@ class Centreon_OpenTickets_Rule
                     while ($res2->rowCount()) {
                         $res2->free();
                         $i++;
-                        $name = $row['alias'] . "_" . $i;
+                        $name = $row['alias'] . '_' . $i;
                         $res2 = $this->_db->query(
                             "SELECT `rule_id`
                             FROM `mod_open_tickets_rule`
@@ -551,14 +474,14 @@ class Centreon_OpenTickets_Rule
                     $this->_db->query(
                         "INSERT INTO mod_open_tickets_rule (`alias`, `provider_id`, `activate`) VALUES (
                             '" . $this->_db->escape($name) . "',
-                            " . $row['provider_id'] . ",
-                            " . $row['activate'] . "
-                        )"
+                            " . $row['provider_id'] . ',
+                            ' . $row['activate'] . '
+                        )'
                     );
                     $nrule_id = $this->_db->lastinsertId('mod_open_tickets_rule');
 
                     // Duplicate form clone
-                    $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=" . $ruleId);
+                    $res2 = $this->_db->query('SELECT * FROM mod_open_tickets_form_clone WHERE rule_id=' . $ruleId);
                     while (($row2 = $res2->fetch())) {
                         $this->_db->query(
                             "INSERT INTO mod_open_tickets_form_clone (
@@ -574,14 +497,14 @@ class Centreon_OpenTickets_Rule
                     }
 
                     // Duplicate macros
-                    $res2 = $this->_db->query("SELECT * FROM mod_open_tickets_form_value WHERE rule_id=" . $ruleId);
+                    $res2 = $this->_db->query('SELECT * FROM mod_open_tickets_form_value WHERE rule_id=' . $ruleId);
                     while (($row3 = $res2->fetch())) {
                         $this->_db->query(
                             "INSERT INTO mod_open_tickets_form_value (`uniq_id`, `value`, `rule_id`) VALUES (
                                 '" . $row3['uniq_id'] . "',
                                 '" . $this->_db->escape($row3['value']) . "',
-                                " . $nrule_id . "
-                            )"
+                                " . $nrule_id . '
+                            )'
                         );
                     }
                 }
@@ -591,25 +514,23 @@ class Centreon_OpenTickets_Rule
     }
 
     /**
-     * Delete rules
-     *
      * @param array $select
      * @return void
      */
-    public function delete($select)
+    public function delete($select): void
     {
-        $query = "DELETE FROM mod_open_tickets_rule WHERE rule_id IN (";
-        $ruleList = "";
+        $query = 'DELETE FROM mod_open_tickets_rule WHERE rule_id IN (';
+        $ruleList = '';
         foreach ($select as $key => $value) {
             if ($ruleList) {
-                $ruleList .= ",";
+                $ruleList .= ',';
             }
             $ruleList .= "'" . $key . "'";
         }
         $query .= $ruleList;
-        $query .= ")";
-        if (!$ruleList) {
-            return null;
+        $query .= ')';
+        if (! $ruleList) {
+            return;
         }
         $this->_db->query($query);
     }
@@ -618,11 +539,11 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " hg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT hg_id, hg_name FROM hostgroup WHERE " . $where . " hg_activate = '1' ORDER BY hg_name ASC"
+            'SELECT hg_id, hg_name FROM hostgroup WHERE ' . $where . " hg_activate = '1' ORDER BY hg_name ASC"
         );
         while (($row = $dbResult->fetch())) {
             $result[$row['hg_id']] = $row['hg_name'];
@@ -635,11 +556,11 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " cg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT cg_id, cg_name FROM contactgroup WHERE " . $where . " cg_activate = '1' ORDER BY cg_name ASC"
+            'SELECT cg_id, cg_name FROM contactgroup WHERE ' . $where . " cg_activate = '1' ORDER BY cg_name ASC"
         );
         while (($row = $dbResult->fetch())) {
             $result[$row['cg_id']] = $row['cg_name'];
@@ -652,11 +573,11 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " sg_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT sg_id, sg_name FROM servicegroup WHERE " . $where . " sg_activate = '1' ORDER BY sg_name ASC"
+            'SELECT sg_id, sg_name FROM servicegroup WHERE ' . $where . " sg_activate = '1' ORDER BY sg_name ASC"
         );
         while (($row = $dbResult->fetch())) {
             $result[$row['sg_id']] = $row['sg_name'];
@@ -669,13 +590,13 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT hc_id, hc_name
+            'SELECT hc_id, hc_name
             FROM hostcategories
-            WHERE " . $where . " hc_activate = '1'
+            WHERE ' . $where . " hc_activate = '1'
             ORDER BY hc_name ASC"
         );
         while (($row = $dbResult->fetch())) {
@@ -689,13 +610,13 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " hc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT hc_id, hc_name
+            'SELECT hc_id, hc_name
             FROM hostcategories
-            WHERE " . $where . " level IS NOT NULL
+            WHERE ' . $where . " level IS NOT NULL
             AND hc_activate = '1'
             ORDER BY level ASC"
         );
@@ -710,13 +631,13 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT sc_id, sc_name
+            'SELECT sc_id, sc_name
             FROM service_categories
-            WHERE " . $where . " sc_activate = '1'
+            WHERE ' . $where . " sc_activate = '1'
             ORDER BY sc_name ASC"
         );
         while (($row = $dbResult->fetch())) {
@@ -730,13 +651,13 @@ class Centreon_OpenTickets_Rule
     {
         $result = [];
         $where = '';
-        if (!is_null($filter) && $filter != '') {
+        if (! is_null($filter) && $filter != '') {
             $where = " sc_name LIKE '" . $this->_db->escape($filter) . "' AND ";
         }
         $dbResult = $this->_db->query(
-            "SELECT sc_id, sc_name
+            'SELECT sc_id, sc_name
             FROM service_categories
-            WHERE " . $where . " level IS NOT NULL
+            WHERE ' . $where . " level IS NOT NULL
             AND sc_activate = '1'
             ORDER BY level ASC"
         );
@@ -745,6 +666,85 @@ class Centreon_OpenTickets_Rule
         }
 
         return $result;
+    }
+
+    /**
+     * Sets the activate field
+     *
+     * @param array $select
+     * @param int $val
+     * @return void
+     */
+    protected function _setActivate($select, $val): void
+    {
+        $query = "UPDATE mod_open_tickets_rule SET `activate` = '" . $val . "' WHERE rule_id IN (";
+        $ruleList = '';
+        $ruleListAppend = '';
+        if (is_array($select)) {
+            foreach ($select as $key => $value) {
+                $ruleList .= $ruleListAppend . "'" . $key . "'";
+                $ruleListAppend = ', ';
+            }
+        }
+        if (isset($_REQUEST['rule_id'])) {
+            $ruleList .= $ruleListAppend . "'" . $_REQUEST['rule_id'] . "'";
+        }
+        $query .= $ruleList;
+        $query .= ')';
+        if (! $ruleList) {
+            return;
+        }
+        $this->_db->query($query);
+    }
+
+    protected function loadProvider($rule_id, $provider_id, $widget_id, $uniq_id = null)
+    {
+        global $centreon_path, $register_providers;
+
+        if (! is_null($this->_provider)) {
+            return;
+        }
+
+        $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
+        require_once $centreon_open_tickets_path . 'providers/register.php';
+        require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
+
+        $provider_name = null;
+        foreach ($register_providers as $name => $id) {
+            if ($id == $provider_id) {
+                $provider_name = $name;
+                break;
+            }
+        }
+
+        if (is_null($provider_name)
+            || ! file_exists(
+                $centreon_open_tickets_path
+                . 'providers/'
+                . $provider_name . '/'
+                . $provider_name
+                . 'Provider.class.php'
+            )
+        ) {
+            throw new Exception(sprintf('Cannot find provider'));
+        }
+
+        include_once $centreon_open_tickets_path
+            . 'providers/'
+            . $provider_name . '/'
+            . $provider_name
+            . 'Provider.class.php';
+        $classname = $provider_name . 'Provider';
+        $this->_provider = new $classname(
+            $this,
+            $centreon_path,
+            $centreon_open_tickets_path,
+            $rule_id,
+            null,
+            $provider_id
+        );
+        $this->_provider->setWidgetId($widget_id);
+        $this->_provider->setUniqId($uniq_id);
     }
 
     private function getServiceStateStr($state)
@@ -762,6 +762,7 @@ class Centreon_OpenTickets_Rule
         } elseif ($state == 4) {
             $result = 'PENDING';
         }
+
         return $result;
     }
 
@@ -776,6 +777,7 @@ class Centreon_OpenTickets_Rule
         } elseif ($state == 2) {
             $result = 'UNREACHABLE';
         }
+
         return $result;
     }
 }

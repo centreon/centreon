@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -50,10 +36,13 @@ class CentreonUserLog
 
     /** @var CentreonUserLog */
     private static $instance;
+
     /** @var array */
     private $errorType = [];
+
     /** @var int */
     private $uid;
+
     /** @var string */
     private $path;
 
@@ -72,18 +61,18 @@ class CentreonUserLog
         // Get Log directory path
         $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");
         while ($res = $DBRESULT->fetchRow()) {
-            $optGen[$res["key"]] = $res["value"];
+            $optGen[$res['key']] = $res['value'];
         }
         $DBRESULT->closeCursor();
 
         // Init log Directory
-        $this->path = (isset($optGen["debug_path"]) && !empty($optGen["debug_path"])) ?
-            $optGen["debug_path"] : _CENTREON_LOG_;
+        $this->path = (isset($optGen['debug_path']) && ! empty($optGen['debug_path']))
+            ? $optGen['debug_path'] : _CENTREON_LOG_;
 
-        $this->errorType[self::TYPE_LOGIN] = $this->path . "/login.log";
-        $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
-        $this->errorType[self::TYPE_LDAP] = $this->path . "/ldap.log";
-        $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
+        $this->errorType[self::TYPE_LOGIN] = $this->path . '/login.log';
+        $this->errorType[self::TYPE_SQL] = $this->path . '/sql-error.log';
+        $this->errorType[self::TYPE_LDAP] = $this->path . '/ldap.log';
+        $this->errorType[self::TYPE_UPGRADE] = $this->path . '/upgrade.log';
     }
 
     /**
@@ -100,24 +89,18 @@ class CentreonUserLog
          * Construct alert message
          * Take care before modifying this message pattern as it may break tools such as fail2ban
          */
-        $string = date("Y-m-d H:i:s") . "|" . $this->uid . "|$page|$option|$str";
+        $string = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|{$str}";
 
-        /*
-         * Display error on Standard exit
-         */
+        // Display error on Standard exit
         if ($print) {
-            print htmlspecialchars($str);
+            echo htmlspecialchars($str);
         }
 
-        /*
-         * Replace special char
-         */
-        $string = str_replace("`", "", $string);
-        $string = str_replace("*", "\*", $string);
+        // Replace special char
+        $string = str_replace('`', '', $string);
+        $string = str_replace('*', "\*", $string);
 
-        /*
-         * Write Error in log file.
-         */
+        // Write Error in log file.
         file_put_contents($this->errorType[$id], $string . "\n", FILE_APPEND);
     }
 
@@ -134,14 +117,15 @@ class CentreonUserLog
      * Singleton
      *
      * @param int $uid The user id
-     * @return CentreonUserLog
      * @throws Exception
+     * @return CentreonUserLog
      */
     public static function singleton($uid = 0)
     {
         if (is_null(self::$instance)) {
             self::$instance = new CentreonUserLog($uid, CentreonDB::factory('centreon'));
         }
+
         return self::$instance;
     }
 }
@@ -174,14 +158,13 @@ class CentreonLog
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
     public const TYPE_BUSINESS_LOG = 6;
-
     private const DEFAULT_LOG_FILES = [
         self::TYPE_LOGIN => 'login.log',
         self::TYPE_SQL => 'sql-error.log',
         self::TYPE_LDAP => 'ldap.log',
         self::TYPE_UPGRADE => 'upgrade.log',
         self::TYPE_PLUGIN_PACK_MANAGER => 'plugin-pack-manager.log',
-        self::TYPE_BUSINESS_LOG => 'centreon-web.log'
+        self::TYPE_BUSINESS_LOG => 'centreon-web.log',
     ];
 
     /** @var array<int,string> */
@@ -239,7 +222,7 @@ class CentreonLog
             $jsonContext = $this->serializeContext($customContext, $exception);
             $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
             $date = (new DateTime())->format(DateTimeInterface::RFC3339);
-            $log = sprintf("[%s] %s : %s | %s", $date, $level, $message, $jsonContext);
+            $log = sprintf('[%s] %s : %s | %s', $date, $level, $message, $jsonContext);
             $response = file_put_contents($this->logFileHandler[$logTypeId], $log . "\n", FILE_APPEND);
         }
     }
@@ -358,13 +341,14 @@ class CentreonLog
         $pathLogFileName = '';
         $logFile = '';
         $explodeFileName = explode(DIRECTORY_SEPARATOR, $logFileName);
-        if (! empty($explodeFileName)) {
+        if ($explodeFileName !== []) {
             $logFile = $explodeFileName[count($explodeFileName) - 1];
             unset($explodeFileName[count($explodeFileName) - 1]);
             $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFileName);
         }
-        $this->logFileHandler[$logTypeId] = ($pathLogFileName !== $this->pathLogFile) ?
-            $this->pathLogFile . '/' . $logFile : $logFileName;
+        $this->logFileHandler[$logTypeId] = ($pathLogFileName !== $this->pathLogFile)
+            ? $this->pathLogFile . '/' . $logFile : $logFileName;
+
         return $this;
     }
 
@@ -375,6 +359,7 @@ class CentreonLog
     public function setPathLogFile(string $pathLogFile): CentreonLog
     {
         $this->pathLogFile = $pathLogFile;
+
         return $this;
     }
 
@@ -394,7 +379,7 @@ class CentreonLog
                     'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
                     'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                     'server' => $_SERVER['SERVER_NAME'] ?? null,
-                ]
+                ],
             ];
 
             // Add exception context with previous exception if exists
@@ -419,13 +404,13 @@ class CentreonLog
             );
         } catch (JsonException $e) {
             return sprintf(
-                "context: error while json encoding (JsonException: %s)",
+                'context: error while json encoding (JsonException: %s)',
                 $e->getMessage()
             );
         }
     }
 
-    //*********************************************** DEPRECATED *****************************************************//
+    // *********************************************** DEPRECATED *****************************************************//
 
     /**
      * @param int $id
@@ -438,14 +423,12 @@ class CentreonLog
      */
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
-        $message = "$page|$option|$str";
+        $message = "{$page}|{$option}|{$str}";
 
         if ($print) {
-            print $str;
+            echo $str;
         }
 
         $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
-
-
 }

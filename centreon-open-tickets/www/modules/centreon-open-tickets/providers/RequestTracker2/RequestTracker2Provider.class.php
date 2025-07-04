@@ -1,46 +1,55 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class RequestTracker2Provider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-
     public const RT_QUEUE_TYPE = 10;
     public const RT_CUSTOMFIELD_TYPE = 11;
-
     public const ARG_QUEUE = 1;
     public const ARG_SUBJECT = 2;
     public const ARG_REQUESTOR = 3;
     public const ARG_CC = 4;
     public const ARG_CONTENT = 5;
 
+    protected $proxy_enabled = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_QUEUE => 'Queue', self::ARG_SUBJECT => 'Priority', self::ARG_REQUESTOR => 'Requestor', self::ARG_CC => 'Cc', self::ARG_CONTENT => 'Content'];
+
     /** @var string */
     protected $ws_error;
+
     /** @var null|array */
     protected $call_response;
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -53,8 +62,8 @@ class RequestTracker2Provider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_REQUESTOR, 'Value' => '{$user.email}'], ['Arg' => self::ARG_QUEUE, 'Value' => '{$select.rt_queue.value}']];
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUBJECT, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/'
+            . 'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_CONTENT, 'Value' => '{$body}'], ['Arg' => self::ARG_REQUESTOR, 'Value' => '{$user.email}'], ['Arg' => self::ARG_QUEUE, 'Value' => '{$select.rt_queue.value}']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -93,45 +102,45 @@ class RequestTracker2Provider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/RequestTracker2/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["rt" => _("RequestTracker")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['rt' => _('RequestTracker')]);
 
         // Form
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $path_html = '<input size="50" name="path" type="text" value="' .
-            $this->getFormValue('path') . '" />';
-        $token_html = '<input size="50" name="token" type="password" value="' .
-            $this->getFormValue('token') . '" autocomplete="off" />';
-        $https_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="https" name="https" value="yes" ' .
-            ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="https"></label></div>';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $path_html = '<input size="50" name="path" type="text" value="'
+            . $this->getFormValue('path') . '" />';
+        $token_html = '<input size="50" name="token" type="password" value="'
+            . $this->getFormValue('token') . '" autocomplete="off" />';
+        $https_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="https" name="https" value="yes" '
+            . ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="https"></label></div>';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'path' => ['label' => _("Path") . $this->required_field, 'html' => $path_html], 'token' => ['label' => _("Token") . $this->required_field, 'html' => $token_html], 'https' => ['label' => _("Use https"), 'html' => $https_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")], 'mappingticketdynamicfield' => ['label' => _("Mapping ticket dynamic field")]];
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'path' => ['label' => _('Path') . $this->required_field, 'html' => $path_html], 'token' => ['label' => _('Token') . $this->required_field, 'html' => $token_html], 'https' => ['label' => _('Use https'), 'html' => $https_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')], 'mappingticketdynamicfield' => ['label' => _('Mapping ticket dynamic field')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_QUEUE . '">' . _('Queue') . '</options>' .
-        '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>' .
-        '<option value="' . self::ARG_REQUESTOR . '">' . _('Requestor') . '</options>' .
-        '<option value="' . self::ARG_CC . '">' . _('Cc') . '</options>' .
-        '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_QUEUE . '">' . _('Queue') . '</options>'
+        . '<option value="' . self::ARG_SUBJECT . '">' . _('Subject') . '</options>'
+        . '<option value="' . self::ARG_REQUESTOR . '">' . _('Requestor') . '</options>'
+        . '<option value="' . self::ARG_CC . '">' . _('Cc') . '</options>'
+        . '<option value="' . self::ARG_CONTENT . '">' . _('Content') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         // mapping Ticket DynamicField
-        $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" ' .
-            'name="mappingTicketDynamicFieldName[#index#]" size="30"  type="text" />';
-        $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" ' .
-            'name="mappingTicketDynamicFieldValue[#index#]" size="30"  type="text" />';
-        $array_form['mappingTicketDynamicField'] = [['label' => _("Name"), 'html' => $mappingTicketDynamicFieldName_html], ['label' => _("Value"), 'html' => $mappingTicketDynamicFieldValue_html]];
+        $mappingTicketDynamicFieldName_html = '<input id="mappingTicketDynamicFieldName_#index#" '
+            . 'name="mappingTicketDynamicFieldName[#index#]" size="30"  type="text" />';
+        $mappingTicketDynamicFieldValue_html = '<input id="mappingTicketDynamicFieldValue_#index#" '
+            . 'name="mappingTicketDynamicFieldValue[#index#]" size="30"  type="text" />';
+        $array_form['mappingTicketDynamicField'] = [['label' => _('Name'), 'html' => $mappingTicketDynamicFieldName_html], ['label' => _('Value'), 'html' => $mappingTicketDynamicFieldValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -171,9 +180,8 @@ class RequestTracker2Provider extends AbstractProvider
      */
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::RT_QUEUE_TYPE . '">Rt queue</options>' . 
-               '<option value="' . self::RT_CUSTOMFIELD_TYPE . '">Rt custom field</options>';
-        return $str;
+        return '<option value="' . self::RT_QUEUE_TYPE . '">Rt queue</options>'
+               . '<option value="' . self::RT_CUSTOMFIELD_TYPE . '">Rt custom field</options>';
     }
 
     /**
@@ -195,12 +203,13 @@ class RequestTracker2Provider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($items as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['Name']);
                 continue;
             }
@@ -234,6 +243,7 @@ class RequestTracker2Provider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
@@ -260,13 +270,6 @@ class RequestTracker2Provider extends AbstractProvider
         } elseif ($entry['Type'] == self::RT_CUSTOMFIELD_TYPE) {
             $this->assignRtCustomField($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
     }
 
     /**
@@ -311,7 +314,7 @@ class RequestTracker2Provider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -334,7 +337,7 @@ class RequestTracker2Provider extends AbstractProvider
         $ticket_dynamic_fields = [];
         if (isset($this->rule_data['clones']['mappingTicketDynamicField'])) {
             foreach ($this->rule_data['clones']['mappingTicketDynamicField'] as $value) {
-                if ($value['Name'] == '' ||  $value['Value'] == '') {
+                if ($value['Name'] == '' || $value['Value'] == '') {
                     continue;
                 }
                 $array_tmp = [];
@@ -351,6 +354,7 @@ class RequestTracker2Provider extends AbstractProvider
         $code = $this->createTicketRt($ticket_arguments, $ticket_dynamic_fields);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
+
             return $result;
         }
 
@@ -366,7 +370,6 @@ class RequestTracker2Provider extends AbstractProvider
     }
 
     /**
-     *
      * REST API
      *
      * @param string $error
@@ -410,7 +413,8 @@ class RequestTracker2Provider extends AbstractProvider
     {
         $items = [];
         if (is_null($filter) || $filter === '') {
-            $this->setWsError("please set filter for the list");
+            $this->setWsError('please set filter for the list');
+
             return [-1, $items];
         }
 
@@ -429,7 +433,8 @@ class RequestTracker2Provider extends AbstractProvider
          *    }
          */
         if (is_null($customField)) {
-            $this->setWsError("cannot get a custom field with filter '$filter'");
+            $this->setWsError("cannot get a custom field with filter '{$filter}'");
+
             return [-1, $items];
         }
 
@@ -490,8 +495,9 @@ class RequestTracker2Provider extends AbstractProvider
      */
     protected function callRest($function, $argument = null)
     {
-        if (!extension_loaded("curl")) {
-            $this->setWsError("cannot load curl extension");
+        if (! extension_loaded('curl')) {
+            $this->setWsError('cannot load curl extension');
+
             return 1;
         }
 
@@ -505,14 +511,15 @@ class RequestTracker2Provider extends AbstractProvider
         $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['path'] . $function;
         $ch = curl_init($base_url);
         if ($ch == false) {
-            $this->setWsError("cannot init curl object");
+            $this->setWsError('cannot init curl object');
+
             return 1;
         }
 
         $method = 'GET';
         $headers = ['Content-Type: application/json', 'Accept: application/json'];
         $headers[] = 'Authorization: token ' . $this->getFormValue('token', false);
-        if (!is_null($argument)) {
+        if (! is_null($argument)) {
             $argument_json = json_encode($argument);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
             $headers[] = 'Content-Length: ' . strlen($argument_json);
@@ -533,26 +540,30 @@ class RequestTracker2Provider extends AbstractProvider
         if ($result == false) {
             $this->setWsError(curl_error($ch));
             curl_close($ch);
+
             return 1;
         }
 
         // 401 it's an error (unauthorized maybe)
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (!preg_match_all('/^2/', $http_code)) {
+        if (! preg_match_all('/^2/', $http_code)) {
             curl_close($ch);
             $this->setWsError($http_code . ' code error');
+
             return 1;
         }
 
         $decoded_result = json_decode($result, true);
         if (is_null($decoded_result) || $decoded_result == false) {
             $this->setWsError($result);
+
             return 1;
         }
 
         curl_close($ch);
 
         $this->call_response = $decoded_result;
+
         return 0;
     }
 }

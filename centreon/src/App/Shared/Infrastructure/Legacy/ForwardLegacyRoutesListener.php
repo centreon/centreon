@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +16,10 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Legacy;
 
@@ -43,7 +44,7 @@ final readonly class ForwardLegacyRoutesListener
         try {
             // try to handle the request using the current app
             $this->routerListener->onKernelRequest($event);
-        } catch (NotFoundHttpException $e) {
+        } catch (NotFoundHttpException) {
             // if the route is not found in the current app, it may
             // be available in the legacy. Therefore, handle the request
             // using the legacy app

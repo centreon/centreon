@@ -1,0 +1,45 @@
+{
+  "name": "centreon/tools",
+  "version": "25.07",
+  "description": "Centreon - Tools for development",
+  "require": {
+    "php": "8.2.*",
+    "ext-mbstring": "*",
+    "deptrac/deptrac": "3.0.*",
+    "friendsofphp/php-cs-fixer": "3.76.*",
+    "maglnet/composer-require-checker": "4.16.*",
+    "phpstan/phpstan": "2.1.*",
+    "phpstan/phpstan-beberlei-assert": "2.0.*",
+    "phpstan/phpstan-mockery": "2.0.*",
+    "phpstan/phpstan-phpunit": "2.0.*",
+    "rector/rector": "2.1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tools\\PhpStan\\": "phpstan/src/",
+      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
+    }
+  },
+  "scripts": {
+    "require:check": "composer-require-checker check composer.json",
+    "rector": "rector process --dry-run",
+    "rector:fix": "rector process",
+    "cs": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --dry-run --diff",
+    "cs:fix": "php-cs-fixer fix --config=.php-cs-fixer.tools.php --verbose --diff",
+    "stan": "phpstan analyse -c phpstan.tools.neon --memory-limit=512M",
+    "ci": [
+      "@rector",
+      "@cs",
+      "@stan"
+    ]
+  }
+}

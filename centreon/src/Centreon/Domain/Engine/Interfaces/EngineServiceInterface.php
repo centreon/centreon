@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,21 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Engine\Interfaces;
 
+use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Check\Check;
-use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 use Centreon\Domain\Downtime\Downtime;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Acknowledgement\Acknowledgement;
-use JMS\Serializer\Exception\ValidationFailedException;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 
 interface EngineServiceInterface extends ContactFilterInterface
 {
@@ -138,7 +139,7 @@ interface EngineServiceInterface extends ContactFilterInterface
      */
     public function scheduleServiceCheck(Check $check, Service $service): void;
 
-     /**
+    /**
      * Submit a result to a host.
      *
      * @param SubmitResult $result Result to submit

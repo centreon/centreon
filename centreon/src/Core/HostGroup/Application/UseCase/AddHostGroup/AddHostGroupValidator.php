@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,14 +75,12 @@ class AddHostGroupValidator
     {
         $unexistentHosts = $this->user->isAdmin()
         ? array_diff($hostIds, $this->readHostRepository->exist($hostIds))
-        : array_filter($hostIds, function ($hostId) {
-            return ! $this->readHostRepository->existsByAccessGroups(
-                $hostId,
-                $this->readAccessGroupRepository->findByContact($this->user)
-            );
-        });
+        : array_filter($hostIds, fn ($hostId) => ! $this->readHostRepository->existsByAccessGroups(
+            $hostId,
+            $this->readAccessGroupRepository->findByContact($this->user)
+        ));
 
-        if (! empty($unexistentHosts)) {
+        if ($unexistentHosts !== []) {
             $this->warning(
                 'Some hosts are not accessible by the user, they will not be linked to the host group.',
                 ['unexistentHosts' => $unexistentHosts]
@@ -109,7 +107,7 @@ class AddHostGroupValidator
             $this->readResourceAccessRepository->exist($resourceAccessRuleIds)
         );
 
-        if (! empty($unexistentAccessRules)) {
+        if ($unexistentAccessRules !== []) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 

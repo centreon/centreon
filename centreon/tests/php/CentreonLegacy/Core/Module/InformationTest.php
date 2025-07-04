@@ -1,34 +1,41 @@
 <?php
-/**
- * Copyright 2016 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace CentreonLegacy\Core\Module;
 
-use Pimple\Psr11\Container;
 use Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class InformationTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $license;
+
     private $utils;
 
     public function setUp(): void
@@ -37,7 +44,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->license = $this->getMockBuilder(\CentreonLegacy\Core\Module\License::class)
+        $this->license = $this->getMockBuilder(License::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -70,7 +77,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
     public function testGetNameById(): void
     {
         $this->db->addResultSet(
-            "SELECT name FROM modules_informations WHERE id = :id",
+            'SELECT name FROM modules_informations WHERE id = :id',
             [['name' => 'MyModule']]
         );
 
@@ -87,7 +94,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
         $expectedResult = ['MyModule1' => ['id' => 1, 'name' => 'MyModule1', 'rname' => 'MyModule1', 'mod_release' => '1.0.0', 'license_expiration' => '2020-10-10 12:00:00', 'source_available' => true, 'is_installed' => true, 'upgradeable' => false, 'installed_version' => '1.0.0', 'available_version' => '1.0.0'], 'MyModule2' => ['id' => 2, 'name' => 'MyModule2', 'rname' => 'MyModule2', 'mod_release' => '2.0.0', 'license_expiration' => '2020-10-10 12:00:00', 'source_available' => true, 'is_installed' => true, 'upgradeable' => true, 'installed_version' => '1.0.0', 'available_version' => '2.0.0']];
 
         $this->db->addResultSet(
-            "SELECT * FROM modules_informations ",
+            'SELECT * FROM modules_informations ',
             [['id' => 1, 'name' => 'MyModule1', 'mod_release' => '1.0.0'], ['id' => 2, 'name' => 'MyModule2', 'mod_release' => '1.0.0']]
         );
 

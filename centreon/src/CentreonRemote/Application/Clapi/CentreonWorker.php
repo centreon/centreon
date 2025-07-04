@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
      *
      * @return string
      */
-    public static function getName() : string
+    public static function getName(): string
     {
         return (new \ReflectionClass(self::class))->getShortName();
     }
@@ -98,7 +98,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
         $url .= "/{$centreonPath}/api/external.php?object=centreon_task_service&action=AddImportTaskWithParent";
 
         try {
-            $curl = new \CentreonRestHttp;
+            $curl = new \CentreonRestHttp();
             $res = $curl->call(
                 $url,
                 'POST',

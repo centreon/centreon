@@ -16,11 +16,12 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -53,41 +54,37 @@ if (is_array($rawDupNbr)) {
     }
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/escalation/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/escalation/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
-    $acl = $centreon->user->access;
-    $dbmon = $acl->getNameDBAcl('broker');
+$acl = $centreon->user->access;
+$dbmon = $acl->getNameDBAcl('broker');
 
-    $hgs = $acl->getHostGroupAclConf(null, 'broker');
-    $hgString = CentreonUtils::toStringWithQuotes($hgs);
-    $sgs = $acl->getServiceGroupAclConf(null, 'broker');
-    $sgString = CentreonUtils::toStringWithQuotes($sgs);
+$hgs = $acl->getHostGroupAclConf(null, 'broker');
+$hgString = CentreonUtils::toStringWithQuotes($hgs);
+$sgs = $acl->getServiceGroupAclConf(null, 'broker');
+$sgString = CentreonUtils::toStringWithQuotes($sgs);
 
 switch ($o) {
-    case "a":
-        require_once($path . "formEscalation.php");
-        break; #Add a Escalation
-    case "w":
-        require_once($path . "formEscalation.php");
-        break; #Watch a Escalation
-    case "c":
-        require_once($path . "formEscalation.php");
-        break; #Modify a Escalation
-    case "m":
+    case 'a':
+        require_once $path . 'formEscalation.php';
+        break; // Add a Escalation
+    case 'w':
+        require_once $path . 'formEscalation.php';
+        break; // Watch a Escalation
+    case 'c':
+        require_once $path . 'formEscalation.php';
+        break; // Modify a Escalation
+    case 'm':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -95,9 +92,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listEscalation.php");
-        break; #Duplicate n Escalations
-    case "d":
+        require_once $path . 'listEscalation.php';
+        break; // Duplicate n Escalations
+    case 'd':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -105,9 +102,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listEscalation.php");
-        break; #Delete n Escalation
+        require_once $path . 'listEscalation.php';
+        break; // Delete n Escalation
     default:
-        require_once($path . "listEscalation.php");
+        require_once $path . 'listEscalation.php';
         break;
 }

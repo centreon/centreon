@@ -1,0 +1,34 @@
+includes:
+    - ../tools/vendor/phpstan/phpstan-mockery/extension.neon
+    - ../tools/vendor/phpstan/phpstan-phpunit/extension.neon
+
+parameters:
+    bootstrapFiles:
+        - config/centreon.config.php.template
+    scanFiles:
+        - config/centreon.config.php.template
+        - www/install/functions.php
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+        - tests/php/bootstrap.php
+        - tests/php/polyfill.php
+    level: 2
+    paths:
+        - tests/php/Centreon
+        - tests/php/CentreonLegacy
+        - tests/php/CentreonRemote
+        - tests/php/Security
+        - tests/php/Utility
+        - tests/php/www
+    ignoreErrors:
+        -
+            reportUnmatched: false
+            path: tests/php
+            messages:
+                - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'
+
+services:
+    errorFormatter.absolute:
+        class: Tools\PhpStan\AbsolutePathErrorFormatter

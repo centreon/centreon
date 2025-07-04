@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,9 +22,9 @@
 namespace ConfigGenerateRemote;
 
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 
 /**
@@ -37,6 +37,7 @@ class PlatformTopology extends AbstractObject
 {
     /** @var string */
     protected $table = 'platform_topology';
+
     /** @var string */
     protected $generateFilename = 'platform_topology.infile';
 
@@ -50,6 +51,7 @@ class PlatformTopology extends AbstractObject
         parent_id,
         server_id
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'id',
@@ -58,8 +60,9 @@ class PlatformTopology extends AbstractObject
         'name',
         'type',
         'parent_id',
-        'server_id'
+        'server_id',
     ];
+
     /** @var PDOStatement */
     protected $stmtPlatformTopology = null;
 
@@ -68,14 +71,14 @@ class PlatformTopology extends AbstractObject
      *
      * @param int $remoteServerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function generate(int $remoteServerId): void
     {
         if (is_null($this->stmtPlatformTopology)) {
             $this->stmtPlatformTopology = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect FROM platform_topology 
+                "SELECT {$this->attributesSelect} FROM platform_topology 
                 WHERE server_id = :poller_id 
                 OR parent_id = (SELECT id FROM platform_topology WHERE server_id = :poller_id )"
             );
@@ -97,8 +100,8 @@ class PlatformTopology extends AbstractObject
      *
      * @param int $remoteServerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateFromRemoteServerId(int $remoteServerId): void
     {

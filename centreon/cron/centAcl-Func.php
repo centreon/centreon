@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -36,11 +22,11 @@
 /**
  * Init functions
  */
-
 function microtime_float2()
 {
-    [$usec, $sec] = explode(" ", microtime());
-    return ((float) $usec + (float) $sec);
+    [$usec, $sec] = explode(' ', microtime());
+
+    return (float) $usec + (float) $sec;
 }
 
 /**
@@ -49,15 +35,16 @@ function microtime_float2()
  */
 function programExit($msg)
 {
-    echo "[" . date("Y-m-d H:i:s") . "] " . $msg . "\n";
+    echo '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n";
+
     exit;
 }
 
 /**
  * set the `running` value to 0 to remove the DB's virtual lock
- * @param integer $appId , the process Id
+ * @param int $appId , the process Id
  */
-function removeLock(int $appId):void
+function removeLock(int $appId): void
 {
     global $pearDB;
 
@@ -69,18 +56,18 @@ function removeLock(int $appId):void
             "UPDATE cron_operation SET running = '0'
             WHERE id = :appId"
         );
-        $stmt->bindValue(':appId', $appId, \PDO::PARAM_INT);
+        $stmt->bindValue(':appId', $appId, PDO::PARAM_INT);
         $stmt->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         programExit("Error can't unlock the process in the cron_operation table.");
     }
 }
 
 /**
  * set the `running` value to 1 to set a virtual lock on the DB
- * @param integer $appId , the process Id
+ * @param int $appId , the process Id
  */
-function putALock(int $appId):void
+function putALock(int $appId): void
 {
     global $pearDB;
 
@@ -92,10 +79,10 @@ function putALock(int $appId):void
             "UPDATE cron_operation SET running = '1', time_launch = :currentTime
             WHERE id = :appId"
         );
-        $stmt->bindValue(':appId', $appId, \PDO::PARAM_INT);
-        $stmt->bindValue(':currentTime', time(), \PDO::PARAM_INT);
+        $stmt->bindValue(':appId', $appId, PDO::PARAM_INT);
+        $stmt->bindValue(':currentTime', time(), PDO::PARAM_INT);
         $stmt->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         programExit("Error can't lock the process in the cron_operation table.");
     }
 }
@@ -114,7 +101,7 @@ function getCentAclRunningState()
             "SELECT id, running FROM cron_operation WHERE name LIKE 'centAcl.php'"
         );
         $data = $dbResult->fetch();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         programExit("Error can't check state while process is running.");
     }
 
@@ -125,7 +112,7 @@ function getCentAclRunningState()
  * Return host tab after poller filter
  *
  * @param array $host
- * @param integer $resId
+ * @param int $resId
  * @return array $host
  */
 function getFilteredPollers($host, $resId)
@@ -133,9 +120,9 @@ function getFilteredPollers($host, $resId)
     global $pearDB;
 
     $dbResult = $pearDB->prepare(
-        "SELECT COUNT(*) AS count FROM acl_resources_poller_relations WHERE acl_res_id = :resId"
+        'SELECT COUNT(*) AS count FROM acl_resources_poller_relations WHERE acl_res_id = :resId'
     );
-    $dbResult->bindValue(':resId', $resId, \PDO::PARAM_INT);
+    $dbResult->bindValue(':resId', $resId, PDO::PARAM_INT);
     $dbResult->execute();
     $row = $dbResult->fetch();
     $isPollerFilter = $row['count'];
@@ -149,7 +136,7 @@ function getFilteredPollers($host, $resId)
         AND ns_host_relation.nagios_server_id = acl_resources_poller_relations.poller_id
         AND acl_res_activate = '1'"
     );
-    $dbResult->bindValue(':resId', $resId, \PDO::PARAM_INT);
+    $dbResult->bindValue(':resId', $resId, PDO::PARAM_INT);
     $dbResult->execute();
 
     if ($dbResult->rowCount()) {
@@ -163,6 +150,7 @@ function getFilteredPollers($host, $resId)
         // If result of query is empty and user have poller restrictions, clean host table.
         $host = [];
     }
+
     return $host;
 }
 
@@ -172,7 +160,7 @@ function getFilteredPollers($host, $resId)
  * avoiding to recalculate it at each occurrence.
  *
  * @param array $host
- * @param integer $resId
+ * @param int $resId
  * @return array $filteredHosts
  */
 function getFilteredHostCategories($host, $resId)
@@ -187,10 +175,10 @@ function getFilteredHostCategories($host, $resId)
         AND hostcategories_relation.hostcategories_hc_id = acl_resources_hc_relations.hc_id
         AND acl_res_activate = '1'"
     );
-    $dbResult->bindValue(':resId', $resId, \PDO::PARAM_INT);
+    $dbResult->bindValue(':resId', $resId, PDO::PARAM_INT);
     $dbResult->execute();
 
-    if (!$dbResult->rowCount()) {
+    if (! $dbResult->rowCount()) {
         return $host;
     }
 
@@ -212,7 +200,7 @@ function getFilteredHostCategories($host, $resId)
                 }
                 if (isset($hostTemplateCache[$hostId])) {
                     foreach ($hostTemplateCache[$hostId] as $hostId2) {
-                        if (!in_array($hostId2, $linkedHosts) && !in_array($hostId2, $treatedHosts)) {
+                        if (! in_array($hostId2, $linkedHosts) && ! in_array($hostId2, $treatedHosts)) {
                             $linkedHosts[] = $hostId2;
                         }
                     }
@@ -227,7 +215,7 @@ function getFilteredHostCategories($host, $resId)
 /**
  * Return enable categories for this resource access
  *
- * @param integer $resId
+ * @param int $resId
  * @return array $tabCategories
  */
 function getAuthorizedCategories($resId)
@@ -242,22 +230,22 @@ function getAuthorizedCategories($resId)
         AND acl_resources.acl_res_id = :resId
         AND acl_res_activate = '1'"
     );
-    $dbResult->bindValue(':resId', $resId, \PDO::PARAM_INT);
+    $dbResult->bindValue(':resId', $resId, PDO::PARAM_INT);
     $dbResult->execute();
 
     while ($res = $dbResult->fetch()) {
-        $tabCategories[$res["sc_id"]] = $res["sc_id"];
+        $tabCategories[$res['sc_id']] = $res['sc_id'];
     }
     $dbResult->closeCursor();
-    unset($res);
-    unset($dbResult);
+    unset($res, $dbResult);
+
     return $tabCategories;
 }
 
 /**
  * Get a service template list for categories
  *
- * @param integer $serviceId
+ * @param int $serviceId
  * @return array|void $tabCategory
  */
 function getServiceTemplateCategoryList($serviceId = null)
@@ -266,7 +254,7 @@ function getServiceTemplateCategoryList($serviceId = null)
 
     $tabCategory = [];
 
-    if (!$serviceId) {
+    if (! $serviceId) {
         return;
     }
 
@@ -274,15 +262,14 @@ function getServiceTemplateCategoryList($serviceId = null)
         foreach ($svcCatCache[$serviceId] as $ctId => $flag) {
             $tabCategory[$ctId] = $ctId;
         }
+
         return $tabCategory;
     }
 
-    /*
-     * Init Table of template
-     */
+    // Init Table of template
     $loopBreak = [];
     while (1) {
-        if (isset($svcTplCache[$serviceId]) && !isset($loopBreak[$serviceId])) {
+        if (isset($svcTplCache[$serviceId]) && ! isset($loopBreak[$serviceId])) {
             $serviceId = $svcTplCache[$serviceId];
             $tabCategory = getServiceTemplateCategoryList($serviceId);
             $loopBreak[$serviceId] = true;
@@ -296,15 +283,15 @@ function getServiceTemplateCategoryList($serviceId = null)
  * Get ACLs for host from a servicegroup
  *
  * @param $pearDB
- * @param integer $hostId
- * @param integer $resId
+ * @param int $hostId
+ * @param int $resId
  * @return array|void $svc
  */
 function getACLSGForHost($pearDB, $hostId, $resId)
 {
     global $sgCache;
 
-    if (!$pearDB || !isset($hostId)) {
+    if (! $pearDB || ! isset($hostId)) {
         return;
     }
 
@@ -332,7 +319,7 @@ function hasPollerFilter($resId)
 {
     global $pearDB;
 
-    if (!is_numeric($resId)) {
+    if (! is_numeric($resId)) {
         return false;
     }
 
@@ -340,16 +327,14 @@ function hasPollerFilter($resId)
         $res = $pearDB->prepare(
             'SELECT COUNT(*) as c FROM acl_resources_poller_relations WHERE acl_res_id = :resId'
         );
-        $res->bindValue(':resId', $resId, \PDO::PARAM_INT);
+        $res->bindValue(':resId', $resId, PDO::PARAM_INT);
         $res->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         return false;
     }
     $row = $res->fetch();
-    if ($row['c'] > 0) {
-        return true;
-    }
-    return false;
+
+    return (bool) ($row['c'] > 0);
 }
 
 /**
@@ -362,7 +347,7 @@ function hasHostCategoryFilter($resId)
 {
     global $pearDB;
 
-    if (!is_numeric($resId)) {
+    if (! is_numeric($resId)) {
         return false;
     }
 
@@ -370,16 +355,14 @@ function hasHostCategoryFilter($resId)
         $res = $pearDB->prepare(
             'SELECT COUNT(*) as c FROM acl_resources_hc_relations WHERE acl_res_id = :resId'
         );
-        $res->bindValue(':resId', $resId, \PDO::PARAM_INT);
+        $res->bindValue(':resId', $resId, PDO::PARAM_INT);
         $res->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         return false;
     }
     $row = $res->fetch();
-    if ($row['c'] > 0) {
-        return true;
-    }
-    return false;
+
+    return (bool) ($row['c'] > 0);
 }
 
 /**
@@ -392,7 +375,7 @@ function hasServiceCategoryFilter($resId)
 {
     global $pearDB;
 
-    if (!is_numeric($resId)) {
+    if (! is_numeric($resId)) {
         return false;
     }
 
@@ -400,16 +383,14 @@ function hasServiceCategoryFilter($resId)
         $res = $pearDB->prepare(
             'SELECT COUNT(*) as c FROM acl_resources_sc_relations WHERE acl_res_id = :resId'
         );
-        $res->bindValue(':resId', $resId, \PDO::PARAM_INT);
+        $res->bindValue(':resId', $resId, PDO::PARAM_INT);
         $res->execute();
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         return false;
     }
     $row = $res->fetch();
-    if ($row['c'] > 0) {
-        return true;
-    }
-    return false;
+
+    return (bool) ($row['c'] > 0);
 }
 
 function getAuthorizedServicesHost($hostId, $resId, $authorizedCategories)
@@ -418,9 +399,7 @@ function getAuthorizedServicesHost($hostId, $resId, $authorizedCategories)
 
     $tabSvc = getMyHostServicesByName($hostId);
 
-    /*
-     * Get Service Groups
-     */
+    // Get Service Groups
     $svcSg = getACLSGForHost($pearDB, $hostId, $resId);
 
     $tabServices = [];
@@ -443,6 +422,7 @@ function getAuthorizedServicesHost($hostId, $resId, $authorizedCategories)
             }
         }
     }
+
     return $tabServices;
 }
 
@@ -459,8 +439,8 @@ function hostIsAuthorized($hostId, $groupId)
         AND rhr.host_host_id = :hostId
         AND res.acl_res_activate = '1'"
     );
-    $dbResult->bindValue(':groupId', $groupId, \PDO::PARAM_INT);
-    $dbResult->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $dbResult->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+    $dbResult->bindValue(':hostId', $hostId, PDO::PARAM_INT);
     $dbResult->execute();
 
     if ($dbResult->rowCount()) {
@@ -480,27 +460,22 @@ function hostIsAuthorized($hostId, $groupId)
             AND hgr.host_host_id NOT IN (SELECT host_host_id FROM acl_resources_hostex_relations
             WHERE acl_res_id = rhgr.acl_res_id)"
         );
-        $dbRes2->bindValue(':groupId', $groupId, \PDO::PARAM_INT);
-        $dbRes2->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $dbRes2->bindValue(':groupId', $groupId, PDO::PARAM_INT);
+        $dbRes2->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $dbRes2->execute();
-    } catch (\PDOException $e) {
-        print "DB Error : " . $e->getMessage() . "<br />";
-    }
-    if ($dbRes2->rowCount()) {
-        return true;
+    } catch (PDOException $e) {
+        echo 'DB Error : ' . $e->getMessage() . '<br />';
     }
 
-    return false;
+    return (bool) ($dbRes2->rowCount());
 }
 
-/*
- * Retrieve service description
- */
+// Retrieve service description
 function getMyHostServicesByName($hostId = null)
 {
     global $hsRelation, $svcCache;
 
-    if (!$hostId) {
+    if (! $hostId) {
         return;
     }
 
@@ -512,6 +487,7 @@ function getMyHostServicesByName($hostId = null)
             }
         }
     }
+
     return $hSvs;
 }
 
@@ -525,7 +501,7 @@ function getMyHostServicesByName($hostId = null)
  */
 function getMetaServices($resId, $db, $metaObj)
 {
-    $sql = "SELECT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = " . (int) $resId;
+    $sql = 'SELECT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = ' . (int) $resId;
     $res = $db->query($sql);
     $arr = [];
     if ($res->rowCount()) {
@@ -535,13 +511,14 @@ function getMetaServices($resId, $db, $metaObj)
             $arr[$hostId][$svcId] = 1;
         }
     }
+
     return $arr;
 }
 
 function getModulesExtensionsPaths($db)
 {
     $extensionsPaths = [];
-    $res = $db->query("SELECT name FROM modules_informations");
+    $res = $db->query('SELECT name FROM modules_informations');
     while ($row = $res->fetch()) {
         $extensionsPaths = array_merge(
             $extensionsPaths,
@@ -564,24 +541,24 @@ function getContactsNotLinkedToAclGroup(int $aclGroupId): array
     global $pearDB;
 
     $request = <<<'SQL'
-        SELECT
-            contact_id
-        FROM contact
-        WHERE
-            contact_name != 'centreon-gorgone'
-            AND contact_register = '1'
-            AND contact_activate = '1'
-            AND contact_admin = '0'
-            AND contact_id NOT IN (
-                SELECT DISTINCT contact_contact_id FROM acl_group_contacts_relations WHERE acl_group_id = :aclGroupId
-            )
-    SQL;
+            SELECT
+                contact_id
+            FROM contact
+            WHERE
+                contact_name != 'centreon-gorgone'
+                AND contact_register = '1'
+                AND contact_activate = '1'
+                AND contact_admin = '0'
+                AND contact_id NOT IN (
+                    SELECT DISTINCT contact_contact_id FROM acl_group_contacts_relations WHERE acl_group_id = :aclGroupId
+                )
+        SQL;
 
     $statement = $pearDB->prepare($request);
-    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->bindValue(':aclGroupId', $aclGroupId, PDO::PARAM_INT);
     $statement->execute();
 
-    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    return $statement->fetchAll(PDO::FETCH_COLUMN, 0);
 }
 
 /**
@@ -595,20 +572,20 @@ function getContactGroupsNotLinkedToAclGroup(int $aclGroupId): array
     global $pearDB;
 
     $request = <<<'SQL'
-        SELECT
-            cg_id
-        FROM contactgroup
-        WHERE cg_activate = '1'
-            AND cg_id NOT IN (
-                SELECT DISTINCT cg_cg_id FROM acl_group_contactgroups_relations WHERE acl_group_id = :aclGroupId
-            )
-    SQL;
+            SELECT
+                cg_id
+            FROM contactgroup
+            WHERE cg_activate = '1'
+                AND cg_id NOT IN (
+                    SELECT DISTINCT cg_cg_id FROM acl_group_contactgroups_relations WHERE acl_group_id = :aclGroupId
+                )
+        SQL;
 
     $statement = $pearDB->prepare($request);
-    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->bindValue(':aclGroupId', $aclGroupId, PDO::PARAM_INT);
     $statement->execute();
 
-    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    return $statement->fetchAll(PDO::FETCH_COLUMN, 0);
 }
 
 /**
@@ -633,14 +610,14 @@ function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
     $subQueries = implode(', ', $subValues);
 
     $request = <<<SQL
-        INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES $subQueries
-    SQL;
+            INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES {$subQueries}
+        SQL;
 
     $statement = $pearDB->prepare($request);
-    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+    $statement->bindValue(':accessGroupId', $accessGroupId, PDO::PARAM_INT);
 
     foreach ($bindValues as $bindKey => $bindValue) {
-        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        $statement->bindValue($bindKey, $bindValue, PDO::PARAM_INT);
     }
 
     $statement->execute();
@@ -668,15 +645,15 @@ function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupI
     $subQueries = implode(', ', $subValues);
 
     $request = <<<SQL
-        INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id) VALUES $subQueries
-    SQL;
+            INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id) VALUES {$subQueries}
+        SQL;
 
     $statement = $pearDB->prepare($request);
 
-    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+    $statement->bindValue(':accessGroupId', $accessGroupId, PDO::PARAM_INT);
 
     foreach ($bindValues as $bindKey => $bindValue) {
-        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        $statement->bindValue($bindKey, $bindValue, PDO::PARAM_INT);
     }
 
     $statement->execute();

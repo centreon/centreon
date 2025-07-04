@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,12 +161,13 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function exists(int $hostId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.host
-            WHERE host_id = :host_id
-              AND host_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_id = :host_id
+                  AND host_register = '1'
+                SQL
         );
 
         $statement = $this->db->prepare($request);

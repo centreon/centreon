@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
 
 // ------------ Widgets database updates ---------------- //
-$updateWidgetModelsTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$updateWidgetModelsTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add column is_internal to table widget_models';
-    if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
+    if (! $pearDB->isColumnExist('widget_models', 'is_internal')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `widget_models`
@@ -50,8 +50,8 @@ $updateWidgetModelsTable = function(CentreonDB $pearDB) use(&$errorMessage): voi
     );
 };
 
-$installCoreWidgets = function(): void {
-    $moduleService = \Centreon\LegacyContainer::getInstance()[\CentreonModule\ServiceProvider::CENTREON_MODULE];
+$installCoreWidgets = function (): void {
+    $moduleService = Centreon\LegacyContainer::getInstance()[CentreonModule\ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, false, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
         if ($widget->isInternal()) {
@@ -60,7 +60,7 @@ $installCoreWidgets = function(): void {
     }
 };
 
-$setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
+$setCoreWidgetsToInternal = function (CentreonDB $pearDB): void {
     $pearDB->query(
         <<<'SQL'
             UPDATE `widget_models`
@@ -85,8 +85,8 @@ $setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
     );
 };
 
-$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
-    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+$dropColumnVersionFromDashboardWidgetsTable = function (CentreonDB $pearDB): void {
+    if ($pearDB->isColumnExist('dashboard_widgets', 'version')) {
         $pearDB->query(
             <<<'SQL'
                     ALTER TABLE dashboard_widgets
@@ -96,12 +96,12 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
     }
 };
 
-$insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertResourcesTableWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
-    if((bool) $statement->fetchColumn() === false) {
+    if ((bool) $statement->fetchColumn() === false) {
         $pearDB->query(
-            <<<SQL
+            <<<'SQL'
                 INSERT INTO dashboard_widgets (`name`)
                 VALUES ('centreon-widget-resourcestable')
                 SQL
@@ -109,19 +109,19 @@ $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): 
     }
 };
 
-$updateTopologyForApiTokens = function(CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = "Could not update topology for API tokens";
+$updateTopologyForApiTokens = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Could not update topology for API tokens';
     $pearDB->query(
-            <<<'SQL'
-                UPDATE `topology`
-                SET topology_url = '/administration/api-token', is_react = '1', topology_show='1'
-                WHERE `topology_name` = 'API Tokens'
-                SQL
+        <<<'SQL'
+            UPDATE `topology`
+            SET topology_url = '/administration/api-token', is_react = '1', topology_show='1'
+            WHERE `topology_name` = 'API Tokens'
+            SQL
     );
 };
 
 // ------------ Resource Access Management database updates ---------------- //
-$insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB) use (&$errorMessage): void {
+$insertTopologyForResourceAccessManagement = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
     $statement = $pearDB->query(
         <<<'SQL'
@@ -129,7 +129,7 @@ $insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB) use (&
             SQL
     );
 
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -173,38 +173,37 @@ $addCloudSpecificToAclResources = function (CentreonDB $pearDB) use (&$errorMess
 $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
-        <<<SQL
-        CREATE TABLE IF NOT EXISTS `dataset_filters` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `parent_id` int(11) DEFAULT NULL,
-            `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
-            `acl_resource_id` int(11) DEFAULT NULL,
-            `acl_group_id` int(11) DEFAULT NULL,
-            `resource_ids` varchar(255) DEFAULT NULL,
-            PRIMARY KEY (`id`),
-            CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
-            CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        SQL
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `dataset_filters` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `parent_id` int(11) DEFAULT NULL,
+                `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+                `acl_resource_id` int(11) DEFAULT NULL,
+                `acl_group_id` int(11) DEFAULT NULL,
+                `resource_ids` varchar(255) DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
+                CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            SQL
     );
 };
 
-$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void
-{
+$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
     $pearDB->query(
-        <<<SQL
-            ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
-        SQL
+        <<<'SQL'
+                ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
+            SQL
     );
 };
 
-$insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertGroupMonitoringWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
-    if((bool) $statement->fetchColumn() === false) {
+    if ((bool) $statement->fetchColumn() === false) {
         $pearDB->query(
-            <<<SQL
+            <<<'SQL'
                 INSERT INTO dashboard_widgets (`name`)
                 VALUES ('centreon-widget-groupmonitoring')
                 SQL
@@ -212,17 +211,17 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
-$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$addDefaultValueforTaskTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to alter created_at for task table';
-    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+    $pearDB->query('ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP');
 };
 
-$insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$insertStatusChartWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
-    if((bool) $statement->fetchColumn() === false) {
+    if ((bool) $statement->fetchColumn() === false) {
         $pearDB->query(
-            <<<SQL
+            <<<'SQL'
                 INSERT INTO dashboard_widgets (`name`)
                 VALUES ('centreon-widget-statuschart')
                 SQL
@@ -230,10 +229,10 @@ $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): voi
     }
 };
 
-$removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
+$removeBetaTagFromDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to remove the dashboard beta tag';
     $pearDB->query(
-        <<<SQL
+        <<<'SQL'
             UPDATE topology
             SET topology_url_opt=NULL
             WHERE topology_name='Dashboards'
@@ -245,7 +244,7 @@ $removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage):
 $updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update topology_url_substitute to NULL for host group configuration page (60102)';
     $pearDB->query(
-        <<<SQL
+        <<<'SQL'
             UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
             SQL
     );
@@ -260,26 +259,24 @@ $updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$err
     );
 };
 
-$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
-{
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
-    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
         $pearDB->query(
             <<<'SQL'
-                ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL
-            SQL
+                    ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL
+                SQL
         );
     }
 };
 
-$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
-{
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
-    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
         $pearDB->query(
             <<<'SQL'
-                ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL
-            SQL
+                    ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL
+                SQL
         );
     }
 };
@@ -287,7 +284,7 @@ $addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$err
 try {
     $updateWidgetModelsTable($pearDB);
 
-    $errorMessage = "Unable to install core widgets";
+    $errorMessage = 'Unable to install core widgets';
     $installCoreWidgets();
 
     $dropColumnVersionFromDashboardWidgetsTable($pearDB);
@@ -308,7 +305,7 @@ try {
         $pearDB->beginTransaction();
     }
 
-    $errorMessage = "Could not set core widgets to internal";
+    $errorMessage = 'Could not set core widgets to internal';
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
     $insertGroupMonitoringWidget($pearDB);
@@ -323,7 +320,7 @@ try {
     $updateHostGroupsTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -336,5 +333,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

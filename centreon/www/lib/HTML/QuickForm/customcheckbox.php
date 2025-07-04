@@ -1,5 +1,23 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
 
 /**
  * HTML class for a checkbox type field
@@ -20,7 +38,7 @@
  * @copyright   2001-2011 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
  * @version     CVS: $Id$
- * @link        http://pear.php.net/package/HTML_QuickForm
+ * @see        http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -36,9 +54,7 @@
  */
 class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
 {
-
     public $checkboxTemplate;
-
 
     /**
      * @return string
@@ -48,6 +64,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
         $oldHtml = parent::toHtml();
         $matches = ['{element}', '{id}'];
         $replacements = [$oldHtml, $this->getAttribute('id')];
+
         return str_replace($matches, $replacements, $this->checkboxTemplate);
     }
 
@@ -58,7 +75,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
 }
 
 if (class_exists('HTML_QuickForm')) {
-    (new HTML_QuickForm)->registerElementType(
+    (new HTML_QuickForm())->registerElementType(
         'customcheckbox',
         'HTML/QuickForm/customcheckbox.php',
         'HTML_QuickForm_customcheckbox'

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,8 +79,7 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
     public function findByRequestParametersAndCommandTypes(
         RequestParametersInterface $requestParameters,
         array $commandTypes
-    ): array
-    {
+    ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
@@ -122,7 +121,7 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
             $sqlConcatenator->storeBindValueMultiple(
                 ':command_type',
                 array_map(
-                    fn(CommandType $commandType): int => CommandTypeConverter::toInt($commandType),
+                    fn (CommandType $commandType): int => CommandTypeConverter::toInt($commandType),
                     $commandTypes
                 ),
                 \PDO::PARAM_INT
@@ -145,7 +144,7 @@ class DbReadConnectorRepository extends AbstractRepositoryRDB implements ReadCon
                 description: $result['description'] ?? '',
                 isActivated: (bool) $result['enabled'],
                 commandIds: $result['command_ids']
-                    ? array_map(fn(string $commandId) => (int) $commandId, explode(',', $result['command_ids']))
+                    ? array_map(fn (string $commandId) => (int) $commandId, explode(',', $result['command_ids']))
                     : []
             );
         }

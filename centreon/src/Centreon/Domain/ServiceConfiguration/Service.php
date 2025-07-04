@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\ServiceConfiguration;
@@ -37,40 +38,28 @@ class Service
     public const TYPE_META_SERVICE = 2;
     public const TYPE_BUSINESS_ACTIVITY = 2;
     public const TYPE_ANOMALY_DETECTION = 3;
-
     public const NOTIFICATIONS_OPTION_DISABLED = 0;
     public const NOTIFICATIONS_OPTION_ENABLED = 1;
     public const NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE = 2;
-
     private const AVAILABLE_NOTIFICATION_OPTIONS = [
         self::NOTIFICATIONS_OPTION_DISABLED,
         self::NOTIFICATIONS_OPTION_ENABLED,
         self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE,
     ];
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var int|null Template id
-     */
+    /** @var int|null Template id */
     private $templateId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $commandId;
 
-    /**
-     * @var string|null Service alias
-     */
+    /** @var string|null Service alias */
     private $alias;
 
-    /**
-     * @var string|null Service description
-     */
+    /** @var string|null Service description */
     private $description;
 
     /**
@@ -95,14 +84,10 @@ class Service
      */
     private $isActivated = true;
 
-    /**
-     * @var ExtendedService
-     */
+    /** @var ExtendedService */
     private $extendedService;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE;
 
     public function __construct()
@@ -125,6 +110,7 @@ class Service
     public function setId(?int $id): Service
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -143,6 +129,7 @@ class Service
     public function setTemplateId(?int $templateId): Service
     {
         $this->templateId = $templateId;
+
         return $this;
     }
 
@@ -161,6 +148,7 @@ class Service
     public function setCommandId(?int $commandId): Service
     {
         $this->commandId = $commandId;
+
         return $this;
     }
 
@@ -179,6 +167,7 @@ class Service
     public function setAlias(?string $alias): Service
     {
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -197,6 +186,7 @@ class Service
     public function setDescription(?string $description): Service
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -215,6 +205,7 @@ class Service
     public function setLocked(bool $isLocked): Service
     {
         $this->isLocked = $isLocked;
+
         return $this;
     }
 
@@ -233,6 +224,7 @@ class Service
     public function setActivated(bool $isActivated): Service
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 
@@ -246,9 +238,9 @@ class Service
 
     /**
      * @param int $serviceType
+     * @throws \InvalidArgumentException When the service type is not recognized
      * @return $this
      * @see Service::serviceType
-     * @throws \InvalidArgumentException When the service type is not recognized
      */
     public function setServiceType(int $serviceType): Service
     {
@@ -257,12 +249,13 @@ class Service
             self::TYPE_SERVICE,
             self::TYPE_META_SERVICE,
             self::TYPE_BUSINESS_ACTIVITY,
-            self::TYPE_ANOMALY_DETECTION
+            self::TYPE_ANOMALY_DETECTION,
         ];
-        if (!in_array($serviceType, $allowedServiceType)) {
+        if (! in_array($serviceType, $allowedServiceType)) {
             throw new \InvalidArgumentException('This service type is not recognized');
         }
         $this->serviceType = $serviceType;
+
         return $this;
     }
 
@@ -281,6 +274,7 @@ class Service
     public function setExtendedService(ExtendedService $extendedService): Service
     {
         $this->extendedService = $extendedService;
+
         return $this;
     }
 

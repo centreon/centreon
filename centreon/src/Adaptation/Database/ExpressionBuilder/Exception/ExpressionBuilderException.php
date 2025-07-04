@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Adaptation\Database\ExpressionBuilder\Exception;
@@ -25,22 +26,16 @@ namespace Adaptation\Database\ExpressionBuilder\Exception;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class ExpressionBuilderException
- * @package Adaptation\Database\QueryBuilder\Exception
  */
 class ExpressionBuilderException extends DatabaseException
 {
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ExpressionBuilderException
-     */
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the expression builder';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

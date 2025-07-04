@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class Installer extends Module
         $installed = false;
 
         $phpFile = $this->getModulePath($this->moduleName)
-	    . '/php/install' . ($isPreInstallation ? '.pre' : '') . '.php';
+        . '/php/install' . ($isPreInstallation ? '.pre' : '') . '.php';
         if ($this->services->get('filesystem')->exists($phpFile)) {
             $this->utils->executePhpFile($phpFile);
             $installed = true;

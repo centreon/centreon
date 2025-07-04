@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ class CmaValidator implements TypeValidatorInterface
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadTokenRepositoryInterface $tokenRepository,
         private readonly ContactInterface $user,
-    )
-    {
+    ) {
     }
 
     /**
@@ -154,7 +153,7 @@ class CmaValidator implements TypeValidatorInterface
             $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
             if (
                 $tokenObj === null
-                || ! $tokenObj instanceOf JwtToken
+                || ! $tokenObj instanceof JwtToken
                 || $tokenObj->isRevoked()
                 || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
             ) {

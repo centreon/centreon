@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,20 +25,20 @@ namespace Tests\Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricRequest;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetrics;
+use Core\Metric\Domain\Model\MetricValue;
+use Core\Metric\Domain\Model\PerformanceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use DateTimeImmutable;
-use Core\Metric\Domain\Model\MetricValue;
-use Core\Metric\Domain\Model\PerformanceMetric;
-use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetrics;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricRequest;
-use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
 use Tests\Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenterStub;
 
 beforeEach(function (): void {
@@ -67,11 +67,11 @@ it('returns an error response if the user does not have access to the correct to
         $contact,
     );
     $performanceMetricRequest = new DownloadPerformanceMetricRequest(
-            $this->hostId,
-            $this->serviceId,
-            new DateTimeImmutable('2022-01-01'),
-            new DateTimeImmutable('2023-01-01')
-        );
+        $this->hostId,
+        $this->serviceId,
+        new DateTimeImmutable('2022-01-01'),
+        new DateTimeImmutable('2023-01-01')
+    );
     $presenter = new DownloadPerformanceMetricsPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $useCase($performanceMetricRequest, $presenter);
     expect($presenter->getResponseStatus())
@@ -130,13 +130,15 @@ it(
         );
 
         $useCase($performanceMetricRequest, $presenter);
-    })->with([
+    }
+)->with(
+    [
         ['Centreon-Server', 'Ping', 'Centreon-Server_Ping'],
         ['',                'Ping', '15'],
         ['Centreon-Server', '',     '15'],
         ['',                '',     '15'],
-        ]
-);;
+    ]
+);
 
 it(
     'validate presenter response',
@@ -205,10 +207,10 @@ it(
                 new PerformanceMetric(
                     new DateTimeImmutable(),
                     [new MetricValue('rta', 0.001)]
-                )
+                ),
             ],
             '15'
-        )
+        ),
     ],
     [
         [['rta' => 0.01], ['pl' => 0.02]],
@@ -223,6 +225,6 @@ it(
                 ),
             ],
             '15'
-        )
-    ]
+        ),
+    ],
 ]);

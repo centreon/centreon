@@ -1,29 +1,26 @@
 <?php
+
 /*
- * Copyright 2017-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class EasyvistaSoapProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-    protected $attach_files = 1;
-
     public const ARG_ACCOUNT = 1;
     public const ARG_CATALOG_GUID = 2;
     public const ARG_CATALOG_CODE = 3;
@@ -44,7 +41,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     public const ARG_RECIPIENT_ID = 18;
     public const ARG_RECIPIENT_IDENTIFICATION = 19;
     public const ARG_RECIPIENT_MAIL = 20;
-    public const ARG_RECIPIENT_NAME= 21;
+    public const ARG_RECIPIENT_NAME = 21;
     public const ARG_ORIGIN = 22;
     public const ARG_DESCRIPTION = 23;
     public const ARG_PARENT_REQUEST = 24;
@@ -53,18 +50,32 @@ class EasyvistaSoapProvider extends AbstractProvider
     public const ARG_CI_NAME = 27;
     public const ARG_SUBMIT_DATE = 28;
 
+    protected $proxy_enabled = 1;
+
+    protected $attach_files = 1;
+
     /** @var array<int, array<mixed>> */
     protected $internal_arg_name = [self::ARG_ACCOUNT => ['formid' => 'Account', 'soapname' => 'Account'], self::ARG_CATALOG_GUID => ['formid' => 'CatalogGUID', 'soapname' => 'Catalog_GUID'], self::ARG_CATALOG_CODE => ['formid' => 'CatalogCode', 'soapname' => 'Catalog_Code'], self::ARG_ASSET_ID => ['formid' => 'AssetID', 'soapname' => 'AssetID'], self::ARG_ASSET_TAG => ['formid' => 'AssetTag', 'soapname' => 'AssetTag'], self::ARG_ASSET_NAME => ['formid' => 'AssetName', 'soapname' => 'ASSET_NAME'], self::ARG_URGENCY_ID => ['formid' => 'UrgencyId', 'soapname' => 'Urgency_ID'], self::ARG_SEVERITY_ID => ['formid' => 'SeverityId', 'soapname' => 'Severity_ID'], self::ARG_EXTERNAL_REFERENCE => ['formid' => 'ExternalReference', 'soapname' => 'External_reference'], self::ARG_PHONE => ['formid' => 'Phone', 'soapname' => 'Phone'], self::ARG_REQUESTOR_IDENTIFICATION => ['formid' => 'RequestorIdentification', 'soapname' => 'Requestor_Identification'], self::ARG_REQUESTOR_MAIL => ['formid' => 'RequestorMail', 'soapname' => 'Requestor_Mail'], self::ARG_REQUESTOR_NAME => ['formid' => 'RequestorName', 'soapname' => 'Requestor_Name'], self::ARG_LOCATION_ID => ['formid' => 'LocationID', 'soapname' => 'Location_ID'], self::ARG_LOCATION_CODE => ['formid' => 'LocationCode', 'soapname' => 'Location_Code'], self::ARG_DEPARTMENT_ID => ['formid' => 'DepartmentID', 'soapname' => 'Department_ID'], self::ARG_DEPARTMENT_CODE => ['formid' => 'DepartmentCode', 'soapname' => 'Department_Code'], self::ARG_RECIPIENT_ID => ['formid' => 'RecipientID', 'soapname' => 'Recipient_ID'], self::ARG_RECIPIENT_IDENTIFICATION => ['formid' => 'RecipientIdentification', 'soapname' => 'Recipient_Identification'], self::ARG_RECIPIENT_MAIL => ['formid' => 'RecipientMail', 'soapname' => 'Recipient_Mail'], self::ARG_RECIPIENT_NAME => ['formid' => 'RecipientName', 'soapname' => 'Recipient_Name'], self::ARG_ORIGIN => ['formid' => 'Origin', 'soapname' => 'Origin'], self::ARG_DESCRIPTION => ['formid' => 'Description', 'soapname' => 'Description'], self::ARG_PARENT_REQUEST => ['formid' => 'ParentRequest', 'soapname' => 'ParentRequest'], self::ARG_CI_ID => ['formid' => 'CiID', 'soapname' => 'CI_ID'], self::ARG_CI_ASSET_TAG => ['formid' => 'CiAssetTag', 'soapname' => 'CI_ASSET_TAG'], self::ARG_CI_NAME => ['formid' => 'CiName', 'soapname' => 'CI_NAME'], self::ARG_SUBMIT_DATE => ['formid' => 'SubmitDate', 'soapname' => 'SUBMIT_DATE']];
 
     /** @var string */
     protected $ws_error;
-    /** @var null|array */
+
+    /** @var bool|string */
     protected $soap_result;
+
     /** @var string */
     protected $_ticket_number;
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -119,63 +130,63 @@ class EasyvistaSoapProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["easyvista" => _("Easyvista")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['easyvista' => _('Easyvista')]);
 
         // Form
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $wspath_html = '<input size="50" name="wspath" type="text" value="' .
-            $this->getFormValue('wspath') . '" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $password_html = '<input size="50" name="password" type="password" value="' .
-            $this->getFormValue('password') . '" autocomplete="off" />';
-        $https_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="https" name="https" value="yes" ' .
-            ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="https"></label></div>';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $wspath_html = '<input size="50" name="wspath" type="text" value="'
+            . $this->getFormValue('wspath') . '" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $password_html = '<input size="50" name="password" type="password" value="'
+            . $this->getFormValue('password') . '" autocomplete="off" />';
+        $https_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="https" name="https" value="yes" '
+            . ($this->getFormValue('https') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="https"></label></div>';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'wspath' => ['label' => _("Webservice Path") . $this->required_field, 'html' => $wspath_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'password' => ['label' => _("Password") . $this->required_field, 'html' => $password_html], 'https' => ['label' => _("Use https"), 'html' => $https_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'wspath' => ['label' => _('Webservice Path') . $this->required_field, 'html' => $wspath_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'password' => ['label' => _('Password') . $this->required_field, 'html' => $password_html], 'https' => ['label' => _('Use https'), 'html' => $https_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_ACCOUNT . '">' . _('Account') . '</options>' .
-        '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</options>' .
-        '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</options>' .
-        '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog Code') . '</options>' .
-        '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency ID') . '</options>' .
-        '<option value="' . self::ARG_SEVERITY_ID . '">' . _('Severity ID') . '</options>' .
-        '<option value="' . self::ARG_ASSET_ID . '">' . _('Asset ID') . '</options>' .
-        '<option value="' . self::ARG_ASSET_TAG . '">' . _('Asset Tag') . '</options>' .
-        '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset Name') . '</options>' .
-        '<option value="' . self::ARG_EXTERNAL_REFERENCE . '">' . _('External Reference') . '</options>' .
-        '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</options>' .
-        '<option value="' . self::ARG_REQUESTOR_IDENTIFICATION . '">' . _('Requestor Identification') . '</options>' .
-        '<option value="' . self::ARG_REQUESTOR_MAIL . '">' . _('Requestor Mail') . '</options>' .
-        '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requestor Name') . '</options>' .
-        '<option value="' . self::ARG_LOCATION_ID . '">' . _('Location ID') . '</options>' .
-        '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location Code') . '</options>' .
-        '<option value="' . self::ARG_DEPARTMENT_ID . '">' . _('Department ID') . '</options>' .
-        '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department Code') . '</options>' .
-        '<option value="' . self::ARG_RECIPIENT_ID . '">' . _('Recipient ID') . '</options>' .
-        '<option value="' . self::ARG_RECIPIENT_IDENTIFICATION . '">' . _('Recipient Identification') . '</options>' .
-        '<option value="' . self::ARG_RECIPIENT_MAIL . '">' . _('Recipient Mail') . '</options>' .
-        '<option value="' . self::ARG_RECIPIENT_NAME . '">' . _('Recipient Name') . '</options>' .
-        '<option value="' . self::ARG_ORIGIN . '">' . _('Origin') . '</options>' .
-        '<option value="' . self::ARG_PARENT_REQUEST . '">' . _('Parent Request') . '</options>' .
-        '<option value="' . self::ARG_CI_ID . '">' . _('CI ID') . '</options>' .
-        '<option value="' . self::ARG_CI_ASSET_TAG . '">' . _('CI Asset Tag') . '</options>' .
-        '<option value="' . self::ARG_CI_NAME . '">' . _('CI Name') . '</options>' .
-        '<option value="' . self::ARG_SUBMIT_DATE . '">' . _('Submit Date') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_ACCOUNT . '">' . _('Account') . '</options>'
+        . '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</options>'
+        . '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</options>'
+        . '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog Code') . '</options>'
+        . '<option value="' . self::ARG_URGENCY_ID . '">' . _('Urgency ID') . '</options>'
+        . '<option value="' . self::ARG_SEVERITY_ID . '">' . _('Severity ID') . '</options>'
+        . '<option value="' . self::ARG_ASSET_ID . '">' . _('Asset ID') . '</options>'
+        . '<option value="' . self::ARG_ASSET_TAG . '">' . _('Asset Tag') . '</options>'
+        . '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset Name') . '</options>'
+        . '<option value="' . self::ARG_EXTERNAL_REFERENCE . '">' . _('External Reference') . '</options>'
+        . '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</options>'
+        . '<option value="' . self::ARG_REQUESTOR_IDENTIFICATION . '">' . _('Requestor Identification') . '</options>'
+        . '<option value="' . self::ARG_REQUESTOR_MAIL . '">' . _('Requestor Mail') . '</options>'
+        . '<option value="' . self::ARG_REQUESTOR_NAME . '">' . _('Requestor Name') . '</options>'
+        . '<option value="' . self::ARG_LOCATION_ID . '">' . _('Location ID') . '</options>'
+        . '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location Code') . '</options>'
+        . '<option value="' . self::ARG_DEPARTMENT_ID . '">' . _('Department ID') . '</options>'
+        . '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department Code') . '</options>'
+        . '<option value="' . self::ARG_RECIPIENT_ID . '">' . _('Recipient ID') . '</options>'
+        . '<option value="' . self::ARG_RECIPIENT_IDENTIFICATION . '">' . _('Recipient Identification') . '</options>'
+        . '<option value="' . self::ARG_RECIPIENT_MAIL . '">' . _('Recipient Mail') . '</options>'
+        . '<option value="' . self::ARG_RECIPIENT_NAME . '">' . _('Recipient Name') . '</options>'
+        . '<option value="' . self::ARG_ORIGIN . '">' . _('Origin') . '</options>'
+        . '<option value="' . self::ARG_PARENT_REQUEST . '">' . _('Parent Request') . '</options>'
+        . '<option value="' . self::ARG_CI_ID . '">' . _('CI ID') . '</options>'
+        . '<option value="' . self::ARG_CI_ASSET_TAG . '">' . _('CI Asset Tag') . '</options>'
+        . '<option value="' . self::ARG_CI_NAME . '">' . _('CI Name') . '</options>'
+        . '<option value="' . self::ARG_SUBMIT_DATE . '">' . _('Submit Date') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -189,13 +200,13 @@ class EasyvistaSoapProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/EasyvistaSoap/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["easyvista" => _("Easyvista")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['easyvista' => _('Easyvista')]);
 
-        $updatefields_html = '<input size="50" name="ez_updatefields" type="text" value="' .
-            $this->getFormValue('ez_updatefields') . '" />';
-        $array_form = ['ez_updatefields' => ['label' => _("Update fields"), 'html' => $updatefields_html]];
+        $updatefields_html = '<input size="50" name="ez_updatefields" type="text" value="'
+            . $this->getFormValue('ez_updatefields') . '" />';
+        $array_form = ['ez_updatefields' => ['label' => _('Update fields'), 'html' => $updatefields_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container2_html'] .= $tpl->fetch('conf_container2extra.ihtml');
@@ -219,20 +230,13 @@ class EasyvistaSoapProvider extends AbstractProvider
         );
     }
 
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
-    }
-
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -256,6 +260,7 @@ class EasyvistaSoapProvider extends AbstractProvider
         $code = $this->createTicket($ticket_arguments);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
+
             return $result;
         }
         $this->attachFiles($ticket_arguments);
@@ -278,7 +283,6 @@ class EasyvistaSoapProvider extends AbstractProvider
     }
 
     /**
-     *
      * SOAP API
      *
      * @param string $error
@@ -297,8 +301,8 @@ class EasyvistaSoapProvider extends AbstractProvider
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <tns:EZV_UpdateRequest xmlns:tns="https://na1.easyvista.com/WebService">
-    <tns:Account><![CDATA[' .
-            $ticket_arguments[$this->internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
+    <tns:Account><![CDATA['
+            . $ticket_arguments[$this->internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
     <tns:RFC_Number><![CDATA[' . $this->_ticket_number . ']]></tns:RFC_Number>
@@ -324,8 +328,8 @@ class EasyvistaSoapProvider extends AbstractProvider
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <tns:EZV_AttachDocToRequest xmlns:tns="https://na1.easyvista.com/WebService">
-    <tns:Account><![CDATA[' .
-            $ticket_arguments[$this->internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
+    <tns:Account><![CDATA['
+            . $ticket_arguments[$this->internal_arg_name[self::ARG_ACCOUNT]['formid']] . ']]></tns:Account>
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
     <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>
     <tns:path_docname><![CDATA[' . $file['filename'] . ']]></tns:path_docname>
@@ -351,9 +355,9 @@ class EasyvistaSoapProvider extends AbstractProvider
                 $account = '<tns:Account><![CDATA[' . $ticket_arguments[$value['formid']] . ']]></tns:Account>';
                 continue;
             }
-            $attributes .= (isset($ticket_arguments[$value['formid']]) ?
-                '<tns:' . $value['soapname'] . '><![CDATA[' . $ticket_arguments[$value['formid']] .
-                ']]></tns:' . $value['soapname'] . '>' :  '<tns:' . $value['soapname'] . '/>');
+            $attributes .= (isset($ticket_arguments[$value['formid']])
+                ? '<tns:' . $value['soapname'] . '><![CDATA[' . $ticket_arguments[$value['formid']]
+                . ']]></tns:' . $value['soapname'] . '>' : '<tns:' . $value['soapname'] . '/>');
         }
 
         $data = '<?xml version="1.0"?>
@@ -361,11 +365,11 @@ class EasyvistaSoapProvider extends AbstractProvider
   soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
-<tns:EZV_CreateRequest xmlns:tns="https://na1.easyvista.com/WebService">' .
-        $account . '
+<tns:EZV_CreateRequest xmlns:tns="https://na1.easyvista.com/WebService">'
+        . $account . '
     <tns:Login><![CDATA[' . $this->rule_data['username'] . ']]></tns:Login>
-    <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>' .
-        $attributes .'
+    <tns:Password><![CDATA[' . $this->rule_data['password'] . ']]></tns:Password>'
+        . $attributes . '
 </tns:EZV_CreateRequest>
 </soap:Body>
 </soap:Envelope>
@@ -391,8 +395,9 @@ class EasyvistaSoapProvider extends AbstractProvider
         *   </ns1:EZV_CreateRequestResponse>
         *   </SOAP-ENV:Body></SOAP-ENV:Envelope>
         */
-        if (!preg_match('/<return.*?>(.*?)<\/return>/msi', $this->soap_result, $matches)) {
+        if (! preg_match('/<return.*?>(.*?)<\/return>/msi', $this->soap_result, $matches)) {
             $this->setWsError('');
+
             return -1;
         }
         $return_value = $matches[1];
@@ -403,10 +408,12 @@ class EasyvistaSoapProvider extends AbstractProvider
                 $msg_error = $map_error[$return_value];
             }
             $this->setWsError($msg_error);
+
             return -1;
         }
 
         $this->_ticket_number = $return_value;
+
         return 0;
     }
 
@@ -419,7 +426,8 @@ class EasyvistaSoapProvider extends AbstractProvider
         $endpoint = $proto . '://' . $this->rule_data['address'] . $this->rule_data['wspath'];
         $ch = curl_init($endpoint);
         if ($ch == false) {
-            $this->setWsError("cannot init curl object");
+            $this->setWsError('cannot init curl object');
+
             return 1;
         }
 
@@ -427,7 +435,7 @@ class EasyvistaSoapProvider extends AbstractProvider
             $ch,
             ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
         );
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -441,9 +449,10 @@ class EasyvistaSoapProvider extends AbstractProvider
         );
         $this->soap_result = curl_exec($ch);
 
-        if ($this->soap_result == false) {
+        if ($this->soap_result === false) {
             $this->setWsError(curl_error($ch));
             curl_close($ch);
+
             return 1;
         }
 
@@ -452,6 +461,7 @@ class EasyvistaSoapProvider extends AbstractProvider
 
         if ($httpCode != 200) {
             $this->setWsError($this->soap_result);
+
             return 1;
         }
 

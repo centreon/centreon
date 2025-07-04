@@ -1,39 +1,23 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
- *
  */
-
 
 /**
  * Description of select2
@@ -42,102 +26,55 @@
  */
 class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 {
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_elementHtmlName;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_elementTemplate;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_elementCSS;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_availableDatasetRoute;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_defaultDatasetRoute;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_defaultDataset = null;
 
-    /**
-     *
-     * @var boolean
-     */
+    /** @var bool */
     public $_ajaxSource = false;
 
-    /**
-     *
-     * @var boolean
-     */
+    /** @var bool */
     public $_multiple;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_multipleHtml = '';
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_defaultSelectedOptions = '';
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_jsCallback = '';
 
-    /**
-     *
-     * @var boolean
-     */
+    /** @var bool */
     public $_allowClear = true;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     public $_linkedObject;
 
-    /**
-     *
-     * @var type
-     */
+    /** @var type */
     public $_defaultDatasetOptions = [];
 
-    /**
-     * @var int The number of element in the pagination
-     */
+    /** @var int The number of element in the pagination */
     public $_pagination;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $realOptionsArray;
 
     /**
-     *
      * @param string $elementName
      * @param string $elementLabel
      * @param array $options
@@ -161,7 +98,6 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     }
 
     /**
-     *
      * @param array $attributes
      */
     public function parseCustomAttributes(&$attributes): void
@@ -194,7 +130,7 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             $this->_allowClear = true;
         }
 
-        if (isset($attributes['defaultDataset']) && !is_null($attributes['defaultDataset'])) {
+        if (isset($attributes['defaultDataset']) && ! is_null($attributes['defaultDataset'])) {
             $this->_defaultDataset = $attributes['defaultDataset'];
         }
 
@@ -208,9 +144,8 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     }
 
     /**
-     *
-     * @param boolean $raw
-     * @param boolean $min
+     * @param bool $raw
+     * @param bool $min
      * @return string
      */
     public function getElementJs($raw = true, $min = false)
@@ -224,18 +159,15 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             $jsFile .= 'select2.js';
         }
 
-        $js = '<script type="text/javascript" '
+        return '<script type="text/javascript" '
             . 'src="' . $jsFile . '">'
             . '</script>'
             . '<script type="text/javascript" '
             . 'src="' . $jsFile2 . '">'
             . '</script>';
-
-        return $js;
     }
 
     /**
-     *
      * @return type
      */
     public function getElementHtmlName()
@@ -244,9 +176,8 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     }
 
     /**
-     *
-     * @param boolean $raw
-     * @param boolean $min
+     * @param bool $raw
+     * @param bool $min
      * @return string
      */
     public function getElementCss($raw = true, $min = false)
@@ -259,13 +190,10 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             $cssFile .= 'select2.js';
         }
 
-        $css = '<link href="' . $cssFile . '" rel="stylesheet" type="text/css"/>';
-
-        return $css;
+        return '<link href="' . $cssFile . '" rel="stylesheet" type="text/css"/>';
     }
 
     /**
-     *
      * @return string
      */
     public function toHtml()
@@ -280,14 +208,11 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             . '</select>';
 
         $strHtml .= $this->getJsInit();
-        $strHtml = str_replace('%%DEFAULT_SELECTED_VALUES%%', $this->_defaultSelectedOptions, $strHtml);
 
-        return $strHtml;
+        return str_replace('%%DEFAULT_SELECTED_VALUES%%', $this->_defaultSelectedOptions, $strHtml);
     }
 
-
     /**
-     *
      * @return string
      */
     public function getJsInit()
@@ -323,10 +248,10 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 
         $additionnalJs .= ' ' . $this->_jsCallback;
 
-        $javascriptString = '<script>
+        return '<script>
             jQuery(function () {
-                var $currentSelect2Object' . $this->getName() .
-            ' = jQuery("#' . $this->getName() . '").centreonSelect2({
+                var $currentSelect2Object' . $this->getName()
+            . ' = jQuery("#' . $this->getName() . '").centreonSelect2({
                     allowClear: ' . $allowClear . ',
                     pageLimit: ' . $this->_pagination . ',
                     optGroup: true,
@@ -341,18 +266,16 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
                 ' . $additionnalJs . '
             });
          </script>';
-
-        return $javascriptString;
     }
 
     /**
-     *
      * @return string
      */
     public function setFixedDatas()
     {
         $datas = 'data: ';
         $datas .= json_encode($this->realOptionsArray, 1);
+
         return $datas;
     }
 
@@ -367,7 +290,6 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     }
 
     /**
-     *
      * @param string $event
      * @param string $callback
      */
@@ -379,12 +301,11 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     }
 
     /**
-     *
      * @return string
      */
     public function setDefaultAjaxDatas()
     {
-        $ajaxDefaultDatas = '$request' . $this->getName() . ' = jQuery.ajax({
+        return '$request' . $this->getName() . ' = jQuery.ajax({
             url: "' . $this->_defaultDatasetRoute . '",
         });
         
@@ -411,26 +332,21 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
             
         });
         ';
-
-        return $ajaxDefaultDatas;
     }
 
     /**
-     *
      * @return string
      */
     public function getFrozenHtml()
     {
-        $strFrozenHtml = '';
-        return $strFrozenHtml;
+        return '';
     }
 
     /**
-     *
      * @param type $event
      * @param type $arg
      * @param type $caller
-     * @return boolean
+     * @return bool
      */
     public function onQuickFormEvent($event, $arg, &$caller)
     {
@@ -442,27 +358,28 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
+                if (null === $value && (! $caller->isSubmitted() || ! $this->getMultiple())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }
 
             if (null !== $value) {
-                if (!is_array($value)) {
+                if (! is_array($value)) {
                     $value = [$value];
                 }
                 $this->_defaultDataset = $value;
                 $this->setDefaultFixedDatas();
             }
+
             return true;
-        } else {
-            return parent::onQuickFormEvent($event, $arg, $caller);
         }
+
+        return parent::onQuickFormEvent($event, $arg, $caller);
     }
 }
 
 if (class_exists('HTML_QuickForm')) {
-    (new HTML_QuickForm)->registerElementType(
+    (new HTML_QuickForm())->registerElementType(
         'selectoptgroup',
         'HTML/QuickForm/selectoptgroup.php',
         'HTML_QuickForm_selectoptgroup'

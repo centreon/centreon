@@ -1,98 +1,79 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$gopt_id = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['gopt_id'] ?? null);
-if ((!isset($cg) || is_null($cg))) {
-    $gopt_id = \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['gopt_id'] ?? null);
+$gopt_id = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['gopt_id'] ?? null);
+if ((! isset($cg) || is_null($cg))) {
+    $gopt_id = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['gopt_id'] ?? null);
 }
 
-/*
- * Path to the option dir
- */
-$path = "./include/Administration/parameters/";
+// Path to the option dir
+$path = './include/Administration/parameters/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 switch ($o) {
-    case "engine":
-        require_once $path . "engine/form.php" ;
+    case 'engine':
+        require_once $path . 'engine/form.php';
         break;
-    case "snmp":
-        require_once $path . "snmp/form.php" ;
+    case 'snmp':
+        require_once $path . 'snmp/form.php';
         break;
-    case "rrdtool":
-        require_once $path . "rrdtool/form.php" ;
+    case 'rrdtool':
+        require_once $path . 'rrdtool/form.php';
         break;
-    case "ldap":
-        require_once $path . "ldap/ldap.php" ;
+    case 'ldap':
+        require_once $path . 'ldap/ldap.php';
         break;
-    case "debug":
-        require_once $path . "debug/form.php" ;
+    case 'debug':
+        require_once $path . 'debug/form.php';
         break;
-    case "css":
-        require_once $path . "css/form.php" ;
+    case 'css':
+        require_once $path . 'css/form.php';
         break;
-    case "storage":
-        require_once $path . "centstorage/form.php" ;
+    case 'storage':
+        require_once $path . 'centstorage/form.php';
         break;
-    case "gorgone":
+    case 'gorgone':
         require_once $path . 'gorgone/gorgone.php';
         break;
-    case "knowledgeBase":
+    case 'knowledgeBase':
         require_once $path . 'knowledgeBase/formKnowledgeBase.php';
         break;
-    case "api":
+    case 'api':
         require_once $path . 'api/api.php';
         break;
-    case "backup":
+    case 'backup':
         require_once $path . 'backup/formBackup.php';
         break;
-    case "remote":
+    case 'remote':
         require_once $path . 'remote/formRemote.php';
         break;
-    case "general":
+    case 'general':
     default:
-        require_once $path . "general/form.php" ;
+        require_once $path . 'general/form.php';
         break;
 }

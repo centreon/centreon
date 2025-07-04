@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
     FindProviderConfigurationsPresenterInterface, FindProviderConfigurationsResponse, ProviderConfigurationDto};
+
 class FindProviderConfigurationsPresenter extends AbstractPresenter implements FindProviderConfigurationsPresenterInterface
 {
     /**
@@ -38,16 +39,14 @@ class FindProviderConfigurationsPresenter extends AbstractPresenter implements F
             $this->setResponseStatus($data);
         } else {
             $this->present(array_map(
-                function (ProviderConfigurationDto $dto): array {
-                    return [
-                        'id' => $dto->id,
-                        'type' => $dto->type,
-                        'name' => $dto->name,
-                        'authentication_uri' => $dto->authenticationUri,
-                        'is_active' => $dto->isActive,
-                        'is_forced' => $dto->isForced,
-                    ];
-                },
+                fn (ProviderConfigurationDto $dto): array => [
+                    'id' => $dto->id,
+                    'type' => $dto->type,
+                    'name' => $dto->name,
+                    'authentication_uri' => $dto->authenticationUri,
+                    'is_active' => $dto->isActive,
+                    'is_forced' => $dto->isForced,
+                ],
                 $data->providerConfigurations
             ));
         }

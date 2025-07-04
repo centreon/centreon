@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,86 +50,56 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PlatformTopologyServiceTest extends TestCase
 {
-    /**
-     * @var Contact|null $adminContact
-     */
+    /** @var Contact|null */
     protected $adminContact;
 
-    /**
-     * @var PlatformPending|null $platform
-     */
+    /** @var PlatformPending|null */
     protected $platform;
 
-    /**
-     * @var PlatformRegistered|null $registeredParent
-     */
+    /** @var PlatformRegistered|null */
     protected $registeredParent;
 
-    /**
-     * @var PlatformRepositoryInterface&MockObject $platformTopologyRepository
-     */
+    /** @var PlatformRepositoryInterface&MockObject */
     protected $platformTopologyRepository;
 
-    /**
-     * @var HttpClientInterface|null $httpClient
-     */
+    /** @var HttpClientInterface|null */
     protected $httpClient;
 
-    /**
-     * @var PlatformInformationServiceInterface&MockObject $platformInformationService
-     */
+    /** @var PlatformInformationServiceInterface&MockObject */
     private $platformInformationService;
 
-    /**
-     * @var ProxyServiceInterface&MockObject $proxyService
-     */
+    /** @var ProxyServiceInterface&MockObject */
     private $proxyService;
 
-    /**
-     * @var EngineConfiguration|null $engineConfiguration
-     */
+    /** @var EngineConfiguration|null */
     protected $engineConfiguration;
 
-    /**
-     * @var BrokerConfiguration $brokerConfiguration
-     */
+    /** @var BrokerConfiguration */
     protected $brokerConfiguration;
 
-    /**
-     * @var EngineConfigurationServiceInterface&MockObject $engineConfigurationService
-     */
+    /** @var EngineConfigurationServiceInterface&MockObject */
     protected $engineConfigurationService;
 
-    /**
-     * @var MonitoringServerServiceInterface&MockObject $monitoringServerService
-     */
+    /** @var MonitoringServerServiceInterface&MockObject */
     protected $monitoringServerService;
 
-    /**
-     * @var MonitoringServer;
-     */
+    /** @var MonitoringServer */
     protected $monitoringServer;
 
-    /**
-     * @var BrokerRepositoryInterface&MockObject $brokerRepository
-     */
+    /** @var BrokerRepositoryInterface&MockObject */
     protected $brokerRepository;
 
-    /**
-     * @var PlatformTopologyRegisterRepositoryInterface&MockObject $platformTopologyRegisterRepository
-     */
+    /** @var PlatformTopologyRegisterRepositoryInterface&MockObject */
     private $platformTopologyRegisterRepository;
 
     /**
      * Undocumented variable
      *
-     * @var RemoteServerRepositoryInterface&MockObject $remoteServerRepository
+     * @var RemoteServerRepositoryInterface&MockObject
      */
     private $remoteServerRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface&MockObject $readAccessGroupRepository
-     */
+    /** @var ReadAccessGroupRepositoryInterface&MockObject */
     private $readAccessGroupRepository;
 
     /**

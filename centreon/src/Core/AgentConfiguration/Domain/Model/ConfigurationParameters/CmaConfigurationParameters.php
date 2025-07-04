@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @throws AssertionFailedException
      */
-    public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
+    public function __construct(array $parameters, ConnectionModeEnum $connectionMode)
+    {
         /** @var _CmaParameters $parameters */
         $parameters = $this->normalizeCertificatePaths($parameters);
 

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,17 +22,17 @@
 namespace Centreon\Domain\Repository;
 
 use Centreon\Domain\Entity\ContactGroup;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class ContactGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
 
     /**
@@ -54,9 +54,9 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
         $collector = new StatementCollector();
 
@@ -109,13 +109,12 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
             $this->resultCountForPagination = $total;
         }
         $statement->setFetchMode(\PDO::FETCH_CLASS, ContactGroup::class);
-        $result = $statement->fetchAll();
 
-        return $result;
+        return $statement->fetchAll();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration;
@@ -45,38 +46,28 @@ class HostConfigurationService implements HostConfigurationServiceInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var HostConfigurationRepositoryInterface
-     */
+    /** @var HostConfigurationRepositoryInterface */
     private $hostConfigurationRepository;
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
+
+    /** @var EngineConfigurationServiceInterface */
     private $engineConfigurationService;
-    /**
-     * @var ActionLogServiceInterface
-     */
+
+    /** @var ActionLogServiceInterface */
     private $actionLogService;
-    /**
-     * @var DataStorageEngineInterface
-     */
+
+    /** @var DataStorageEngineInterface */
     private $dataStorageEngine;
-    /**
-     * @var HostMacroServiceInterface
-     */
+
+    /** @var HostMacroServiceInterface */
     private $hostMacroService;
-    /**
-     * @var HostCategoryServiceInterface
-     */
+
+    /** @var HostCategoryServiceInterface */
     private $hostCategoryService;
-    /**
-     * @var HostGroupServiceInterface
-     */
+
+    /** @var HostGroupServiceInterface */
     private $hostGroupService;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -162,6 +153,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     $this->debug('Rollback transaction');
                     $this->dataStorageEngine->rollbackTransaction();
                 }
+
                 throw HostConfigurationServiceException::errorOnAddingAHost($ex);
             }
 
@@ -215,6 +207,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 $this->debug('Rollback transaction');
                 $this->dataStorageEngine->rollbackTransaction();
             }
+
             throw HostConfigurationServiceException::errorOnUpdatingAHost($ex);
         }
     }
@@ -329,8 +322,8 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             }
             $this->hostConfigurationRepository->changeActivationStatus($loadedHost->getId(), $shouldBeActivated);
             $this->actionLogService->addAction(
-            // The userId is set to 0 because it is not yet possible to determine who initiated the action.
-            // We will see later how to get it back.
+                // The userId is set to 0 because it is not yet possible to determine who initiated the action.
+                // We will see later how to get it back.
                 new ActionLog(
                     'host',
                     $host->getId(),
@@ -355,8 +348,8 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
-    * @inheritDoc
-    */
+     * @inheritDoc
+     */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array
     {
         try {
@@ -577,15 +570,15 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             foreach ($host->getMacros() as $macro) {
                 if (empty($macro->getName()) === false) {
                     // We remove the symbol characters in the macro name
-                    $macroDetails[substr($macro->getName(), 2, strlen($macro->getName()) - 3)] =
-                        $macro->isPassword() ? '*****' : $macro->getValue() ?? '';
+                    $macroDetails[substr($macro->getName(), 2, strlen($macro->getName()) - 3)]
+                        = $macro->isPassword() ? '*****' : $macro->getValue() ?? '';
                 }
             }
             $actionsDetails = array_merge(
                 $actionsDetails,
                 [
                     'Macro names' => implode(', ', array_keys($macroDetails)),
-                    'Macro values' => implode(', ', array_values($macroDetails))
+                    'Macro values' => implode(', ', array_values($macroDetails)),
                 ]
             );
         }
@@ -669,7 +662,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     fn () => [
                         'name' => $hostMacro->getName(),
                         'is_password' => $hostMacro->isPassword(),
-                        'value' => (! $hostMacro->isPassword()) ? $hostMacro->getValue() : '*****'
+                        'value' => (! $hostMacro->isPassword()) ? $hostMacro->getValue() : '*****',
                     ]
                 );
                 $this->hostMacroService->addMacroToHost($host, $hostMacro);
@@ -704,8 +697,9 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             );
             $this->error(
                 $message,
-                [ 'message' => $ex->getMessage()]
+                ['message' => $ex->getMessage()]
             );
+
             throw new HostConfigurationException($message, 0, $ex);
         }
     }

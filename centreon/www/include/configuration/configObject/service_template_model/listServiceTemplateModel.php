@@ -34,20 +34,18 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
 
-/*
- * Object init
- */
+// Object init
 $mediaObj = new CentreonMedia($pearDB);
 
-include "./include/common/autoNumLimit.php";
+include './include/common/autoNumLimit.php';
 
-$o = "";
+$o = '';
 
 $search =  htmlspecialchars($_POST['searchST'] ?? $_GET['searchST'] ?? $centreon->historySearch[$url]['search'] ?? '');
 
@@ -69,33 +67,33 @@ if (
 // store filters in session
 $centreon->historySearch[$url] = [
     'search' => $search,
-    'displayLocked' => $displayLocked
+    'displayLocked' => $displayLocked,
 ];
 
 // Locked filter
-$lockedFilter = $displayLocked ? "" : "AND sv.service_locked = 0 ";
+$lockedFilter = $displayLocked ? '' : 'AND sv.service_locked = 0 ';
 
-//Service Template Model list
+// Service Template Model list
 if ($search) {
-    $statement = $pearDB->prepare("SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description," .
-        " sv.service_alias, sv.service_template_model_stm_id FROM service sv " .
-        "WHERE (sv.service_description LIKE :search OR sv.service_alias LIKE :search) " .
-        "AND sv.service_register = '0' " .
-        $lockedFilter .
-        "ORDER BY service_description LIMIT :scope, :limit");
-    $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
+    $statement = $pearDB->prepare('SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description,'
+        . ' sv.service_alias, sv.service_template_model_stm_id FROM service sv '
+        . 'WHERE (sv.service_description LIKE :search OR sv.service_alias LIKE :search) '
+        . "AND sv.service_register = '0' "
+        . $lockedFilter
+        . 'ORDER BY service_description LIMIT :scope, :limit');
+    $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
 } else {
-    $statement = $pearDB->prepare("SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description," .
-        " sv.service_alias, sv.service_template_model_stm_id FROM service sv " .
-        "WHERE sv.service_register = '0' " . $lockedFilter .
-        "ORDER BY service_description LIMIT :scope, :limit");
+    $statement = $pearDB->prepare('SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description,'
+        . ' sv.service_alias, sv.service_template_model_stm_id FROM service sv '
+        . "WHERE sv.service_register = '0' " . $lockedFilter
+        . 'ORDER BY service_description LIMIT :scope, :limit');
 }
-$statement->bindValue(':limit', (int) $limit, \PDO::PARAM_INT);
-$statement->bindValue(':scope', (int) $num * (int) $limit, \PDO::PARAM_INT);
+$statement->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+$statement->bindValue(':scope', (int) $num * (int) $limit, PDO::PARAM_INT);
 $statement->execute();
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -105,122 +103,122 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
-$tpl->assign("headerMenu_desc", _("Name"));
-$tpl->assign("headerMenu_alias", _("Alias"));
-$tpl->assign("headerMenu_retry", _("Scheduling"));
-$tpl->assign("headerMenu_parent", _("Templates"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_desc', _('Name'));
+$tpl->assign('headerMenu_alias', _('Alias'));
+$tpl->assign('headerMenu_retry', _('Scheduling'));
+$tpl->assign('headerMenu_parent', _('Templates'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_options', _('Options'));
 
 $search = tidySearchKey($search, $advanced_search);
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 
 $interval_length = $oreon->optGen['interval_length'];
 
-$search = str_replace('#S#', "/", $search);
-$search = str_replace('#BS#', "\\", $search);
+$search = str_replace('#S#', '/', $search);
+$search = str_replace('#BS#', '\\', $search);
 
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $service = $statement->fetch(); $i++) {
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $service['service_id'] . "]");
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $service['service_id'] . ']');
     if (isset($lockedElements[$service['service_id']])) {
         $selectedElements->setAttribute('disabled', 'disabled');
     } else {
-        $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-            "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-            "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-            $service['service_id'] . "]' />";
+        $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+            . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
+            . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
+            . $service['service_id'] . "]' />";
     }
 
     /*If the description of our Service Model is in the Template definition,
      we have to catch it, whatever the level of it :-) */
-    if (!$service["service_description"]) {
-        $service["service_description"] = getMyServiceName($service['service_template_model_stm_id']);
+    if (! $service['service_description']) {
+        $service['service_description'] = getMyServiceName($service['service_template_model_stm_id']);
     }
 
-    //TPL List
+    // TPL List
     $tplArr = [];
-    $tplStr = "";
-    $tplArr = getMyServiceTemplateModels($service["service_template_model_stm_id"]);
+    $tplStr = '';
+    $tplArr = getMyServiceTemplateModels($service['service_template_model_stm_id']);
 
     if ((is_countable($tplArr)) && count($tplArr)) {
         foreach ($tplArr as $key => $value) {
-            $value = str_replace('#S#', "/", $value);
-            $value = str_replace('#BS#', "\\", $value);
+            $value = str_replace('#S#', '/', $value);
+            $value = str_replace('#BS#', '\\', $value);
             $tplStr .= "&nbsp;->&nbsp;<a href='main.php?p=60206&o=c&service_id=" . $key . "'>"
-            . htmlentities($value) . "</a>";
+            . htmlentities($value) . '</a>';
         }
     }
 
-    $service["service_description"] = str_replace("#BR#", "\n", $service["service_description"]);
-    $service["service_description"] = str_replace("#T#", "\t", $service["service_description"]);
-    $service["service_description"] = str_replace("#R#", "\r", $service["service_description"]);
-    $service["service_description"] = str_replace("#S#", '/', $service["service_description"]);
-    $service["service_description"] = str_replace("#BS#", '\\', $service["service_description"]);
+    $service['service_description'] = str_replace('#BR#', "\n", $service['service_description']);
+    $service['service_description'] = str_replace('#T#', "\t", $service['service_description']);
+    $service['service_description'] = str_replace('#R#', "\r", $service['service_description']);
+    $service['service_description'] = str_replace('#S#', '/', $service['service_description']);
+    $service['service_description'] = str_replace('#BS#', '\\', $service['service_description']);
 
-    $service["service_alias"] = str_replace("#BR#", "\n", $service["service_alias"]);
-    $service["service_alias"] = str_replace("#T#", "\t", $service["service_alias"]);
-    $service["service_alias"] = str_replace("#R#", "\r", $service["service_alias"]);
-    $service["service_alias"] = str_replace("#S#", '/', $service["service_alias"]);
-    $service["service_alias"] = str_replace("#BS#", '\\', $service["service_alias"]);
+    $service['service_alias'] = str_replace('#BR#', "\n", $service['service_alias']);
+    $service['service_alias'] = str_replace('#T#', "\t", $service['service_alias']);
+    $service['service_alias'] = str_replace('#R#', "\r", $service['service_alias']);
+    $service['service_alias'] = str_replace('#S#', '/', $service['service_alias']);
+    $service['service_alias'] = str_replace('#BS#', '\\', $service['service_alias']);
 
     // Get service intervals in seconds
     $normal_check_interval
-        = getMyServiceField($service['service_id'], "service_normal_check_interval") * $interval_length;
+        = getMyServiceField($service['service_id'], 'service_normal_check_interval') * $interval_length;
     $retry_check_interval
-        = getMyServiceField($service['service_id'], "service_retry_check_interval") * $interval_length;
+        = getMyServiceField($service['service_id'], 'service_retry_check_interval') * $interval_length;
 
     if ($normal_check_interval % 60 == 0) {
-        $normal_units = "min";
+        $normal_units = 'min';
         $normal_check_interval = $normal_check_interval / 60;
     } else {
-        $normal_units = "sec";
+        $normal_units = 'sec';
     }
 
     if ($retry_check_interval % 60 == 0) {
-        $retry_units = "min";
+        $retry_units = 'min';
         $retry_check_interval = $retry_check_interval / 60;
     } else {
-        $retry_units = "sec";
+        $retry_units = 'sec';
     }
 
     if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
-        $svc_icon = "./img/media/" . $mediaObj->getFilename($service['esi_icon_image']);
+        $svc_icon = './img/media/' . $mediaObj->getFilename($service['esi_icon_image']);
     } elseif (
         $icone = $mediaObj->getFilename(
             getMyServiceExtendedInfoField(
-                $service["service_id"],
-                "esi_icon_image"
+                $service['service_id'],
+                'esi_icon_image'
             )
         )
     ) {
-        $svc_icon = "./img/media/" . $icone;
+        $svc_icon = './img/media/' . $icone;
     } else {
-        $svc_icon = "./img/icons/service.png";
+        $svc_icon = './img/icons/service.png';
     }
 
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_desc" => htmlentities($service["service_description"]), "RowMenu_alias" => htmlentities($service["service_alias"]), "RowMenu_parent" => $tplStr, "RowMenu_icon" => $svc_icon, "RowMenu_retry" => htmlentities(
-        "$normal_check_interval $normal_units / $retry_check_interval $retry_units"
-    ), "RowMenu_attempts" => getMyServiceField($service['service_id'], "service_max_check_attempts"), "RowMenu_link" => "main.php?p=" . $p . "&o=c&service_id=" . $service['service_id'], "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_desc' => htmlentities($service['service_description']), 'RowMenu_alias' => htmlentities($service['service_alias']), 'RowMenu_parent' => $tplStr, 'RowMenu_icon' => $svc_icon, 'RowMenu_retry' => htmlentities(
+        "{$normal_check_interval} {$normal_units} / {$retry_check_interval} {$retry_units}"
+    ), 'RowMenu_attempts' => getMyServiceField($service['service_id'], 'service_max_check_attempts'), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&service_id=' . $service['service_id'], 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 // Toolbar select lgd_more_actions
@@ -231,48 +229,48 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 " .
-    "||this.form.elements['o1'].selectedIndex == 5){" .
-    " 	setO(this.form.elements['o1'].value); submit();} " .
-    "this.form.elements['o1'].selectedIndex = 0"];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 "
+    . "||this.form.elements['o1'].selectedIndex == 5){"
+    . " 	setO(this.form.elements['o1'].value); submit();} "
+    . "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" .
-    _("Do you confirm the duplication ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('" .
-    _("Do you confirm the deletion ?") . "')) {" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 " .
-    "||this.form.elements['o2'].selectedIndex == 5){" .
-    " 	setO(this.form.elements['o2'].value); submit();} " .
-    "this.form.elements['o1'].selectedIndex = 0"];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 "
+    . "||this.form.elements['o2'].selectedIndex == 5){"
+    . " 	setO(this.form.elements['o2'].value); submit();} "
+    . "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "mc" => _("Mass Change")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);
@@ -287,10 +285,10 @@ $o2->setSelected(null);
 
 $tpl->assign('limit', $limit);
 $tpl->assign('searchST', $search);
-$tpl->assign("displayLocked", $displayLocked);
+$tpl->assign('displayLocked', $displayLocked);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listServiceTemplateModel.ihtml");
+$tpl->display('listServiceTemplateModel.ihtml');

@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -33,10 +34,13 @@ class Curves extends AbstractObject
 {
     /** @var array|null */
     private $curves = null;
+
     /** @var string */
     protected $table = 'giv_components_template';
+
     /** @var string */
     protected $generateFilename = 'giv_components_template.infile';
+
     /** @var string */
     protected $attributesSelect = '
         compo_id,
@@ -67,6 +71,7 @@ class Curves extends AbstractObject
         default_tpl1,
         comment
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'compo_id',
@@ -95,7 +100,7 @@ class Curves extends AbstractObject
         'ds_jumpline',
         'ds_stack',
         'default_tpl1',
-        'comment'
+        'comment',
     ];
 
     /**
@@ -106,7 +111,7 @@ class Curves extends AbstractObject
     private function getCurves(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
+            "SELECT {$this->attributesSelect}
             FROM giv_components_template"
         );
         $stmt->execute();
@@ -116,8 +121,8 @@ class Curves extends AbstractObject
     /**
      * Generate curves
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     public function generateObjects(): void
     {
@@ -131,8 +136,8 @@ class Curves extends AbstractObject
                 continue;
             }
 
-            if (is_null($value['service_id']) ||
-                $instanceService->checkGenerate($value['host_id'] . '.' . $value['service_id'])) {
+            if (is_null($value['service_id'])
+                || $instanceService->checkGenerate($value['host_id'] . '.' . $value['service_id'])) {
                 $value['compo_id'] = $id;
                 $this->generateObjectInFile($value, $id);
             }

@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -46,12 +32,16 @@ class Engine extends AbstractObject
 {
     /** @var array */
     public $cfg_file;
+
     /** @var array|null */
     protected $engine = null;
+
     /** @var string|null */
-    protected $generate_filename = null; # it's in 'cfg_nagios' table
+    protected $generate_filename = null; // it's in 'cfg_nagios' table
+
     /** @var string */
     protected string $object_name;
+
     /** @var string */
     protected $attributes_select = '
         nagios_id,
@@ -138,6 +128,7 @@ class Engine extends AbstractObject
         logger_version,
         broker_module_cfg_file
     ';
+
     /** @var string[] */
     protected $attributes_write = [
         'use_timezone',
@@ -207,6 +198,7 @@ class Engine extends AbstractObject
         'log_level_runtime',
         'broker_module_cfg_file',
     ];
+
     /** @var string[] */
     protected $attributes_default = [
         'instance_heartbeat_interval',
@@ -240,18 +232,23 @@ class Engine extends AbstractObject
         'host_down_disable_service_checks',
         'enable_environment_macros',
     ];
+
     /** @var string[] */
     protected $attributes_array = [
         'cfg_file',
         'broker_module',
         'interval_length',
     ];
+
     /** @var CentreonDBStatement|null */
     protected $stmt_engine = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_broker = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_interval_length = null;
+
     /** @var array */
     protected $add_cfg_files = [];
 
@@ -267,13 +264,13 @@ class Engine extends AbstractObject
             'target' => [
                 'cfg_file' => [],
                 'path' => $this->engine['cfg_dir'],
-                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg'
+                'resource_file' => $this->engine['cfg_dir'] . '/resource.cfg',
             ],
             'debug' => [
                 'cfg_file' => [],
                 'path' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id,
-                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg'
-            ]
+                'resource_file' => $this->backend_instance->getEngineGeneratePath() . '/' . $poller_id . '/resource.cfg',
+            ],
         ];
 
         foreach ($this->cfg_file as &$value) {
@@ -304,24 +301,24 @@ class Engine extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getBrokerModules(): void
     {
         $pollerId = $this->engine['nagios_id'];
         if (is_null($this->stmt_broker)) {
             $this->stmt_broker = $this->backend_instance->db->prepare(
-                "SELECT broker_module FROM cfg_nagios_broker_module " .
-                "WHERE cfg_nagios_id = :id " .
-                "ORDER BY bk_mod_id ASC"
+                'SELECT broker_module FROM cfg_nagios_broker_module '
+                . 'WHERE cfg_nagios_id = :id '
+                . 'ORDER BY bk_mod_id ASC'
             );
         }
         $this->stmt_broker->bindParam(':id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
         $this->engine['broker_module'] = $this->stmt_broker->fetchAll(PDO::FETCH_COLUMN);
 
-        $pollerStmt = $this->backend_instance->db_cs->prepare("SELECT `version` FROM instances WHERE instance_id = :id ");
+        $pollerStmt = $this->backend_instance->db_cs->prepare('SELECT `version` FROM instances WHERE instance_id = :id ');
         $pollerStmt->bindParam(':id', $pollerId, PDO::PARAM_INT);
         $pollerStmt->execute();
         $pollerVersion = $pollerStmt->fetchColumn();
@@ -333,15 +330,15 @@ class Engine extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getIntervalLength(): void
     {
         if (is_null($this->stmt_interval_length)) {
             $this->stmt_interval_length = $this->backend_instance->db->prepare(
-                "SELECT `value` FROM options " .
-                "WHERE `key` = 'interval_length'"
+                'SELECT `value` FROM options '
+                . "WHERE `key` = 'interval_length'"
             );
         }
         $this->stmt_interval_length->execute();
@@ -351,8 +348,8 @@ class Engine extends AbstractObject
     /**
      *  If log V2 enabled, set logger V2 configuration and unset logger legacy elements
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function setLoggerCfg(): void
     {
@@ -377,18 +374,18 @@ class Engine extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws LogicException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     private function setEngineNotificationState(): void
     {
         $kernel = Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
-        $this->engine['enable_notifications'] =
-            $featureFlags->isEnabled('notification') === false
+        $this->engine['enable_notifications']
+            = $featureFlags->isEnabled('notification') === false
             && $this->engine['enable_notifications'] === '1'
                 ? '1'
                 : '0';
@@ -397,18 +394,18 @@ class Engine extends AbstractObject
     /**
      * @param $poller_id
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     private function generate($poller_id): void
     {
         if (is_null($this->stmt_engine)) {
             $this->stmt_engine = $this->backend_instance->db->prepare(
-                "SELECT $this->attributes_select FROM cfg_nagios " .
-                "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
+                "SELECT {$this->attributes_select} FROM cfg_nagios "
+                . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
             );
         }
         $this->stmt_engine->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
@@ -463,11 +460,11 @@ class Engine extends AbstractObject
     /**
      * @param $poller
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     public function generateFromPoller($poller): void
     {

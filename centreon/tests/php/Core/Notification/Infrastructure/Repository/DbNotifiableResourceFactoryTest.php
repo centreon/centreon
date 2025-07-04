@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Infrastructure\Repository;
 
-use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, HostEvent, ServiceEvent};
+use Core\Notification\Domain\Model\{HostEvent, NotifiableHost, NotifiableResource, NotifiableService, ServiceEvent};
 use Core\Notification\Infrastructure\Repository\DbNotifiableResourceFactory;
 
 dataset('$records', [
@@ -39,7 +39,7 @@ dataset('$records', [
                 'service_name' => 'Ping',
                 'service_alias' => null,
                 'service_events' => 1,
-                'included_service_events' => 0
+                'included_service_events' => 0,
             ],
             [
                 'notification_id' => 2,
@@ -51,7 +51,7 @@ dataset('$records', [
                 'service_name' => 'Ping',
                 'service_alias' => null,
                 'service_events' => 0,
-                'included_service_events' => 6
+                'included_service_events' => 6,
             ],
             [
                 'notification_id' => 2,
@@ -63,7 +63,7 @@ dataset('$records', [
                 'service_name' => 'Disk-/',
                 'service_alias' => null,
                 'service_events' => 0,
-                'included_service_events' => 6
+                'included_service_events' => 6,
             ],
             [
                 'notification_id' => 3,
@@ -75,10 +75,10 @@ dataset('$records', [
                 'service_name' => 'Ping',
                 'service_alias' => null,
                 'service_events' => 0,
-                'included_service_events' => 0
-            ]
-        ]
-    ]
+                'included_service_events' => 0,
+            ],
+        ],
+    ],
 ]);
 
 it('can create an array of notifiable resources from an array of records', function (array $records): void {

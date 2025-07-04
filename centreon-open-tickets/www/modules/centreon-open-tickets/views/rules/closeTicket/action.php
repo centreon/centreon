@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ function isSelectionValid(string $selection): bool
 {
     preg_match('/^(\d+;?\d+,?)+$/', $selection, $matches);
 
-    return ! empty($matches);
+    return $matches !== [];
 }
 
 if (isset($_SESSION['centreon'])) {
@@ -58,7 +58,7 @@ $centreon_bg = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1,
 $db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
-$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+$request = Symfony\Component\HttpFoundation\Request::createFromGlobals();
 $payload = json_decode($request->getContent(), true);
 
 $data = $payload['data'] ?? null;

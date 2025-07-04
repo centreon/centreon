@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,22 +22,21 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.5: ';
 $errorMessage = '';
 
-//Change the type of check_attempt and max_check_attempts columns from table resources
+// Change the type of check_attempt and max_check_attempts columns from table resources
 $errorMessage = "Couldn't modify resources table";
-$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
-    MODIFY max_check_attempts SMALLINT UNSIGNED";
+$alterResourceTableStmnt = 'ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
+    MODIFY max_check_attempts SMALLINT UNSIGNED';
 
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
     $errorMessage = '';
 
-} catch (\Exception $e) {
-
+} catch (Exception $e) {
 
     $centreonLog->insertLog(
         4,
@@ -47,5 +46,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

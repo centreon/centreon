@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -462,8 +462,8 @@ class DowntimeController extends AbstractController
                 ]
             )->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**
@@ -529,8 +529,8 @@ class DowntimeController extends AbstractController
 
             return $this->view($downtime)->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**
@@ -602,8 +602,8 @@ class DowntimeController extends AbstractController
                 ]
             )->setContext($context);
         }
-  
-            return View::create(null, Response::HTTP_NOT_FOUND, []);
+
+        return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
     /**

@@ -1,33 +1,30 @@
 <?php
+
 /*
- * Copyright 2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 class JiraProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-
     public const JIRA_PROJECT = 30;
     public const JIRA_ASSIGNEE = 31;
     public const JIRA_ISSUETYPE = 32;
     public const JIRA_PRIORITY = 33;
-
     public const ARG_PROJECT = 1;
     public const ARG_SUMMARY = 2;
     public const ARG_DESCRIPTION = 3;
@@ -35,15 +32,28 @@ class JiraProvider extends AbstractProvider
     public const ARG_ISSUETYPE = 5;
     public const ARG_PRIORITY = 6;
 
+    protected $proxy_enabled = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_PROJECT => 'Project', self::ARG_SUMMARY => 'Summary', self::ARG_DESCRIPTION => 'Description', self::ARG_ASSIGNEE => 'Assignee', self::ARG_PRIORITY => 'Priority', self::ARG_ISSUETYPE => 'IssueType'];
+
     /** @var string */
     protected $ws_error;
+
     /** @var null|array */
     protected $jira_call_response;
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -55,15 +65,15 @@ class JiraProvider extends AbstractProvider
         $this->default_data['rest_api_resource'] = '/rest/api/latest/';
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUMMARY, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/' .
-            'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'], ['Arg' => self::ARG_PROJECT, 'Value' => '{$select.jira_project.id}'], ['Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.id}'], ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.jira_priority.id}'], ['Arg' => self::ARG_ISSUETYPE, 'Value' => '{$select.jira_issuetype.id}']];
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_SUMMARY, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers/'
+            . 'Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'], ['Arg' => self::ARG_PROJECT, 'Value' => '{$select.jira_project.id}'], ['Arg' => self::ARG_ASSIGNEE, 'Value' => '{$select.jira_assignee.id}'], ['Arg' => self::ARG_PRIORITY, 'Value' => '{$select.jira_priority.id}'], ['Arg' => self::ARG_ISSUETYPE, 'Value' => '{$select.jira_issuetype.id}']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
     {
         parent::setDefaultValueMain($body_html);
 
-        #$this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';
+        // $this->default_data['url'] = 'http://{$address}/index.pl?Action=AgentTicketZoom;TicketNumber={$ticket_id}';
         $this->default_data['clones']['groupList'] = [['Id' => 'jira_project', 'Label' => _('Jira project'), 'Type' => self::JIRA_PROJECT, 'Filter' => '', 'Mandatory' => '1'], ['Id' => 'jira_priority', 'Label' => _('Jira priority'), 'Type' => self::JIRA_PRIORITY, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'jira_assignee', 'Label' => _('Jira assignee'), 'Type' => self::JIRA_ASSIGNEE, 'Filter' => '', 'Mandatory' => ''], ['Id' => 'jira_issuetype', 'Label' => _('Jira issue type'), 'Type' => self::JIRA_ISSUETYPE, 'Filter' => '', 'Mandatory' => '1']];
     }
 
@@ -98,37 +108,37 @@ class JiraProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/Jira/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["jira" => _("Jira")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['jira' => _('Jira')]);
 
         // Form
-        $address_html = '<input size="50" name="address" type="text" value="' .
-            $this->getFormValue('address') . '" />';
-        $rest_api_resource_html = '<input size="50" name="rest_api_resource" type="text" value="' .
-            $this->getFormValue('rest_api_resource') . '" />';
-        $username_html = '<input size="50" name="username" type="text" value="' .
-            $this->getFormValue('username') . '" />';
-        $user_token_html = '<input size="50" name="user_token" type="password" value="' .
-            $this->getFormValue('user_token') . '" autocomplete="off" />';
-        $timeout_html = '<input size="2" name="timeout" type="text" value="' .
-            $this->getFormValue('timeout') . '" />';
+        $address_html = '<input size="50" name="address" type="text" value="'
+            . $this->getFormValue('address') . '" />';
+        $rest_api_resource_html = '<input size="50" name="rest_api_resource" type="text" value="'
+            . $this->getFormValue('rest_api_resource') . '" />';
+        $username_html = '<input size="50" name="username" type="text" value="'
+            . $this->getFormValue('username') . '" />';
+        $user_token_html = '<input size="50" name="user_token" type="password" value="'
+            . $this->getFormValue('user_token') . '" autocomplete="off" />';
+        $timeout_html = '<input size="2" name="timeout" type="text" value="'
+            . $this->getFormValue('timeout') . '" />';
 
-        $array_form = ['address' => ['label' => _("Address") . $this->required_field, 'html' => $address_html], 'rest_api_resource' => ['label' => _("Rest Api Resource") . $this->required_field, 'html' => $rest_api_resource_html], 'username' => ['label' => _("Username") . $this->required_field, 'html' => $username_html], 'user_token' => ['label' => _("User Token") . $this->required_field, 'html' => $user_token_html], 'timeout' => ['label' => _("Timeout"), 'html' => $timeout_html], 'mappingticket' => ['label' => _("Mapping ticket arguments")]];
+        $array_form = ['address' => ['label' => _('Address') . $this->required_field, 'html' => $address_html], 'rest_api_resource' => ['label' => _('Rest Api Resource') . $this->required_field, 'html' => $rest_api_resource_html], 'username' => ['label' => _('Username') . $this->required_field, 'html' => $username_html], 'user_token' => ['label' => _('User Token') . $this->required_field, 'html' => $user_token_html], 'timeout' => ['label' => _('Timeout'), 'html' => $timeout_html], 'mappingticket' => ['label' => _('Mapping ticket arguments')]];
 
         // mapping Ticket clone
-        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" ' .
-            'size="20"  type="text" />';
-        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" ' .
-            'type="select-one">' .
-        '<option value="' . self::ARG_PROJECT . '">' . _('Project') . '</options>' .
-        '<option value="' . self::ARG_SUMMARY . '">' . _('Summary') . '</options>' .
-        '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</options>' .
-        '<option value="' . self::ARG_ASSIGNEE . '">' . _('Assignee') . '</options>' .
-        '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>' .
-        '<option value="' . self::ARG_ISSUETYPE . '">' . _('Issue Type') . '</options>' .
-        '</select>';
-        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
+        $mappingTicketValue_html = '<input id="mappingTicketValue_#index#" name="mappingTicketValue[#index#]" '
+            . 'size="20"  type="text" />';
+        $mappingTicketArg_html = '<select id="mappingTicketArg_#index#" name="mappingTicketArg[#index#]" '
+            . 'type="select-one">'
+        . '<option value="' . self::ARG_PROJECT . '">' . _('Project') . '</options>'
+        . '<option value="' . self::ARG_SUMMARY . '">' . _('Summary') . '</options>'
+        . '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</options>'
+        . '<option value="' . self::ARG_ASSIGNEE . '">' . _('Assignee') . '</options>'
+        . '<option value="' . self::ARG_PRIORITY . '">' . _('Priority') . '</options>'
+        . '<option value="' . self::ARG_ISSUETYPE . '">' . _('Issue Type') . '</options>'
+        . '</select>';
+        $array_form['mappingTicket'] = [['label' => _('Argument'), 'html' => $mappingTicketArg_html], ['label' => _('Value'), 'html' => $mappingTicketValue_html]];
 
         $tpl->assign('form', $array_form);
 
@@ -160,11 +170,10 @@ class JiraProvider extends AbstractProvider
 
     protected function getGroupListOptions()
     {
-        $str = '<option value="' . self::JIRA_PROJECT . '">Jira project</options>' .
-        '<option value="' . self::JIRA_ASSIGNEE . '">Jira assignee</options>' .
-        '<option value="' . self::JIRA_ISSUETYPE . '">Jira issue type</options>' .
-        '<option value="' . self::JIRA_PRIORITY . '">Jira priority</options>';
-        return $str;
+        return '<option value="' . self::JIRA_PROJECT . '">Jira project</options>'
+        . '<option value="' . self::JIRA_ASSIGNEE . '">Jira assignee</options>'
+        . '<option value="' . self::JIRA_ISSUETYPE . '">Jira issue type</options>'
+        . '<option value="' . self::JIRA_PRIORITY . '">Jira priority</options>';
     }
 
     protected function assignJiraProject($entry, &$groups_order, &$groups)
@@ -180,12 +189,13 @@ class JiraProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->jira_call_response as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -212,12 +222,13 @@ class JiraProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->jira_call_response as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -236,7 +247,7 @@ class JiraProvider extends AbstractProvider
         // no filter $entry['Filter']. preg_match used
         $code = $this->listIssuetypeJira();
 
-        $groups[$entry['Id']] = ['label' => _($entry['Label']) .  (
+        $groups[$entry['Id']] = ['label' => _($entry['Label']) . (
             isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''
         ), 'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)];
         $groups_order[] = $entry['Id'];
@@ -244,12 +255,13 @@ class JiraProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
         $result = [];
         foreach ($this->jira_call_response as $row) {
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$row['id']] = $this->to_utf8($row['name']);
                 continue;
             }
@@ -275,6 +287,7 @@ class JiraProvider extends AbstractProvider
         if ($code == -1) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $this->ws_error;
+
             return 0;
         }
 
@@ -298,15 +311,6 @@ class JiraProvider extends AbstractProvider
         } elseif ($entry['Type'] == self::JIRA_PRIORITY) {
             $this->assignJiraPriority($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)
@@ -354,7 +358,7 @@ class JiraProvider extends AbstractProvider
 
         $tpl = $this->initSmartyTemplate();
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -378,10 +382,11 @@ class JiraProvider extends AbstractProvider
         $code = $this->createTicketJira($ticket_arguments);
         if ($code == -1) {
             $result['ticket_error_message'] = $this->ws_error;
+
             return $result;
         }
 
-        //Array ( [id] => 41261 [key] => TES-2 [self] => https://centreon.atlassian.net/rest/api/latest/issue/41261 )
+        // Array ( [id] => 41261 [key] => TES-2 [self] => https://centreon.atlassian.net/rest/api/latest/issue/41261 )
         $this->saveHistory(
             $db_storage,
             $result,
@@ -394,7 +399,6 @@ class JiraProvider extends AbstractProvider
     }
 
     /**
-     *
      * REST API
      *
      * @param string $error
@@ -447,7 +451,7 @@ class JiraProvider extends AbstractProvider
 
     protected function createTicketJira($ticket_arguments)
     {
-        $argument = ['fields' => ['project'     => ['id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECT]]], 'summary'     => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]], 'description' => $ticket_arguments[$this->internal_arg_name[self::ARG_DESCRIPTION]]]];
+        $argument = ['fields' => ['project' => ['id' => $ticket_arguments[$this->internal_arg_name[self::ARG_PROJECT]]], 'summary' => $ticket_arguments[$this->internal_arg_name[self::ARG_SUMMARY]], 'description' => $ticket_arguments[$this->internal_arg_name[self::ARG_DESCRIPTION]]]];
 
         if (
             isset($ticket_arguments[$this->internal_arg_name[self::ARG_ASSIGNEE]])
@@ -481,17 +485,18 @@ class JiraProvider extends AbstractProvider
 
         $proto = 'https';
 
-        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['rest_api_resource'] .
-            '/' . $function;
+        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['rest_api_resource']
+            . '/' . $function;
         $ch = curl_init($base_url);
         if ($ch == false) {
-            $this->setWsError("cannot init curl object");
+            $this->setWsError('cannot init curl object');
+
             return 1;
         }
 
         $method = 'GET';
         $headers = ['Content-Type: application/json', 'Accept: application/json'];
-        if (!is_null($argument)) {
+        if (! is_null($argument)) {
             $argument_json = json_encode($argument);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
             $headers[] = 'Content-Length: ' . strlen($argument_json);
@@ -516,26 +521,30 @@ class JiraProvider extends AbstractProvider
         if ($result == false) {
             $this->setWsError(curl_error($ch));
             curl_close($ch);
+
             return 1;
         }
 
         // 401 it's an error (unauthorized maybe)
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (!preg_match_all('/^2/', $http_code)) {
+        if (! preg_match_all('/^2/', $http_code)) {
             curl_close($ch);
             $this->setWsError($http_code . ' code error');
+
             return 1;
         }
 
         $decoded_result = json_decode($result, true);
         if (is_null($decoded_result) || $decoded_result == false) {
             $this->setWsError($result);
+
             return 1;
         }
 
         curl_close($ch);
 
         $this->jira_call_response = $decoded_result;
+
         return 0;
     }
 }

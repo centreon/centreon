@@ -1,0 +1,1402 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Strict comparison using \!\=\= between ''VMWARE_V6'' and ''VMWARE_V6'' will always evaluate to false\.$#'
+			identifier: notIdentical.alwaysFalse
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Application/Validation/VmWareV6DataValidator.php
+
+		-
+			message: '#^@readonly property Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Acc\:\:\$description is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 2
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/Acc.php
+
+		-
+			message: '#^@readonly property cannot have a default value\.$#'
+			identifier: property.readOnlyByPhpDocDefaultValue
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/Acc.php
+
+		-
+			message: '#^@readonly property Core\\AdditionalConnectorConfiguration\\Domain\\Model\\NewAcc\:\:\$createdBy is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/NewAcc.php
+
+		-
+			message: '#^@readonly property Core\\AdditionalConnectorConfiguration\\Domain\\Model\\NewAcc\:\:\$description is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 2
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/NewAcc.php
+
+		-
+			message: '#^@readonly property Core\\AdditionalConnectorConfiguration\\Domain\\Model\\NewAcc\:\:\$name is already assigned\.$#'
+			identifier: assign.readOnlyPropertyByPhpDoc
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/NewAcc.php
+
+		-
+			message: '#^@readonly property Core\\AdditionalConnectorConfiguration\\Domain\\Model\\NewAcc\:\:\$name is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Domain/Model/NewAcc.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Infrastructure/Repository/Vault/VmWareV6ReadVaultAccRepository.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/AdditionalConnectorConfiguration/Infrastructure/Repository/Vault/VmWareV6WriteVaultAccRepository.php
+
+		-
+			message: '#^@readonly property cannot have a default value\.$#'
+			identifier: property.readOnlyByPhpDocDefaultValue
+			count: 1
+			path: src/Core/AgentConfiguration/Domain/Model/AgentConfiguration.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Application/Configuration/NotificationPolicy/UseCase/FindHostNotificationPolicy.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/Broker/Infrastructure/Repository/FileBrokerRepository.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Repository\\AbstractRepositoryRDB@anonymous/centreon/src/Core/Command/Infrastructure/Repository/DbReadCommandRepository\.php\:307\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Command/Infrastructure/Repository/DbReadCommandRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Command/Infrastructure/Repository/DbReadCommandRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Command/Infrastructure/Repository/DbReadCommandRepository.php
+
+		-
+			message: '#^Cannot call method jsonSerialize\(\) on \(class\-string&TItem of mixed\)\|\(object&TItem of mixed\)\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Core/Common/Domain/Collection/ObjectCollection.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Common/Domain/Collection/StringCollection.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 5
+			path: src/Core/Common/Domain/ValueObject/LiteralString.php
+
+		-
+			message: '#^Class Core\\Common\\Infrastructure\\Repository\\ApiCallIterator implements generic interface IteratorAggregate but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/ApiCallIterator.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/ApiCallIterator.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Repository\\ApiCallIterator\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/ApiCallIterator.php
+
+		-
+			message: '#^PHPDoc tag @implements has invalid value \(\\IteratorAggregate\<int, T\>&\\Countable\)\: Unexpected token "&", expected TOKEN_OTHER at offset 63 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/ApiCallIterator.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/ReadVaultRepository.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Repository/WriteVaultRepository.php
+
+		-
+			message: '#^Property Core\\Common\\Infrastructure\\Upload\\FileCollection\:\:\$appendIterator with generic class AppendIterator does not specify its types\: TKey, TValue, TIterator$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Core/Common/Infrastructure/Upload/FileCollection.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Upload\\ZipFileIterator\:\:next\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Upload\\ZipFileIterator\:\:rewind\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Validator/Constraints/WhenPlatform.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Connector/Infrastructure/Repository/DbReadConnectorRepository.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<string, string\> is not subtype of native type non\-empty\-array\|false\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Core/Contact/Infrastructure/Repository/DbReadContactTemplateRepository.php
+
+		-
+			message: '#^Parameter \#1 \$dashboards of method Core\\Dashboard\\Application\\UseCase\\FindDashboards\\FindDashboards\:\:extractAllContactIdsFromDashboards\(\) expects list\<Core\\Dashboard\\Domain\\Model\\Dashboard\>, array\<Core\\Dashboard\\Domain\\Model\\Dashboard\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Dashboard/Application/UseCase/FindDashboards/FindDashboards.php
+
+		-
+			message: '#^Parameter \$dashboards of static method Core\\Dashboard\\Application\\UseCase\\FindDashboards\\FindDashboardsFactory\:\:createResponse\(\) expects list\<Core\\Dashboard\\Domain\\Model\\Dashboard\>, array\<Core\\Dashboard\\Domain\\Model\\Dashboard\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Dashboard/Application/UseCase/FindDashboards/FindDashboards.php
+
+		-
+			message: '#^Parameter \#1 \$dashboards of method Core\\Dashboard\\Application\\UseCase\\FindFavoriteDashboards\\FindFavoriteDashboards\:\:extractAllContactIdsFromDashboards\(\) expects list\<Core\\Dashboard\\Domain\\Model\\Dashboard\>, array\<Core\\Dashboard\\Domain\\Model\\Dashboard\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Dashboard/Application/UseCase/FindFavoriteDashboards/FindFavoriteDashboards.php
+
+		-
+			message: '#^Parameter \$dashboards of method Core\\Dashboard\\Application\\UseCase\\FindFavoriteDashboards\\FindFavoriteDashboards\:\:createResponse\(\) expects list\<Core\\Dashboard\\Domain\\Model\\Dashboard\>, array\<Core\\Dashboard\\Domain\\Model\\Dashboard\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Dashboard/Application/UseCase/FindFavoriteDashboards/FindFavoriteDashboards.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, array\<int, int\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/PerformanceMetricsDataFactory.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between float\|int\|string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/PerformanceMetricsDataFactory.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Application\\UseCase\\PartialUpdateDashboard\\PartialUpdateDashboardPanelsDifference\:\:getPanelsToCreate\(\) should return list\<Core\\Dashboard\\Domain\\Model\\NewDashboardPanel\> but returns array\<Core\\Dashboard\\Domain\\Model\\NewDashboardPanel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardPanelsDifference.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Application\\UseCase\\PartialUpdateDashboard\\PartialUpdateDashboardPanelsDifference\:\:getPanelsToUpdate\(\) should return list\<Core\\Dashboard\\Domain\\Model\\DashboardPanel\> but returns array\<Core\\Dashboard\\Domain\\Model\\DashboardPanel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardPanelsDifference.php
+
+		-
+			message: '#^@readonly property Core\\Dashboard\\Domain\\Model\\Dashboard\:\:\$description is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 2
+			path: src/Core/Dashboard/Domain/Model/Dashboard.php
+
+		-
+			message: '#^@readonly property Core\\Dashboard\\Domain\\Model\\Dashboard\:\:\$thumbnail is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 1
+			path: src/Core/Dashboard/Domain/Model/Dashboard.php
+
+		-
+			message: '#^@readonly property cannot have a default value\.$#'
+			identifier: property.readOnlyByPhpDocDefaultValue
+			count: 3
+			path: src/Core/Dashboard/Domain/Model/Dashboard.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\API\\PartialUpdateDashboard\\PartialUpdateDashboardInput\:\:__construct\(\) has Symfony\\Component\\Validator\\Exception\\ConstraintDefinitionException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\API\\PartialUpdateDashboard\\PartialUpdateDashboardInput\:\:__construct\(\) has Symfony\\Component\\Validator\\Exception\\InvalidArgumentException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\API\\PartialUpdateDashboard\\PartialUpdateDashboardInput\:\:__construct\(\) has Symfony\\Component\\Validator\\Exception\\InvalidOptionsException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\API\\PartialUpdateDashboard\\PartialUpdateDashboardInput\:\:__construct\(\) has Symfony\\Component\\Validator\\Exception\\LogicException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\API\\PartialUpdateDashboard\\PartialUpdateDashboardInput\:\:__construct\(\) has Symfony\\Component\\Validator\\Exception\\MissingOptionsException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardInput.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{id\?\: int\|null, name\: string, layout\: array\{x\: int, y\: int, width\: int, height\: int, min_width\: int, min_height\: int\}, widget_type\: string, widget_settings\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\<array\{id\?\: int\|null, name\: string, layout\: array\{x\: int, y\: int, width\: int, height\: int, min_width\: int, min_height\: int\}, widget_type\: string, widget_settings\: string\}\> and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{id\?\: int, name\: string, directory\: string\} and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{type\: string, interval\: int\} and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/API/PartialUpdateDashboard/PartialUpdateDashboardRequestTransformer.php
+
+		-
+			message: '#^PHPDoc tag @var with type Core\\Application\\Common\\UseCase\\AbstractPresenter is not subtype of native type Core\\Dashboard\\Application\\UseCase\\AddDashboardThumbnail\\AddDashboardThumbnailPresenterInterface\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Event/DashboardUpdatedSubscriber.php
+
+		-
+			message: '#^PHPDoc tag @var with type Core\\Application\\Common\\UseCase\\AbstractPresenter is not subtype of native type Core\\Media\\Application\\UseCase\\UpdateMedia\\UpdateMediaPresenterInterface\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Event/DashboardUpdatedSubscriber.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 6
+			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<string\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardPerformanceMetricRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
+
+		-
+			message: '#^Method Core\\Domain\\RealTime\\Model\\Host\:\:setSeverity\(\) has TypeError in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Domain/RealTime/Model/Host.php
+
+		-
+			message: '#^Method Core\\Domain\\RealTime\\Model\\Service\:\:setSeverity\(\) has TypeError in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Domain/RealTime/Model/Service.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Escalation/Infrastructure/Repository/DbReadEscalationRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Host/Application/UseCase/AddHost/AddHostValidation.php
+
+		-
+			message: '#^Property Core\\Host\\Application\\UseCase\\FindHosts\\FindHosts\:\:\$accessGroups \(list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\) does not accept array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Core/Host/Application/UseCase/FindHosts/FindHosts.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostValidation.php
+
+		-
+			message: '#^Method Core\\Host\\Domain\\Model\\Host\:\:setSnmpVersion\(\) has Assert\\AssertionFailedException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Host/Domain/Model/Host.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/ApiReadHostRepository.php
+
+		-
+			message: '#^Method Core\\Host\\Infrastructure\\Repository\\DbReadHostRepository\:\:findByIds\(\) should return list\<Core\\Host\\Domain\\Model\\TinyHost\> but returns array\<int, Core\\Host\\Domain\\Model\\TinyHost\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadHostRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadHostRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadHostRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 3
+			path: src/Core/Host/Infrastructure/Repository/SmallHostFactory.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/HostCategory/Infrastructure/Repository/DbReadHostCategoryRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Core/HostCategory/Infrastructure/Repository/DbReadHostCategoryRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/HostCategory/Infrastructure/Repository/DbWriteHostCategoryRepository.php
+
+		-
+			message: '#^Parameter \#2 \$accessGroupIds of method Core\\HostGroup\\Application\\Repository\\ReadHostGroupRepositoryInterface\:\:findAllByAccessGroupIds\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/HostGroup/Application/UseCase/FindHostGroups/FindHostGroups.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/HostGroup/Infrastructure/Repository/ApiReadHostGroupRepository.php
+
+		-
+			message: '#^Parameter \#1 \$accessGroups of method Core\\HostGroup\\Infrastructure\\Repository\\DbReadHostGroupRepository\:\:accessGroupsToIds\(\) expects list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>, non\-empty\-array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\> given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Core/HostGroup/Infrastructure/Repository/DbReadHostGroupRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/HostGroup/Infrastructure/Repository/DbReadHostGroupRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/HostGroup/Infrastructure/Repository/DbWriteHostGroupRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/HostSeverity/Infrastructure/Repository/DbReadHostSeverityRepository.php
+
+		-
+			message: '#^Method Core\\HostTemplate\\Domain\\Model\\HostTemplate\:\:setSnmpVersion\(\) has Assert\\AssertionFailedException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/HostTemplate/Domain/Model/HostTemplate.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''alias'' and array\{macros\?\: array\<array\{name\: string, value\: string\|null, is_password\: bool, description\: string\|null\}\>, categories\?\: array\<int\>, templates\?\: array\<int\>, name\: string, alias\: string, snmp_version\?\: string\|null, snmp_community\?\: string\|null, max_check_attempts\?\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/HostTemplate/Infrastructure/API/PartialUpdateHostTemplate/PartialUpdateHostTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''name'' and array\{macros\?\: array\<array\{name\: string, value\: string\|null, is_password\: bool, description\: string\|null\}\>, categories\?\: array\<int\>, templates\?\: array\<int\>, name\: string, alias\: string, snmp_version\?\: string\|null, snmp_community\?\: string\|null, max_check_attempts\?\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/HostTemplate/Infrastructure/API/PartialUpdateHostTemplate/PartialUpdateHostTemplateController.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/HostTemplate/Infrastructure/Repository/DbReadHostTemplateRepository.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<int, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Core/Infrastructure/Configuration/User/Repository/DbReadUserRepository.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/Media/Infrastructure/Repository/ApiWriteMediaRepository.php
+
+		-
+			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:199\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Media/Infrastructure/Repository/DbReadMediaRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<int\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 6
+			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''\$in'' and array\{\$in\: non\-empty\-array\<string\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Metric/Infrastructure/Repository/DbReadMetricRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/MonitoringServer/Infrastructure/Repository/DbReadMonitoringServerRepository.php
+
+		-
+			message: '#^Parameter \$contacts of class Core\\Notification\\Application\\UseCase\\FindNotifiableRule\\Response\\EmailDto constructor expects list\<Core\\Notification\\Application\\UseCase\\FindNotifiableRule\\Response\\ContactDto\>, array\<Core\\Notification\\Application\\UseCase\\FindNotifiableRule\\Response\\ContactDto\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Notification/Application/UseCase/FindNotifiableRule/FindNotifiableRule.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Core\\Notification\\Domain\\Model\\NotificationResource and ''getServiceEvents'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/DbHostGroupResourceRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Core/Notification/Infrastructure/Repository/DbHostGroupResourceRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/DbHostGroupResourceRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array\{notification_id\: int, host_id\: int, host_name\: string, host_alias\: string\|null, host_events\: int, service_id\: int, service_name\: string, service_alias\: string, \.\.\.\} and 0 will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/DbNotifiableResourceFactory.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Core/Notification/Infrastructure/Repository/DbServiceGroupResourceRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/DbServiceGroupResourceRepository.php
+
+		-
+			message: '#^Method Core\\Notification\\Infrastructure\\Repository\\NotificationResourceRepositoryProvider\:\:getRepositories\(\) has Throwable in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:exist\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ResourceAccess/Application/Providers/ServiceGroupProvider.php
+
+		-
+			message: '#^PHPDoc tag @var with type Core\\ResourceAccess\\Domain\\Model\\DatasetFilter\\DatasetFilter is not subtype of native type null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Core/ResourceAccess/Application/UseCase/AddRule/AddRule.php
+
+		-
+			message: '#^PHPDoc tag @var with type Core\\ResourceAccess\\Domain\\Model\\DatasetFilter\\DatasetFilter is not subtype of native type null\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Core/ResourceAccess/Application/UseCase/UpdateRule/UpdateRule.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostCategoryRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostGroupRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteMetaServiceRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceCategoryRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
+			count: 1
+			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteServiceGroupRepository.php
+
+		-
+			message: '#^Parameter \#1 \$resources of static method Core\\Resources\\Application\\UseCase\\FindResources\\FindResourcesFactory\:\:createResponse\(\) expects list\<Centreon\\Domain\\Monitoring\\Resource\>, array\<Centreon\\Domain\\Monitoring\\Resource\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Application/UseCase/FindResources/FindResources.php
+
+		-
+			message: '#^Parameter \#1 \$parents of static method Core\\Resources\\Application\\UseCase\\FindResourcesByParent\\FindResourcesByParentFactory\:\:createResponse\(\) expects list\<Core\\Resources\\Application\\UseCase\\FindResources\\Response\\ResourceResponseDto\>, array\<Core\\Resources\\Application\\UseCase\\FindResources\\Response\\ResourceResponseDto\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Application/UseCase/FindResourcesByParent/FindResourcesByParent.php
+
+		-
+			message: '#^Parameter \#1 \$resources of static method Core\\Resources\\Application\\UseCase\\FindResources\\FindResourcesFactory\:\:createResponse\(\) expects list\<Centreon\\Domain\\Monitoring\\Resource\>, array\<Centreon\\Domain\\Monitoring\\Resource\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Resources/Application/UseCase/FindResourcesByParent/FindResourcesByParent.php
+
+		-
+			message: '#^Parameter \#2 \$children of static method Core\\Resources\\Application\\UseCase\\FindResourcesByParent\\FindResourcesByParentFactory\:\:createResponse\(\) expects list\<Core\\Resources\\Application\\UseCase\\FindResources\\Response\\ResourceResponseDto\>, array\<Core\\Resources\\Application\\UseCase\\FindResources\\Response\\ResourceResponseDto\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Application/UseCase/FindResourcesByParent/FindResourcesByParent.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Infrastructure/API/FindResources/FindResourcesPresenter.php
+
+		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Resources/Infrastructure/API/FindResourcesByParent/FindResourcesByParentPresenter.php
+
+		-
+			message: '#^Parameter \#1 \$accessGroupIds of method Core\\Security\\AccessGroup\\Infrastructure\\Repository\\DbWriteAccessGroupRepository\:\:findEnabledAclResourceIdsByAccessGroupIds\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Security/AccessGroup/Infrastructure/Repository/DbWriteAccessGroupRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(DomainCallNamespacesCustomRule\) Domain must not call Application or Infrastructure namespaces\.$#'
+			count: 2
+			path: src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/Security/Authentication/Infrastructure/Repository/DbWriteTokenRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''id'' and array\{id\: int, name\: string\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfiguration.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between true and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfiguration.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between bool and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfiguration.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between bool and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfiguration.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(DomainCallNamespacesCustomRule\) Domain must not call Application or Infrastructure namespaces\.$#'
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/SecurityAccessInterface.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/DbWriteConfigurationRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''endpoint'' and array\{is_enabled\: bool, attribute_path\: string, authorized_values\: array\<string\>, trusted_client_addresses\: array\<string\>, blacklist_client_addresses\: array\<string\>, endpoint\: array\{type\: string, custom_endpoint\: string\|null\}\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/DbReadConfigurationRepository.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''endpoint'' and array\{is_enabled\: bool, attribute_path\: string, endpoint\: array\{type\: string, custom_endpoint\: string\|null\}\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/DbReadConfigurationRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(RepositoryImplementsInterfaceCustomRule\) Repositories must implement an Interface defined in Application layer\.$#'
+			count: 1
+			path: src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(DomainCallNamespacesCustomRule\) Domain must not call Application or Infrastructure namespaces\.$#'
+			count: 1
+			path: src/Core/Security/User/Domain/Model/UserPasswordFactory.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between array and false will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/Security/User/Infrastructure/Repository/DbReadUserRepository.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/Migrator/VmWareV6CredentialMigrator.php
+
+		-
+			message: '#^Method Core\\Security\\Vault\\Domain\\Model\\NewVaultConfiguration\:\:getRoleId\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Security/Vault/Domain/Model/NewVaultConfiguration.php
+
+		-
+			message: '#^Method Core\\Security\\Vault\\Domain\\Model\\NewVaultConfiguration\:\:getSecretId\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Core/Security/Vault/Domain/Model/NewVaultConfiguration.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:exist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/AddService/AddServiceValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:existByAccessGroups\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/AddService/AddServiceValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\Service\\Application\\Exception\\ServiceException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/AddService/AddServiceValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\Service\\Application\\Exception\\ServiceException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/AddService/AddServiceValidation.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(null\|array\{id\:int,name\:string\}\>\)\: Unexpected token "\>", expected TOKEN_HORIZONTAL_WS at offset 39 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Core/Service/Application/UseCase/FindServices/ServiceDto.php
+
+		-
+			message: '#^Property Core\\Service\\Application\\UseCase\\FindServices\\ServiceDto\:\:\$checkTimePeriod type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Core/Service/Application/UseCase/FindServices/ServiceDto.php
+
+		-
+			message: '#^Parameter \#1 \$categoriesIds of method Core\\Service\\Application\\UseCase\\PartialUpdateService\\PartialUpdateServiceValidation\:\:assertAreValidCategories\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateService.php
+
+		-
+			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:linkToService\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateService.php
+
+		-
+			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:unlinkFromService\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateService.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:exist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:existByAccessGroups\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\Service\\Application\\Exception\\ServiceException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\Service\\Application\\Exception\\ServiceException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidation.php
+
+		-
+			message: '#^Method Core\\Service\\Domain\\Model\\NewService\:\:getCommandArguments\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Service/Domain/Model/NewService.php
+
+		-
+			message: '#^Method Core\\Service\\Domain\\Model\\NewService\:\:getEventHandlerArguments\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Service/Domain/Model/NewService.php
+
+		-
+			message: '#^Call to function is_scalar\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Core/Service/Domain/Model/Service.php
+
+		-
+			message: '#^Parameter \#3 \$subject of function preg_replace expects array\<float\|int\|string\>\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Domain/Model/Service.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/ApiReadServiceRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:340\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Parameter \#2 \$servicesName of class Core\\Service\\Domain\\Model\\ServiceNamesByHost constructor expects list\<string\>, array\<string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadServiceRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Core/Service/Infrastructure/Repository/DbReadServiceRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceCategory/Infrastructure/Repository/DbReadServiceCategoryRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Core/ServiceCategory/Infrastructure/Repository/DbReadServiceCategoryRepository.php
+
+		-
+			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Core/ServiceGroup/Infrastructure/Repository/ApiReadServiceGroupRepository.php
+
+		-
+			message: '#^Method Core\\ServiceGroup\\Infrastructure\\Repository\\DbReadServiceGroupRepository\:\:exist\(\) should return list\<int\> but returns array\<int\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/ServiceGroup/Infrastructure/Repository/DbReadServiceGroupRepository.php
+
+		-
+			message: '#^Method Core\\ServiceGroup\\Infrastructure\\Repository\\DbReadServiceGroupRepository\:\:existByAccessGroups\(\) should return list\<int\> but returns array\<int\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/ServiceGroup/Infrastructure/Repository/DbReadServiceGroupRepository.php
+
+		-
+			message: '#^Parameter \#1 \$accessGroups of method Core\\ServiceGroup\\Infrastructure\\Repository\\DbReadServiceGroupRepository\:\:accessGroupsToIds\(\) expects non\-empty\-list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>, non\-empty\-array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Core/ServiceGroup/Infrastructure/Repository/DbReadServiceGroupRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/ServiceGroup/Infrastructure/Repository/DbReadServiceGroupRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Core/ServiceSeverity/Infrastructure/Repository/DbReadServiceSeverityRepository.php
+
+		-
+			message: '#^Parameter \#1 \$hostTemplateIds of method Core\\HostTemplate\\Application\\Repository\\ReadHostTemplateRepositoryInterface\:\:findAllExistingIds\(\) expects list\<int\>, non\-empty\-array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\ReadServiceCategoryRepositoryInterface\:\:findAllExistingIds\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\ReadServiceCategoryRepositoryInterface\:\:findAllExistingIdsByAccessGroups\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\ServiceTemplate\\Application\\Exception\\ServiceTemplateException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\ServiceTemplate\\Application\\Exception\\ServiceTemplateException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidation.php
+
+		-
+			message: '#^Parameter \#1 \$hostTemplateIds of method Core\\HostTemplate\\Application\\Repository\\ReadHostTemplateRepositoryInterface\:\:findAllExistingIds\(\) expects list\<int\>, array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:exist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidation.php
+
+		-
+			message: '#^Parameter \#1 \$serviceGroupIds of method Core\\ServiceGroup\\Application\\Repository\\ReadServiceGroupRepositoryInterface\:\:existByAccessGroups\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\ServiceTemplate\\Application\\Exception\\ServiceTemplateException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\<0, max\>, int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidation.php
+
+		-
+			message: '#^Parameter \#2 \$propertyValue of static method Core\\ServiceTemplate\\Application\\Exception\\ServiceTemplateException\:\:idsDoNotExist\(\) expects list\<int\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidation.php
+
+		-
+			message: '#^Parameter \#1 \$hostTemplatesIds of method Core\\ServiceTemplate\\Application\\UseCase\\PartialUpdateServiceTemplate\\ParametersValidation\:\:assertHostTemplateIds\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
+
+		-
+			message: '#^Parameter \#1 \$serviceCategoriesIds of method Core\\ServiceTemplate\\Application\\UseCase\\PartialUpdateServiceTemplate\\ParametersValidation\:\:assertServiceCategories\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
+
+		-
+			message: '#^Parameter \#2 \$hostTemplateIds of method Core\\ServiceTemplate\\Application\\Repository\\WriteServiceTemplateRepositoryInterface\:\:linkToHosts\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
+
+		-
+			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:linkToService\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
+
+		-
+			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:unlinkFromService\(\) expects list\<int\>, array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
+
+		-
+			message: '#^Method Core\\ServiceTemplate\\Domain\\Model\\NewServiceTemplate\:\:getCommandArguments\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/ServiceTemplate/Domain/Model/NewServiceTemplate.php
+
+		-
+			message: '#^Method Core\\ServiceTemplate\\Domain\\Model\\NewServiceTemplate\:\:getEventHandlerArguments\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/ServiceTemplate/Domain/Model/NewServiceTemplate.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''acknowledgement…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''action_url'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''active_check_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''alias'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''check_command_args'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''check_command_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''check_timeperiod_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''comment'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''event_handler…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 3
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''first_notification…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''flap_detection…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''freshness_checked'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''freshness_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''graph_template_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''high_flap_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''host_templates'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''icon_alternative'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''icon_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''is_contact_additive…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''is_contact_group…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''low_flap_threshold'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''macros'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''max_check_attempts'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''name'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''normal_check…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''note'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''note_url'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''notification_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''notification_type'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''notification…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''passive_check…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''recovery…'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''retry_check_interval'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''service_categories'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''service_groups'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''service_template_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''severity_id'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''volatility_enabled'' and array\{name\: string, alias\: string, comment\: string\|null, service_template_id\: int\|null, check_command_id\: int\|null, check_command_args\: list\<string\>, check_timeperiod_id\: int, max_check_attempts\: int\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/ServiceTemplate/Infrastructure/API/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateController.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Severity/RealTime/Infrastructure/Repository/DbReadSeverityRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Core/Tag/RealTime/Infrastructure/Repository/Tag/DbReadTagRepository.php
+
+		-
+			message: '#^Parameter \#1 \$extraTimePeriods of method Core\\TimePeriod\\Domain\\Model\\TimePeriod\:\:setExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\>, array\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Application/UseCase/UpdateTimePeriod/UpdateTimePeriod.php
+
+		-
+			message: '#^Parameter \#1 \$templates of method Core\\TimePeriod\\Domain\\Model\\TimePeriod\:\:setTemplates\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\Template\>, array\<Core\\TimePeriod\\Domain\\Model\\Template\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Application/UseCase/UpdateTimePeriod/UpdateTimePeriod.php
+
+		-
+			message: '#^Method Core\\TimePeriod\\Domain\\Model\\NewTimePeriod\:\:getExtraTimePeriods\(\) should return list\<Core\\TimePeriod\\Domain\\Model\\NewExtraTimePeriod\> but returns array\<Core\\TimePeriod\\Domain\\Model\\NewExtraTimePeriod\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/TimePeriod/Domain/Model/NewTimePeriod.php
+
+		-
+			message: '#^Method Core\\TimePeriod\\Domain\\Model\\NewTimePeriod\:\:getTemplates\(\) should return list\<int\> but returns array\<int\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/TimePeriod/Domain/Model/NewTimePeriod.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/API/FindTimePeriod/DayNormalizer.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/API/FindTimePeriod/ExtraTimePeriodNormalizer.php
+
+		-
+			message: '#^Parameter \#1 \$timePeriods of method Core\\TimePeriod\\Infrastructure\\Repository\\DbReadTimePeriodRepository\:\:addExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\TimePeriod\>, array\<int, Core\\TimePeriod\\Domain\\Model\\TimePeriod\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Parameter \#1 \$timePeriods of method Core\\TimePeriod\\Infrastructure\\Repository\\DbReadTimePeriodRepository\:\:addExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\TimePeriod\>, non\-empty\-array\<int, Core\\TimePeriod\\Domain\\Model\\TimePeriod\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Parameter \#1 \$timePeriods of method Core\\TimePeriod\\Infrastructure\\Repository\\DbReadTimePeriodRepository\:\:addTemplates\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\TimePeriod\>, array\<int, Core\\TimePeriod\\Domain\\Model\\TimePeriod\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Parameter \#1 \$timePeriods of method Core\\TimePeriod\\Infrastructure\\Repository\\DbReadTimePeriodRepository\:\:addTemplates\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\TimePeriod\>, non\-empty\-array\<int, Core\\TimePeriod\\Domain\\Model\\TimePeriod\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Core/TimePeriod/Infrastructure/Repository/DbReadTimePeriodRepository.php
+
+		-
+			message: '#^Instanceof between Core\\User\\Application\\UseCase\\FindUserPermissions\\FindUserPermissionsResponse and Core\\Application\\Common\\UseCase\\ResponseStatusInterface will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Core/User/Infrastructure/API/FindUserPermissions/FindUserPermissionsController.php

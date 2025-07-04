@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,15 +32,14 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
-
     private const CONCORDANCE_ARRAY = [
         'id' => 'acl_group_id',
         'name' => 'acl_group_name',
         'alias' => 'acl_group_alias',
         'changed' => 'acl_group_changed',
-        'activate' => 'acl_group_activate'
+        'activate' => 'acl_group_activate',
     ];
 
     /**
@@ -52,7 +51,7 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function entityClass(): string
     {
@@ -70,11 +69,11 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
-        $request = <<<SQL_WRAP
+        $request = <<<'SQL_WRAP'
                 SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
             SQL_WRAP;
 
@@ -152,7 +151,7 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {

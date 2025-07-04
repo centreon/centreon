@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,7 +168,8 @@ class HostTemplate extends NewHostTemplate
         return $this->id;
     }
 
-    public function isNameIdentical(string $testName): bool {
+    public function isNameIdentical(string $testName): bool
+    {
         return $this->name === self::formatName($testName);
     }
 
@@ -177,7 +178,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setName(string $name): void {
+    public function setName(string $name): void
+    {
         $this->name = $this->formatName($name);
         Assertion::notEmptyString($this->name, "{$this->shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
@@ -188,7 +190,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setAlias(string $alias): void {
+    public function setAlias(string $alias): void
+    {
         $this->alias = trim($alias);
         Assertion::notEmptyString($this->alias, "{$this->shortName}::alias");
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$this->shortName}::alias");
@@ -197,7 +200,8 @@ class HostTemplate extends NewHostTemplate
     /**
      * @param string[] $checkCommandArgs
      */
-    public function setCheckCommandArgs(array $checkCommandArgs): void{
+    public function setCheckCommandArgs(array $checkCommandArgs): void
+    {
         $this->checkCommandArgs = array_map(trim(...), $checkCommandArgs);
     }
 
@@ -235,7 +239,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setNote(string $note): void {
+    public function setNote(string $note): void
+    {
         $this->note = trim($note);
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$this->shortName}::note");
     }
@@ -245,7 +250,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setNoteUrl(string $noteUrl): void {
+    public function setNoteUrl(string $noteUrl): void
+    {
         $this->noteUrl = trim($noteUrl);
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$this->shortName}::noteUrl");
     }
@@ -255,7 +261,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setActionUrl(string $actionUrl): void {
+    public function setActionUrl(string $actionUrl): void
+    {
         $this->actionUrl = trim($actionUrl);
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$this->shortName}::actionUrl");
     }
@@ -265,7 +272,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setIconAlternative(string $iconAlternative): void {
+    public function setIconAlternative(string $iconAlternative): void
+    {
         $this->iconAlternative = trim($iconAlternative);
         Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$this->shortName}::iconAlternative");
     }
@@ -275,7 +283,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setComment(string $comment): void {
+    public function setComment(string $comment): void
+    {
         $this->comment = trim($comment);
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$this->shortName}::comment");
     }
@@ -285,7 +294,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setTimezoneId(int|null $timezoneId): void {
+    public function setTimezoneId(int|null $timezoneId): void
+    {
         $this->timezoneId = $timezoneId;
         if ($this->timezoneId !== null) {
             Assertion::positiveInt($this->timezoneId, "{$this->shortName}::timezoneId");
@@ -297,7 +307,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setSeverityId(int|null $severityId): void {
+    public function setSeverityId(int|null $severityId): void
+    {
         $this->severityId = $severityId;
         if ($this->severityId !== null) {
             Assertion::positiveInt($this->severityId, "{$this->shortName}::severityId");
@@ -309,7 +320,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setCheckCommandId(int|null $checkCommandId): void {
+    public function setCheckCommandId(int|null $checkCommandId): void
+    {
         $this->checkCommandId = $checkCommandId;
         if ($this->checkCommandId !== null) {
             Assertion::positiveInt($this->checkCommandId, "{$this->shortName}::checkCommandId");
@@ -321,7 +333,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setCheckTimeperiodId(int|null $checkTimeperiodId): void {
+    public function setCheckTimeperiodId(int|null $checkTimeperiodId): void
+    {
         $this->checkTimeperiodId = $checkTimeperiodId;
         if ($this->checkTimeperiodId !== null) {
             Assertion::positiveInt($this->checkTimeperiodId, "{$this->shortName}::checkTimeperiodId");
@@ -333,7 +346,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setNotificationTimeperiodId(int|null $notificationTimeperiodId): void {
+    public function setNotificationTimeperiodId(int|null $notificationTimeperiodId): void
+    {
         $this->notificationTimeperiodId = $notificationTimeperiodId;
         if ($this->notificationTimeperiodId !== null) {
             Assertion::positiveInt($this->notificationTimeperiodId, "{$this->shortName}::notificationTimeperiodId");
@@ -345,7 +359,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setEventHandlerCommandId(int|null $eventHandlerCommandId): void {
+    public function setEventHandlerCommandId(int|null $eventHandlerCommandId): void
+    {
         $this->eventHandlerCommandId = $eventHandlerCommandId;
         if ($this->eventHandlerCommandId !== null) {
             Assertion::positiveInt($this->eventHandlerCommandId, "{$this->shortName}::eventHandlerCommandId");
@@ -357,7 +372,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setIconId(int|null $iconId): void {
+    public function setIconId(int|null $iconId): void
+    {
         $this->iconId = $iconId;
         if ($this->iconId !== null) {
             Assertion::positiveInt($this->iconId, "{$this->shortName}::iconId");
@@ -369,7 +385,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setMaxCheckAttempts(int|null $maxCheckAttempts): void {
+    public function setMaxCheckAttempts(int|null $maxCheckAttempts): void
+    {
         $this->maxCheckAttempts = $maxCheckAttempts;
         Assertion::min($this->maxCheckAttempts ?? 0, 0, "{$this->shortName}::maxCheckAttempts");
     }
@@ -379,7 +396,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setNormalCheckInterval(int|null $normalCheckInterval): void {
+    public function setNormalCheckInterval(int|null $normalCheckInterval): void
+    {
         $this->normalCheckInterval = $normalCheckInterval;
         Assertion::min($this->normalCheckInterval ?? 0, 0, "{$this->shortName}::normalCheckInterval");
     }
@@ -389,7 +407,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setRetryCheckInterval(int|null $retryCheckInterval): void {
+    public function setRetryCheckInterval(int|null $retryCheckInterval): void
+    {
         $this->retryCheckInterval = $retryCheckInterval;
         Assertion::min($this->retryCheckInterval ?? 0, 0, "{$this->shortName}::retryCheckInterval");
     }
@@ -399,7 +418,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setNotificationInterval(int|null $notificationInterval): void {
+    public function setNotificationInterval(int|null $notificationInterval): void
+    {
         $this->notificationInterval = $notificationInterval;
         Assertion::min($this->notificationInterval ?? 0, 0, "{$this->shortName}::notificationInterval");
     }
@@ -409,7 +429,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setFirstNotificationDelay(int|null $firstNotificationDelay): void {
+    public function setFirstNotificationDelay(int|null $firstNotificationDelay): void
+    {
         $this->firstNotificationDelay = $firstNotificationDelay;
         Assertion::min($this->firstNotificationDelay ?? 0, 0, "{$this->shortName}::firstNotificationDelay");
     }
@@ -419,7 +440,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setRecoveryNotificationDelay(int|null $recoveryNotificationDelay): void {
+    public function setRecoveryNotificationDelay(int|null $recoveryNotificationDelay): void
+    {
         $this->recoveryNotificationDelay = $recoveryNotificationDelay;
         Assertion::min($this->recoveryNotificationDelay ?? 0, 0, "{$this->shortName}::recoveryNotificationDelay");
     }
@@ -429,7 +451,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setAcknowledgementTimeout(int|null $acknowledgementTimeout): void {
+    public function setAcknowledgementTimeout(int|null $acknowledgementTimeout): void
+    {
         $this->acknowledgementTimeout = $acknowledgementTimeout;
         Assertion::min($this->acknowledgementTimeout ?? 0, 0, "{$this->shortName}::acknowledgementTimeout");
     }
@@ -439,7 +462,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setFreshnessThreshold(int|null $freshnessThreshold): void {
+    public function setFreshnessThreshold(int|null $freshnessThreshold): void
+    {
         $this->freshnessThreshold = $freshnessThreshold;
         Assertion::min($this->freshnessThreshold ?? 0, 0, "{$this->shortName}::freshnessThreshold");
     }
@@ -449,7 +473,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setLowFlapThreshold(int|null $lowFlapThreshold): void {
+    public function setLowFlapThreshold(int|null $lowFlapThreshold): void
+    {
         $this->lowFlapThreshold = $lowFlapThreshold;
         Assertion::min($this->lowFlapThreshold ?? 0, 0, "{$this->shortName}::lowFlapThreshold");
     }
@@ -459,7 +484,8 @@ class HostTemplate extends NewHostTemplate
      *
      * @throws AssertionFailedException
      */
-    public function setHighFlapThreshold(int|null $highFlapThreshold): void {
+    public function setHighFlapThreshold(int|null $highFlapThreshold): void
+    {
         $this->highFlapThreshold = $highFlapThreshold;
         Assertion::min($this->highFlapThreshold ?? 0, 0, "{$this->shortName}::highFlapThreshold");
     }

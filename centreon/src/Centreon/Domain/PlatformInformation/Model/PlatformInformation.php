@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Model;
@@ -28,63 +29,40 @@ use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
 
 /**
  * Class designed to retrieve servers' specific information
- *
  */
 class PlatformInformation
 {
-    /**
-     * @var bool platform type
-     */
+    /** @var bool platform type */
     private $isRemote;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $platformName;
 
-    /**
-     * @var string server address
-     */
+    /** @var string server address */
     private string $address = '127.0.0.1';
 
-    /**
-     * @var string|null central's address
-     */
+    /** @var string|null central's address */
     private $centralServerAddress;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $apiUsername;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $encryptedApiCredentials;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $apiCredentials;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $apiScheme;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $apiPort;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $apiPath;
 
-    /**
-     * @var bool SSL peer validation
-     */
+    /** @var bool SSL peer validation */
     private $apiPeerValidation = false;
 
     public function __construct(bool $isRemote)
@@ -92,9 +70,7 @@ class PlatformInformation
         $this->isRemote = $isRemote;
     }
 
-
     /**
-     *
      * @return bool
      */
     public function isRemote(): bool
@@ -109,6 +85,7 @@ class PlatformInformation
     public function setRemote(bool $isRemote): self
     {
         $this->isRemote = $isRemote;
+
         return $this;
     }
 
@@ -130,6 +107,7 @@ class PlatformInformation
         if (empty($this->platformName)) {
             throw new \InvalidArgumentException(_("Platform name can't be empty"));
         }
+
         return $this;
     }
 
@@ -167,6 +145,7 @@ class PlatformInformation
     public function setCentralServerAddress(?string $address): self
     {
         $this->centralServerAddress = $address;
+
         return $this;
     }
 
@@ -185,6 +164,7 @@ class PlatformInformation
     public function setApiUsername(?string $username): self
     {
         $this->apiUsername = $username;
+
         return $this;
     }
 
@@ -203,6 +183,7 @@ class PlatformInformation
     public function setApiCredentials(?string $apiCredentials): self
     {
         $this->apiCredentials = $apiCredentials;
+
         return $this;
     }
 
@@ -223,6 +204,7 @@ class PlatformInformation
     public function setEncryptedApiCredentials(?string $encryptedKey): self
     {
         $this->encryptedApiCredentials = $encryptedKey;
+
         return $this;
     }
 
@@ -244,13 +226,14 @@ class PlatformInformation
             $schema = ('https' === trim($schema, '/') ? 'https' : 'http');
         }
         $this->apiScheme = $schema;
+
         return $this;
     }
 
     /**
      * @param int $port
-     * @return int
      * @throws PlatformInformationException
+     * @return int
      */
     private function checkPortConsistency(int $port): int
     {
@@ -271,8 +254,8 @@ class PlatformInformation
 
     /**
      * @param int|null $port
-     * @return $this
      * @throws PlatformInformationException
+     * @return $this
      */
     public function setApiPort(?int $port): self
     {
@@ -291,8 +274,8 @@ class PlatformInformation
 
     /**
      * @param string|null $path
-     * @return $this
      * @throws PlatformInformationException
+     * @return $this
      */
     public function setApiPath(?string $path): self
     {
@@ -303,6 +286,7 @@ class PlatformInformation
             }
         }
         $this->apiPath = $path;
+
         return $this;
     }
 
@@ -321,6 +305,7 @@ class PlatformInformation
     public function setApiPeerValidation(bool $status): self
     {
         $this->apiPeerValidation = $status;
+
         return $this;
     }
 }

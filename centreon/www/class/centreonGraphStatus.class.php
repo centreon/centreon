@@ -1,35 +1,22 @@
 <?php
+
 /*
- * Copyright 2005-2016 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 /**
@@ -42,22 +29,31 @@ class CentreonGraphStatus
 {
     /** @var CentreonDB */
     public $pearDB;
+
     /** @var CentreonDB */
     public $pearDBMonitoring;
+
     /** @var int */
     public $index;
+
     /** @var int */
     public $startTime;
+
     /** @var int */
     public $endTime;
+
     /** @var string */
     public $statusPath;
+
     /** @var array */
     public $generalOpt;
+
     /** @var array */
     public $rrdCachedOptions;
+
     /** @var */
     public $arguments;
+
     /** @var */
     public $rrdOptions;
 
@@ -85,23 +81,23 @@ class CentreonGraphStatus
     /**
      * Get the metrics
      *
-     * @return array|array[]
      * @throws RuntimeException
+     * @return array|array[]
      */
     public function getData()
     {
-        $this->setRRDOption("imgformat", "JSONTIME");
-        $this->setRRDOption("start", $this->startTime);
-        $this->setRRDOption("end", $this->endTime);
+        $this->setRRDOption('imgformat', 'JSONTIME');
+        $this->setRRDOption('start', $this->startTime);
+        $this->setRRDOption('end', $this->endTime);
 
         $path = $this->statusPath . '/' . $this->index . '.rrd';
         if (false === file_exists($path)) {
             throw new RuntimeException();
         }
 
-        $this->addArgument("DEF:v1=" . $path . ":value:AVERAGE");
-        $this->addArgument("VDEF:v1Average=v1,AVERAGE");
-        $this->addArgument("LINE1:v1#0000ff:v1");
+        $this->addArgument('DEF:v1=' . $path . ':value:AVERAGE');
+        $this->addArgument('VDEF:v1Average=v1,AVERAGE');
+        $this->addArgument('LINE1:v1#0000ff:v1');
 
         $jsonData = $this->getJsonStream();
 
@@ -110,7 +106,7 @@ class CentreonGraphStatus
         $lastStatus = null;
         $interval = [];
         foreach ($jsonData['data'] as $row) {
-            $time = (string)$row[0];
+            $time = (string) $row[0];
             $value = $row[1];
             if (is_null($value)) {
                 $currentStatus = 'unknown';
@@ -139,7 +135,7 @@ class CentreonGraphStatus
 
         return $metrics;
     }
-    
+
     /**
      * Flush status rrdfile from cache
      *
@@ -149,8 +145,8 @@ class CentreonGraphStatus
      */
     public function flushRrdCached($indexData)
     {
-        if (!isset($this->rrdCachedOptions['rrd_cached_option'])
-            || !in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
+        if (! isset($this->rrdCachedOptions['rrd_cached_option'])
+            || ! in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
         ) {
             return true;
         }
@@ -171,10 +167,12 @@ class CentreonGraphStatus
 
         if (false === fputs($sock, "BATCH\n")) {
             @fclose($sock);
+
             return false;
         }
         if (false === fgets($sock)) {
             @fclose($sock);
+
             return false;
         }
 
@@ -182,28 +180,32 @@ class CentreonGraphStatus
         $cmd = 'FLUSH ' . $fullpath;
         if (false === fputs($sock, $cmd . "\n")) {
             @fclose($sock);
+
             return false;
         }
 
         if (false === fputs($sock, ".\n")) {
             @fclose($sock);
+
             return false;
         }
         if (false === fgets($sock)) {
             @fclose($sock);
+
             return false;
         }
 
         fputs($sock, "QUIT\n");
         @fclose($sock);
+
         return true;
     }
 
     /**
      * Get general options
      *
-     * @return array The list of genreal options
      * @throws RuntimeException
+     * @return array The list of genreal options
      */
     protected function getOptions()
     {
@@ -212,20 +214,21 @@ class CentreonGraphStatus
             WHERE `key` IN ('rrdtool_path_bin', 'rrdcached_enabled', 'debug_rrdtool', 'debug_path')";
         try {
             $res = $this->pearDB->query($query);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new RuntimeException();
         }
         while ($row = $res->fetch()) {
             $result[$row['key']] = $row['value'];
         }
+
         return $result;
     }
 
     /**
      * Get the RRDCacheD options of local RRD Broker
      *
-     * @return array of RRDCacheD options
      * @throws PDOException
+     * @return array of RRDCacheD options
      */
     protected function getRrdCachedOptions()
     {
@@ -249,9 +252,9 @@ class CentreonGraphStatus
     /**
      * Get the status RRD path
      *
-     * @return string The status RRD path
      * @throws PDOException
      * @throws RuntimeException
+     * @return string The status RRD path
      */
     protected function getStatusPath()
     {
@@ -261,6 +264,7 @@ class CentreonGraphStatus
         if ($row === null) {
             throw new RuntimeException('Missing status directory configuration');
         }
+
         return $row['RRDdatabase_status_path'];
     }
 
@@ -271,20 +275,21 @@ class CentreonGraphStatus
      * @param int $serviceId The service id
      * @param CentreonDB $dbc The database connection to centreon_storage
      *
-     * @return int
      * @throws OutOfRangeException
      * @throws PDOException
+     * @return int
      */
     public static function getIndexId($hostId, $serviceId, $dbc)
     {
-        $query = "SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = " . $hostId . " AND service_id = " .
-            $serviceId;
+        $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = ' . $hostId . ' AND service_id = '
+            . $serviceId;
         $res = $dbc->query($query);
         $row = $res->fetch();
 
         if (false == $row) {
             throw new OutOfRangeException();
         }
+
         return $row['id'];
     }
 
@@ -310,8 +315,8 @@ class CentreonGraphStatus
      */
     protected function setRRDOption($name, $value = null)
     {
-        if (str_contains($value, " ")) {
-            $value = "'".$value."'";
+        if (str_contains($value, ' ')) {
+            $value = "'" . $value . "'";
         }
         $this->rrdOptions[$name] = $value;
     }
@@ -325,12 +330,12 @@ class CentreonGraphStatus
      */
     private function log($message): void
     {
-        if ($this->generalOpt['debug_rrdtool'] &&
-            is_writable($this->generalOpt['debug_path'])) {
+        if ($this->generalOpt['debug_rrdtool']
+            && is_writable($this->generalOpt['debug_path'])) {
             error_log(
-                "[" . date("d/m/Y H:i") ."] RDDTOOL : ".$message." \n",
+                '[' . date('d/m/Y H:i') . '] RDDTOOL : ' . $message . " \n",
                 3,
-                $this->generalOpt['debug_path'] . "rrdtool.log"
+                $this->generalOpt['debug_path'] . 'rrdtool.log'
             );
         }
     }
@@ -344,24 +349,24 @@ class CentreonGraphStatus
     {
         $this->flushRrdcached($this->index);
 
-        $commandLine = "";
-        $commandLine = " graph - ";
+        $commandLine = '';
+        $commandLine = ' graph - ';
 
         foreach ($this->rrdOptions as $key => $value) {
-            $commandLine .= "--" . $key;
+            $commandLine .= '--' . $key;
             if (isset($value)) {
                 if (preg_match('/\'/', $value)) {
                     $value = "'" . preg_replace('/\'/', ' ', $value) . "'";
                 }
-                $commandLine .= "=" . $value;
+                $commandLine .= '=' . $value;
             }
-            $commandLine .= " ";
+            $commandLine .= ' ';
         }
 
         foreach ($this->arguments as $arg) {
-            $commandLine .= " " . $arg . " ";
+            $commandLine .= ' ' . $arg . ' ';
         }
-        $commandLine = preg_replace("/(\\\$|`)/", "", $commandLine);
+        $commandLine = preg_replace('/(\\$|`)/', '', $commandLine);
         $this->log($commandLine);
 
         if (is_writable($this->generalOpt['debug_path'])) {
@@ -369,9 +374,9 @@ class CentreonGraphStatus
         } else {
             $stderr = ['pipe', 'a'];
         }
-        $descriptorspec = [0 => ["pipe", "r"], 1 => ["pipe", "w"], 2 => $stderr];
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => $stderr];
 
-        $process = proc_open($this->generalOpt['rrdtool_path_bin']. " - ", $descriptorspec, $pipes, null, null);
+        $process = proc_open($this->generalOpt['rrdtool_path_bin'] . ' - ', $descriptorspec, $pipes, null, null);
 
         if (is_resource($process)) {
             fwrite($pipes[0], $commandLine);
@@ -380,7 +385,7 @@ class CentreonGraphStatus
             $str = stream_get_contents($pipes[1]);
             $returnValue = proc_close($process);
 
-            $str = preg_replace("/OK u:.*$/", "", $str);
+            $str = preg_replace('/OK u:.*$/', '', $str);
             $rrdData = json_decode($str, true);
         }
 

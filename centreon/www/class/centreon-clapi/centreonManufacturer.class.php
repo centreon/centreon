@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -40,9 +26,9 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonUtils.class.php";
-require_once "Centreon/Object/Manufacturer/Manufacturer.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonUtils.class.php';
+require_once 'Centreon/Object/Manufacturer/Manufacturer.php';
 
 /**
  * Class
@@ -54,7 +40,7 @@ class CentreonManufacturer extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
-    public const FILE_NOT_FOUND = "Could not find file";
+    public const FILE_NOT_FOUND = 'Could not find file';
 
     /**
      * CentreonManufacturer constructor
@@ -69,14 +55,14 @@ class CentreonManufacturer extends CentreonObject
         $this->object = new Centreon_Object_Manufacturer($dependencyInjector);
         $this->params = [];
         $this->insertParams = ['name', 'alias'];
-        $this->action = "VENDOR";
+        $this->action = 'VENDOR';
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
 
     /**
      * @param $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -101,16 +87,16 @@ class CentreonManufacturer extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
-        $params = ["id", "name", "alias"];
+        $params = ['id', 'name', 'alias'];
         parent::show($params, $filters);
     }
 
     /**
      * @param null $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters = null)
     {
@@ -120,6 +106,7 @@ class CentreonManufacturer extends CentreonObject
         }
         $updateParams = [$params[1] => $params[2]];
         $updateParams['objectId'] = $this->getId($params[0]);
+
         return $updateParams;
     }
 
@@ -137,17 +124,17 @@ class CentreonManufacturer extends CentreonObject
         }
         $vendorId = $this->getId($params[0]);
         $mibFile = $params[1];
-        $tmpMibFile = "/tmp/" . basename($mibFile);
-        if (!is_file($mibFile)) {
-            throw new CentreonClapiException(self::FILE_NOT_FOUND . ": " . $mibFile);
+        $tmpMibFile = '/tmp/' . basename($mibFile);
+        if (! is_file($mibFile)) {
+            throw new CentreonClapiException(self::FILE_NOT_FOUND . ': ' . $mibFile);
         }
         copy($mibFile, $tmpMibFile);
-        $centreonDir = realpath(__DIR__ . "/../../../");
-        passthru("export MIBS=ALL && $centreonDir/bin/snmpttconvertmib --in=$tmpMibFile --out=$tmpMibFile.conf");
-        passthru("$centreonDir/bin/centFillTrapDB -f $tmpMibFile.conf -m $vendorId");
+        $centreonDir = realpath(__DIR__ . '/../../../');
+        passthru("export MIBS=ALL && {$centreonDir}/bin/snmpttconvertmib --in={$tmpMibFile} --out={$tmpMibFile}.conf");
+        passthru("{$centreonDir}/bin/centFillTrapDB -f {$tmpMibFile}.conf -m {$vendorId}");
         unlink($tmpMibFile);
-        if (file_exists($tmpMibFile . ".conf")) {
-            unlink($tmpMibFile . ".conf");
+        if (file_exists($tmpMibFile . '.conf')) {
+            unlink($tmpMibFile . '.conf');
         }
     }
 
@@ -160,6 +147,7 @@ class CentreonManufacturer extends CentreonObject
     public function getName($id)
     {
         $name = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
+
         return $name[$this->object->getUniqueLabelField()];
     }
 
@@ -167,15 +155,16 @@ class CentreonManufacturer extends CentreonObject
      * Get id from name
      *
      * @param $name
-     * @return mixed
      * @throws CentreonClapiException
+     * @return mixed
      */
     public function getId($name)
     {
         $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
-        if (!count($ids)) {
-            throw new CentreonClapiException("Unknown instance");
+        if (! count($ids)) {
+            throw new CentreonClapiException('Unknown instance');
         }
+
         return $ids[0];
     }
 }

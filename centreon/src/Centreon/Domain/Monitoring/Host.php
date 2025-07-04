@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
@@ -44,273 +45,167 @@ class Host implements EntityDescriptorMetadataInterface
     public const STATUS_DOWN        = 1;
     public const STATUS_UNREACHABLE = 2;
 
-    /**
-     * @var int|null Id of host
-     */
+    /** @var int|null Id of host */
     protected $id;
 
-    /**
-     * @var int Poller id
-     */
+    /** @var int Poller id */
     protected $pollerId;
 
-    /**
-     * @var string Name of host
-     */
+    /** @var string Name of host */
     protected $name;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $acknowledged;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $activeChecks;
 
-    /**
-     * @var string|null Ip address or domain name
-     */
+    /** @var string|null Ip address or domain name */
     protected $addressIp;
 
-    /**
-     * @var string|null Alias of host
-     */
+    /** @var string|null Alias of host */
     protected $alias;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $checkAttempt;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $checkCommand;
 
-    /**
-     * @var double|null
-     */
+    /** @var float|null */
     protected $checkInterval;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $checkPeriod;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $checkType;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $checked;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $displayName;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $enabled;
 
-    /**
-     * @var double|null
-     */
+    /** @var float|null */
     protected $executionTime;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $iconImage;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $iconImageAlt;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastCheck;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $lastHardState;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastHardStateChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastNotification;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastStateChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastTimeDown;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastTimeUnreachable;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastTimeUp;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $lastUpdate;
 
-    /**
-     * @var double|null
-     */
+    /** @var float|null */
     protected $latency;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $maxCheckAttempts;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     protected $nextCheck;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $nextHostNotification;
 
-    /**
-     * @var double|null
-     */
+    /** @var float|null */
     protected $notificationInterval;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $notificationNumber;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $notificationPeriod;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notify;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notifyOnDown;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notifyOnDowntime;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notifyOnFlapping;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notifyOnRecovery;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $notifyOnUnreachable;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $output;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $passiveChecks;
 
-    /**
-     * @var Service[]
-     */
+    /** @var Service[] */
     protected $services = [];
 
-    /**
-     * @var int|null ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE', '4' => 'PENDING']
-     */
+    /** @var int|null ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE', '4' => 'PENDING'] */
     protected $state;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $stateType;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $timezone;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $scheduledDowntimeDepth;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $criticality;
 
-    /**
-     * @var bool|null
-     */
+    /** @var bool|null */
     protected $flapping;
 
-    /**
-     * @var double|null
-     */
+    /** @var float|null */
     protected $percentStateChange;
 
-    /**
-     * @var Downtime[]
-     */
+    /** @var Downtime[] */
     protected $downtimes = [];
 
-    /**
-     * @var Acknowledgement|null
-     */
+    /** @var Acknowledgement|null */
     protected $acknowledgement;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $pollerName;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -337,6 +232,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setId(int $id): Host
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -355,6 +251,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setPollerId(int $pollerId): Host
     {
         $this->pollerId = $pollerId;
+
         return $this;
     }
 
@@ -373,6 +270,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setName(string $name): Host
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -391,6 +289,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setAcknowledged(?bool $acknowledged): Host
     {
         $this->acknowledged = $acknowledged;
+
         return $this;
     }
 
@@ -409,6 +308,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setActiveChecks(?bool $activeChecks): Host
     {
         $this->activeChecks = $activeChecks;
+
         return $this;
     }
 
@@ -427,6 +327,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setAddressIp(?string $addressIp): Host
     {
         $this->addressIp = $addressIp;
+
         return $this;
     }
 
@@ -445,6 +346,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setAlias(?string $alias): Host
     {
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -463,6 +365,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCheckAttempt(?int $checkAttempt): Host
     {
         $this->checkAttempt = $checkAttempt;
+
         return $this;
     }
 
@@ -481,6 +384,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCheckCommand(?string $checkCommand): Host
     {
         $this->checkCommand = $checkCommand;
+
         return $this;
     }
 
@@ -499,6 +403,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCheckInterval(?float $checkInterval): Host
     {
         $this->checkInterval = $checkInterval;
+
         return $this;
     }
 
@@ -517,6 +422,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCheckPeriod(?string $checkPeriod): Host
     {
         $this->checkPeriod = $checkPeriod;
+
         return $this;
     }
 
@@ -535,6 +441,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCheckType(?int $checkType): Host
     {
         $this->checkType = $checkType;
+
         return $this;
     }
 
@@ -553,6 +460,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setChecked(?bool $checked): Host
     {
         $this->checked = $checked;
+
         return $this;
     }
 
@@ -571,6 +479,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setDisplayName(?string $displayName): Host
     {
         $this->displayName = $displayName;
+
         return $this;
     }
 
@@ -589,6 +498,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setEnabled(bool $enabled): Host
     {
         $this->enabled = $enabled;
+
         return $this;
     }
 
@@ -607,6 +517,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setExecutionTime(?float $executionTime): Host
     {
         $this->executionTime = $executionTime;
+
         return $this;
     }
 
@@ -625,6 +536,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setIconImage(?string $iconImage): Host
     {
         $this->iconImage = $iconImage;
+
         return $this;
     }
 
@@ -643,6 +555,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setIconImageAlt(?string $iconImageAlt): Host
     {
         $this->iconImageAlt = $iconImageAlt;
+
         return $this;
     }
 
@@ -661,6 +574,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastCheck(?\DateTime $lastCheck): Host
     {
         $this->lastCheck = $lastCheck;
+
         return $this;
     }
 
@@ -679,6 +593,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastHardState(?int $lastHardState): Host
     {
         $this->lastHardState = $lastHardState;
+
         return $this;
     }
 
@@ -697,6 +612,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastHardStateChange(?\DateTime $lastHardStateChange): Host
     {
         $this->lastHardStateChange = $lastHardStateChange;
+
         return $this;
     }
 
@@ -715,6 +631,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastNotification(?\DateTime $lastNotification): Host
     {
         $this->lastNotification = $lastNotification;
+
         return $this;
     }
 
@@ -733,6 +650,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastStateChange(?\DateTime $lastStateChange): Host
     {
         $this->lastStateChange = $lastStateChange;
+
         return $this;
     }
 
@@ -751,6 +669,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastTimeDown(?\DateTime $lastTimeDown): Host
     {
         $this->lastTimeDown = $lastTimeDown;
+
         return $this;
     }
 
@@ -769,6 +688,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastTimeUnreachable(?\DateTime $lastTimeUnreachable): Host
     {
         $this->lastTimeUnreachable = $lastTimeUnreachable;
+
         return $this;
     }
 
@@ -787,6 +707,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastTimeUp(?\DateTime $lastTimeUp): Host
     {
         $this->lastTimeUp = $lastTimeUp;
+
         return $this;
     }
 
@@ -805,6 +726,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLastUpdate(?\DateTime $lastUpdate): Host
     {
         $this->lastUpdate = $lastUpdate;
+
         return $this;
     }
 
@@ -823,6 +745,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setLatency(?float $latency): Host
     {
         $this->latency = $latency;
+
         return $this;
     }
 
@@ -841,6 +764,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setMaxCheckAttempts(?int $maxCheckAttempts): Host
     {
         $this->maxCheckAttempts = $maxCheckAttempts;
+
         return $this;
     }
 
@@ -859,6 +783,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNextCheck(?\DateTime $nextCheck): Host
     {
         $this->nextCheck = $nextCheck;
+
         return $this;
     }
 
@@ -877,6 +802,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNextHostNotification(?int $nextHostNotification): Host
     {
         $this->nextHostNotification = $nextHostNotification;
+
         return $this;
     }
 
@@ -895,6 +821,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotificationInterval(?float $notificationInterval): Host
     {
         $this->notificationInterval = $notificationInterval;
+
         return $this;
     }
 
@@ -913,6 +840,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotificationNumber(?int $notificationNumber): Host
     {
         $this->notificationNumber = $notificationNumber;
+
         return $this;
     }
 
@@ -931,6 +859,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotificationPeriod(?string $notificationPeriod): Host
     {
         $this->notificationPeriod = $notificationPeriod;
+
         return $this;
     }
 
@@ -949,6 +878,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotify(?bool $notify): Host
     {
         $this->notify = $notify;
+
         return $this;
     }
 
@@ -967,6 +897,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotifyOnDown(?bool $notifyOnDown): Host
     {
         $this->notifyOnDown = $notifyOnDown;
+
         return $this;
     }
 
@@ -985,6 +916,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotifyOnDowntime(?bool $notifyOnDowntime): Host
     {
         $this->notifyOnDowntime = $notifyOnDowntime;
+
         return $this;
     }
 
@@ -1003,6 +935,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotifyOnFlapping(?bool $notifyOnFlapping): Host
     {
         $this->notifyOnFlapping = $notifyOnFlapping;
+
         return $this;
     }
 
@@ -1021,6 +954,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotifyOnRecovery(?bool $notifyOnRecovery): Host
     {
         $this->notifyOnRecovery = $notifyOnRecovery;
+
         return $this;
     }
 
@@ -1039,6 +973,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setNotifyOnUnreachable(?bool $notifyOnUnreachable): Host
     {
         $this->notifyOnUnreachable = $notifyOnUnreachable;
+
         return $this;
     }
 
@@ -1057,6 +992,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setOutput(?string $output): Host
     {
         $this->output = $output;
+
         return $this;
     }
 
@@ -1075,6 +1011,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setPassiveChecks(?bool $passiveChecks): Host
     {
         $this->passiveChecks = $passiveChecks;
+
         return $this;
     }
 
@@ -1093,6 +1030,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setServices(array $services): Host
     {
         $this->services = $services;
+
         return $this;
     }
 
@@ -1119,6 +1057,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setState(?int $state): Host
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -1137,6 +1076,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setStateType(?int $stateType): Host
     {
         $this->stateType = $stateType;
+
         return $this;
     }
 
@@ -1153,9 +1093,9 @@ class Host implements EntityDescriptorMetadataInterface
      */
     public function getSanitizedTimezone(): ?string
     {
-        return (null !== $this->timezone) ?
-            preg_replace('/^:/', '', $this->timezone) :
-            $this->timezone;
+        return (null !== $this->timezone)
+            ? preg_replace('/^:/', '', $this->timezone)
+            : $this->timezone;
     }
 
     /**
@@ -1165,6 +1105,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setTimezone(?string $timezone): Host
     {
         $this->timezone = $timezone;
+
         return $this;
     }
 
@@ -1183,6 +1124,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setScheduledDowntimeDepth(?int $scheduledDowntimeDepth): Host
     {
         $this->scheduledDowntimeDepth = $scheduledDowntimeDepth;
+
         return $this;
     }
 
@@ -1201,6 +1143,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setCriticality(?int $criticality): Host
     {
         $this->criticality = $criticality;
+
         return $this;
     }
 
@@ -1219,6 +1162,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setFlapping(?bool $flapping): Host
     {
         $this->flapping = $flapping;
+
         return $this;
     }
 
@@ -1237,6 +1181,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setPercentStateChange(?float $percentStateChange): Host
     {
         $this->percentStateChange = $percentStateChange;
+
         return $this;
     }
 
@@ -1255,6 +1200,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setDowntimes(array $downtimes): self
     {
         $this->downtimes = $downtimes;
+
         return $this;
     }
 
@@ -1273,6 +1219,7 @@ class Host implements EntityDescriptorMetadataInterface
     public function setAcknowledgement(?Acknowledgement $acknowledgement): self
     {
         $this->acknowledgement = $acknowledgement;
+
         return $this;
     }
 

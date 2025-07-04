@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,10 +118,10 @@ it('should present a FindAccResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-   $this->readAccRepository
-       ->expects($this->once())
-       ->method('find')
-       ->willReturn($this->acc);
+    $this->readAccRepository
+        ->expects($this->once())
+        ->method('find')
+        ->willReturn($this->acc);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

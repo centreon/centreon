@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 use Pimple\Container;
 
@@ -36,20 +37,25 @@ class HostCategory extends AbstractObject
 {
     /** @var int */
     private $useCache = 1;
+
     /** @var int */
     private $doneCache = 0;
 
     /** @var array */
     private $hostSeverityCache = [];
+
     /** @var array */
     private $hostLinkedCache = [];
 
     /** @var string */
     protected $table = 'hostcategories';
+
     /** @var string */
     protected $generateFilename = 'hostcategories.infile';
+
     /** @var PDOStatement|null */
     protected $stmtHost = null;
+
     /** @var PDOStatement|null */
     protected $stmtHcName = null;
 
@@ -101,18 +107,18 @@ class HostCategory extends AbstractObject
     private function cacheHostSeverityLinked(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            'SELECT hc_id, host_host_id ' .
-            'FROM hostcategories, hostcategories_relation ' .
-            'WHERE level IS NOT NULL ' .
-            'AND hc_activate = "1" ' .
-            'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
+            'SELECT hc_id, host_host_id '
+            . 'FROM hostcategories, hostcategories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND hc_activate = "1" '
+            . 'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
         );
 
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if (isset($this->hostLinkedCache[$value['host_host_id']])) {
-                if ($this->hostSeverityCache[$value['hc_id']]['level'] <
-                    $this->hostSeverityCache[$this->hostLinkedCache[$value['host_host_id']]]
+                if ($this->hostSeverityCache[$value['hc_id']]['level']
+                    < $this->hostSeverityCache[$this->hostLinkedCache[$value['host_host_id']]]
                 ) {
                     $this->hostLinkedCache[$value['host_host_id']] = $value['hc_id'];
                 }
@@ -127,14 +133,14 @@ class HostCategory extends AbstractObject
      *
      * @param int $hostId
      *
-     * @return array|null
      * @throws Exception
+     * @return array|null
      */
     public function getHostSeverityByHostId(int $hostId)
     {
         // Get from the cache
         if (isset($this->hostLinkedCache[$hostId])) {
-            if (!$this->checkGenerate($this->hostLinkedCache[$hostId])) {
+            if (! $this->checkGenerate($this->hostLinkedCache[$hostId])) {
                 $this->generateObjectInFile(
                     $this->hostSeverityCache[$this->hostLinkedCache[$hostId]],
                     $this->hostLinkedCache[$hostId]
@@ -142,6 +148,7 @@ class HostCategory extends AbstractObject
                 Media::getInstance($this->dependencyInjector)
                     ->getMediaPathFromId($this->hostSeverityCache[$this->hostLinkedCache[$hostId]]['icon_id']);
             }
+
             return $this->hostLinkedCache[$hostId];
         }
         if ($this->doneCache == 1) {
@@ -166,6 +173,7 @@ class HostCategory extends AbstractObject
         $severity = array_pop($this->stmtHost->fetchAll(PDO::FETCH_ASSOC));
         if (is_null($severity)) {
             $this->hostLinkedCache[$hostId] = null;
+
             return null;
         }
         $this->hostLinkedCache[$hostId] = $severity['hc_id'];
@@ -174,6 +182,7 @@ class HostCategory extends AbstractObject
         $this->generateObjectInFile($severity, $severity['hc_id']);
         Media::getInstance($this->dependencyInjector)
             ->getMediaPathFromId($this->hostSeverityCache[$this->hostLinkedCache[$hostId]]['icon_id']);
+
         return $severity['hc_id'];
     }
 
@@ -188,7 +197,7 @@ class HostCategory extends AbstractObject
         if (is_null($hcId)) {
             return null;
         }
-        if (!isset($this->hostSeverityCache[$hcId])) {
+        if (! isset($this->hostSeverityCache[$hcId])) {
             return null;
         }
 

@@ -1,4 +1,24 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -38,11 +58,11 @@ error_reporting(E_ALL);
  */
 
 // Include configurations files
-include_once "../../../../config/centreon.config.php";
+include_once '../../../../config/centreon.config.php';
 
 // Require Classes
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
@@ -55,15 +75,16 @@ $pearDBO = $dependencyInjector['realtime_db'];
 
 // Check Session
 CentreonSession::start();
-if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-    print "Bad Session";
+if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+    echo 'Bad Session';
+
     exit();
 }
 
 /**
  * @var Centreon $centreon
  */
-$centreon = $_SESSION["centreon"];
+$centreon = $_SESSION['centreon'];
 
 /**
  * true: URIs will correspond to deprecated pages
@@ -75,23 +96,23 @@ $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
  * Language informations init
  */
 $locale = $centreon->user->get_lang();
-putenv("LANG=$locale");
+putenv("LANG={$locale}");
 setlocale(LC_ALL, $locale);
-bindtextdomain("messages", _CENTREON_PATH_ . "/www/locale/");
-bind_textdomain_codeset("messages", "UTF-8");
-textdomain("messages");
+bindtextdomain('messages', _CENTREON_PATH_ . '/www/locale/');
+bind_textdomain_codeset('messages', 'UTF-8');
+textdomain('messages');
 
-define("STATUS_OK", 0);
-define("STATUS_WARNING", 1);
-define("STATUS_CRITICAL", 2);
-define("STATUS_UNKNOWN", 3);
-define("STATUS_PENDING", 4);
-define("STATUS_ACKNOWLEDGEMENT", 5);
-define("STATUS_UP", 0);
-define("STATUS_DOWN", 1);
-define("STATUS_UNREACHABLE", 2);
-define("TYPE_SOFT", 0);
-define("TYPE_HARD", 1);
+define('STATUS_OK', 0);
+define('STATUS_WARNING', 1);
+define('STATUS_CRITICAL', 2);
+define('STATUS_UNKNOWN', 3);
+define('STATUS_PENDING', 4);
+define('STATUS_ACKNOWLEDGEMENT', 5);
+define('STATUS_UP', 0);
+define('STATUS_DOWN', 1);
+define('STATUS_UNREACHABLE', 2);
+define('TYPE_SOFT', 0);
+define('TYPE_HARD', 1);
 
 /**
  * Defining constants for the ACK message types
@@ -100,10 +121,10 @@ define('SERVICE_ACKNOWLEDGEMENT_MSG_TYPE', 10);
 define('HOST_ACKNOWLEDGEMENT_MSG_TYPE', 11);
 
 // Include Access Class
-include_once _CENTREON_PATH_ . "www/class/centreonACL.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
-include_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
+include_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
+include_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 
 $defaultLimit = $centreon->optGen['maxViewConfiguration'] > 1
     ? (int) $centreon->optGen['maxViewConfiguration']
@@ -116,9 +137,9 @@ $defaultLimit = $centreon->optGen['maxViewConfiguration'] > 1
  * applying optional sanitization and filtering if required. It supports a
  * fallback default value if the key does not exist in either array.
  *
- * @param string $key The name of the input key to retrieve from `$_GET` or `$_POST`.
- * @param bool $sanitize If true, applies HTML sanitization to the value.
- * @param mixed $default A default value returned if the key does not exist in the inputs.
+ * @param string $key the name of the input key to retrieve from `$_GET` or `$_POST`
+ * @param bool $sanitize if true, applies HTML sanitization to the value
+ * @param mixed $default a default value returned if the key does not exist in the inputs
  * @param int|null $filter Optional filter constant for input validation, e.g., `FILTER_VALIDATE_INT`.
  *
  * @return mixed The sanitized and filtered input value, or the default value if the key is not found.
@@ -190,41 +211,35 @@ foreach ($inputDefinitions as $key => $properties) {
     $inputs[$key] = getInput($key, $sanitize, $default, $filter);
 }
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 // Start XML document root
 $buffer = new CentreonXML();
-$buffer->startElement("root");
+$buffer->startElement('root');
 
-/*
- * Security check
- */
-$lang_ = $inputs["lang"] ?? "-1";
-$openid = $inputs["id"];
+// Security check
+$lang_ = $inputs['lang'] ?? '-1';
+$openid = $inputs['id'];
 $sid = session_id();
-$sid ??= "-1";
+$sid ??= '-1';
 
-/*
- * Init GMT class
- */
+// Init GMT class
 $centreonGMT = new CentreonGMT($pearDB);
 $centreonGMT->getMyGMTFromSession($sid);
 
-/*
- * Check Session
- */
+// Check Session
 $contact_id = check_session($sid, $pearDB);
 
 $is_admin = isUserAdmin($sid);
 if (isset($sid) && $sid) {
     $access = new CentreonAcl($contact_id, $is_admin);
     $lca = [
-        "LcaHost" => $access->getHostsServices($pearDBO, 1),
-        "LcaHostGroup" => $access->getHostGroups(),
-        "LcaSG" => $access->getServiceGroups()
+        'LcaHost' => $access->getHostsServices($pearDBO, 1),
+        'LcaHostGroup' => $access->getHostGroups(),
+        'LcaSG' => $access->getServiceGroups(),
     ];
 }
 
@@ -233,74 +248,74 @@ $num = filter_var($inputs['num'], FILTER_VALIDATE_INT, ['options' => ['default' 
 $limit = filter_var($inputs['limit'], FILTER_VALIDATE_INT, ['options' => ['default' => 30]]);
 
 // use Binding, to avoid SQL injection
-$StartDate = $inputs["StartDate"];
-$EndDate = $inputs["EndDate"];
-$StartTime = $inputs["StartTime"];
-$EndTime = $inputs["EndTime"];
-$auto_period = (int)$inputs["period"];
-$engine = $inputs["engine"];
-$up = $inputs["up"];
-$down = $inputs["down"];
-$unreachable = $inputs["unreachable"];
-$ok = $inputs["ok"];
-$warning = $inputs["warning"];
-$critical = $inputs["critical"];
-$unknown = $inputs["unknown"];
-$acknowledgement = $inputs["acknowledgement"];
-$notification = $inputs["notification"];
-$alert = $inputs["alert"];
-$oh = $inputs["oh"];
-$error = $inputs["error"];
-$output = isset($inputs["output"]) ? urldecode($inputs["output"]) : "";
-$search_H = $inputs["search_H"];
-$search_S = $inputs["search_S"];
-$search_host = $inputs["search_host"];
-$search_service = $inputs["search_service"];
-$export = $inputs["export"];
+$StartDate = $inputs['StartDate'];
+$EndDate = $inputs['EndDate'];
+$StartTime = $inputs['StartTime'];
+$EndTime = $inputs['EndTime'];
+$auto_period = (int) $inputs['period'];
+$engine = $inputs['engine'];
+$up = $inputs['up'];
+$down = $inputs['down'];
+$unreachable = $inputs['unreachable'];
+$ok = $inputs['ok'];
+$warning = $inputs['warning'];
+$critical = $inputs['critical'];
+$unknown = $inputs['unknown'];
+$acknowledgement = $inputs['acknowledgement'];
+$notification = $inputs['notification'];
+$alert = $inputs['alert'];
+$oh = $inputs['oh'];
+$error = $inputs['error'];
+$output = isset($inputs['output']) ? urldecode($inputs['output']) : '';
+$search_H = $inputs['search_H'];
+$search_S = $inputs['search_S'];
+$search_host = $inputs['search_host'];
+$search_service = $inputs['search_service'];
+$export = $inputs['export'];
 
 $start = 0;
 $end = time();
 
-if ($engine == "true") {
-    $ok = "false";
-    $up = "false";
-    $unknown = "false";
-    $unreachable = "false";
-    $down = "false";
-    $warning = "false";
-    $critical = "false";
-    $acknowledgement = "false";
-    $oh = "false";
-    $alert = "false";
+if ($engine == 'true') {
+    $ok = 'false';
+    $up = 'false';
+    $unknown = 'false';
+    $unreachable = 'false';
+    $down = 'false';
+    $warning = 'false';
+    $critical = 'false';
+    $acknowledgement = 'false';
+    $oh = 'false';
+    $alert = 'false';
 }
 
-if ($StartDate != "" && $StartTime == "") {
-    $StartTime = "00:00";
+if ($StartDate != '' && $StartTime == '') {
+    $StartTime = '00:00';
 }
 
-if ($EndDate != "" && $EndTime == "") {
-    $EndTime = "00:00";
+if ($EndDate != '' && $EndTime == '') {
+    $EndTime = '00:00';
 }
 
-if ($StartDate != "") {
-    $dateTime = DateTime::createFromFormat('m/d/Y H:i', "$StartDate $StartTime");
+if ($StartDate != '') {
+    $dateTime = DateTime::createFromFormat('m/d/Y H:i', "{$StartDate} {$StartTime}");
     if ($dateTime !== false) {
         $start = $dateTime->getTimestamp();
     } else {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
-            "Invalid date format: $StartDate $StartTime"
+            "Invalid date format: {$StartDate} {$StartTime}"
         );
     }
 }
-if ($EndDate != "") {
-    $dateTime = DateTime::createFromFormat('m/d/Y H:i', "$EndDate $EndTime");
+if ($EndDate != '') {
+    $dateTime = DateTime::createFromFormat('m/d/Y H:i', "{$EndDate} {$EndTime}");
     if ($dateTime !== false) {
         $end = $dateTime->getTimestamp();
     } else {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
-            "Invalid date format: $EndDate $EndTime"
+            "Invalid date format: {$EndDate} {$EndTime}"
         );
     }
 }
@@ -321,33 +336,31 @@ $tab_color_service = [
     STATUS_CRITICAL => 'service_critical',
     STATUS_UNKNOWN => 'service_unknown',
     STATUS_ACKNOWLEDGEMENT => 'service_acknowledgement',
-    STATUS_PENDING => 'pending'
+    STATUS_PENDING => 'pending',
 ];
 $tab_color_host = [
     STATUS_UP => 'host_up',
     STATUS_DOWN => 'host_down',
-    STATUS_UNREACHABLE => 'host_unreachable'
+    STATUS_UNREACHABLE => 'host_unreachable',
 ];
 
-$tab_type = ["1" => "HARD", "0" => "SOFT"];
-$tab_class = ["0" => "list_one", "1" => "list_two"];
-$tab_status_host = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE"];
-$tab_status_service = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "5" => "ACKNOWLEDGEMENT"];
+$tab_type = ['1' => 'HARD', '0' => 'SOFT'];
+$tab_class = ['0' => 'list_one', '1' => 'list_two'];
+$tab_status_host = ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE'];
+$tab_status_service = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '5' => 'ACKNOWLEDGEMENT'];
 $acknowlegementMessageType = [
     'badgeColor' => 'ack',
-    'badgeText' => 'ACK'
+    'badgeText' => 'ACK',
 ];
 
-/*
- * Create IP Cache
- */
+// Create IP Cache
 if ($export) {
     $HostCache = [];
 
     try {
         $dbResult = $pearDB->executeQuery("SELECT host_name, host_address FROM host WHERE host_register = '1'");
         while ($h = $pearDB->fetch($dbResult)) {
-            $HostCache[$h["host_name"]] = $h["host_address"];
+            $HostCache[$h['host_name']] = $h['host_address'];
         }
         $pearDB->closeQuery($dbResult);
     } catch (CentreonDbException $e) {
@@ -361,27 +374,25 @@ if ($export) {
 
 $logs = [];
 
-/*
- * Print infos..
- */
-$buffer->startElement("infos");
-$buffer->writeElement("opid", $openid);
-$buffer->writeElement("start", $start);
-$buffer->writeElement("end", $end);
-$buffer->writeElement("notification", $notification);
-$buffer->writeElement("alert", $alert);
-$buffer->writeElement("error", $error);
-$buffer->writeElement("up", $up);
-$buffer->writeElement("down", $down);
-$buffer->writeElement("unreachable", $unreachable);
-$buffer->writeElement("ok", $ok);
-$buffer->writeElement("warning", $warning);
-$buffer->writeElement("critical", $critical);
-$buffer->writeElement("unknown", $unknown);
-$buffer->writeElement("acknowledgement", $acknowledgement);
-$buffer->writeElement("oh", $oh);
-$buffer->writeElement("search_H", $search_H);
-$buffer->writeElement("search_S", $search_S);
+// Print infos..
+$buffer->startElement('infos');
+$buffer->writeElement('opid', $openid);
+$buffer->writeElement('start', $start);
+$buffer->writeElement('end', $end);
+$buffer->writeElement('notification', $notification);
+$buffer->writeElement('alert', $alert);
+$buffer->writeElement('error', $error);
+$buffer->writeElement('up', $up);
+$buffer->writeElement('down', $down);
+$buffer->writeElement('unreachable', $unreachable);
+$buffer->writeElement('ok', $ok);
+$buffer->writeElement('warning', $warning);
+$buffer->writeElement('critical', $critical);
+$buffer->writeElement('unknown', $unknown);
+$buffer->writeElement('acknowledgement', $acknowledgement);
+$buffer->writeElement('oh', $oh);
+$buffer->writeElement('search_H', $search_H);
+$buffer->writeElement('search_S', $search_S);
 $buffer->endElement();
 
 // Build message type and status conditions
@@ -429,28 +440,28 @@ $queryValues = [];
 
 // Time range conditions
 $whereClauses[] = 'logs.ctime > :startTime';
-$queryValues[':startTime'] = [$start, \PDO::PARAM_INT];
+$queryValues[':startTime'] = [$start, PDO::PARAM_INT];
 $whereClauses[] = 'logs.ctime <= :endTime';
-$queryValues[':endTime'] = [$end, \PDO::PARAM_INT];
+$queryValues[':endTime'] = [$end, PDO::PARAM_INT];
 
 // Output filter
-if (!empty($output)) {
+if (! empty($output)) {
     $whereClauses[] = 'logs.output LIKE :output';
-    $queryValues[':output'] = ['%' . $output . '%', \PDO::PARAM_STR];
+    $queryValues[':output'] = ['%' . $output . '%', PDO::PARAM_STR];
 }
 
 // Message type and status conditions
 $msgConditions = [];
 
 if ($notification == 'true') {
-    if (!empty($host_msg_status_set)) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
-        $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN ($bindQuery))";
+    if ($host_msg_status_set !== []) {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', PDO::PARAM_INT);
+        $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN ({$bindQuery}))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
-    if (!empty($svc_msg_status_set)) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
-        $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN ($bindQuery))";
+    if ($svc_msg_status_set !== []) {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', PDO::PARAM_INT);
+        $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN ({$bindQuery}))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
 }
@@ -459,22 +470,22 @@ if ($alert == 'true') {
     $alertMsgTypesHost = [1, 10, 11];
     $alertMsgTypesSvc = [0, 10, 11];
 
-    if (!empty($host_msg_status_set)) {
-        [$bindValuesHost, $bindQueryHost] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
-        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesHost, ':alertMsgTypesHost_', \PDO::PARAM_INT);
-        $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQueryHost))";
+    if ($host_msg_status_set !== []) {
+        [$bindValuesHost, $bindQueryHost] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', PDO::PARAM_INT);
+        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesHost, ':alertMsgTypesHost_', PDO::PARAM_INT);
+        $alertConditions[] = "(logs.msg_type IN ({$bindQueryAlert}) AND logs.status IN ({$bindQueryHost}))";
         $queryValues = array_merge($queryValues, $bindValuesHost, $bindValuesAlert);
     }
-    if (!empty($svc_msg_status_set)) {
-        [$bindValuesSvc, $bindQuerySvc] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
-        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesSvc, ':alertMsgTypesSvc_', \PDO::PARAM_INT);
-        $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQuerySvc))";
+    if ($svc_msg_status_set !== []) {
+        [$bindValuesSvc, $bindQuerySvc] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', PDO::PARAM_INT);
+        [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesSvc, ':alertMsgTypesSvc_', PDO::PARAM_INT);
+        $alertConditions[] = "(logs.msg_type IN ({$bindQueryAlert}) AND logs.status IN ({$bindQuerySvc}))";
         $queryValues = array_merge($queryValues, $bindValuesSvc, $bindValuesAlert);
     }
     if ($oh == 'true') {
         // Apply 'logs.type = :logType' only to alert conditions with $oh = true
         $whereClauses[] = 'logs.type = :logType';
-        $queryValues[':logType'] = [TYPE_HARD, \PDO::PARAM_INT];
+        $queryValues[':logType'] = [TYPE_HARD, PDO::PARAM_INT];
     }
     // Add alert conditions to msgConditions
     $msgConditions = array_merge($msgConditions, $alertConditions);
@@ -483,7 +494,7 @@ if ($alert == 'true') {
 if ($error == 'true') {
     $msgConditions[] = 'logs.msg_type IN (4, 5)';
 }
-if (!empty($msgConditions)) {
+if ($msgConditions !== []) {
     $whereClauses[] = '(' . implode(' OR ', $msgConditions) . ')';
 }
 
@@ -497,178 +508,178 @@ $tab_svc = [];
 foreach ($tab_id as $openidItem) {
     $tab_tmp = explode('_', $openidItem);
     $id = $tab_tmp[2] ?? $tab_tmp[1] ?? '';
-    $hostId = !empty($tab_tmp[2]) ? $tab_tmp[1] : '';
-    if ($id == "") {
+    $hostId = ! empty($tab_tmp[2]) ? $tab_tmp[1] : '';
+    if ($id == '') {
         continue;
     }
 
     $type = $tab_tmp[0];
-    if (!$service_filter && $type == "HG" && (isset($lca["LcaHostGroup"][$id]) || $is_admin)) {
+    if (! $service_filter && $type == 'HG' && (isset($lca['LcaHostGroup'][$id]) || $is_admin)) {
         // Get hosts from host groups
         $hosts = getMyHostGroupHosts($id);
         foreach ($hosts as $h_id) {
-            if (isset($lca["LcaHost"][$h_id])) {
+            if (isset($lca['LcaHost'][$h_id])) {
                 $tab_host_ids[] = $h_id;
-                $tab_svc[$h_id] = $lca["LcaHost"][$h_id];
+                $tab_svc[$h_id] = $lca['LcaHost'][$h_id];
             }
         }
-    } elseif (!$service_filter && $type == 'SG' && (isset($lca["LcaSG"][$id]) || $is_admin)) {
+    } elseif (! $service_filter && $type == 'SG' && (isset($lca['LcaSG'][$id]) || $is_admin)) {
         // Get services from service groups
         $services = getMyServiceGroupServices($id);
         foreach ($services as $svc_id => $svc_name) {
             $svc_parts = explode('_', $svc_id);
             $tmp_host_id = $svc_parts[0];
             $tmp_service_id = $svc_parts[1];
-            if (isset($lca["LcaHost"][$tmp_host_id][$tmp_service_id])) {
-                $tab_svc[$tmp_host_id][$tmp_service_id] = $lca["LcaHost"][$tmp_host_id][$tmp_service_id];
+            if (isset($lca['LcaHost'][$tmp_host_id][$tmp_service_id])) {
+                $tab_svc[$tmp_host_id][$tmp_service_id] = $lca['LcaHost'][$tmp_host_id][$tmp_service_id];
             }
         }
-    } elseif (!$service_filter && $type == "HH" && isset($lca["LcaHost"][$id])) {
+    } elseif (! $service_filter && $type == 'HH' && isset($lca['LcaHost'][$id])) {
         $tab_host_ids[] = $id;
-        $tab_svc[$id] = $lca["LcaHost"][$id];
-    } elseif ($type == "HS" && isset($lca["LcaHost"][$hostId][$id])) {
-        $tab_svc[$hostId][$id] = $lca["LcaHost"][$hostId][$id];
-    } elseif ($type == "MS") {
-        $tab_svc["_Module_Meta"][$id] = "meta_" . $id;
+        $tab_svc[$id] = $lca['LcaHost'][$id];
+    } elseif ($type == 'HS' && isset($lca['LcaHost'][$hostId][$id])) {
+        $tab_svc[$hostId][$id] = $lca['LcaHost'][$hostId][$id];
+    } elseif ($type == 'MS') {
+        $tab_svc['_Module_Meta'][$id] = 'meta_' . $id;
     }
 }
 
 if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unknown, $acknowledgement])) {
 
-    if (!empty($tab_host_ids)) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($tab_host_ids, ':tab_host_ids_', \PDO::PARAM_INT);
-        $hostServiceConditions[] = "(logs.host_id IN ($bindQuery) AND (logs.service_id IS NULL OR logs.service_id = 0))";
+    if ($tab_host_ids !== []) {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($tab_host_ids, ':tab_host_ids_', PDO::PARAM_INT);
+        $hostServiceConditions[] = "(logs.host_id IN ({$bindQuery}) AND (logs.service_id IS NULL OR logs.service_id = 0))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
 
-    if (!empty($tab_svc)) {
+    if ($tab_svc !== []) {
         $serviceConditions = [];
         foreach ($tab_svc as $hostIndex => $services) {
             $hostParam = ':hostId' . $hostIndex;
-            $queryValues[$hostParam] = [$hostIndex, \PDO::PARAM_INT];
+            $queryValues[$hostParam] = [$hostIndex, PDO::PARAM_INT];
 
             $servicePlaceholders = [];
             foreach ($services as $svcIndex => $svcId) {
                 $paramName = ':serviceId' . $hostIndex . '_' . $svcIndex;
                 $servicePlaceholders[] = $paramName;
-                $queryValues[$paramName] = [$svcIndex, \PDO::PARAM_INT];
+                $queryValues[$paramName] = [$svcIndex, PDO::PARAM_INT];
             }
             $servicePlaceholdersString = implode(', ', $servicePlaceholders);
-            $serviceConditions[] = "(logs.host_id = $hostParam AND logs.service_id IN ($servicePlaceholdersString))";
+            $serviceConditions[] = "(logs.host_id = {$hostParam} AND logs.service_id IN ({$servicePlaceholdersString}))";
         }
-        if (!empty($serviceConditions)) {
+        if ($serviceConditions !== []) {
             $hostServiceConditions[] = '(' . implode(' OR ', $serviceConditions) . ')';
         }
     }
 
-    if (!empty($hostServiceConditions)) {
+    if ($hostServiceConditions !== []) {
         $whereClauses[] = '(' . implode(' OR ', $hostServiceConditions) . ')';
     }
 }
 
 // Exclude BAM modules if necessary
-if ($engine == "false" && empty($tab_host_ids) && empty($tab_svc)) {
-    $whereClauses[] = "logs.msg_type NOT IN (4, 5)";
+if ($engine == 'false' && $tab_host_ids === [] && $tab_svc === []) {
+    $whereClauses[] = 'logs.msg_type NOT IN (4, 5)';
     $whereClauses[] = "logs.host_name NOT LIKE '_Module_BAM%'";
 }
 
 // Apply host and service search filters
-if (!empty($search_host)) {
+if (! empty($search_host)) {
     $whereClauses[] = 'logs.host_name LIKE :searchHost';
-    $queryValues[':searchHost'] = ['%' . $search_host . '%', \PDO::PARAM_STR];
+    $queryValues[':searchHost'] = ['%' . $search_host . '%', PDO::PARAM_STR];
 }
-if (!empty($search_service)) {
+if (! empty($search_service)) {
     $whereClauses[] = 'logs.service_description LIKE :searchService';
-    $queryValues[':searchService'] = ['%' . $search_service . '%', \PDO::PARAM_STR];
+    $queryValues[':searchService'] = ['%' . $search_service . '%', PDO::PARAM_STR];
 }
 
 // Build the select fields without including SQL_CALC_FOUND_ROWS and DISTINCT
 $selectFields = [
-    "1 AS REALTIME",
-    "logs.ctime",
-    "logs.host_id",
-    "logs.host_name",
-    "logs.service_id",
-    "logs.service_description",
-    "logs.msg_type",
-    "logs.notification_cmd",
-    "logs.notification_contact",
-    "logs.output",
-    "logs.retry",
-    "logs.status",
-    "logs.type",
-    "logs.instance_name"
+    '1 AS REALTIME',
+    'logs.ctime',
+    'logs.host_id',
+    'logs.host_name',
+    'logs.service_id',
+    'logs.service_description',
+    'logs.msg_type',
+    'logs.notification_cmd',
+    'logs.notification_contact',
+    'logs.output',
+    'logs.retry',
+    'logs.status',
+    'logs.type',
+    'logs.instance_name',
 ];
 
 // Start building the SELECT clause
-$selectClause = "SELECT ";
+$selectClause = 'SELECT ';
 
 // Add DISTINCT if the user is not an admin
-if (!$is_admin) {
-    $selectClause .= "DISTINCT ";
+if (! $is_admin) {
+    $selectClause .= 'DISTINCT ';
 }
 
 // Add the select fields
-$selectClause .= implode(", ", $selectFields);
+$selectClause .= implode(', ', $selectFields);
 
-$fromClause = "FROM logs";
+$fromClause = 'FROM logs';
 
 $joinClauses = [];
-if ($engine == "true" && !empty($openid)) {
+if ($engine == 'true' && ! empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
-    if (!empty($pollerIds)) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', \PDO::PARAM_INT);
+    if ($pollerIds !== []) {
+        [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', PDO::PARAM_INT);
         $joinClauses[] = "
         INNER JOIN instances i ON i.name = logs.instance_name
-        AND i.instance_id IN ($bindQuery)
+        AND i.instance_id IN ({$bindQuery})
         ";
         $queryValues = array_merge($queryValues, $bindValues);
     }
-    if ($str_unitH != "") {
-        $str_unitH = "(logs.host_id IN ($str_unitH) AND (logs.service_id IS NULL OR logs.service_id = 0))";
-        if (isset($search_host) && $search_host != "") {
+    if ($str_unitH != '') {
+        $str_unitH = "(logs.host_id IN ({$str_unitH}) AND (logs.service_id IS NULL OR logs.service_id = 0))";
+        if (isset($search_host) && $search_host != '') {
             $host_search_sql = " AND logs.host_name LIKE '%" . $pearDBO->escapeString($search_host) . "%' ";
         }
     }
 }
 
-if (!$is_admin) {
-    $joinClauses[] = "
+if (! $is_admin) {
+    $joinClauses[] = '
         INNER JOIN centreon_acl acl ON (
             logs.host_id = acl.host_id
             AND (acl.service_id IS NULL OR acl.service_id = logs.service_id)
         )
-    ";
-    $whereClauses[] = 'acl.group_id IN (' .  $access->getAccessGroupsString() . ')';
+    ';
+    $whereClauses[] = 'acl.group_id IN (' . $access->getAccessGroupsString() . ')';
 }
 
-$whereClause = "WHERE " . implode(' AND ', $whereClauses);
-$orderClause = "ORDER BY logs.ctime DESC";
+$whereClause = 'WHERE ' . implode(' AND ', $whereClauses);
+$orderClause = 'ORDER BY logs.ctime DESC';
 
 $limitClause = '';
-if (!$export) {
-    $queryValues[':offset'] = [$num, \PDO::PARAM_INT];
-    $queryValues[':limit'] = [$limit, \PDO::PARAM_INT];
+if (! $export) {
+    $queryValues[':offset'] = [$num, PDO::PARAM_INT];
+    $queryValues[':limit'] = [$limit, PDO::PARAM_INT];
     $limitClause = 'LIMIT :limit OFFSET :offset';
 }
 
 $sqlQuery = "
-    $selectClause
-    $fromClause
+    {$selectClause}
+    {$fromClause}
     " . implode(' ', $joinClauses) . "
-    $whereClause
-    $orderClause
-    $limitClause
+    {$whereClause}
+    {$orderClause}
+    {$limitClause}
 ";
 
 $countQuery = "
     SELECT COUNT(*)
-    $fromClause
+    {$fromClause}
     " . implode(' ', $joinClauses) . "
-    $whereClause
+    {$whereClause}
 ";
 
-$paginator = new Paginator((int)$num, (int)$limit);
+$paginator = new Paginator((int) $num, (int) $limit);
 try {
     // Execute the count query
     $countqueryValues = $queryValues;
@@ -676,7 +687,7 @@ try {
     $countStatement = $pearDBO->prepareQuery($countQuery);
     $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
     $totalRows = $pearDBO->fetchColumn($countStatement);
-    $paginator = $paginator->withTotalRecordCount((int)$totalRows);
+    $paginator = $paginator->withTotalRecordCount((int) $totalRows);
     $pearDBO->closeQuery($countStatement);
 
     // Prepare and execute the query using CentreonDB methods
@@ -685,10 +696,10 @@ try {
     $rows = $statement->rowCount();
 
     // If the current page is out of bounds, adjust it
-    if (!$export && 0 === $rows && $paginator->isOutOfUpperBound()) {
+    if (! $export && 0 === $rows && $paginator->isOutOfUpperBound()) {
         // Update the offset in both $queryValues and $flatQueryValues
         $newOffset = $paginator->getOffsetMaximum();
-        $queryValues[':offset'] = [$newOffset, \PDO::PARAM_INT];
+        $queryValues[':offset'] = [$newOffset, PDO::PARAM_INT];
 
         // Re-prepare and execute the query with the updated offset
         $statement = $pearDBO->prepareQuery($sqlQuery);
@@ -706,11 +717,11 @@ try {
 }
 
 // Render XML output
-$buffer->startElement("selectLimit");
+$buffer->startElement('selectLimit');
 foreach ([10, 20, 30, 40, 50, 60, 70, 80, 90, 100] as $i) {
-    $buffer->writeElement("limitValue", $i);
+    $buffer->writeElement('limitValue', $i);
 }
-$buffer->writeElement("limit", $limit);
+$buffer->writeElement('limit', $limit);
 $buffer->endElement();
 
 // add generated pages into xml
@@ -721,8 +732,8 @@ $paginationRenderer->render($paginator);
 $cpts = 0;
 // The query retrieves more than $limit results, but only the first $limit elements should be displayed
 foreach (array_slice($logs, 0, $limit) as $log) {
-    $buffer->startElement("line");
-    $buffer->writeElement("msg_type", $log["msg_type"]);
+    $buffer->startElement('line');
+    $buffer->writeElement('msg_type', $log['msg_type']);
 
     /**
      * For an ACK there is no point to display RETRY and TYPE columns
@@ -737,10 +748,10 @@ foreach (array_slice($logs, 0, $limit) as $log) {
         if (isset($tab_type[$log['type']])) {
             $displayType = $tab_type[$log['type']];
         }
-        $log["msg_type"] > 1 ? $buffer->writeElement("retry", "") : $buffer->writeElement("retry", $log["retry"]);
-        $log["msg_type"] == 2 || $log["msg_type"] == 3
-            ? $buffer->writeElement("type", "NOTIF")
-            : $buffer->writeElement("type", $displayType);
+        $log['msg_type'] > 1 ? $buffer->writeElement('retry', '') : $buffer->writeElement('retry', $log['retry']);
+        $log['msg_type'] == 2 || $log['msg_type'] == 3
+            ? $buffer->writeElement('type', 'NOTIF')
+            : $buffer->writeElement('type', $displayType);
     }
 
     /*
@@ -753,27 +764,25 @@ foreach (array_slice($logs, 0, $limit) as $log) {
         || $log['msg_type'] == SERVICE_ACKNOWLEDGEMENT_MSG_TYPE
     ) {
         $color = $acknowlegementMessageType['badgeColor'];
-    } elseif (isset($log["status"])) {
+    } elseif (isset($log['status'])) {
         if (
-            isset($tab_color_service[$log["status"]])
-            && !empty($log["service_description"])
+            isset($tab_color_service[$log['status']])
+            && ! empty($log['service_description'])
         ) {
-            $color = $tab_color_service[$log["status"]];
-        } elseif (isset($tab_color_host[$log["status"]])) {
-            $color = $tab_color_host[$log["status"]];
+            $color = $tab_color_service[$log['status']];
+        } elseif (isset($tab_color_host[$log['status']])) {
+            $color = $tab_color_host[$log['status']];
         }
     }
 
-    /*
-        * Variable initialisation to color "INITIAL STATE" on event logs
-        */
-    if ($log["output"] == "" && $log["status"] != "") {
-        $log["output"] = "INITIAL STATE";
+    // Variable initialisation to color "INITIAL STATE" on event logs
+    if ($log['output'] == '' && $log['status'] != '') {
+        $log['output'] = 'INITIAL STATE';
     }
 
-    $buffer->startElement("status");
-    $buffer->writeAttribute("color", $color);
-    $displayStatus = $log["status"];
+    $buffer->startElement('status');
+    $buffer->writeAttribute('color', $color);
+    $displayStatus = $log['status'];
     if (
         $log['msg_type'] == HOST_ACKNOWLEDGEMENT_MSG_TYPE
         || $log['msg_type'] == SERVICE_ACKNOWLEDGEMENT_MSG_TYPE
@@ -787,23 +796,23 @@ foreach (array_slice($logs, 0, $limit) as $log) {
     $buffer->text($displayStatus);
     $buffer->endElement();
 
-    if (!strncmp($log["host_name"], "_Module_Meta", strlen("_Module_Meta"))) {
-        if (preg_match('/meta_([0-9]*)/', $log["service_description"], $matches)) {
+    if (! strncmp($log['host_name'], '_Module_Meta', strlen('_Module_Meta'))) {
+        if (preg_match('/meta_([0-9]*)/', $log['service_description'], $matches)) {
             try {
                 $statement = $pearDB->prepareQuery(
-                    <<<SQL
-                        SELECT meta_name
-                        FROM meta_service
-                        WHERE meta_id = :meta_id
-                    SQL
+                    <<<'SQL'
+                            SELECT meta_name
+                            FROM meta_service
+                            WHERE meta_id = :meta_id
+                        SQL
                 );
-                $pearDB->executePreparedQuery($statement, [':meta_id' => [$matches[1], \PDO::PARAM_INT]], true);
+                $pearDB->executePreparedQuery($statement, [':meta_id' => [$matches[1], PDO::PARAM_INT]], true);
                 $meta = $pearDB->fetch($statement);
                 $pearDB->closeQuery($statement);
 
-                $buffer->writeElement("host_name", "Meta", false);
-                $buffer->writeElement("real_service_name", $log["service_description"], false);
-                $buffer->writeElement("service_description", $meta["meta_name"], false);
+                $buffer->writeElement('host_name', 'Meta', false);
+                $buffer->writeElement('real_service_name', $log['service_description'], false);
+                $buffer->writeElement('service_description', $meta['meta_name'], false);
                 unset($meta);
             } catch (CentreonDbException $e) {
                 CentreonLog::create()->error(
@@ -816,24 +825,24 @@ foreach (array_slice($logs, 0, $limit) as $log) {
             // Log case where meta pattern is not found in service description
             CentreonLog::create()->info(
                 CentreonLog::TYPE_BUSINESS_LOG,
-                "No meta pattern found in service_description: " . $log["service_description"]
+                'No meta pattern found in service_description: ' . $log['service_description']
             );
 
             // Default output when meta pattern is missing
-            $buffer->writeElement("host_name", $log["host_name"], false);
+            $buffer->writeElement('host_name', $log['host_name'], false);
             if ($export) {
-                $buffer->writeElement("address", $HostCache[$log["host_name"]], false);
+                $buffer->writeElement('address', $HostCache[$log['host_name']], false);
             }
-            $buffer->writeElement("service_description", $log["service_description"], false);
-            $buffer->writeElement("real_service_name", $log["service_description"], false);
+            $buffer->writeElement('service_description', $log['service_description'], false);
+            $buffer->writeElement('real_service_name', $log['service_description'], false);
         }
     } else {
-        $buffer->writeElement("host_name", $log["host_name"], false);
+        $buffer->writeElement('host_name', $log['host_name'], false);
         if ($export) {
-            $buffer->writeElement("address", $HostCache[$log["host_name"]], false);
+            $buffer->writeElement('address', $HostCache[$log['host_name']], false);
         }
-        $buffer->writeElement("service_description", $log["service_description"], false);
-        $buffer->writeElement("real_service_name", $log["service_description"], false);
+        $buffer->writeElement('service_description', $log['service_description'], false);
+        $buffer->writeElement('real_service_name', $log['service_description'], false);
 
         $serviceTimelineRedirectionUri = $useDeprecatedPages
             ? 'main.php?p=20201&amp;o=svcd&amp;host_name=' . $log['host_name'] . '&amp;service_description='
@@ -845,54 +854,49 @@ foreach (array_slice($logs, 0, $limit) as $log) {
             );
 
         $buffer->writeElement(
-            "s_timeline_uri",
+            's_timeline_uri',
             $serviceTimelineRedirectionUri
         );
     }
-    $buffer->writeElement("real_name", $log["host_name"], false);
+    $buffer->writeElement('real_name', $log['host_name'], false);
 
     $hostTimelineRedirectionUri = $useDeprecatedPages
         ? 'main.php?p=20202&amp;o=hd&amp;host_name=' . $log['host_name']
         : $resourceController->buildHostUri($log['host_id'], $resourceController::TAB_TIMELINE_NAME);
 
     $buffer->writeElement(
-        "h_timeline_uri",
+        'h_timeline_uri',
         $hostTimelineRedirectionUri
     );
-    $buffer->writeElement("class", $tab_class[$cpts % 2]);
-    $buffer->writeElement("poller", $log["instance_name"]);
-    $buffer->writeElement("date", $log["ctime"]);
-    $buffer->writeElement("time", $log["ctime"]);
-    $buffer->writeElement("output", $log["output"]);
-    $buffer->writeElement("contact", $log["notification_contact"], false);
-    $buffer->writeElement("contact_cmd", $log["notification_cmd"], false);
+    $buffer->writeElement('class', $tab_class[$cpts % 2]);
+    $buffer->writeElement('poller', $log['instance_name']);
+    $buffer->writeElement('date', $log['ctime']);
+    $buffer->writeElement('time', $log['ctime']);
+    $buffer->writeElement('output', $log['output']);
+    $buffer->writeElement('contact', $log['notification_contact'], false);
+    $buffer->writeElement('contact_cmd', $log['notification_cmd'], false);
     $buffer->endElement();
     $cpts++;
 }
 
-/*
- * Translation for tables.
- */
-$buffer->startElement("lang");
-$buffer->writeElement("d", _("Day"), 0);
-$buffer->writeElement("t", _("Time"), 0);
-$buffer->writeElement("O", _("Object name"), 0);
-$buffer->writeElement("T", _("Type"), 0);
-$buffer->writeElement("R", _("Retry"), 0);
-$buffer->writeElement("o", _("Output"), 0);
-$buffer->writeElement("c", _("Contact"), 0);
-$buffer->writeElement("C", _("Command"), 0);
-$buffer->writeElement("P", _("Poller"), 0);
+// Translation for tables.
+$buffer->startElement('lang');
+$buffer->writeElement('d', _('Day'), 0);
+$buffer->writeElement('t', _('Time'), 0);
+$buffer->writeElement('O', _('Object name'), 0);
+$buffer->writeElement('T', _('Type'), 0);
+$buffer->writeElement('R', _('Retry'), 0);
+$buffer->writeElement('o', _('Output'), 0);
+$buffer->writeElement('c', _('Contact'), 0);
+$buffer->writeElement('C', _('Command'), 0);
+$buffer->writeElement('P', _('Poller'), 0);
 
 $buffer->endElement();
 $buffer->endElement();
 
-
-/*
- * XML tag
- */
-stristr($_SERVER["HTTP_ACCEPT"], "application/xhtml+xml") ?
-    header("Content-type: application/xhtml+xml") : header("Content-type: text/xml");
+// XML tag
+stristr($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml')
+    ? header('Content-type: application/xhtml+xml') : header('Content-type: text/xml');
 header('Content-Disposition: attachment; filename="eventLogs-' . time() . '.xml"');
 
 $buffer->output();

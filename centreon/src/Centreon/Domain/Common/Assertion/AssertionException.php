@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHARACTERS = 1003;
     public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_MIN_DATE = 1005;
-
     public const INVALID_URL_IP_OR_DOMAIN = 1006;
 
     /**

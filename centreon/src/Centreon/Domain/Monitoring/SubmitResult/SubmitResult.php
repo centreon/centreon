@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\SubmitResult;
@@ -32,29 +33,19 @@ class SubmitResult
     public const STATUS_DOWN = 1;
     public const STATUS_UNREACHABLE = 2;
 
-    /**
-     * @var int Resource ID
-     */
+    /** @var int Resource ID */
     public $resourceId;
 
-    /**
-     * @var int|null Parent Resource ID
-     */
+    /** @var int|null Parent Resource ID */
     private $parentResourceId;
 
-    /**
-     * @var string|null submitted output
-     */
+    /** @var string|null submitted output */
     private $output;
 
-    /**
-     * @var string|null submitted performance data
-     */
+    /** @var string|null submitted performance data */
     private $performanceData;
 
-    /**
-     * @var int submitted status
-     */
+    /** @var int submitted status */
     public $status;
 
     public function __construct(int $resourceId, int $status)
@@ -78,6 +69,7 @@ class SubmitResult
     public function setResourceId(int $resourceId): SubmitResult
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -96,6 +88,7 @@ class SubmitResult
     public function setParentResourceId(?int $parentResourceId): SubmitResult
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 
@@ -112,8 +105,8 @@ class SubmitResult
     /**
      * Set submitted status
      *
-     * @param  int $status submitted status
-     * @return  SubmitResult
+     * @param int $status submitted status
+     * @return SubmitResult
      */
     public function setStatus(int $status): SubmitResult
     {
@@ -124,9 +117,9 @@ class SubmitResult
             self::STATUS_UNKNOWN,
             self::STATUS_UP,
             self::STATUS_DOWN,
-            self::STATUS_UNREACHABLE
+            self::STATUS_UNREACHABLE,
         ];
-        if (!in_array($status, $allowedStatuses)) {
+        if (! in_array($status, $allowedStatuses)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     _('Status provided %d is invalid'),
@@ -135,6 +128,7 @@ class SubmitResult
             );
         }
         $this->status = $status;
+
         return $this;
     }
 
@@ -151,12 +145,13 @@ class SubmitResult
     /**
      * Set submitted performance data
      *
-     * @param  string|null $performanceData submitted performance data
-     * @return  SubmitResult
+     * @param string|null $performanceData submitted performance data
+     * @return SubmitResult
      */
     public function setPerformanceData(?string $performanceData): SubmitResult
     {
         $this->performanceData = $performanceData;
+
         return $this;
     }
 
@@ -173,12 +168,13 @@ class SubmitResult
     /**
      * Set submitted output
      *
-     * @param  string|null $output submitted output
-     * @return  SubmitResult
+     * @param string|null $output submitted output
+     * @return SubmitResult
      */
     public function setOutput(?string $output): SubmitResult
     {
         $this->output = $output;
+
         return $this;
     }
 }
