@@ -679,31 +679,39 @@ class CentreonCustomView
         }
         $isLocked = 1;
         $update = false;
-        $query = 'SELECT custom_view_id, locked, user_id, usergroup_id ' .
-            'FROM custom_view_user_relation ' .
-            'WHERE custom_view_id = :viewLoad ' .
-            'AND ' .
-            '(user_id = :userId ' .
-            'OR usergroup_id IN ( ' .
-            'SELECT contactgroup_cg_id FROM contactgroup_contact_relation ' .
-            'WHERE contact_contact_id = :userId ' .
-            ') ' .
-            ') ORDER BY user_id DESC';
+        $query = <<<SQL
+                SELECT cvur.custom_view_id, locked, user_id, usergroup_id
+                FROM custom_view_user_relation cvur
+                    INNER JOIN custom_views cv
+                        ON cvur.custom_view_id = cv.custom_view_id
+                WHERE cvur.custom_view_id = :viewLoad
+                    AND (
+                            user_id = :userId
+                            OR usergroup_id IN (
+                                SELECT contactgroup_cg_id
+                                FROM contactgroup_contact_relation
+                                WHERE contact_contact_id = :userId
+                            )
+                        )
+                    AND cvur.is_share = 1
+                    AND cvur.is_consumed = 0;
+                ORDER BY user_id DESC
+            SQL;
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
+        $stmt->bindParam(':viewLoad', $viewLoadId, \PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $this->userId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+
+        if (! $row) {
             throw new \Exception("An error occured");
         }
-        if ($row = $stmt->fetch()) {
-            if ($row['locked'] == "0") {
-                $isLocked = $row['locked'];
-            }
-            if (!is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
-                $update = true;
-            }
+        if ($row['locked'] == "0") {
+            $isLocked = $row['locked'];
+        }
+        if (!is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
+            $update = true;
         }
 
         if ($update) {
