@@ -346,7 +346,7 @@ jobs:
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
         run: |
-          RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
+          RELEASE_TYPE="hotfix"
           if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
