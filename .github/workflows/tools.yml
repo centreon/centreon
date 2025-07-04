@@ -43,13 +43,13 @@ jobs:
         shell: bash
 
       - name: 🛠️ Rector checks
-        working-directory: centreon
+        working-directory: centreon-tools
         run: composer rector -- --no-progress-bar
 
       - name: 🧹 PHP-CS-Fixer checks
-        working-directory: centreon
+        working-directory: centreon-tools
         run: composer cs -- --format=txt --show-progress=none
 
       - name: 🔍 PHPStan checks
-        working-directory: centreon
+        working-directory: centreon-tools
         run: composer stan -- --no-progress

@@ -97,7 +97,7 @@ jobs:
         shell: bash
 
       - name: 🛠️ Rector checks
-        working-directory: centreon
+        working-directory: centreon-open-tickets
         run: |
           echo "Run of these Rector tests: rector:legacy" && set -e
 
@@ -114,7 +114,7 @@ jobs:
           wait
 
       - name: 🧹 PHP-CS-Fixer checks
-        working-directory: centreon
+        working-directory: centreon-open-tickets
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src" && set -e
 
@@ -136,7 +136,7 @@ jobs:
           wait
 
       - name: 🔍 PHPStan checks
-        working-directory: centreon
+        working-directory: centreon-open-tickets
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
 
