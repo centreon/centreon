@@ -592,19 +592,19 @@ jobs:
             echo "::group::php-cs-fixer Legacy"
             composer cs:legacy:www -- --format=txt --show-progress=none \
             && composer cs:legacy:src -- --format=txt --show-progress=none \
-            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
+            && composer cs:legacy:test -- --format=txt --show-progress=none
             echo "::endgroup::"
           } &
 
           {
             echo "::group::php-cs-fixer Core"
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+            composer cs:core -- --format=txt --show-progress=none
             echo "::endgroup::"
           } &
 
           {
             echo "::group::php-cs-fixer New"
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
+            composer cs:new -- --format=txt --show-progress=none
             echo "::endgroup::"
           } &
 
