@@ -1106,7 +1106,7 @@ jobs:
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
+          github_ref_name: master
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
