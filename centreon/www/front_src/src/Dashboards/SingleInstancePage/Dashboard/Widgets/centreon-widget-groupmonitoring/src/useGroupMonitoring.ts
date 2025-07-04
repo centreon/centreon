@@ -13,7 +13,7 @@ import {
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { SortOrder } from '../../models';
-import { getWidgetEndpoint } from '../../utils';
+import { getWidgetEndpoint, isResourceString } from '../../utils';
 
 import { groupsDecoder } from './api/decoders';
 import { getEndpoint } from './api/endpoints';
@@ -106,12 +106,24 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                  lists: [
-                    {
-                      field: 'name',
-                      values: pluck('name', resource?.resources)
-                    }
-                  ]
+                  lists: !isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: pluck('name', resource?.resources)
+                        }
+                      ]
+                    : undefined,
+                  conditions: isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: {
+                            $rg: resource?.resources
+                          }
+                        }
+                      ]
+                    : undefined
                 }
               : undefined,
             sort: {

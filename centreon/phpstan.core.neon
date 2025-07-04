@@ -83,6 +83,7 @@ parameters:
                 - src/Core/Contact/Infrastructure/Repository
                 - src/Core/Resources/Infrastructure
                 - src/Core/Security/AccessGroup/Infrastructure/Repository
+                - src/Core/Dashboard/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

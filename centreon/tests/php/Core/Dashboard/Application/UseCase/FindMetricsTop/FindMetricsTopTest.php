@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTop;
@@ -94,7 +95,11 @@ it('should present an ErrorResponse when an error occurs', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByRequestParametersAndMetricName')
-        ->willThrowException(new \Exception('An error occured'));
+        ->willThrowException(
+            new RepositoryException(
+                'An error occurred while trying to find performance metrics by request parameters and metric name.'
+            )
+        );
 
     $useCase($presenter, $request);
 

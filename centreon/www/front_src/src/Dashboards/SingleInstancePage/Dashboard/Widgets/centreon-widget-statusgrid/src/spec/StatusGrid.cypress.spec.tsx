@@ -32,6 +32,7 @@ import {
   linkToResourcePing,
   noResources,
   resources,
+  resourcesRegex,
   seeMoreOptions,
   serviceOptions,
   services
@@ -335,6 +336,20 @@ describe('View by host', () => {
       cy.contains(labelNoHostsFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    hostsRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: hostOptions
+    });
+
+    cy.waitForRequest('@getHostResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 describe('View by service', () => {
@@ -527,6 +542,20 @@ describe('View by service', () => {
       cy.contains(labelNoServicesFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    servicesRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: serviceOptions
+    });
+
+    cy.waitForRequest('@getServiceResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 const initializeSeeMore = (): void => {
@@ -599,6 +628,20 @@ describe('Condensed view', () => {
       cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       statusRequests();
       initialize({ data: { resources }, options: condensedOptions });
+    });
+
+    it('handles regex resources when the appropriate data is provided', () => {
+      statusRequests();
+      initialize({
+        data: { resources: resourcesRegex },
+        options: condensedOptions
+      });
+
+      cy.waitForRequest('@getStatuses').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]},{"$or":[{"host.name":{"$rg":"^H1$"}}]}]}'
+        );
+      });
     });
 
     it('displays status tiles', () => {
