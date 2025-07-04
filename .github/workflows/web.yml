@@ -1082,13 +1082,52 @@ jobs:
   #           centreon-logo.png
   #         retention-days: 1
 
-  deliver-rpm:
+  create-yum-feature-repository:
     runs-on: centreon-common
     needs:
       [
         changes,
         get-environment,
         package
+      ]
+    if:
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.delivery_type == 'feature' &&
+      contains(github.event.pull_request.labels.*.name, 'delivery-feature') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.repository == 'centreon/centreon'
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Create a yum feature repository
+        run: |
+          set -x
+          echo "[INFO]: Creating a yum feature repository if it does not exist"
+          curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+              -d '{"event_type": "create-feature-repository",
+                  "client_payload": {
+                    "major_version": "${{ needs.get-environment.outputs.major_version }}",
+                    "repo_type": "feature",
+                    "feature_ticket": "MON-150484"
+                  }
+                }'
+        shell: bash
+
+  deliver-rpm:
+    runs-on: centreon-common
+    needs:
+      [
+        changes,
+        get-environment,
+        package,
+        create-yum-feature-repository
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
