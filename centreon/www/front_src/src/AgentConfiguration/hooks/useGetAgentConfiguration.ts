@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useFetchQuery } from '@centreon/ui';
 import { useSetAtom } from 'jotai';
-import { equals, isEmpty, isNil, isNotNil, map } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil, map, or } from 'ramda';
 
 import { agentTypes, encryptionLevels } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
@@ -40,13 +40,12 @@ const adaptAgentConfigurationToForm = (
             hosts: map(
               (host) => ({
                 ...host,
-                token:
-                  isNil(host.token) && isEmpty(host.token)
-                    ? host.token
-                    : {
-                        id: `${host.token?.name}_${host.token?.creatorId}`,
-                        ...host.token
-                      }
+                token: or(isNil(host.token), isEmpty(host.token))
+                  ? null
+                  : {
+                      id: `${host.token?.name}_${host.token?.creatorId}`,
+                      ...host.token
+                    }
               }),
               agentConfiguration.configuration?.hosts
             )
