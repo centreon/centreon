@@ -563,21 +563,15 @@ jobs:
           set -e
 
           {
-            echo "::group::Rector Legacy"
             composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::Rector Core"
             composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::Rector New"
             composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           wait
@@ -589,33 +583,23 @@ jobs:
           set -e
 
           {
-            echo "::group::php-cs-fixer legacy:www"
             composer cs:legacy:www -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www): Success" || { echo "❌ PHP-CS-Fixer Legacy (www): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::php-cs-fixer legacy:src"
             composer cs:legacy:src -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (src): Success" || { echo "❌ PHP-CS-Fixer Legacy (src): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::php-cs-fixer legacy:test"
             composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (test): Success" || { echo "❌ PHP-CS-Fixer Legacy (test): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::php-cs-fixer Core"
             composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::php-cs-fixer New"
             composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           wait
@@ -627,45 +611,31 @@ jobs:
           set -e
 
           {
-            echo "::group::PHPStan legacy:www"
             composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan legacy:src"
             composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan legacy:test"
             composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan core:src"
             composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan core:test"
             composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan new:src"
             composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           {
-            echo "::group::PHPStan new:test"
             composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           wait
@@ -677,9 +647,7 @@ jobs:
           set -e
 
           {
-            echo "::group::Deptrac New"
             composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-            echo "::endgroup::"
           } &
 
           wait
