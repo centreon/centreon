@@ -466,96 +466,6 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
-#      # === Legacy section
-#      - name: 🏛️ Legacy checks
-#        working-directory: centreon
-#        run: |
-#          set -e
-#
-#          {
-#            echo "::group::Rector Legacy"
-#            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHP-CS-Fixer Legacy"
-#            composer cs:legacy:www -- --format=txt --show-progress=none \
-#            && composer cs:legacy:src -- --format=txt --show-progress=none \
-#            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHPStan Legacy"
-#            composer stan:legacy:www -- --no-progress \
-#            && composer stan:legacy:src -- --no-progress \
-#            && composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          wait
-#
-#      # === Core section
-#      - name: ⚙️ Core checks
-#        working-directory: centreon
-#        run: |
-#          set -e
-#
-#          {
-#            echo "::group::Rector Core"
-#            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHP-CS-Fixer Core"
-#            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHPStan Core"
-#            composer stan:core:src -- --no-progress \
-#            && composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          wait
-#
-#      # === New section
-#      - name: ✨ New checks
-#        working-directory: centreon
-#        run: |
-#          set -e
-#
-#          {
-#            echo "::group::Rector New"
-#            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHP-CS-Fixer New"
-#            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::PHPStan New"
-#            composer stan:new:src -- --no-progress \
-#            && composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::Deptrac New"
-#            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          wait
-
       - name: 🛠️ Rector checks
         working-directory: centreon
         run: |
@@ -564,14 +474,23 @@ jobs:
           {
             composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
           } &
+          pids+=($!)
+
+          if ! wait -n; then
+            echo "❌ One of the Rector jobs failed"
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
 
           wait
 
@@ -647,46 +566,6 @@ jobs:
           } &
 
           wait
-
-#      - name: Run of rector on all sections
-#        run: composer rector:legacy -- --no-progress-bar
-#        working-directory: centreon
-#
-#      - name: Run of rector on all sections
-#        run: composer rector:core -- --no-progress-bar
-#        working-directory: centreon
-#
-#      - name: Run of rector on all sections
-#        run: composer rector:new -- --no-progress-bar
-#        working-directory: centreon
-#
-#      - name: Run of php-cs-fixer on the legacy section (/www, /src, /tests)
-#        run: composer cs:legacy -- --show-progress=none
-#        working-directory: centreon
-#
-#      - name: Run of php-cs-fixer on the core section for the /src/Core directory
-#        run: composer cs:core -- --show-progress=none
-#        working-directory: centreon
-#
-#      - name: Run of php-cs-fixer on the new section for the /src/Adaptation and /src/App directories
-#        run: composer cs:new -- --show-progress=none
-#        working-directory: centreon
-#
-#      - name: Run of phpstan on the legacy section (/www at level 0, /src at level 4, /tests at level 2)
-#        run: composer stan:legacy -- --no-progress
-#        working-directory: centreon
-#
-#      - name: Run of phpstan on the core section for the /src/Core directory at level 8 + Centreon Custom Rules
-#        run: composer stan:core -- --no-progress
-#        working-directory: centreon
-#
-#      - name: Run of phpstan on the new section for the /src/Adaptation and /src/App directories at level max + Centreon Custom Rules
-#        run: composer stan:new -- --no-progress
-#        working-directory: centreon
-#
-#      - name: Run of deptrac on the new section for the /src/App directory
-#        run: composer dep:new -- --no-progress
-#        working-directory: centreon
 
   package:
     needs:
