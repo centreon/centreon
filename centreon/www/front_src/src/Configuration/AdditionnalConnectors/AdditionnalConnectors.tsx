@@ -4,7 +4,7 @@ import ConfigurationBase from '../ConfigurationBase';
 import useColumns from './Columns/useColumns';
 import useAdditionnalConnectors from './useAdditionnalConnectors';
 
-import { ResourceType } from '../models';
+import { ResourceType } from '../Common/models';
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -34,7 +34,7 @@ const AdditionnalConnectors = () => {
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
-        delete: true,
+        delete: () => true,
         edit: true
       }}
       labels={{

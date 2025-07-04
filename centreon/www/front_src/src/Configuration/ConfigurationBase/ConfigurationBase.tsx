@@ -1,7 +1,7 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
-import { ConfigurationBase } from '../models';
+import { ConfigurationBase } from '../Common/models';
 import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
 
 import Page from './Page';
@@ -16,7 +16,8 @@ const Base = ({
   filtersInitialValues,
   defaultSelectedColumnIds,
   actions,
-  labels
+  labels,
+  listAdditionalProps
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -70,6 +71,7 @@ const Base = ({
       form={form}
       actions={actions}
       labels={labels}
+      listAdditionalProps={listAdditionalProps}
     />
   );
 };

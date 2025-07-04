@@ -10,13 +10,15 @@ import {
   getPollersEndpoint
 } from './api';
 
-import { APIType, FieldType, FilterConfiguration } from '../models';
+import { APIType, FieldType, FilterConfiguration } from '../Common/models';
+
+import { findConnectorTypeById, splitURL } from './utils';
+
 import {
   AdditionalConnectorConfiguration,
   ParameterKeys,
   Payload
 } from './models';
-import { findConnectorTypeById, splitURL } from './utils';
 
 import { labelName, labelPoller, labelType } from './translatedLabels';
 

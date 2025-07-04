@@ -100,7 +100,10 @@ const useDelete = (): UseDeleteState => {
 
   const confirm = (): void => {
     equals(count, 1)
-      ? deleteOneMutation({ id: ids[0] }).then(handleApiResponse)
+      ? deleteOneMutation({
+          id: resourcesToDelete[0].id,
+          subItemId: resourcesToDelete[0]?.subItemId
+        }).then(handleApiResponse)
       : deleteMutation({ ids }).then(handleApiResponse);
   };
 

@@ -11,7 +11,6 @@ export const labelCollapse = 'Collapse';
 export const labelAddNewAgent = 'Add new agent configuration';
 export const labelSearch = 'Search';
 export const labelFilters = 'Filters';
-export const labelAgentTypes = 'Agent types';
 export const labelPollers = 'Pollers';
 export const labelClear = 'Clear';
 export const labelDeletePoller = 'Delete poller';
@@ -77,6 +76,9 @@ export const labelWarningEncryptionLevelCMA =
 export const labelTLS = 'TLS';
 export const labelNoTLS = 'No TLS';
 export const labelInsecure = 'Insecure TLS';
+
+export const labelSelectAtLeastOneColumn =
+  'At least one column must be selected';
 
 export const labelCMAauthenticationToken = 'CMA authentication token(s)';
 export const labelSelectExistingCMATokens = 'Select existing CMA token(s)';

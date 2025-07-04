@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { pick } from 'ramda';
+import { isNotNil } from 'ramda';
 import { configurationAtom } from '../../../atoms';
 import { resourcesToDeleteAtom, resourcesToDuplicateAtom } from '../../atoms';
 
@@ -18,13 +18,21 @@ const useActions = (row): UseActionsState => {
   const setResourcesToDelete = useSetAtom(resourcesToDeleteAtom);
   const setResourcesToDuplicate = useSetAtom(resourcesToDuplicateAtom);
 
-  const hostGroupEntity = pick(['id', 'name'], row);
+  const items = {
+    id: isNotNil(row?.internalListingParentId)
+      ? row?.internalListingParentRow.id
+      : row.id,
+    name: isNotNil(row?.internalListingParentId)
+      ? row?.internalListingParentRow.name
+      : row.name,
+    subItemId: isNotNil(row?.internalListingParentId) ? row.id : undefined,
+    subItemName: isNotNil(row?.internalListingParentId) ? row.name : undefined
+  };
 
-  const openDeleteModal = (): void => setResourcesToDelete([hostGroupEntity]);
-  const openDuplicateModal = (): void =>
-    setResourcesToDuplicate([hostGroupEntity]);
+  const openDeleteModal = (): void => setResourcesToDelete([items]);
+  const openDuplicateModal = (): void => setResourcesToDuplicate([items]);
 
-  const canDelete = !!actions?.delete;
+  const canDelete = !!actions?.delete(row);
   const canDuplicate = !!actions?.duplicate;
 
   return {

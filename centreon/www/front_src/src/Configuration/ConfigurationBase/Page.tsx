@@ -9,7 +9,7 @@ import { Modal } from './Modal';
 
 import { useSearchParams } from 'react-router';
 
-import { ConfigurationBase } from '../models';
+import { ConfigurationBase } from '../Common/models';
 
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
@@ -49,10 +49,16 @@ const Page = ({
   resourceType,
   form,
   actions,
-  labels
+  labels,
+  listAdditionalProps
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'actions' | 'labels'
+  | 'columns'
+  | 'form'
+  | 'resourceType'
+  | 'actions'
+  | 'labels'
+  | 'listAdditionalProps'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -98,6 +104,7 @@ const Page = ({
               actions={actions}
               isLoading={isLoading}
               data={data}
+              listAdditionalProps={listAdditionalProps}
             />
           )}
         </DataTable>
@@ -105,8 +112,8 @@ const Page = ({
       {or(!!actions?.edit, !!actions?.viewDetails) && (
         <Modal form={form} hasWriteAccess={!!actions?.edit} />
       )}
-      {actions?.delete && <DeleteDialog />}
-      {actions?.duplicate && <DuplicateDialog />}
+      <DeleteDialog />
+      <DuplicateDialog />
     </PageLayout>
   );
 };

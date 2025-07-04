@@ -177,9 +177,6 @@ When('the user deletes the Agents Configuration', () => {
 Then(
   'the Agents Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the poller/agent configuration page').should(
-      'be.visible'
-    );
     cy.contains('telegraf-001-updated').should('not.exist');
   }
 );
@@ -267,9 +264,6 @@ When('the user accesses the Agents Configuration page', () => {
 Then(
   'the user can not view the agent configuration linked to the 2 pollers',
   () => {
-    cy.contains('Welcome to the poller/agent configuration page').should(
-      'be.visible'
-    );
     cy.contains('telegraf-001-updated').should('not.exist');
   }
 );

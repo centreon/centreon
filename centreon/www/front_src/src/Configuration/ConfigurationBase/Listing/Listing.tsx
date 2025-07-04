@@ -13,6 +13,7 @@ interface Props {
   actions?: Actions;
   isLoading: boolean;
   data;
+  listAdditionalProps?: object;
 }
 
 const Listing = ({
@@ -20,7 +21,8 @@ const Listing = ({
   hasWriteAccess,
   actions,
   isLoading,
-  data
+  data,
+  listAdditionalProps
 }: Props): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
@@ -71,6 +73,7 @@ const Listing = ({
       onSort={changeSort}
       selectedRows={selectedRows}
       onSelectRows={setSelectedRows}
+      {...listAdditionalProps}
     />
   );
 };

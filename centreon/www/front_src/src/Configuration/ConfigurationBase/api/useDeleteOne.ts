@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
 interface UseDeleteOneProps {
-  deleteOneMutation: ({ id }) => Promise<object | ResponseError>;
+  deleteOneMutation: ({ id, subItemId }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
@@ -24,11 +24,13 @@ const useDeleteOne = (): UseDeleteOneProps => {
   });
 
   const deleteOneMutation = ({
-    id
+    id,
+    subItemId
   }: {
     id: number;
+    subItemId?: number;
   }) => {
-    return mutateAsync({ _meta: { id } }, {});
+    return mutateAsync({ _meta: { id, subItemId } }, {});
   };
 
   return {

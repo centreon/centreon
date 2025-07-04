@@ -1,22 +1,15 @@
-import { Listing } from '@centreon/ui';
-import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+import { JSX } from 'react';
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { Listing } from '@centreon/ui';
 import { useTranslation } from 'react-i18next';
-import {
-  changeSortAtom,
-  limitAtom,
-  openFormModalAtom,
-  pageAtom,
-  sortFieldAtom,
-  sortOrderAtom
-} from '../atoms';
+
 import { AgentConfigurationListing } from '../models';
 import { labelCollapse, labelExpand } from '../translatedLabels';
 import Actions from './Actions/Actions';
+
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
+import useListing from './useListing';
 
 interface Props {
   rows: Array<AgentConfigurationListing>;
@@ -28,39 +21,28 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   const { t } = useTranslation();
   const columns = useColumns();
 
-  const [page, setPage] = useAtom(pageAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
-  const sortOrder = useAtomValue(sortOrderAtom);
-  const sortField = useAtomValue(sortFieldAtom);
-  const changeSort = useSetAtom(changeSortAtom);
-  const setOpenFormModal = useSetAtom(openFormModalAtom);
-
-  const { isAdmin } = useAtomValue(userAtom);
-  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
-
-  const updateAgentConfiguration = ({
-    id,
-    internalListingParentId,
-    pollers
-  }) => {
-    const hasCentral = pollers.some((poller) =>
-      equals(poller?.isCentral, true)
-    );
-
-    if (
-      isNotNil(internalListingParentId) ||
-      (!isAdmin && isCloudPlatform && hasCentral)
-    ) {
-      return;
-    }
-
-    setOpenFormModal(id);
-  };
+  const {
+    selectedColumnIds,
+    selectColumns,
+    resetColumns,
+    updateAgentConfiguration,
+    page,
+    setPage,
+    limit,
+    setLimit,
+    sortField,
+    sortOrder,
+    changeSort
+  } = useListing();
 
   return (
     <>
       <Listing
         actions={<Actions />}
+        columnConfiguration={{
+          selectedColumnIds,
+          sortable: true
+        }}
         columns={columns}
         subItems={{
           canCheckSubItems: false,
@@ -80,6 +62,8 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         sortField={sortField}
         sortOrder={sortOrder}
         onSort={changeSort}
+        onResetColumns={resetColumns}
+        onSelectColumns={selectColumns}
       />
       <DeleteModal />
     </>

@@ -1,13 +1,16 @@
-import { PageSkeleton } from '@centreon/ui';
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { JSX, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import ACListing from './Listing/Listing';
-import { openFormModalAtom, searchAtom } from './atoms';
+import { isWelcomePageDisplayedAtom, openFormModalAtom } from './atoms';
+import useCoutChangedFilters from './hooks/useCoutChangedFilters';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
+
+import { isNil, isNotEmpty } from 'ramda';
 import {
   labelAddAgentConfiguration,
   labelAgentsConfigurations,
@@ -15,23 +18,49 @@ import {
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 
+const WelcomePage = ({ labels, onCreate }) => {
+  const { isLoading, data } = useGetAgentConfigurations();
+
+  const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
+  const { isClear } = useCoutChangedFilters();
+
+  useLayoutEffect(() => {
+    if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
+      setIsWelcomePageDisplayed(false);
+    }
+  }, [isLoading]);
+
+  if (isLoading && isNil(data)) {
+    return <LoadingSkeleton />;
+  }
+
+  return (
+    <DataTable.EmptyState
+      aria-label="create"
+      buttonCreateTestId="create-agent-configuration"
+      data-testid={'create-agent-configuration'}
+      labels={labels}
+      onCreate={onCreate}
+    />
+  );
+};
+
 const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const search = useAtomValue(searchAtom);
-
-  const { isDataEmpty, isLoading, hasData, total, data } =
-    useGetAgentConfigurations();
+  const { isLoading, total, data } = useGetAgentConfigurations();
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
 
-  const add = useCallback(() => setOpenFormModal('add'), []);
+  const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
+    isWelcomePageDisplayedAtom
+  );
 
-  if (isLoading && !hasData) {
-    return <PageSkeleton displayHeaderAndNavigation={false} />;
-  }
+  const openCreatetModal = (): void => {
+    setOpenFormModal('add');
 
-  const isEmpty = isDataEmpty && !isLoading && !search;
+    setIsWelcomePageDisplayed(false);
+  };
 
   return (
     <PageLayout>
@@ -43,11 +72,12 @@ const AgentConfigurationPage = (): JSX.Element => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <DataTable isEmpty={isEmpty} variant={isEmpty ? 'grid' : 'listing'}>
-          {isEmpty ? (
-            <DataTable.EmptyState
-              aria-label="create"
-              buttonCreateTestId="create-agent-configuration"
+        <DataTable
+          isEmpty={isWelcomePageDisplayed}
+          variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
+        >
+          {isWelcomePageDisplayed ? (
+            <WelcomePage
               labels={{
                 title: t(labelWelcomeToTheAgentsConfigurationPage),
                 description: t(labelWelcomeDescription),
@@ -55,10 +85,14 @@ const AgentConfigurationPage = (): JSX.Element => {
                   create: t(labelAddAgentConfiguration)
                 }
               }}
-              onCreate={add}
+              onCreate={openCreatetModal}
             />
           ) : (
-            <ACListing rows={data} total={total} isLoading={isLoading} />
+            <ACListing
+              rows={data?.result}
+              total={total}
+              isLoading={isLoading}
+            />
           )}
         </DataTable>
       </PageLayout.Body>
