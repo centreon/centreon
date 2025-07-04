@@ -664,7 +664,7 @@ jobs:
 
           {
             echo "::group::PHPStan new:test"
-            && composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
             echo "::endgroup::"
           } &
 
