@@ -24,7 +24,7 @@ declare(strict_types=1);
 $rectorConfig = require_once __DIR__ . '/rector/config/base.strict.php';
 
 return $rectorConfig
-    ->withCache(__DIR__ . '/var/cache/rector')
+    ->withCache(__DIR__ . '/var/cache/rector.tools')
     ->withPaths([
         // directories
         __DIR__ . '/php-cs-fixer',
