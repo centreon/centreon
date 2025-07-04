@@ -556,11 +556,10 @@ jobs:
 #
 #          wait
 
-      # === Rector
       - name: 🛠️ Rector checks
         working-directory: centreon
         run: |
-          set -e
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
           {
             composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
@@ -576,11 +575,10 @@ jobs:
 
           wait
 
-      # === php-cs-fixer
-      - name: 🧹 php-cs-fixer checks
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
-          set -e
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src, cs:legacy:test, cs:core, cs:new" && set -e
 
           {
             composer cs:legacy:www -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www): Success" || { echo "❌ PHP-CS-Fixer Legacy (www): Failed"; exit 1; }
@@ -604,11 +602,10 @@ jobs:
 
           wait
 
-      # === PHPStan
       - name: 🔍 PHPStan checks
         working-directory: centreon
         run: |
-          set -e
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
 
           {
             composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
@@ -640,11 +637,10 @@ jobs:
 
           wait
 
-      # === Deptrac
       - name: 📐 Deptrac checks
         working-directory: centreon
         run: |
-          set -e
+          echo "Run of these Deptrac tests: dep:new" && set -e
 
           {
             composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
