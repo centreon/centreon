@@ -88,8 +88,11 @@
     },
     "refreshInterval": {
       "type": "refresh-interval",
-      "defaultValue": "default",
+      "defaultValue": "custom",
       "label": "Interval"
+    },
+    "refreshIntervalCustom": {
+      "defaultValue": 43200
     }
   },
   "data": {
@@ -139,7 +142,7 @@
         "displayType": {
           "type": "displayType",
           "defaultValue": "line",
-          "label": "Display availability as",
+          "label": "Display availability and performance as",
           "options": [
             {
               "id": "line",
@@ -152,253 +155,6 @@
               "icon": "<svg viewBox=\"0 0 65 65\"><rect x=\"5\" y=\"38.51\" width=\"12\" height=\"20\" rx=\"4.26\" ry=\"4.26\" /><rect x=\"19.33\" y=\"28.51\" width=\"12\" height=\"30\" rx=\"4\" ry=\"4\" /><rect x=\"33.67\" y=\"16.51\" width=\"12\" height=\"41.99\" rx=\"4\" ry=\"4\" /><rect x=\"48\" y=\"9.51\" width=\"12\" height=\"49\" rx=\"4.32\" ry=\"4.32\" /></svg>"
             }
           ]
-        },
-        "curveType": {
-          "group": "graphStyles",
-          "type": "select",
-          "label": "Curve type",
-          "defaultValue": "linear",
-          "options": [
-            {
-              "id": "linear",
-              "name": "Linear"
-            },
-            {
-              "id": "natural",
-              "name": "Smooth"
-            },
-            {
-              "id": "step",
-              "name": "Step"
-            }
-          ],
-          "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.displayType",
-            "matches": ["bar", "bar-stacked"]
-          }
-        },
-        "showPoints": {
-          "group": "graphStyles",
-          "type": "switch",
-          "label": "Display curve points",
-          "defaultValue": false,
-          "hiddenCondition": {
-            "target": "options",
-            "when": "options.displayType",
-            "method": "includes",
-            "matches": ["bar", "bar-stacked"]
-          }
-        },
-        "lineWidthMode": {
-          "group": "graphStyles",
-          "type": "button-group",
-          "label": "Line width",
-          "defaultValue": "auto",
-          "secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
-          "options": [
-            {
-              "id": "auto",
-              "name": "Auto"
-            },
-            {
-              "id": "custom",
-              "name": "Custom"
-            }
-          ],
-          "subInputs": [
-            {
-              "name": "lineWidth",
-              "displayValue": "custom",
-              "input": {
-                "type": "slider",
-                "defaultValue": 2,
-                "slider": {
-                  "min": 0,
-                  "max": 10,
-                  "unit": "px"
-                }
-              }
-            }
-          ],
-          "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.displayType",
-            "matches": ["bar", "bar-stacked"]
-          }
-        },
-        "showArea": {
-          "group": "graphStyles",
-          "type": "button-group",
-          "label": "Area",
-          "defaultValue": "auto",
-          "secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
-          "options": [
-            {
-              "id": "auto",
-              "name": "Auto"
-            },
-            {
-              "id": "show",
-              "name": "Show"
-            },
-            {
-              "id": "hide",
-              "name": "Hide"
-            }
-          ],
-          "subInputs": [
-            {
-              "name": "areaOpacity",
-              "displayValue": "show",
-              "input": {
-                "type": "slider",
-                "defaultValue": 20,
-                "label": "Fill opacity",
-                "slider": {
-                  "max": 100,
-                  "min": 0,
-                  "unit": "%"
-                }
-              }
-            }
-          ],
-          "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.displayType",
-            "matches": ["bar", "bar-stacked"]
-          }
-        },
-        "lineStyleMode": {
-          "group": "graphStyles",
-          "type": "button-group",
-          "defaultValue": "solid",
-          "label": "Line style",
-          "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.displayType",
-            "matches": ["bar", "bar-stacked"]
-          },
-          "options": [
-            {
-              "id": "solid",
-              "name": "Solid"
-            },
-            {
-              "id": "dash",
-              "name": "Dashes"
-            },
-            {
-              "id": "dots",
-              "name": "Dots"
-            }
-          ],
-          "subInputs": [
-            {
-              "name": "dashLength",
-              "displayValue": "dash",
-              "direction": "row",
-              "input": {
-                "type": "textfield",
-                "defaultValue": 5,
-                "label": "Dash width",
-                "text": {
-                  "size": "compact",
-                  "type": "number",
-                  "min": 0,
-                  "autoSize": true
-                }
-              }
-            },
-            {
-              "name": "dashOffset",
-              "displayValue": "dash",
-              "direction": "row",
-              "input": {
-                "type": "textfield",
-                "defaultValue": 5,
-                "label": "Space",
-                "text": {
-                  "size": "compact",
-                  "type": "number",
-                  "min": 0,
-                  "autoSize": true
-                }
-              }
-            },
-            {
-              "name": "",
-              "displayValue": "dash",
-              "direction": "row",
-              "input": {
-                "type": "text",
-                "label": "px"
-              }
-            },
-            {
-              "name": "dotOffset",
-              "displayValue": "dots",
-              "direction": "row",
-              "input": {
-                "type": "textfield",
-                "defaultValue": 5,
-                "label": "Space",
-                "text": {
-                  "size": "compact",
-                  "type": "number",
-                  "min": 0,
-                  "autoSize": true
-                }
-              }
-            },
-            {
-              "name": "",
-              "displayValue": "dots",
-              "direction": "row",
-              "input": {
-                "type": "text",
-                "label": "px"
-              }
-            }
-          ]
-        },
-        "barRadius": {
-          "group": "graphStyles",
-          "type": "slider",
-          "label": "Bar radius",
-          "defaultValue": 0,
-          "slider": {
-            "min": 0,
-            "max": 100,
-            "unit": "%"
-          },
-          "hiddenCondition": {
-            "target": "options",
-            "method": "includes",
-            "when": "options.displayType",
-            "matches": ["line"]
-          }
-        },
-        "barOpacity": {
-          "group": "graphStyles",
-          "type": "slider",
-          "label": "Bar opacity",
-          "defaultValue": 100,
-          "slider": {
-            "min": 0,
-            "max": 100,
-            "unit": "%"
-          },
-          "hiddenCondition": {
-            "target": "options",
-            "method": "equals",
-            "when": "options.displayType",
-            "matches": "line"
-          }
         },
         "showAxisBorder": {
           "type": "switch",
@@ -559,7 +315,7 @@
           ]
         },
         "tooltipMode": {
-          "group": "tooltip",
+          "group": "tooltips",
           "type": "button-group",
           "label": "Display",
           "defaultValue": "all",
