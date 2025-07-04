@@ -367,14 +367,8 @@ class CentreonStatistics
             $data['notification'] = $this->getAdditionalNotificationInformation();
         }
 
-        if ($this->featureFlags?->isEnabled('dashboard')) {
-            $data['dashboards'] = $this->getAdditionalDashboardsInformation();
-        }
-
-        if ($this->featureFlags?->isEnabled('dashboard_playlist')) {
-            $data['playlists'] = $this->getAdditionalDashboardPlaylistsInformation();
-        }
-
+        $data['dashboards'] = $this->getAdditionalDashboardsInformation();
+        $data['playlists'] = $this->getAdditionalDashboardPlaylistsInformation();
         $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
 
         return $data;
