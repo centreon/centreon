@@ -466,98 +466,8 @@ jobs:
         run: composer symfony:check
         working-directory: centreon
 
-      # === Legacy section
-      - name: 🏛️ Legacy checks
-        working-directory: centreon
-        run: |
-          set -e
-
-          {
-            echo "::group::Rector Legacy"
-            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHP-CS-Fixer Legacy"
-            composer cs:legacy:www -- --format=txt --show-progress=none \
-            && composer cs:legacy:src -- --format=txt --show-progress=none \
-            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHPStan Legacy"
-            composer stan:legacy:www -- --no-progress \
-            && composer stan:legacy:src -- --no-progress \
-            && composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          wait
-
-      # === Core section
-      - name: ⚙️ Core checks
-        working-directory: centreon
-        run: |
-          set -e
-
-          {
-            echo "::group::Rector Core"
-            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHP-CS-Fixer Core"
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHPStan Core"
-            composer stan:core:src -- --no-progress \
-            && composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          wait
-
-      # === New section
-      - name: ✨ New checks
-        working-directory: centreon
-        run: |
-          set -e
-
-          {
-            echo "::group::Rector New"
-            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHP-CS-Fixer New"
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::PHPStan New"
-            composer stan:new:src -- --no-progress \
-            && composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          {
-            echo "::group::Deptrac New"
-            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-            echo "::endgroup::"
-          } &
-
-          wait
-
-#      # === Rector
-#      - name: 🛠️ Rector checks
+#      # === Legacy section
+#      - name: 🏛️ Legacy checks
 #        working-directory: centreon
 #        run: |
 #          set -e
@@ -569,52 +479,12 @@ jobs:
 #          } &
 #
 #          {
-#            echo "::group::Rector Core"
-#            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::Rector New"
-#            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          wait
-#
-#      # === php-cs-fixer
-#      - name: 🧹 php-cs-fixer checks
-#        working-directory: centreon
-#        run: |
-#          set -e
-#
-#          {
-#            echo "::group::php-cs-fixer Legacy"
+#            echo "::group::PHP-CS-Fixer Legacy"
 #            composer cs:legacy:www -- --format=txt --show-progress=none \
 #            && composer cs:legacy:src -- --format=txt --show-progress=none \
 #            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
 #            echo "::endgroup::"
 #          } &
-#
-#          {
-#            echo "::group::php-cs-fixer Core"
-#            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          {
-#            echo "::group::php-cs-fixer New"
-#            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-#            echo "::endgroup::"
-#          } &
-#
-#          wait
-#
-#      # === PHPStan
-#      - name: 🔍 PHPStan checks
-#        working-directory: centreon
-#        run: |
-#          set -e
 #
 #          {
 #            echo "::group::PHPStan Legacy"
@@ -624,27 +494,59 @@ jobs:
 #            echo "::endgroup::"
 #          } &
 #
+#          wait
+#
+#      # === Core section
+#      - name: ⚙️ Core checks
+#        working-directory: centreon
+#        run: |
+#          set -e
+#
+#          {
+#            echo "::group::Rector Core"
+#            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
+#            echo "::endgroup::"
+#          } &
+#
+#          {
+#            echo "::group::PHP-CS-Fixer Core"
+#            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+#            echo "::endgroup::"
+#          } &
+#
 #          {
 #            echo "::group::PHPStan Core"
 #            composer stan:core:src -- --no-progress \
-#            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
+#            && composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
+#            echo "::endgroup::"
+#          } &
+#
+#          wait
+#
+#      # === New section
+#      - name: ✨ New checks
+#        working-directory: centreon
+#        run: |
+#          set -e
+#
+#          {
+#            echo "::group::Rector New"
+#            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
+#            echo "::endgroup::"
+#          } &
+#
+#          {
+#            echo "::group::PHP-CS-Fixer New"
+#            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
 #            echo "::endgroup::"
 #          } &
 #
 #          {
 #            echo "::group::PHPStan New"
 #            composer stan:new:src -- --no-progress \
-#            composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
+#            && composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
 #            echo "::endgroup::"
 #          } &
-#
-#          wait
-#
-#      # === Deptrac
-#      - name: 📐 Deptrac checks
-#        working-directory: centreon
-#        run: |
-#          set -e
 #
 #          {
 #            echo "::group::Deptrac New"
@@ -653,6 +555,104 @@ jobs:
 #          } &
 #
 #          wait
+
+      # === Rector
+      - name: 🛠️ Rector checks
+        working-directory: centreon
+        run: |
+          set -e
+
+          {
+            echo "::group::Rector Legacy"
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::Rector Core"
+            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::Rector New"
+            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          wait
+
+      # === php-cs-fixer
+      - name: 🧹 php-cs-fixer checks
+        working-directory: centreon
+        run: |
+          set -e
+
+          {
+            echo "::group::php-cs-fixer Legacy"
+            composer cs:legacy:www -- --format=txt --show-progress=none \
+            && composer cs:legacy:src -- --format=txt --show-progress=none \
+            && composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy: Success" || { echo "❌ PHP-CS-Fixer Legacy: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::php-cs-fixer Core"
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::php-cs-fixer New"
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          wait
+
+      # === PHPStan
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: |
+          set -e
+
+          {
+            echo "::group::PHPStan Legacy"
+            composer stan:legacy:www -- --no-progress \
+            && composer stan:legacy:src -- --no-progress \
+            && composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy: Success" || { echo "❌ PHPStan Legacy: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::PHPStan Core"
+            composer stan:core:src -- --no-progress \
+            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core: Success" || { echo "❌ PHPStan Core: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          {
+            echo "::group::PHPStan New"
+            composer stan:new:src -- --no-progress \
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New: Success" || { echo "❌ PHPStan New: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          wait
+
+      # === Deptrac
+      - name: 📐 Deptrac checks
+        working-directory: centreon
+        run: |
+          set -e
+
+          {
+            echo "::group::Deptrac New"
+            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
+            echo "::endgroup::"
+          } &
+
+          wait
 
 #      - name: Run of rector on all sections
 #        run: composer rector:legacy -- --no-progress-bar
