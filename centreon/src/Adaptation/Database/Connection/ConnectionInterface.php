@@ -124,7 +124,7 @@ interface ConnectionInterface
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
      *          // $nbAffectedRows = 1
      */
-    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): string;
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
@@ -254,7 +254,7 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      *
-     * @return array<array<int,mixed>>
+     * @return array
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
