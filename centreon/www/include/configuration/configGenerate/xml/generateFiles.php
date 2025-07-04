@@ -110,6 +110,10 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         exit();
     }
     $centreon = $_SESSION['centreon'];
+    if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+        print "You are not allowed to generate configuration";
+        exit();
+    }
 }
 
 if (!isset($_POST['poller']) || !isset($_POST['debug'])) {

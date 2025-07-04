@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ namespace Core\Resources\Infrastructure\API\FindResources;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -35,6 +37,12 @@ use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
 use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
 use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
+/**
+ * Class
+ *
+ * @class FindResourcesPresenter
+ * @package Core\Resources\Infrastructure\API\FindResources
+ */
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
     use HttpUrlTrait, PresenterTrait;
@@ -46,156 +54,168 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
      * @param \Traversable<ExtraDataNormalizerInterface> $extraDataNormalizers
+     * @param ExceptionLogger $exceptionLogger
      */
     public function __construct(
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
-        private readonly \Traversable $extraDataNormalizers
+        private readonly \Traversable $extraDataNormalizers,
+        private readonly ExceptionLogger $exceptionLogger
     ) {
         parent::__construct($presenterFormatter);
     }
 
+    /**
+     * @param FindResourcesResponse|ResponseStatusInterface $response
+     *
+     * @return void
+     */
     public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void
     {
-        if ($response instanceof FindResourcesResponse) {
-            $result = [];
-
-            foreach ($response->resources as $resource) {
-                $parentResource = ($resource->parent !== null && $resource->parent->resourceId !== null)
-                    ? [
-                        'uuid' => $resource->parent->uuid,
-                        'id' => $resource->parent->id,
-                        'name' => $resource->parent->name,
-                        'type' => $resource->parent->type,
-                        'short_type' => $resource->parent->shortType,
-                        'status' => [
-                            'code' => $resource->parent->status?->code,
-                            'name' => $resource->parent->status?->name,
-                            'severity_code' => $resource->parent->status?->severityCode,
-                        ],
-                        'alias' => $resource->parent->alias,
-                        'fqdn' => $resource->parent->fqdn,
-                        'monitoring_server_name' => $resource->parent->monitoringServerName,
-                        'extra' => $this->normalizeExtraDataForResource(
-                            $resource->parent->resourceId,
-                            $response->extraData,
-                        ),
-                    ]
-                    : null;
-
-                $duration = $resource->lastStatusChange !== null
-                    ? \CentreonDuration::toString(time() - $resource->lastStatusChange->getTimestamp())
-                    : null;
-
-                $lastCheck = $resource->lastCheck !== null
-                    ? \CentreonDuration::toString(time() - $resource->lastCheck->getTimestamp())
-                    : null;
-
-                $severity = $resource->severity !== null
-                    ? [
-                        'id' => $resource->severity->id,
-                        'name' => $resource->severity->name,
-                        'level' => $resource->severity->level,
-                        'type' => $resource->severity->type,
-                        'icon' => [
-                            'id' => $resource->severity->icon->id,
-                            'name' => $resource->severity->icon->name,
-                            'url' => $this->generateNormalizedIconUrl($resource->severity->icon->url),
-                        ],
-                    ]
-                    : null;
-
-                $icon = $resource->icon !== null
-                    ? [
-                        'id' => $resource->icon->id,
-                        'name' => $resource->icon->name,
-                        'url' => $this->generateNormalizedIconUrl($resource->icon->url),
-                    ]
-                    : null;
-
-                $parameters = [
-                    'type' => $resource->type,
-                    'serviceId' => $resource->serviceId,
-                    'hostId' => $resource->hostId,
-                    'hasGraphData' => $resource->hasGraphData,
-                    'internalId' => $resource->internalId,
-                ];
-
-                $endpoints = $this->hypermediaCreator->createEndpoints($parameters);
-
-                $links = [
-                    'endpoints' => [
-                        'details' => $endpoints['details'],
-                        'timeline' => $endpoints['timeline'],
-                        'status_graph' => $endpoints['status_graph'] ?? null,
-                        'performance_graph' => $endpoints['performance_graph'] ?? null,
-                        'acknowledgement' => $endpoints['acknowledgement'],
-                        'downtime' => $endpoints['downtime'],
-                        'check' => $endpoints['check'],
-                        'forced_check' => $endpoints['forced_check'],
-                        'metrics' => $endpoints['metrics'] ?? null,
-                    ],
-                    'uris' => $this->hypermediaCreator->createInternalUris($parameters),
-                    'externals' => [
-                        'action_url' => $resource->actionUrl !== null
-                            ? $this->generateUrlWithMacrosResolved($resource->actionUrl, $resource)
-                            : $resource->actionUrl,
-                        'notes' => [
-                            'label' => $resource->notes?->label,
-                            'url' => $resource->notes?->url !== null
-                                ? $this->generateUrlWithMacrosResolved($resource->notes->url, $resource)
-                                : $resource->notes?->url,
-                        ],
-                    ],
-                ];
-
-                $result[] = [
-                    'uuid' => $resource->uuid,
-                    'duration' => $duration,
-                    'last_check' => $lastCheck,
-                    'short_type' => $resource->shortType,
-                    'id' => $resource->id,
-                    'type' => $resource->type,
-                    'name' => $resource->name,
-                    'alias' => $resource->alias,
-                    'fqdn' => $resource->fqdn,
-                    'host_id' => $resource->hostId,
-                    'service_id' => $resource->serviceId,
-                    'icon' => $icon,
-                    'monitoring_server_name' => $resource->monitoringServerName,
-                    'parent' => $parentResource,
-                    'status' => [
-                        'code' => $resource->status?->code,
-                        'name' => $resource->status?->name,
-                        'severity_code' => $resource->status?->severityCode,
-                    ],
-                    'is_in_downtime' => $resource->isInDowntime,
-                    'is_acknowledged' => $resource->isAcknowledged,
-                    'is_in_flapping' => $resource->isInFlapping,
-                    'percent_state_change' => $resource->percentStateChange,
-                    'has_active_checks_enabled' => $resource->withActiveChecks,
-                    'has_passive_checks_enabled' => $resource->withPassiveChecks,
-                    'last_status_change' => $this->formatDateToIso8601($resource->lastStatusChange),
-                    'tries' => $resource->tries,
-                    'information' => $resource->information,
-                    'performance_data' => null,
-                    'is_notification_enabled' => $resource->areNotificationsEnabled,
-                    'severity' => $severity,
-                    'links' => $links,
-                    'extra' => $resource->resourceId !== null
-                        ? $this->normalizeExtraDataForResource($resource->resourceId, $response->extraData)
-                        : [],
-                ];
+        if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                $this->exceptionLogger->log($response->getException());
             }
-
-            $this->present([
-                'result' => $result,
-                'meta' => $this->requestParameters->toArray(),
-            ]);
-        } else {
             $this->setResponseStatus($response);
+
+            return;
         }
+
+        $result = [];
+
+        foreach ($response->resources as $resource) {
+            $parentResource = ($resource->parent !== null && $resource->parent->resourceId !== null)
+                ? [
+                    'uuid' => $resource->parent->uuid,
+                    'id' => $resource->parent->id,
+                    'name' => $resource->parent->name,
+                    'type' => $resource->parent->type,
+                    'short_type' => $resource->parent->shortType,
+                    'status' => [
+                        'code' => $resource->parent->status?->code,
+                        'name' => $resource->parent->status?->name,
+                        'severity_code' => $resource->parent->status?->severityCode,
+                    ],
+                    'alias' => $resource->parent->alias,
+                    'fqdn' => $resource->parent->fqdn,
+                    'monitoring_server_name' => $resource->parent->monitoringServerName,
+                    'extra' => $this->normalizeExtraDataForResource(
+                        $resource->parent->resourceId,
+                        $response->extraData,
+                    ),
+                ]
+                : null;
+
+            $duration = $resource->lastStatusChange !== null
+                ? \CentreonDuration::toString(time() - $resource->lastStatusChange->getTimestamp())
+                : null;
+
+            $lastCheck = $resource->lastCheck !== null
+                ? \CentreonDuration::toString(time() - $resource->lastCheck->getTimestamp())
+                : null;
+
+            $severity = $resource->severity !== null
+                ? [
+                    'id' => $resource->severity->id,
+                    'name' => $resource->severity->name,
+                    'level' => $resource->severity->level,
+                    'type' => $resource->severity->type,
+                    'icon' => [
+                        'id' => $resource->severity->icon->id,
+                        'name' => $resource->severity->icon->name,
+                        'url' => $this->generateNormalizedIconUrl($resource->severity->icon->url),
+                    ],
+                ]
+                : null;
+
+            $icon = $resource->icon !== null
+                ? [
+                    'id' => $resource->icon->id,
+                    'name' => $resource->icon->name,
+                    'url' => $this->generateNormalizedIconUrl($resource->icon->url),
+                ]
+                : null;
+
+            $parameters = [
+                'type' => $resource->type,
+                'serviceId' => $resource->serviceId,
+                'hostId' => $resource->hostId,
+                'hasGraphData' => $resource->hasGraphData,
+                'internalId' => $resource->internalId,
+            ];
+
+            $endpoints = $this->hypermediaCreator->createEndpoints($parameters);
+
+            $links = [
+                'endpoints' => [
+                    'details' => $endpoints['details'],
+                    'timeline' => $endpoints['timeline'],
+                    'status_graph' => $endpoints['status_graph'] ?? null,
+                    'performance_graph' => $endpoints['performance_graph'] ?? null,
+                    'acknowledgement' => $endpoints['acknowledgement'],
+                    'downtime' => $endpoints['downtime'],
+                    'check' => $endpoints['check'],
+                    'forced_check' => $endpoints['forced_check'],
+                    'metrics' => $endpoints['metrics'] ?? null,
+                ],
+                'uris' => $this->hypermediaCreator->createInternalUris($parameters),
+                'externals' => [
+                    'action_url' => $resource->actionUrl !== null
+                        ? $this->generateUrlWithMacrosResolved($resource->actionUrl, $resource)
+                        : $resource->actionUrl,
+                    'notes' => [
+                        'label' => $resource->notes?->label,
+                        'url' => $resource->notes?->url !== null
+                            ? $this->generateUrlWithMacrosResolved($resource->notes->url, $resource)
+                            : $resource->notes?->url,
+                    ],
+                ],
+            ];
+
+            $result[] = [
+                'uuid' => $resource->uuid,
+                'duration' => $duration,
+                'last_check' => $lastCheck,
+                'short_type' => $resource->shortType,
+                'id' => $resource->id,
+                'type' => $resource->type,
+                'name' => $resource->name,
+                'alias' => $resource->alias,
+                'fqdn' => $resource->fqdn,
+                'host_id' => $resource->hostId,
+                'service_id' => $resource->serviceId,
+                'icon' => $icon,
+                'monitoring_server_name' => $resource->monitoringServerName,
+                'parent' => $parentResource,
+                'status' => [
+                    'code' => $resource->status?->code,
+                    'name' => $resource->status?->name,
+                    'severity_code' => $resource->status?->severityCode,
+                ],
+                'is_in_downtime' => $resource->isInDowntime,
+                'is_acknowledged' => $resource->isAcknowledged,
+                'is_in_flapping' => $resource->isInFlapping,
+                'percent_state_change' => $resource->percentStateChange,
+                'has_active_checks_enabled' => $resource->withActiveChecks,
+                'has_passive_checks_enabled' => $resource->withPassiveChecks,
+                'last_status_change' => $this->formatDateToIso8601($resource->lastStatusChange),
+                'tries' => $resource->tries,
+                'information' => $resource->information,
+                'performance_data' => null,
+                'is_notification_enabled' => $resource->areNotificationsEnabled,
+                'severity' => $severity,
+                'links' => $links,
+                'extra' => $resource->resourceId !== null
+                    ? $this->normalizeExtraDataForResource($resource->resourceId, $response->extraData)
+                    : [],
+            ];
+        }
+
+        $this->present([
+            'result' => $result,
+            'meta' => $this->requestParameters->toArray(),
+        ]);
     }
 
     /**
@@ -222,6 +242,12 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
         return $data;
     }
 
+    /**
+     * @param string $url
+     * @param ResourceResponseDto $resource
+     *
+     * @return string
+     */
     private function generateUrlWithMacrosResolved(string $url, ResourceResponseDto $resource): string
     {
         $isServiceTypedResource = $resource->type === self::SERVICE_RESOURCE_TYPE;

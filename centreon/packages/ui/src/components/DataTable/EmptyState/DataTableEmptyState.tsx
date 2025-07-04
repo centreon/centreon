@@ -16,14 +16,17 @@ type ListEmptyStateProps = {
       create: string;
     };
     title: string;
+    description?: string;
   };
   onCreate?: () => void;
+  buttonCreateTestId?: string;
 };
 
 const DataTableEmptyState = ({
   labels,
   onCreate,
-  canCreate = true
+  canCreate = true,
+  buttonCreateTestId
 }: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -34,6 +37,11 @@ const DataTableEmptyState = ({
       data-testid="data-table-empty-state"
     >
       <MuiTypography variant="h2">{t(labels.title)}</MuiTypography>
+      {labels.description && (
+        <MuiTypography className={classes.description}>
+          {t(labels.description)}
+        </MuiTypography>
+      )}
       <div className={classes.actions}>
         {canCreate && (
           <Button
@@ -41,6 +49,7 @@ const DataTableEmptyState = ({
             icon={<AddIcon />}
             iconVariant="start"
             onClick={() => onCreate?.()}
+            data-testid={buttonCreateTestId}
           >
             {t(labels.actions?.create || '')}
           </Button>

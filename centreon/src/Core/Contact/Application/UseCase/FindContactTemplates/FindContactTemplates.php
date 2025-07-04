@@ -55,24 +55,21 @@ class FindContactTemplates
                 ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ)
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ_WRITE)
             ) {
-                $this->error('User doesn\'t have sufficient rights to list contact templates', [
-                    'user_id' => $this->user->getId(),
-                ]);
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(ContactTemplateException::listingNotAllowed())
                 );
 
                 return;
             }
 
-            $presenter->present(new FindContactTemplatesResponse($this->repository->findAll()));
+            $presenter->presentResponse(new FindContactTemplatesResponse($this->repository->findAll()));
         } catch (RepositoryException $exception) {
-            $this->error(
-                'Error while searching for contact templates',
-                ['user' => $this->user, 'exception' => $exception->getContext()]
-            );
-            $presenter->setResponseStatus(
-                new ErrorResponse(ContactTemplateException::errorWhileSearchingForContactTemplate())
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    ContactTemplateException::errorWhileSearchingForContactTemplate(),
+                    ['user_id' => $this->user->getId()],
+                    $exception
+                )
             );
 
             return;
