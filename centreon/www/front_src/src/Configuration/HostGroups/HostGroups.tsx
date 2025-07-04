@@ -42,7 +42,7 @@ const HostGroups = () => {
       actions={{
         massive: true,
         enableDisable: true,
-        delete: true,
+        delete: () => true,
         duplicate: true,
         edit: canEdit,
         viewDetails: true

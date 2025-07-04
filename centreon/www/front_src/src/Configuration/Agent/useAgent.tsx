@@ -1,5 +1,7 @@
+import { ComponentColumnProps } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNotNil } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +12,7 @@ import {
   agentConfigurationsEndpoint,
   agentConfigurationsListingDecoder,
   getAgentConfigurationEndpoint,
+  getPollerAgentEndpoint,
   getPollersEndpoint
 } from './api';
 
@@ -23,19 +26,22 @@ import { labelName, labelPoller, labelType } from './translatedLabels';
 interface UseAdditionnalConnectorsState {
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
+  canDelete: (row: ComponentColumnProps) => boolean;
 }
 
 const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
   const { t } = useTranslation();
 
   const agentTypeForm = useAtomValue(agentTypeFormAtom);
+  const { isAdmin } = useAtomValue(userAtom);
+  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
 
   const api: APIType = useMemo(
     () => ({
       endpoints: {
         getAll: agentConfigurationsEndpoint,
         getOne: getAgentConfigurationEndpoint,
-        deleteOne: getAgentConfigurationEndpoint,
+        deleteOne: getPollerAgentEndpoint,
         create: agentConfigurationsEndpoint,
         update: getAgentConfigurationEndpoint
       },
@@ -73,9 +79,20 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
     []
   );
 
+  const canDelete = (row): boolean => {
+    const hasCentral = (
+      isNotNil(row.internalListingParentId)
+        ? row.internalListingParentRow?.pollers
+        : row?.pollers
+    )?.some((poller) => equals(poller?.isCentral, true));
+
+    return isAdmin || !isCloudPlatform || !hasCentral;
+  };
+
   return {
     api,
-    filtersConfiguration
+    filtersConfiguration,
+    canDelete
   };
 };
 

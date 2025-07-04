@@ -899,7 +899,7 @@ msgid "Add parameter"
 msgstr "Ajouter un paramètre"
 
 #: centreon/www/install/front_translate.php
-msgid "Add poller/agent configuration"
+msgid "Add a poller/agent configuration"
 msgstr "Ajouter une configuration collecteur/agent"
 
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -1073,7 +1073,7 @@ msgstr "Après"
 
 #: centreon/www/install/front_translate.php
 msgid "Agent"
-msgstr ""
+msgstr "Agent"
 
 #: centreon/www/install/menu_translation.php
 msgid "Agent configurations"
@@ -3792,7 +3792,7 @@ msgstr "Type DEF"
 
 #: centreon/www/install/front_translate.php
 msgid "DNS/IP"
-msgstr ""
+msgstr "DNS/IP"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
@@ -17111,7 +17111,7 @@ msgid "Update mode"
 msgstr "Mode de mise à jour"
 
 #: centreon/www/install/front_translate.php
-msgid "Update poller/agent configuration"
+msgid "Modify a poller/agent configuration"
 msgstr "Mettre à jour la configuration collecteur/agent"
 
 #: centreon/www/install/front_translate.php

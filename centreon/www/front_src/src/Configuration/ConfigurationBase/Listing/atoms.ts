@@ -14,5 +14,7 @@ export const sortFieldAtom = atom<string>('name');
 
 export const selectedRowsAtom = atom([]);
 
-export const resourcesToDeleteAtom = atom<Array<NamedEntity>>([]);
+export const resourcesToDeleteAtom = atom<
+  Array<NamedEntity & { subItemId?: number; subItemName?: string }>
+>([]);
 export const resourcesToDuplicateAtom = atom<Array<NamedEntity>>([]);

@@ -13,15 +13,15 @@ export const getPollersEndpoint = (parameters): string =>
   });
 
 interface GetPollerAgentEndpointProps {
-  agentId: number;
-  pollerId?: number;
+  id: number;
+  subItemId?: number;
 }
 
 export const getPollerAgentEndpoint = ({
-  agentId,
-  pollerId
+  id,
+  subItemId
 }: GetPollerAgentEndpointProps): string =>
-  `${agentConfigurationsEndpoint}/${agentId}${pollerId ? `/pollers/${pollerId}` : ''}`;
+  `${agentConfigurationsEndpoint}/${id}${subItemId ? `/pollers/${subItemId}` : ''}`;
 
 export const getAgentConfigurationEndpoint = ({ id }): string =>
   `${agentConfigurationsEndpoint}/${id}`;

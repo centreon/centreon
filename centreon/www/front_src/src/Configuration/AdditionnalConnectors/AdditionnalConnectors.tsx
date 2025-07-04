@@ -34,7 +34,7 @@ const AdditionnalConnectors = () => {
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
-        delete: true,
+        delete: () => true,
         edit: true
       }}
       labels={{

@@ -7,7 +7,11 @@ export {
 export {
   agentConfigurationsEndpoint,
   getPollersEndpoint,
-  getAgentConfigurationEndpoint
+  getAgentConfigurationEndpoint,
+  listTokensEndpoint,
+  pollersEndpoint,
+  hostsConfigurationEndpoint,
+  getPollerAgentEndpoint
 } from './endpoints';
 
 export {

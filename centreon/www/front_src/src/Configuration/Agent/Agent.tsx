@@ -24,7 +24,7 @@ const Agent = () => {
   const { groups, inputs } = useFormInputs();
   const validationSchema = useValidationSchema();
 
-  const { api, filtersConfiguration } = useAgent();
+  const { api, filtersConfiguration, canDelete } = useAgent();
 
   return (
     <ConfigurationBase
@@ -41,7 +41,7 @@ const Agent = () => {
       filtersInitialValues={filtersInitialValues}
       defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
-        delete: true,
+        delete: canDelete,
         edit: true
       }}
       labels={{

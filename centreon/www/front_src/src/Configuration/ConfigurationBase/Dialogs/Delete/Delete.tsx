@@ -1,8 +1,7 @@
-import { Typography } from '@mui/material';
-
-import { Trans, useTranslation } from 'react-i18next';
-
 import { Modal } from '@centreon/ui/components';
+import { Typography } from '@mui/material';
+import { JSX } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 import useDelete from './useDelete';
 

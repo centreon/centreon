@@ -1,7 +1,7 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
-import { ConfigurationBase } from '../models';
+import { ConfigurationBase } from '../Common/models';
 import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
 
 import Page from './Page';
