@@ -107,6 +107,8 @@ runs:
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
 
+        git checkout master
+
         # Create release tags on git for each release components
         # Abort if no tags or existing tag
         echo "Creating release tags."
