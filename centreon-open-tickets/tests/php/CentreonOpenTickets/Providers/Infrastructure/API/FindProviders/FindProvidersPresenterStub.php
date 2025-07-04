@@ -23,12 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\CentreonOpenTickets\Providers\Infrastructure\API\FindProviders;
 
-use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersPresenterInterface;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersResponse;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-final class FindProvidersPresenterStub extends AbstractPresenter implements FindProvidersPresenterInterface
+final class FindProvidersPresenterStub extends AbstractPresenter
 {
     public FindProvidersResponse|ResponseStatusInterface $response;
 

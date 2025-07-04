@@ -38,22 +38,18 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --optimize-autoloader
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: tools
         shell: bash
 
-      - name: Analyse code quality
-        run: composer ci
-        working-directory: tools
+      - name: 🛠️ Rector checks
+        working-directory: centreon
+        run: composer rector -- --no-progress-bar
 
-#      - name: Run of rector with strict config
-#        run: composer rector
-#        working-directory: tools
-#
-#      - name: Run of php-cs-fixer with strict config
-#        run: composer cs
-#        working-directory: tools
-#
-#      - name: Run of phpstan at level max
-#        run: composer stan
-#        working-directory: tools
+      - name: 🧹 PHP-CS-Fixer checks
+        working-directory: centreon
+        run: composer cs -- --format=txt --show-progress=none
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: composer stan -- --no-progress

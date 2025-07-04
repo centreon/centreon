@@ -28,6 +28,7 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php'
 $finder = Finder::create()
     ->in([
         __DIR__ . '/src/CentreonOpenTickets',
+        __DIR__ . '/tests/php/CentreonOpenTickets',
     ])
     ->append([
         __DIR__ . '/.php-cs-fixer.legacy.src.php',

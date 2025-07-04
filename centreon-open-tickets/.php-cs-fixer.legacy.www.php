@@ -29,7 +29,6 @@ $finder = Finder::create()
     ->in([
         __DIR__ . '/config',
         __DIR__ . '/packaging',
-        __DIR__ . '/tests',
         __DIR__ . '/widgets',
         __DIR__ . '/www',
     ]);

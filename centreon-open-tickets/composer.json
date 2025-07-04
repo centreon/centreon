@@ -68,11 +68,18 @@
         "@cs:legacy:www",
         "@cs:legacy:src"
     ],
+    "cs:legacy:fix": [
+        "@cs:legacy:www:fix",
+        "@cs:legacy:src:fix"
+    ],
     "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:test": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
+    "stan:legacy:test:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.test.neon --memory-limit=1G",
     "stan:legacy": [
         "@stan:legacy:www",
-        "@stan:legacy:src"
+        "@stan:legacy:src",
+        "@stan:legacy:test"
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
@@ -80,16 +87,13 @@
       "@rector:legacy"
     ],
     "cs": [
-      "@cs:legacy:www",
-      "@cs:legacy:src"
+      "@cs:legacy"
     ],
     "cs:fix": [
-      "@cs:legacy:www:fix",
-      "@cs:legacy:src:fix"
+      "@cs:legacy:fix"
     ],
     "stan": [
-      "@stan:legacy:www",
-      "@stan:legacy:src"
+      "@stan:legacy"
     ],
     "legacy:check": [
       "@rector:legacy",
@@ -97,7 +101,8 @@
       "@stan:legacy"
     ],
     "ci": [
-      "@legacy:check"
+      "@legacy:check",
+      "@test"
     ]
   },
   "extra": {
