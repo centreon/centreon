@@ -462,7 +462,7 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Check Symfony configuration
+      - name: ⚙️ Check Symfony configuration
         run: composer symfony:check
         working-directory: centreon
 
@@ -487,7 +487,6 @@ jobs:
           pids+=($!)
 
           if ! wait -n; then
-            echo "❌ One of the Rector jobs failed"
             kill "${pids[@]}" 2>/dev/null || true
             exit 1
           fi
@@ -502,22 +501,32 @@ jobs:
           {
             composer cs:legacy:www -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www): Success" || { echo "❌ PHP-CS-Fixer Legacy (www): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer cs:legacy:src -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (src): Success" || { echo "❌ PHP-CS-Fixer Legacy (src): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (test): Success" || { echo "❌ PHP-CS-Fixer Legacy (test): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
           } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
 
           wait
 
@@ -529,30 +538,42 @@ jobs:
           {
             composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
           } &
+          pids+=($!)
 
           {
             composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
           } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
 
           wait
 
@@ -564,6 +585,12 @@ jobs:
           {
             composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
           } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
 
           wait
 

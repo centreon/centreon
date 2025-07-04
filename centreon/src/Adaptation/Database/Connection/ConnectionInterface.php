@@ -254,7 +254,7 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      *
-     * @return array
+     * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
