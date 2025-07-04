@@ -124,7 +124,7 @@ interface ConnectionInterface
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
      *          // $nbAffectedRows = 1
      */
-    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int;
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): string;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
