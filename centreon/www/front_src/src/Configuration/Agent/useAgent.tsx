@@ -53,7 +53,7 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
         ? adaptTelegrafConfigurationToAPI
         : adaptCMAConfigurationToAPI
     }),
-    []
+    [agentTypeForm]
   );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
