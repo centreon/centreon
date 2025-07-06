@@ -30,7 +30,8 @@ const Base = ({
       filtersConfiguration,
       filtersInitialValues,
       defaultSelectedColumnIds,
-      actions
+      actions,
+      labels
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -46,7 +47,8 @@ const Base = ({
     filtersConfiguration,
     defaultSelectedColumnIds,
     filtersInitialValues,
-    actions
+    actions,
+    labels
   ]);
 
   const isConfigurationValid = useMemo(
@@ -56,7 +58,8 @@ const Base = ({
       configuration?.filtersConfiguration &&
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
       !isEmpty(configuration?.filtersInitialValues) &&
-      !isEmpty(filters),
+      !isEmpty(filters) &&
+      !isEmpty(labels),
     [configuration, filters]
   ) as boolean;
 

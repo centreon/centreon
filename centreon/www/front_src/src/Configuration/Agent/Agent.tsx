@@ -10,9 +10,15 @@ import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import {
   labelAddAgentConfiguration,
+  labelAgent,
   labelAgentsConfigurations,
   labelCollapse,
+  labelDeleteAgent,
+  labelDeleteAgentConfirmation,
+  labelDeletePoller,
+  labelDeletePollerConfirmation,
   labelExpand,
+  labelPoller,
   labelWelcomeDescription,
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
@@ -51,6 +57,16 @@ const Agent = () => {
           description: t(labelWelcomeDescription),
           actions: {
             create: t(labelAddAgentConfiguration)
+          }
+        },
+        dialogs: {
+          delete: {
+            name: labelAgent.toLowerCase(),
+            subItemName: labelPoller.toLowerCase(),
+            title: t(labelDeleteAgent),
+            description: t(labelDeleteAgentConfirmation),
+            subItemTitle: t(labelDeletePoller),
+            subItemDescription: t(labelDeletePollerConfirmation)
           }
         }
       }}

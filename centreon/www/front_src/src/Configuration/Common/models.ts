@@ -44,6 +44,27 @@ export interface Actions {
   viewDetails?: boolean;
 }
 
+interface Labels {
+  title: string;
+  welcomePage: {
+    title: string;
+    description?: string;
+    actions: {
+      create: string;
+    };
+  };
+  dialogs?: {
+    delete?: {
+      name: string;
+      title: string;
+      description: string;
+      subItemName?: string;
+      subItemTitle?: string;
+      subItemDescription?: string;
+    };
+  };
+}
+
 export interface ConfigurationBase {
   resourceType: ResourceType;
   columns: Array<Column>;
@@ -53,16 +74,7 @@ export interface ConfigurationBase {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
-  labels: {
-    title: string;
-    welcomePage: {
-      title: string;
-      description?: string;
-      actions: {
-        create: string;
-      };
-    };
-  };
+  labels: Labels;
   listAdditionalProps?: object;
 }
 
@@ -109,4 +121,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
+  labels?: Labels | null;
 }
