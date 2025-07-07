@@ -23,6 +23,7 @@ declare(strict_types=1);
  *
  */
 
+
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
