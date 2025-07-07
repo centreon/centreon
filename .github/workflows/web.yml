@@ -1110,7 +1110,7 @@ jobs:
       - name: Create a yum feature repository
         run: |
           set -x
-          feature_ticket=$(echo "${{ github.ref_name }}" | cut -d'-' -f2,3)
+          feature_ticket=$(echo "${{ github.ref_name }}" | grep -oE 'MON-[0-9]+')
           echo "[INFO]: Creating a yum feature repository if it does not exist"
 
           curl -X POST \
