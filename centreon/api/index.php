@@ -1,8 +1,6 @@
 <?php
 
-
 declare(strict_types=1);
-
 
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)

@@ -5,7 +5,6 @@ import {
   labelLogout
 } from '../UserMenu/translatedLabels';
 
-
 import { initialize } from './Header.utils';
 
 export default (): void => {
