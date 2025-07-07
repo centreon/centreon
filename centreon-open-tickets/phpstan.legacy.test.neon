@@ -8,3 +8,12 @@ parameters:
 
     paths:
         - tests/php/CentreonOpenTickets
+
+    ignoreErrors:
+
+        - # To ignore errors in the tests/php directory because of Pest
+            path: tests/php
+            messages:
+                - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'

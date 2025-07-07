@@ -31,6 +31,6 @@ return $rectorConfig
         __DIR__ . '/phpstan',
         __DIR__ . '/rector',
         // files
-        __DIR__ . '/.php-cs-fixer.tools.php',
+        __DIR__ . '/.php-cs-fixer.php',
         __DIR__ . '/rector.php',
     ]);

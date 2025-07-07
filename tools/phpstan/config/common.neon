@@ -19,15 +19,17 @@ services:
 # To use phpstan with custom rules after updating the custom rules
 
 parameters:
+
     scanFiles:
         - centreon.stub
+
     paths:
         - ../src/CustomRules
+
     ignoreErrors:
         - # To ignore all errors in the CustomRules directory
             message: '#.*#'
-            paths:
-                - ../src/CustomRules
+            path: ../src/CustomRules
         - # To ignore : Call to function is_string() with 'defined_for_phpstan…' will always evaluate to true.
             reportUnmatched: false
             message: "#defined_for_phpstan#"

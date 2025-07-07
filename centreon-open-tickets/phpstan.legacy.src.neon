@@ -6,8 +6,8 @@ parameters:
     level: max
 
     scanFiles:
-        - ../tools/phpstan/config/centreon.stub
         - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.legacy.src.php
         - rector.legacy.php
 
     paths:

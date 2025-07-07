@@ -33,7 +33,7 @@ $finder = Finder::create()
         __DIR__ . '/rector/',
     ])
     ->append([
-        __DIR__ . '/.php-cs-fixer.tools.php',
+        __DIR__ . '/.php-cs-fixer.php',
         __DIR__ . '/rector.php',
     ]);
 
@@ -45,4 +45,4 @@ return $config
         ]
     ))
     ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.tools.cache');
+    ->setCacheFile('.php-cs-fixer.cache');

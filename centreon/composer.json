@@ -170,16 +170,6 @@
     "rector:core:fix": "../tools/vendor/bin/rector --config=rector.core.php process",
     "rector:new": "../tools/vendor/bin/rector process --config=rector.new.php --dry-run",
     "rector:new:fix": "../tools/vendor/bin/rector process --config=rector.new.php",
-    "rector": [
-      "@rector:legacy",
-      "@rector:core",
-      "@rector:new"
-    ],
-    "rector:fix": [
-      "@rector:legacy:fix",
-      "@rector:core:fix",
-      "@rector:new:fix"
-    ],
     "cs:legacy:www": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
     "cs:legacy:www:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
     "cs:legacy:src": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
@@ -229,6 +219,16 @@
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
+    "rector": [
+      "@rector:legacy",
+      "@rector:core",
+      "@rector:new"
+    ],
+    "rector:fix": [
+      "@rector:legacy:fix",
+      "@rector:core:fix",
+      "@rector:new:fix"
+    ],
     "cs": [
       "@cs:legacy",
       "@cs:core",

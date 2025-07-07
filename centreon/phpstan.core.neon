@@ -13,13 +13,14 @@ rules:
     - Tools\PhpStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
 
 parameters:
+
     level: 8
+
     paths:
         - src/Core
-    ignoreErrors:
 
+    ignoreErrors:
         - # [CENTREON-RULE]: (RepositoryNameCustomRule) Repository name must start with data storage prefix, which may be followed by 'Read' or 'Write' and context mention.
-            reportUnmatched: false
             message: '#RepositoryNameCustomRule#'
             paths:
                 - src/Core/Common/Infrastructure/Repository/AbstractRepositoryRDB.php
@@ -27,14 +28,12 @@ parameters:
                 - src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
 
         - # [CENTREON-RULE]: (RepositoryInterfaceNameCustomRule) At least one Interface name must start with 'Read' or 'Write' and end with 'RepositoryInterface'.
-            reportUnmatched: false
             message: '#RepositoryInterfaceNameCustomRule#'
             paths:
                 - src/Core/Common/Infrastructure/Repository/DatabaseRepositoryManager.php
                 - src/Core/Notification/Infrastructure/Repository/NotificationResourceRepositoryProvider.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
-            reportUnmatched: false
             message: '#Class [\\\w]+ must be final.#'
             paths:
                 - src/Core/Application/Common/UseCase/AbstractResponse.php  # <- BUG which need to be fixed in custom Rules

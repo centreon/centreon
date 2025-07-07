@@ -1,10 +1,13 @@
 includes:
-    - ../tools/vendor/phpstan/phpstan-mockery/extension.neon
-    - ../tools/vendor/phpstan/phpstan-phpunit/extension.neon
+    - ../tools/phpstan/config/common.neon
 
 parameters:
+
+    level: 2
+
     bootstrapFiles:
         - config/centreon.config.php.template
+
     scanFiles:
         - config/centreon.config.php.template
         - www/install/functions.php
@@ -12,7 +15,7 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
         - tests/php/bootstrap.php
         - tests/php/polyfill.php
-    level: 2
+
     paths:
         - tests/php/Centreon
         - tests/php/CentreonLegacy
@@ -20,15 +23,13 @@ parameters:
         - tests/php/Security
         - tests/php/Utility
         - tests/php/www
+
     ignoreErrors:
-        -
-            reportUnmatched: false
+
+        - # To ignore errors in the tests/php directory because of Pest
             path: tests/php
             messages:
                 - '#^Undefined variable: \$this$#'
                 - '#^Call to an undefined method Pest#'
                 - '#^Access to an undefined property PHPUnit#'
 
-services:
-    errorFormatter.absolute:
-        class: Tools\PhpStan\AbsolutePathErrorFormatter

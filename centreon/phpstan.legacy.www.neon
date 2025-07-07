@@ -1,18 +1,22 @@
 includes:
+    - ../tools/phpstan/config/common.neon
     - phpstan.legacy.www.baseline.neon
 
 parameters:
+
+    level: 0
+
     bootstrapFiles:
         - config/centreon.config.php.template
+
     scanFiles:
         - config/centreon.config.php.template
         - tests/phpstan_stubs/bootstrap.stub
         - tests/phpstan_stubs/legacy.stub
 
-    level: 0
     paths:
         - www
+
     ignoreErrors:
         -   # Ignore path problems
-            reportUnmatched: false
             message: '#is not a file or it does not exist.#'

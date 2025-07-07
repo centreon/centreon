@@ -50,6 +50,9 @@
     "rector": [
       "@rector:legacy"
     ],
+    "rector:fix": [
+      "@rector:legacy:fix"
+    ],
     "cs": [
       "@cs:legacy"
     ],

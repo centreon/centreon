@@ -1,6 +1,6 @@
 {
   "scan-files" : [
-    "./.php-cs-fixer.unstrict.php",
+    "./.php-cs-fixer.legacy.www.php",
     "./src/CentreonOpenTickets/Providers/Application/Repository/ReadProviderRepositoryInterface.php",
     "./src/CentreonOpenTickets/Providers/Application/Exception/ProviderException.php",
     "./src/CentreonOpenTickets/Providers/Application/UseCase/FindProvidersResponse.php",
@@ -76,10 +76,10 @@
     "./www/modules/centreon-open-tickets/providers/BmcFootprints11/BmcFootprints11Provider.class.php",
     "./www/modules/centreon-open-tickets/providers/EasyvistaSoap/EasyvistaSoapProvider.class.php",
     "./www/modules/centreon-open-tickets/centreon-open-tickets.conf.php",
-    "./.php-cs-fixer.dist.php",
+    "./.php-cs-fixer.legacy.src.php",
     "./tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php",
     "./tests/php/CentreonOpenTickets/Providers/Infrastructure/API/FindProviders/FindProvidersPresenterStub.php",
-    "./rector.php"
+    "./rector.legacy.php"
   ]
 }
 

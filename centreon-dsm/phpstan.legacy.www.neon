@@ -1,3 +1,6 @@
+includes:
+    - ../tools/phpstan/config/common.neon
+
 parameters:
 
     level: 0

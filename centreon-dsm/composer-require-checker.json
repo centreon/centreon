@@ -1,6 +1,6 @@
 {
   "scan-files" : [
-    "./.php-cs-fixer.unstrict.php",
+    "./.php-cs-fixer.legacy.www.php",
     "./www/modules/centreon-dsm/statistics/centreonDSMStats.class.php",
     "./www/modules/centreon-dsm/conf.php",
     "./www/modules/centreon-dsm/core/configuration/services/formSlot.php",
@@ -8,7 +8,7 @@
     "./www/modules/centreon-dsm/core/configuration/services/slots.php",
     "./www/modules/centreon-dsm/core/configuration/services/help.php",
     "./www/modules/centreon-dsm/core/configuration/services/DB-Func.php",
-    "./rector.php"
+    "./rector.legacy.php"
   ]
 }
 
