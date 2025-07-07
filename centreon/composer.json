@@ -76,7 +76,7 @@
   },
   "require-dev": {
     "behat/mink-selenium2-driver": "1.6.*",
-    "centreon/centreon-test-lib": "dev-remove_frameworkbundle_deprecations_anthony",
+    "centreon/centreon-test-lib": "dev-master",
     "dama/doctrine-test-bundle": "^8.2",
     "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "deptrac/deptrac": "^3.0",

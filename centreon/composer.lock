@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "148038bc3305eef3b3fa659d7031495b",
+    "content-hash": "c1529bcb56e99c42bc25c9f5d3f88174",
     "packages": [
         {
             "name": "amphp/amp",
@@ -9394,16 +9394,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-remove_frameworkbundle_deprecations_anthony",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "6d77c603fe81c0dace970220af3b474a3a17d1cf"
+                "reference": "be81af2a94edb04e89575b937d003952d83f1f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/6d77c603fe81c0dace970220af3b474a3a17d1cf",
-                "reference": "6d77c603fe81c0dace970220af3b474a3a17d1cf",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/be81af2a94edb04e89575b937d003952d83f1f11",
+                "reference": "be81af2a94edb04e89575b937d003952d83f1f11",
                 "shasum": ""
             },
             "require": {
@@ -9426,6 +9426,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -9450,9 +9451,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/remove_frameworkbundle_deprecations_anthony"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-06-30T15:26:09+00:00"
+            "time": "2025-07-07T12:36:25+00:00"
         },
         {
             "name": "clue/ndjson-react",
@@ -15782,7 +15783,7 @@
         "ext-simplexml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.2"
     },

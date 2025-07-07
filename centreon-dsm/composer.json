@@ -6,7 +6,7 @@
   "require-dev": {
     "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-remove_frameworkbundle_deprecations_anthony",
+    "centreon/centreon-test-lib": "dev-master",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpstan/phpstan": "1.12.*"
   },

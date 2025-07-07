@@ -7,7 +7,7 @@
     "ext-json": "*",
     "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-remove_frameworkbundle_deprecations_anthony",
+    "centreon/centreon-test-lib": "dev-master",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "friendsofphp/php-cs-fixer": "3.64.*",

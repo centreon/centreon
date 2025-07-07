@@ -13,7 +13,7 @@
     "ext-openssl": "*",
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-remove_frameworkbundle_deprecations_anthony",
+    "centreon/centreon-test-lib": "dev-master",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpstan/phpstan": "1.12.*",
     "phpstan/phpstan-beberlei-assert": "1.1.*",

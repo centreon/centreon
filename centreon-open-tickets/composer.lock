@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6aed1d35f540f44fe3a9dcbadfa8c1be",
+    "content-hash": "5443db58ff8e30e4a86e7a2543c9fea8",
     "packages": [],
     "packages-dev": [
         {
@@ -1553,7 +1553,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "9f95997e25d8407175cd8e67d2c887fcb3226f93"
+                "reference": "937d036c71ae2db2f61ab2491d1718d4c48bacd2"
             },
             "require": {
                 "amphp/http-client": "^4.6",
@@ -1635,7 +1635,7 @@
             },
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-remove_frameworkbundle_deprecations_anthony",
+                "centreon/centreon-test-lib": "dev-master",
                 "dama/doctrine-test-bundle": "^8.2",
                 "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
                 "deptrac/deptrac": "^3.0",
@@ -1760,16 +1760,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-remove_frameworkbundle_deprecations_anthony",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "6d77c603fe81c0dace970220af3b474a3a17d1cf"
+                "reference": "be81af2a94edb04e89575b937d003952d83f1f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/6d77c603fe81c0dace970220af3b474a3a17d1cf",
-                "reference": "6d77c603fe81c0dace970220af3b474a3a17d1cf",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/be81af2a94edb04e89575b937d003952d83f1f11",
+                "reference": "be81af2a94edb04e89575b937d003952d83f1f11",
                 "shasum": ""
             },
             "require": {
@@ -1792,6 +1792,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1816,9 +1817,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/remove_frameworkbundle_deprecations_anthony"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-06-30T15:26:09+00:00"
+            "time": "2025-07-07T12:36:25+00:00"
         },
         {
             "name": "clue/ndjson-react",
