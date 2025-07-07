@@ -1126,7 +1126,7 @@ jobs:
                 }'
 
           response=""
-          while [[ $(echo "$response" | tr -d '\n' | tail -c 3) -eq 200 ]]; do
+          while [[ $(echo "$response" | tr -d '\n' | tail -c 3) -ne 200 ]]; do
             response=$(curl \
               --write-out "%{http_code}" \
               --request GET \
