@@ -705,7 +705,7 @@ class CentreonCustomView
         $row = $stmt->fetch();
 
         if (! $row) {
-            throw new \Exception("An error occured");
+            throw new CentreonCustomViewException("Access denied: View not found or not accessible to current user");
         }
         if ($row['locked'] == "0") {
             $isLocked = $row['locked'];
