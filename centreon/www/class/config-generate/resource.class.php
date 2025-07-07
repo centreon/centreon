@@ -90,13 +90,15 @@ class Resource extends AbstractObject
 
         if (is_null($this->stmt)) {
             $this->stmt = $this->backend_instance->db->prepare(<<<SQL
-                SELECT resource_name, resource_line, is_password, ns.is_encryption_ready
-                FROM cfg_resource_instance_relations, cfg_resource
+                SELECT cr.resource_name, cr.resource_line, cr.is_password, ns.is_encryption_ready
+                FROM cfg_resource_instance_relations cfgri
+                INNER JOIN cfg_resource cr
+                    ON cr.resource_id = cfgri.resource_id
                 INNER JOIN nagios_server ns
-                    ON ns.id = instance_id
-                WHERE instance_id = :poller_id
-                    AND cfg_resource_instance_relations.resource_id = cfg_resource.resource_id
-                    AND cfg_resource.resource_activate = '1';
+                    ON ns.id = cfgri.instance_id
+                WHERE cfgri.instance_id = :poller_id
+                    AND cfgri.resource_id = cr.resource_id
+                    AND cr.resource_activate = '1';
                 SQL
             );
         }

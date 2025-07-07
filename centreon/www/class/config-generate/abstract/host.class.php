@@ -34,6 +34,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Macro\Domain\Model\Macro;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -252,7 +254,16 @@ abstract class AbstractHost extends AbstractObject
                 }
             }
             if (isset($host['host_snmp_community'])) {
-                $host['macros']['_SNMPCOMMUNITY'] = $hostMacros[0]?->shouldBeEncrypted()
+                $shouldEncrypt = $this->backend_instance->db->fetchAssociative(<<<SQL
+                    SELECT 1 FROM nagios_server ns
+                        INNER JOIN ns_host_relation nsr
+                        ON ns.id = nsr.nagios_server_id
+                        WHERE nsr.host_host_id = :hostId
+                        AND ns.is_encryption_ready = '1'
+                    SQL,
+                    QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
+                );
+                $host['macros']['_SNMPCOMMUNITY'] = $shouldEncrypt !== false
                     ? 'encrypt::' . $this->engineContextEncryption->crypt($host['host_snmp_community'])
                     : 'raw::' . $host['host_snmp_community'];
             }

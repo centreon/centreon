@@ -167,15 +167,6 @@ fixCentreonCronPermissions() {
   fi
 }
 
-createEngineContextFile() {
-  FILE="/etc/centreon-engine/engine-context.json"
-  if [ ! -f "$FILE" ]; then
-    touch "$FILE"
-    chmod 664 "$FILE"
-    chown centreon:centreon "$FILE"
-  fi
-}
-
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -200,7 +191,6 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     fixCentreonCronPermissions
-    createEngineContextFile
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
@@ -212,7 +202,6 @@ case "$action" in
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
-    createEngineContextFile
     ;;
   *)
     # $1 == version being installed
