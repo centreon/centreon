@@ -441,21 +441,27 @@ class Broker extends AbstractObjectJSON
                     $this->processVaultOutput($output, $outputIndex, $object);
                 }
             }
-
             foreach ($object['output'] as &$output) {
-                if (!isset($output['lua_parameters']) || !is_array($output['lua_parameters'])) {
+                error_log(print_r($output, true));
+
+                if ($output['type'] === 'sql' && array_key_exists('db_password', $output)) {
+                    $output['db_password'] = $shouldBeEncrypted
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
+                        : 'raw::' . $output['db_password'];
+                }
+                if (!isset($output['lua_parameter']) || !is_array($output['lua_parameter'])) {
                     continue;
                 }
 
-                foreach ($output['lua_parameters'] as &$luaParameter) {
+                foreach ($output['lua_parameter'] as &$luaParameter) {
                     if (
                         isset($luaParameter['type'], $luaParameter['value']) &&
                         $luaParameter['type'] === 'password' &&
                         is_string($luaParameter['value'])
                     ) {
-                        $luaParameter['value'] = $shouldBeEncrypted 
+                        $luaParameter['value'] = $shouldBeEncrypted
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value'])
-                        : 'raw::' . $this->engineContextEncryption->crypt($luaParameter['value']);
+                        : 'raw::' . $luaParameter['value'];
                     }
                 }
             }
