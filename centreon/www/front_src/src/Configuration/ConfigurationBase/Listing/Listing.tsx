@@ -1,12 +1,13 @@
 import { Column, MemoizedListing } from '@centreon/ui';
-
 import { useAtom } from 'jotai';
 import { JSX } from 'react';
-import { Actions } from '../../models';
+
+import { Actions } from '../../Common/models';
 import ActionsBar from './ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
 import useListing from './useListing';
+
 interface Props {
   columns: Array<Column>;
   hasWriteAccess: boolean;
