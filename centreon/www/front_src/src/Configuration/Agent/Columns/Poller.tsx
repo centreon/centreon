@@ -12,7 +12,7 @@ const Poller = ({ row }) => {
     <Box sx={{ pl: isSubNested ? 3 : 0 }}>
       {isSubNested
         ? row.name
-        : `${row.pollers.length} ${pluralizedT({ count: row.pollers.length, label: labelPoller.toLocaleLowerCase() })}`}
+        : `${row.pollers.length} ${pluralizedT({ count: row.pollers.length, label: labelPoller }).toLocaleLowerCase()}`}
     </Box>
   );
 };
