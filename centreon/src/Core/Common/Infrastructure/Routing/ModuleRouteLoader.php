@@ -59,6 +59,11 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         if (! is_iterable($routeCollections)) {
             return $routes;
         }
+
+        // Modules with only one route will return directly a route collection
+        if ($routeCollections instanceof RouteCollection) {
+            return $routeCollections;
+        }
         foreach ($routeCollections as $routeCollection) {
             $routes->addCollection($routeCollection);
         }
