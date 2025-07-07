@@ -1117,13 +1117,19 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/centreon/delivery-tooling/dispatches \
-              -d '{"event_type": "create-feature-repository",
-                  "client_payload": {
-                    "major_version": "${{ needs.get-environment.outputs.major_version }}",
-                    "repo_type": "feature",
-                    "feature_ticket": "$feature_ticket"
+              -d "$(jq -n \
+                --arg major_version "${{ needs.get-environment.outputs.major_version }}" \
+                --arg repo_type "feature" \
+                --arg feature_ticket "$feature_ticket" \
+                '{
+                  event_type: "create-feature-repository",
+                  client_payload: {
+                    major_version: $major_version,
+                    repo_type: $repo_type,
+                    feature_ticket: $feature_ticket
                   }
                 }'
+              )"
 
           response=""
           while [[ $(echo "$response" | tr -d '\n' | tail -c 3) -ne 200 ]]; do
