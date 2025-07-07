@@ -75,7 +75,7 @@ const Header = (): JSX.Element => {
       className={cx(
         classes.header,
         isFullscreenActivated && classes.fullscreenActivated,
-        'bg-rose-700 dark:bg-rose-900'
+        'bg-primary-dark dark:bg-black'
       )}
       ref={headerRef}
     >

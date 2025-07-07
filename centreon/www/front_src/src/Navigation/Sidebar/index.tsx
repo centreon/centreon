@@ -17,6 +17,9 @@ import NavigationMenu from './Menu';
 export const openDrawerWidth = 165;
 export const closedDrawerWidth = 6;
 
+const isDarkMode = (theme: Theme): boolean =>
+  equals(theme.palette.mode, ThemeMode.dark);
+
 const openedMixin = (theme: Theme): CSSObject => ({
   overflowX: 'hidden',
   transition: theme.transitions.create('width', {
@@ -49,6 +52,9 @@ const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => !equals(prop, 'open')
 })(({ theme, open }) => ({
   '& .MuiPaper-root': {
+    backgroundColor: isDarkMode(theme)
+      ? theme.palette.common.black
+      : theme.palette.primary.dark,
     border: 'none'
   },
   boxSizing: 'border-box',
@@ -78,13 +84,7 @@ export default ({ navigationData }: Props): JSX.Element => {
 
   return (
     <Box data-testid="sidebar" sx={{ display: 'flex' }}>
-      <Drawer
-        open={isMenuOpen}
-        variant="permanent"
-        classes={{
-          paper: 'bg-rose-700 dark:bg-rose-900'
-        }}
-      >
+      <Drawer open={isMenuOpen} variant="permanent">
         <DrawerHeader>
           <Logo isMiniLogo={!isMenuOpen} onClick={toggleNavigation} />
         </DrawerHeader>
