@@ -3,7 +3,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureSAML,
   initializeSAMLUser,
-  navigateToSAMLConfigPage
+  navigateToSAMLConfigPage,
+  saveSamlFormIfEnabled
 } from '../common';
 import { configureProviderAcls } from '../../../../commons';
 
@@ -52,9 +53,7 @@ When('the administrator sets authentication mode to SAML only', () => {
 
   configureSAML();
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });
@@ -72,6 +71,7 @@ Then(
     }).as('getUserInformation');
 
     cy.loginKeycloak('admin');
+
     cy.get('#input-error')
       .should('be.visible')
       .and('include.text', 'Invalid username or password.');

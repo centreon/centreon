@@ -271,7 +271,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         try {
             $this->resources = [];
             $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest($filter, $queryParametersFromRequestParameter);
+            $query = $this->generateFindResourcesRequest(
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter
+            );
             $this->find($query, $queryParametersFromRequestParameter);
 
             return $this->resources;
@@ -295,12 +298,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         try {
             $this->resources = [];
-            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                $filter,
-                $queryParametersFromRequestParameter,
-                $accessGroupRequest
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+                accessGroupIds: $accessGroupIds
             );
             $this->find($query, $queryParametersFromRequestParameter);
 
@@ -335,7 +337,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
 
             $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest($filter, $queryParametersFromRequestParameter);
+            $query = $this->generateFindResourcesRequest(
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter
+            );
 
             return $this->iterate($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
@@ -371,13 +376,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
             }
 
-            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                $filter,
-                $queryParametersFromRequestParameter,
-                $accessGroupRequest
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+                accessGroupIds: $accessGroupIds
             );
 
             return $this->iterate($query, $queryParametersFromRequestParameter);
@@ -445,13 +448,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
 
         try {
-            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
                 filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-                accessGroupRequest: $accessGroupRequest,
+                accessGroupIds: $accessGroupIds,
                 onlyCount: true
             );
 
@@ -495,11 +496,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int
     {
         try {
+            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
             $query = $this->queryBuilder
                 ->select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
                 ->from('`:dbstg`.`resources`')
+                ->where($accessGroupRequest)
                 ->getQuery();
-            $query .= $this->addResourceAclSubRequest($accessGroupIds);
 
             return (int) $this->connection->fetchOne($this->translateDbName($query));
         } catch (\Throwable $exception) {
@@ -516,7 +518,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     /**
      * @param ResourceFilter $filter
      * @param QueryParameters $queryParametersFromRequestParameter
-     * @param string $accessGroupRequest
+     * @param int[] $accessGroupIds
      * @param bool $onlyCount
      *
      * @throws CollectionException
@@ -527,7 +529,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     private function generateFindResourcesRequest(
         ResourceFilter $filter,
         QueryParameters $queryParametersFromRequestParameter,
-        string $accessGroupRequest = '',
+        array $accessGroupIds = [],
         bool $onlyCount = false
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
@@ -630,7 +632,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $query .= $provider->getSubFilter($filter);
         }
 
-        $query .= $accessGroupRequest;
+        if ($accessGroupIds !== []) {
+            $query .= " AND {$this->addResourceAclSubRequest($accessGroupIds)}";
+        }
 
         $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
 
@@ -709,7 +713,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
-        return sprintf(' AND (%s)', implode(' OR ', $orConditions));
+        return sprintf('(%s)', implode(' OR ', $orConditions));
     }
 
     /**

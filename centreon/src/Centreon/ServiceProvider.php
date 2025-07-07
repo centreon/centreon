@@ -38,7 +38,6 @@ use Centreon\Infrastructure\Service\CentreonWebserviceService;
 use CentreonACL as CACL;
 use CentreonClapi\CentreonACL;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Pimple\Container;
 use Pimple\Psr11\ServiceLocator;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;

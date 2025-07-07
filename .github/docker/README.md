@@ -60,9 +60,19 @@ Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
 * `vault`: register automatically hashicorp vault and migrate credentials
-* `openid`: run a docker image of keycloak (centreon configuration must be done manually)
-* `saml`: run a docker image of keycloak (centreon configuration must be done manually)
-* `openldap`: run a docker image of openldap (centreon ldap configuration must be enabled manually)
+* `openid`: run a docker image of keycloak
+  * centreon configuration is done automatically with auto import enabled
+  * login user: **oidc** / **Centreon!2021**
+  * :warning: ACLs must be configured manually
+  * :warning: if you use WSL, your browser must run from WSL. Otherwise, you will not have access to openid container ip address.
+* `saml`: run a docker image of keycloak
+  * centreon configuration is done automatically with auto import enabled
+  * login user: **saml** / **Centreon!2021**
+  * :warning: ACLs must be configured manually
+* `openldap`: run a docker image of openldap
+  * centreon configuration is done automatically with auto import enabled
+  * login user: **centreon-ldap** / **centreon**
+  * :warning: ACLs must be configured manually
 * `squid-simple`: run a docker image of squid without authentication (centreon configuration must be done manually)
 * `squid-basic-auth`: run a docker image of squid with authentication (centreon configuration must be done manually)
 * `mediawiki`: run a docker image of mediawiki (centreon configuration must be done manually)
