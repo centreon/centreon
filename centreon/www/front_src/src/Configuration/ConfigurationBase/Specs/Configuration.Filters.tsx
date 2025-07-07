@@ -1,5 +1,5 @@
 import { filter, propEq } from 'ramda';
-import { ResourceType } from '../../models';
+import { ResourceType } from '../../Common/models';
 
 import initialize from './initialize';
 import { filtersConfiguration } from './utils';

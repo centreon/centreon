@@ -3,7 +3,7 @@ import Filters from './Configuration.Filters';
 import Layout from './Configuration.Layout';
 import Modal from './Configuration.Modal';
 
-import { ResourceType } from '../../models';
+import { ResourceType } from '../../Common/models';
 
 const testCases = [
   { resourceType: ResourceType.Host },

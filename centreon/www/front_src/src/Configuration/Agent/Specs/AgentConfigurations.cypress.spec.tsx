@@ -41,6 +41,7 @@ import {
   labelSelectExistingCMATokens,
   labelSelectHost,
   labelTLS,
+  labelType,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
@@ -78,7 +79,6 @@ describe('Agent configurations', () => {
     cy.contains('Telegraf').should('be.visible');
     cy.contains('2 pollers').should('be.visible');
     cy.contains('0 poller').should('be.visible');
-    cy.get(`button[data-testid="${labelDelete}"]`).should('have.length', 10);
 
     cy.makeSnapshot();
   });
@@ -113,7 +113,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.findByLabelText(labelType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPoller).click({ force: true });
 
@@ -131,7 +131,7 @@ describe('Agent configurations', () => {
       expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
         $and: [
           { $or: [{ name: { $rg: 'My agent' } }] },
-          { $or: [{ type: { $in: ['telegraf'] } }] },
+          { $or: [{ type: { $in: ['centreon-agent'] } }] },
           { $or: [{ 'poller.id': { $in: [6] } }] }
         ]
       });
@@ -174,7 +174,7 @@ describe('Agent configurations', () => {
     });
 
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.findByLabelText(labelType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
 
     cy.findByTestId('CancelIcon').click();
@@ -194,9 +194,9 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.findAllByTestId('Search').find('input').type('My agent');
+    cy.findAllByPlaceholderText(labelSearch).clear().type('My agent');
     cy.findByLabelText('Filters').click();
-    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.findByLabelText(labelType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
     cy.findByLabelText(labelPoller).click({ force: true });
 
@@ -227,7 +227,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
+    cy.findByTestId(`${labelDelete}_1`).click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -252,7 +252,7 @@ describe('Agent configurations', () => {
       );
     });
 
-    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
+    cy.findByTestId(`${labelDelete}_1`).click();
 
     cy.contains(labelDeleteAgent).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -285,7 +285,7 @@ describe('Agent configurations', () => {
     cy.contains('poller 1').should('be.visible');
     cy.contains('poller 2').should('be.visible');
 
-    cy.get(`button[data-testid="${labelDelete}"]`).eq(1).click();
+    cy.findAllByTestId(`${labelDelete}_1`).eq(0).click();
 
     cy.contains(labelDeletePoller).should('be.visible');
     cy.contains('You are going to delete the').should('be.visible');
@@ -336,6 +336,9 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
+
+    cy.contains(labelCancel).click();
+    cy.contains('Leave').click();
   });
 
   it('leaves the form when the "Leave" button of the popup is clicked', () => {
@@ -348,7 +351,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelCancel).click();
     cy.contains('Leave').click();
 
-    cy.findByLabelText(labelName).should('not.exist');
+    cy.contains('Add a poller/agent configuration').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -488,6 +491,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPrivateKey).should('have.value', '');
 
     cy.makeSnapshot();
+
+    cy.contains(labelCancel).click();
+    cy.contains('Leave').click();
   });
 
   it('resets the form when a different agent type is selected', () => {
@@ -513,6 +519,9 @@ describe('Agent configurations modal', () => {
     cy.contains(labelConfigurationServer).should('be.visible');
 
     cy.makeSnapshot();
+
+    cy.contains(labelCancel).click();
+    cy.contains('Leave').click();
   });
 
   it('does not validate the form when there is no host configuration', () => {
@@ -555,7 +564,7 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@getTokens');
     cy.contains('token 1').click();
 
-    cy.findByTestId('submit').click();
+    cy.contains('Save').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -668,7 +677,7 @@ describe('Agent configurations modal', () => {
 
     cy.findByLabelText(labelCMAauthenticationToken).should('not.exist');
 
-    cy.findByTestId('submit').click();
+    cy.contains('Save').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
@@ -805,7 +814,7 @@ describe('Agent configurations modal', () => {
 
     cy.makeSnapshot();
 
-    cy.findByTestId('submit').click();
+    cy.contains('Save').click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({

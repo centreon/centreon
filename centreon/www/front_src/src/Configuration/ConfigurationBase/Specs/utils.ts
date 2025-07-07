@@ -1,6 +1,6 @@
 import { ColumnType, InputType, buildListingDecoder } from '@centreon/ui';
 import { JsonDecoder } from 'ts.data.json';
-import { Endpoints, FieldType } from '../../models';
+import { Endpoints, FieldType } from '../../Common/models';
 
 const resourceDecoder = JsonDecoder.object(
   {

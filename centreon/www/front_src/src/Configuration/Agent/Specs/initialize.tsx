@@ -55,25 +55,29 @@ const mockRequest = (isListingEmpty): void => {
   cy.interceptAPIRequest({
     alias: 'deleteAgent',
     method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0 })}`
+    path: `**${getPollerAgentEndpoint({ id: 1 })}`,
+    response: { status: 'ok', code: 200 }
   });
 
   cy.interceptAPIRequest({
     alias: 'deletePoller',
     method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0, pollerId: 1 })}`
+    path: `**${getPollerAgentEndpoint({ id: 0, subItemId: 1 })}`,
+    response: { status: 'ok', code: 200 }
   });
 
   cy.interceptAPIRequest({
     alias: 'postAgentConfiguration',
     method: Method.POST,
-    path: `./api/latest${agentConfigurationsEndpoint}`
+    path: `./api/latest${agentConfigurationsEndpoint}`,
+    response: {}
   });
 
   cy.interceptAPIRequest({
     alias: 'patchAgentConfiguration',
     method: Method.PUT,
-    path: `./api/latest${getAgentConfigurationEndpoint({ id: 1 })}`
+    path: `./api/latest${getAgentConfigurationEndpoint({ id: 1 })}`,
+    response: {}
   });
 
   cy.interceptAPIRequest({

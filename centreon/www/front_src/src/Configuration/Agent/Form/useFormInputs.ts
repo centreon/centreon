@@ -42,6 +42,10 @@ import {
   labelSelectExistingCMATokens
 } from '../translatedLabels';
 
+const publicCertificateProperty = 'configuration.otelPublicCertificate';
+const caCertificateProperty = 'configuration.otelCaCertificate';
+const privateKeyProperty = 'configuration.otelPrivateKey';
+
 const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
@@ -57,9 +61,6 @@ const useInputs = (): {
   };
 
   const isCMA = equals(agentTypeForm, AgentType.CMA);
-  const publicCertificateProperty = 'configuration.otelPublicCertificate';
-  const caCertificateProperty = 'configuration.otelCaCertificate';
-  const privateKeyProperty = 'configuration.otelPrivateKey';
 
   return {
     groups: [

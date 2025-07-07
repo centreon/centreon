@@ -8,7 +8,7 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
-import { FilterConfiguration, ResourceType } from '../../models';
+import { FilterConfiguration, ResourceType } from '../../Common/models';
 import {
   columns,
   filtersConfiguration,
@@ -152,7 +152,7 @@ const initialize = ({
                   actions={{
                     massive: true,
                     enableDisable: true,
-                    delete: true,
+                    delete: () => true,
                     duplicate: true,
                     edit: true,
                     viewDetails: true
