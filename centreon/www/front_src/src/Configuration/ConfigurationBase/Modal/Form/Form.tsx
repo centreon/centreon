@@ -91,7 +91,7 @@ const ConfigurationForm = ({
   return (
     <Form
       Buttons={
-        !!ActionButtons
+        ActionButtons
           ? ActionButtons({ onCancel, mode })
           : hasWriteAccess
             ? Actions({ onCancel, mode })
