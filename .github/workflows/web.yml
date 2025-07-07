@@ -1091,14 +1091,18 @@ jobs:
         package
       ]
     if:
+      github.event_name == 'pull_request' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.delivery_type == 'feature' &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
       contains(github.event.pull_request.labels.*.name, 'delivery-feature') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon'
+    env:
+      JF_URL: https://centreon.jfrog.io
+      JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -1106,7 +1110,9 @@ jobs:
       - name: Create a yum feature repository
         run: |
           set -x
+          feature_ticket=$(echo "${{ github.ref_name }}" | cut -d'-' -f2,3)
           echo "[INFO]: Creating a yum feature repository if it does not exist"
+
           curl -X POST \
               -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
               -H "Accept: application/vnd.github.v3+json" \
@@ -1115,9 +1121,21 @@ jobs:
                   "client_payload": {
                     "major_version": "${{ needs.get-environment.outputs.major_version }}",
                     "repo_type": "feature",
-                    "feature_ticket": "MON-150484"
+                    "feature_ticket": "$feature_ticket"
                   }
                 }'
+
+          response=""
+          while [[ $(echo "$response" | tr -d '\n' | tail -c 3) -eq 200 ]]; do
+            response=$(curl \
+              --write-out "%{http_code}" \
+              --request GET \
+              --url "${{ env.JF_URL }}/artifactory/api/v2/repositories/rpm-standard-feature-$feature_ticket" \
+              --header "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
+              --header "Content-Type: application/json"
+            )
+            sleep 15
+          done
         shell: bash
 
   deliver-rpm:
