@@ -694,7 +694,7 @@ class CentreonCustomView
                             )
                         )
                     AND cvur.is_share = 1
-                    AND cvur.is_consumed = 0;
+                    AND cvur.is_consumed = 0
                 ORDER BY user_id DESC
             SQL;
 
