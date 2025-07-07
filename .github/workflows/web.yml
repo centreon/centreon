@@ -496,20 +496,10 @@ jobs:
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src, cs:legacy:test, cs:core, cs:new" && set -e
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
 
           {
-            composer cs:legacy:www -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www): Success" || { echo "❌ PHP-CS-Fixer Legacy (www): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer cs:legacy:src -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (src): Success" || { echo "❌ PHP-CS-Fixer Legacy (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer cs:legacy:test -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (test): Success" || { echo "❌ PHP-CS-Fixer Legacy (test): Failed"; exit 1; }
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
           } &
           pids+=($!)
 

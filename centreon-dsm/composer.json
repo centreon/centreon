@@ -37,9 +37,9 @@
     "require:check": "../tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
     "rector:legacy": "../tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
     "rector:legacy:fix": "../tools/vendor/bin/rector --config=rector.legacy.php process",
-    "cs:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
-    "cs:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
-    "stan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=512M",
+    "cs:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
+    "cs:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
+    "stan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",
     "rector": [
       "@rector:legacy"
     ],

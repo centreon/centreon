@@ -37,7 +37,7 @@ $finder = Finder::create()
     ->append([
         __DIR__ . '/.php-cs-fixer.new.php',
         __DIR__ . '/.php-cs-fixer.core.php',
-        __DIR__ . '/.php-cs-fixer.legacy.src.php',
+        __DIR__ . '/.php-cs-fixer.legacy.php',
         __DIR__ . '/castor.php',
         __DIR__ . '/rector.php',
     ]);

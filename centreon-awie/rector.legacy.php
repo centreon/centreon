@@ -30,6 +30,6 @@ return $rectorConfig
         __DIR__ . '/features',
         __DIR__ . '/www',
         // files
-        __DIR__ . '/.php-cs-fixer.legacy.www.php',
+        __DIR__ . '/.php-cs-fixer.legacy.php',
         __DIR__ . '/rector.legacy.php',
     ]);

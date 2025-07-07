@@ -1,6 +1,6 @@
 {
   "scan-files" : [
-    ".php-cs-fixer.legacy.www.php",
+    ".php-cs-fixer.legacy.php",
     "features/bootstrap/ImportExportContext.php",
     "features/bootstrap/CentreonAwieContext.php",
     "www/modules/centreon-awie/conf.php",

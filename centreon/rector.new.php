@@ -34,9 +34,7 @@ return $rectorConfig
         // files
         __DIR__ . '/.env.local.php',
         __DIR__ . '/.php-cs-fixer.core.php',
-        __DIR__ . '/.php-cs-fixer.legacy.src.php',
-        __DIR__ . '/.php-cs-fixer.legacy.test.php',
-        __DIR__ . '/.php-cs-fixer.legacy.www.php',
+        __DIR__ . '/.php-cs-fixer.legacy.php',
         __DIR__ . '/.php-cs-fixer.new.php',
         __DIR__ . '/rector.core.php',
         __DIR__ . '/rector.legacy.php',

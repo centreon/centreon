@@ -1,6 +1,6 @@
 {
   "scan-files" : [
-    "./.php-cs-fixer.legacy.www.php",
+    "./.php-cs-fixer.legacy.php",
     "./www/modules/centreon-dsm/statistics/centreonDSMStats.class.php",
     "./www/modules/centreon-dsm/conf.php",
     "./www/modules/centreon-dsm/core/configuration/services/formSlot.php",

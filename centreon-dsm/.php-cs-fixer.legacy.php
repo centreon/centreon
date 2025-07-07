@@ -27,22 +27,13 @@ $config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.ph
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/src/Centreon',
-        __DIR__ . '/src/CentreonCommand',
-        __DIR__ . '/src/CentreonLegacy',
-        __DIR__ . '/src/CentreonModule',
-        __DIR__ . '/src/CentreonNotification',
-        __DIR__ . '/src/CentreonRemote',
-        __DIR__ . '/src/CentreonUser',
-        __DIR__ . '/src/EventSubscriber',
-        __DIR__ . '/src/Security',
-        __DIR__ . '/src/Utility',
+        __DIR__ . '/www',
     ])
     ->append([
-        __DIR__ . '/bootstrap.php',
-        __DIR__ . '/container.php',
+        __DIR__ . '/.php-cs-fixer.legacy.php',
+        __DIR__ . '/rector.php',
     ]);
 
 return $config
     ->setFinder($finder)
-    ->setCacheFile('.php-cs-fixer.legacy.src.cache');
+    ->setCacheFile('.php-cs-fixer.legacy.cache');
