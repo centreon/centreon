@@ -23,13 +23,13 @@ import { agentTypeOptions } from './utils';
 
 import { labelName, labelPoller, labelType } from './translatedLabels';
 
-interface UseAdditionnalConnectorsState {
+interface UseAgentState {
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
   canDelete: (row: ComponentColumnProps) => boolean;
 }
 
-const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
+const useAgent = (): UseAgentState => {
   const { t } = useTranslation();
 
   const agentTypeForm = useAtomValue(agentTypeFormAtom);
@@ -96,4 +96,4 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
   };
 };
 
-export default useAdditionnalConnectors;
+export default useAgent;

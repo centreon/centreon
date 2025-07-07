@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, isNotEmpty } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,13 +8,16 @@ import { FormActions } from '@centreon/ui/components';
 
 import { CloseModalConfirmation } from '../../ConfigurationBase/Dialogs';
 import { isFormDirtyAtom } from '../../ConfigurationBase/atoms';
+import { agentTypeFormAtom } from '../atoms';
 import { AgentConfigurationForm } from '../models';
-import { labelSave } from '../translatedLabels';
+import { labelCancel, labelSave } from '../translatedLabels';
 
 const ActionButtons =
   ({ onCancel, mode }) =>
   (): JSX.Element => {
     const { t } = useTranslation();
+
+    const [agentType, setAgentTypeForm] = useAtom(agentTypeFormAtom);
 
     const setIsDirty = useSetAtom(isFormDirtyAtom);
 
@@ -38,8 +41,13 @@ const ActionButtons =
       setIsDirty(dirty);
     }, [dirty]);
 
+    useEffect(() => {
+      if (isNil(agentType)) {
+        setAgentTypeForm(values.type?.id);
+      }
+    }, []);
     const actionsLabels = {
-      cancel: 'labelCancel',
+      cancel: t(labelCancel),
       submit: {
         create: t(labelSave),
         update: t(labelSave)
