@@ -48,6 +48,7 @@ function loadPage()
                 $(this).parents().find(':checkbox').each(function () {
                     $(this).prop('checked', chck);
                     clickedCb[$(this).attr('id')] = chck;
+                    localStorage.setItem('w_hm_' + $(this).attr('id'), chck ? '1' : '0');
                 });
             });
         }
@@ -78,6 +79,7 @@ jQuery(function () {
  */
 function exportChecked() {
     let exportList = '';
+    let selection = jQuery('.selection');
     // get checked resource list from local storage
     $(".selection").each(function () {
         let itemSaved = 'w_hm_' + $(this).attr('id');
