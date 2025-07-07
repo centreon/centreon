@@ -5,7 +5,12 @@ import { useColumns } from './Columns/useColumns';
 import useAgent from './useAgent';
 
 import { ResourceType } from '../Common/models';
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
+import {
+  ActionButtons,
+  defaultValues,
+  useFormInputs,
+  useValidationSchema
+} from './Form';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import {
@@ -40,7 +45,8 @@ const Agent = () => {
         inputs,
         groups,
         validationSchema,
-        defaultValues
+        defaultValues,
+        ActionButtons
       }}
       api={api}
       filtersConfiguration={filtersConfiguration}

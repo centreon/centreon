@@ -1,9 +1,9 @@
 import { Modal } from '@centreon/ui/components';
+import { JSX } from 'react';
 
 import Form from './Form/Form';
 
-import { JSX } from 'react';
-import { Form as FormType } from '../../models';
+import { Form as FormType } from '../../Common/models';
 import useModal from './useModal';
 
 interface Props {
@@ -38,6 +38,7 @@ const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
           initialValues={initialValues}
           isLoading={isLoading}
           hasWriteAccess={hasWriteAccess}
+          ActionButtons={form?.ActionButtons}
         />
       </Modal.Body>
     </Modal>

@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Form, Group, InputProps } from '@centreon/ui';
@@ -31,6 +31,7 @@ export type ConfigurationFormProps = {
   initialValues;
   isLoading: boolean;
   hasWriteAccess: boolean;
+  ActionButtons?: ({ onCancel, mode }) => () => JSX.Element;
 } & Pick<FormActionsProps, 'onCancel'>;
 
 export type ConnectorFormLabels = {
@@ -82,13 +83,20 @@ const ConfigurationForm = ({
   validationSchema,
   initialValues,
   isLoading,
-  hasWriteAccess
+  hasWriteAccess,
+  ActionButtons
 }: ConfigurationFormProps): JSX.Element => {
   const { classes } = useFormStyles();
 
   return (
     <Form
-      Buttons={hasWriteAccess ? Actions({ onCancel, mode }) : Box}
+      Buttons={
+        !!ActionButtons
+          ? ActionButtons({ onCancel, mode })
+          : hasWriteAccess
+            ? Actions({ onCancel, mode })
+            : Box
+      }
       isCollapsible
       areGroupsOpen
       initialValues={initialValues}

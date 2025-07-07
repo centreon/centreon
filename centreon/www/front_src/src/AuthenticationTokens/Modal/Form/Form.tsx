@@ -7,21 +7,21 @@ import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { tokenAtom } from '../../atoms';
-import {
-  labelCancel,
-  labelDone,
-  labelGenerateToken
-} from '../../translatedLabels';
 import useForm from './useForm';
 import useFormInputs from './useFormInputs';
 import useInitilialValues from './useInitilialValues';
 import useValidationSchema from './useValidationSchema';
 
+import {
+  labelCancel,
+  labelDone,
+  labelGenerateToken
+} from '../../translatedLabels';
 const Actions =
   ({ close, token }) =>
   (): JSX.Element => {
     const { t } = useTranslation();
-    const { values } = useFormikContext();
+    const { values, isSubmitting, isValid, dirty } = useFormikContext();
 
     const actionsLabels = {
       cancel: t(labelCancel),
@@ -31,7 +31,11 @@ const Actions =
     };
 
     const disableSubmit =
-      equals(values?.duration.id, 'customize') && isNil(values?.customizeDate);
+      (equals(values?.duration.id, 'customize') &&
+        isNil(values?.customizeDate)) ||
+      isSubmitting ||
+      !dirty ||
+      !isValid;
 
     return (
       <FormActions

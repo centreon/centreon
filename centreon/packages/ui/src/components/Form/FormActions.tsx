@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-
 import { useFormikContext } from 'formik';
+import { isNotNil } from 'ramda';
+import { ReactElement } from 'react';
 
 import { Button } from '../Button';
 
@@ -27,17 +27,14 @@ const FormActions = <TResource extends object>({
   variant,
   enableSubmitWhenNotDirty,
   isCancelButtonVisible = true,
-  disableSubmit = false
+  disableSubmit = undefined
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
     useFormikContext<TResource>();
 
   const isSubmitDisabled =
-    disableSubmit ||
-    isSubmitting ||
-    (!dirty && !enableSubmitWhenNotDirty) ||
-    !isValid;
+    isSubmitting || (!dirty && !enableSubmitWhenNotDirty) || !isValid;
 
   return (
     <div className={classes.actions}>
@@ -56,7 +53,7 @@ const FormActions = <TResource extends object>({
       <Button
         aria-label={labels.submit[variant]}
         data-testid="submit"
-        disabled={isSubmitDisabled}
+        disabled={isNotNil(disableSubmit) ? disableSubmit : isSubmitDisabled}
         size="medium"
         type="submit"
         variant="primary"
