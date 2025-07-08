@@ -36,7 +36,7 @@ use VirtualFileSystem\FileSystem;
 class HealthcheckTest extends TestCase
 {
     /** @var FileSystem */
-    public $fs;
+    public $fileSystem;
 
     /** @var MockObject&ServiceContainer */
     public $container;
@@ -47,14 +47,14 @@ class HealthcheckTest extends TestCase
     public function setUp(): void
     {
         // mount VFS
-        $this->fs = new FileSystem();
+        $this->fileSystem = new FileSystem();
 
-        $this->fs->createDirectory('/tmp');
-        $this->fs->createDirectory('/tmp/checklist');
-        $this->fs->createFile('/tmp/checklist/requirements.php', '');
+        $this->fileSystem->createDirectory('/tmp');
+        $this->fileSystem->createDirectory('/tmp/checklist');
+        $this->fileSystem->createFile('/tmp/checklist/requirements.php', '');
 
-        $this->fs->createDirectory('/tmp1');
-        $this->fs->createDirectory('/tmp1/checklist');
+        $this->fileSystem->createDirectory('/tmp1');
+        $this->fileSystem->createDirectory('/tmp1/checklist');
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this
@@ -69,7 +69,7 @@ class HealthcheckTest extends TestCase
             ->method('getModulePath')
             ->will(
                 $this->returnCallback(function () {
-                    return $this->fs->path('/');
+                    return $this->fileSystem->path('/');
                 })
             );
 

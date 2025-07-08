@@ -17,6 +17,7 @@ parameters:
         - tests/php/polyfill.php
 
     paths:
+        - tests/php/Adaptation #// TODO adaptation tests need to be fixed and moved to new section
         - tests/php/Centreon
         - tests/php/CentreonLegacy
         - tests/php/CentreonRemote
@@ -27,6 +28,7 @@ parameters:
     ignoreErrors:
 
         - # To ignore errors in the tests/php directory because of Pest
+            reportUnmatched: false
             path: tests/php
             messages:
                 - '#^Undefined variable: \$this$#'

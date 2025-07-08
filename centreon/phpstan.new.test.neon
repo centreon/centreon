@@ -6,5 +6,5 @@ parameters:
     level: max
 
     paths:
-        - tests/php/Adaptation
+        #- tests/php/Adaptation // TODO adaptation tests are not ready yet, to fix later to move it here (legacy:test)
         - tests/php/App

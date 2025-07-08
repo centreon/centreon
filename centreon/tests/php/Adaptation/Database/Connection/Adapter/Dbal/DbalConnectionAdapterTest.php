@@ -81,9 +81,10 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'DbalConnectionAdapter::createFromConfig factory with a good connection',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             expect($db)->toBeInstanceOf(DbalConnectionAdapter::class);
-            $stmt = $db->getNativeConnection()->prepare('select database()');
+            $stmt = $pdo->prepare('select database()');
             $stmt->execute();
 
             $dbName = $stmt->fetchColumn();
@@ -160,6 +161,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
 
     it('get last insert id', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        /** @var \PDO $pdo */
         $pdo = $db->getNativeConnection();
         $insert = $pdo->exec(
             "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
@@ -179,6 +181,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
 
     it('quote string', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        /** @var \PDO $pdo */
         $pdo = $db->getNativeConnection();
         $quotedString = $pdo->quote('foo');
         expect($quotedString)->toBeString()->toBe("'foo'");
@@ -192,6 +195,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'execute statement with a correct query without query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
@@ -207,6 +211,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'execute statement with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
@@ -230,6 +235,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'execute statement with a correct query with query parameters with ":" before keys',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
@@ -290,6 +296,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'insert with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
@@ -350,6 +357,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'batch insert with a correct query with batch query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $batchQueryParameters = BatchInsertParameters::create([
                 QueryParameters::create([
@@ -424,6 +432,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
         'update with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
@@ -1542,7 +1551,7 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
             $db->startUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeTrue()
                 ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
-            $pdoStmt = $db->getNativeConnection()->prepare('SELECT * FROM contact WHERE contact_id = 1');
+            $pdoStmt = $pdo->prepare('SELECT * FROM contact WHERE contact_id = 1');
             $pdoStmt->execute();
 
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);

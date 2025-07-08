@@ -20,3 +20,6 @@ parameters:
     ignoreErrors:
         -   # Ignore path problems
             message: '#is not a file or it does not exist.#'
+
+        -   # Ignore VariableLengthCustomRules errors for the legacy code
+            message: '#\[CENTREON-RULE\]: \(VariableLengthCustomRule\) .* must contain 3 or more characters.#'

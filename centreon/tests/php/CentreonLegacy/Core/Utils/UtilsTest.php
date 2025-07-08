@@ -37,7 +37,7 @@ use VirtualFileSystem\FileSystem;
 class UtilsTest extends TestCase
 {
     /** @var FileSystem */
-    public $fs;
+    public $fileSystem;
 
     /** @var ServiceContainer */
     public $container;
@@ -48,8 +48,8 @@ class UtilsTest extends TestCase
     public function setUp(): void
     {
         // mount VFS
-        $this->fs = new FileSystem();
-        $this->fs->createDirectory('/tmp');
+        $this->fileSystem = new FileSystem();
+        $this->fileSystem->createDirectory('/tmp');
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this->createMock(Configuration::class);
@@ -140,21 +140,21 @@ class UtilsTest extends TestCase
      */
     public function testExecutePhpFileWithUnexistsFile(): void
     {
-        $fileName = $this->fs->path('/tmp/conf2.php');
+        $fileName = $this->fileSystem->path('/tmp/conf2.php');
         $this->expectException(\Exception::class);
         $this->service->executePhpFile($fileName);
     }
 
     public function testExecuteSqlFile(): void
     {
-        $this->fs->createFile('/tmp/conf.sql', "SELECT 'OK';");
-        $fileName = $this->fs->path('/tmp/conf.sql');
+        $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");
+        $fileName = $this->fileSystem->path('/tmp/conf.sql');
         $this->service->executeSqlFile($fileName);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
     {
-        $fileName = $this->fs->path('/tmp/conf2.sql');
+        $fileName = $this->fileSystem->path('/tmp/conf2.sql');
         $result = null;
 
         try {

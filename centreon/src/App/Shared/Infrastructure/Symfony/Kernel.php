@@ -49,12 +49,10 @@ final class Kernel extends BaseKernel
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $configDir = $this->getConfigDir();
-        $env = is_string($this->environment) ? $this->environment : 'prod';
-
         $container->import($configDir . '/{packages}/*.yaml');
-        $container->import($configDir . '/{packages}/' . $env . '/*.yaml');
+        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
         $container->import($configDir . '/{services}/*.php');
-        $container->import($configDir . '/{services}/' . $env . '/*.php');
+        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
     }
 
     private function getConfigDir(): string
