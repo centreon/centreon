@@ -70,7 +70,7 @@ Then('the user sees the Agents Configuration page', () => {
 
 Given('a CMA Token is configured', () => {
   cy.addCMAToken();
-})
+});
 
 Given('a non-admin user is in the Agents Configuration page', () => {
   cy.loginByTypeOfUser({
@@ -84,7 +84,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -167,7 +167,7 @@ Then('a pop up is displayed with all of the agent information', () => {
 Given('some poller agent configurations are created', () => {
   cy.contains('button', 'Add').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
   cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);

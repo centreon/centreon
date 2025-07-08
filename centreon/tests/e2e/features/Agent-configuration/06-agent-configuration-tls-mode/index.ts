@@ -61,7 +61,7 @@ When('the user clicks on the {string} button', (addBtnName: string) => {
 
 Then('a pop-up form is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
 });
 
 When('the user selects "CMA" as the agent type', () => {

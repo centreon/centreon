@@ -66,7 +66,7 @@ When('the user clicks on Add', () => {
 
 Then('a pop-up menu with the form is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
 });
 
 When('the admin user fills in all the information', () => {
@@ -210,7 +210,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.wait('@getAgentsPage');
   cy.contains('button', 'Add').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(

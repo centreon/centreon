@@ -64,7 +64,7 @@ When('the user clicks on Add', () => {
 
 Then('a pop-up menu with the form is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add a poller/agent configuration');
 });
 
 When('the user fills in all the information', () => {
