@@ -23926,4 +23926,6 @@ msgstr "Affiche l’historique de la disponibilité d'une activité métier ou v
 msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
 msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
 
+msgid "Display availability and performance as"
+msgstr "Afficher la disponibilité et la performance sous forme de"
 
