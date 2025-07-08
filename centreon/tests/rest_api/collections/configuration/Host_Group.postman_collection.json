@@ -3051,7 +3051,7 @@
 									"    const cleanedMessage = responseJson.message.replace(/\\s+/g, ' ').trim();\r",
 									"\r",
 									"    pm.expect(cleanedMessage).to.eql(\r",
-									"        \"name: This value should be of type string. alias: This value should be of type string. geoCoords: This value should be of type string. comment: This value should be of type string. iconId: This value should be of type int.\"\r",
+									"        \"name: This value should be of type string. alias: This value should be of type null|string. geoCoords: This value should be of type null|string. comment: This value should be of type null|string. iconId: This value should be of type int|null.\"\r",
 									"    );\r",
 									"});\r",
 									""
