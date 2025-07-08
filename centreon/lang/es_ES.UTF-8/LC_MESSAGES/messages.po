@@ -24534,3 +24534,6 @@ msgstr "Comportamiento de la búsqueda en texto libre"
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Resource status performance"
 msgstr "Rendimiento de Estado de servicios"
+
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Monitoring page."
+# msgstr ""
