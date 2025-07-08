@@ -57,7 +57,7 @@ describe('Searchbar help tooltip', () => {
     cy.findByLabelText('Search help').click();
 
     cy.findByText(labelNeedHelpWithSearchBarUsage);
-    cy.findByText(labelFindExplanationsAndExamples);
+    cy.contains(labelFindExplanationsAndExamples);
 
     cy.findByText(labelHere).should('have.attr', 'href', docsURL);
 
