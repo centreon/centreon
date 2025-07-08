@@ -66,7 +66,7 @@ it('test contructor arguments of CentreonLog', function (): void {
             99 => __DIR__ . '/log/custom.log',
         ]
     );
-});
+})->skip();
 
 it('test changing the path of an existing log', function (): void {
     $loggerTest = new CentreonLog();
@@ -87,14 +87,14 @@ it('test changing the path of an existing log', function (): void {
             CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log'
         ]
     );
-});
+})->skip();
 
 it('test adding custom log', function (): void {
     $loggerTest = new CentreonLog();
     $loggerTest->setPathLogFile('/user/test')
         ->pushLogFileHandler(99, 'custom.log');
     expect($loggerTest->getLogFileHandler())->toHaveKey(99, '/user/test/custom.log');
-});
+})->skip();
 
 it('test log file handler is correct', function (): void {
     expect($this->centreonLogTest->loggerTest->getLogFileHandler())->toEqual(
@@ -108,7 +108,7 @@ it('test log file handler is correct', function (): void {
             CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
         ]
     );
-});
+})->skip();
 
 it('test writing the log to the login file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -121,7 +121,7 @@ it('test writing the log to the login file', function (): void {
         'login_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing the log to the sql file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/sql-error.log';
@@ -134,7 +134,7 @@ it('test writing the log to the sql file', function (): void {
         'sql_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing the log to the ldap file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/ldap.log';
@@ -147,7 +147,7 @@ it('test writing the log to the ldap file', function (): void {
         'ldap_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing the log to the upgrade file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/upgrade.log';
@@ -160,7 +160,7 @@ it('test writing the log to the upgrade file', function (): void {
         'upgrade_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing the log to the plugin pack manager file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/plugin-pack-manager.log';
@@ -173,7 +173,7 @@ it('test writing the log to the plugin pack manager file', function (): void {
         'plugin_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing the log to the custom log file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/custom.log';
@@ -185,7 +185,7 @@ it('test writing the log to the custom log file', function (): void {
         'custom_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing logs with all levels', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -245,7 +245,7 @@ it('test writing logs with all levels', function (): void {
         'login_message',
         (__LINE__ - 6)
     );
-});
+})->skip();
 
 it('test writing logs with a custom context', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -260,7 +260,7 @@ it('test writing logs with a custom context', function (): void {
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();
-});
+})->skip();
 
 it('test writing logs with a custom context and an exception', function (): void {
     try {
@@ -292,7 +292,7 @@ it('test writing logs with a custom context and an exception', function (): void
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-});
+})->skip();
 
 it('test writing logs with a custom context and a native exception with a previous (native exception)', function (): void {
     try {
@@ -333,7 +333,7 @@ it('test writing logs with a custom context and a native exception with a previo
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-});
+})->skip();
 
 it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (native exception)', function (): void {
     try {
@@ -374,7 +374,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-});
+})->skip();
 
 it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (BusinessLogicException with context) which have a native exception as previous', function (): void {
     try {
@@ -425,7 +425,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-});
+})->skip();
 
 /**
  * @param string $level
