@@ -79,9 +79,21 @@ jobs:
         id: build_release_bundle_tag
         run: |
           set -eux
+
           echo "Building release bundle tag."
-          # Expected output: release-YYYYMMDD-cloud or release-YYYYMMDD-onprem
+          # Expected output: release-cloud-YYYYMMNN-AA.BB or release-onprem-YYYYMMNN-AA.BB
+          # YYYY is year
+          # MM is month
+          # NN is stable release iteration number (00 is always the first one)
+          # AA.BB is major version (ex: 25.05)
           NEW_RELEASE_BUNDLE_TAG="release-${{ inputs.release_scope }}-${{ inputs.release_number }}"
+
+          # Extract major version from release_branch input
+          MAJOR_VERSION=$(echo "${{ inputs.release_branch }}" | cut -d "-" -f2)
+
+          # Concatenate final NEW_RELEASE_BUNDLE_TAG
+          NEW_RELEASE_BUNDLE_TAG="release-${{ inputs.release_scope }}-${{ inputs.release_number }}-$MAJOR_VERSION"
+
           # Output to GITHUB_ENV
           echo "new_release_bundle_tag=$NEW_RELEASE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
         shell: bash
