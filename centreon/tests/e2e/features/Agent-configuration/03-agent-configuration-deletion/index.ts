@@ -48,7 +48,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user deletes the agent configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).click();
+  cy.getByTestId({ testId: 'Delete_1' }).click();
 });
 
 When('the user confirms on the pop-up', () => {

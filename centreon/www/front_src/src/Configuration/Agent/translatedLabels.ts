@@ -46,8 +46,6 @@ export const labelAgentConfigurationCreated =
   'Poller/agent configuration created';
 export const labelAgentConfigurationUpdated =
   'Poller/agent configuration updated';
-export const labelUpdateAgentConfiguration =
-  'Update poller/agent configuration';
 export const labelRelativePathAreNotAllowed = 'Relative paths are not allowed';
 export const labelInvalidPath = 'Invalid path';
 export const labelInvalidExtension = 'Invalid extension';

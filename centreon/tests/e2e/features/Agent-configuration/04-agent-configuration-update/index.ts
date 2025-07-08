@@ -61,7 +61,7 @@ When('the user clicks on the line of the agent configuration', () => {
 
 Then('a pop up is displayed with all of the agent information', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.contains('Update poller/agent configuration').should('be.visible');
+  cy.contains('Modify a poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
     'have.value',
     'Telegraf'
@@ -116,7 +116,7 @@ When('the user clicks on Save', () => {
 
 Then('the form is closed', () => {
   cy.get('*[role="dialog"]').should('not.exist');
-  cy.contains('Update poller/agent configuration').should('not.exist');
+  cy.contains('Modify a poller/agent configuration').should('not.exist');
 });
 
 Then('the information are successfully saved', () => {

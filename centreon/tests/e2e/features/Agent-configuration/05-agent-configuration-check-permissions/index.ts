@@ -102,7 +102,7 @@ When('the user clicks on the line of the Agents Configuration', () => {
 
 Then('a pop up is displayed with all of the agent information', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.contains('Update poller/agent configuration').should('be.visible');
+  cy.contains('Modify a poller/agent configuration').should('be.visible');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
     'have.value',
     'Telegraf'
@@ -153,7 +153,7 @@ When('the user modifies the configuration', () => {
 Then('the update form is closed', () => {
   cy.wait('@updateAgents');
   cy.get('*[role="dialog"]').should('not.exist');
-  cy.contains('Update poller/agent configuration').should('not.exist');
+  cy.contains('Modify a poller/agent configuration').should('not.exist');
 });
 
 Then(
@@ -302,7 +302,7 @@ Then(
   'a pop up is displayed with all of the agent configuration information with the 2 pollers',
   () => {
     cy.get('*[role="dialog"]').should('be.visible');
-    cy.contains('Update poller/agent configuration').should('be.visible');
+    cy.contains('Modify a poller/agent configuration').should('be.visible');
     cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
       'have.value',
       'Telegraf'
@@ -363,7 +363,7 @@ When('the user can update the Agents Configuration', () => {
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@updateAgents');
   cy.get('*[role="dialog"]').should('not.exist');
-  cy.contains('Update poller/agent configuration').should('not.exist');
+  cy.contains('Modify a poller/agent configuration').should('not.exist');
   cy.get('*[role="rowgroup"]').should(
     'contain',
     agentsConfiguration.telegraf2.name
