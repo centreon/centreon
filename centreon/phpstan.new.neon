@@ -7,9 +7,7 @@ parameters:
 
     scanFiles:
         - .php-cs-fixer.core.php
-        - .php-cs-fixer.legacy.src.php
-        - .php-cs-fixer.legacy.test.php
-        - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.legacy.php
         - .php-cs-fixer.new.php
         - castor.php
         - rector.core.php

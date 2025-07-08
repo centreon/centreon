@@ -72,7 +72,9 @@
         "@cs:legacy:src:fix"
     ],
     "stan:legacy:www": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:www:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:src": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:src:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
     "stan:legacy:test": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
     "stan:legacy:test:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.test.neon --memory-limit=1G",
     "stan:legacy": [

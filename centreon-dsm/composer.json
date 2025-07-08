@@ -40,6 +40,7 @@
     "cs:legacy": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
     "stan:legacy": "../tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",
+    "stan:legacy:baseline": "../tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.neon --memory-limit=512M",
     "rector": [
       "@rector:legacy"
     ],
