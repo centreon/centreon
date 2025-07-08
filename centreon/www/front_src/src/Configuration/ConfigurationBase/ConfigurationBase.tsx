@@ -41,7 +41,16 @@ const Base = ({
     if (isNil(localStorage.getItem(columnsAtomKey))) {
       setSelectedColumnIds(defaultSelectedColumnIds);
     }
-  }, [resourceType]);
+  }, [
+    setConfiguration,
+    api,
+    filtersConfiguration,
+    defaultSelectedColumnIds,
+    filtersInitialValues,
+    actions,
+    labels,
+    resourceType
+  ]);
 
   const isConfigurationValid = useMemo(
     () =>
