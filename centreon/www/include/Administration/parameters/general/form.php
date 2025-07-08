@@ -290,23 +290,34 @@ if ($form->validate()) {
 
         $o = null;
         $valid = true;
+        /**
+         * Freeze the form and reload the page
+         */
         $form->freeze();
-    } catch (\InvalidArgumentException $e) {
+        $form->addElement(
+            "button",
+            "change",
+            _("Modify"),
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
+        );
+        $_SESSION[$sessionKeyFreeze] = true;
+        echo '<script>parent.location.href = "main.php?p=' . $p . '&o=general";</script>';
+        exit;
+    } catch (\Throwable $e) {
         print("<div class='msg' align='center'>" . $e->getMessage() . "</div>");
         $valid = false;
     }
+} elseif (array_key_exists($sessionKeyFreeze, $_SESSION) && $_SESSION[$sessionKeyFreeze] === true) {
+    unset($_SESSION[$sessionKeyFreeze]);
+    $form->addElement(
+        "button",
+        "change",
+        _("Modify"),
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=general'", 'class' => 'btc bt_info']
+    );
+    $form->freeze();
+    $valid = true;
 }
-
-if (!$form->validate() && isset($_POST["gopt_id"])) {
-    print("<div class='msg' align='center'>" . _("Impossible to validate, one or more field is incorrect") . "</div>");
-}
-
-$form->addElement(
-    "button",
-    "change",
-    _("Modify"),
-    ["onClick" => "javascript:window.location.href='?p=" . $p . "'", 'class' => 'btc bt_info']
-);
 
 /*
  * Send variable to template
