@@ -11004,8 +11004,8 @@ msgid "Name of the logger"
 msgstr "Nom du journal d'évènements"
 
 #: centreon/www/install/front_translate.php
-msgid "Need help with search bar usage?"
-msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+msgid "Need help using the search bar?"
+msgstr "Besoin d'aide pour utiliser la barre de recherche?"
 
 #: centreon/www/install/front_translate.php
 msgid "Never expire"
@@ -18994,8 +18994,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/lib/HTML/QuickForm/HTML_QuickFormCustom.php
-msgid "here."
-msgstr "ici."
+msgid "here"
+msgstr "ici"
 
 #: centreon/www/install/front_translate.php
 msgid "hosts"

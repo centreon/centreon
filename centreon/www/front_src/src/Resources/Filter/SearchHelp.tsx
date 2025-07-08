@@ -70,6 +70,7 @@ const SearchHelp = (): JSX.Element => {
           >
             {t(labelHere)}
           </Link>
+          {'.'}
         </Typography>
         <Typography variant="body2">
           {t(labelFreeTextSearchBehavior)}
