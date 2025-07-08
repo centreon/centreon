@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil, not } from 'ramda';
+import { equals, isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../Common/models';
 import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
@@ -41,15 +41,7 @@ const Base = ({
     if (isNil(localStorage.getItem(columnsAtomKey))) {
       setSelectedColumnIds(defaultSelectedColumnIds);
     }
-  }, [
-    setConfiguration,
-    api,
-    filtersConfiguration,
-    defaultSelectedColumnIds,
-    filtersInitialValues,
-    actions,
-    labels
-  ]);
+  }, [resourceType]);
 
   const isConfigurationValid = useMemo(
     () =>
@@ -59,7 +51,8 @@ const Base = ({
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
       !isEmpty(configuration?.filtersInitialValues) &&
       !isEmpty(filters) &&
-      !isEmpty(labels),
+      !isEmpty(labels) &&
+      equals(resourceType, configuration?.resourceType),
     [configuration, filters]
   ) as boolean;
 
