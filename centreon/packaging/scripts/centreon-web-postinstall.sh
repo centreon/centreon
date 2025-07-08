@@ -156,15 +156,16 @@ fixCentreonCronPermissions() {
   chmod 0755 /usr/share/centreon/cron/outdated-token-removal.php
   chown -R centreon:centreon /usr/share/centreon/cron/outdated-token-removal.php
 
-  # Update log file permissions which has been potentially created by centreon user
-  APP_LOG_FILE="/var/log/centreon/centreon-web.log"
-  if [ -f "$APP_LOG_FILE" ]; then
-    if [ "$1" = "rpm" ]; then
-      chown apache:apache "$APP_LOG_FILE"
-    else
-      chown www-data:www-data "$APP_LOG_FILE"
+  # Update log files permissions which has been potentially created by centreon user
+  for APP_LOG_FILE in "/var/log/centreon/centreon-web.log" "/var/log/centreon/centreon-tokens.log"; do
+    if [ -f "$APP_LOG_FILE" ]; then
+      if [ "$1" = "rpm" ]; then
+        chown apache:apache "$APP_LOG_FILE"
+      else
+        chown www-data:www-data "$APP_LOG_FILE"
+      fi
     fi
-  fi
+  done
 }
 
 package_type="rpm"
