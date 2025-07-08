@@ -19262,8 +19262,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/lib/HTML/QuickForm/HTML_QuickFormCustom.php
-msgid "here"
-msgstr "aqui"
+msgid "here."
+msgstr "aqui."
 
 #: centreon/www/install/front_translate.php
 msgid "hosts"

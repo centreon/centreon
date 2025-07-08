@@ -294,7 +294,7 @@ export const labelNeedHelpWithSearchBarUsage =
   'Need help with search bar usage?';
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
-export const labelHere = 'here';
+export const labelHere = 'here.';
 
 export const labelDisplayView = 'Display view:';
 export const labelViewAllResources = 'View all resources';
