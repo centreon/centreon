@@ -1090,9 +1090,10 @@ jobs:
       [
         changes,
         get-environment,
+        newman-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if:
       github.event_name == 'pull_request' &&
@@ -1209,9 +1210,10 @@ jobs:
       [
         changes,
         get-environment,
+        newman-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
