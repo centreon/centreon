@@ -12,7 +12,8 @@ parameters:
     ignoreErrors:
 
         - # To ignore errors in the tests/php directory because of Pest
-            path: tests/php
+            reportUnmatched: false
+            path: tests/php/CentreonOpenTickets
             messages:
                 - '#^Undefined variable: \$this$#'
                 - '#^Call to an undefined method Pest#'

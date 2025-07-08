@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to an undefined method Pest\\Expectation\|Pest\\Support\\Extendable\:\:toBeInstanceOf\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 4
@@ -118,10 +112,4 @@ parameters:
 			message: '#^Trying to invoke mixed but it''s not a callable\.$#'
 			identifier: callable.nonCallable
 			count: 2
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
-			message: '#^Undefined variable\: \$this$#'
-			identifier: variable.undefined
-			count: 11
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
