@@ -6,7 +6,7 @@ parameters:
     level: 6
 
     scanFiles:
-        - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.legacy.php
         - rector.legacy.php
 
     paths:

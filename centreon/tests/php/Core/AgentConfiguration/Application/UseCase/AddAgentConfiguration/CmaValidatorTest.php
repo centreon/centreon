@@ -165,7 +165,7 @@ it('should throw an exception when a token is not provided and connection is not
 });
 
 it(
-    "should throw an exception when a token is provided but invalid and connection is not no_tls or reverse",
+    'should throw an exception when a token is provided but invalid and connection is not no_tls or reverse',
     function (): void {
         $this->request->configuration['is_reverse'] = false;
         $this->request->configuration['tokens'] = [['name' => 'tokenName', 'creator_id' => 1]];
@@ -192,9 +192,9 @@ it('should throw an exception when the host id is invalid', function (): void {
 })->throws((AgentConfigurationException::invalidHostId(9999)->getMessage()));
 
 it(
-    "should throw an exception when a token is not provided for an host and connection is reverse and not no_tls",
+    'should throw an exception when a token is not provided for an host and connection is reverse and not no_tls',
     function (): void {
-        ;
+
         $this->request->configuration['hosts'][0]['token'] = null;
         $this->expectException(AgentConfigurationException::class);
         $this->cmaValidator->validateParametersOrFail($this->request);
@@ -202,7 +202,7 @@ it(
 );
 
 it(
-    "should throw an exception when a token is provided for an host but invalid and connection is reverse and not no_tls",
+    'should throw an exception when a token is provided for an host but invalid and connection is reverse and not no_tls',
     function (): void {
         $this->user
             ->expects($this->once())

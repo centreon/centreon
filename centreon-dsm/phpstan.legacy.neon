@@ -7,7 +7,7 @@ parameters:
 
     scanFiles:
         - vendor/centreon/centreon/www/include/common/common-Func.php
-        - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.legacy.php
         - rector.legacy.php
 
     paths:
