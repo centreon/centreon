@@ -191,7 +191,7 @@ case "$action" in
     setPhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
-    fixCentreonCronPermissions
+    fixCentreonCronPermissions $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
