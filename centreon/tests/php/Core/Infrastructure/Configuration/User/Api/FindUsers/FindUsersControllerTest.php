@@ -86,10 +86,6 @@ class FindUsersControllerTest extends TestCase
             ->willReturn(true);
         $this->container->expects($this->any())
             ->method('get')
-            ->withConsecutive(
-                [$this->equalTo('security.authorization_checker')],
-                [$this->equalTo('parameter_bag')]
-            )
             ->willReturnOnConsecutiveCalls(
                 $authorizationChecker,
                 new class () {

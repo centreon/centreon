@@ -11,7 +11,6 @@
     "ext-zip": "*"
   },
   "require-dev": {
-    "behat/behat": "3.15.*",
     "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
@@ -36,8 +35,8 @@
     },
     "allow-plugins": {
       "symfony/flex": false,
-      "symfony/runtime": true,
-      "pestphp/pest-plugin": true
+      "pestphp/pest-plugin": true,
+      "symfony/runtime": true
     }
   },
   "scripts": {
@@ -74,7 +73,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "6.4.*"
+      "require": "7.3.*"
     }
   }
 }

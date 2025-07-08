@@ -237,8 +237,7 @@ it('should find the metaservice as non-admin', function (): void {
     expect($presenter->response->notificationNumber)->toBe($metaService->getNotificationNumber());
     expect($presenter->response->latency)->toBe($metaService->getLatency());
     expect($presenter->response->executionTime)->toBe($metaService->getExecutionTime());
-    expect($presenter->response->statusChangePercentage)
-        ->toBe($metaService->getStatusChangePercentage());
+    expect($presenter->response->statusChangePercentage)->toBe($metaService->getStatusChangePercentage());
     expect($presenter->response->hasActiveChecks)->toBe($metaService->hasActiveChecks());
     expect($presenter->response->hasPassiveChecks)->toBe($metaService->hasPassiveChecks());
     expect($presenter->response->checkAttempts)->toBe($metaService->getCheckAttempts());
