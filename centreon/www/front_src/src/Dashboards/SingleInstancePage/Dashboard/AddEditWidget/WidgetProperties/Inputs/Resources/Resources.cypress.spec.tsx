@@ -468,4 +468,34 @@ describe('Resources tree', () => {
 
     cy.makeSnapshot();
   });
+
+  it('unselects a service when a meta-service is choosen and the host type is selected back', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleResourceSelection: true,
+      forcedResourceType: 'service',
+      defaultResourceTypes: ['host', 'service']
+    });
+
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Host 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains('Service 0').click();
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Meta service$/).click();
+
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.contains('Meta service 0').click();
+
+    cy.contains('Service').should('not.exist');
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+
+    cy.contains('Service').should('be.visible');
+    cy.contains('Host').should('be.visible');
+    cy.contains('Host 0').should('not.exist');
+    cy.contains('Service 0').should('not.exist');
+  });
 });
