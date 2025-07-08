@@ -20690,5 +20690,5 @@ msgstr ""
 msgid "Resource status performance"
 msgstr ""
 
-# msgid "Free text search behavior can be configured in the Administration > Parameters > Monitoring page."
+# msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
 # msgstr ""

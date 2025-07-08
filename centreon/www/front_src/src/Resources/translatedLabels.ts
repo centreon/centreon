@@ -326,4 +326,4 @@ export const labelFilteredResources =
 export const labelFilterRessources =
   'Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows.';
 export const labelFreeTextSearchBehavior =
-  'Free text search behavior can be configured in the Administration > Parameters > Monitoring page.';
+  'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';

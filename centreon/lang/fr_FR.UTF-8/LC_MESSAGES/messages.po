@@ -23933,5 +23933,5 @@ msgstr "Comportement de la recherche texte libre"
 msgid "Resource status performance"
 msgstr "Performances de la page Statut des ressources"
 
-msgid "Free text search behavior can be configured in the Administration > Parameters > Monitoring page."
-msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Supervision."
+msgid "Free text search behavior can be configured in the Administration > Parameters > Centreon UI page."
+msgstr "Le comportement de la recherche texte libre peut être configuré à la page Administration > Paramètres > Centreon web page."
