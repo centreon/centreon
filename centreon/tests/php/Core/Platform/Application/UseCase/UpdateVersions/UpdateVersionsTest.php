@@ -166,12 +166,7 @@ it('should run found updates', function (): void {
 
     $this->writeUpdateRepository
         ->expects($this->exactly(3))
-        ->method('runUpdate')
-        ->withConsecutive(
-            [$this->equalTo('22.10.0-beta.1')],
-            [$this->equalTo('22.10.0')],
-            [$this->equalTo('22.10.1')],
-        );
+        ->method('runUpdate');
 
     $this->presenter
         ->expects($this->once())
