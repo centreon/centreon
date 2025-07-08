@@ -123,8 +123,8 @@ it(
 it(
     'should throw an exception if the given extra periods are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setExtraTimePeriods([
+        $timePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $timePeriod->setExtraTimePeriods([
             new \stdClass(),
         ]);
     }
@@ -135,8 +135,8 @@ it(
 it(
     'should throw an exception if the given templates are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setTemplates([
+        $timePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $timePeriod->setTemplates([
             new \stdClass(),
         ]);
     }
@@ -147,8 +147,8 @@ it(
 it(
     'should throw an exception if the given days are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setDays([
+        $timePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $timePeriod->setDays([
             new \stdClass(),
         ]);
     }
@@ -161,22 +161,22 @@ it(
     function (): void {
         $name = ' fake_name ';
         $alias = ' fake_alias ';
-        $tp = new NewTimePeriod($name, $alias);
-        expect($tp->getName())->toBe(trim($name));
-        expect($tp->getAlias())->toBe(trim($alias));
+        $timePeriod = new NewTimePeriod($name, $alias);
+        expect($timePeriod->getName())->toBe(trim($name));
+        expect($timePeriod->getAlias())->toBe(trim($alias));
 
         $timeRange = new TimeRange('00:00-01:00');
 
         $extra = [new NewExtraTimePeriod('monday 1', $timeRange)];
-        $tp->setExtraTimePeriods($extra);
-        expect($tp->getExtraTimePeriods())->toBe($extra);
+        $timePeriod->setExtraTimePeriods($extra);
+        expect($timePeriod->getExtraTimePeriods())->toBe($extra);
 
         $templates = [1];
-        $tp->setTemplates($templates);
-        expect($tp->getTemplates())->toBe($templates);
+        $timePeriod->setTemplates($templates);
+        expect($timePeriod->getTemplates())->toBe($templates);
 
         $days = [new Day(1, $timeRange)];
-        $tp->setDays($days);
-        expect($tp->getDays())->toBe($days);
+        $timePeriod->setDays($days);
+        expect($timePeriod->getDays())->toBe($days);
     }
 );

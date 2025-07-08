@@ -173,7 +173,13 @@ parameters:
 			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
 
 		-
-			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns ''class'' so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Common/Infrastructure/Validator/Constraints/WhenPlatform.php
+
+		-
+			message: '#^Method Core\\Common\\Infrastructure\\Validator\\Constraints\\WhenPlatform\:\:getTargets\(\) never returns ''property'' so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Common/Infrastructure/Validator/Constraints/WhenPlatform.php
