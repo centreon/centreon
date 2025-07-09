@@ -76,7 +76,7 @@ function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 
 // ************************************** With centreon database connection *******************************************
 
-if (null !== $dbConfigCentreon && hasConnectionDb($dbConfigCentreon)) {
+if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCentreon)) {
     it(
         'DbalConnectionAdapter::createFromConfig factory with a good connection',
         function () use ($dbConfigCentreon): void {

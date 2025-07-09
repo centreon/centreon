@@ -184,7 +184,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it('get native connection', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        /** @var \PDO $pdo */
+        /** @var PDO $pdo */
         $pdo = $db->getNativeConnection();
         expect($pdo)->toBeInstanceOf(PDO::class);
     });

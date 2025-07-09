@@ -26,6 +26,7 @@ use CentreonLegacy\ServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
+use VirtualFileSystem\Structure\File;
 
 /**
  * @group CentreonLegacy
@@ -144,9 +145,17 @@ class UtilsTest extends TestCase
 
     public function testExecuteSqlFile(): void
     {
-        $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");
+        $file = $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");
+        $this->assertInstanceOf(File::class, $file);
         $fileName = $this->fileSystem->path('/tmp/conf.sql');
-        $this->service->executeSqlFile($fileName);
+        $this->assertIsString($fileName);
+        try {
+            $isException = false;
+            $this->service->executeSqlFile($fileName);
+        } catch (\Exception) {
+            $isException = true;
+        }
+        $this->assertFalse($isException);
     }
 
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void

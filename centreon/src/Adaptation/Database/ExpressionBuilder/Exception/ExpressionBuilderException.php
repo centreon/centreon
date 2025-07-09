@@ -34,7 +34,7 @@ class ExpressionBuilderException extends DatabaseException
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the expression builder';
-        if (null !== $previous && ! empty($previous->getMessage())) {
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
