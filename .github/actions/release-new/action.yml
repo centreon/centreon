@@ -239,7 +239,7 @@ runs:
         # Abort if no tags
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          if [ -n $TAG ]; then
+          if [ -n "$TAG" ]; then
             echo "Creating GITHUB release with title $TAG for tag $TAG targeting branch ${{ inputs.release_branch }}."
             gh release create $TAG --target "${{ inputs.release_branch }}" --title "$TAG" --verify-tag
           else
@@ -305,7 +305,7 @@ runs:
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
-          if [ -n $TAG ]; then
+          if [ -n "$TAG" ]; then
             echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
             # Build JSON with release information for JIRA API
             JIRA_RELEASE_DATA=$(jq -nc \
