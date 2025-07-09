@@ -261,6 +261,7 @@ runs:
         # Check if release bundle tag was set. It MUST exists before removing any release branch.
         echo "Checking if github tag exists before removing release / hotfix branch."
         status_code=$(curl -s -o /dev/null -w "%{http_code}" \
+          -H "Authorization: Bearer $GH_TOKEN" \
           "https://api.github.com/repos/$REPO/git/ref/tags/$TAG")
 
         if [[ "$status_code" == "200" ]]; then
