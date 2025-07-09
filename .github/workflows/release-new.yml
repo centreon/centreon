@@ -41,7 +41,7 @@ jobs:
 
       - name: Fight against empty inputs
         run: |
-          if [[ ${{ inputs.release_branch }} == '' || ${{ inputs.release_number }} == '' ]]; then
+          if [[ -z "${{ inputs.release_branch }}" || -z "${{ inputs.release_number }}" ]]; then
             echo "Invalid inputs were given for release-branch (${{ inputs.release_branch }}) or release-number (${{ inputs.release_number }}). Exiting."
             exit 1
           else
