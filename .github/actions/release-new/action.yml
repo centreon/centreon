@@ -189,14 +189,19 @@ runs:
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
 
+        # Set remote
+        git remote set-url origin "https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }}"
+
         # Add new stable release bundle tag to release branch
         # If HOTIFX => set tag description as hotfix
         # If RELEASE => set tag description as release
         echo "::notice::Tagging branch ${{ inputs.release_branch }} with ${{ inputs.release_bundle_tag }}."
 
+        # Setup remove
+
         # Push local release bundle tag as centreon_technique to generate a tag event
         git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
-        git push https://x-access-token:${{ inputs.centreon_technique_pat}}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
+        git push origin "${{ inputs.release_bundle_tag }}"
 
         # Add new component release tags on release branch for each release components
         # Abort if no tags or existing tag
@@ -206,7 +211,7 @@ runs:
 
             # Push local component tags as centreon_technique to generate a tag event
             git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
-            git push https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }} "$TAG"
+            git push origin "$TAG" --quiet
 
             git status
             echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."
@@ -266,7 +271,7 @@ runs:
 
         if [[ "$status_code" == "200" ]]; then
           echo "::notice::Release bundle tag $TAG exists, removing branch ${{ inputs.release_branch }}."
-          git push origin --delete ${{ inputs.release_branch }}
+          git push origin --delete "${{ inputs.release_branch }}" --quiet
         else
           echo "::error::Release bundle tag $TAG does not exist, aborting."
           exit 1
