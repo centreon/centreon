@@ -20,16 +20,14 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\ValueObjectException;
-use Adaptation\Database\Connection\Exception\ConnectionException;
-use Core\Common\Domain\Exception\RepositoryException;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
-
 
 $dep = [];
 $childServices = [];
@@ -40,9 +38,9 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
     try {
         $queryBuilder = $pearDB->createQueryBuilder();
         $queryBuilder->select('*')
-           ->from('dependency', 'dep')
-           ->where('dep.dep_id = :depId')
-           ->limit(1);
+            ->from('dependency', 'dep')
+            ->where('dep.dep_id = :depId')
+            ->limit(1);
 
         $sql = $queryBuilder->getQuery();
 
@@ -54,24 +52,24 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
                 ['depId' => $dep_id]
             );
             $msg = new CentreonMsg();
-            $msg->setImage("./img/icons/warning.png");
-            $msg->setTextStyle("bold");
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
             $msg->setText('Dependency not found');
         }
 
-        # Set base value
+        // Set base value
         $dep = $result !== false ? array_map('myDecode', $result) : [];
 
-        # Set Notification Failure Criteria
-        $dep["notification_failure_criteria"] = explode(',', $dep["notification_failure_criteria"]);
-        foreach ($dep["notification_failure_criteria"] as $key => $value) {
-            $dep["notification_failure_criteria"][trim($value)] = 1;
+        // Set Notification Failure Criteria
+        $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
+        foreach ($dep['notification_failure_criteria'] as $key => $value) {
+            $dep['notification_failure_criteria'][trim($value)] = 1;
         }
 
-        # Set Execution Failure Criteria
-        $dep["execution_failure_criteria"] = explode(',', $dep["execution_failure_criteria"]);
-        foreach ($dep["execution_failure_criteria"] as $key => $value) {
-            $dep["execution_failure_criteria"][trim($value)] = 1;
+        // Set Execution Failure Criteria
+        $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
+        foreach ($dep['execution_failure_criteria'] as $key => $value) {
+            $dep['execution_failure_criteria'][trim($value)] = 1;
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -81,8 +79,8 @@ if (in_array($o, [MODIFY_DEPENDENCY, WATCH_DEPENDENCY], true) && $dep_id) {
             $exception
         );
         $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
         $msg->setText('Error loading dependency ' . $dep_id);
         $dep = [];
     }
@@ -93,8 +91,8 @@ $attrsText = ['size' => '30'];
 $attrsText2 = ['size' => '10'];
 $attrsAdvSelect = ['style' => 'width: 300px; height: 150px;'];
 $attrsTextarea = ['rows' => '3', 'cols' => '30'];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
-    '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
+    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 // AJAX datasource routes
 $hostRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
@@ -102,19 +100,19 @@ $serviceRoute = './include/common/webServices/rest/internal.php?object=centreon_
 
 $attrHosts = [
     'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute'=> $hostRoute,
+    'availableDatasetRoute' => $hostRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonHost'
+    'linkedObject' => 'centreonHost',
 ];
 $attrServices = [
     'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute'=> $serviceRoute,
+    'availableDatasetRoute' => $serviceRoute,
     'multiple' => true,
-    'linkedObject' => 'centreonService'
+    'linkedObject' => 'centreonService',
 ];
 
 // Build form
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=$p");
+$form = new HTML_QuickFormCustom('Form', 'post', "?p={$p}");
 
 // Header
 switch ($o) {
@@ -144,55 +142,70 @@ $form->setDefaults(['inherits_parent' => '1']);
 
 // Notification criteria checkboxes
 $notifIds = [
-    'o' => ['nUp','Ok/Up'],
-    'd' => ['nDown','Down'],
-    'u' => ['nUnreachable','Unreachable'],
-    'p' => ['nPending','Pending'],
-    'n' => ['nNone','None']
+    'o' => ['nUp', 'Ok/Up'],
+    'd' => ['nDown', 'Down'],
+    'u' => ['nUnreachable', 'Unreachable'],
+    'p' => ['nPending', 'Pending'],
+    'n' => ['nNone', 'None'],
 ];
 $notif = [];
 foreach ($notifIds as $key => $values) {
     $notif[] = $form->createElement(
-        'checkbox', $key, '&nbsp;', _($values[1]),
-        ['id' => $values[0],'onClick' => 'applyNotificationRules(this);']
+        'checkbox',
+        $key,
+        '&nbsp;',
+        _($values[1]),
+        ['id' => $values[0], 'onClick' => 'applyNotificationRules(this);']
     );
 }
 $form->addGroup($notif, 'notification_failure_criteria', _('Notification Failure Criteria'), '&nbsp;&nbsp;');
 
 // Execution criteria checkboxes
 $execIds = [
-    'o' => ['eUp','Up'],
-    'd' => ['eDown','Down'],
-    'u' => ['eUnreachable','Unreachable'],
-    'p' => ['ePending','Pending'],
-    'n' => ['eNone','None']
+    'o' => ['eUp', 'Up'],
+    'd' => ['eDown', 'Down'],
+    'u' => ['eUnreachable', 'Unreachable'],
+    'p' => ['ePending', 'Pending'],
+    'n' => ['eNone', 'None'],
 ];
 $exec = [];
 foreach ($execIds as $key => $values) {
     $exec[] = $form->createElement(
-        'checkbox', $key, '&nbsp;', _($values[1]),
-        ['id' => $values[0],'onClick' => 'applyExecutionRules(this);']
+        'checkbox',
+        $key,
+        '&nbsp;',
+        _($values[1]),
+        ['id' => $values[0], 'onClick' => 'applyExecutionRules(this);']
     );
 }
 $form->addGroup($exec, 'execution_failure_criteria', _('Execution Failure Criteria'), '&nbsp;&nbsp;');
 
 // Hosts and services multi-selects with default values
-$hostDefaultsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host' .
-    '&action=defaultValues&target=dependency&field=dep_hostParents&id=' . $dep_id;
+$hostDefaultsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host'
+    . '&action=defaultValues&target=dependency&field=dep_hostParents&id=' . $dep_id;
 $form->addElement(
-    'select2', 'dep_hostParents', _('Host Names'), [],
+    'select2',
+    'dep_hostParents',
+    _('Host Names'),
+    [],
     array_merge($attrHosts, ['defaultDatasetRoute' => $hostDefaultsRoute])
 );
 
 $childDefaultsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=defaultValues&target=dependency&field=dep_hostChilds&id=' . $dep_id;
 $form->addElement(
-    'select2', 'dep_hostChilds', _('Dependent Host Names'), [],
+    'select2',
+    'dep_hostChilds',
+    _('Dependent Host Names'),
+    [],
     array_merge($attrHosts, ['defaultDatasetRoute' => $childDefaultsRoute])
 );
 
 $serviceDefaultsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=defaultValues&target=dependency&field=dep_hSvChi&id=' . $dep_id;
 $form->addElement(
-    'select2', 'dep_hSvChi', _('Dependent Services'), [],
+    'select2',
+    'dep_hSvChi',
+    _('Dependent Services'),
+    [],
     array_merge($attrServices, ['defaultDatasetRoute' => $serviceDefaultsRoute])
 );
 
@@ -225,16 +238,16 @@ $form->addRule('notification_failure_criteria', _('Required Field'), 'required')
 $tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
-    "helpattr",
-    'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, ' .
-    '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], ' .
-    'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
+    'helpattr',
+    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
+    . '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], '
+    . 'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
-# prepare help texts
-$helptext = "";
-include_once("help.php");
+// prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
-    $helptext .= "<span style='display:none' id='help:$key'>$text</span>\n";
+    $helptext .= "<span style='display:none' id='help:{$key}'>{$text}</span>\n";
 }
 $tpl->assign('helptext', $helptext);
 
@@ -245,7 +258,7 @@ if ($o == WATCH_DEPENDENCY) {
             'button',
             'change',
             _('Modify'),
-            ['onClick' => "javascript:window.location.href='?p=$p&o=c&dep_id=$dep_id'"]
+            ['onClick' => "javascript:window.location.href='?p={$p}&o=c&dep_id={$dep_id}'"]
         );
     }
     $form->setDefaults($dep);
@@ -259,7 +272,7 @@ if ($o == WATCH_DEPENDENCY) {
     $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults(['inherits_parent' => '0']);
 }
-$tpl->assign("nagios", $oreon->user->get_version());
+$tpl->assign('nagios', $oreon->user->get_version());
 
 // Process submission
 if ($form->validate()) {
@@ -270,7 +283,8 @@ if ($form->validate()) {
         } elseif ($form->getSubmitValue('submitC')) {
             updateHostDependencyInDB((int) $depObj->getValue());
         }
-        require_once('listHostDependency.php');
+        require_once 'listHostDependency.php';
+
         return;
     } catch (CentreonException $exception) {
         CentreonLog::create()->error(
@@ -280,8 +294,8 @@ if ($form->validate()) {
             $exception
         );
         $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
         $msg->setText('Error processing host dependancy form');
         $o = null;
     }

@@ -48,16 +48,16 @@ session_start();
 $oreon = $_SESSION['centreon'];
 
 $db = new CentreonDB();
-$dbb = new CentreonDB("centstorage");
+$dbb = new CentreonDB('centstorage');
 
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $oreon);
 $centreonLang->bindLang();
 $sid = session_id();
 if (isset($sid)) {
     $res = $db->prepare('SELECT * FROM session WHERE session_id = :sid');
-    $res->bindValue(':sid', $sid, \PDO::PARAM_STR);
+    $res->bindValue(':sid', $sid, PDO::PARAM_STR);
     $res->execute();
-    if (!$session = $res->fetch()) {
+    if (! $session = $res->fetch()) {
         get_error('bad session id');
     }
 } else {
@@ -79,8 +79,8 @@ $centreonGMT->getMyGMTFromSession($sid);
 
 // Start Buffer
 $xml = new CentreonXML();
-$xml->startElement("response");
-$xml->startElement("label");
+$xml->startElement('response');
+$xml->startElement('label');
 $xml->writeElement('author', _('Author'));
 $xml->writeElement('entrytime', _('Entry Time'));
 $xml->writeElement('persistent', _('Persistent'));
@@ -98,7 +98,7 @@ if (false === $svcId) {
         ORDER BY entry_time DESC
         LIMIT 1'
     );
-    $res->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $res->bindValue(':hostId', $hostId, PDO::PARAM_INT);
     $res->execute();
 } else {
     $res = $dbb->prepare(
@@ -109,8 +109,8 @@ if (false === $svcId) {
         ORDER BY entry_time DESC
         LIMIT 1'
     );
-    $res->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-    $res->bindValue(':svcId', $svcId, \PDO::PARAM_INT);
+    $res->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+    $res->bindValue(':svcId', $svcId, PDO::PARAM_INT);
     $res->execute();
 }
 

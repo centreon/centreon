@@ -28,10 +28,9 @@ use Core\Common\Domain\Exception\TransformerException;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalParameterTypeTransformer
- * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
 abstract readonly class DbalParameterTypeTransformer
 {
@@ -57,10 +56,7 @@ abstract readonly class DbalParameterTypeTransformer
             DbalParameterType::BOOLEAN => QueryParameterTypeEnum::BOOLEAN,
             DbalParameterType::NULL => QueryParameterTypeEnum::NULL,
             DbalParameterType::LARGE_OBJECT => QueryParameterTypeEnum::LARGE_OBJECT,
-            default => throw new TransformerException(
-                'The type of the parameter is not supported by DbalParameterType',
-                ['dbal_parameter_type' => $dbalParameterType]
-            ),
+            default => throw new TransformerException('The type of the parameter is not supported by DbalParameterType', ['dbal_parameter_type' => $dbalParameterType]),
         };
     }
 }

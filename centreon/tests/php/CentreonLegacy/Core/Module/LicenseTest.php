@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -17,12 +18,10 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\ServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Module;
-use CentreonLegacy\ServiceProvider;
-use CentreonLegacy\Core\Module\Healthcheck;
 
 /**
  * @group CentreonLegacy
@@ -30,8 +29,9 @@ use CentreonLegacy\Core\Module\Healthcheck;
  */
 class LicenseTest extends TestCase
 {
-    /** @var \CentreonLegacy\Core\Module\Healthcheck|(\CentreonLegacy\Core\Module\Healthcheck&object&\PHPUnit\Framework\MockObject\MockObject)|(\CentreonLegacy\Core\Module\Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Healthcheck|(Healthcheck&object&\PHPUnit\Framework\MockObject\MockObject)|(Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
     public $container;
+
     /** @var License */
     public $service;
 
@@ -40,7 +40,7 @@ class LicenseTest extends TestCase
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK] = $this->createMock(Healthcheck::class);
 
-        $this->service = new Module\License(new Container($this->container));
+        $this->service = new License(new Container($this->container));
     }
 
     public function tearDown(): void
@@ -74,8 +74,8 @@ class LicenseTest extends TestCase
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK]
             ->method('check')
             ->will($this->returnCallback(function (): void {
-                    throw new \Exception;
-                }));
+                throw new \Exception();
+            }));
 
         $result = $this->service->getLicenseExpiration($module);
 
@@ -97,8 +97,8 @@ class LicenseTest extends TestCase
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_HEALTHCHECK]
             ->method('getLicenseExpiration')
             ->will($this->returnCallback(function () use ($value) {
-                    return new \DateTime($value);
-                }));
+                return new \DateTime($value);
+            }));
 
         $result = $this->service->getLicenseExpiration($module);
 

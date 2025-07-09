@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -32,35 +33,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Domain\Service;
 
 use CentreonLegacy\Core\Module\Information;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class to manage translation of centreon and its extensions
  */
 class I18nService
 {
-    /**
-     * @var Information
-     */
+    /** @var Information */
     private $modulesInformation;
 
-    /**
-     * @var String
-     */
+    /** @var string */
     private $lang;
 
-    /**
-     * @var Finder
-     */
+    /** @var Finder */
     private $finder;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private $filesystem;
 
     /**
@@ -85,7 +79,7 @@ class I18nService
     {
         $this->lang = getenv('LANG');
 
-        if (!str_contains($this->lang, '.UTF-8')) {
+        if (! str_contains($this->lang, '.UTF-8')) {
             $this->lang .= '.UTF-8';
         }
     }
@@ -126,9 +120,9 @@ class I18nService
         $data = [];
 
         $translationPath = __DIR__ . "/../../../../www/locale/{$this->lang}/LC_MESSAGES";
-        $translationFile = "messages.ser";
+        $translationFile = 'messages.ser';
 
-        if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+        if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
             $files = $this->finder
                 ->name($translationFile)
                 ->in($translationPath);
@@ -154,9 +148,9 @@ class I18nService
 
         foreach ($languages as $language) {
             $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
-            $translationFile = "messages.ser";
+            $translationFile = 'messages.ser';
 
-            if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+            if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                 $files = $this->finder
                     ->name($translationFile)
                     ->in($translationPath);
@@ -182,9 +176,9 @@ class I18nService
         // loop over each installed modules to get translation
         foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
             $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$this->lang}/LC_MESSAGES";
-            $translationFile = "messages.ser";
+            $translationFile = 'messages.ser';
 
-            if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+            if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                 $files = $this->finder
                     ->name($translationFile)
                     ->in($translationPath);
@@ -216,9 +210,9 @@ class I18nService
             // loop over each installed modules to get translation
             foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
                 $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$language}/LC_MESSAGES";
-                $translationFile = "messages.ser";
+                $translationFile = 'messages.ser';
 
-                if ($this->filesystem->exists($translationPath . "/" . $translationFile)) {
+                if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                     $files = $this->finder
                         ->name($translationFile)
                         ->in($translationPath);

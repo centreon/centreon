@@ -31,7 +31,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterRelation;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
@@ -58,7 +57,8 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  */
 final class DbReadResourceAccessRepository extends AbstractRepositoryRDB implements ReadResourceAccessRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db

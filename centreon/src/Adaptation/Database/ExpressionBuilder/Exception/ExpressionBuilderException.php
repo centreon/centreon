@@ -25,17 +25,16 @@ namespace Adaptation\Database\ExpressionBuilder\Exception;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class ExpressionBuilderException
- * @package Adaptation\Database\QueryBuilder\Exception
  */
 class ExpressionBuilderException extends DatabaseException
 {
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the expression builder';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

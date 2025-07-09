@@ -142,11 +142,12 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
                 layout: $panelLayoutRequestDto,
                 widgetType: $panel['widget_type'],
                 widgetSettings: ! is_array(
-                    json_decode($panel['widget_settings'], true))
+                    json_decode($panel['widget_settings'], true)
+                )
                     ? [] : json_decode(
-                    $panel['widget_settings'],
-                    true
-                ),
+                        $panel['widget_settings'],
+                        true
+                    ),
             );
         }
 

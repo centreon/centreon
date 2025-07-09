@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -57,6 +58,7 @@ class TopologyRepository extends ServiceEntityRepository
     {
         $sql = file_get_contents(__DIR__ . '/../../Infrastructure/Resources/sql/disablemenus.sql');
         $stmt = $this->db->prepare($sql);
+
         return $stmt->execute();
     }
 
@@ -69,6 +71,7 @@ class TopologyRepository extends ServiceEntityRepository
     {
         $sql = file_get_contents(__DIR__ . '/../../Infrastructure/Resources/sql/enablemenus.sql');
         $stmt = $this->db->prepare($sql);
+
         return $stmt->execute();
     }
 
@@ -93,37 +96,37 @@ class TopologyRepository extends ServiceEntityRepository
                 $topologyUrls[] = $topologyUrl['topology_url'];
             }
         } elseif (count($user->access->getAccessGroups()) > 0) {
-            $query = "SELECT DISTINCT acl_group_topology_relations.acl_topology_id "
-                . "FROM acl_group_topology_relations, acl_topology, acl_topology_relations "
-                . "WHERE acl_topology_relations.acl_topo_id = acl_topology.acl_topo_id "
+            $query = 'SELECT DISTINCT acl_group_topology_relations.acl_topology_id '
+                . 'FROM acl_group_topology_relations, acl_topology, acl_topology_relations '
+                . 'WHERE acl_topology_relations.acl_topo_id = acl_topology.acl_topo_id '
                 . "AND acl_topology.acl_topo_activate = '1' "
-                . "AND acl_group_topology_relations.acl_group_id IN ("
-                . $user->access->getAccessGroupsString() . ") ";
+                . 'AND acl_group_topology_relations.acl_group_id IN ('
+                . $user->access->getAccessGroupsString() . ') ';
             $DBRESULT = $this->db->query($query);
             if ($DBRESULT->rowCount()) {
                 $topology = [];
                 $tmp_topo_page = [];
                 $statement = $this->db->prepare(
-                    "SELECT topology_topology_id, acl_topology_relations.access_right "
-                    . "FROM acl_topology_relations, acl_topology "
+                    'SELECT topology_topology_id, acl_topology_relations.access_right '
+                    . 'FROM acl_topology_relations, acl_topology '
                     . "WHERE acl_topology.acl_topo_activate = '1' "
-                    . "AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id "
-                    . "AND acl_topology_relations.acl_topo_id = :acl_topo_id "
+                    . 'AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id '
+                    . 'AND acl_topology_relations.acl_topo_id = :acl_topo_id '
                 );
                 while ($topo_group = $DBRESULT->fetchRow()) {
-                    $statement->bindValue(':acl_topo_id', $topo_group["acl_topology_id"], \PDO::PARAM_INT);
+                    $statement->bindValue(':acl_topo_id', $topo_group['acl_topology_id'], PDO::PARAM_INT);
                     $statement->execute();
-                    while ($topo_page = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                        $topology[] = (int) $topo_page["topology_topology_id"];
+                    while ($topo_page = $statement->fetch(PDO::FETCH_ASSOC)) {
+                        $topology[] = (int) $topo_page['topology_topology_id'];
                         if (! isset($tmp_topo_page[$topo_page['topology_topology_id']])) {
-                            $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_WRITE) {
-                            $tmp_topo_page[$topo_page["topology_topology_id"]] = $topo_page["access_right"];
-                        } elseif ($topo_page["access_right"] == self::ACL_ACCESS_READ_ONLY
-                            && $tmp_topo_page[$topo_page["topology_topology_id"]] == self::ACL_ACCESS_NONE
+                            $tmp_topo_page[$topo_page['topology_topology_id']] = $topo_page['access_right'];
+                        } elseif ($topo_page['access_right'] == self::ACL_ACCESS_READ_WRITE) {
+                            $tmp_topo_page[$topo_page['topology_topology_id']] = $topo_page['access_right'];
+                        } elseif ($topo_page['access_right'] == self::ACL_ACCESS_READ_ONLY
+                            && $tmp_topo_page[$topo_page['topology_topology_id']] == self::ACL_ACCESS_NONE
                         ) {
-                            $tmp_topo_page[$topo_page["topology_topology_id"]] =
-                                self::ACL_ACCESS_READ_ONLY;
+                            $tmp_topo_page[$topo_page['topology_topology_id']]
+                                = self::ACL_ACCESS_READ_ONLY;
                         }
                     }
                     $statement->closeCursor();
@@ -131,14 +134,14 @@ class TopologyRepository extends ServiceEntityRepository
                 $DBRESULT->closeCursor();
 
                 if ($topology !== []) {
-                    $query3 = "SELECT topology_url "
-                        . "FROM topology FORCE INDEX (`PRIMARY`) "
-                        . "WHERE topology_url IS NOT NULL "
+                    $query3 = 'SELECT topology_url '
+                        . 'FROM topology FORCE INDEX (`PRIMARY`) '
+                        . 'WHERE topology_url IS NOT NULL '
                         . "AND is_react = '1' "
-                        . "AND topology_id IN (" . implode(', ', $topology) . ") ";
+                        . 'AND topology_id IN (' . implode(', ', $topology) . ') ';
                     $DBRESULT3 = $this->db->query($query3);
                     while ($topo_page = $DBRESULT3->fetchRow()) {
-                        $topologyUrls[] = $topo_page["topology_url"];
+                        $topologyUrls[] = $topo_page['topology_url'];
                     }
                     $DBRESULT3->closeCursor();
                 }
@@ -162,7 +165,7 @@ class TopologyRepository extends ServiceEntityRepository
 
         $where = [];
 
-        if (!$user->access->admin) {
+        if (! $user->access->admin) {
             $where[] = '(topology_page IN (' . $user->access->getTopologyString() . ') OR topology_page IS NULL)';
         }
 
@@ -200,7 +203,7 @@ class TopologyRepository extends ServiceEntityRepository
         $isWhere = false;
         foreach ($params as $column => $value) {
             $key = ":{$column}Val";
-            $sql .= (!$isWhere ? 'WHERE ' : 'AND ') . "`{$column}` = {$key} ";
+            $sql .= (! $isWhere ? 'WHERE ' : 'AND ') . "`{$column}` = {$key} ";
             $collector->addValue($key, $value);
             $isWhere = true;
         }
@@ -208,7 +211,7 @@ class TopologyRepository extends ServiceEntityRepository
         $stmt = $this->db->prepare($sql);
         $collector->bind($stmt);
         $stmt->execute();
-        if (!$stmt->rowCount()) {
+        if (! $stmt->rowCount()) {
             return null;
         }
 
@@ -218,7 +221,6 @@ class TopologyRepository extends ServiceEntityRepository
         return $entity;
     }
 
-
     /**
      * Part of SQL for extracting of BusinessActivity entity
      *
@@ -226,6 +228,6 @@ class TopologyRepository extends ServiceEntityRepository
      */
     protected static function baseSqlQueryForEntity(): string
     {
-        return "SELECT * FROM topology ";
+        return 'SELECT * FROM topology ';
     }
 }

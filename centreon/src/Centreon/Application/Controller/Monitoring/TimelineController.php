@@ -25,18 +25,18 @@ namespace Centreon\Application\Controller\Monitoring;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\ResourceStatus;
 use Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineServiceInterface;
 use Centreon\Domain\Monitoring\Timeline\TimelineContact;
+use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
-use Centreon\Domain\Exception\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Centreon\Domain\Monitoring\Timeline\TimelineEvent;
 
 /**
  * @package Centreon\Application\Controller\Monitoring
@@ -77,8 +77,9 @@ class TimelineController extends AbstractController
 
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             $this->error('User doesn\'t have sufficient rights to see the host timeline', [
-                    'user_id' => $this->user->getId(),
-                ]);
+                'user_id' => $this->user->getId(),
+            ]);
+
             throw $this->createAccessDeniedException();
         }
         $this->info(
@@ -94,7 +95,7 @@ class TimelineController extends AbstractController
 
         return $this->view([
             'result' => $timeline,
-            'meta' => $requestParameters->toArray()
+            'meta' => $requestParameters->toArray(),
         ])->setContext($context);
     }
 
@@ -116,8 +117,9 @@ class TimelineController extends AbstractController
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             $this->error('User doesn\'t have sufficient rights to see the service timeline', [
-                    'user_id' => $this->user->getId(),
-                ]);
+                'user_id' => $this->user->getId(),
+            ]);
+
             throw $this->createAccessDeniedException();
         }
         $this->info(
@@ -131,7 +133,7 @@ class TimelineController extends AbstractController
         return $this->view(
             [
                 'result' => $this->getTimelinesByHostIdAndServiceId($this->user, $hostId, $serviceId),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -146,13 +148,13 @@ class TimelineController extends AbstractController
     public function downloadHostTimeline(
         int $hostId,
         RequestParametersInterface $requestParameters
-    ): StreamedResponse
-    {
+    ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             $this->error('User doesn\'t have sufficient rights to see the host timeline', [
-                    'user_id' => $this->user->getId(),
-                ]);
+                'user_id' => $this->user->getId(),
+            ]);
+
             throw $this->createAccessDeniedException();
         }
         $this->addDownloadParametersInRequestParameters($requestParameters);
@@ -177,8 +179,9 @@ class TimelineController extends AbstractController
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             $this->error('User doesn\'t have sufficient rights to see the host timeline', [
-                    'user_id' => $this->user->getId(),
-                ]);
+                'user_id' => $this->user->getId(),
+            ]);
+
             throw $this->createAccessDeniedException();
         }
         $this->addDownloadParametersInRequestParameters($requestParameters);
@@ -200,7 +203,7 @@ class TimelineController extends AbstractController
     }
 
     /**
-     * @param \Iterator<String[]> $timeLines
+     * @param \Iterator<string[]> $timeLines
      * @return StreamedResponse
      */
     private function streamTimeLines(iterable $timeLines): StreamedResponse
@@ -211,7 +214,7 @@ class TimelineController extends AbstractController
             if ($handle === false) {
                 throw new \RuntimeException('Unable to generate file');
             }
-            $header = ['type', 'date', 'content', 'contact', 'status', 'tries',];
+            $header = ['type', 'date', 'content', 'contact', 'status', 'tries'];
             fputcsv($handle, $header, ';');
 
             foreach ($timeLines as $timeLine) {
@@ -239,11 +242,12 @@ class TimelineController extends AbstractController
 
         if (is_null($service)) {
             $errorMsg = sprintf(_('Meta service %d not found'), $metaId);
+
             throw new EntityNotFoundException($errorMsg);
         }
 
         $serviceHost = $service->getHost();
-        if (!$serviceHost instanceof Host) {
+        if (! $serviceHost instanceof Host) {
             throw new EntityNotFoundException(sprintf(_('Unable to find host by service id %d'), $service->getId()));
         }
 
@@ -266,8 +270,8 @@ class TimelineController extends AbstractController
      *
      * @param int $metaId ID of the Meta
      * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @return View
      * @throws EntityNotFoundException
+     * @return View
      */
     public function getMetaServiceTimeline(int $metaId, RequestParametersInterface $requestParameters): View
     {
@@ -280,7 +284,7 @@ class TimelineController extends AbstractController
         return $this->view(
             [
                 'result' => $this->getMetaServiceTimelineById($metaId),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         )->setContext($context);
     }
@@ -288,8 +292,8 @@ class TimelineController extends AbstractController
     /**
      * @param int $metaId
      * @param RequestParametersInterface $requestParameters
-     * @return StreamedResponse
      * @throws EntityNotFoundException
+     * @return StreamedResponse
      */
     public function downloadMetaserviceTimeline(
         int $metaId,
@@ -328,6 +332,7 @@ class TimelineController extends AbstractController
         $service = $this->monitoringService->findOneService($hostId, $serviceId);
         if ($service === null) {
             $errorMsg = sprintf(_('Service %d on host %d not found'), $hostId, $serviceId);
+
             throw new EntityNotFoundException($errorMsg);
         }
         $host = $this->getHostById($hostId);
@@ -338,8 +343,8 @@ class TimelineController extends AbstractController
 
     /**
      * @param int $hostId
-     * @return Host
      * @throws EntityNotFoundException
+     * @return Host
      */
     private function getHostById(int $hostId): Host
     {

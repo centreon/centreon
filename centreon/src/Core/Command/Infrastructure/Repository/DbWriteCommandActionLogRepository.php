@@ -121,7 +121,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 'type' => $propertyValue instanceof CommandType ? CommandTypeConverter::toInt($propertyValue) : '',
                 'arguments' => is_array($propertyValue) ? $this->getArgumentsAsString($propertyValue) : '',
                 'macros' => is_array($propertyValue) ? $this->getMacrosAsString($propertyValue) : '',
-                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue  : '',
+                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue : '',
                 default => '',
             };
         }
@@ -137,7 +137,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     private function getArgumentsAsString(array $arguments): string
     {
         $arguments = array_map(
-            fn($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
+            fn ($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
             $arguments
         );
         $argumentsAsString = '';

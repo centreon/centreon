@@ -28,10 +28,9 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionException
- * @package Adaptation\Database\Connection\Exception
  */
 class ConnectionException extends DatabaseException
 {
@@ -45,7 +44,6 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param array<string,mixed> $context
-     *
      */
     public static function connectionBadUsage(string $message, array $context = []): self
     {
@@ -59,7 +57,7 @@ class ConnectionException extends DatabaseException
     public static function connectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while connecting to the database';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -69,7 +67,7 @@ class ConnectionException extends DatabaseException
     public static function getNativeConnectionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the native connection';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -83,7 +81,7 @@ class ConnectionException extends DatabaseException
     public static function getDatabaseNameFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while retrieving the database name';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -168,7 +166,6 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param array<string> $columns
-     *
      */
     public static function batchInsertQueryFailed(
         \Throwable $previous,
@@ -251,7 +248,6 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param array<string,mixed> $context
-     *
      */
     public static function selectQueryFailed(
         \Throwable $previous,
@@ -491,7 +487,7 @@ class ConnectionException extends DatabaseException
     public static function setAutoCommitFailed(?\Throwable $exception = null): self
     {
         $message = 'Error while setting auto commit';
-        if (! is_null($exception) && ! empty($exception->getMessage())) {
+        if (null !== $exception && ! empty($exception->getMessage())) {
             $message .= " : {$exception->getMessage()}";
         }
 
@@ -514,7 +510,7 @@ class ConnectionException extends DatabaseException
     public static function commitTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction commit';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -528,7 +524,7 @@ class ConnectionException extends DatabaseException
     public static function rollbackTransactionFailed(?\Throwable $previous = null): self
     {
         $message = 'Error during the transaction rollback';
-        if (! is_null($previous) && ! empty($previous->getMessage())) {
+        if (null !== $previous && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -42,20 +43,23 @@
 class CentreonCfgWriter
 {
     /** @var string */
-    private $buffer = "";
+    private $buffer = '';
+
     /** @var CentreonXML */
     private $xmlBuffer;
+
     /** @var Centreon */
     private $centreon;
+
     /** @var string */
     private $file_path;
 
     /**
      *  CentreonCfgWriter constructor
      *
-     *  @param Centreon $centreon
-     *  @param string $file_full_path
-     *  @return void
+     * @param Centreon $centreon
+     * @param string $file_full_path
+     * @return void
      */
     public function __construct($centreon, $file_full_path)
     {
@@ -67,7 +71,7 @@ class CentreonCfgWriter
     /**
      *  Creates the file
      *
-     *  @return void
+     * @return void
      */
     protected function createFile()
     {
@@ -78,24 +82,25 @@ class CentreonCfgWriter
      *  Writes basic text line to buffer
      *  Returns the length of written text
      *
-     *  @param string $text
+     * @param string $text
      *
-     *  @return int
+     * @return int
      */
     protected function writeText($text)
     {
         $this->buffer .= $text;
-        return (strlen($text));
+
+        return strlen($text);
     }
 
     /**
      *  Inserts Header of the file
      *
-     *  @return void
+     * @return void
      */
     protected function createFileHeader()
     {
-        $time = date("F j, Y, g:i a");
+        $time = date('F j, Y, g:i a');
         $by = $this->centreon->user->get_name();
         $len = $this->writeText("###################################################################\n");
         $this->writeText("#                                                                 #\n");
@@ -109,21 +114,21 @@ class CentreonCfgWriter
         $this->writeText("#                For information : contact@centreon.com           #\n");
         $this->writeText("###################################################################\n");
         $this->writeText("#                                                                 #\n");
-        $this->writeText("#         Last modification " . $time);
+        $this->writeText('#         Last modification ' . $time);
 
         $margin = strlen($time);
         $margin = $len - 28 - $margin - 2;
 
         for ($i = 0; $i != $margin; $i++) {
-            $this->writeText(" ");
+            $this->writeText(' ');
         }
 
         $this->writeText("#\n");
-        $this->writeText("#         By " . $by);
+        $this->writeText('#         By ' . $by);
         $margin = $len - 13 - strlen($by) - 2;
 
         for ($i = 0; $i != $margin; $i++) {
-            $this->writeText(" ");
+            $this->writeText(' ');
         }
         $this->writeText("#\n");
         $this->writeText("#                                                                 #\n");
@@ -133,19 +138,19 @@ class CentreonCfgWriter
     /**
      *  Defines cfg type
      *
-     *  @param string $type
-     *  @return void
+     * @param string $type
+     * @return void
      */
     public function startCfg($type): void
     {
-        $this->writeText("define " . $type . "{\n");
+        $this->writeText('define ' . $type . "{\n");
         $this->xmlBuffer->startElement($type);
     }
 
     /**
      *  Ends cfg
      *
-     *  @return void
+     * @return void
      */
     public function endCfg(): void
     {

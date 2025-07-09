@@ -73,7 +73,7 @@ final class HostTest extends ResourceTestCase
             $this->mockRequest(self::DEFAULT_REQUEST_CONTENT),
             $this->mockEntityValidator(),
             $this->mockSerializer([]),
-            1
+            1,
         ];
     }
 
@@ -94,8 +94,9 @@ final class HostTest extends ResourceTestCase
         $sut = new CheckController($service, $readAccessGroupRepository);
         $sut->setContainer($container);
 
-        $methodUnderTest = static::METHOD_UNDER_TEST;
-        return $sut->$methodUnderTest(
+        $methodUnderTest = self::METHOD_UNDER_TEST;
+
+        return $sut->{$methodUnderTest}(
             $this->mockRequest(self::DEFAULT_REQUEST_CONTENT),
             $validator,
             $this->mockSerializer($check),

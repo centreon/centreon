@@ -137,7 +137,8 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
                 _('Notes') => $this->getResourceNotes($resource),
                 _('Action') => $this->formatUrl(
-                    $resource->getLinks()->getExternals()->getActionUrl() ?? '', $resource
+                    $resource->getLinks()->getExternals()->getActionUrl() ?? '',
+                    $resource
                 ),
                 _('State') => _($this->getResourceState($resource)),
                 _('Alias') => $resource->getAlias() ?? '',
@@ -150,7 +151,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             ];
 
             $line = array_map(
-                fn($key) => $resource[$key],
+                fn ($key) => $resource[$key],
                 $csvHeader->values()
             );
 

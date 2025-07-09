@@ -36,8 +36,8 @@
 
 use Pimple\Container;
 
-require_once realpath(__DIR__ . "/../../config/centreon.config.php");
-require_once realpath(__DIR__ . "/../../bootstrap.php");
+require_once realpath(__DIR__ . '/../../config/centreon.config.php');
+require_once realpath(__DIR__ . '/../../bootstrap.php');
 
 /**
  * Class
@@ -50,85 +50,109 @@ class CentreonXMLBGRequest
     /** @var string */
     public $classLine;
 
-    /*
-     * Objects
-     */
+    // Objects
 
     /** @var CentreonDB */
     public CentreonDB $DB;
+
     /** @var CentreonDB */
     public CentreonDB $DBC;
+
     /** @var CentreonXML */
     public $XML;
+
     /** @var CentreonGMT */
     public $GMT;
+
     /** @var CentreonHost */
     public $hostObj;
+
     /** @var CentreonService */
     public $serviceObj;
+
     /** @var CentreonMonitoring */
     public $monObj;
+
     /** @var CentreonACL */
     public $access;
+
     /** @var string */
     public $session_id;
+
     /** @var */
     public $broker;
 
-    /*
-     * Variables
-     */
+    // Variables
     /** @var */
     public $buffer;
+
     /** @var int */
     public $debug;
+
     /** @var int|mixed */
     public $compress;
+
     /** @var int */
     public $header;
+
     /** @var */
     public $is_admin;
+
     /** @var */
     public $user_id;
+
     /** @var array */
     public $grouplist;
+
     /** @var string */
     public $grouplistStr;
+
     /** @var */
     public $general_opt;
+
     /** @var */
     public $class;
+
     /** @var string[] */
     public $stateType;
+
     /** @var string[] */
     public $statusHost;
+
     /** @var string[] */
     public $statusService;
+
     /** @var string[] */
     public $colorHost;
+
     /** @var string[] */
     public $colorHostInService;
+
     /** @var string[] */
     public $colorService;
+
     /** @var array */
     public $en;
+
     /** @var string[] */
     public $stateTypeFull;
 
     /** @var string[] */
     public $backgroundHost;
+
     /** @var string[] */
     public $backgroundService;
 
-    /*
-     * Filters
-     */
+    // Filters
     /** @var */
     public $defaultPoller;
+
     /** @var */
     public $defaultHostgroups;
+
     /** @var */
     public $defaultServicegroups;
+
     /** @var int */
     public $defaultCriticality = 0;
 
@@ -158,84 +182,66 @@ class CentreonXMLBGRequest
         $compress = null,
         $fullVersion = 1
     ) {
-        if (!isset($debug)) {
+        if (! isset($debug)) {
             $this->debug = 0;
         }
 
-        (!isset($headerType)) ? $this->header = 1 : $this->header = $headerType;
-        (!isset($compress)) ? $this->compress = 1 : $this->compress = $compress;
+        (! isset($headerType)) ? $this->header = 1 : $this->header = $headerType;
+        (! isset($compress)) ? $this->compress = 1 : $this->compress = $compress;
 
-        if (!isset($session_id)) {
-            print "Your might check your session id";
+        if (! isset($session_id)) {
+            echo 'Your might check your session id';
+
             exit(1);
-        } else {
-            $this->session_id = htmlentities($session_id, ENT_QUOTES, "UTF-8");
         }
+        $this->session_id = htmlentities($session_id, ENT_QUOTES, 'UTF-8');
 
-        /*
-         * Enable Database Connexions
-         */
+        // Enable Database Connexions
         $this->DB = $dependencyInjector['configuration_db'];
         $this->DBC = $dependencyInjector['realtime_db'];
 
-        /*
-         * Init Objects
-         */
+        // Init Objects
         $this->hostObj = new CentreonHost($this->DB);
         $this->serviceObj = new CentreonService($this->DB, $this->DBC);
 
-        /*
-         * Init Object Monitoring
-         */
+        // Init Object Monitoring
         $this->monObj = new CentreonMonitoring($this->DB);
 
         if ($fullVersion) {
-            /*
-             * Timezone management
-             */
+            // Timezone management
             $this->GMT = new CentreonGMT($this->DB);
             $this->GMT->getMyGMTFromSession($this->session_id);
         }
 
-        /*
-         * XML class
-         */
+        // XML class
         $this->XML = new CentreonXML();
 
-        /*
-         * ACL init
-         */
+        // ACL init
         $this->getUserIdFromSID();
         $this->isUserAdmin();
         $this->access = new CentreonACL($this->user_id, $this->is_admin);
         $this->grouplist = $this->access->getAccessGroups();
         $this->grouplistStr = $this->access->getAccessGroupsString();
 
-        /*
-         * Init Color table
-         */
+        // Init Color table
         $this->getStatusColor();
 
-        /*
-         * Init class
-         */
-        $this->classLine = "list_one";
+        // Init class
+        $this->classLine = 'list_one';
 
-        /*
-         * Init Tables
-         */
-        $this->en = ["0" => _("No"), "1" => _("Yes")];
-        $this->stateType = ["1" => "H", "0" => "S"];
-        $this->stateTypeFull = ["1" => "HARD", "0" => "SOFT"];
-        $this->statusHost = ["0" => "UP", "1" => "DOWN", "2" => "UNREACHABLE", "4" => "PENDING"];
-        $this->statusService = ["0" => "OK", "1" => "WARNING", "2" => "CRITICAL", "3" => "UNKNOWN", "4" => "PENDING"];
+        // Init Tables
+        $this->en = ['0' => _('No'), '1' => _('Yes')];
+        $this->stateType = ['1' => 'H', '0' => 'S'];
+        $this->stateTypeFull = ['1' => 'HARD', '0' => 'SOFT'];
+        $this->statusHost = ['0' => 'UP', '1' => 'DOWN', '2' => 'UNREACHABLE', '4' => 'PENDING'];
+        $this->statusService = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '4' => 'PENDING'];
         $this->colorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'pending'];
         $this->colorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
 
         $this->backgroundHost = [0 => '#88b917', 1 => '#e00b3d', 2 => '#818185', 4 => '#2ad1d4'];
         $this->backgroundService = [0 => '#88b917', 1 => '#ff9a13', 2 => '#e00b3d', 3 => '#bcbdc0', 4 => '#2ad1d4'];
 
-        $this->colorHostInService = [0 => "normal", 1 => "#FD8B46", 2 => "normal", 4 => "normal"];
+        $this->colorHostInService = [0 => 'normal', 1 => '#FD8B46', 2 => 'normal', 4 => 'normal'];
     }
 
     /**
@@ -243,30 +249,30 @@ class CentreonXMLBGRequest
      */
     private function isUserAdmin(): void
     {
-        $statement = $this->DB->prepare("SELECT contact_admin, contact_id FROM contact " .
-            "WHERE contact.contact_id = :userId LIMIT 1");
-        $statement->bindValue(":userId", (int) $this->user_id, PDO::PARAM_INT);
+        $statement = $this->DB->prepare('SELECT contact_admin, contact_id FROM contact '
+            . 'WHERE contact.contact_id = :userId LIMIT 1');
+        $statement->bindValue(':userId', (int) $this->user_id, PDO::PARAM_INT);
         $statement->execute();
         $admin = $statement->fetchRow();
         $statement->closeCursor();
-        $this->is_admin = $admin !== false && $admin["contact_admin"] ? 1 : 0;
+        $this->is_admin = $admin !== false && $admin['contact_admin'] ? 1 : 0;
     }
 
     /**
      * Get user id from session_id
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getUserIdFromSID()
     {
-        $query = "SELECT user_id FROM session " .
-            "WHERE session_id = '" . CentreonDB::escape($this->session_id) . "' LIMIT 1";
+        $query = 'SELECT user_id FROM session '
+            . "WHERE session_id = '" . CentreonDB::escape($this->session_id) . "' LIMIT 1";
         $dbResult = $this->DB->query($query);
         $admin = $dbResult->fetchRow();
         unset($dbResult);
-        if (isset($admin["user_id"])) {
-            $this->user_id = $admin["user_id"];
+        if (isset($admin['user_id'])) {
+            $this->user_id = $admin['user_id'];
         }
     }
 
@@ -279,21 +285,21 @@ class CentreonXMLBGRequest
      */
     private function myDecode($arg)
     {
-        return html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
+        return html_entity_decode($arg ?? '', ENT_QUOTES, 'UTF-8');
     }
 
     /**
      * Get Status Color
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getStatusColor()
     {
         $this->general_opt = [];
         $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
         while ($c = $DBRESULT->fetchRow()) {
-            $this->general_opt[$c["key"]] = $this->myDecode($c["value"]);
+            $this->general_opt[$c['key']] = $this->myDecode($c['value']);
         }
         $DBRESULT->closeCursor();
         unset($c);
@@ -306,7 +312,7 @@ class CentreonXMLBGRequest
      */
     public function header(): void
     {
-        /* Force no encoding compress */
+        // Force no encoding compress
         $encoding = false;
 
         header('Content-Type: text/xml');
@@ -323,7 +329,8 @@ class CentreonXMLBGRequest
      */
     public function getNextLineClass()
     {
-        $this->classLine = $this->classLine == "list_one" ? "list_two" : "list_one";
+        $this->classLine = $this->classLine == 'list_one' ? 'list_two' : 'list_one';
+
         return $this->classLine;
     }
 
@@ -398,16 +405,17 @@ class CentreonXMLBGRequest
      */
     public function checkArgument($name, $tab, $defaultValue)
     {
-        if (isset($name) && isset($tab)) {
+        if (isset($name, $tab)) {
             if (isset($tab[$name])) {
                 if ($name == 'num' && $tab[$name] < 0) {
                     $tab[$name] = 0;
                 }
                 $value = htmlspecialchars($tab[$name], ENT_QUOTES, 'utf-8');
+
                 return CentreonDB::escape($value);
-            } else {
-                return CentreonDB::escape($defaultValue);
             }
+
+            return CentreonDB::escape($defaultValue);
         }
 
         return '';
@@ -420,8 +428,8 @@ class CentreonXMLBGRequest
      */
     public function prepareObjectName($name)
     {
-        $name = str_replace("/", "#S#", $name);
-        $name = str_replace("\\", "#BS#", $name);
-        return $name;
+        $name = str_replace('/', '#S#', $name);
+
+        return str_replace('\\', '#BS#', $name);
     }
 }

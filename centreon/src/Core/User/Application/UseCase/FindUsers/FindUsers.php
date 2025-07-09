@@ -63,7 +63,7 @@ final class FindUsers
             } else {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
-                    fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+                    fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
                     $this->accessGroups,
                 );
                 if (
@@ -132,7 +132,7 @@ final class FindUsers
         }
         $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupNames = array_map(
-            fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+            fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroups
         );
 

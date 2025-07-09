@@ -83,8 +83,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP Account and User info.
      *
-     * @return array<string,mixed> with Account/User info
      * @throws PDOException
+     * @return array<string,mixed> with Account/User info
      */
     public function getCeipInfo(): array
     {
@@ -105,11 +105,11 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the type of the Centreon server.
      *
+     * @throws PDOException
      * @return array{
      *     type: 'central'|'remote',
      *     platform: 'on_premise'|'centreon_cloud',
      * } the type of the server
-     * @throws PDOException
      */
     private function getServerType(): array
     {
@@ -162,7 +162,7 @@ class CentreonCeip extends CentreonWebService
             $dependencyInjector = LegacyContainer::getInstance();
             $licenseService = $dependencyInjector['lm.license'];
 
-            if($licenseService->isTrial()) {
+            if ($licenseService->isTrial()) {
                 $email = $this->user->email;
             }
         } else {
@@ -186,6 +186,7 @@ class CentreonCeip extends CentreonWebService
         if (isset($email)) {
             $visitorInformation['email'] = $email;
         }
+
         return $visitorInformation;
     }
 
@@ -235,7 +236,7 @@ class CentreonCeip extends CentreonWebService
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
         }
 
-        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+        if (! empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
             $accountInformation['LACCESS'] = $laccess;
         }
 
@@ -338,9 +339,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the major and minor versions of Centreon web.
      *
-     * @return array{major: string, minor: string} with major and minor versions
      * @throws PDOException
-     *
+     * @return array{major: string, minor: string} with major and minor versions
      */
     private function getCentreonVersion(): array
     {
@@ -354,9 +354,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP status.
      *
-     * @return bool the status of CEIP
      * @throws PDOException
-     *
+     * @return bool the status of CEIP
      */
     private function isCeipActive(): bool
     {
@@ -368,6 +367,7 @@ class CentreonCeip extends CentreonWebService
     /**
      * Fetch CEIP Agent info.
      *
+     * @throws PDOException
      * @return array{
      *   id: int,
      *   enabled: bool,
@@ -381,8 +381,6 @@ class CentreonCeip extends CentreonWebService
      *       nbAgent: int|null
      *   }
      * }
-     *
-     * @throws PDOException
      */
     private function getAgentInformation(): array
     {
@@ -390,9 +388,9 @@ class CentreonCeip extends CentreonWebService
         try {
             $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
             $query = <<<'SQL'
-                        SELECT `poller_id`, `enabled`, `infos`
-                        FROM `agent_information`
-                    SQL;
+                    SELECT `poller_id`, `enabled`, `infos`
+                    FROM `agent_information`
+                SQL;
             $statement = $pearDBO->executeQuery($query);
 
             while (is_array($row = $pearDBO->fetch($statement))) {
@@ -436,10 +434,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get LACCESS to complete the connection between Pendo and Salesforce.
      *
-     * @return string LACCESS value from options table.
-     *
      * @throws PDOException
-     *
+     * @return string LACCESS value from options table
      */
     private function getLaccess(): string
     {

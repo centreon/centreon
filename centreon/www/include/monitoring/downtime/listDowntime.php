@@ -125,9 +125,9 @@ $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
 include_once './class/centreonDB.class.php';
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 // Smarty template initialization

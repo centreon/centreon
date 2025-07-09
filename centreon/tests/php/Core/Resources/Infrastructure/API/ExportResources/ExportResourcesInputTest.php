@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -614,4 +615,3 @@ it('test export resources input validation with columns with a valid value', fun
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
 });
-

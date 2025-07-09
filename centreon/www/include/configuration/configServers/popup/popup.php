@@ -20,34 +20,37 @@
  * limitations under the License.
  */
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'bootstrap.php';
-require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonRestHttp.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonSession.class.php";
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonRestHttp.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 $pearDB = $dependencyInjector['configuration_db'];
 
-/* Check Session */
+// Check Session
 CentreonSession::start(1);
-if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-    print "Bad Session";
+if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+    echo 'Bad Session';
+
     exit();
 }
 $centreon = $_SESSION['centreon'];
 $pollerId = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT);
 if ($pollerId === false) {
-    print "Bad Poller Id";
+    echo 'Bad Poller Id';
+
     exit();
 }
-$userId = (int)$centreon->user->user_id;
-$isAdmin = (bool)$centreon->user->admin;
+$userId = (int) $centreon->user->user_id;
+$isAdmin = (bool) $centreon->user->admin;
 
 if ($isAdmin === false) {
     $acl = new CentreonACL($userId, $isAdmin);
     $aclPollers = $acl->getPollers();
-    if (!array_key_exists($pollerId, $aclPollers)) {
-        print "No access rights to this Poller";
+    if (! array_key_exists($pollerId, $aclPollers)) {
+        echo 'No access rights to this Poller';
+
         exit();
     }
 }
@@ -61,7 +64,7 @@ $dbResult = $pearDB->query($query);
 $remotesServerIPs = $dbResult->fetchAll(PDO::FETCH_COLUMN);
 $dbResult->closeCursor();
 
-//get poller informations
+// get poller informations
 $statement = $pearDB->prepare(
     "SELECT ns.`id`, ns.`name`, ns.`gorgone_port`, ns.`ns_ip_address`, ns.`localhost`, ns.remote_id,
       remote_server_use_as_proxy, cn.`command_file`, GROUP_CONCAT( pr.`remote_server_id` ) AS list_remote_server_id
@@ -72,11 +75,11 @@ $statement = $pearDB->prepare(
     WHERE ns.ns_activate = '1'
     AND ns.`id` = :server_id"
 );
-$statement->bindValue(':server_id', (int) $pollerId, \PDO::PARAM_INT);
+$statement->bindValue(':server_id', (int) $pollerId, PDO::PARAM_INT);
 $statement->execute();
 $server = $statement->fetch();
 
-//get gorgone api informations
+// get gorgone api informations
 $gorgoneApi = [];
 $dbResult = $pearDB->query('SELECT * from options WHERE `key` LIKE "gorgone%"');
 while ($row = $dbResult->fetch()) {
@@ -85,28 +88,28 @@ while ($row = $dbResult->fetch()) {
 
 $tpl->assign('serverIp', $server['ns_ip_address']);
 if (
-    (empty($server['remote_id']) && empty($server['list_remote_server_id'])) ||
-    $server['remote_server_use_as_proxy'] == 0
+    (empty($server['remote_id']) && empty($server['list_remote_server_id']))
+    || $server['remote_server_use_as_proxy'] == 0
 ) {
-    //parent is the central
+    // parent is the central
     $query = "SELECT `id` FROM nagios_server WHERE ns_activate = '1' AND localhost = '1'";
     $dbResult = $pearDB->query($query);
-    $parents = $dbResult->fetchAll(\PDO::FETCH_COLUMN);
+    $parents = $dbResult->fetchAll(PDO::FETCH_COLUMN);
 } else {
     $dbResult = $pearDB->query($query);
     $parents = [$server['remote_id']];
-    if (!empty($server['list_remote_server_id'])) {
+    if (! empty($server['list_remote_server_id'])) {
         $remote = explode(',', $server['list_remote_server_id']);
         $parents = array_merge($parents, $remote);
     }
     $query = 'SELECT `id` FROM nagios_server WHERE `ns_activate` = "1" AND `id` IN (' . implode(',', $parents) . ')';
     $dbResult = $pearDB->query($query);
-    $parents = $dbResult->fetchAll(\PDO::FETCH_COLUMN);
+    $parents = $dbResult->fetchAll(PDO::FETCH_COLUMN);
 }
 
 $kernel = App\Kernel::createForWeb();
 /**
- * @var $gorgoneService \Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
+ * @var \Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface $gorgoneService
  */
 $gorgoneError = false;
 if ($server['localhost'] === '1') {
@@ -129,7 +132,7 @@ if ($server['localhost'] === '1') {
         $config
     );
 } else {
-    $gorgoneService = $kernel->getContainer()->get(\Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
+    $gorgoneService = $kernel->getContainer()->get(Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
     $thumbprints = '';
     $dataError = '';
     $timeout = 0;
@@ -137,7 +140,7 @@ if ($server['localhost'] === '1') {
     try {
         foreach ($parents as $serverId) {
             $lastActionLog = null;
-            $thumbprintCommand = new \Centreon\Domain\Gorgone\Command\Thumbprint($serverId);
+            $thumbprintCommand = new Centreon\Domain\Gorgone\Command\Thumbprint($serverId);
             $gorgoneResponse = $gorgoneService->send($thumbprintCommand);
             // check if we have log for 30 s every 2s
             do {
@@ -146,7 +149,7 @@ if ($server['localhost'] === '1') {
                 $timeout += 2;
             } while (
                 ($lastActionLog == null
-                    || $lastActionLog->getCode() === \Centreon\Domain\Gorgone\Response::STATUS_BEGIN)
+                    || $lastActionLog->getCode() === Centreon\Domain\Gorgone\Response::STATUS_BEGIN)
                 && $timeout <= 30
             );
 
@@ -160,7 +163,7 @@ if ($server['localhost'] === '1') {
             }
 
             $thumbprintResponse = json_decode($lastActionLog->getData(), true);
-            if ($lastActionLog->getCode() === \Centreon\Domain\Gorgone\Response::STATUS_OK) {
+            if ($lastActionLog->getCode() === Centreon\Domain\Gorgone\Response::STATUS_OK) {
                 $thumbprints .= '
       - key: ' . $thumbprintResponse['data']['thumbprint'];
             } else {
@@ -169,15 +172,15 @@ if ($server['localhost'] === '1') {
       - error : Poller ' . $serverId . ' : ' . $thumbprintResponse['message'];
             }
         }
-    } catch (\Exception $ex) {
+    } catch (Exception $ex) {
         $gorgoneError = true;
         $dataError = $ex->getMessage();
     }
 
-    if (!empty($dataError)) {
+    if (! empty($dataError)) {
         $config = $dataError;
     } elseif (in_array($server['ns_ip_address'], $remotesServerIPs)) {
-        //config for remote
+        // config for remote
         $config = file_get_contents('./remote.yaml');
         $config = str_replace(
             [
@@ -201,7 +204,7 @@ if ($server['localhost'] === '1') {
             $config
         );
     } else {
-        //config for poller
+        // config for poller
         $config = file_get_contents('./poller.yaml');
         $config = str_replace(
             [
@@ -225,4 +228,4 @@ if ($server['localhost'] === '1') {
 
 $tpl->assign('args', $config);
 $tpl->assign('gorgoneError', $gorgoneError);
-$tpl->display("popup.ihtml");
+$tpl->display('popup.ihtml');

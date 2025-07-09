@@ -158,4 +158,3 @@ class Rule extends NewRule
         }
     }
 }
-

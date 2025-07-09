@@ -82,7 +82,7 @@ it('should throw an exception when host macro description is too long', function
 
 it('should resolve macro inheritance', function (): void {
     $templateId = 1;
-    $templateInheritanceLine= [2, 3, 4];
+    $templateInheritanceLine = [2, 3, 4];
     $macros = [
         $macroA = new Macro(1, 'nameA', 'valueA'),
         $macroB2 = new Macro(1, 'nameB', 'valueB-edited'),
@@ -100,7 +100,7 @@ it('should resolve macro inheritance', function (): void {
         $macroA->getName() => $macroA,
         $macroB2->getName() => $macroB2,
     ])
-    ->and($inheritedMacros)->toBe([
+        ->and($inheritedMacros)->toBe([
         $macroC->getName() => $macroC,
         $macroD->getName() => $macroD,
         $macroE2->getName() => $macroE2,

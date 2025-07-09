@@ -21,7 +21,6 @@
 
 namespace Tests\Core\HostGroup\Application\UseCase\DuplicateHostGroups;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;

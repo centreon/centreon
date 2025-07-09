@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\PlatformInformation\Model;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\PlatformInformation\Model\Information;
+use PHPUnit\Framework\TestCase;
 
 class InformationTest extends TestCase
 {
@@ -102,8 +102,8 @@ class InformationTest extends TestCase
     }
 
     /**
-     * @return array<Information>
      * @throws \Assert\AssertionFailedException
+     * @return array<Information>
      */
     public static function createEntities(): array
     {
@@ -115,7 +115,7 @@ class InformationTest extends TestCase
             'apiScheme' => 'http',
             'apiPort' => 80,
             'apiPath' => 'centreon',
-            'peerValidation' => false
+            'peerValidation' => false,
         ];
 
         $information = [];

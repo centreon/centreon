@@ -218,7 +218,7 @@ class Utils
         if (isset($patternData[1])) {
             return $patternData[0];
         }
-  
-            return;
+
+        return;
     }
 }

@@ -28,18 +28,16 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\ValueObjectInterface;
 
 /**
- * Class
+ * Class.
  *
  * @class   QueryParameter
- * @package Adaptation\Database\Connection\ValueObject
  */
 final readonly class QueryParameter implements ValueObjectInterface
 {
     /**
-     * QueryParameter constructor
+     * QueryParameter constructor.
      *
      * Example: new QueryParameter('name', 'value', QueryParameterTypeEnum::STRING);
-     *
      *
      * @throws ValueObjectException
      */
@@ -55,12 +53,7 @@ final readonly class QueryParameter implements ValueObjectInterface
             throw new ValueObjectException('Value of QueryParameter cannot be an object');
         }
         if ($type === QueryParameterTypeEnum::LARGE_OBJECT && ! is_string($value) && ! is_resource($value)) {
-            throw new ValueObjectException(
-                sprintf(
-                    'Value of QueryParameter with type LARGE_OBJECT must be a string or a resource, %s given',
-                    gettype($value)
-                )
-            );
+            throw new ValueObjectException(sprintf('Value of QueryParameter with type LARGE_OBJECT must be a string or a resource, %s given', gettype($value)));
         }
     }
 
@@ -84,7 +77,6 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     *
      * @throws ValueObjectException
      */
     public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): self
@@ -95,7 +87,6 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * Example : QueryParameter::int('name', 1);
      * Null value is not allowed for this type.
-     *
      *
      * @throws ValueObjectException
      */
@@ -112,7 +103,6 @@ final readonly class QueryParameter implements ValueObjectInterface
      * Example : QueryParameter::string('name', 'value');
      * Null value is not allowed for this type.
      *
-     *
      * @throws ValueObjectException
      */
     public static function string(string $name, ?string $value): self
@@ -125,8 +115,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * Example : QueryParameter::bool('name', true);
-     *
+     * Example : QueryParameter::bool('name', true);.
      *
      * @throws ValueObjectException
      */
@@ -136,8 +125,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * Example : QueryParameter::null('name');
-     *
+     * Example : QueryParameter::null('name');.
      *
      * @throws ValueObjectException
      */
@@ -147,9 +135,10 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * Example : QueryParameter::largeObject('name', 'blob');
+     * Example : QueryParameter::largeObject('name', 'blob');.
      *
      * @param string|resource $value
+     *
      * @throws ValueObjectException
      */
     public static function largeObject(string $name, mixed $value): self
@@ -165,13 +154,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     public function equals(ValueObjectInterface $object): bool
     {
         if (! $object instanceof self) {
-            throw new ValueObjectException(
-                sprintf(
-                    'Expected object of type %s, %s given',
-                    self::class,
-                    $object::class
-                )
-            );
+            throw new ValueObjectException(sprintf('Expected object of type %s, %s given', self::class, $object::class));
         }
 
         return "{$this}" === "{$object}";

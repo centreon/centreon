@@ -35,8 +35,8 @@ class RealTimeMonitoringServerFactoryRdb
      * Create a RealTimeMonitoringServer entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return RealTimeMonitoringServer
      * @throws \Assert\AssertionFailedException
+     * @return RealTimeMonitoringServer
      */
     public static function create(array $data): RealTimeMonitoringServer
     {

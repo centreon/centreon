@@ -34,48 +34,49 @@
  *
  */
 
-ini_set("display_errors", "Off");
+ini_set('display_errors', 'Off');
 
 // Include configuration
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
 
 // Include Classes / Methods
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 
 // Connect MySQL DB
 $pearDB = new CentreonDB();
-$pearDBO = new CentreonDB("centstorage");
+$pearDBO = new CentreonDB('centstorage');
 $pearDBO->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
 // Security check
 CentreonSession::start(1);
 $sessionId = session_id();
-if (!CentreonSession::checkSession((string) $sessionId, $pearDB)) {
-    print "Bad Session";
+if (! CentreonSession::checkSession((string) $sessionId, $pearDB)) {
+    echo 'Bad Session';
+
     exit();
 }
 
-$centreon = $_SESSION["centreon"];
+$centreon = $_SESSION['centreon'];
 
 // Language informations init
 $locale = $centreon->user->get_lang();
-putenv("LANG=$locale");
+putenv("LANG={$locale}");
 setlocale(LC_ALL, $locale);
-bindtextdomain("messages", _CENTREON_PATH_ . "/www/locale/");
-bind_textdomain_codeset("messages", "UTF-8");
-textdomain("messages");
+bindtextdomain('messages', _CENTREON_PATH_ . '/www/locale/');
+bind_textdomain_codeset('messages', 'UTF-8');
+textdomain('messages');
 
 $sid = $sessionId === false ? '-1' : $sessionId;
-$contact_id = check_session($sid, $pearDB); //@phpstan-ignore-line
+$contact_id = check_session($sid, $pearDB); // @phpstan-ignore-line
 
-$is_admin = isUserAdmin($sid);//@phpstan-ignore-line
+$is_admin = isUserAdmin($sid); // @phpstan-ignore-line
 $access = new CentreonACL($contact_id, $is_admin);
 $lca = [
-    "LcaHost" => $access->getHostsServices($pearDBO, true),
-    "LcaHostGroup" => $access->getHostGroups(),
-    "LcaSG" => $access->getServiceGroups()
+    'LcaHost' => $access->getHostsServices($pearDBO, true),
+    'LcaHostGroup' => $access->getHostGroups(),
+    'LcaSG' => $access->getServiceGroups(),
 ];
 
 require_once realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Request.php');
@@ -119,11 +120,11 @@ $stmt->execute();
 $HostCache = [];
 $dbResult = $pearDB->query("SELECT host_name, host_address FROM host WHERE host_register = '1'");
 if (! $dbResult instanceof PDOStatement) {
-    throw new \RuntimeException('An error occurred. Hosts could not be found');
+    throw new RuntimeException('An error occurred. Hosts could not be found');
 }
 
 while ($h = $dbResult->fetch()) {
-    $HostCache[$h["host_name"]] = $h["host_address"];
+    $HostCache[$h['host_name']] = $h['host_address'];
 }
 $dbResult->closeCursor();
 

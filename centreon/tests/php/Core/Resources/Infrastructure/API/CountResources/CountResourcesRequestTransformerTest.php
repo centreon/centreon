@@ -37,7 +37,7 @@ beforeEach(function (): void {
 
 it('test transform inputs to request to count resources as admin with pagination', function (): void {
     $this->contact->setAdmin(true);
-    $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
+    $input = new CountResourcesInput('{"$and":[]}', false, 1, 10);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->contactId)->toBe(1)
         ->and($request->isAdmin)->toBeTrue()
@@ -47,7 +47,7 @@ it('test transform inputs to request to count resources as admin with pagination
 
 it('test transform inputs to request to count resources as admin without pagination', function (): void {
     $this->contact->setAdmin(true);
-    $input = new CountResourcesInput('{"$and":[]}',true, null, null);
+    $input = new CountResourcesInput('{"$and":[]}', true, null, null);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->contactId)->toBe(1)
         ->and($request->isAdmin)->toBeTrue()
@@ -57,7 +57,7 @@ it('test transform inputs to request to count resources as admin without paginat
 
 it('test transform inputs to request to count resources as no admin with pagination', function (): void {
     $this->contact->setAdmin(false);
-    $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
+    $input = new CountResourcesInput('{"$and":[]}', false, 1, 10);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->contactId)->toBe(1)
         ->and($request->isAdmin)->toBeFalse()
@@ -67,7 +67,7 @@ it('test transform inputs to request to count resources as no admin with paginat
 
 it('test transform inputs to request to count resources as no admin without pagination', function (): void {
     $this->contact->setAdmin(false);
-    $input = new CountResourcesInput('{"$and":[]}',true, null, null);
+    $input = new CountResourcesInput('{"$and":[]}', true, null, null);
     $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->contactId)->toBe(1)
         ->and($request->isAdmin)->toBeFalse()

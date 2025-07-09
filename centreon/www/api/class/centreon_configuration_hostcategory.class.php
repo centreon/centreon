@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -57,9 +57,9 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -70,8 +70,8 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
         $isAdmin = $centreon->user->admin;
         $aclHostCategories = '';
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
             $aclHostCategoryIds = $acl->getHostCategoriesString('ID');
             if ($aclHostCategoryIds != "''") {
@@ -88,46 +88,46 @@ class CentreonConfigurationHostcategory extends CentreonConfigurationObjects
             if (in_array(strtolower($this->arguments['t']), $selectList)) {
                 $t = $this->arguments['t'];
             } else {
-                throw new \RestBadRequestException('Error, type must be numerical');
+                throw new RestBadRequestException('Error, type must be numerical');
             }
         } else {
             $t = '';
         }
 
         // Check for select2 'q' argument
-        $queryValues['hcName'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['hcName'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
-        $queryHostCategory = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hc.hc_name, hc.hc_id ' .
-            'FROM hostcategories hc ' .
-            'WHERE hc.hc_name LIKE :hcName ' .
-            $aclHostCategories;
-        if (!empty($t) && $t == 'c') {
+        $queryHostCategory = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT hc.hc_name, hc.hc_id '
+            . 'FROM hostcategories hc '
+            . 'WHERE hc.hc_name LIKE :hcName '
+            . $aclHostCategories;
+        if (! empty($t) && $t == 'c') {
             $queryHostCategory .= 'AND level IS NULL ';
         }
-        if (!empty($t) && $t == 's') {
+        if (! empty($t) && $t == 's') {
             $queryHostCategory .= 'AND level IS NOT NULL ';
         }
         $queryHostCategory .= 'ORDER BY hc.hc_name ';
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $queryHostCategory .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
 
         $stmt = $this->pearDB->prepare($queryHostCategory);
         $stmt->bindParam(':hcName', $queryValues['hcName'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $stmt->execute();
         $hostCategoryList = [];

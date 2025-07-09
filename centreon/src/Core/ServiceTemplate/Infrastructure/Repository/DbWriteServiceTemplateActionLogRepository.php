@@ -110,7 +110,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
     public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void
     {
-       $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
+        $this->writeServiceTemplateRepository->linkToHosts($serviceTemplateId, $hostTemplateIds);
     }
 
     public function unlinkHosts(int $serviceTemplateId): void
@@ -123,8 +123,8 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         try {
             $currentServiceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplate->getId());
 
-            $currentServiceTemplateDetails = $currentServiceTemplate 
-                ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate) 
+            $currentServiceTemplateDetails = $currentServiceTemplate
+                ? $this->getServiceTemplatePropertiesAsArray($currentServiceTemplate)
                 : [];
             $updatedServiceTemplateDetails = $this->getServiceTemplatePropertiesAsArray($serviceTemplate);
             $diff = array_diff_assoc($updatedServiceTemplateDetails, $currentServiceTemplateDetails);

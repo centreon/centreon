@@ -46,7 +46,6 @@ beforeEach(function (): void {
 });
 
 it('should check that services exists as admin', function (): void {
-
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -60,7 +59,6 @@ it('should check that services exists as admin', function (): void {
 });
 
 it('should check that services exists as user', function (): void {
-
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')
@@ -82,9 +80,9 @@ it('should return a DeleteServicesResponse', function (): void {
     $this->readRepository
         ->expects($this->exactly(3))
         ->method('exists')
-        ->willReturnOnConsecutiveCalls(true,false,true);
+        ->willReturnOnConsecutiveCalls(true, false, true);
 
-    $ex = new \Exception('Error while deleting a service configuration');
+    $ex = new Exception('Error while deleting a service configuration');
 
     $this->writeRepository
         ->expects($this->exactly(2))

@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurati
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\AgentConfigurationDto;
@@ -36,6 +35,7 @@ use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -140,7 +140,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'otel_private_key' => 'otel-key',
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
-                'conf_private_key' => 'conf-key'
+                'conf_private_key' => 'conf-key',
             ]
         )
     );
@@ -159,7 +159,7 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
                 'otel_private_key' => 'otel-key',
                 'conf_server_port' => 454,
                 'conf_certificate' => 'conf-certif',
-                'conf_private_key' => 'conf-key'
+                'conf_private_key' => 'conf-key',
             ]
         )
     );

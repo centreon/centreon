@@ -44,7 +44,7 @@ class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements 
     public function addServiceToResourceAcls(int $hostId, int $serviceId, array $accessGroups): void
     {
         $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

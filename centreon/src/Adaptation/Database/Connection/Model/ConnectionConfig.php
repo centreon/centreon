@@ -26,15 +26,14 @@ namespace Adaptation\Database\Connection\Model;
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionConfig
- * @package Adaptation\Database\Connection\Model
  */
 final readonly class ConnectionConfig
 {
     /**
-     * ConnectionConfig constructor
+     * ConnectionConfig constructor.
      *
      * @param string $databaseNameConfiguration Configuration database name of Centreon
      * @param string $databaseNameRealTime Real time database name of Centreon
@@ -48,7 +47,8 @@ final readonly class ConnectionConfig
         private int $port = 3306,
         private string $charset = 'utf8mb4',
         private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
-    ) {}
+    ) {
+    }
 
     public function getHost(): string
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Domain\Collection;
 
 use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\ValueObject\LiteralString;
 
 beforeEach(function (): void {
     $this->collection = new ObjectCollectionStub();
@@ -82,11 +81,9 @@ it('sort a collection by values', function (): void {
     $orderedArray = [$class2, $class1];
 
     $this->collection->add(1, $class1);
-    $this->collection->add(2,  $class2);
+    $this->collection->add(2, $class2);
 
-    $this->collection->sortByValues(function($a, $b) use ($orderedArray){
-        return array_search($a, $orderedArray) <=> array_search($b, $orderedArray);
-    });
+    $this->collection->sortByValues(fn ($a, $b) => array_search($a, $orderedArray, true) <=> array_search($b, $orderedArray, true));
     expect($this->collection->get(0))->toBe($class2)
         ->and($this->collection->get(1))->toBe($class1);
 });
@@ -100,11 +97,12 @@ it('sort a collection by keys', function (): void {
     $orderedArray = ['b' => 1, 'a' => 2];
 
     $this->collection->add('a', $class1);
-    $this->collection->add('b',  $class2);
+    $this->collection->add('b', $class2);
 
-    $this->collection->sortByKeys(function($a, $b) use ($orderedArray){
+    $this->collection->sortByKeys(function ($a, $b) use ($orderedArray) {
         $indexA = $orderedArray[$a];
         $indexB = $orderedArray[$b];
+
         return $indexA <=> $indexB;
     });
     expect($this->collection->indexOf($class1))->toBe(1)
@@ -117,9 +115,9 @@ it('test filter on values', function (): void {
     $class2 = new \stdClass();
     $class2->value = 'bar';
     $this->collection->add(1, $class1);
-    $this->collection->add(2,  $class2);
+    $this->collection->add(2, $class2);
 
-    $filtered = $this->collection->filterOnValue(fn($class) => $class->value === 'foo');
+    $filtered = $this->collection->filterOnValue(fn ($class) => $class->value === 'foo');
     expect($filtered->length())->toBe(1)
         ->and($filtered->get(1))->toBe($class1);
 });
@@ -130,9 +128,9 @@ it('test filter on keys', function (): void {
     $class2 = new \stdClass();
     $class2->value = 'bar';
     $this->collection->add(1, $class1);
-    $this->collection->add(2,  $class2);
+    $this->collection->add(2, $class2);
 
-    $filtered = $this->collection->filterOnKey(fn($key) => $key === 1);
+    $filtered = $this->collection->filterOnKey(fn ($key) => $key === 1);
     expect($filtered->length())->toBe(1)
         ->and($filtered->get(1))->toBe($class1);
 });
@@ -143,9 +141,9 @@ it('test filter on values and keys', function (): void {
     $class2 = new \stdClass();
     $class2->value = 'bar';
     $this->collection->add(1, $class1);
-    $this->collection->add(2,  $class2);
+    $this->collection->add(2, $class2);
 
-    $filtered = $this->collection->filterOnValueKey(fn($class, $key) => $class->value === 'foo' && $key === 1);
+    $filtered = $this->collection->filterOnValueKey(fn ($class, $key) => $class->value === 'foo' && $key === 1);
     expect($filtered->length())->toBe(1)
         ->and($filtered->get(1))->toBe($class1);
 });
@@ -234,7 +232,7 @@ it('json serialize', function (): void {
     $this->collection->add(2, new \stdClass());
     expect($this->collection->jsonSerialize())->toBe([
         1 => get_object_vars(new \stdClass()),
-        2 => get_object_vars(new \stdClass())
+        2 => get_object_vars(new \stdClass()),
     ]);
 });
 

@@ -108,7 +108,6 @@ class UpdatePartiallyPlatformInformation
             throw PlatformInformationException::noRights();
         }
 
-
         foreach ($this->validators as $validator) {
             $validator->validateOrFail($request);
         }
@@ -128,19 +127,19 @@ class UpdatePartiallyPlatformInformation
          * and just update the informations.
          */
         if (
-            (isset($request["isRemote"]) && $request["isRemote"] === true)
-            || (!isset($request["isRemote"]) && $currentPlatformInformation->isRemote() === true)
+            (isset($request['isRemote']) && $request['isRemote'] === true)
+            || (! isset($request['isRemote']) && $currentPlatformInformation->isRemote() === true)
         ) {
             $platformInformationToUpdate = $platformInformationFactory->createRemoteInformation($request);
         } else {
             $platformInformationToUpdate = $platformInformationFactory->createCentralInformation();
         }
-        if (isset($request["isRemote"])) {
+        if (isset($request['isRemote'])) {
             $this->updateRemoteOrCentralType($platformInformationToUpdate, $currentPlatformInformation);
         }
 
         foreach ($informationList as $information) {
-            if ($information->getKey() === "proxy") {
+            if ($information->getKey() === 'proxy') {
                 $this->updateProxyOptions($information, $platformInformationToUpdate->getCentralServerAddress());
             }
         }
@@ -251,8 +250,8 @@ class UpdatePartiallyPlatformInformation
             if ($centralServerAddress === $platform->getAddress()) {
                 throw new PlatformInformationException(
                     sprintf(
-                        _('the address %s is already used in the topology and can\'t ' .
-                        'be provided as Central Server Address'),
+                        _('the address %s is already used in the topology and can\'t '
+                        . 'be provided as Central Server Address'),
                         $centralServerAddress
                     )
                 );
@@ -261,8 +260,8 @@ class UpdatePartiallyPlatformInformation
         if ($centralServerAddress === $proxyAddress) {
             throw new PlatformInformationException(
                 sprintf(
-                    _('the address %s is already used has proxy address and can\'t ' .
-                    'be provided as Central Server Address'),
+                    _('the address %s is already used has proxy address and can\'t '
+                    . 'be provided as Central Server Address'),
                     $centralServerAddress
                 )
             );

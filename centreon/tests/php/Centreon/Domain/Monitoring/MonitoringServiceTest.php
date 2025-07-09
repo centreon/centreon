@@ -21,7 +21,6 @@
 
 namespace Tests\Centreon\Domain\Monitoring;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterface;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\HostGroup;
@@ -29,16 +28,19 @@ use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 use Centreon\Domain\Monitoring\MonitoringService;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\ServiceGroup;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class MonitoringServiceTest extends TestCase
 {
     private MonitoringRepositoryInterface&MockObject $monitoringRepository;
+
     private ReadAccessGroupRepositoryInterface&MockObject $accessGroupRepository;
+
     private ServiceConfigurationServiceInterface&MockObject $serviceConfiguration;
+
     private HostConfigurationServiceInterface&MockObject $hostConfiguration;
 
     protected function setUp(): void
@@ -143,7 +145,7 @@ class MonitoringServiceTest extends TestCase
         $this->assertCount(
             1,
             $hostsFound,
-            "Error, the number of hosts is not equal to the number given by the "
+            'Error, the number of hosts is not equal to the number given by the '
             . "'findHosts' method of the monitoring repository"
         );
         $this->assertEquals($hostsFound[0]->getId(), $host->getId());
@@ -151,7 +153,7 @@ class MonitoringServiceTest extends TestCase
         $this->assertCount(
             1,
             $hostsFound[0]->getServices(),
-            "Error, the service of the first host does not match the one given by the "
+            'Error, the service of the first host does not match the one given by the '
             . "'findServicesOnMultipleHosts' method of the monitoring repository"
         );
         $this->assertEquals($hostsFound[0]->getServices()[0]->getId(), $service->getId());

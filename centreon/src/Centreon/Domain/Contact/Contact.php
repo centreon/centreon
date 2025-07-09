@@ -114,7 +114,6 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_BROKER_RW = 'ROLE_CONFIGURATION_POLLERS_BROKER_CONFIGURATION_RW';
     public const ROLE_MONITORING_PERFORMANCES_RW = 'ROLE_MONITORING_PERFORMANCES_RW';
     public const ROLE_MONITORING_RW = 'ROLE_MONITORING_RW';
-
     public const ROLE_CONFIGURATION_ACC_RW = 'ROLE_CONFIGURATION_CONNECTORS_ADDITIONAL_CONFIGURATIONS_RW';
     public const ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW = 'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW';
 
@@ -128,99 +127,61 @@ class Contact implements UserInterface, ContactInterface
      */
     public const DEFAULT_CHARSET = 'UTF-8';
 
-    /**
-     * @var int Id of contact
-     */
+    /** @var int Id of contact */
     private $id;
 
-    /**
-     * @var string Name of contact
-     */
+    /** @var string Name of contact */
     private $name;
 
-    /**
-     * @var string Alias of contact
-     */
+    /** @var string Alias of contact */
     private $alias;
 
-    /**
-     * @var string Language of contact
-     */
+    /** @var string Language of contact */
     private $lang;
 
-    /**
-     * @var string Email of contact
-     */
+    /** @var string Email of contact */
     private $email;
 
-    /**
-     * @var bool Is an admin contact ?
-     */
+    /** @var bool Is an admin contact ? */
     private $isAdmin;
 
-    /**
-     * @var int|null Id of the contact template
-     */
+    /** @var int|null Id of the contact template */
     private $templateId;
 
-    /**
-     * @var bool Indicates whether this contact is enabled or disabled
-     */
+    /** @var bool Indicates whether this contact is enabled or disabled */
     private $isActive;
 
-    /**
-     * @var bool Indicates whether this contact is allowed to reach centreon application
-     */
+    /** @var bool Indicates whether this contact is allowed to reach centreon application */
     private $isAllowedToReachWeb;
 
-    /**
-     * @var string|null Authentication Token
-     */
+    /** @var string|null Authentication Token */
     private $token;
 
-    /**
-     * @var string|null Encoded password
-     */
+    /** @var string|null Encoded password */
     private $encodedPassword;
 
-    /**
-     * @var bool Indicates if this user has access to the configuration section of API
-     */
+    /** @var bool Indicates if this user has access to the configuration section of API */
     private $hasAccessToApiConfiguration;
 
-    /**
-     * @var bool Indicates if this user has access to the real time section of API
-     */
+    /** @var bool Indicates if this user has access to the real time section of API */
     private $hasAccessToApiRealTime;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $roles = [];
 
-    /**
-     * @var string[] List of names of topology rules to which the contact can access
-     */
+    /** @var string[] List of names of topology rules to which the contact can access */
     private $topologyRulesNames = [];
 
-    /**
-     * @var \DateTimeZone $timezone timezone of the user
-     */
+    /** @var \DateTimeZone timezone of the user */
     private $timezone;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private int $timezoneId;
 
-    /**
-     * @var string|null $locale locale of the user
-     */
+    /** @var string|null locale of the user */
     private $locale;
 
-    /**
-     * @var Page|null
-     */
+    /** @var Page|null */
     private $defaultPage;
 
     /**
@@ -232,9 +193,7 @@ class Contact implements UserInterface, ContactInterface
 
     private bool $useDeprecatedCustomViews;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $theme;
 
     /** @var string|null */
@@ -791,7 +750,7 @@ class Contact implements UserInterface, ContactInterface
     /**
      * Set user current theme.
      *
-     * @param string $theme user's new theme.
+     * @param string $theme user's new theme
      *
      * @return self
      */

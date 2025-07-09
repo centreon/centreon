@@ -29,7 +29,7 @@ class Information
 {
     /** @var ContainerInterface */
     protected $services;
-    
+
     /** @var Utils */
     protected $utils;
 
@@ -41,7 +41,7 @@ class Information
 
     /** @var bool */
     protected $hasWidgetsForInstallation = false;
-    
+
     /**
      * Construct.
      *

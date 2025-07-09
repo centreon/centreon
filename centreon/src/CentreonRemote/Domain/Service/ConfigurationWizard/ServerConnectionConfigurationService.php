@@ -58,8 +58,7 @@ abstract class ServerConnectionConfigurationService
 
     public function __construct(
         protected CentreonDBAdapter $dbAdapter
-    )
-    {
+    ) {
     }
 
     /**

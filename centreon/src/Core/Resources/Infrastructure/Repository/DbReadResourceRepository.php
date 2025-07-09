@@ -439,8 +439,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ResourceFilter $filter,
         bool $allPages,
         array $accessGroupIds
-    ): int
-    {
+    ): int {
         // if $allPages is set to true, we don't use pagination and limit because count all resources
         if ($allPages) {
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
@@ -705,7 +704,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            static fn(ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
+            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -1008,11 +1007,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getIcon()
+            static fn (ResourceEntity $resource): bool => null !== $resource->getIcon()
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -1024,11 +1023,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getSeverity()
+            static fn (ResourceEntity $resource): bool => null !== $resource->getSeverity()
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }

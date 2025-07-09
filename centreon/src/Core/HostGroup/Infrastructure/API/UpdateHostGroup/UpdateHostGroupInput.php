@@ -44,19 +44,14 @@ final class UpdateHostGroupInput
         #[Assert\NotNull()]
         #[Assert\Type('string')]
         public readonly mixed $name,
-
         #[Assert\Type('string')]
         public readonly mixed $alias,
-
         #[Assert\Type('string')]
         public readonly mixed $geoCoords,
-
         #[Assert\Type('string')]
         public readonly mixed $comment,
-
         #[Assert\Type('integer')]
         public readonly mixed $iconId,
-
         #[Assert\NotNull()]
         #[Assert\Type('array')]
         #[Assert\All(

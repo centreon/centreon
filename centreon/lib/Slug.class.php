@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2010 Fabian Graßl
  *
@@ -31,9 +32,12 @@
 class Slug implements ArrayAccess
 {
     protected $original = null;
+
     protected $slug = null;
+
     protected $options = ['to_lower'        => true, 'max_length'      => null, 'prefix'          => null, 'postfix'         => null, 'seperator_char'  => '-'];
-    protected $char_map = ['Š'=>'S', 'š'=>'s', 'Ð'=>'Dj', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'Ü'=>'Ue', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'ae', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'oe', 'ø'=>'o', 'ü'=>'ue', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f', 'Ŕ'=>'R', 'ŕ'=>'r'];
+
+    protected $char_map = ['Š' => 'S', 'š' => 's', 'Ð' => 'Dj', 'Ž' => 'Z', 'ž' => 'z', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'Ae', 'Å' => 'A', 'Æ' => 'A', 'Ç' => 'C', 'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'Oe', 'Ø' => 'O', 'Ü' => 'Ue', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ý' => 'Y', 'Þ' => 'B', 'ß' => 'ss', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'ae', 'å' => 'a', 'æ' => 'a', 'ç' => 'c', 'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ð' => 'o', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'oe', 'ø' => 'o', 'ü' => 'ue', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ý' => 'y', 'ý' => 'y', 'þ' => 'b', 'ÿ' => 'y', 'ƒ' => 'f', 'Ŕ' => 'R', 'ŕ' => 'r'];
 
     /**
      * Constructor.
@@ -47,8 +51,8 @@ class Slug implements ArrayAccess
      *  * seperator_char: word seperator char for the slug (default -)
      *
      * @param string $original An array of field default values
-     * @param array  $options  An array of options
-     * @param array  $char_map a char-map-array that is used for the strtr() PHP-function in the slug generation process
+     * @param array $options An array of options
+     * @param array $char_map a char-map-array that is used for the strtr() PHP-function in the slug generation process
      */
     public function __construct($original, $options = [], $char_map = null)
     {
@@ -75,16 +79,18 @@ class Slug implements ArrayAccess
         // trim the seperator char at the end and teh beginning
         $str = trim($str, $this['seperator_char']);
         // remove duplicate seperator chars
-        $str = preg_replace('/['.preg_quote($this['seperator_char']).']+/', $this['seperator_char'], $str);
+        $str = preg_replace('/[' . preg_quote($this['seperator_char']) . ']+/', $this['seperator_char'], $str);
         if ($this['max_length']) {
-            $str = $this->shortenSlug($str, $this['max_length']-mb_strlen($this['prefix'], 'UTF-8')-mb_strlen($this['postfix'], 'UTF-8'));
+            $str = $this->shortenSlug($str, $this['max_length'] - mb_strlen($this['prefix'], 'UTF-8') - mb_strlen($this['postfix'], 'UTF-8'));
         }
         // Add prefix & postfix
-        $this->slug = $this['prefix'].$str.$this['postfix'];
+        $this->slug = $this['prefix'] . $str . $this['postfix'];
     }
 
     /**
      * Shorten the slug.
+     * @param mixed $slug
+     * @param mixed $maxLen
      */
     protected function shortenSlug($slug, $maxLen)
     {
@@ -99,13 +105,13 @@ class Slug implements ArrayAccess
         // cut to $maxLen
         $cutted_slug = trim(substr($slug, 0, $maxLen), $this['seperator_char']);
         // cut to the last position of '-' in cutted string
-        $beautified_slug = trim(preg_replace('/[^'.preg_quote($this['seperator_char']).']*$/', '', $cutted_slug), $this['seperator_char']);
+        $beautified_slug = trim(preg_replace('/[^' . preg_quote($this['seperator_char']) . ']*$/', '', $cutted_slug), $this['seperator_char']);
         // only return the beautified string when it is long enough
-        if (strlen($beautified_slug) < ($maxLen/2)) {
+        if (strlen($beautified_slug) < ($maxLen / 2)) {
             return $cutted_slug;
-        } else {
-            return $beautified_slug;
         }
+
+        return $beautified_slug;
     }
 
     /**
@@ -119,6 +125,7 @@ class Slug implements ArrayAccess
         if (null === $this->slug) {
             $this->generateSlug();
         }
+
         return $this->slug;
     }
 
@@ -147,7 +154,7 @@ class Slug implements ArrayAccess
      * Sets the option associated with the offset (implements the ArrayAccess interface).
      *
      * @param string $offset The option name
-     * @param string $value  The option value
+     * @param string $value The option value
      */
     public function offsetSet($offset, $value): void
     {
@@ -161,8 +168,9 @@ class Slug implements ArrayAccess
     /**
      * Returns true if the option exists (implements the ArrayAccess interface).
      *
-     * @param  string $name The name of option
-     * @return Boolean true if the option exists, false otherwise
+     * @param string $name The name of option
+     * @param mixed $offset
+     * @return bool true if the option exists, false otherwise
      */
     public function offsetExists($offset)
     {
@@ -182,7 +190,8 @@ class Slug implements ArrayAccess
     /**
      * Returns an option (implements the ArrayAccess interface).
      *
-     * @param  string $name The offset of the option to get
+     * @param string $name The offset of the option to get
+     * @param mixed $offset
      * @return mixed The option if exists, null otherwise
      */
     public function offsetGet($offset)

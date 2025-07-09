@@ -34,14 +34,14 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -60,7 +60,7 @@ try {
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
-    $broker = "broker";
+    $broker = 'broker';
     $res = $db->query("SELECT `value` FROM `options` WHERE `key` = 'broker'");
     if ($res->rowCount()) {
         $row = $res->fetchRow();
@@ -69,12 +69,13 @@ try {
         throw new Exception('Unknown broker module');
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
         default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 ?>
@@ -87,8 +88,8 @@ try {
         <link href="../../Themes/Generic-theme/jquery-ui/jquery-ui-centreon.css" rel="stylesheet" type="text/css"/>
         <link
                 href="../../Themes/<?php
-                echo $variablesThemeCSS === "Generic-theme" ? $variablesThemeCSS . "/Variables-css/" :
-                    $variablesThemeCSS . "/"; ?>variables.css"
+                echo $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css/'
+                    : $variablesThemeCSS . '/'; ?>variables.css"
                 rel="stylesheet"
                 type="text/css"
         />
@@ -107,10 +108,10 @@ try {
 
 <script type="text/javascript">
     let widgetId = <?= $widgetId; ?>;
-    let autoRefresh = <?= $autoRefresh;?>;
+    let autoRefresh = <?= $autoRefresh; ?>;
     let timeout;
     let pageNumber = 0;
-    let broker = '<?= $broker;?>';
+    let broker = '<?= $broker; ?>';
 
     jQuery(function () {
         loadPage();

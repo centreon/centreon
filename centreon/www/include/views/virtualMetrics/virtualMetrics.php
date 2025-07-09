@@ -34,17 +34,15 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/views/virtualMetrics/";
+// Path to the configuration dir
+$path = './include/views/virtualMetrics/';
 
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 define('METRIC_ADD', 'a');
 define('METRIC_MODIFY', 'c');
@@ -57,43 +55,43 @@ define('METRIC_WATCH', 'w');
 $action = filter_var(
     $_POST['o1'] ?? $_POST['o2'] ?? null,
     FILTER_VALIDATE_REGEXP,
-    ["options" => ["regexp" => "/([a|c|d|m|s|u|w]{1})/"]]
+    ['options' => ['regexp' => '/([a|c|d|m|s|u|w]{1})/']]
 );
 if ($action !== false) {
     $o = $action;
 }
 
 $vmetricId = filter_var(
-    $_GET["vmetric_id"] ?? $_POST["vmetric_id"] ?? null,
+    $_GET['vmetric_id'] ?? $_POST['vmetric_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 
 $selectIds = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $duplicateNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 switch ($o) {
     case METRIC_ADD:
-        require_once($path . "formVirtualMetrics.php");
+        require_once $path . 'formVirtualMetrics.php';
         break;
     case METRIC_WATCH:
         if (is_int($vmetricId)) {
-            require_once($path . "formVirtualMetrics.php");
+            require_once $path . 'formVirtualMetrics.php';
         } else {
-            require_once($path . "listVirtualMetrics.php");
+            require_once $path . 'listVirtualMetrics.php';
         }
         break;
     case METRIC_MODIFY:
         if (is_int($vmetricId)) {
-            require_once($path . "formVirtualMetrics.php");
+            require_once $path . 'formVirtualMetrics.php';
         } else {
-            require_once($path . "listVirtualMetrics.php");
+            require_once $path . 'listVirtualMetrics.php';
         }
         break;
     case METRIC_ENABLE:
@@ -106,7 +104,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listVirtualMetrics.php");
+        require_once $path . 'listVirtualMetrics.php';
         break;
     case METRIC_DISABLE:
         purgeOutdatedCSRFTokens();
@@ -118,33 +116,33 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listVirtualMetrics.php");
+        require_once $path . 'listVirtualMetrics.php';
         break;
     case METRIC_DUPLICATE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds) && !in_array(false, $duplicateNbr)) {
+            if (! in_array(false, $selectIds) && ! in_array(false, $duplicateNbr)) {
                 multipleVirtualMetricInDB($selectIds, $duplicateNbr);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listVirtualMetrics.php");
+        require_once $path . 'listVirtualMetrics.php';
         break;
     case METRIC_DELETE:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds)) {
+            if (! in_array(false, $selectIds)) {
                 deleteVirtualMetricInDB($selectIds);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listVirtualMetrics.php");
+        require_once $path . 'listVirtualMetrics.php';
         break;
     default:
-        require_once($path . "listVirtualMetrics.php");
+        require_once $path . 'listVirtualMetrics.php';
         break;
 }

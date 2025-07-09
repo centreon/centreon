@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -30,7 +31,7 @@ it('add a query parameters with a good type', function (): void {
     $batchInsertParam1 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 110),
         QueryParameter::string('contact_name', 'foo_name'),
-        QueryParameter::string('contact_alias', 'foo_alias')
+        QueryParameter::string('contact_alias', 'foo_alias'),
     ]);
     $queryParameters->add('batch_insert_param_1', $batchInsertParam1);
     expect($queryParameters->length())->toBe(1)
@@ -46,22 +47,22 @@ it('create with good type', function (): void {
     $batchInsertParam1 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 110),
         QueryParameter::string('contact_name', 'foo_name'),
-        QueryParameter::string('contact_alias', 'foo_alias')
+        QueryParameter::string('contact_alias', 'foo_alias'),
     ]);
     $batchInsertParam2 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 111),
         QueryParameter::string('contact_name', 'bar_name'),
-        QueryParameter::string('contact_alias', 'bar_alias')
+        QueryParameter::string('contact_alias', 'bar_alias'),
     ]);
     $batchInsertParam3 = \Adaptation\Database\Connection\Collection\QueryParameters::create([
         QueryParameter::int('contact_id', 112),
         QueryParameter::string('contact_name', 'baz_name'),
-        QueryParameter::string('contact_alias', 'baz_alias')
+        QueryParameter::string('contact_alias', 'baz_alias'),
     ]);
     $batchQueryParameters = \Adaptation\Database\Connection\Collection\BatchInsertParameters::create([
         'batch_insert_param_1' => $batchInsertParam1,
         'batch_insert_param_2' => $batchInsertParam2,
-        'batch_insert_param_3' => $batchInsertParam3
+        'batch_insert_param_3' => $batchInsertParam3,
     ]);
     expect($batchQueryParameters->length())->toBe(3)
         ->and($batchQueryParameters->get('batch_insert_param_1'))->toBe($batchInsertParam1)
@@ -73,6 +74,6 @@ it('create with bad type', function (): void {
     \Adaptation\Database\Connection\Collection\BatchInsertParameters::create([
         new \stdClass(),
         new \stdClass(),
-        new \stdClass()
+        new \stdClass(),
     ]);
 })->throws(CollectionException::class);

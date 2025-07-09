@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -33,7 +34,6 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Mockery;
-use Tests\Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterStub;
 
 beforeEach(function (): void {
     $this->filters = Mockery::mock(ResourceFilter::class);

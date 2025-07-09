@@ -1,4 +1,5 @@
 <?php
+
 /*
 * Copyright 2005-2018 Centreon
 * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -33,11 +34,11 @@
 *
 */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-require_once(_CENTREON_PATH_ . '/www/class/centreonService.class.php');
+require_once _CENTREON_PATH_ . '/www/class/centreonService.class.php';
 
 $serviceObj = new CentreonService($pearDB);
 $gmtObj = new CentreonGMT($pearDB);
@@ -64,32 +65,28 @@ if (empty($sMyTimezone)) {
 $sDate->setTimezone(new DateTimeZone($sMyTimezone));
 $currentServerMicroTime = $sDate->getTimestamp();
 
-
-/*
- * Path to the configuration dir
- */
-$path = "./include/views/graphs/";
-
+// Path to the configuration dir
+$path = './include/views/graphs/';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
-
 
 $defaultGraphs = [];
 
 function getGetPostValue($str)
 {
     $value = null;
-    if (isset($_GET[$str]) &&
-        $_GET[$str]
+    if (isset($_GET[$str])
+        && $_GET[$str]
     ) {
         $value = $_GET[$str];
     }
-    if (isset($_POST[$str]) &&
-        $_POST[$str]
+    if (isset($_POST[$str])
+        && $_POST[$str]
     ) {
         $value = $_POST[$str];
     }
+
     return rawurldecode($value);
 }
 
@@ -97,11 +94,9 @@ function getGetPostValue($str)
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 $centreonPerformanceServiceGraphObj = new CentreonPerformanceService($pearDBO, $aclObj);
 
-/*
- * Get Arguments
- */
+// Get Arguments
 
-$svc_id = getGetPostValue("svc_id");
+$svc_id = getGetPostValue('svc_id');
 
 $DBRESULT = $pearDB->query("SELECT * FROM options WHERE `key` = 'maxGraphPerformances' LIMIT 1");
 $data = $DBRESULT->fetch();
@@ -110,10 +105,10 @@ if (empty($graphsPerPage)) {
     $graphsPerPage = '18';
 }
 
-if (isset($svc_id) &&
-    $svc_id
+if (isset($svc_id)
+    && $svc_id
 ) {
-    $tab_svcs = explode(",", $svc_id);
+    $tab_svcs = explode(',', $svc_id);
     foreach ($tab_svcs as $svc) {
         $graphId = null;
         $graphTitle = null;
@@ -129,7 +124,7 @@ if (isset($svc_id) &&
             $graphId = $hostId . '-' . $serviceId;
             $graphTitle = $serviceObj->getMonitoringFullName($serviceId, $hostId);
         } elseif (preg_match('/^(.+);(.+)/', $svc, $matches)) {
-            [$hostname, $serviceDescription] = explode(";", $svc);
+            [$hostname, $serviceDescription] = explode(';', $svc);
             $hostId = getMyHostID($hostname);
             $serviceId = getMyServiceID($serviceDescription, $hostId);
             $graphId = $hostId . '-' . $serviceId;
@@ -140,93 +135,91 @@ if (isset($svc_id) &&
             $defaultGraphs = array_merge($defaultGraphs, $serviceList);
         }
 
-        if (!is_null($graphId) &&
-            !is_null($graphTitle) &&
-            $graphTitle != ''
+        if (! is_null($graphId)
+            && ! is_null($graphTitle)
+            && $graphTitle != ''
         ) {
             $defaultGraphs[] = ['id' => $graphId, 'text' => $graphTitle];
         }
     }
 }
 
-/* Get Period if is in url */
+// Get Period if is in url
 $period_start = 'undefined';
 $period_end = 'undefined';
-if (isset($_REQUEST['start']) &&
-    is_numeric($_REQUEST['start'])
+if (isset($_REQUEST['start'])
+    && is_numeric($_REQUEST['start'])
 ) {
     $period_start = $_REQUEST['start'];
 }
 
-if (isset($_REQUEST['end']) &&
-    is_numeric($_REQUEST['end'])
+if (isset($_REQUEST['end'])
+    && is_numeric($_REQUEST['end'])
 ) {
     $period_end = $_REQUEST['end'];
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('FormPeriod', 'get', "?p=" . $p);
+// Form begin
+$form = new HTML_QuickFormCustom('FormPeriod', 'get', '?p=' . $p);
 $form->addElement(
     'header',
     'title',
-    _("Choose the source to graph")
+    _('Choose the source to graph')
 );
 
 $periods = [
-    "" => "",
-    "3h" => _("Last 3 hours"),
-    "6h" => _("Last 6 hours"),
-    "12h" => _("Last 12 hours"),
-    "1d" => _("Last 24 hours"),
-    "2d" => _("Last 2 days"),
-    "3d" => _("Last 3 days"),
-    "4d" => _("Last 4 days"),
-    "5d" => _("Last 5 days"),
-    "7d" => _("Last 7 days"),
-    "14d" => _("Last 14 days"),
-    "28d" => _("Last 28 days"),
-    "30d" => _("Last 30 days"),
-    "31d" => _("Last 31 days"),
-    "2M" => _("Last 2 months"),
-    "4M" => _("Last 4 months"),
-    "6M" => _("Last 6 months"),
-    "1y" => _("Last year")
+    '' => '',
+    '3h' => _('Last 3 hours'),
+    '6h' => _('Last 6 hours'),
+    '12h' => _('Last 12 hours'),
+    '1d' => _('Last 24 hours'),
+    '2d' => _('Last 2 days'),
+    '3d' => _('Last 3 days'),
+    '4d' => _('Last 4 days'),
+    '5d' => _('Last 5 days'),
+    '7d' => _('Last 7 days'),
+    '14d' => _('Last 14 days'),
+    '28d' => _('Last 28 days'),
+    '30d' => _('Last 30 days'),
+    '31d' => _('Last 31 days'),
+    '2M' => _('Last 2 months'),
+    '4M' => _('Last 4 months'),
+    '6M' => _('Last 6 months'),
+    '1y' => _('Last year'),
 ];
 $sel = $form->addElement(
     'select',
     'period',
-    _("Graph Period"),
+    _('Graph Period'),
     $periods,
-    ["onchange"=>"changeInterval()"]
+    ['onchange' => 'changeInterval()']
 );
 $form->addElement(
     'text',
     'StartDate',
     '',
-    ["id" => "StartDate", "class" => "datepicker-iso", "size" => 10, "onchange" => "changePeriod()"]
+    ['id' => 'StartDate', 'class' => 'datepicker-iso', 'size' => 10, 'onchange' => 'changePeriod()']
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    ["id" => "StartTime", "class" => "timepicker", "size" => 5, "onchange" => "changePeriod()"]
+    ['id' => 'StartTime', 'class' => 'timepicker', 'size' => 5, 'onchange' => 'changePeriod()']
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    ["id" => "EndDate", "class" => "datepicker-iso", "size" => 10, "onchange" => "changePeriod()"]
+    ['id' => 'EndDate', 'class' => 'datepicker-iso', 'size' => 10, 'onchange' => 'changePeriod()']
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    ["id" => "EndTime", "class" => "timepicker", "size" => 5, "onchange" => "changePeriod()"]
+    ['id' => 'EndTime', 'class' => 'timepicker', 'size' => 5, 'onchange' => 'changePeriod()']
 );
 
-/* adding hidden fields to get the result of datepicker in an unlocalized format */
+// adding hidden fields to get the result of datepicker in an unlocalized format
 $form->addElement(
     'hidden',
     'alternativeDateStartDate',
@@ -243,8 +236,8 @@ $form->addElement(
 $form->addElement(
     'button',
     'graph',
-    _("Apply Period"),
-    ["onclick"=>"apply_period()", "class"=>"btc bt_success"]
+    _('Apply Period'),
+    ['onclick' => 'apply_period()', 'class' => 'btc bt_success']
 );
 
 if ($period_start != 'undefined' && $period_end != 'undefined') {
@@ -265,20 +258,20 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('periodORlabel', _("or"));
+$tpl->assign('periodORlabel', _('or'));
 $tpl->assign('nbDisplayedCharts', $graphsPerPage);
-$tpl->assign('from', _("From"));
-$tpl->assign('to', _("to"));
-$tpl->assign('displayStatus', _("Display Status"));
-$tpl->assign('Apply', _("Apply"));
+$tpl->assign('from', _('From'));
+$tpl->assign('to', _('to'));
+$tpl->assign('displayStatus', _('Display Status'));
+$tpl->assign('Apply', _('Apply'));
 $tpl->assign('defaultCharts', json_encode($defaultGraphs));
-$tpl->assign("admin", $centreon->user->admin);
-$tpl->assign("topologyAccess", $centreon->user->access->topology);
-$tpl->assign("timerDisabled", returnSvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14));
-$tpl->assign("timerEnabled", returnSvg("www/img/icons/timer.svg", "var(--icons-fill-color)", 14, 14));
-$tpl->assign("removeIcon", returnSvg("www/img/icons/circle-crossed.svg", "var(--icons-fill-color)", 20, 20));
-$tpl->assign("csvIcon", returnSvg("www/img/icons/csv.svg", "var(--icons-fill-color)", 19, 19));
-$tpl->assign("pictureIcon", returnSvg("www/img/icons/picture.svg", "var(--icons-fill-color)", 19, 19));
-$tpl->display("graphs.html");
+$tpl->assign('admin', $centreon->user->admin);
+$tpl->assign('topologyAccess', $centreon->user->access->topology);
+$tpl->assign('timerDisabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-disabled-fill-color)', 14, 14));
+$tpl->assign('timerEnabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-fill-color)', 14, 14));
+$tpl->assign('removeIcon', returnSvg('www/img/icons/circle-crossed.svg', 'var(--icons-fill-color)', 20, 20));
+$tpl->assign('csvIcon', returnSvg('www/img/icons/csv.svg', 'var(--icons-fill-color)', 19, 19));
+$tpl->assign('pictureIcon', returnSvg('www/img/icons/picture.svg', 'var(--icons-fill-color)', 19, 19));
+$tpl->display('graphs.html');
 
 $multi = 1;

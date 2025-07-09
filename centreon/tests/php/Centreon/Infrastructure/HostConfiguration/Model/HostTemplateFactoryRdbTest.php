@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure\HostConfiguration\Model;
 
-use Centreon\Domain\HostConfiguration\Model\HostTemplate;
 use Centreon\Domain\HostConfiguration\Exception\HostTemplateFactoryException;
+use Centreon\Domain\HostConfiguration\Model\HostTemplate;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostTemplateFactoryRdb;
 use PHPUnit\Framework\TestCase;
 
@@ -32,20 +32,16 @@ use PHPUnit\Framework\TestCase;
  */
 class HostTemplateFactoryRdbTest extends TestCase
 {
-    /**
-     * @var array<string, string|int> $rdbData
-     */
+    /** @var array<string, string|int> */
     private $rdbData;
-
-    private const ALL_NOTIFICATION_OPTIONS =
-        HostTemplate::NOTIFICATION_OPTION_DOWN
+    private const ALL_NOTIFICATION_OPTIONS
+        = HostTemplate::NOTIFICATION_OPTION_DOWN
         | HostTemplate::NOTIFICATION_OPTION_UNREACHABLE
         | HostTemplate::NOTIFICATION_OPTION_RECOVERY
         | HostTemplate::NOTIFICATION_OPTION_FLAPPING
         | HostTemplate::NOTIFICATION_OPTION_DOWNTIME_SCHEDULED;
-
-    private const ALL_STALKING_OPTIONS =
-        HostTemplate::STALKING_OPTION_UP
+    private const ALL_STALKING_OPTIONS
+        = HostTemplate::STALKING_OPTION_UP
         | HostTemplate::STALKING_OPTION_DOWN
         | HostTemplate::STALKING_OPTION_UNREACHABLE;
 
@@ -76,7 +72,7 @@ class HostTemplateFactoryRdbTest extends TestCase
             'ehi_notes' => 'notes',
             'ehi_notes_url' => 'notes url',
             'ehi_action_url' => 'action url',
-            'parents' => '5,6'
+            'parents' => '5,6',
         ];
     }
 

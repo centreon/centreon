@@ -44,7 +44,8 @@
 class CentreonMsg
 {
     /** @var string */
-    public $color = "#FFFFFF";
+    public $color = '#FFFFFF';
+
     /** @var string */
     public $div;
 
@@ -55,7 +56,7 @@ class CentreonMsg
      */
     public function __construct($divId = null)
     {
-        $this->div = empty($divId) ? "centreonMsg" : $divId;
+        $this->div = empty($divId) ? 'centreonMsg' : $divId;
     }
 
     /**
@@ -67,9 +68,9 @@ class CentreonMsg
      */
     public function info(string $message): void
     {
-        $this->setTextStyle("bold");
+        $this->setTextStyle('bold');
         $this->setText($message);
-        $this->setTimeOut("3");
+        $this->setTimeOut('3');
     }
 
     /**
@@ -81,10 +82,10 @@ class CentreonMsg
      */
     public function error(string $message): void
     {
-        $this->setTextColor("rgb(255, 102, 102)");
-        $this->setTextStyle("bold");
+        $this->setTextColor('rgb(255, 102, 102)');
+        $this->setTextStyle('bold');
         $this->setText($message);
-        $this->setTimeOut("3");
+        $this->setTimeOut('3');
     }
 
     /**
@@ -96,7 +97,7 @@ class CentreonMsg
      */
     public function setTextStyle($style): void
     {
-        echo "<script type=\"text/javascript\">_setTextStyle(\"$this->div\", \"$style\")</script>";
+        echo "<script type=\"text/javascript\">_setTextStyle(\"{$this->div}\", \"{$style}\")</script>";
     }
 
     /**
@@ -106,7 +107,7 @@ class CentreonMsg
      */
     public function setTextColor($color): void
     {
-        echo "<script type=\"text/javascript\">_setTextColor(\"$this->div\", \"$color\")</script>";
+        echo "<script type=\"text/javascript\">_setTextColor(\"{$this->div}\", \"{$color}\")</script>";
     }
 
     /**
@@ -116,7 +117,7 @@ class CentreonMsg
      */
     public function setAlign($align): void
     {
-        echo "<script type=\"text/javascript\">_setAlign(\"$this->div\", \"$align\")</script>";
+        echo "<script type=\"text/javascript\">_setAlign(\"{$this->div}\", \"{$align}\")</script>";
     }
 
     /**
@@ -126,7 +127,7 @@ class CentreonMsg
      */
     public function setValign($align): void
     {
-        echo "<script type=\"text/javascript\">_setValign(\"$this->div\", \"$align\")</script>";
+        echo "<script type=\"text/javascript\">_setValign(\"{$this->div}\", \"{$align}\")</script>";
     }
 
     /**
@@ -136,7 +137,7 @@ class CentreonMsg
      */
     public function setBackgroundColor($color): void
     {
-        echo "<script type=\"text/javascript\">_setBackgroundColor(\"$this->div\", \"$color\")</script>";
+        echo "<script type=\"text/javascript\">_setBackgroundColor(\"{$this->div}\", \"{$color}\")</script>";
     }
 
     /**
@@ -146,7 +147,7 @@ class CentreonMsg
      */
     public function setText($str): void
     {
-        echo "<script type=\"text/javascript\">_setText(\"$this->div\", \"$str\")</script>";
+        echo "<script type=\"text/javascript\">_setText(\"{$this->div}\", \"{$str}\")</script>";
     }
 
     /**
@@ -156,7 +157,7 @@ class CentreonMsg
      */
     public function setImage($img_url): void
     {
-        echo "<script type=\"text/javascript\">_setImage(\"$this->div\", \"$img_url\")</script>";
+        echo "<script type=\"text/javascript\">_setImage(\"{$this->div}\", \"{$img_url}\")</script>";
     }
 
     /**
@@ -168,9 +169,9 @@ class CentreonMsg
      */
     public function setTimeOut($sec): void
     {
-        echo "<script type=\"text/javascript\">"
-            . "setTimeout(() => { jQuery(\"#" . $this->div . "\").toggle(); }, " . ($sec * 1000) . ");"
-            . "</script>";
+        echo '<script type="text/javascript">'
+            . 'setTimeout(() => { jQuery("#' . $this->div . '").toggle(); }, ' . ($sec * 1000) . ');'
+            . '</script>';
     }
 
     /**
@@ -180,7 +181,7 @@ class CentreonMsg
      */
     public function clear(): void
     {
-        echo "<script type=\"text/javascript\">_clear(\"$this->div\")</script>";
+        echo "<script type=\"text/javascript\">_clear(\"{$this->div}\")</script>";
     }
 
     /**
@@ -188,7 +189,7 @@ class CentreonMsg
      */
     public function nextLine(): void
     {
-        echo "<script type=\"text/javascript\">_nextLine(\"$this->div\")</script>";
+        echo "<script type=\"text/javascript\">_nextLine(\"{$this->div}\")</script>";
     }
 }
 

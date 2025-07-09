@@ -37,7 +37,8 @@ use Utility\SqlConcatenator;
 
 class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements ReadHostSeverityRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -80,7 +81,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -152,7 +153,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

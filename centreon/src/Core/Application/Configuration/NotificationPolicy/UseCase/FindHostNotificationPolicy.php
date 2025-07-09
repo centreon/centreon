@@ -92,9 +92,9 @@ class FindHostNotificationPolicy
         }
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-            $inheritanceMode = isset($inheritanceMode[0])
-            ? (int) $inheritanceMode[0]->getValue()
-            : 0;
+        $inheritanceMode = isset($inheritanceMode[0])
+        ? (int) $inheritanceMode[0]->getValue()
+        : 0;
 
         [$notifiedContactsIds, $notifiedContactGroupsIds] = $this->getNotifiedContactsAndContactGroupsIds($hostId, $inheritanceMode, $presenter);
 
@@ -186,7 +186,7 @@ class FindHostNotificationPolicy
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 

@@ -196,7 +196,7 @@ final class DeleteHostGroups
             ->findDatasetResourceIdsByHostGroupId($hostGroupId);
 
         foreach ($datasetResourceIds as $datasetFilterId => &$resourceIds) {
-            $resourceIds = array_filter($resourceIds, fn($resourceId) => $resourceId !== $hostGroupId);
+            $resourceIds = array_filter($resourceIds, fn ($resourceId) => $resourceId !== $hostGroupId);
             if ($resourceIds === []) {
                 $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterId);
             } else {

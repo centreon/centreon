@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -30,8 +31,8 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
+
 namespace Centreon\Application\Webservice;
 
 use Centreon\Infrastructure\Webservice;
@@ -61,8 +62,8 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
     /**
      * Return a table containing all the translations for a language.
      *
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function getTranslation(): array
     {
@@ -71,7 +72,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
                 ->get(ServiceProvider::CENTREON_I18N_SERVICE)
                 ->getTranslation();
         } catch (\Exception) {
-            throw new \Exception("Translation files does not exists");
+            throw new \Exception('Translation files does not exists');
         }
 
         return $translation;
@@ -80,8 +81,8 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
     /**
      * Return a table containing all the translations from all languages.
      *
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function getAllTranslations(): array
     {
@@ -90,7 +91,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
                 ->get(ServiceProvider::CENTREON_I18N_SERVICE)
                 ->getAllTranslations();
         } catch (\Exception) {
-            throw new \Exception("Translation files does not exists");
+            throw new \Exception('Translation files does not exists');
         }
 
         return $translation;
@@ -99,7 +100,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
     /**
      * Extract services that are in use only
      *
-     * @param \Pimple\Container $di
+     * @param Container $di
      */
     public function setDi(Container $di): void
     {

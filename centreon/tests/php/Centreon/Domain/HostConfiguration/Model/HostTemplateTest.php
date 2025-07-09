@@ -23,10 +23,10 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\HostConfiguration\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Media\Model\Image;
-use Centreon\Domain\HostConfiguration\Model\HostTemplate;
 use Centreon\Domain\HostConfiguration\Exception\HostTemplateArgumentException;
+use Centreon\Domain\HostConfiguration\Model\HostTemplate;
+use Centreon\Domain\Media\Model\Image;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This class is designed to test all setters of the HostTemplate entity, especially those with exceptions.
@@ -404,8 +404,8 @@ class HostTemplateTest extends TestCase
     }
 
     /**
-     * @return HostTemplate
      * @throws \Assert\AssertionFailedException
+     * @return HostTemplate
      */
     public static function createEntity(): HostTemplate
     {

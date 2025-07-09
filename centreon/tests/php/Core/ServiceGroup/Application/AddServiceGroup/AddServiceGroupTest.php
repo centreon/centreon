@@ -34,19 +34,18 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\UseCase\AddServiceGroup\AddServiceGroup;
 use Core\ServiceGroup\Application\UseCase\AddServiceGroup\AddServiceGroupRequest;
 use Core\ServiceGroup\Application\UseCase\AddServiceGroup\AddServiceGroupResponse;
-use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
@@ -150,7 +149,7 @@ it(
         $this->testedAddServiceGroupRequest->name = '';
         $expectedException = AssertionException::minLength(
             $this->testedAddServiceGroupRequest->name,
-            strlen($this->testedAddServiceGroupRequest->name),
+            mb_strlen($this->testedAddServiceGroupRequest->name),
             NewServiceGroup::MIN_NAME_LENGTH,
             'NewServiceGroup::name'
         );

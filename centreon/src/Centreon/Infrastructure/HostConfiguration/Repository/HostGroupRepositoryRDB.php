@@ -34,7 +34,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostGroupFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
@@ -46,9 +45,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
     HostGroupReadRepositoryInterface,
     HostGroupWriteRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -63,7 +60,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
             ->getRequestParameters()
             ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
-
 
     /**
      * @inheritDoc
@@ -88,7 +84,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         $statement->bindValue(':group_comment', $group->getComment(), \PDO::PARAM_STR);
         $statement->bindValue(':is_activate', $group->isActivated() ? '1' : '0', \PDO::PARAM_STR);
         $statement->execute();
-        $group->setId((int)$this->db->lastInsertId());
+        $group->setId((int) $this->db->lastInsertId());
     }
 
     /**
@@ -130,6 +126,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $hostGroups[] = HostGroupFactoryRdb::create($result);
         }
+
         return $hostGroups;
     }
 
@@ -162,8 +159,8 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
      *
      * @param int $hostGroupId Id of the host group to be found
      * @param int|null $contactId Contact id related to host groups
-     * @return HostGroup|null
      * @throws AssertionFailedException
+     * @return HostGroup|null
      */
     private function findByIdRequest(int $hostGroupId, ?int $contactId): ?HostGroup
     {
@@ -237,6 +234,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostGroupFactoryRdb::create($result);
         }
+
         return null;
     }
 
@@ -277,6 +275,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $hostGroups[] = HostGroupFactoryRdb::create($result);
         }
+
         return $hostGroups;
     }
 
@@ -296,8 +295,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
 
         $this->sqlRequestTranslator->addNormalizer(
             'is_activated',
-            new class () implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */
@@ -306,6 +304,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                     if (is_bool($valueToNormalize)) {
                         return $valueToNormalize === true ? '1' : '0';
                     }
+
                     return $valueToNormalize;
                 }
             }
@@ -333,11 +332,11 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= !is_null($searchRequest) ? $searchRequest : '';
+        $request .= ! is_null($searchRequest) ? $searchRequest : '';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY hg.hg_id ASC';
 
@@ -362,6 +361,7 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                 $hostGroups[] = HostGroupFactoryRdb::create($result);
             }
         }
+
         return $hostGroups;
     }
 }

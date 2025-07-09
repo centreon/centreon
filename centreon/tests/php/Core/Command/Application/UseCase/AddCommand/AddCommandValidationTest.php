@@ -68,7 +68,7 @@ it('throws an exception when an argument is invalid', function (): void {
 
 it('throws an exception when a macro is invalid', function (): void {
     $request = new AddCommandRequest();
-    $request->macros[] = new MacroDto('macro-name', CommandMacroType::Host,  'macro-desc');
+    $request->macros[] = new MacroDto('macro-name', CommandMacroType::Host, 'macro-desc');
 
     $this->validation->assertAreValidMacros($request);
 })->throws(

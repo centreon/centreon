@@ -103,10 +103,13 @@ abstract class AbstractHost extends AbstractObject
         host_location,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributes_write = ['host_name', 'alias', 'address', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', 'timezone', 'acknowledgement_timeout'];
+
     /** @var string[] */
     protected $attributes_default = ['active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_host', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
+
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -114,16 +117,22 @@ abstract class AbstractHost extends AbstractObject
         'category_tags',
         'group_tags',
     ];
+
     /** @var string[] */
     protected $attributes_hash = ['macros'];
+
     /** @var array */
-    protected $loop_htpl = []; # To be reset
+    protected $loop_htpl = []; // To be reset
+
     /** @var null */
     protected $stmt_macro = null;
+
     /** @var null */
     protected $stmt_htpl = null;
+
     /** @var null */
     protected $stmt_contact = null;
+
     /** @var null */
     protected $stmt_cg = null;
 
@@ -131,8 +140,8 @@ abstract class AbstractHost extends AbstractObject
      * @param int $hostId
      * @param int|null $hostType
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST)
     {
@@ -142,33 +151,34 @@ abstract class AbstractHost extends AbstractObject
               ON extended_host_information.host_host_id = host.host_id
             WHERE host.host_id = :host_id
               AND host.host_activate = '1'";
-        if (!is_null($hostType)) {
+        if (! is_null($hostType)) {
             $query .= ' AND host.host_register = :host_register';
         }
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-        if (!is_null($hostType)) {
+        if (! is_null($hostType)) {
             // host_register is an enum
             $stmt->bindParam(':host_register', $hostType, PDO::PARAM_STR);
         }
         $stmt->execute();
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getImages(&$host)
     {
         $media = Media::getInstance($this->dependencyInjector);
-        if (!isset($host['icon_image'])) {
+        if (! isset($host['icon_image'])) {
             $host['icon_image'] = $media->getMediaPathFromId($host['icon_image_id']);
             $host['icon_id'] = $host['icon_image_id'];
         }
-        if (!isset($host['statusmap_image'])) {
+        if (! isset($host['statusmap_image'])) {
             $host['statusmap_image'] = $media->getMediaPathFromId($host['statusmap_image_id']);
         }
     }
@@ -176,11 +186,11 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param $host
      *
-     * @return int
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int
      */
     protected function getMacros(&$host)
     {
@@ -193,6 +203,7 @@ abstract class AbstractHost extends AbstractObject
         if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
             $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
         }
+
         return 0;
     }
 
@@ -207,21 +218,21 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getHostTemplates(array &$host, bool $generate = true): void
     {
-        if (!isset($host['htpl'])) {
+        if (! isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
-                $this->stmt_htpl = $this->backend_instance->db->prepare("
+                $this->stmt_htpl = $this->backend_instance->db->prepare('
                 SELECT host_tpl_id
                 FROM host_template_relation
                 WHERE host_host_id = :host_id
                 ORDER BY `order` ASC
-                ");
+                ');
             }
             $this->stmt_htpl->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
             $this->stmt_htpl->execute();
             $host['htpl'] = $this->stmt_htpl->fetchAll(PDO::FETCH_COLUMN);
         }
 
-        if (!$generate) {
+        if (! $generate) {
             return;
         }
 
@@ -239,7 +250,7 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContacts(array &$host): void
     {
-        if (!isset($host['contacts_cache'])) {
+        if (! isset($host['contacts_cache'])) {
             if (is_null($this->stmt_contact)) {
                 $this->stmt_contact = $this->backend_instance->db->prepare("
                 SELECT chr.contact_id
@@ -262,7 +273,7 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContactGroups(array &$host): void
     {
-        if (!isset($host['contact_groups_cache'])) {
+        if (! isset($host['contact_groups_cache'])) {
             if (is_null($this->stmt_cg)) {
                 $this->stmt_cg = $this->backend_instance->db->prepare("
                 SELECT contactgroup_cg_id
@@ -323,7 +334,7 @@ abstract class AbstractHost extends AbstractObject
                 continue;
             }
             $loop[$host_id] = 1;
-            if (isset($hosts_tpl[$host_id][$command_label]) && !is_null($hosts_tpl[$host_id][$command_label])) {
+            if (isset($hosts_tpl[$host_id][$command_label]) && ! is_null($hosts_tpl[$host_id][$command_label])) {
                 return $hosts_tpl[$host_id][$command_label];
             }
             $stack = array_merge($hosts_tpl[$host_id]['htpl'], $stack);
@@ -335,14 +346,14 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getHostTimezone(&$host)
     {
         $oTimezone = Timezone::getInstance($this->dependencyInjector);
         $timezone = $oTimezone->getTimezoneFromId($host['host_location']);
-        if (!is_null($timezone)) {
+        if (! is_null($timezone)) {
             $host['timezone'] = ':' . $timezone;
         }
     }
@@ -353,11 +364,11 @@ abstract class AbstractHost extends AbstractObject
      * @param $command_id_label
      * @param $command_arg_label
      *
-     * @return int
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int
      */
     protected function getHostCommand(&$host, $result_name, $command_id_label, $command_arg_label)
     {
@@ -370,14 +381,14 @@ abstract class AbstractHost extends AbstractObject
         }
         $host[$result_name] = $command_name;
         if (isset($host[$command_arg_label])
-            && !is_null($host[$command_arg_label]) && $host[$command_arg_label] != ''
+            && ! is_null($host[$command_arg_label]) && $host[$command_arg_label] != ''
         ) {
             $command_arg = $host[$command_arg_label];
             if (is_null($command_name)) {
-                # Find Command Name in templates
+                // Find Command Name in templates
                 $command_name = $this->findCommandName($host['host_id'], $result_name);
-                # Can have 'args after'. We replace
-                if (!is_null($command_name)) {
+                // Can have 'args after'. We replace
+                if (! is_null($command_name)) {
                     $command_name = preg_replace('/!.*/', '', $command_name);
                     $host[$result_name] = $command_name . $command_arg;
                 }
@@ -392,11 +403,11 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param $host
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     protected function getHostCommands(&$host)
     {
@@ -407,8 +418,8 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getHostPeriods(&$host)
     {
@@ -431,8 +442,8 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param array<string,mixed> $host
      *
-     * @return array<string,mixed>
      * @throws PDOException
+     * @return array<string,mixed>
      */
     private function getHostCategoriesByHost(array $host): array
     {
@@ -440,12 +451,13 @@ abstract class AbstractHost extends AbstractObject
             return $host['hostCategories'];
         }
         $stmt = $this->backend_instance->db->prepare(
-            "SELECT hostcategories_hc_id
+            'SELECT hostcategories_hc_id
             FROM hostcategories_relation
-            WHERE host_host_id = :host_id"
+            WHERE host_host_id = :host_id'
         );
         $stmt->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 

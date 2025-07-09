@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Monitoring\ServiceGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Monitoring\ServiceGroup;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Entity\EntityCreator;
+use Centreon\Domain\Monitoring\ServiceGroup;
 use Centreon\Domain\Monitoring\ServiceGroup\Interfaces\ServiceGroupRepositoryInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the real time monitoring of servicegroups.
@@ -37,14 +37,10 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements ServiceGroupRepositoryInterface
 {
-    /**
-     * @var AccessGroup[] List of access group used to filter the requests
-     */
+    /** @var AccessGroup[] List of access group used to filter the requests */
     private $accessGroups = [];
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -63,6 +59,7 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
     public function filterByAccessGroups(?array $accessGroups): ServiceGroupRepositoryInterface
     {
         $this->accessGroups = $accessGroups;
+
         return $this;
     }
 
@@ -79,12 +76,12 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
 
         $bindValues = [];
         $subRequest = '';
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             $bindValues[':contact_id'] = [\PDO::PARAM_INT => $this->contact->getId()];
 
             // Not an admin, we must to filter on contact
-            $subRequest .=
-                ' INNER JOIN `:db`.acl_resources_sg_relations sgr
+            $subRequest
+                .= ' INNER JOIN `:db`.acl_resources_sg_relations sgr
                     ON sgr.sg_id = sg.servicegroup_id
                 INNER JOIN `:db`.acl_resources res
                     ON res.acl_res_id = sgr.acl_res_id
@@ -106,8 +103,8 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
                     OR gcr.contact_contact_id = :contact_id';
         }
 
-        $request = 'SELECT DISTINCT 1 AS REALTIME, sg.* FROM `:dbstg`.`servicegroups` sg ' .
-            $subRequest;
+        $request = 'SELECT DISTINCT 1 AS REALTIME, sg.* FROM `:dbstg`.`servicegroups` sg '
+            . $subRequest;
         $request = $this->translateDbName($request);
 
         $bindServiceGroupIds = [];
@@ -154,12 +151,12 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
 
         $bindValues = [];
         $subRequest = '';
-        if (!$this->isAdmin()) {
+        if (! $this->isAdmin()) {
             $bindValues[':contact_id'] = [\PDO::PARAM_INT => $this->contact->getId()];
 
             // Not an admin, we must to filter on contact
-            $subRequest .=
-                ' INNER JOIN `:db`.acl_resources_sg_relations sgr
+            $subRequest
+                .= ' INNER JOIN `:db`.acl_resources_sg_relations sgr
                     ON sgr.sg_id = sg.servicegroup_id
                 INNER JOIN `:db`.acl_resources res
                     ON res.acl_res_id = sgr.acl_res_id
@@ -238,12 +235,12 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
     }
 
     /**
-     * @return bool Return FALSE if the contact is an admin or has at least one access group.
+     * @return bool return FALSE if the contact is an admin or has at least one access group
      */
     private function hasNotEnoughRightsToContinue(): bool
     {
         return ($this->contact !== null)
-            ? !($this->contact->isAdmin() || count($this->accessGroups) > 0)
+            ? ! ($this->contact->isAdmin() || count($this->accessGroups) > 0)
             : count($this->accessGroups) == 0;
     }
 }

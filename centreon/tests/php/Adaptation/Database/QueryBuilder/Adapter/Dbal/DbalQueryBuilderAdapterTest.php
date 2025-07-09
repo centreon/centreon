@@ -31,20 +31,19 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
-use Mockery;
 
 beforeEach(function (): void {
     // prepare instanciation of ConnectionConfig with a mock (mandatory)
     $connectionConfig = new ConnectionConfig(
-            host: 'fake_host',
-            user: 'fake_user',
-            password: 'fake_password',
-            databaseNameConfiguration: 'fake_databaseName',
-            databaseNameRealTime: 'fake_databaseNameStorage'
-        );
+        host: 'fake_host',
+        user: 'fake_user',
+        password: 'fake_password',
+        databaseNameConfiguration: 'fake_databaseName',
+        databaseNameRealTime: 'fake_databaseNameStorage'
+    );
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
-    $dbalConnection = Mockery::mock(Connection::class);
-    $platform = Mockery::mock(AbstractPlatform::class);
+    $dbalConnection = \Mockery::mock(Connection::class);
+    $platform = \Mockery::mock(AbstractPlatform::class);
     $platform->shouldReceive('getUnionSelectPartSQL')
         ->andReturnArg(0);
     $platform->shouldReceive('getUnionAllSQL')

@@ -34,12 +34,12 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../bootstrap.php");
+require_once realpath(__DIR__ . '/../../../../bootstrap.php');
 
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
 session_start();
 session_write_close();
@@ -48,40 +48,33 @@ $centreon = $_SESSION['centreon'];
 
 global $centreon, $pearDB;
 
-/*
- * Connect to DB
- */
+// Connect to DB
 $pearDB = $dependencyInjector['configuration_db'];
 
 session_start();
 session_write_close();
 
-if (!CentreonSession::checkSession(session_id(), $pearDB)) {
+if (! CentreonSession::checkSession(session_id(), $pearDB)) {
     exit();
 }
 $centreon = $_SESSION['centreon'];
 
-/*
- * GMT management
- */
+// GMT management
 $centreonGMT = new CentreonGMT($pearDB);
 $sid = session_id();
 $centreonGMT->getMyGMTFromSession($sid);
 
-require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
-require_once _CENTREON_PATH_ . "www/include/monitoring/common-Func.php";
-include_once _CENTREON_PATH_ . "www/include/monitoring/external_cmd/functionsPopup.php";
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
+require_once _CENTREON_PATH_ . 'www/include/monitoring/common-Func.php';
+include_once _CENTREON_PATH_ . 'www/include/monitoring/external_cmd/functionsPopup.php';
 
 const ACKNOWLEDGEMENT_ON_SERVICE = 70;
 const ACKNOWLEDGEMENT_ON_HOST = 72;
 const DOWNTIME_ON_SERVICE = 74;
 const DOWNTIME_ON_HOST = 75;
 
-
 if (
-    isset($_POST['resources'])
-    && isset($sid)
-    && isset($_POST['cmd'])
+    isset($_POST['resources'], $sid, $_POST['cmd'])
 ) {
     $is_admin = isUserAdmin($sid);
     $resources = json_decode($_POST['resources'], true);

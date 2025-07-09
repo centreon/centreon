@@ -26,17 +26,14 @@ namespace Adaptation\Database\QueryBuilder;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 
 /**
- * Interface QueryBuilderInterface
+ * Interface QueryBuilderInterface.
  *
  * @class   QueryBuilderInterface
- * @package Adaptation\Database
- *
- * To dynamically create SQL queries.
  */
 interface QueryBuilderInterface
 {
     /**
-     * To build where clauses easier
+     * To build where clauses easier.
      */
     public function expr(): ExpressionBuilderInterface;
 
@@ -126,7 +123,7 @@ interface QueryBuilderInterface
 
     /**
      * Turns the query being built into a bulk update query that ranges over
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -144,7 +141,7 @@ interface QueryBuilderInterface
 
     /**
      * Turns the query being built into an insert query that inserts into
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -353,6 +350,7 @@ interface QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface this QueryBuilder instance
+     *
      * @see where()
      */
     public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): self;
@@ -367,6 +365,7 @@ interface QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return QueryBuilderInterface this QueryBuilder instance
+     *
      * @see where()
      *
      * <code>
