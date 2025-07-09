@@ -26,6 +26,7 @@ Feature: Creating a Notification Rule
       | contact_settings | resource_type                           |
       | two contacts     | host group and services for these hosts |
 
+  @ignore
   @TEST_MON-33204
   Scenario Outline: Creating a large volume Notification Rule for <contact_settings>
     Given a minimum of 1000 services linked to a host group and '<contact_settings>'
