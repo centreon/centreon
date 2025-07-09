@@ -1,29 +1,33 @@
 includes:
-    - vendor/phpstan/phpstan-mockery/extension.neon
+    - ../tools/phpstan/config/common.neon
+
 parameters:
+
+    level: 2
+
     bootstrapFiles:
         - config/centreon.config.php.template
+
     scanFiles:
         - config/centreon.config.php.template
+        - www/install/functions.php
         - tests/phpstan_stubs/bootstrap.stub
         - tests/phpstan_stubs/legacy.stub
-    level: 2
+        - tests/php/bootstrap.php
+        - tests/php/polyfill.php
+
     paths:
-        - tests/php/Core
+        - tests/php/Adaptation #// TODO adaptation tests need to be fixed and moved to new section
         - tests/php/Centreon
+        - tests/php/CentreonLegacy
+        - tests/php/CentreonRemote
         - tests/php/Security
         - tests/php/Utility
+        - tests/php/www
+
     ignoreErrors:
-        -
-            reportUnmatched: false
-            path: src/Centreon/Tests
-            messages:
-                - '#^Access to an undefined property#'
-        -
-            reportUnmatched: false
-            path: src/Centreon/Tests/Resources/Mock/ClapiMock.php
-            message: '#^Constructor of class Centreon\\Tests\\Resources\\Mock\\ClapiMock has an unused parameter \$di.$#'
-        -
+
+        - # To ignore errors in the tests/php directory because of Pest
             reportUnmatched: false
             path: tests/php
             messages:
@@ -31,6 +35,3 @@ parameters:
                 - '#^Call to an undefined method Pest#'
                 - '#^Access to an undefined property PHPUnit#'
 
-services:
-    errorFormatter.absolute:
-        class: Centreon\PHPStan\AbsolutePathErrorFormatter
