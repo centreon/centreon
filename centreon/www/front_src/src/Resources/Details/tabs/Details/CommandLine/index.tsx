@@ -13,9 +13,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     marginLeft: theme.spacing(1)
   },
-  command: {
-    fontWeight: 'bold'
-  },
   pipe: {
     marginRight: theme.spacing(1)
   },
@@ -36,18 +33,11 @@ const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
 
   return (
     <div>
-      {commands.map(({ command, arguments: args }, index) => {
+      {commands.map(({ command, arguments: args }) => {
         return (
           <div key={command}>
             <div className={classes.pipedCommand}>
-              {index > 0 && (
-                <Typography className={classes.pipe} variant="body2">
-                  |
-                </Typography>
-              )}
-              <Typography className={classes.command} variant="body2">
-                {command}
-              </Typography>
+              <Typography variant="body2">{command}</Typography>
             </div>
             {args.map(([argument, value]) => {
               return (

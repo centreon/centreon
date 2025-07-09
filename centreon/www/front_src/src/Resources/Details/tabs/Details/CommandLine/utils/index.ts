@@ -22,7 +22,7 @@ interface CommandWithArguments {
 const getCommandsWithArguments = (
   commandLine: string
 ): Array<CommandWithArguments> => {
-  const pipedCommands = commandLine.split('|');
+  const pipedCommands = commandLine.split('--');
 
   return pipedCommands.map(getCommandWithArguments);
 };
