@@ -146,7 +146,7 @@ class CentreonUtils
             $db = new CentreonDB();
         }
         if (! isset($centreonGmt)) {
-            $centreonGmt = new CentreonGMT($db);
+            $centreonGmt = new CentreonGMT();
         }
         $centreonGmt->getMyGMTFromSession(session_id(), $db);
         $datetime = trim($datetime);

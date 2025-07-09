@@ -155,7 +155,7 @@ class Centreon
         $this->initHooks();
 
         // Create GMT object
-        $this->CentreonGMT = new CentreonGMT($pearDB);
+        $this->CentreonGMT = new CentreonGMT();
 
         // Create LogAction object
         $this->CentreonLogAction = new CentreonLogAction($this->user);

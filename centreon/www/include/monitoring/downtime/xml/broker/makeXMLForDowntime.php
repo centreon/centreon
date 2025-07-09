@@ -76,7 +76,7 @@ if (false === $hostId) {
 }
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($db);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession($sid);
 
 // Start Buffer

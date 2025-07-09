@@ -83,7 +83,7 @@ class PlatformTopologyServiceTest extends TestCase
     /** @var MonitoringServerServiceInterface&MockObject */
     protected $monitoringServerService;
 
-    /** @var MonitoringServer; */
+    /** @var MonitoringServer */
     protected $monitoringServer;
 
     /** @var BrokerRepositoryInterface&MockObject */

@@ -94,7 +94,7 @@ class MetaServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implem
                 /**
                  * @inheritDoc
                  */
-                public function normalize($valueToNormalize)
+                public function normalize($valueToNormalize): string
                 {
                     if (is_bool($valueToNormalize)) {
                         return ($valueToNormalize === true) ? '1' : '0';

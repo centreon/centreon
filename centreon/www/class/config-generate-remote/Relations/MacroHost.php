@@ -80,6 +80,8 @@ class MacroHost extends AbstractObject
      * Get host macro from host id
      *
      * @param int $hostId
+     *
+     * @throws Exception
      * @return array<array{
      *     "host_macro_id":int,
      *     "host_macro_name":string,
@@ -114,6 +116,7 @@ class MacroHost extends AbstractObject
                 customContext: ['host_id' => $hostId],
                 exception: $ex,
             );
+            return [];
         }
     }
 

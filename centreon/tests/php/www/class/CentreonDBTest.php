@@ -131,6 +131,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::createFromConfig($dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
+            /** @var CentreonDB $db */
             $stmt = $db->prepare('select database()');
             $stmt->execute();
             $dbName = $stmt->fetchColumn();
@@ -183,6 +184,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it('get native connection', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        /** @var \PDO $pdo */
         $pdo = $db->getNativeConnection();
         expect($pdo)->toBeInstanceOf(PDO::class);
     });
@@ -2095,6 +2097,7 @@ if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStor
         function () use ($dbConfigCentreonStorage): void {
             $db = CentreonDB::createFromConfig($dbConfigCentreonStorage);
             expect($db)->toBeInstanceOf(CentreonDB::class);
+            /** @var CentreonDB $db */
             $stmt = $db->prepare('select database()');
             $stmt->execute();
             $dbName = $stmt->fetchColumn();

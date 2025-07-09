@@ -227,7 +227,7 @@ class CentreonGraph
         $this->serviceObj = new CentreonService($this->DB);
 
         // Timezone management
-        $this->GMT = new CentreonGMT($this->DB);
+        $this->GMT = new CentreonGMT();
         $this->GMT->getMyGTMFromUser($this->user_id, $this->DB);
 
         $this->RRDoptions = [];

@@ -60,7 +60,7 @@ if (! CentreonSession::checkSession(session_id(), $pearDB)) {
 $centreon = $_SESSION['centreon'];
 
 // GMT management
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $sid = session_id();
 $centreonGMT->getMyGMTFromSession($sid);
 

@@ -209,7 +209,7 @@ class CentreonXMLBGRequest
 
         if ($fullVersion) {
             // Timezone management
-            $this->GMT = new CentreonGMT($this->DB);
+            $this->GMT = new CentreonGMT();
             $this->GMT->getMyGMTFromSession($this->session_id);
         }
 

@@ -430,7 +430,7 @@ $svcObj = new CentreonService($db);
 while ($row = $res->fetch()) {
     foreach ($row as $key => $value) {
         if ($key == 'last_check') {
-            $gmt = new CentreonGMT($db);
+            $gmt = new CentreonGMT();
             $gmt->getMyGMTFromSession(session_id());
             $value = $gmt->getDate('Y-m-d H:i:s', $value);
         } elseif ($key == 'last_state_change' || $key == 'last_hard_state_change') {

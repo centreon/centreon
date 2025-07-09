@@ -346,7 +346,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
 
         $downtimes = $this->getForEnabledResources();
 
-        $gmtObj = new CentreonGMT($this->db);
+        $gmtObj = new CentreonGMT();
 
         foreach ($downtimes as $downtime) {
             // Convert HH::mm::ss to HH:mm

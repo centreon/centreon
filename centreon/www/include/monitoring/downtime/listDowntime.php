@@ -114,7 +114,7 @@ if (isset($_POST['SearchB'])) {
 }
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession(session_id());
 
 /**

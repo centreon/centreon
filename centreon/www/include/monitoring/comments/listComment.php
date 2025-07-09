@@ -73,7 +73,7 @@ $resourceController = $kernel->getContainer()->get(
 );
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession(session_id());
 
 /**

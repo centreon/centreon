@@ -29,7 +29,7 @@ namespace Centreon\Infrastructure\MonitoringServer\API\Model;
  */
 class RealTimeMonitoringServer
 {
-    /** @var int; */
+    /** @var int */
     public $id;
 
     /** @var string */

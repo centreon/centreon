@@ -172,8 +172,8 @@ it('equal with incorrect type', function (): void {
 
 it('equal with incorrect value object type', function (): void {
     $email = new Email('yoyo@toto.fr');
-    $ip = new IpAddress('170.0.0.1');
-    $email->equals($ip);
+    $ipAddress = new IpAddress('170.0.0.1');
+    $email->equals($ipAddress);
 })->throws(ValueObjectException::class);
 
 it('magic method toString', function (): void {

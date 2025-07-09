@@ -131,7 +131,7 @@ class CentreonStatistics
      */
     public function getPlatformTimezone()
     {
-        $oTimezone = new CentreonGMT($this->dbConfig);
+        $oTimezone = new CentreonGMT();
         $defaultTimezone = $oTimezone->getCentreonTimezone();
         $timezoneById = $oTimezone->getList();
 

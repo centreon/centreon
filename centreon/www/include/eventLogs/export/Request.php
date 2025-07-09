@@ -509,7 +509,7 @@ class Request
             }
 
             if ($type == 'HG' && (isset($this->lca['LcaHostGroup'][$id]) || $this->is_admin)) {
-                // Get hosts from hostgroups @phpstan-ignore-next-line
+                // Get hosts from hostgroups
                 $hosts = getMyHostGroupHosts($id);
                 if (count($hosts) == 0) {
                     $this->tabHostIds[] = '-1';
@@ -572,7 +572,7 @@ class Request
             }
 
             if ($type == 'HG' && (isset($this->lca['LcaHostGroup'][$id]) || $this->is_admin)) {
-                // Get hosts from hostgroups @phpstan-ignore-next-line
+                // Get hosts from hostgroups
                 $hosts = getMyHostGroupHosts($id);
                 if (count($hosts) !== 0) {
                     foreach ($hosts as $h_id) {
@@ -587,9 +587,9 @@ class Request
                     $this->tabSvc[] = '-1';
                 } else {
                     foreach ($services as $svc_id => $svc_name) {
-                        $tab_tmp = preg_split("/\_/", $svc_id); /** @phpstan-ignore-line @phpstan-ignore-next-line */
+                        $tab_tmp = preg_split("/\_/", $svc_id);
                         $tmp_host_id = $tab_tmp[0];
-                        $tmp_service_id = $tab_tmp[1]; // @phpstan-ignore-line
+                        $tmp_service_id = $tab_tmp[1];
                         if (isset($this->lca['LcaHost'][$tmp_host_id][$tmp_service_id])) {
                             $this->tabSvc[$tmp_host_id][$tmp_service_id]
                                 = $this->lca['LcaHost'][$tmp_host_id][$tmp_service_id];

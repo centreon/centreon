@@ -44,7 +44,7 @@ include_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
 include_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession(session_id());
 $hostStr = $centreon->user->access->getHostsString('ID', $pearDBO);
 

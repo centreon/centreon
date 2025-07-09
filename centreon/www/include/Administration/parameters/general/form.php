@@ -114,7 +114,7 @@ $form->addElement('text', 'AjaxTimeReloadMonitoring', _('Refresh Interval for mo
 
 $form->addElement('text', 'selectPaginationSize', _('Number of elements loaded in select'), $attrsText2);
 
-$CentreonGMT = new CentreonGMT($pearDB);
+$CentreonGMT = new CentreonGMT();
 $GMTList = $CentreonGMT->getGMTList();
 
 $form->addElement('select', 'gmt', _('Timezone'), $GMTList);

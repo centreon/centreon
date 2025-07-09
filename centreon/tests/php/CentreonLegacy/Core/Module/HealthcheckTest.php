@@ -21,6 +21,7 @@ namespace CentreonLegacy\Core\Module;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use CentreonLegacy\Core\Configuration\Configuration;
 use CentreonLegacy\ServiceProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
@@ -32,28 +33,25 @@ use VirtualFileSystem\FileSystem;
 class HealthcheckTest extends TestCase
 {
     /** @var FileSystem */
-    public $fs;
+    public $fileSystem;
 
-    /** @var (Configuration&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var MockObject&ServiceContainer */
     public $container;
 
-    /** @var (Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var MockObject&Healthcheck */
     public $service;
-
-    /** @var */
-    protected $isModuleFs;
 
     public function setUp(): void
     {
         // mount VFS
-        $this->fs = new FileSystem();
+        $this->fileSystem = new FileSystem();
 
-        $this->fs->createDirectory('/tmp');
-        $this->fs->createDirectory('/tmp/checklist');
-        $this->fs->createFile('/tmp/checklist/requirements.php', '');
+        $this->fileSystem->createDirectory('/tmp');
+        $this->fileSystem->createDirectory('/tmp/checklist');
+        $this->fileSystem->createFile('/tmp/checklist/requirements.php', '');
 
-        $this->fs->createDirectory('/tmp1');
-        $this->fs->createDirectory('/tmp1/checklist');
+        $this->fileSystem->createDirectory('/tmp1');
+        $this->fileSystem->createDirectory('/tmp1/checklist');
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this
@@ -68,7 +66,7 @@ class HealthcheckTest extends TestCase
             ->method('getModulePath')
             ->will(
                 $this->returnCallback(function () {
-                    return $this->fs->path('/');
+                    return $this->fileSystem->path('/');
                 })
             );
 
@@ -329,10 +327,9 @@ class HealthcheckTest extends TestCase
 
     public function testReset(): void
     {
-        $value = '';
-
-        $result = $this->service->reset();
-
-        $this->assertEquals($result, $value);
+        $this->service->reset();
+        $this->assertEquals(null, $this->service->getMessages());
+        $this->assertEquals(null, $this->service->getCustomAction());
+        $this->assertEquals(null, $this->service->getLicenseExpiration());
     }
 }

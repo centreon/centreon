@@ -208,7 +208,7 @@ $sid = session_id();
 $sid ??= '-1';
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession($sid);
 
 // Check Session

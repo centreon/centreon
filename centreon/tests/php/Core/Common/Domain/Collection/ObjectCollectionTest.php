@@ -83,7 +83,7 @@ it('sort a collection by values', function (): void {
     $this->collection->add(1, $class1);
     $this->collection->add(2, $class2);
 
-    $this->collection->sortByValues(fn ($a, $b) => array_search($a, $orderedArray, true) <=> array_search($b, $orderedArray, true));
+    $this->collection->sortByValues(fn ($varA, $varB) => array_search($varA, $orderedArray, true) <=> array_search($varB, $orderedArray, true));
     expect($this->collection->get(0))->toBe($class2)
         ->and($this->collection->get(1))->toBe($class1);
 });
@@ -99,9 +99,9 @@ it('sort a collection by keys', function (): void {
     $this->collection->add('a', $class1);
     $this->collection->add('b', $class2);
 
-    $this->collection->sortByKeys(function ($a, $b) use ($orderedArray) {
-        $indexA = $orderedArray[$a];
-        $indexB = $orderedArray[$b];
+    $this->collection->sortByKeys(function ($varA, $varB) use ($orderedArray) {
+        $indexA = $orderedArray[$varA];
+        $indexB = $orderedArray[$varB];
 
         return $indexA <=> $indexB;
     });

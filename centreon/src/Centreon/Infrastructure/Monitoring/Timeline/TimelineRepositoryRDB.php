@@ -171,7 +171,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
         $this->sqlRequestTranslator->addNormalizer(
             'date',
             new class () implements NormalizerInterface {
-                public function normalize($valueToNormalize)
+                public function normalize($valueToNormalize): int
                 {
                     return (new \Datetime($valueToNormalize))->getTimestamp();
                 }

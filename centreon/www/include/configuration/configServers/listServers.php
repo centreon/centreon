@@ -41,7 +41,7 @@ if (! isset($centreon)) {
 include './include/common/autoNumLimit.php';
 
 // Init GMT class
-$centreonGMT = new CentreonGMT($pearDB);
+$centreonGMT = new CentreonGMT();
 $centreonGMT->getMyGMTFromSession(session_id());
 
 $search = $_POST['searchP'] ?? $_GET['searchP'] ?? null;

@@ -688,7 +688,7 @@ $form->addElement(
  */
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
-$CentreonGMT = new CentreonGMT($pearDB);
+$CentreonGMT = new CentreonGMT();
 
 $availableDatasetRoute = './include/common/webServices/rest/internal.php'
     . '?object=centreon_configuration_timezone&action=list';

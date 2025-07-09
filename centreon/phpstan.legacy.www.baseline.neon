@@ -79,18 +79,6 @@ parameters:
 			path: www/class/centreon-partition/options.class.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreon.class.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonBase.class.php
-
-		-
 			message: '#^Undefined variable\: \$message$#'
 			identifier: variable.undefined
 			count: 1
@@ -103,12 +91,6 @@ parameters:
 			path: www/class/centreonDB.class.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonDowntime.Broker.class.php
-
-		-
 			message: '#^Call to function unset\(\) contains undefined variable \$segment\.$#'
 			identifier: unset.variable
 			count: 1
@@ -119,12 +101,6 @@ parameters:
 			identifier: return.missing
 			count: 1
 			path: www/class/centreonGMT.class.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonGraph.class.php
 
 		-
 			message: '#^Result of method CentreonGraphNg\:\:getServiceGraphID\(\) \(void\) is used\.$#'
@@ -175,12 +151,6 @@ parameters:
 			path: www/class/centreonImageManager.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonStatistics.class.php
-
-		-
 			message: '#^Class CentreonDB referenced with incorrect case\: centreonDB\.$#'
 			identifier: class.nameCase
 			count: 1
@@ -193,22 +163,10 @@ parameters:
 			path: www/class/centreonTimeperiodRenderer.class.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonUtils.class.php
-
-		-
 			message: '#^Call to an undefined method CentreonWidgetParamsSelect2\:\:getParameters\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: www/class/centreonWidget/Params/Select2.class.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/class/centreonXMLBGRequest.class.php
 
 		-
 			message: '#^Access to constant FETCH_ASSOC on an unknown class ConfigGenerateRemote\\PDO\.$#'
@@ -259,12 +217,6 @@ parameters:
 			path: www/class/config-generate-remote/Relations/TrapsGroup.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/Administration/brokerPerformance/brokerPerformance.php
-
-		-
 			message: '#^Function updateGeneralOpt not found\.$#'
 			identifier: function.notFound
 			count: 1
@@ -275,12 +227,6 @@ parameters:
 			identifier: function.notFound
 			count: 1
 			path: www/include/Administration/parameters/api/api.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/Administration/parameters/general/form.php
 
 		-
 			message: '#^Undefined variable\: \$logger$#'
@@ -311,12 +257,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: www/include/configuration/configObject/connector/formConnectorFunction.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/configuration/configObject/contact/formContact.php
 
 		-
 			message: '#^Unknown parameter \$isRemote in call to function updateContactInDB\.$#'
@@ -367,20 +307,8 @@ parameters:
 			path: www/include/configuration/configResources/DB-Func.php
 
 		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/configuration/configServers/listServers.php
-
-		-
 			message: '#^Class CentreonACL referenced with incorrect case\: CentreonAcl\.$#'
 			identifier: class.nameCase
-			count: 1
-			path: www/include/eventLogs/xml/data.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
 			count: 1
 			path: www/include/eventLogs/xml/data.php
 
@@ -389,48 +317,6 @@ parameters:
 			identifier: array.duplicateKey
 			count: 1
 			path: www/include/home/customViews/action.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/comments/AddComment.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/comments/AddHostComment.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/comments/AddSvcComment.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/comments/listComment.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/downtime/listDowntime.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/downtime/xml/broker/makeXMLForDowntime.php
 
 		-
 			message: '#^Function add_hostgroup_downtime not found\.$#'
@@ -467,12 +353,6 @@ parameters:
 			identifier: function.notFound
 			count: 1
 			path: www/include/monitoring/external_cmd/cmd.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/monitoring/external_cmd/cmdPopup.php
 
 		-
 			message: '#^Undefined variable\: \$flg$#'
@@ -557,27 +437,3 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: www/include/reporting/dashboard/imagesGenerations/pie-charts.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/include/views/graphs/graphs.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/widgets/host-monitoring/src/export.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/widgets/service-monitoring/src/export.php
-
-		-
-			message: '#^Class CentreonGMT does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: www/widgets/service-monitoring/src/index.php

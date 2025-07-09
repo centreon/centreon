@@ -68,10 +68,18 @@ final readonly class QueryParameter implements ValueObjectInterface
             default => 'unknown',
         };
 
-        return sprintf(
+        if (is_object($this->value) && method_exists($this->value, '__toString')) {
+            $value = (string) $this->value;
+        } elseif (is_scalar($this->value) || null === $this->value) {
+            $value = (string) $this->value;
+        } else {
+            $value = 'unsupported type';
+        }
+
+        return \sprintf(
             '{name:"%s",value:"%s",type:"%s"}',
             $this->name,
-            $this->value,
+            $value,
             $type
         );
     }
@@ -147,8 +155,6 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * @param QueryParameter $object
-     *
      * @throws ValueObjectException
      */
     public function equals(ValueObjectInterface $object): bool

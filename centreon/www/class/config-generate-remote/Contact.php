@@ -233,13 +233,11 @@ class Contact extends AbstractObject
 
     /**
      * Build contact cache
-     *
-     * @return int|null
      */
-    protected function buildCache(): ?int
+    protected function buildCache(): void
     {
         if ($this->doneCache == 1) {
-            return 0;
+            return;
         }
 
         $this->getContactCache();

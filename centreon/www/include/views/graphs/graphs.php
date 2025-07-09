@@ -41,7 +41,7 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . '/www/class/centreonService.class.php';
 
 $serviceObj = new CentreonService($pearDB);
-$gmtObj = new CentreonGMT($pearDB);
+$gmtObj = new CentreonGMT();
 
 /**
  * Notice that this timestamp is actually the server's time and not the UNIX time

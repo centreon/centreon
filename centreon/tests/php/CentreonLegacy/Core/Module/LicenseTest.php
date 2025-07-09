@@ -29,7 +29,7 @@ use Pimple\Psr11\Container;
  */
 class LicenseTest extends TestCase
 {
-    /** @var Healthcheck|(Healthcheck&object&\PHPUnit\Framework\MockObject\MockObject)|(Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ServiceContainer */
     public $container;
 
     /** @var License */

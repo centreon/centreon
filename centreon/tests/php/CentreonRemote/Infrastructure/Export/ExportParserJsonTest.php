@@ -25,14 +25,14 @@ use CentreonRemote\Infrastructure\Export\ExportParserJson;
 use Symfony\Component\Filesystem\Filesystem;
 
 beforeEach(function (): void {
-    $this->fs = new Filesystem();
-    $this->fs->mkdir('/tmp');
+    $this->fileSystem = new Filesystem();
+    $this->fileSystem->mkdir('/tmp');
     $this->parser = new ExportParserJson();
 });
 
 afterEach(function (): void {
-    $this->fs->remove('/tmp/test.json');
-    $this->fs->remove('/tmp/test2.json');
+    $this->fileSystem->remove('/tmp/test.json');
+    $this->fileSystem->remove('/tmp/test2.json');
 });
 
 it('should parse non existent file', function (): void {
@@ -40,12 +40,12 @@ it('should parse non existent file', function (): void {
 });
 
 it('should parse file', function (): void {
-    $this->fs->dumpFile('/tmp/test.json', '{"key": "value"}');
+    $this->fileSystem->dumpFile('/tmp/test.json', '{"key": "value"}');
     expect($this->parser->parse('/tmp/test.json'))->toBe(['key' => 'value']);
 });
 
 it('should call the callback for a file with macro', function (): void {
-    $this->fs->dumpFile('/tmp/test2.json', '{"key":"@val@"}');
+    $this->fileSystem->dumpFile('/tmp/test2.json', '{"key":"@val@"}');
 
     $result = $this->parser->parse(
         '/tmp/test2.json',
@@ -58,5 +58,5 @@ it('should call the callback for a file with macro', function (): void {
 
 it('should not create manifest file if input is an empty array', function (): void {
     $this->parser->dump([], '/tmp/test.json');
-    expect($this->fs->exists('/tmp/test.json'))->toBeFalse();
+    expect($this->fileSystem->exists('/tmp/test.json'))->toBeFalse();
 });

@@ -16,6 +16,7 @@ parameters:
         - tests/php/polyfill.php
 
     paths:
+        - tests/php/Adaptation #// TODO adaptation tests need to be fixed and moved to new section
         - tests/php/Core
     ignoreErrors:
         -

@@ -119,7 +119,7 @@ class CentreonBase
         $this->serviceObj = new CentreonService($this->DB);
 
         // Timezone management
-        $this->GMT = new CentreonGMT($this->DB);
+        $this->GMT = new CentreonGMT();
         $this->GMT->getMyGMTFromSession($this->sessionId);
     }
 

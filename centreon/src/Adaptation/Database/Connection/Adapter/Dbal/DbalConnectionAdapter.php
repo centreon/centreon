@@ -554,7 +554,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      *
-     * @return \Traversable<int,list<mixed>>
+     * @return \Traversable<int,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
      *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
@@ -714,12 +714,14 @@ final class DbalConnectionAdapter implements ConnectionInterface
     public function allowUnbufferedQuery(): bool
     {
         $nativeConnection = $this->getNativeConnection();
-        if (is_object($nativeConnection)) {
-            $driverName = match ($nativeConnection::class) {
-                \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
-                default => '',
-            };
-            if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
+        if (\is_object($nativeConnection)) {
+            $driverName = '';
+            if ($nativeConnection instanceof \PDO) {
+                $driverNamePdo = $nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                $driverName = is_string($driverNamePdo) ? 'pdo_' . $driverNamePdo : '';
+            }
+
+            if (empty($driverName) || ! \in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
                 $this->writeDbLog(
                     message: 'Unbuffered queries are not allowed with this driver',
                     customContext: ['driver_name' => $driverName]
@@ -756,7 +758,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      */
     public function isUnbufferedQueryActive(): bool
     {
-        return $this->isBufferedQueryActive === false;
+        return false === $this->isBufferedQueryActive;
     }
 
     /**
@@ -801,7 +803,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'query' => $query,
         ];
 
-        if (null !== $previous) {
+        if ($previous instanceof \Throwable) {
             ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
             Logger::create()->critical($message, $context);
