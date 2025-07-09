@@ -32,6 +32,53 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - if: inputs.delivery_type == 'feature'
+      name: Create a yum feature repository
+      shell: bash
+      run: |
+        set -x
+        feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+        echo "[INFO] Creating a yum feature repository if it does not exist"
+
+        curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+            -d "$(jq -n \
+              --arg major_version "${{ needs.get-environment.outputs.major_version }}" \
+              --arg repo_type "feature" \
+              --arg feature_ticket "$feature_ticket" \
+              '{
+                event_type: "create-feature-repositories",
+                client_payload: {
+                  major_version: $major_version,
+                  repo_type: $repo_type,
+                  feature_ticket: $feature_ticket
+                }
+              }'
+            )"
+
+        response=""
+        attempt=0
+        until [[ $(echo "$response" | tr -d '\n' | tail -c 3) -eq 200 || $attempt -ge 40 ]]; do
+          attempt=$((attempt+1))
+          echo "[INFO] Checking is the feature repository has been created... [ATTEMPT $attempt]"
+          response=$(curl \
+            --write-out "%{http_code}" \
+            --request GET \
+            --url "${{ env.JF_URL }}/artifactory/api/v2/repositories/rpm-standard-feature-$feature_ticket" \
+            --header "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
+            --header "Content-Type: application/json"
+          )
+          sleep 15
+          attempt=$((attempt+1))
+        done
+
+        if [[ $attempt -ge 40 ]]; then
+          echo "::error::Timeout waiting for repository creation. Aborting delivery process. Please contact someone from the DevSecOps team."
+          exit 1
+        fi
+
     - name: Use cache RPM files
       uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
@@ -102,7 +149,7 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
-        elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" != "hotfix" ]] || [[ "${{ inputs.release_type }}" != "release" ]]); then
+          elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" != "hotfix" ]] && [[ "${{ inputs.release_type }}" != "release" ]]); then
           echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"

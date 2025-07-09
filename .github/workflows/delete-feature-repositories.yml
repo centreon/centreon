@@ -1,0 +1,42 @@
+name: docker-keycloak
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-feature-repositories:
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'feature-MON-')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Send repository dispatch to delete feature repositories
+        shell: bash
+        run: |
+          set -x
+          echo "::notice::Sending repository dispatch to delete feature repository workflow..."
+          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+            -d "$(jq -n \
+              --arg feature_ticket "$feature_ticket" \
+              '{
+                event_type: "delete-feature-repositories",
+                client_payload: {
+                  feature_ticket: $feature_ticket
+                }
+              }'
+            )"
+
+          if [ $? -ne 0 ]; then
+            echo "::error::Failure to send repository dispatch to delete feature repository. You may want to perform that operation manually."
+            exit 1
+          fi
