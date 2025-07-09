@@ -82,8 +82,7 @@ it('should present a FindConfigurationResponse when everything is ok', function 
             'conf_server_port' => 454,
             'conf_certificate' => 'conf-certif.crt',
             'conf_private_key' => 'conf-key.key'
-        ],
-        ConnectionModeEnum::SECURE
+        ]
     );
 
     $pollers = [

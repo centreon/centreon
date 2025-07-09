@@ -231,13 +231,8 @@ class CentreonAuthLDAP
             }
 
             if ($userEmail === '') {
-                CentreonLog::create()->error(
-                    logTypeId: CentreonLog::TYPE_LDAP,
-                    message: 'LDAP AUTH - Error : Invalid user email : User email must be a non-empty string',
-                    customContext: ['contact_id' => $this->contactInfos['contact_id']]
-                );
-
-                return false;
+                /* empty email is not an error, we replace it with a dash */
+                $userEmail = '-';
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];

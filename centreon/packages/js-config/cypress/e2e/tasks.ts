@@ -139,6 +139,11 @@ export default (on: Cypress.PluginEvents): void => {
         return null;
       }
     },
+    getContainerMappedPort: async ({ containerName, containerPort }) => {
+      const container = getContainer(containerName);
+
+      return container.getMappedPort(containerPort);
+    },
     requestOnDatabase: async ({ database, query }) => {
       let container: StartedTestContainer | null = null;
 

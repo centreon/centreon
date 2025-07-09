@@ -130,7 +130,13 @@ try {
     }
     $query .= "AND s.enabled = 1
             AND h.enabled = 1
-        GROUP BY i.host_id
+        GROUP BY i.host_id,
+            i.service_id,
+            i.host_name,
+            i.service_description,
+            s.state,
+            m.current_value,
+            m.max
         ORDER BY ratio DESC
         LIMIT :nb_lin;";
 
