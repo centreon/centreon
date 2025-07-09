@@ -56,7 +56,6 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
      */
     public function __construct()
     {
-        parent::__construct();
         $this->pearDBMonitoring = new CentreonDB('centstorage');
     }
 

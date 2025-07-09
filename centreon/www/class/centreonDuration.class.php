@@ -82,7 +82,7 @@ class CentreonDuration
         }
 
         // Return
-        if (empty($values)) {
+        if ($values === []) {
             $values = null;
         }
         return $values;
@@ -159,7 +159,7 @@ class DurationHoursMinutes
         }
 
         // Return
-        if (empty($values)) {
+        if ($values === []) {
             $values = null;
         }
 

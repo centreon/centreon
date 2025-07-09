@@ -8,73 +8,73 @@ use Core\Common\Domain\Collection\LiteralStringCollection;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\ValueObject\LiteralString;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->collection = new LiteralStringCollection();
 });
 
-it('clear collection', function () {
+it('clear collection', function (): void {
     $this->collection->clear();
     expect($this->collection->length())->toBe(0);
 });
 
-it('get length', function () {
+it('get length', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
     expect($this->collection->length())->toBe(2);
 });
 
-it('if empty must be return true', function () {
+it('if empty must be return true', function (): void {
     expect($this->collection->isEmpty())->toBeTrue();
 });
 
-it('must to be return false if collection is empty', function () {
+it('must to be return false if collection is empty', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     expect($this->collection->isEmpty())->toBeFalse();
 });
 
-it('return true if item exists', function () {
+it('return true if item exists', function (): void {
     $item = new LiteralString('foo');
     $this->collection->add(1, $item);
     expect($this->collection->contains($item))->toBeTrue();
 });
 
-it('return false if item does not exist', function () {
+it('return false if item does not exist', function (): void {
     $item = new LiteralString('foo');
     expect($this->collection->contains($item))->toBeFalse();
 });
 
-it('if the key exists, item will be returned', function () {
+it('if the key exists, item will be returned', function (): void {
     $item = new LiteralString('foo');
     $this->collection->add(1, $item);
     expect($this->collection->get(1))->toBe($item);
 });
 
-it('if the key does not exist, a CollectionException will be thrown', function () {
+it('if the key does not exist, a CollectionException will be thrown', function (): void {
     $this->collection->get(3);
 })->throws(CollectionException::class);
 
-it('if the key exists, return true', function () {
+it('if the key exists, return true', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     expect($this->collection->has(1))->toBeTrue();
 });
 
-it('if the key does not exist, return false', function () {
+it('if the key does not exist, return false', function (): void {
     expect($this->collection->has(3))->toBeFalse();
 });
 
-it('return the keys of the collection as an array', function () {
+it('return the keys of the collection as an array', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
-it('return position of an item of a collection', function () {
+it('return position of an item of a collection', function (): void {
     $item = new LiteralString('foo');
     $this->collection->add('bar', $item);
     expect($this->collection->indexOf($item))->toBe(0);
 });
 
-it('sort a collection by values', function () {
+it('sort a collection by values', function (): void {
     $class1 = new LiteralString('foo');
     $class2 = new LiteralString('bar');
 
@@ -90,7 +90,7 @@ it('sort a collection by values', function () {
         ->and($this->collection->get(1))->toBe($class1);
 });
 
-it('sort a collection by keys', function () {
+it('sort a collection by keys', function (): void {
     $class1 = new LiteralString('foo');
     $class2 = new LiteralString('bar');
 
@@ -108,7 +108,7 @@ it('sort a collection by keys', function () {
         ->and($this->collection->indexOf($class2))->toBe(0);
 });
 
-it('test filter on values', function () {
+it('test filter on values', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
 
@@ -117,7 +117,7 @@ it('test filter on values', function () {
         ->and($collection->get(1)->getValue())->toBe('foo');
 });
 
-it('test filter on keys', function () {
+it('test filter on keys', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
 
@@ -126,7 +126,7 @@ it('test filter on keys', function () {
         ->and($collection->get(1)->getValue())->toBe('foo');
 });
 
-it('test filter on values and keys', function () {
+it('test filter on values and keys', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
 
@@ -135,7 +135,7 @@ it('test filter on values and keys', function () {
         ->and($collection->get(1)->getValue())->toBe('foo');
 });
 
-it('test merge LiteralString collections', function () {
+it('test merge LiteralString collections', function (): void {
     $collection1 = new LiteralStringCollection();
     $collection1->add(3, new LiteralString('foo'));
     $collection1->add(4, new LiteralString('bar'));
@@ -149,37 +149,37 @@ it('test merge LiteralString collections', function () {
         ->and($this->collection->keys())->toEqual([3, 4, 5, 6]);
 });
 
-it('return the array of items', function () {
+it('return the array of items', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
     expect($this->collection->toArray())->toBeArray()->toHaveCount(2);
 });
 
-it('add an item at the collection (add)', function () {
+it('add an item at the collection (add)', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     expect($this->collection->length())->toBe(1)
         ->and($this->collection->keys())->toEqual([1]);
 });
 
-it('the item must not to be added, a CollectionException should be thrown (add)', function () {
+it('the item must not to be added, a CollectionException should be thrown (add)', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(1, new LiteralString('bar'));
 })->throws(CollectionException::class);
 
 it(
     'the item must not to be added, a CollectionException should be thrown if the item is not good class (add)',
-    function () {
+    function (): void {
         $this->collection->add(1, new \DateTime());
     }
 )->throws(CollectionException::class);
 
-it('the item must to be added (put)', function () {
+it('the item must to be added (put)', function (): void {
     $this->collection->put(1, new LiteralString('foo'));
     expect($this->collection->length())->toBe(1)
         ->and($this->collection->keys())->toEqual([1]);
 });
 
-it('the item must not to be added with put because the key exists (put)', function () {
+it('the item must not to be added with put because the key exists (put)', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->put(1, new LiteralString('foo'));
     expect($this->collection->length())->toBe(1)
@@ -188,12 +188,12 @@ it('the item must not to be added with put because the key exists (put)', functi
 
 it(
     'the item must not to be added, a CollectionException should be thrown if the item is not the good class (put)',
-    function () {
+    function (): void {
         $this->collection->put(1, new \DateTime());
     }
 )->throws(CollectionException::class);
 
-it('must to remove an item and return true', function () {
+it('must to remove an item and return true', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $result = $this->collection->remove(1);
     expect($this->collection->length())->toBe(0)
@@ -201,26 +201,26 @@ it('must to remove an item and return true', function () {
         ->and($result)->toBeTrue();
 });
 
-it('must not to remove an item and return false', function () {
+it('must not to remove an item and return false', function (): void {
     $result = $this->collection->remove(1);
     expect($this->collection->length())->toBe(0)
         ->and($this->collection->keys())->toEqual([])
         ->and($result)->toBeFalse();
 });
 
-it('return an iterator', function () {
+it('return an iterator', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $items = iterator_to_array($this->collection->getIterator());
     expect($items)->toEqual($this->collection->toArray());
 });
 
-it('json serialize', function () {
+it('json serialize', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
     expect($this->collection->jsonSerialize())->toBe([1 => 'foo', 2 => 'bar']);
 });
 
-it('json encode', function () {
+it('json encode', function (): void {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
     expect($this->collection->toJson())->toBe(json_encode($this->collection->jsonSerialize()));

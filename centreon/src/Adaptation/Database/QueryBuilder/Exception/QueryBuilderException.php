@@ -32,11 +32,6 @@ use Adaptation\Database\Exception\DatabaseException;
  */
 class QueryBuilderException extends DatabaseException
 {
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return QueryBuilderException
-     */
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the query builder';
@@ -47,11 +42,6 @@ class QueryBuilderException extends DatabaseException
         return new self($message, self::ERROR_CODE_QUERY_BUILDER, previous: $previous);
     }
 
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return QueryBuilderException
-     */
     public static function getExpressionBuilderFailed(?\Throwable $previous = null): self {
         $message = 'Error while getting the expression builder';
         if (! is_null($previous) && ! empty($previous->getMessage())) {

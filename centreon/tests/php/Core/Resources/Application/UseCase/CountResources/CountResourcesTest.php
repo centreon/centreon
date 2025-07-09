@@ -35,14 +35,14 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Mockery;
 use Tests\Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filters = Mockery::mock(ResourceFilter::class);
     $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
     $this->contactRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
     $this->presenter = new CountResourcesPresenterStub();
 });
 
-it('count resources with an invalid contact_id should throw an InvalidArgumentException', function () {
+it('count resources with an invalid contact_id should throw an InvalidArgumentException', function (): void {
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
         allPages: true,
@@ -51,7 +51,7 @@ it('count resources with an invalid contact_id should throw an InvalidArgumentEx
     );
 })->throws(\InvalidArgumentException::class);
 
-it('count resources with an error from repository should throw an ErrorResponse', function () {
+it('count resources with an error from repository should throw an ErrorResponse', function (): void {
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilter')
         ->andThrow(Mockery::mock(RepositoryException::class));
@@ -66,7 +66,7 @@ it('count resources with an error from repository should throw an ErrorResponse'
     expect($this->presenter->response)->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('count resources with admin mode should throw a response with all resources', function () {
+it('count resources with admin mode should throw a response with all resources', function (): void {
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilter')
         ->with($this->filters, true)
@@ -88,7 +88,7 @@ it('count resources with admin mode should throw a response with all resources',
         ->and($this->presenter->response->getTotalResources())->toBe(10);
 });
 
-it('count resources with acl should throw a response with allowed resources', function () {
+it('count resources with acl should throw a response with allowed resources', function (): void {
     $this->contactRepository
         ->shouldReceive('findByContactId')
         ->andReturn(AccessGroupCollection::create([new AccessGroup(1, 'test', 'test')]));

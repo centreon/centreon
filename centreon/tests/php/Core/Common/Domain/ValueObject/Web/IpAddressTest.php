@@ -27,60 +27,60 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\Identity\Email;
 use Core\Common\Domain\ValueObject\Web\IpAddress;
 
-it('with valid IPv4', function () {
+it('with valid IPv4', function (): void {
     $string = "170.0.0.1";
     $ipAddress = new IpAddress($string);
     expect($ipAddress->getValue())->toBe($string);
 });
 
-it('with valid IPv6', function () {
+it('with valid IPv6', function (): void {
     $string = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
     $ipAddress = new IpAddress($string);
     expect($ipAddress->getValue())->toBe($string);
 });
 
-it('with invalid IPv6', function () {
+it('with invalid IPv6', function (): void {
     $string = "2001:0db8:85a3:0000:0000:8a2e:0370";
     $ipAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
 
-it('with an incorrect ip address', function () {
+it('with an incorrect ip address', function (): void {
     $string = "yoyo";
     $ipAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
 
-it('is not empty', function () {
+it('is not empty', function (): void {
     $string = "170.0.0.1";
     $ipAddress = new IpAddress($string);
     expect($ipAddress->isEmpty())->toBeFalse();
 });
 
-it('is empty', function () {
+it('is empty', function (): void {
     $string = "";
     $ipAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
 
-it('starts with', function () {
+it('starts with', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->startsWith("170"))->toBeTrue();
 });
 
-it('not starts with', function () {
+it('not starts with', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->startsWith("200"))->toBeFalse();
 });
 
-it('ends with', function () {
+it('ends with', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->endsWith(".1"))->toBeTrue();
 });
 
-it('not ends with', function () {
+it('not ends with', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->endsWith(".180"))->toBeFalse();
 });
 
-it('replace', function () {
+it('replace', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     $newIpAddress = $ipAddress->replace("170", "200");
     expect($ipAddress)
@@ -93,17 +93,17 @@ it('replace', function () {
         ->toBe("200.0.0.1");
 });
 
-it('contains', function () {
+it('contains', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->contains("0.1"))->toBeTrue();
 });
 
-it('not contains', function () {
+it('not contains', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->contains("0.3"))->toBeFalse();
 });
 
-it('append', function () {
+it('append', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     $newIpAddress = $ipAddress->append("82");
     expect($ipAddress)
@@ -116,41 +116,41 @@ it('append', function () {
         ->toBe("170.0.0.182");
 });
 
-it('length', function () {
+it('length', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->length())->toBe(9);
 });
 
-it('equal', function () {
+it('equal', function (): void {
     $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new IpAddress("170.0.0.1");
     expect($IpAddress1->equals($IpAddress2))->toBeTrue();
 });
 
-it('not equal', function () {
+it('not equal', function (): void {
     $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new IpAddress("170.0.0.2");
     expect($IpAddress1->equals($IpAddress2))->toBeFalse();
 });
 
-it('equal with incorrect type', function () {
+it('equal with incorrect type', function (): void {
     $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new \DateTime();
     $IpAddress1->equals($IpAddress2);
 })->throws(\TypeError::class);
 
-it('equal with incorrect value object type', function () {
+it('equal with incorrect value object type', function (): void {
     $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new Email("yoyo@toto.fr");
     $IpAddress1->equals($IpAddress2);
 })->throws(ValueObjectException::class);
 
-it('magic method toString', function () {
+it('magic method toString', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect("$ipAddress")->toBe("170.0.0.1");
 });
 
-it('json serialize', function () {
+it('json serialize', function (): void {
     $ipAddress = new IpAddress("170.0.0.1");
     expect($ipAddress->jsonSerialize())->toBe('170.0.0.1');
 });

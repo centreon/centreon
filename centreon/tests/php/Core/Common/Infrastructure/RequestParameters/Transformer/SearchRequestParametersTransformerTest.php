@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 
-it('transform from query parameters', function () {
+it('transform from query parameters', function (): void {
     $queryParameters = QueryParameters::create(
         [
             QueryParameter::int('contact_id', 110),
@@ -52,7 +52,7 @@ it('transform from query parameters', function () {
         ]);
 });
 
-it('reverse to query parameters', function () {
+it('reverse to query parameters', function (): void {
     $requestParameters = [
         'contact_id' => [\PDO::PARAM_INT => 110],
         'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
@@ -88,7 +88,7 @@ it('reverse to query parameters', function () {
         ->and($queryParameters->get('contact_token')->getValue())->toBe('fghfhffhhj545d4f4sfdsfsdfdsfs4fsdf');
 });
 
-it('reverse to query parameters with unknown PDO type', function () {
+it('reverse to query parameters with unknown PDO type', function (): void {
     $requestParameters = [
         'contact_id' => [\PDO::PARAM_INT => 110],
         'contact_name' => [\PDO::PARAM_STR => 'foo_name'],

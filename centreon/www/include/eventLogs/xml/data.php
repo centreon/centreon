@@ -443,12 +443,12 @@ if (!empty($output)) {
 $msgConditions = [];
 
 if ($notification == 'true') {
-    if (!empty($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
         $msgConditions[] = "(logs.msg_type = 3 AND logs.status IN ($bindQuery))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
-    if (!empty($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
         $msgConditions[] = "(logs.msg_type = 2 AND logs.status IN ($bindQuery))";
         $queryValues = array_merge($queryValues, $bindValues);
@@ -459,13 +459,13 @@ if ($alert == 'true') {
     $alertMsgTypesHost = [1, 10, 11];
     $alertMsgTypesSvc = [0, 10, 11];
 
-    if (!empty($host_msg_status_set)) {
+    if ($host_msg_status_set !== []) {
         [$bindValuesHost, $bindQueryHost] = createMultipleBindQuery($host_msg_status_set, ':host_msg_status_set_', \PDO::PARAM_INT);
         [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesHost, ':alertMsgTypesHost_', \PDO::PARAM_INT);
         $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQueryHost))";
         $queryValues = array_merge($queryValues, $bindValuesHost, $bindValuesAlert);
     }
-    if (!empty($svc_msg_status_set)) {
+    if ($svc_msg_status_set !== []) {
         [$bindValuesSvc, $bindQuerySvc] = createMultipleBindQuery($svc_msg_status_set, ':svc_msg_status_set_', \PDO::PARAM_INT);
         [$bindValuesAlert, $bindQueryAlert] = createMultipleBindQuery($alertMsgTypesSvc, ':alertMsgTypesSvc_', \PDO::PARAM_INT);
         $alertConditions[] = "(logs.msg_type IN ($bindQueryAlert) AND logs.status IN ($bindQuerySvc))";
@@ -483,7 +483,7 @@ if ($alert == 'true') {
 if ($error == 'true') {
     $msgConditions[] = 'logs.msg_type IN (4, 5)';
 }
-if (!empty($msgConditions)) {
+if ($msgConditions !== []) {
     $whereClauses[] = '(' . implode(' OR ', $msgConditions) . ')';
 }
 
@@ -535,13 +535,13 @@ foreach ($tab_id as $openidItem) {
 
 if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unknown, $acknowledgement])) {
 
-    if (!empty($tab_host_ids)) {
+    if ($tab_host_ids !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($tab_host_ids, ':tab_host_ids_', \PDO::PARAM_INT);
         $hostServiceConditions[] = "(logs.host_id IN ($bindQuery) AND (logs.service_id IS NULL OR logs.service_id = 0))";
         $queryValues = array_merge($queryValues, $bindValues);
     }
 
-    if (!empty($tab_svc)) {
+    if ($tab_svc !== []) {
         $serviceConditions = [];
         foreach ($tab_svc as $hostIndex => $services) {
             $hostParam = ':hostId' . $hostIndex;
@@ -556,18 +556,18 @@ if (in_array('true', [$up, $down, $unreachable, $ok, $warning, $critical, $unkno
             $servicePlaceholdersString = implode(', ', $servicePlaceholders);
             $serviceConditions[] = "(logs.host_id = $hostParam AND logs.service_id IN ($servicePlaceholdersString))";
         }
-        if (!empty($serviceConditions)) {
+        if ($serviceConditions !== []) {
             $hostServiceConditions[] = '(' . implode(' OR ', $serviceConditions) . ')';
         }
     }
 
-    if (!empty($hostServiceConditions)) {
+    if ($hostServiceConditions !== []) {
         $whereClauses[] = '(' . implode(' OR ', $hostServiceConditions) . ')';
     }
 }
 
 // Exclude BAM modules if necessary
-if ($engine == "false" && empty($tab_host_ids) && empty($tab_svc)) {
+if ($engine == "false" && $tab_host_ids === [] && $tab_svc === []) {
     $whereClauses[] = "logs.msg_type NOT IN (4, 5)";
     $whereClauses[] = "logs.host_name NOT LIKE '_Module_BAM%'";
 }
@@ -616,7 +616,7 @@ $fromClause = "FROM logs";
 $joinClauses = [];
 if ($engine == "true" && !empty($openid)) {
     $pollerIds = array_filter(explode(',', $openid), 'is_numeric');
-    if (!empty($pollerIds)) {
+    if ($pollerIds !== []) {
         [$bindValues, $bindQuery] = createMultipleBindQuery($pollerIds, ':pollerIds_', \PDO::PARAM_INT);
         $joinClauses[] = "
         INNER JOIN instances i ON i.name = logs.instance_name

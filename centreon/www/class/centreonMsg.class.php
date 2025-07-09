@@ -44,7 +44,7 @@
 class CentreonMsg
 {
     /** @var string */
-    public $color;
+    public $color = "#FFFFFF";
     /** @var string */
     public $div;
 
@@ -56,7 +56,6 @@ class CentreonMsg
     public function __construct($divId = null)
     {
         $this->div = empty($divId) ? "centreonMsg" : $divId;
-        $this->color = "#FFFFFF";
     }
 
     /**

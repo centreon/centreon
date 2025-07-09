@@ -34,11 +34,6 @@ use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
-/**
- * @param string $nameEnvVar
- *
- * @return string|null
- */
 function getEnvironmentVariable(string $nameEnvVar): ?string
 {
     $envVarValue = getenv($nameEnvVar, true) ?: getenv($nameEnvVar);
@@ -63,11 +58,6 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
     );
 }
 
-/**
- * @param ConnectionConfig $connectionConfig
- *
- * @return bool
- */
 function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 {
     try {
@@ -79,7 +69,7 @@ function hasConnectionDb(ConnectionConfig $connectionConfig): bool
         );
 
         return true;
-    } catch (\PDOException $exception) {
+    } catch (\PDOException) {
         return false;
     }
 }
@@ -95,6 +85,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             expect($db)->toBeInstanceOf(DbalConnectionAdapter::class);
             $stmt = $db->getNativeConnection()->prepare("select database()");
             $stmt->execute();
+
             $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
                 ->and($pdo->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
@@ -1506,18 +1497,21 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('set auto commit', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->setAutoCommit(false);
+
         expect($db->isAutoCommit())->toBeFalse();
     });
 
     it('execute startTransaction with success', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
+
         expect($db->isTransactionActive())->toBeTrue();
     });
 
     it('execute commit with success', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
+
         $response = $db->commitTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
@@ -1526,6 +1520,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('execute rollback with success', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
+
         $response = $db->rollBackTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
@@ -1549,6 +1544,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
             $pdoStmt = $db->getNativeConnection()->prepare("SELECT * FROM contact WHERE contact_id = 1");
             $pdoStmt->execute();
+
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
             expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
                 ->and($db->isUnbufferedQueryActive())->toBeTrue()

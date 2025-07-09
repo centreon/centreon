@@ -28,7 +28,7 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use LogicException;
 
-it('test with a basic context from a repository exception', function () {
+it('test with a basic context from a repository exception', function (): void {
     try {
         throw new LogicException('logic_message', 100);
     } catch (LogicException $logicException) {
@@ -73,7 +73,7 @@ it('test with a basic context from a repository exception', function () {
     }
 });
 
-it('test with a business context from a repository exception', function () {
+it('test with a business context from a repository exception', function (): void {
     try {
         throw new CollectionException('collection_message', ['name' => 'Anna', 'age' => 25]);
     } catch (CollectionException $collectionException) {
@@ -122,7 +122,7 @@ it('test with a business context from a repository exception', function () {
     }
 });
 
-it('test with a business context with previous from a repository exception', function () {
+it('test with a business context with previous from a repository exception', function (): void {
     try {
         try {
             throw new LogicException('logic_message', 100);

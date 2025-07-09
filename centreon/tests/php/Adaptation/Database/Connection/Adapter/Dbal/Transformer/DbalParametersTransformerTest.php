@@ -28,7 +28,7 @@ use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
-it('transform from query parameters', function () {
+it('transform from query parameters', function (): void {
     [$params, $types] = DbalParametersTransformer::transformFromQueryParameters(
         QueryParameters::create(
             [
@@ -60,7 +60,7 @@ it('transform from query parameters', function () {
         );
 });
 
-it('transform from query parameters with : before key', function () {
+it('transform from query parameters with : before key', function (): void {
     [$params, $types] = DbalParametersTransformer::transformFromQueryParameters(
         QueryParameters::create(
             [
@@ -92,7 +92,7 @@ it('transform from query parameters with : before key', function () {
         );
 });
 
-it('reverse to query parameters', function () {
+it('reverse to query parameters', function (): void {
     $queryParameters = DbalParametersTransformer::reverseToQueryParameters(
         [
             'host_id' => 1,

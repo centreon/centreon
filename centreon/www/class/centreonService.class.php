@@ -945,7 +945,7 @@ class CentreonService
             }
         }
 
-        if (count($macroArray) > 0) {
+        if ($macroArray !== []) {
             foreach ($macroArray as $key => $directMacro) {
                 $directMacro['macroOldValue_#index#'] = $directMacro["macroValue_#index#"];
                 $directMacro['macroFrom_#index#'] = $form['macroFrom'][$key];

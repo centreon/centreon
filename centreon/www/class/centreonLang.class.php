@@ -89,7 +89,7 @@ class CentreonLang
                 $lang_parse
             );
 
-            if (count($lang_parse[1])) {
+            if ($lang_parse[1] !== []) {
                 // create a list like "en" => 0.8
                 $langs = array_combine($lang_parse[1], $lang_parse[4]);
 

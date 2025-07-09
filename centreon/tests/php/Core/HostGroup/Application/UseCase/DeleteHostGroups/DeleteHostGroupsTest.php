@@ -37,7 +37,7 @@ use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInte
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new DeleteHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
@@ -56,7 +56,7 @@ beforeEach(function () {
     $this->request = new DeleteHostGroupsRequest([1, 2, 3]);
 });
 
-it('should check that HostGroups exists as admin', function () {
+it('should check that HostGroups exists as admin', function (): void {
 
     $this->contact
         ->expects($this->any())
@@ -70,7 +70,7 @@ it('should check that HostGroups exists as admin', function () {
     ($this->useCase)($this->request);
 });
 
-it('should check that HostGroups exists as user', function () {
+it('should check that HostGroups exists as user', function (): void {
 
     $this->contact
         ->expects($this->any())
@@ -84,7 +84,7 @@ it('should check that HostGroups exists as user', function () {
     ($this->useCase)($this->request);
 });
 
-it('should return a DeleteHostGroupsResponse', function () {
+it('should return a DeleteHostGroupsResponse', function (): void {
     $this->contact
         ->expects($this->any())
         ->method('isAdmin')

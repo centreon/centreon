@@ -34,11 +34,6 @@ use Core\Common\Domain\Exception\TransformerException;
  */
 abstract readonly class PdoParameterTypeTransformer
 {
-    /**
-     * @param QueryParameterTypeEnum $queryParameterType
-     *
-     * @return int
-     */
     public static function transformFromQueryParameterType(QueryParameterTypeEnum $queryParameterType): int
     {
         return match ($queryParameterType) {
@@ -51,10 +46,7 @@ abstract readonly class PdoParameterTypeTransformer
     }
 
     /**
-     * @param int $pdoParameterType
-     *
      * @throws TransformerException
-     * @return QueryParameterTypeEnum
      */
     public static function reverseToQueryParameterType(int $pdoParameterType): QueryParameterTypeEnum
     {

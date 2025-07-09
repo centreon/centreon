@@ -255,7 +255,7 @@ final class AddServiceTemplate
      */
     private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
-        if (empty($request->serviceCategories)) {
+        if ($request->serviceCategories === []) {
 
             return;
         }
@@ -275,7 +275,7 @@ final class AddServiceTemplate
      */
     private function linkServiceTemplateToServiceGroups(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
-        if (empty($request->serviceGroups)) {
+        if ($request->serviceGroups === []) {
 
             return;
         }

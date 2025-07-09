@@ -40,9 +40,6 @@ final readonly class QueryParameter implements ValueObjectInterface
      *
      * Example: new QueryParameter('name', 'value', QueryParameterTypeEnum::STRING);
      *
-     * @param string $name
-     * @param mixed $value
-     * @param QueryParameterTypeEnum|null $type
      *
      * @throws ValueObjectException
      */
@@ -67,9 +64,6 @@ final readonly class QueryParameter implements ValueObjectInterface
         }
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         $type = match ($this->type) {
@@ -90,12 +84,8 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
-     * @param QueryParameterTypeEnum|null $type
      *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): self
     {
@@ -106,11 +96,8 @@ final readonly class QueryParameter implements ValueObjectInterface
      * Example : QueryParameter::int('name', 1);
      * Null value is not allowed for this type.
      *
-     * @param string $name
-     * @param int|null $value
      *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function int(string $name, ?int $value): self
     {
@@ -125,11 +112,8 @@ final readonly class QueryParameter implements ValueObjectInterface
      * Example : QueryParameter::string('name', 'value');
      * Null value is not allowed for this type.
      *
-     * @param string $name
-     * @param string|null $value
      *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function string(string $name, ?string $value): self
     {
@@ -143,11 +127,8 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * Example : QueryParameter::bool('name', true);
      *
-     * @param string $name
-     * @param bool $value
      *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function bool(string $name, bool $value): self
     {
@@ -157,10 +138,8 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * Example : QueryParameter::null('name');
      *
-     * @param string $name
      *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function null(string $name): self
     {
@@ -170,11 +149,8 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * Example : QueryParameter::largeObject('name', 'blob');
      *
-     * @param string $name
      * @param string|resource $value
-     *
      * @throws ValueObjectException
-     * @return QueryParameter
      */
     public static function largeObject(string $name, mixed $value): self
     {
@@ -185,7 +161,6 @@ final readonly class QueryParameter implements ValueObjectInterface
      * @param QueryParameter $object
      *
      * @throws ValueObjectException
-     * @return bool
      */
     public function equals(ValueObjectInterface $object): bool
     {
@@ -193,7 +168,7 @@ final readonly class QueryParameter implements ValueObjectInterface
             throw new ValueObjectException(
                 sprintf(
                     'Expected object of type %s, %s given',
-                    $this::class,
+                    self::class,
                     $object::class
                 )
             );
@@ -214,25 +189,16 @@ final readonly class QueryParameter implements ValueObjectInterface
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return QueryParameterTypeEnum|null
-     */
     public function getType(): ?QueryParameterTypeEnum
     {
         return $this->type;
     }
 
-    /**
-     * @return mixed
-     */
     public function getValue(): mixed
     {
         return $this->value;

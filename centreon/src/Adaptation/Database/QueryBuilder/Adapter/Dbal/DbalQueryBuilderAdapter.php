@@ -47,9 +47,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
     /**
      * DbalQueryBuilderAdapter constructor
-     *
-     * @param DoctrineDbalQueryBuilder $dbalQueryBuilder
-     * @param ConnectionConfig $connectionConfig
      */
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
@@ -64,7 +61,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * We have to use a connection configuration to instantiate the query builder because the query builder needs a
      * connection to work.
      *
-     * @param ConnectionConfig $connectionConfig
      *
      * @throws QueryBuilderException
      * @return DbalQueryBuilderAdapter
@@ -707,8 +703,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * @param int $limit
-     *
      * @return DbalQueryBuilderAdapter
      */
     public function limit(int $limit): QueryBuilderInterface
@@ -719,8 +713,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * @param int $offset
-     *
      * @return DbalQueryBuilderAdapter
      */
     public function offset(int $offset): QueryBuilderInterface

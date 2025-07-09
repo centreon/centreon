@@ -163,7 +163,7 @@ try {
     $query .= " LIMIT :offset, :entriesPerPage";
 
     // Execute count query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
     } else {
@@ -176,7 +176,7 @@ try {
     $bindParams[':entriesPerPage'] = [$entriesPerPage, PDO::PARAM_INT];
 
     // Execute main query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $statement = $dbb->prepareQuery($query);
         $dbb->executePreparedQuery($statement, $bindParams, true);
     } else {

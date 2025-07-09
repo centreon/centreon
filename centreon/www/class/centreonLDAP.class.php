@@ -887,7 +887,7 @@ class CentreonLDAP
     private function getCnFromDn($dn)
     {
         if (preg_match('/(?i:(?<=cn=)).*?(?=,[A-Za-z]{0,2}=|$)/', $dn, $dnArray)) {
-            return !empty($dnArray) ? $dnArray[0] : false;
+            return $dnArray !== [] ? $dnArray[0] : false;
         }
         return false;
     }

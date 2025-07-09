@@ -141,7 +141,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $arguments
         );
         $argumentsAsString = '';
-        if (! empty($arguments)) {
+        if ($arguments !== []) {
             $argumentsAsString = implode(' ', $arguments);
         }
 
@@ -167,7 +167,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $macros
         );
         $macrosAsString = '';
-        if (! empty($macros)) {
+        if ($macros !== []) {
             $macrosAsString = implode(' ', $macros);
         }
 

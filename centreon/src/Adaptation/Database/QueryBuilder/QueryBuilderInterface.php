@@ -37,8 +37,6 @@ interface QueryBuilderInterface
 {
     /**
      * To build where clauses easier
-     *
-     * @return ExpressionBuilderInterface
      */
     public function expr(): ExpressionBuilderInterface;
 
@@ -523,18 +521,8 @@ interface QueryBuilderInterface
      */
     public function addOrderBy(string $sort, ?string $order = null): self;
 
-    /**
-     * @param int $limit
-     *
-     * @return QueryBuilderInterface
-     */
     public function limit(int $limit): self;
 
-    /**
-     * @param int $offset
-     *
-     * @return QueryBuilderInterface
-     */
     public function offset(int $offset): self;
 
     /**

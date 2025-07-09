@@ -292,7 +292,7 @@ class CentreonCeip extends CentreonWebService
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
-                        } else if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        } elseif ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
                             $productLicense = 'MSP Edition';
                             $fingerprint = $fingerprintService->calculateFingerprint();
                         }

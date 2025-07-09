@@ -565,7 +565,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 if (is_array($select)) {
-    $select_str = ! empty($select)
+    $select_str = $select !== []
         ? implode(",", array_keys($select))
         : null;
     $select_pear = $form->addElement('hidden', 'select');

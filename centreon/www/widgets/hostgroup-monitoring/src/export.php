@@ -133,7 +133,7 @@ try {
     $query .= " ORDER BY $orderby";
 
     // Execute count query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $countStatement = $dbb->prepareQuery($countQuery);
         $dbb->executePreparedQuery($countStatement, $bindParams, true);
     } else {
@@ -143,7 +143,7 @@ try {
     $nbRows = (int) $dbb->fetchColumn($countStatement);
 
     // Execute main query
-    if (! empty($bindParams)) {
+    if ($bindParams !== []) {
         $statement = $dbb->prepareQuery($query);
         $dbb->executePreparedQuery($statement, $bindParams, true);
     } else {

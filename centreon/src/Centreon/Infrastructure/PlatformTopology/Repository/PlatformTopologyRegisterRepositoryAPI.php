@@ -104,7 +104,7 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
             $optionPayload['verify_host'] = $platformInformation->hasApiPeerValidation();
         }
         // Set the options for next http_client calls
-        if (!empty($optionPayload)) {
+        if ($optionPayload !== []) {
             $this->httpClient = HttpClient::create($optionPayload);
         }
 

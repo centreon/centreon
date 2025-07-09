@@ -107,7 +107,7 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     }
 };
 
-$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage) {
+$sunsetHostGroupFields = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update hostgroup table';
     $pearDB->executeQuery(
         <<<'SQL'
@@ -178,7 +178,7 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
         ];
     }
 
-    if (! empty($updates)) {
+    if ($updates !== []) {
         $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
         $params = [];
         $whereParams = [];
@@ -226,7 +226,7 @@ $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$error
 
 // -------------------------------------------- Token -------------------------------------------- //
 
-$createJwtTable = function () use ($pearDB, &$errorMessage) {
+$createJwtTable = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Failed to create table jwt_tokens';
 
     $pearDB->executeQuery(
@@ -248,7 +248,7 @@ $createJwtTable = function () use ($pearDB, &$errorMessage) {
     );
 };
 
-$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
+$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to update new authentication tokens topology';
     $pearDB->executeQuery(
         <<<'SQL'
@@ -297,11 +297,7 @@ $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pea
         SQL
     );
     foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
-        if (preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches)) {
-            $brokerConfigFile = $matches[1];
-        } else {
-            $brokerConfigFile = '';
-        }
+        $brokerConfigFile = preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches) ? $matches[1] : '';
         $pearDB->executePreparedQuery(
             $preparedStatement,
             [

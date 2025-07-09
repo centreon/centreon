@@ -174,7 +174,7 @@ class TopologyRepository extends ServiceEntityRepository
             $where[] = '(topology_name != "Custom Views" OR is_deprecated = "0")';
         }
 
-        if (!empty($where)) {
+        if ($where !== []) {
             $query .= ' WHERE ' . implode(' AND ', $where);
         }
         $query .= ' ORDER BY topology_parent, topology_group, topology_order, topology_page';

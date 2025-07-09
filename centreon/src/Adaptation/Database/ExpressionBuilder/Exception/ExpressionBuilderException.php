@@ -32,11 +32,6 @@ use Adaptation\Database\Exception\DatabaseException;
  */
 class ExpressionBuilderException extends DatabaseException
 {
-    /**
-     * @param \Throwable|null $previous
-     *
-     * @return ExpressionBuilderException
-     */
     public static function createFromConnectionConfigFailed(?\Throwable $previous = null): self
     {
         $message = 'Error while instantiate the expression builder';

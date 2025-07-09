@@ -39,7 +39,6 @@ use Doctrine\DBAL\ParameterType as DbalParameterType;
 abstract readonly class DbalParametersTransformer
 {
     /**
-     * @param QueryParameters $queryParameters
      *
      * @throws TransformerException
      * @return array{0: array<string,mixed>, 1: array<string,mixed>}
@@ -70,7 +69,6 @@ abstract readonly class DbalParametersTransformer
      * @param array<string,mixed> $types
      *
      * @throws TransformerException
-     * @return QueryParameters
      */
     public static function reverseToQueryParameters(array $params, array $types): QueryParameters
     {

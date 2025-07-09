@@ -33,14 +33,13 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    /** @var Kernel */
-    private static $instance;
+    private static ?\App\Kernel $instance = null;
 
     /** @var string cache path */
-    private $cacheDir = '/var/cache/centreon/symfony';
+    private string $cacheDir = '/var/cache/centreon/symfony';
 
     /** @var string Log path */
-    private $logDir = '/var/log/centreon/symfony';
+    private string $logDir = '/var/log/centreon/symfony';
 
     /**
      * Kernel constructor.

@@ -35,11 +35,6 @@ use Doctrine\DBAL\ParameterType as DbalParameterType;
  */
 abstract readonly class DbalParameterTypeTransformer
 {
-    /**
-     * @param QueryParameterTypeEnum $queryParameterTypeEnum
-     *
-     * @return DbalParameterType
-     */
     public static function transformFromQueryParameterType(QueryParameterTypeEnum $queryParameterTypeEnum): DbalParameterType
     {
         return match ($queryParameterTypeEnum) {
@@ -52,10 +47,7 @@ abstract readonly class DbalParameterTypeTransformer
     }
 
     /**
-     * @param DbalParameterType $dbalParameterType
-     *
      * @throws TransformerException
-     * @return QueryParameterTypeEnum
      */
     public static function reverseToQueryParameterType(DbalParameterType $dbalParameterType): QueryParameterTypeEnum
     {

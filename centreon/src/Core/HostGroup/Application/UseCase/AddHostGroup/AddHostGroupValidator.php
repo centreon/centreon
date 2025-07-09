@@ -82,7 +82,7 @@ class AddHostGroupValidator
             );
         });
 
-        if (! empty($unexistentHosts)) {
+        if ($unexistentHosts !== []) {
             $this->warning(
                 'Some hosts are not accessible by the user, they will not be linked to the host group.',
                 ['unexistentHosts' => $unexistentHosts]
@@ -109,7 +109,7 @@ class AddHostGroupValidator
             $this->readResourceAccessRepository->exist($resourceAccessRuleIds)
         );
 
-        if (! empty($unexistentAccessRules)) {
+        if ($unexistentAccessRules !== []) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 
