@@ -221,7 +221,7 @@ jobs:
           echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
         shell: bash
 
-      - if: ${{ contains(fromJSON('["pull_request"]') , github.event_name) }}
+      - if: ${{ github.event_name == 'pull_request' }}
         name: Get nested pull request path
         id: pr_path
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -682,7 +682,7 @@ jobs:
               .addHeading(`${context.workflow} environment outputs`)
               .addTable(outputTable);
 
-            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+            if ("${{ github.event_name }}" === "pull_request") {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const mainBranchName = prPath.pop();
               let codeBlock = `
