@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
-      is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
+      is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
       linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
       major_version: ${{ steps.get_version.outputs.major_version }}
@@ -575,7 +575,7 @@ jobs:
           script: |
             let linkedDevBranch = 'develop';
             let linkedStableBranch = 'master';
-            if ('${{ steps.detect_cloud_version.outputs.result }}' === 'false') {
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' === 'onprem') {
               linkedDevBranch = 'dev-' + '${{ steps.get_version.outputs.major_version }}' + '.x';
               linkedStableBranch = '${{ steps.get_version.outputs.major_version }}' + '.x';
             }
