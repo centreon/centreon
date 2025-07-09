@@ -67,11 +67,35 @@ Then("the admin user navigates to the Event Logs page", () => {
   cy.get('input[placeholder="Search"]').clear();
   cy.get('[data-testid="Refresh"]').click();
   cy.submitResult(services.serviceCritical.name, "Critical");
-    cy.navigateTo({
-      page: "Event Logs",
-      rootItemNumber: 1,
-      subMenu: "Event Logs",
-    });
+  cy.waitUntil(
+    () => {
+      return cy.get('div[class*="-intersectionRow"]').then(($rows) => {
+        let found = false;
+
+        $rows.each((_, row) => {
+          const rowText = row.innerText.toLowerCase();
+          if (
+            rowText.includes(services.serviceCritical.name) &&
+            rowText.includes("critical")
+          ) {
+            found = true;
+            return false;
+          }
+        });
+
+        return found;
+      });
+    },
+    {
+      timeout: 15000,
+      interval: 1000,
+    },
+  );
+  cy.navigateTo({
+    page: "Event Logs",
+    rootItemNumber: 1,
+    subMenu: "Event Logs",
+  });
 });
 
 Then("the admin user should see all event logs", () => {
@@ -240,6 +264,7 @@ Then(
 );
 
 When("the admin creates host resources", () => {
+  cy.setUserTokenApiV1();
   cy.addHost({
     hostGroup: "Linux-Servers",
     name: services.serviceWarning.host,
