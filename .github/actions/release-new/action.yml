@@ -50,7 +50,7 @@ runs:
     - name: Get previous release bundle tag
       id: get_previous_release_bundle_tag
       run: |
-        set -eux
+        set -eu
 
         # Check and set release scope
         if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
@@ -81,7 +81,7 @@ runs:
 
     - name: Get released versions for components
       run: |
-        set -eux
+        set -eu
 
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
@@ -178,7 +178,7 @@ runs:
 
     - name: Add new stable tags to release branch
       run: |
-        set -eux
+        set -eu
 
         # Checkout to release branch
         git fetch -a -p
@@ -224,7 +224,7 @@ runs:
 
     - name: Create GITHUB releases from new release tags
       run: |
-        set -eux
+        set -eu
 
         # Install gh cli
         echo "Installing GH CLI."
@@ -258,7 +258,7 @@ runs:
 
     - name: Clean release / hotfix branch
       run: |
-        set -eux
+        set -eu
 
         REPO="centreon/centreon"
         TAG="${{ inputs.release_bundle_tag }}"
@@ -283,7 +283,7 @@ runs:
 
     - name: Create stable JIRA versions from new release tags
       run: |
-        set -eux
+        set -eu
 
         # Call JIRA to provide new jira versions to create
         # Webhook url
@@ -338,7 +338,7 @@ runs:
 
     - name: Trigger release communication for new releases
       run: |
-        set -eux
+        set -eu
 
         MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION
 
