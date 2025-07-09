@@ -451,9 +451,13 @@ jobs:
                 // if major version is higher than develop major version => it is a cloud version
                 // if month number is not 04 or 10 => it is a cloud version
                 // anything else => onprem
-                const isCloudCandidate =
-                  Number(currentMajorVersion) >= Number(developMajorVersion) ||
-                  !currentMajorVersion.match(/\.(04|10)$/);
+
+                const toTuple = v => v.split('.').map(Number); // ['24','10'] → [24,10]
+                const [curMajor, curMinor]     = toTuple(currentMajorVersion);
+                const [devMajor, devMinor]     = toTuple(developMajorVersion);
+                const newerThanDevelop        = curMajor > devMajor || (curMajor === devMajor && curMinor > devMinor);
+                const isCloudCandidate        = newerThanDevelop || ![4,10].includes(curMinor);
+
                 releaseScope = isCloudCandidate ? "cloud" : "onprem";
               }
             }
