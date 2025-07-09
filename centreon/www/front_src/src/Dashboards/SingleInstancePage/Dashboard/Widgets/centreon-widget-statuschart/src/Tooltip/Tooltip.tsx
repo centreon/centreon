@@ -24,7 +24,6 @@ interface Props {
   label: string;
   resources: Array<Resource>;
   resourceType: string;
-  title: string;
   total: number;
   value: number;
 }

@@ -9,6 +9,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
+import { equals } from 'ramda';
+import { useNavigate } from 'react-router';
+import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
 import { Category, Group } from '../../../models';
@@ -50,10 +53,15 @@ interface Props {
   type: CriteriaNames;
 }
 
+export const router = {
+  useNavigate
+};
+
 const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const { t } = useTranslation();
+  const navigate = router.useNavigate();
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
@@ -77,10 +85,19 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   }, [group, type]);
 
   const configureGroup = useCallback((): void => {
-    window.location.href = group.configuration_uri as string;
+    if (equals(type, CriteriaNames.hostGroups)) {
+      navigate(`${routeMap.hostGroups}?mode=edit&id=${group.id}`);
+      return;
+    }
+
+    window.location.href = group.configuration_uri;
   }, [group]);
 
   const { name, id } = group;
+
+  const canDisplayConfiguration = equals(type, CriteriaNames.hostGroups)
+    ? group.configuration_endpoint
+    : true;
 
   return (
     <Grid item key={id}>
@@ -112,15 +129,17 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
                 >
                   <FilterListIcon fontSize="small" />
                 </IconButton>
-                <IconButton
-                  aria-label={`${name} Configure`}
-                  className={classes.chipIcon}
-                  size="small"
-                  title={t(name)}
-                  onClick={configureGroup}
-                >
-                  <SettingsIcon fontSize="small" />
-                </IconButton>
+                {canDisplayConfiguration && (
+                  <IconButton
+                    aria-label={`${name} Configure`}
+                    className={classes.chipIcon}
+                    size="small"
+                    title={t(name)}
+                    onClick={configureGroup}
+                  >
+                    <SettingsIcon fontSize="small" />
+                  </IconButton>
+                )}
               </Grid>
             )}
           </div>

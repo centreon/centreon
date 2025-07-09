@@ -208,13 +208,8 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
 interface HostGroup {
   name: string,
   alias: string,
-  notes: string,
-  notes_url: string,
-  action_url: string,
   icon_id: number,
-  icon_map_id: number,
   geo_coords: string,
-  rrd: number,
   comment: string,
   is_activated: boolean
 }

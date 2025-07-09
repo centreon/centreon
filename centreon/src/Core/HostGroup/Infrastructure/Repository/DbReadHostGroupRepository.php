@@ -38,6 +38,7 @@ use Core\HostCategory\Infrastructure\Repository\HostCategoryRepositoryTrait;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -46,12 +47,7 @@ use Utility\SqlConcatenator;
  *     hg_id: int,
  *     hg_name: string,
  *     hg_alias: ?string,
- *     hg_notes: ?string,
- *     hg_notes_url: ?string,
- *     hg_action_url: ?string,
  *     hg_icon_image: ?int,
- *     hg_map_icon_image: ?int,
- *     hg_rrd_retention: ?int,
  *     geo_coords: ?string,
  *     hg_comment: ?string,
  *     hg_activate: '0'|'1'
@@ -112,12 +108,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -197,12 +188,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -305,9 +291,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-
         if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
-
             return $this->findOne($hostGroupId);
         }
         $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
@@ -477,12 +461,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
-                hg.hg_notes,
-                hg.hg_notes_url,
-                hg.hg_action_url,
                 hg.hg_icon_image,
-                hg.hg_map_icon_image,
-                hg.hg_rrd_retention,
                 hg.geo_coords,
                 hg.hg_comment,
                 hg.hg_activate
@@ -504,6 +483,106 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         return $hostGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByIds(array $hostGroupIds): array
+    {
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostGroupIds, ':hostGroupIds');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    COUNT(h.host_id) as count,
+                    hrel.hostgroup_hg_id,
+                    IF (h.host_activate = '0', false, true) as is_activated
+                FROM `:db`.host h
+                JOIN `:db`.hostgroup_relation hrel
+                    ON h.host_id = hrel.host_host_id
+                WHERE hrel.hostgroup_hg_id IN ({$bindQuery})
+                GROUP BY hrel.hostgroup_hg_id, is_activated
+                SQL
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $results = [];
+        foreach ($statement as $record) {
+            /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
+            $hostGroupId = $record['hostgroup_hg_id'];
+            $count = $record['count'];
+            $results[$hostGroupId] ??= new HostGroupRelationCount();
+
+            if ($record['is_activated']) {
+                $results[$hostGroupId]->setEnabledHostsCount($count);
+            } else {
+                $results[$hostGroupId]->setDisabledHostsCount($count);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array
+    {
+        [$bindAclValues, $bindAclQuery] = $this->createMultipleBindQuery($accessGroupIds, ':accessGroupIds');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostGroupIds, ':hostGroupIds');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT DISTINCT hrel.hostgroup_hg_id,
+                    h.host_id,
+                    IF (h.host_activate = '0', false, true) as is_activated
+                FROM `:db`.host h
+                INNER JOIN `:db`.hostgroup_relation hrel
+                    ON h.host_id = hrel.host_host_id
+                INNER JOIN `:dbstg`.centreon_acl acl
+                    ON acl.host_id = h.host_id
+                    AND acl.service_id IS NULL
+                    AND acl.group_id IN ({$bindAclQuery})
+                WHERE hrel.hostgroup_hg_id IN ({$bindQuery})
+                SQL
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        foreach ($bindAclValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $data = $statement->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC);
+        $results = [];
+        foreach ($data as $hostGroupId => $hosts) {
+            /** @var array<array{host_id:int, is_activated:bool}> $hosts */
+            $enabled = [];
+            $disabled = [];
+            foreach ($hosts as $host) {
+                if ($host['is_activated']) {
+                    $enabled[] = $host['host_id'];
+                } else {
+                    $disabled[] = $host['host_id'];
+                }
+            }
+
+            $results[$hostGroupId] = new HostGroupRelationCount();
+
+            $results[$hostGroupId]->setEnabledHostsCount(count(array_unique($enabled)));
+            $results[$hostGroupId]->setDisabledHostsCount(count(array_unique($disabled)));
+        }
+
+        return $results;
     }
 
     /**
@@ -546,12 +625,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
-                        hg.hg_notes,
-                        hg.hg_notes_url,
-                        hg.hg_action_url,
                         hg.hg_icon_image,
-                        hg.hg_map_icon_image,
-                        hg.hg_rrd_retention,
                         hg.geo_coords,
                         hg.hg_comment,
                         hg.hg_activate
@@ -794,21 +868,16 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     private function createHostGroupFromArray(array $result): HostGroup
     {
         return new HostGroup(
-            $result['hg_id'],
-            $result['hg_name'],
-            (string) $result['hg_alias'],
-            (string) $result['hg_notes'],
-            (string) $result['hg_notes_url'],
-            (string) $result['hg_action_url'],
-            $result['hg_icon_image'],
-            $result['hg_map_icon_image'],
-            $result['hg_rrd_retention'],
-            match ($geoCoords = $result['geo_coords']) {
+            id: $result['hg_id'],
+            name: $result['hg_name'],
+            alias : (string) $result['hg_alias'],
+            iconId: $result['hg_icon_image'],
+            geoCoords: match ($geoCoords = $result['geo_coords']) {
                 null, '' => null,
                 default => GeoCoords::fromString($geoCoords),
             },
-            (string) $result['hg_comment'],
-            (bool) $result['hg_activate'],
+            comment: (string) $result['hg_comment'],
+            isActivated: (bool) $result['hg_activate'],
         );
     }
 

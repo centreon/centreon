@@ -26,8 +26,11 @@ namespace Core\Common\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\HttpClient\AmpHttpClient;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\{
+    TransportExceptionInterface
+};
 
 abstract class AbstractVaultRepository
 {
@@ -62,7 +65,7 @@ abstract class AbstractVaultRepository
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected HttpClientInterface $httpClient
+        protected AmpHttpClient $httpClient
     ) {
         $this->vaultConfiguration = $configurationRepository->find();
     }
@@ -214,5 +217,74 @@ abstract class AbstractVaultRepository
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * Send a multiplexed request to vault.
+     *
+     * @param string $method
+     * @param array<string,string> $urls indexed by their uuid
+     * @param null|array<mixed> $data
+     *
+     * @return array<string, mixed> $response data indexed by their uuid
+     */
+    protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
+    {
+            $clientToken = $this->getAuthenticationToken();
+            $options = [
+                'headers' => ['X-Vault-Token' => $clientToken],
+            ];
+            if ($method === 'POST') {
+                $options['json'] = ['data' => $data];
+            }
+
+            $responses = [];
+            $responseData = [];
+            foreach ($urls as $uuid => $url) {
+                $responseData[$uuid] = [];
+                try {
+                    $responses[] = $this->httpClient->request($method, $url, $options);
+                } catch (TransportExceptionInterface $ex) {
+                    $this->error(
+                        'Error while sending multiplexed request to vault, process continue',
+                        ['url' => $url, 'exception' => $ex]
+                    );
+
+                    continue;
+                }
+            }
+
+            foreach ($this->httpClient->stream($responses) as $response => $chunk) {
+                try {
+                    if ($chunk->isFirst()) {
+                        if ($response->getStatusCode() !== Response::HTTP_OK) {
+                            $this->error(
+                                message: 'Error HTTP CODE:' . $response->getStatusCode(),
+                                context: ['url' => $response->getInfo('url'), 'expected_status_code' => Response::HTTP_OK]
+                            );
+                            continue;
+                        }
+                    }
+                    if ($chunk->isLast()) {
+                        foreach (array_keys($responseData) as $uuid) {
+                            if (str_contains($response->getInfo('url'), $uuid)  ) {
+                                $responseData[$uuid] = $response->toArray();
+                            }
+                        }
+                    }
+                } catch (\Exception $ex) {
+                    $this->error(
+                        message: 'Error while processing multiplexed request to vault, process continue',
+                        context: [
+                            'url' => $response->getInfo('url'),
+                            'exception' => $ex,
+                        ]
+                    );
+
+                    continue;
+                }
+            }
+
+            return $responseData;
     }
 }

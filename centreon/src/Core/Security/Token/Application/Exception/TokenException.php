@@ -129,11 +129,6 @@ class TokenException extends \Exception
         return new self(_('Error while searching for tokens'), 0, $ex);
     }
 
-    public static function notAllowedToListTokens(): self
-    {
-        return new self(_('You are not allowed to list the tokens'));
-    }
-
     public static function errorWhilePartiallyUpdatingToken(): self
     {
         return new self(_('Error while partially updating the token'));

@@ -92,4 +92,12 @@ interface MonitoringServerServiceInterface
      * @throws MonitoringServerException
      */
     public function deleteServer(int $monitoringServerId): void;
+
+    /**
+     * Find remote monitoring servers IPs.
+     *
+     * @return string[]
+     * @throws MonitoringServerException
+     */
+    public function findRemoteServersIps(): array;
 }

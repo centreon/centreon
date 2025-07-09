@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "0d71062f-79ab-41da-9572-10c11f2944bd",
+		"_postman_id": "c2249c1d-7189-4339-a7c5-c9c08838e305",
 		"name": "Access_Group",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-0d71062f-79ab-41da-9572-10c11f2944bd?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -67,7 +66,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -86,9 +86,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the access groups response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"alias\": { \"type\": \"string\" },\r",
+									"                        \"has_changed\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"alias\", \"has_changed\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -306,19 +343,35 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"All access groups are not retrieved.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the access groups response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -662,7 +715,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -674,9 +728,46 @@
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.result.length).to.eql(0);\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the access groups response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"alias\": { \"type\": \"string\" },\r",
+									"                        \"has_changed\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"alias\", \"has_changed\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1128,7 +1219,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1147,9 +1239,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the access groups response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"alias\": { \"type\": \"string\" },\r",
+									"                        \"has_changed\": { \"type\": \"boolean\" },\r",
+									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"alias\", \"has_changed\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

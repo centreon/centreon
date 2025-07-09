@@ -20,6 +20,16 @@ properties:
       type: integer
     description: Poller ID(s) associated with the configuration
     example: [1, 12]
+  connection_mode:
+    type: string
+    description: |
+      Connection mode for the configuration
+
+      Supported modes:
+        * secure
+        * no-tls
+        * insecure
+    example: secure
   configuration:
     type: object
     description: |

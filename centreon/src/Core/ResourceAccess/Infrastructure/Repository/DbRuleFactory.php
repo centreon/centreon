@@ -57,7 +57,6 @@ class DbRuleFactory
         foreach ($datasetFiltersRecord as $datasetFilterRecord) {
             $datasets[$datasetFilterRecord['dataset_name']][] = $datasetFilterRecord;
         }
-
         // and order the datasets by name
         ksort($datasets);
 

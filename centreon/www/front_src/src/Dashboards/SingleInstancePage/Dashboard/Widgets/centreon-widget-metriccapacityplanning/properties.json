@@ -1,0 +1,493 @@
+{
+  "title": "Metric capacity planning",
+  "description": "Displays the future evolution of a metric, based on its history.",
+  "icon": "<g><path d=\"M26.92,41.56v6.63c0,.99-.81,1.8-1.8,1.8h-1.4c-.99,0-1.8-.81-1.8-1.8v-4.68c-.13.04-.26.09-.4.13-.52.17-1.06.32-1.6.48v4.07c0,2.09,1.71,3.8,3.8,3.8h1.4c2.09,0,3.8-1.71,3.8-3.8v-7.63c-.64.34-1.3.67-1.97.98,0,0-.02,0-.03.01Z\"></path><path d=\"M21.92,38.02v-5.23c0-.99.81-1.8,1.8-1.8h1.4c.99,0,1.8.81,1.8,1.8v2.98s.02,0,.03-.01c.68-.37,1.33-.77,1.97-1.18v-1.78c0-2.09-1.71-3.8-3.8-3.8h-1.4c-2.09,0-3.8,1.71-3.8,3.8v5.91c.51-.16,1.01-.32,1.5-.49.17-.06.33-.13.5-.19Z\"></path><path d=\"M8.92,39.79c0-.99.81-1.8,1.8-1.8h1.4c.99,0,1.8.81,1.8,1.8v.44c.45-.09.91-.18,1.35-.28.22-.05.43-.11.65-.16h0c0-2.09-1.71-3.8-3.8-3.8h-1.4c-2.09,0-3.8,1.71-3.8,3.8v1.57c.68-.09,1.35-.18,2-.27v-1.3Z\"></path><path d=\"M13.92,45.54v2.66c0,.99-.81,1.8-1.8,1.8h-1.4c-.99,0-1.8-.81-1.8-1.8v-1.85c-.66.09-1.31.19-2,.27,0,0,0,0,0,0v1.58c0,2.09,1.71,3.8,3.8,3.8h1.4c2.09,0,3.8-1.71,3.8-3.8v-3.07c-.22.05-.43.1-.65.15-.44.09-.9.18-1.35.26Z\"></path><path d=\"M34.92,29.55v-13.39c0-1.2.81-2.17,1.8-2.17h1.4c.99,0,1.8.97,1.8,2.17v6.83c.68-1.07,1.34-2.2,2-3.4v-3.43c0-2.3-1.71-4.17-3.8-4.17h-1.4c-2.09,0-3.8,1.87-3.8,4.17v15.33c.09-.08.19-.16.28-.24.59-.54,1.16-1.11,1.72-1.7Z\"></path><path d=\"M39.92,47.83c0,1.2-.81,2.17-1.8,2.17h-1.4c-.99,0-1.8-.97-1.8-2.17v-11.22c-.56.46-1.13.9-1.72,1.32-.09.07-.19.12-.28.19v9.71c0,2.3,1.71,4.17,3.8,4.17h1.4c2.09,0,3.8-1.87,3.8-4.17v-18.61c-.65.87-1.32,1.7-2,2.49v16.12Z\"></path><path d=\"M54.3,15.53c-.08.03-.16.05-.24.06-.47.06-.93-.2-1.11-.66l-2.17-5.68-.73,1.72s0,.03,0,.04c-2.64,6.25-5.26,11.36-8.13,15.58-.65.96-1.32,1.87-2,2.74-1.57,2-3.22,3.76-5,5.32-.65.57-1.32,1.1-2,1.62-1.27.95-2.6,1.81-4,2.59-.65.36-1.32.71-2,1.04-1.57.75-3.23,1.42-5,2.01-.65.22-1.32.42-2,.62-1.28.37-2.61.71-4,1.01-.65.14-1.32.28-2,.41-1.59.31-3.25.58-5,.83-.65.09-1.32.18-2,.26-.06,0-.12.02-.18.02-.04,0-.08,0-.13,0-.52,0-.97-.39-1.03-.92-.07-.57.34-1.09.91-1.16.15-.02.29-.04.43-.06.68-.08,1.35-.17,2-.26,1.75-.25,3.41-.52,5-.83.68-.13,1.35-.27,2-.42,1.39-.31,2.73-.66,4-1.05.68-.21,1.35-.42,2-.65,1.77-.62,3.44-1.32,5-2.12.69-.35,1.35-.73,2-1.12,1.41-.85,2.74-1.79,4-2.83.69-.57,1.35-1.17,2-1.8,1.78-1.73,3.43-3.72,5-5.99.68-.98,1.34-2.02,2-3.11,2-3.33,3.91-7.19,5.83-11.68,0,0,0-.02,0-.02l1.14-2.67-5.73,2.19c-.53.21-1.14-.06-1.35-.6-.21-.54.06-1.14.6-1.35l8.01-3.06c.19-.07.4-.09.6-.04.34.08.69.33.82.66l3.06,8.01c.21.54-.06,1.14-.6,1.35Z\"></path></g>",
+  "options": {
+    "timePeriod": {
+      "type": "select",
+      "label": "Calculations based on time period",
+      "defaultValue": "24x7",
+      "options": [
+        {
+          "id": "24x7",
+          "name": "24x7"
+        },
+        {
+          "id": "workhours",
+          "name": "Workhours"
+        },
+        {
+          "id": "non-workhours",
+          "name": "Non-workhours"
+        }
+      ]
+    },
+    "nbDays": {
+      "type": "textfield",
+      "secondaryLabel": "Forecast based on past X days",
+      "defaultValue": "30",
+      "required": true,
+      "text": {
+        "type": "number",
+        "min": 1,
+        "max": 365,
+        "autoSize": true,
+        "unit": "day",
+        "pluralize": true
+      }
+    },
+    "showThresholds": {
+      "type": "switch",
+      "label": "Thresholds",
+      "defaultValue": true
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required": true,
+      "restrictedResourceTypes": ["host"]
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "categories": {
+    "Graph settings": {
+      "groups": [
+        {
+          "id": "graphStyles",
+          "name": "Graph style for average"
+        },
+        {
+          "id": "axis",
+          "name": "Axes"
+        },
+        {
+          "id": "legend",
+          "name": "Legend"
+        },
+        {
+          "id": "tooltip",
+          "name": "Tooltips"
+        }
+      ],
+      "elements": {
+        "displayType": {
+          "type": "displayType",
+          "defaultValue": "line",
+          "label": "Display average as",
+          "options": [
+            {
+              "id": "line",
+              "label": "Line",
+              "icon": "<path d=\"M41.8,54.4c-0.1,0-0.2,0-0.3,0c-4.7-0.4-6.2-9.5-7.7-19.2c-0.8-4.9-2.2-13.2-3.6-13.6c-1.6,0.1-3.2,6.2-4.1,10.1c-1.7,7-3.6,14.3-8.4,14.3c-3.8,0-5.2-4.1-6.8-8.4c-1.6-4.8-3.5-10.1-8.4-13c-0.7-0.3-0.9-1.2-0.5-1.9c0.4-0.5,1.3-0.8,2-0.4c5.9,3.3,8,9.5,9.7,14.4c1.4,4,2.3,6.5,4.1,6.5c2.6,0,4.4-6.8,5.7-12.2c1.6-6.4,2.9-12,6.5-12.2c3.9-0.3,5,6.4,6.5,15.8c1.1,6.7,2.7,16.7,5.2,16.9l0,0c1.7,0,2.8-9.1,3.5-15.1c1.3-11.8,2.8-25.1,9.7-29.8c0.7-0.4,1.4-0.3,1.9,0.3c0.4,0.7,0.3,1.4-0.3,1.9c-5.8,4-7.3,17.2-8.5,27.9C46.8,47,45.9,54.4,41.8,54.4z\"/>"
+            },
+            {
+              "id": "bar",
+              "label": "Bar",
+              "icon": "<svg viewBox=\"0 0 65 65\"><rect x=\"5\" y=\"38.51\" width=\"12\" height=\"20\" rx=\"4.26\" ry=\"4.26\" /><rect x=\"19.33\" y=\"28.51\" width=\"12\" height=\"30\" rx=\"4\" ry=\"4\" /><rect x=\"33.67\" y=\"16.51\" width=\"12\" height=\"41.99\" rx=\"4\" ry=\"4\" /><rect x=\"48\" y=\"9.51\" width=\"12\" height=\"49\" rx=\"4.32\" ry=\"4.32\" /></svg>"
+            }
+          ]
+        },
+        "curveType": {
+          "group": "graphStyles",
+          "type": "select",
+          "label": "Curve type",
+          "defaultValue": "linear",
+          "options": [
+            {
+              "id": "linear",
+              "name": "Linear"
+            },
+            {
+              "id": "natural",
+              "name": "Smooth"
+            },
+            {
+              "id": "step",
+              "name": "Step"
+            }
+          ],
+          "hiddenCondition": {
+            "target": "options",
+            "method": "includes",
+            "when": "options.displayType",
+            "matches": ["bar"]
+          }
+        },
+        "showPoints": {
+          "group": "graphStyles",
+          "type": "switch",
+          "label": "Display curve points",
+          "defaultValue": false,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.displayType",
+            "method": "includes",
+            "matches": ["bar"]
+          }
+        },
+        "lineWidthMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Line width",
+          "defaultValue": "auto",
+          "secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "custom",
+              "name": "Custom"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "lineWidth",
+              "displayValue": "custom",
+              "input": {
+                "type": "slider",
+                "defaultValue": 2,
+                "slider": {
+                  "min": 0,
+                  "max": 10,
+                  "unit": "px"
+                }
+              }
+            }
+          ],
+          "hiddenCondition": {
+            "target": "options",
+            "method": "includes",
+            "when": "options.displayType",
+            "matches": ["bar", "bar-stacked"]
+          }
+        },
+        "showArea": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Area",
+          "defaultValue": "auto",
+          "secondaryLabel": "Auto: Default value defined for the corresponding curve template (Monitoring > Performances > Curves).",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "show",
+              "name": "Show"
+            },
+            {
+              "id": "hide",
+              "name": "Hide"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "areaOpacity",
+              "displayValue": "show",
+              "input": {
+                "type": "slider",
+                "defaultValue": 20,
+                "label": "Fill opacity",
+                "slider": {
+                  "max": 100,
+                  "min": 0,
+                  "unit": "%"
+                }
+              }
+            }
+          ],
+          "hiddenCondition": {
+            "target": "options",
+            "method": "includes",
+            "when": "options.displayType",
+            "matches": ["bar"]
+          }
+        },
+        "lineStyleMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "defaultValue": "solid",
+          "label": "Line style",
+          "hiddenCondition": {
+            "target": "options",
+            "method": "includes",
+            "when": "options.displayType",
+            "matches": ["bar", "bar-stacked"]
+          },
+          "options": [
+            {
+              "id": "solid",
+              "name": "Solid"
+            },
+            {
+              "id": "dash",
+              "name": "Dashes"
+            },
+            {
+              "id": "dots",
+              "name": "Dots"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "dashLength",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Dash width",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "dashOffset",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            },
+            {
+              "name": "dotOffset",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            }
+          ]
+        },
+        "barRadius": {
+          "group": "graphStyles",
+          "type": "slider",
+          "label": "Bar radius",
+          "defaultValue": 0,
+          "slider": {
+            "min": 0,
+            "max": 100,
+            "unit": "%"
+          },
+          "hiddenCondition": {
+            "target": "options",
+            "method": "includes",
+            "when": "options.displayType",
+            "matches": ["line"]
+          }
+        },
+        "barOpacity": {
+          "group": "graphStyles",
+          "type": "slider",
+          "label": "Bar opacity",
+          "defaultValue": 100,
+          "slider": {
+            "min": 0,
+            "max": 100,
+            "unit": "%"
+          },
+          "hiddenCondition": {
+            "target": "options",
+            "method": "equals",
+            "when": "options.displayType",
+            "matches": "line"
+          }
+        },
+        "showAxisBorder": {
+          "type": "switch",
+          "label": "Show axis borders",
+          "group": "axis",
+          "defaultValue": true
+        },
+        "yAxisTickLabelRotation": {
+          "group": "axis",
+          "type": "slider",
+          "label": "Y-axis label rotation",
+          "defaultValue": 0,
+          "slider": {
+            "min": -45,
+            "max": 45,
+            "unit": "°"
+          }
+        },
+        "showGridLines": {
+          "type": "switch",
+          "label": "Show gridlines",
+          "group": "axis",
+          "defaultValue": true,
+          "subInputs": [
+            {
+              "name": "gridLinesType",
+              "displayValue": true,
+              "input": {
+                "group": "axis",
+                "type": "button-group",
+                "label": "Gridline type",
+                "defaultValue": "all",
+                "options": [
+                  {
+                    "id": "horizontal",
+                    "name": "Horizontal"
+                  },
+                  {
+                    "id": "vertical",
+                    "name": "Vertical"
+                  },
+                  {
+                    "id": "all",
+                    "name": "Both"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "scale": {
+          "group": "axis",
+          "type": "button-group",
+          "label": "Scale",
+          "defaultValue": "linear",
+          "options": [
+            {
+              "id": "linear",
+              "name": "Linear"
+            },
+            {
+              "id": "logarithmic",
+              "name": "Logarithmic"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "scaleLogarithmicBase",
+              "input": {
+                "type": "radio",
+                "defaultValue": "2",
+                "options": [
+                  {
+                    "id": "2",
+                    "name": "Base 2"
+                  },
+                  {
+                    "id": "10",
+                    "name": "Base 10"
+                  }
+                ]
+              },
+              "displayValue": "logarithmic"
+            }
+          ]
+        },
+        "showLegend": {
+          "group": "legend",
+          "type": "switch",
+          "label": "Show legend",
+          "defaultValue": true,
+          "subInputs": [
+            {
+              "name": "legendDisplayMode",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Display mode",
+                "defaultValue": "grid",
+                "options": [
+                  {
+                    "id": "grid",
+                    "name": "Grid"
+                  },
+                  {
+                    "id": "list",
+                    "name": "List"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "legendPlacement",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Position",
+                "defaultValue": "bottom",
+                "options": [
+                  {
+                    "id": "left",
+                    "name": "Left"
+                  },
+                  {
+                    "id": "bottom",
+                    "name": "Bottom"
+                  },
+                  {
+                    "id": "right",
+                    "name": "Right"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "singleResourceSelection": true,
+  "singleMetricSelection": true,
+  "customBaseColor": true,
+  "moduleName": "centreon-widget-metriccapacityplanning",
+  "canExpand": true,
+  "widgetType": "MBI"
+}

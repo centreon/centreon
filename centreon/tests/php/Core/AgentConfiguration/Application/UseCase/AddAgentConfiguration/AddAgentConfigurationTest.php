@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguratio
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
@@ -35,21 +34,26 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\Validator;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new AddAgentConfigurationPresenterStub();
     $this->useCase = new AddAgentConfiguration(
         readAcRepository: $this->readAgentConfigurationRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
         writeAcRepository: $this->writeAgentConfigurationRepository = $this->createMock(WriteAgentConfigurationRepositoryInterface::class),
+        readMsRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false,
     );
 
     $this->testedAddRequest = new AddAgentConfigurationRequest();
@@ -72,6 +76,7 @@ beforeEach(function (): void {
     $this->testedNewAc = new NewAgentConfiguration(
         name: $this->testedAcName = 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 
@@ -79,6 +84,7 @@ beforeEach(function (): void {
         id: $this->testedAcId = 1,
         name: $this->testedAcName = 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 });

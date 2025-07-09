@@ -1,6 +1,9 @@
 #generic development files
 www/index.html
 
+# compiled translation files
+www/locale
+
 #api html documentation
 doc/API/centreon-api-v2.html
 doc/API/index.html

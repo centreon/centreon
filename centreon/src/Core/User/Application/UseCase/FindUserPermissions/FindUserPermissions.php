@@ -35,6 +35,7 @@ final class FindUserPermissions
     private array $permissions = [
         'top_counter' => Contact::ROLE_DISPLAY_TOP_COUNTER,
         'poller_statistics' => Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
+        'configuration_host_group_write' => Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
     ];
 
     public function __invoke(ContactInterface $user): FindUserPermissionsResponse|ResponseStatusInterface
@@ -51,10 +52,9 @@ final class FindUserPermissions
     {
         $permissions = [];
         foreach ($this->permissions as $permissionName => $role) {
-            if ($user->isAdmin() || $user->hasRole($role)) {
+            if ($user->isAdmin() || $user->hasRole($role) || $user->hasTopologyRole($role)) {
                 $permissions[] = new Permission(new NotEmptyString($permissionName), true);
             }
-
         }
 
         return $permissions;

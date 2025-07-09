@@ -1,6 +1,6 @@
 import { T, equals, head, pipe, propOr, split } from 'ramda';
 
-import { ColumnType } from '@centreon/ui';
+import { ColumnType, truncate } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 import { FeatureFlags } from '@centreon/ui-context';
 
@@ -28,7 +28,6 @@ import {
   labelStatus,
   labelTries
 } from '../../translatedLabels';
-import truncate from '../../truncate';
 
 import ChecksColumn from './Checks';
 import GraphColumn from './Graph';
@@ -180,7 +179,7 @@ export const getColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),

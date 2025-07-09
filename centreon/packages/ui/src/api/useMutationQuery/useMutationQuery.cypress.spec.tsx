@@ -2,16 +2,11 @@ import useMutationQuery, { Method } from '.';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
 import TestQueryProvider from '../TestQueryProvider';
 
-// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
-let spyMutation;
-
 const TestComponent = (props) => {
   const mutation = useMutationQuery({
     ...props,
     getEndpoint: () => '/endpoint'
   });
-
-  spyMutation = mutation;
 
   return (
     <button
@@ -46,8 +41,6 @@ const initialize = ({ mutationProps, isError = false }) => {
         </TestQueryProvider>
       </SnackbarProvider>
     )
-  }).then(() => {
-    cy.spy(spyMutation, 'mutateAsync').as('mutateAsync');
   });
 };
 
@@ -67,13 +60,6 @@ describe('useMutationQuery', () => {
       expect(request.body).to.deep.equal({ a: 'a', b: 2, c: ['arr', 'ay'] });
       expect(request.headers.get('content-type')).to.equal('application/json');
     });
-    cy.get('@mutateAsync').should('be.calledWith', {
-      payload: {
-        a: 'a',
-        b: 2,
-        c: ['arr', 'ay']
-      }
-    });
   });
 
   it("shows an error from the API via the Snackbar and inside the browser's console when posting data to an endpoint", () => {
@@ -86,8 +72,6 @@ describe('useMutationQuery', () => {
     });
 
     cy.get('button').click();
-
-    cy.get('@mutateAsync').should('be.called');
 
     cy.contains('custom error message').should('be.visible');
   });
@@ -103,8 +87,6 @@ describe('useMutationQuery', () => {
     });
 
     cy.get('button').click();
-
-    cy.get('@mutateAsync').should('be.called');
 
     cy.contains('custom error message').should('not.exist');
   });

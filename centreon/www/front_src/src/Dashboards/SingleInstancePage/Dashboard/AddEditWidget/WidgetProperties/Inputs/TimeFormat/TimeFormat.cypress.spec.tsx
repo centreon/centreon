@@ -12,7 +12,7 @@ const initialize = ({ canEdit = true, hasValue = false }): void => {
 
   store.set(hasEditPermissionAtom, canEdit);
   store.set(isEditingAtom, canEdit);
-  store.set(userAtom, { locale: 'fr_FR' });
+  store.set(userAtom, { locale: hasValue ? 'en_US' : 'fr_FR' });
 
   cy.mount({
     Component: (

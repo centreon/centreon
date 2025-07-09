@@ -70,6 +70,7 @@ const WrapperChart = ({
   limitLegend,
   getRef,
   transformMatrix,
+  additionalLines,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -126,6 +127,7 @@ const WrapperChart = ({
               width={width ?? responsiveWidth}
               zoomPreview={zoomPreview}
               skipIntersectionObserver={rest.skipIntersectionObserver}
+              additionalLines={additionalLines}
               transformMatrix={transformMatrix}
             />
           );

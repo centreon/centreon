@@ -26,6 +26,7 @@ namespace Tests\Core\AgentConfiguration\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 
 beforeEach(function (): void {
@@ -38,6 +39,7 @@ beforeEach(function (): void {
             id: $fields['id'] ?? 1,
             name: $fields['name'] ?? 'ac-name',
             type: $this->testedType,
+            connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
             configuration: $this->testedParameters,
         );
     };
@@ -67,6 +69,7 @@ it('should return trimmed field name after construct', function (): void {
         id: 1,
         type: Type::TELEGRAF,
         name: ' abcd ',
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->testedParameters
     );
 

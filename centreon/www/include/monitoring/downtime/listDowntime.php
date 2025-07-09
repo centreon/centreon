@@ -142,12 +142,12 @@ $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 
 // ------------------ BAM ------------------
 $tab_service_bam = [];
-$result = $pearDB->executeQuery("SELECT id FROM modules_informations WHERE name = 'centreon-bam-server'");
+$pdoStatement = $pearDB->executeQuery("SELECT id FROM modules_informations WHERE name = 'centreon-bam-server'");
 
-if ($result->rowCount()) {
-    $result = $pearDB->executeQuery("SELECT CONCAT('ba_', ba_id) AS id, ba_id, name FROM mod_bam");
+if ($pdoStatement->rowCount() > 0) {
+    $pdoStatement = $pearDB->executeQuery("SELECT CONCAT('ba_', ba_id) AS id, ba_id, name FROM mod_bam");
 
-    while ($elem = $result->fetch()) {
+    while (($elem = $pearDB->fetch($pdoStatement)) !== false) {
         $tab_service_bam[$elem['id']] = ['name' => $elem['name'], 'id' => $elem['ba_id']];
     }
 }
@@ -279,7 +279,7 @@ $pearDBO->executePreparedQuery($downtimesStatement, $bindValues, true);
 
 $rows = $pearDBO->fetchColumn($pearDBO->executeQuery('SELECT FOUND_ROWS() AS REALTIME'));
 
-for ($i = 0; $data = $pearDBO->fetch($downtimesStatement); $i++) {
+for ($i = 0; ($data = $pearDBO->fetch($downtimesStatement)) !== false; $i++) {
     $tab_downtime_svc[$i] = $data;
 
     $tab_downtime_svc[$i]['comment_data']

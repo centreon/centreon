@@ -1,6 +1,7 @@
 import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/Autocomplete';
 
 export { default as IconButton } from './Button/Icon';
+export { default as Pagination } from './Pagination';
 
 export { Checkbox, CheckboxGroup } from './Checkbox';
 
@@ -133,6 +134,7 @@ export {
 } from './api/useGraphQuery';
 export { WidgetResourceType as ResourceType } from './api/useGraphQuery/models';
 export { default as QueryProvider, client } from './api/QueryProvider';
+export { default as useBulkResponse } from './api/useBulkResponse';
 export {
   default as FileDropZone,
   transformFileListToArray

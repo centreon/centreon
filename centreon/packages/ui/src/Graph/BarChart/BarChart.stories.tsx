@@ -195,6 +195,45 @@ export const customBarStyle: Story = {
   render: Template
 };
 
+export const customBarStyleForABar: Story = {
+  args: {
+    ...defaultArgs,
+    barStyle: [
+      {
+        opacity: 0.5,
+        radius: 0.5,
+        metricId: 10
+      },
+      {
+        opacity: 0.2,
+        radius: 0.3,
+        metricId: 1
+      }
+    ]
+  },
+  render: Template
+};
+
+export const customBarStyleForABarStacked: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStacked,
+    barStyle: [
+      {
+        opacity: 0.5,
+        radius: 0.5,
+        metricId: 10
+      },
+      {
+        opacity: 0.2,
+        radius: 0.3,
+        metricId: 1
+      }
+    ]
+  },
+  render: Template
+};
+
 export const mixedStacked: Story = {
   args: {
     ...defaultArgs,

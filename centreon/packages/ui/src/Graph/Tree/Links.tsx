@@ -26,7 +26,7 @@ const Links = <TData extends BaseProp>({
 }: Props<TData>): Array<JSX.Element> => {
   const theme = useTheme();
 
-  return links.map((link) => {
+  return links.map((link, idx) => {
     const ancestorIds = link.target
       .ancestors()
       .map((ancestor) => ancestor.data.data.id);
@@ -37,7 +37,7 @@ const Links = <TData extends BaseProp>({
 
     const LinkComponent = getLinkComponent(treeLink?.type);
 
-    const key = `${link.source.data.data.id}-${link.source.data.data.name}-${ancestorIds}_${link.target.data.data.id}-${link.target.data.data.name}-${descendantIds}`;
+    const key = `${link.source.data.data.id}-${link.source.data.data.name}-${ancestorIds}_${link.target.data.data.id}-${link.target.data.data.name}-${descendantIds}-${idx}`;
 
     return (
       <LinkComponent

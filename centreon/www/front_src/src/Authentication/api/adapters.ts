@@ -14,7 +14,7 @@ import {
   RolesMapping,
   RolesMappingToApi
 } from '../Openid/models';
-import { SAMLConfiguration, SAMLConfigurationToAPI } from '../SAML/models';
+import { RequestedAuthnContextValue, SAMLConfiguration, SAMLConfigurationToAPI } from '../SAML/models';
 import {
   WebSSOConfiguration,
   WebSSOConfigurationToAPI
@@ -265,6 +265,7 @@ export const adaptSAMLConfigurationToAPI = ({
   logoutFrom,
   logoutFromUrl,
   remoteLoginUrl,
+  requestedAuthnContext,
   userIdAttribute
 }: SAMLConfiguration): SAMLConfigurationToAPI => ({
   authentication_conditions: adaptSAMLAuthentificationConditions(
@@ -283,5 +284,7 @@ export const adaptSAMLConfigurationToAPI = ({
   logout_from_url: logoutFromUrl,
   remote_login_url: remoteLoginUrl,
   roles_mapping: adaptSAMLRolesMapping(rolesMapping),
+  requested_authn_context: requestedAuthnContext
+    || RequestedAuthnContextValue.Minimum,
   user_id_attribute: userIdAttribute
 });

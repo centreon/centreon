@@ -1,0 +1,80 @@
+name: check-qa-validation
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.action }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
+      - unlabeled
+
+jobs:
+  check-qa-validation:
+    if: ${{ ! github.event.pull_request.draft }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Get PR labels
+        id: get-labels
+        uses: ./.github/actions/get-pr-labels
+
+      - name: Check if PR has been approved by QA
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: has-qa-approved-label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+          PR_LABELS: ${{ steps.get-labels.outputs.labels }}
+        with:
+          script: |
+            for (const label of JSON.parse(process.env.PR_LABELS)) {
+              if (label === 'qa-approved') {
+                console.log('This PR has been approved by the QA team');
+                return;
+              }
+            }
+
+            const teamsWithQaApproval = [
+              'owners-php',
+              'owners-react',
+              'owners-cpp',
+            ];
+
+            let needsQaApproval = false;
+            try {
+              const fetchedReviewers = await github.rest.pulls.listRequestedReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+              for (const team of fetchedReviewers.data.teams) {
+                if (teamsWithQaApproval.includes(team.slug)) {
+                  needsQaApproval = true;
+                }
+              }
+            } catch (e) {
+              core.warning(`failed to list required reviewers: ${e}`);
+              needsQaApproval = true;
+            }
+
+            if (needsQaApproval) {
+              throw new Error('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
+            }
+
+            core.notice('This PR does not need approval by the QA team');

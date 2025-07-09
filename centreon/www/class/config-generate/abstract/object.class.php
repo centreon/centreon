@@ -34,7 +34,8 @@
  */
 
 use App\Kernel;
-use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -84,6 +85,9 @@ abstract class AbstractObject
     /** @var bool */
     protected $isVaultEnabled = false;
 
+    /** @var null|ReadVaultRepositoryInterface */
+    protected $readVaultRepository = null;
+
     /**
      * Get Centreon Vault Configuration Status
      *
@@ -98,11 +102,11 @@ abstract class AbstractObject
         $readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
-        $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-        $logger = $kernel->getContainer()->get(Logger::class);
+        $featureFlag = $kernel->getContainer()->get(FeatureFlags::class);
         $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($vaultConfiguration !== null) {
+        if ($vaultConfiguration !== null && $featureFlag->isEnabled('vault')) {
             $this->isVaultEnabled = true;
+            $this->readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         }
     }
 

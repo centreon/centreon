@@ -12,11 +12,14 @@ import {
   length,
   lt,
   lte,
-  pluck
+  pluck,
+  type
 } from 'ramda';
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';
 
+import { BarStyle } from '../BarChart/models';
+import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
 import { formatMetricValue } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
@@ -180,6 +183,24 @@ export const commonTickLabelProps = {
   fontFamily: 'Roboto, sans-serif',
   fontSize: 10,
   textAnchor: 'middle'
+};
+
+interface GetStyleProps {
+  metricId?: number;
+  style:
+    | LineStyle
+    | BarStyle
+    | Array<LineStyle & { metricId: number }>
+    | Array<BarStyle & { metricId: number }>;
+}
+
+export const getStyle = ({
+  style,
+  metricId
+}: GetStyleProps): BarStyle | LineStyle => {
+  return equals(type(style), 'Array')
+    ? style.find((metricStyle) => equals(metricId, metricStyle.metricId))
+    : style;
 };
 
 interface GetFormattedAxisValuesProps {

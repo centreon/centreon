@@ -20,9 +20,8 @@
  */
 
 require_once __DIR__ . '/../../../bootstrap.php';
-require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
+$version = '25.01.0';
 $errorMessage = '';
 
 // -------------------------------------------- Dashboard -------------------------------------------- //
@@ -151,8 +150,8 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     if (false === $topologyAlreadyExists) {
         $constraintStatement = $pearDB->prepareQuery(
             <<<'SQL'
-                INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
-                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
+                INSERT INTO `topology` (`topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
+                VALUES ('Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
                 SQL
         );
         $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
@@ -173,23 +172,29 @@ try {
     $insertAgentConfigurationTopology($pearDB);
 
     $pearDB->commit();
-} catch (CentreonDbException $e) {
-    CentreonLog::create()->critical(
+} catch (\Throwable $exception) {
+    CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString(),
-        customContext: [
-            'exception' => $e->getOptions(),
-            'trace' => $e->getTraceAsString(),
-        ],
-        exception: $e
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $exception
     );
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (\PDOException $rollbackException) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
 
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
+        );
     }
 
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

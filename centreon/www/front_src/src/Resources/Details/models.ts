@@ -14,7 +14,7 @@ import type {
 import type { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 
 export interface Group extends Partial<NamedEntity> {
-  configuration_uri: string | null;
+  configuration_endpoint?: string | null;
 }
 
 export interface Category extends Partial<NamedEntity> {

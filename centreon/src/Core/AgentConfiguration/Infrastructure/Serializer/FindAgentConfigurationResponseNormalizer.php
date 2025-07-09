@@ -25,18 +25,13 @@ namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class FindAgentConfigurationResponseNormalizer implements NormalizerInterface
+class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
-    /**
-     * @param ObjectNormalizer $normalizer
-     */
-    public function __construct(
-        private readonly ObjectNormalizer $normalizer,
-    ) {
-    }
+    use NormalizerAwareTrait;
 
     /**
      * @param FindAgentConfigurationResponse $object

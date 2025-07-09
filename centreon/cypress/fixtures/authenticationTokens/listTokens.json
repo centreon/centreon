@@ -1,0 +1,146 @@
+{
+  "result": [
+    {
+      "name": "a-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": null,
+      "is_revoked": false
+    },
+    {
+      "name": "b-token",
+      "type": "cma",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2028-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "c-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Kevin B"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2028-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "d-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2028-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "e-token",
+      "type": "cma",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "f-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jammy K"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2028-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "g-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": null,
+      "is_revoked": true
+    },
+    {
+      "name": "h-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2028-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "i-token",
+      "type": "api",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2028-08-31T00:00:00+00:00",
+      "is_revoked": false
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "search": {},
+    "sort_by": { "token_name": "ASC"},
+    "total": 9
+  }
+}

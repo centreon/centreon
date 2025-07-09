@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\AccessGroup\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
@@ -41,6 +42,7 @@ class DbAccessGroupFactory
     /**
      * @param _AccessGroupRecord $record
      *
+     * @throws AssertionFailedException
      * @return AccessGroup
      */
     public static function createFromRecord(array $record): AccessGroup

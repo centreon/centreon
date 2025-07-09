@@ -192,7 +192,7 @@ if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
     <script src="./include/views/graphs/javascript/centreon-c3.js"></script>
     <script src="./include/common/javascript/numeral.min.js"></script>
     <script src="./include/views/graphs/javascript/centreon-status-chart.js"></script>
-    <script src="./include/common/javascript/moment-with-locales.min.2.21.js"></script>
+    <script src="./include/common/javascript/moment-with-locales.min.2.29.4.js"></script>
     <script src="./include/common/javascript/moment-timezone-with-data.min.js"></script>
 
     <?php if (isset($isMobile) && $isMobile) : ?>

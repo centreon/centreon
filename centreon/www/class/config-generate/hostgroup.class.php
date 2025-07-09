@@ -57,10 +57,7 @@ class Hostgroup extends AbstractObject
     protected $attributes_select = '
         hg_id,
         hg_name as hostgroup_name,
-        hg_alias as alias,
-        hg_notes as notes,
-        hg_notes_url as notes_url,
-        hg_action_url as action_url
+        hg_alias as alias
     ';
     /** @var null */
     protected $stmt_hg = null;
@@ -129,9 +126,6 @@ class Hostgroup extends AbstractObject
             'hostgroup_id',
             'hostgroup_name',
             'alias',
-            'notes',
-            'notes_url',
-            'action_url',
         ];
         $this->attributes_array = [
             'members',

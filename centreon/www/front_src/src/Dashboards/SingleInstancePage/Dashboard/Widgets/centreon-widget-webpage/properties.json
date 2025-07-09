@@ -23,5 +23,5 @@
   },
   "availableOnPremOnly": true,
   "canExpand": true,
-  "widgetType": "Generic widgets"
+  "widgetType": "generic"
 }

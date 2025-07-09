@@ -97,15 +97,17 @@ const SelectField = ({
       <Select
         displayEmpty
         fullWidth={fullWidth}
-        inputProps={{
-          'aria-label': ariaLabel,
-          className: cx(classes.input, {
-            [classes.noLabelInput]: !label && !compact,
-            [classes.compact]: compact
-          }),
-          'data-testid': dataTestId,
-          id: getNormalizedId(dataTestId || ''),
-          ...inputProps
+        slotProps={{
+          input: {
+            'aria-label': ariaLabel,
+            className: cx(classes.input, {
+              [classes.noLabelInput]: !label && !compact,
+              [classes.compact]: compact
+            }),
+            'data-testid': dataTestId,
+            id: getNormalizedId(dataTestId || ''),
+            ...inputProps
+          }
         }}
         label={label}
         renderValue={(id): string => {

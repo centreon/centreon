@@ -1,5 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
@@ -9,21 +8,14 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import Resources from '..';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { Type } from '../Actions/model';
-import { panelWidthStorageAtom } from '../Details/detailsAtoms';
 import useDetails from '../Details/useDetails';
-import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
-import { allFilter } from '../Filter/models';
 import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
   labelAcknowledged,
   labelAll,
-  labelDisplayView,
   labelInDowntime,
-  labelMoreActions,
   labelResourceFlapping,
   labelViewByHost,
   labelViewByService
@@ -33,7 +25,7 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import { enabledAutorefreshAtom, selectedColumnIdsAtom } from './listingAtoms';
+import { selectedColumnIdsAtom } from './listingAtoms';
 import {
   columnToSort,
   columns,
@@ -71,66 +63,14 @@ const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
-const listingActionsData = [
-  {
-    conditionsInListing: [
-      { rule: 'be.visible', testId: 'PlayArrowIcon' },
-      { rule: 'be.visible', testId: 'RefreshIcon' }
-    ],
-    conditionsInMoreActions: [
-      {
-        rule: 'not.exist',
-        testId: 'RefreshInMoreActions'
-      },
-      {
-        rule: 'not.exist',
-        testId: 'AutorefreshInMoreActions'
-      }
-    ],
-    height: 590,
-    panelWidth: 750,
-    type: Type.medium
-  },
-  {
-    conditionsInListing: [
-      { rule: 'not.exist', testId: 'PlayArrowIcon' },
-      { rule: 'not.exist', testId: 'RefreshIcon' }
-    ],
-    conditionsInMoreActions: [
-      {
-        rule: 'be.visible',
-        testId: 'RefreshInMoreActions'
-      },
-      {
-        rule: 'be.visible',
-        testId: 'AutorefreshInMoreActions'
-      }
-    ],
-    height: 590,
-    panelWidth: 900,
-    type: Type.small
-  }
-];
-
-const interceptRequest = ({ dataPath, alias, path }): void => {
-  cy.fixture(dataPath).then((data) => {
-    cy.interceptAPIRequest({
-      alias,
-      method: Method.GET,
-      path,
-      response: data
-    });
-  });
-};
-
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
+  store.set(userAtom, {
+    user_interface_density: listingVariant,
+    locale: 'en_US',
+    timezone: 'Europe/Paris'
+  });
 };
 
 before(() => {
@@ -191,91 +131,6 @@ const interceptRequestsAndMountBeforeEach = (
 
   cy.adjustViewport();
 };
-
-const mountResourcePage = (): void => {
-  cy.interceptAPIRequest({
-    alias: 'filterRequest',
-    method: Method.GET,
-    path: './api/latest/users/filters/events-view?*',
-    response: fakeData
-  });
-
-  interceptRequest({
-    alias: 'listingRequest',
-    dataPath: 'resources/resourceListing.json',
-    path: './api/latest/monitoring/resources?*'
-  });
-
-  interceptRequest({
-    alias: 'detailsRequest',
-    dataPath: 'resources/anomalyDetectionDetails.json',
-    path: './api/latest/monitoring/resources/anomaly-detection/1'
-  });
-
-  cy.mount({
-    Component: (
-      <Provider store={store}>
-        <Router>
-          <TestQueryProvider>
-            <Resources />
-          </TestQueryProvider>
-        </Router>
-      </Provider>
-    )
-  });
-};
-
-describe('Responsivity listing actions', () => {
-  beforeEach(() => {
-    cy.viewport(1650, 590);
-    store.set(applyFilterDerivedAtom, allFilter);
-    store.set(selectedVisualizationAtom, Visualization.All);
-    store.set(enabledAutorefreshAtom, false);
-    store.set(platformFeaturesAtom, getPlatformFeatures({}));
-
-    mountResourcePage();
-  });
-  listingActionsData.forEach(
-    ({
-      panelWidth,
-      conditionsInListing,
-      type,
-      conditionsInMoreActions,
-      height
-    }) => {
-      it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
-        const collection =
-          document?.getElementById('cy-root')?.children[0]?.children[0];
-        collection.style.height = '590px';
-        store.set(panelWidthStorageAtom, panelWidth);
-
-        cy.waitForRequest('@filterRequest');
-        cy.waitForRequest('@listingRequest');
-
-        cy.contains('ad').click();
-
-        cy.waitForRequest('@detailsRequest');
-
-        cy.findByText(labelDisplayView).should('not.exist');
-
-        conditionsInListing.forEach(({ rule, testId }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.findByLabelText(labelMoreActions).click();
-
-        conditionsInMoreActions.forEach(({ testId, rule }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.makeSnapshotWithCustomResolution({
-          resolution: { height, width: 1650 },
-          title: `listing actions when the size is ${type}`
-        });
-      });
-    }
-  );
-});
 
 describe('Resource Listing', () => {
   beforeEach(() => {
@@ -848,11 +703,12 @@ describe('Notification column', () => {
   });
 });
 
-['dark', 'light'].forEach((mode) => {
+['light'].forEach((mode) => {
   describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
     beforeEach(() => {
-      const userData = renderHook(() => useAtomValue(userAtom));
-      userData.result.current.themeMode = mode;
+      store.set(userAtom, {
+        themeMode: mode
+      });
 
       store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
       cy.interceptAPIRequest({

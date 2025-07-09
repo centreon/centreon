@@ -1,8 +1,6 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, useAtomValue } from 'jotai';
+import { Provider } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import EditFiltersPanel from '..';
 import useListing from '../../../Listing/useListing';
@@ -161,13 +159,6 @@ const retrievedCustomFilters = {
   },
   result: [getFilter({})]
 };
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
 
 describe('Edit filter button', () => {
   beforeEach(() => {

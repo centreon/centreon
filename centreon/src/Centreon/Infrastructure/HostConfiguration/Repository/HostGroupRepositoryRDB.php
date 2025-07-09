@@ -73,28 +73,17 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         $statement = $this->db->prepare(
             $this->translateDbName('
                 INSERT INTO `:db`.hostgroup
-                (hg_name, hg_alias, hg_notes, hg_notes_url, hg_action_url, hg_icon_image, hg_map_icon_image,
-                hg_rrd_retention, geo_coords, hg_comment, hg_activate)
-                VALUES (:group_name, :group_alias, :group_notes, :group_notes_url, :group_action_url, :group_icon_id,
-                :group_map_icon_id, :group_rrd, :group_geo, :group_comment, :is_activate)
+                (hg_name, hg_alias, hg_icon_image, geo_coords, hg_comment, hg_activate)
+                VALUES (:group_name, :group_alias, :group_icon_id, :group_geo, :group_comment, :is_activate)
             ')
         );
         $statement->bindValue(':group_name', $group->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':group_alias', $group->getAlias(), \PDO::PARAM_STR);
-        $statement->bindValue(':group_notes', $group->getNotes(), \PDO::PARAM_STR);
-        $statement->bindValue(':group_notes_url', $group->getNotesUrl(), \PDO::PARAM_STR);
-        $statement->bindValue(':group_action_url', $group->getActionUrl(), \PDO::PARAM_STR);
         $statement->bindValue(
             ':group_icon_id',
             ($group->getIcon() !== null) ? $group->getIcon()->getId() : null,
             \PDO::PARAM_INT
         );
-        $statement->bindValue(
-            ':group_map_icon_id',
-            ($group->getIconMap() !== null) ? $group->getIconMap()->getId() : null,
-            \PDO::PARAM_INT
-        );
-        $statement->bindValue(':group_rrd', $group->getRrd(), \PDO::PARAM_STR);
         $statement->bindValue(':group_geo', $group->getGeoCoords(), \PDO::PARAM_STR);
         $statement->bindValue(':group_comment', $group->getComment(), \PDO::PARAM_STR);
         $statement->bindValue(':is_activate', $group->isActivated() ? '1' : '0', \PDO::PARAM_STR);

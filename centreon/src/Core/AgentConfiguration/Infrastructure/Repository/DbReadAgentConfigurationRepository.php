@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationReposit
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
@@ -43,6 +44,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *  id:int,
  *  type:string,
  *  name:string,
+ *  connection_mode:string,
  *  configuration:string,
  * }
  */
@@ -142,7 +144,10 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             <<<'SQL'
                 SELECT
                     rel.`poller_id` as id,
-                    ng.`name`
+                    ng.`name`,
+                    (ng.`localhost` = '1' AND NOT EXISTS (
+                        SELECT 1 FROM `:db`.`remote_servers` rs WHERE rs.server_id = ng.id
+                    )) as is_central
                 FROM `:db`.`ac_poller_relation` rel
                 JOIN `:db`.`nagios_server` ng
                     ON rel.poller_id = ng.id
@@ -156,8 +161,8 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         // Retrieve data
         $pollers = [];
         foreach ($statement as $result) {
-            /** @var array{id:int,name:string} $result */
-            $pollers[] = new Poller($result['id'], $result['name']);
+            /** @var array{id:int,name:string,is_central:int} $result */
+            $pollers[] = new Poller($result['id'], $result['name'], $result['is_central'] === 1);
         }
 
         return $pollers;
@@ -199,6 +204,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 ac.id,
                 ac.name,
                 ac.type,
+                ac.connection_mode,
                 ac.configuration
             FROM `:db`.`agent_configuration` ac
             INNER JOIN `:db`.`ac_poller_relation` rel
@@ -282,6 +288,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                     ac.id,
                     ac.name,
                     ac.type,
+                    ac.connection_mode,
                     ac.configuration
                 FROM `:db`.`agent_configuration` ac
                 INNER JOIN `:db`.`ac_poller_relation` rel
@@ -358,6 +365,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                     ac.id,
                     ac.name,
                     ac.type,
+                    ac.connection_mode,
                     ac.configuration
                 FROM `:db`.`agent_configuration` ac
                 JOIN `:db`.`ac_poller_relation` rel
@@ -393,14 +401,21 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             depth: JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR
         );
         $type = Type::from($row['type']);
+        $connectionMode = match ($row['connection_mode']) {
+            'secure' => ConnectionModeEnum::SECURE,
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            default => throw new \InvalidArgumentException('Invalid connection mode'),
+        };
 
         return new AgentConfiguration(
             id: $row['id'],
             name: $row['name'],
             type: $type,
+            connectionMode: $connectionMode,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
-                Type::CMA->value => new CmaConfigurationParameters($configuration)
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode)
             }
         );
     }

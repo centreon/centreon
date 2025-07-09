@@ -32,12 +32,7 @@ use Core\HostGroup\Domain\Model\HostGroup;
  *      hg_id: int,
  *      hg_name: string,
  *      hg_alias: ?string,
- *      hg_notes: ?string,
- *      hg_notes_url: ?string,
- *      hg_action_url: ?string,
  *      hg_icon_image: ?int,
- *      hg_map_icon_image: ?int,
- *      hg_rrd_retention: ?int,
  *      geo_coords: ?string,
  *      hg_comment: ?string,
  *      hg_activate: '0'|'1'
@@ -46,12 +41,7 @@ use Core\HostGroup\Domain\Model\HostGroup;
  *       id: int,
  *       name: string,
  *       alias: ?string,
- *       notes: ?string,
- *       notes_url: ?string,
- *       action_url: ?string,
  *       icon_id: ?int,
- *       icon_map_id: ?int,
- *       rrd: ?int,
  *       geo_coords: ?string,
  *       comment: ?string,
  *       is_activated: bool
@@ -69,21 +59,16 @@ class HostGroupFactory
     public static function createFromDb(array $data): HostGroup
     {
         return new HostGroup(
-            $data['hg_id'],
-            $data['hg_name'],
-            (string) $data['hg_alias'],
-            (string) $data['hg_notes'],
-            (string) $data['hg_notes_url'],
-            (string) $data['hg_action_url'],
-            $data['hg_icon_image'],
-            $data['hg_map_icon_image'],
-            $data['hg_rrd_retention'],
-            match ($geoCoords = $data['geo_coords']) {
+            id: $data['hg_id'],
+            name: $data['hg_name'],
+            alias: (string) $data['hg_alias'],
+            iconId: $data['hg_icon_image'],
+            geoCoords: match ($geoCoords = $data['geo_coords']) {
                 null, '' => null,
                 default => GeoCoords::fromString($geoCoords),
             },
-            (string) $data['hg_comment'],
-            (bool) $data['hg_activate'],
+            comment: (string) $data['hg_comment'],
+            isActivated: (bool) $data['hg_activate'],
         );
     }
 
@@ -96,44 +81,17 @@ class HostGroupFactory
      */
     public static function createFromApi(array $data): HostGroup
     {
-        if (isset($data['notes'])) {
-            return new HostGroup(
-                $data['id'],
-                $data['name'],
-                (string) $data['alias'],
-                (string) $data['notes'],
-                (string) $data['notes_url'],
-                (string) $data['action_url'],
-                $data['icon_id'],
-                $data['icon_map_id'],
-                $data['rrd'],
-                match ($geoCoords = $data['geo_coords']) {
-                    null, '' => null,
-                    default => GeoCoords::fromString($geoCoords),
-                },
-                (string) $data['comment'],
-                (bool) $data['is_activated'],
-            );
-        }
-  
-        // Cloud Platform
         return new HostGroup(
-            $data['id'],
-            $data['name'],
-            (string) $data['alias'],
-            '',
-            '',
-            '',
-            $data['icon_id'],
-            null,
-            null,
-            match ($geoCoords = $data['geo_coords']) {
+            id: $data['id'],
+            name: $data['name'],
+            alias: (string) $data['alias'],
+            iconId: $data['icon_id'],
+            geoCoords: match ($geoCoords = $data['geo_coords']) {
                 null, '' => null,
                 default => GeoCoords::fromString($geoCoords),
             },
-            '',
-            (bool) $data['is_activated'],
+            comment: (string) $data['comment'],
+            isActivated: (bool) $data['is_activated'],
         );
-        
     }
 }

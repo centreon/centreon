@@ -45,11 +45,11 @@ export const ThresholdLine = ({
         x1: 0,
         x2: width,
         y1: scaledValue,
-        y2: scaledValue
+        y2: scaledValue + 1
       }
     : {
         x1: scaledValue,
-        x2: scaledValue,
+        x2: scaledValue + 1,
         y1: 0,
         y2: width
       };

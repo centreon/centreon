@@ -63,4 +63,15 @@ interface ReadMediaRepositoryInterface
      * @return Media|null
      */
     public function findById(int $mediaId): ?Media;
+
+    /**
+     * Return the medias by their ids.
+     *
+     * @param int[] $mediaIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int,Media>
+     */
+    public function findByIds(array $mediaIds): array;
 }

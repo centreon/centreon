@@ -57,3 +57,7 @@ dependencies/**                         @centreon/owners-pipelines
 **/config/features.json                 @centreon/release-management
 
 **/tests/rest_api/**                    @centreon/owners-api-testing
+
+.gitleaks.toml                          @centreon/owners-security
+.gitleaksignore                         @centreon/owners-security
+**/workflows/*-analysis.yml             @centreon/owners-security

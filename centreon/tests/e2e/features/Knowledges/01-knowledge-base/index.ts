@@ -94,7 +94,6 @@ When('the user adds a procedure concerning this host in MediaWiki', () => {
       name: 'web'
     });
     cy.visit('/');
-    cy.exportConfig();
   });
   });
 });
@@ -161,7 +160,6 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
       name: 'web'
     });
     cy.visit('/');
-    cy.exportConfig();
   });
   });
 });

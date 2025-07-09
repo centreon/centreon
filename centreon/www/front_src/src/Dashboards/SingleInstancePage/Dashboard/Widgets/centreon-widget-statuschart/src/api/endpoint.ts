@@ -37,7 +37,7 @@ export const buildResourcesEndpoint = ({
       return resourcesToApply.map((resource) => ({
         field: resourceType,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }

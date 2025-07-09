@@ -38,6 +38,7 @@ class NewAgentConfiguration
     /**
      * @param string $name
      * @param Type $type
+     * @param ConnectionModeEnum $connectionMode
      * @param ConfigurationParametersInterface $configuration
      *
      * @throws AssertionFailedException
@@ -45,6 +46,7 @@ class NewAgentConfiguration
     public function __construct(
         string $name,
         private readonly Type $type,
+        private readonly ConnectionModeEnum $connectionMode,
         private ConfigurationParametersInterface $configuration,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -61,6 +63,11 @@ class NewAgentConfiguration
     public function getType(): Type
     {
         return $this->type;
+    }
+
+    public function getConnectionMode(): ConnectionModeEnum
+    {
+        return $this->connectionMode;
     }
 
     /**

@@ -57,7 +57,8 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      }
+      },
+      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
     });
 
   const fieldNamePath = split('.', fieldName);
@@ -143,6 +144,8 @@ const ConnectedAutocomplete = ({
         value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        limitTags={connectedAutocomplete?.limitTags}
       />
     ),
     memoProps: [
