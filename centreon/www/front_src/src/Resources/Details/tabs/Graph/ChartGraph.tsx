@@ -85,7 +85,6 @@ const ChartGraph = ({
   };
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
-  console.log(data);
 
   return (
     <>
