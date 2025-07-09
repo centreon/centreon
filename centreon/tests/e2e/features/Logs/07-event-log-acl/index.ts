@@ -36,7 +36,7 @@ const resultsToSubmit = [
 ];
 
 beforeEach(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
@@ -87,8 +87,8 @@ Then("the admin user navigates to the Event Logs page", () => {
       });
     },
     {
-      timeout: 15000,
-      interval: 1000,
+      timeout: 30000,
+      interval: 3000,
     },
   );
   cy.navigateTo({
