@@ -33,11 +33,18 @@ const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
 
   return (
     <div>
-      {commands.map(({ command, arguments: args }) => {
+        {commands.map(({ command, arguments: args }, index) => {
         return (
           <div key={command}>
             <div className={classes.pipedCommand}>
-              <Typography variant="body2">{command}</Typography>
+              {index > 0 && (
+                <Typography className={classes.pipe} variant="body2">
+                  --
+                </Typography>
+              )}
+              <Typography variant="body2">
+                {command}
+              </Typography>
             </div>
             {args.map(([argument, value]) => {
               return (
