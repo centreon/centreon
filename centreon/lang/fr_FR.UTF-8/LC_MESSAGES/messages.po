@@ -23916,3 +23916,7 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "Additional information"
+msgstr "Informations supplémentaires"
