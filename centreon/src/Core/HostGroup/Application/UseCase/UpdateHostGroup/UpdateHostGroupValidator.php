@@ -134,7 +134,7 @@ class UpdateHostGroupValidator
         }
 
         if ($existentRules === []) {
-            throw HostGroupException::errorRessourceAccessRulesEmpty();
+            throw HostGroupException::errorResourceAccessRulesEmpty();
         }
     }
 

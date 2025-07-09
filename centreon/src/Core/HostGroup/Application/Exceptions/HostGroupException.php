@@ -135,7 +135,7 @@ class HostGroupException extends \Exception
     /**
      * @return self
      */
-    public static function errorRessourceAccessRulesEmpty(): self
+    public static function errorResourceAccessRulesEmpty(): self
     {
         return new self('The host group must have at least one valid resource access rule', self::CODE_CONFLICT);
     }
