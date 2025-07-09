@@ -202,7 +202,7 @@ runs:
         # Abort if no tags or existing tag
         echo "Creating component release tags on branch ${{ inputs.release_branch }}."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
+          if [[ -z "$(git tag --list "$TAG" | head -n 1)" && -n "$TAG" ]]; then
 
             # Push local component tags as centreon_technique to generate a tag event
             git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
