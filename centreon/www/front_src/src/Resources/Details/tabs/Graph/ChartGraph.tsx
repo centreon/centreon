@@ -42,7 +42,7 @@ const ChartGraph = ({
     resource
   );
 
-  const { data } = useFetchQuery<LineChartData>({
+  const { data, isLoading, isFetching } = useFetchQuery<LineChartData>({
     getEndpoint: () =>
       `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
     getQueryKey: () => [
@@ -85,6 +85,7 @@ const ChartGraph = ({
   };
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
+  console.log(data);
 
   return (
     <>
@@ -95,6 +96,7 @@ const ChartGraph = ({
         getShapeLines={getShapeLines}
       />
       <LineChart
+        loading={isFetching || isLoading || !data}
         annotationEvent={{ data: timeLineData }}
         containerStyle={classes.container}
         getRef={getRef}
