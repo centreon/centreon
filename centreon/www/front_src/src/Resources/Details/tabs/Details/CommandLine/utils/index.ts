@@ -11,7 +11,10 @@ import {
 import commandParser from 'string-argv';
 
 const isShortArgument = (argument: string): boolean => {
-  return startsWith('-', argument) && not(equals('--', argument));
+  return (
+    startsWith('-', argument) ||
+    (startsWith('|', argument) && not(equals('--', argument)))
+  );
 };
 
 interface CommandWithArguments {
