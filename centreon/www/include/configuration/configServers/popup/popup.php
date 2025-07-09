@@ -109,7 +109,7 @@ if (
 
 $kernel = App\Kernel::createForWeb();
 /**
- * @var \Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface $gorgoneService
+ * @var Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface $gorgoneService
  */
 $gorgoneError = false;
 if ($server['localhost'] === '1') {

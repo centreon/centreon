@@ -1789,7 +1789,8 @@ class CentreonService extends CentreonObject
             }
 
             return $macroB;
-        } elseif ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+        }
+        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
             return $macroA;
         }
 

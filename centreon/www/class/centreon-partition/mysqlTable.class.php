@@ -413,7 +413,8 @@ class MysqlTable
     public function isValid()
     {
         // Condition to mod with new version
-        return ! (is_null($this->name) || is_null($this->column)
+        return ! (
+            is_null($this->name) || is_null($this->column)
             || is_null($this->activate) || is_null($this->duration)
             || is_null($this->schema) || is_null($this->retention)
             || is_null($this->type) || is_null($this->createstmt)

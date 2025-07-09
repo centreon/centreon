@@ -638,7 +638,7 @@ class PartEngine
             }
         }
 
-return (bool) ($config['plugin_status'] === 'ACTIVE');
+        return (bool) ($config['plugin_status'] === 'ACTIVE');
     }
 
     /**

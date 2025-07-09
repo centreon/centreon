@@ -48,7 +48,8 @@ function _TestRPNInfinityLoop()
         $gsvs = $form->getSubmitValues();
     }
 
-    return ! ($gsvs['vmetric_name'] != null
+    return ! (
+        $gsvs['vmetric_name'] != null
         && preg_match('/' . $gsvs['vmetric_name'] . '/i', $gsvs['rpn_function'])
     );
 
@@ -114,7 +115,8 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
     $numberOfVirtualMetric += $prepareMetric->rowCount();
     $prepareMetric->closeCursor();
 
-    return ! (($numberOfVirtualMetric >= 1
+    return ! (
+        ($numberOfVirtualMetric >= 1
         && $vmetric['vmetric_id'] != $gsvs['vmetric_id'])
         || isset($metric['metric_id'])
     );
