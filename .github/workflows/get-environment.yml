@@ -575,7 +575,7 @@ jobs:
           script: |
             let linkedDevBranch = 'develop';
             let linkedStableBranch = 'master';
-            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' === 'onprem') {
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' === 'false') {
               linkedDevBranch = 'dev-' + '${{ steps.get_version.outputs.major_version }}' + '.x';
               linkedStableBranch = '${{ steps.get_version.outputs.major_version }}' + '.x';
             }
