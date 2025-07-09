@@ -169,7 +169,7 @@ runs:
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
-        # echo "PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV" # should be removed
+        echo "PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
 
         # Make NEW_MAJOR_VERSION available to other steps
