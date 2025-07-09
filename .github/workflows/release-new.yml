@@ -63,6 +63,7 @@ jobs:
             exit 1
           fi
         shell: bash
+
   release:
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
@@ -112,6 +113,7 @@ jobs:
             exit 1
           fi
         shell: bash
+
       - name: Release
         id: release
         uses: ./.github/actions/release-new
