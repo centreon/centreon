@@ -76,8 +76,17 @@ runs:
 
           VERSION=${{ inputs.version }}
           BASENAME=$(echo "$file" | cut -d '_' -f 1)
-          OS_DISTRIB=$(echo "$file" | sed -n 's/.*+\(deb[0-9]\+\).*/\1/p')
+          OS_DISTRIB=""
           ARCH=$(echo $file | cut -d '_' -f3 | cut -d '.' -f1)
+
+          # Handle debian or ubuntu distrib based on inputs.distrib
+          if [[ "${{inputs.distrib}}" == "jammy" ]] || [[ "${{ inputs.distrib }}" == "noble" ]]; then
+            OS_DISTRIB=$(echo "$file" | sed -nE 's/.*(ubuntu\.[0-9]{2}\.[0-9]{2}).*/\1/p')
+          elif [[ "${{inputs.distrib}}" == "bullseye" ]] || [[ "${{inputs.distrib}}" == "bookworm" ]]; then
+            OS_DISTRIB=$(echo "$file" | sed -nE 's/.*(deb[0-9]+).*/\1/p')
+          else
+            echo "Distrib ${{ inputs.distrib }} is not supported as OS_DISTRIB."
+          fi
 
           # debug
           echo "[DEBUG] - Version: $VERSION"

@@ -246,19 +246,16 @@ export const useInputs = (): {
                         {
                           type: InputType.Text,
                           fieldName: publicCertificateProperty,
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: caCertificateProperty,
-                          required: false,
                           label: t(labelCaCertificate)
                         },
                         {
                           type: InputType.Text,
                           fieldName: privateKeyProperty,
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ],
@@ -292,7 +289,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confCertificate',
-                          required: true,
                           label: t(labelPublicCertificate)
                         },
                         {
@@ -303,7 +299,6 @@ export const useInputs = (): {
                             ),
                           type: InputType.Text,
                           fieldName: 'configuration.confPrivateKey',
-                          required: true,
                           label: t(labelPrivateKey)
                         }
                       ]
