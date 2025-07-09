@@ -133,12 +133,10 @@ class HostGroupException extends \Exception
     }
 
     /**
-     * @param string $hostGroupName
-     *
      * @return self
      */
     public static function errorRessourceAccessRulesEmpty(): self
     {
-        return new self("The host group must have at least one valid resource access rule", self::CODE_CONFLICT);
+        return new self('The host group must have at least one valid resource access rule', self::CODE_CONFLICT);
     }
 }
