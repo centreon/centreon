@@ -23335,10 +23335,6 @@ msgid "Up Time"
 msgstr "Temps état disponible"
 
 #: unknown
-msgid "Update additional configuration"
-msgstr "Mettre à jour la configuration additionnelle"
-
-#: unknown
 msgid "Update definition in case of double definition"
 msgstr "Mettre à jour la définition en cas de définition en double"
 
