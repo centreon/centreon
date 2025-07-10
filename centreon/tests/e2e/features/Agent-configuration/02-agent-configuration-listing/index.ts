@@ -176,7 +176,7 @@ Given('some poller agent configurations are created', () => {
 });
 
 When('the user enters a non-existent name into the search bar', () => {
-  cy.getByTestId({ testId: 'Search' }).eq(1).clear().type('xYz');
+  cy.getByTestId({ testId: 'search-bar' }).clear().type('xYz');
   cy.wait('@getAgentsPage');
 });
 
@@ -190,8 +190,7 @@ Given('some configured poller agent configurations', () => {
 });
 
 When('the user enters an existing name into the search bar', () => {
-  cy.getByTestId({ testId: 'Search' })
-    .eq(1)
+  cy.getByTestId({ testId: 'search-bar' })
     .clear()
     .type(agentsConfiguration.CMA1.name);
   cy.wait('@getAgentsPage');
