@@ -12,10 +12,11 @@ const Name = ({
     isHovered
   });
 
-  const name = renderEllipsisTypography?.({
-    className: classes.resourceNameText,
-    formattedString: truncate({ content: row.name, maxLength: 50 })
-  }) || name;
+  const name =
+    renderEllipsisTypography?.({
+      className: classes.resourceNameText,
+      formattedString: truncate({ content: row.name, maxLength: 50 })
+    }) || row.name;
 
   return <div className={classes.container}>{name}</div>;
 };
