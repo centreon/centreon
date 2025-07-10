@@ -20264,10 +20264,6 @@ msgid "Could not import ndomod"
 msgstr "Impossible d'importer ndomod"
 
 #: unknown
-msgid "Create additional configuration"
-msgstr "Créer une configuration additionnelle"
-
-#: unknown
 msgid "Create new object with prefix"
 msgstr "Créer un nouvel objet avec un prefix"
 
