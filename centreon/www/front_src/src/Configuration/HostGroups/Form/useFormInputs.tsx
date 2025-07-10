@@ -120,7 +120,7 @@ const useFormInputs = ({
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
-      required: canEdit,
+      required: hasWriteAccess,
       getDisabled: () => !hasWriteAccess,
       type: InputType.MultiConnectedAutocomplete
     },
