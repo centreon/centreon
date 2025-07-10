@@ -810,7 +810,8 @@ msgstr "Ajouter widget"
 msgid "Add additional configurations"
 msgstr "Ajouter des configurations additionnelles"
 
-#: centreon/www/install/front_translate.phpmsgid "Add advanced server configuration"
+#: centreon/www/install/front_translate.php
+msgid "Add advanced server configuration"
 msgstr "Ajouter une configuration avancée de serveur"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -834,7 +835,8 @@ msgstr "Ajouter une information supplémentaire"
 msgid "Add an additional configuration"
 msgstr "Ajouter une configuration additionnelle"
 
-#: centreon/www/install/front_translate.phpmsgid "Add an advanced configuration"
+#: centreon/www/install/front_translate.php
+msgid "Add an advanced configuration"
 msgstr "Ajouter une configuration avancée"
 
 #: centreon/www/install/front_translate.php
@@ -17901,7 +17903,8 @@ msgstr "Bienvenue sur la page des configurations additionnelles"
 msgid "Welcome to the host groups page"
 msgstr "Bienvenue sur la page des groupes d'hôtes"
 
-#: centreon/www/install/front_translate.phpmsgid "Welcome to the notifications interface"
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
 #: centreon/www/install/front_translate.php
@@ -19328,7 +19331,8 @@ msgstr "caractères majuscules"
 msgid "vCenter/ESX"
 msgstr "vCenter/ESX"
 
-#: centreon/www/install/front_translate.phpmsgid "will display all resources with host having alias containing"
+#: centreon/www/install/front_translate.php
+msgid "will display all resources with host having alias containing"
 msgstr "affichera les ressources avec un alias d'hôte contenant"
 
 #: centreon/www/install/front_translate.php
@@ -19553,7 +19557,8 @@ msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
 msgid "Additional configurations"
 msgstr "Configurations additionnelles"
 
-#: unknownmsgid "Additional daemon"
+#: unknown
+msgid "Additional daemon"
 msgstr "Démon supplémentaire"
 
 #: unknown
@@ -20262,7 +20267,8 @@ msgstr "Impossible d'importer ndomod"
 msgid "Create additional configuration"
 msgstr "Créer une configuration additionnelle"
 
-#: unknownmsgid "Create new object with prefix"
+#: unknown
+msgid "Create new object with prefix"
 msgstr "Créer un nouvel objet avec un prefix"
 
 #: unknown
@@ -20847,7 +20853,8 @@ msgstr "Échec de la suppression de la règle d'accès aux ressources"
 msgid "Failed to delete the additional configuration"
 msgstr "Échec de la suppression de la configuration additionnelle"
 
-#: unknownmsgid "Failed to delete the host group"
+#: unknown
+msgid "Failed to delete the host group"
 msgstr "Échec de la suppression du groupe d'hôtes"
 
 #: unknown
@@ -23335,7 +23342,8 @@ msgstr "Temps état disponible"
 msgid "Update additional configuration"
 msgstr "Mettre à jour la configuration additionnelle"
 
-#: unknownmsgid "Update definition in case of double definition"
+#: unknown
+msgid "Update definition in case of double definition"
 msgstr "Mettre à jour la définition en cas de définition en double"
 
 #: unknown
