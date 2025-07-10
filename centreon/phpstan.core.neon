@@ -75,6 +75,7 @@ parameters:
                 - src/Core/AgentConfiguration/Infrastructure/Repository
                 - src/Core/Common/Infrastructure/Repository
                 - src/Core/Contact/Infrastructure/Repository
+                - src/Core/Module/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
