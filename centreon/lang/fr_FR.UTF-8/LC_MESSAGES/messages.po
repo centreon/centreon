@@ -23742,7 +23742,7 @@ msgid ""
 "You can't edit this hostgroup because you don't have access to all its "
 "resources"
 msgstr ""
-"Vous ne pouvez pas éditer groupe d'hote car vous n'avez pas la permission "
+"Vous ne pouvez pas éditer ce groupe d'hôtes car vous n'avez pas la permission "
 "d'accéder à toutes les ressources liées"
 
 #: unknown
