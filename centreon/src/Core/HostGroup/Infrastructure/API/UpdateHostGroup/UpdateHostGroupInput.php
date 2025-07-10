@@ -68,6 +68,7 @@ final class UpdateHostGroupInput
             new Assert\All(
                 new Assert\Type('integer')
             ),
+            new Assert\Count(min: 1),
         ])]
         public readonly mixed $resourceAccessRules,
     ) {
