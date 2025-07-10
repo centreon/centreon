@@ -1,0 +1,6 @@
+.primaryCommand {
+  font-weight: bold;
+}
+.secondaryCommand {
+  color: var(--color-text-secondary);
+}
