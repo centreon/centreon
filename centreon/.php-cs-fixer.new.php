@@ -24,7 +24,7 @@ declare(strict_types=1);
 use PhpCsFixer\Finder;
 use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
-$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.strict.php';
+$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
 
 $finder = Finder::create()
     ->in([

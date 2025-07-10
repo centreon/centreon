@@ -1,4 +1,4 @@
-name: tools
+name: php-tools
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -7,13 +7,8 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
-      - "tools/**"
+      - "php-tools/**"
   push:
     branches:
       - develop
@@ -21,7 +16,7 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "tools/**"
+      - "php-tools/**"
 
 jobs:
 
@@ -39,19 +34,19 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
-        working-directory: tools
+        working-directory: php-tools
         shell: bash
 
       - name: 🛠️ Rector checks
-        working-directory: tools
+        working-directory: php-tools
         run: composer rector -- --no-progress-bar
 
       - name: 🧹 PHP-CS-Fixer checks
-        working-directory: tools
+        working-directory: php-tools
         run: composer cs -- --format=txt --show-progress=none
 
       - name: 🔍 PHPStan checks
-        working-directory: tools
+        working-directory: php-tools
         run: composer stan -- --no-progress

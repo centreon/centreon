@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-$rectorConfig = require_once __DIR__ . '/../tools/rector/config/base.unstrict.php';
+$rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
 
 return $rectorConfig
     ->withCache(__DIR__ . '/var/cache/rector.core')

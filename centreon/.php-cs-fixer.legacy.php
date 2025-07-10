@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 use PhpCsFixer\Finder;
 
-$config = require_once __DIR__ . '/../tools/php-cs-fixer/config/base.unstrict.php';
+$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.unstrict.php';
 
 $finder = Finder::create()
     ->in([

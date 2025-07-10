@@ -2728,7 +2728,7 @@ msgstr "Lancer le mode débogage de l'ordonnanceur."
 
 #: centreon/www/include/configuration/configServers/help.php
 msgid ""
-"SSH legacy port used by Centreon extensions or tools (see Gorgone "
+"SSH legacy port used by Centreon extensions or php-tools (see Gorgone "
 "Information for communication port between monitoring servers)"
 msgstr ""
 "Port SSH utilisé par les extensions ou outils Centreon (voir Gorgone "
