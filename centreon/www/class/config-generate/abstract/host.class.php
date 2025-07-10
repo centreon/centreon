@@ -447,12 +447,16 @@ abstract class AbstractHost extends AbstractObject
     public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
     {
         $host['hostCategories'] = $this->getHostCategoriesByHost($host);
+        $hostConfig = [];
+        if (! ($host['name'] ?? $host['host_name'] ?? null)) {
+            $hostConfig = $this->getHostById($host['host_id']);
+        }
 
         foreach ($host['hostCategories'] as $hostCategoryId) {
             $hostCategory->insertHostToCategoryMembers(
                 $hostCategoryId,
                 $host['host_id'],
-                $host['name'] ?? $host['host_name']
+                $host['name'] ?? $host['host_name'] ?? $hostConfig['host_name']
             );
         }
     }
