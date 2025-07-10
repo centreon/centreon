@@ -43,6 +43,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
@@ -54,10 +55,12 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param Container $dependencyInjector
+     * @param RequestStack $requestStack
      * @param OpenIdProvider $provider
      */
     public function __construct(
         private Container $dependencyInjector,
+        private RequestStack $requestStack,
         private OpenIdProviderInterface $provider
     ) {
     }
@@ -312,5 +315,43 @@ class OpenId implements ProviderAuthenticationInterface
     public function getAclConditionsMatches(): array
     {
         return $this->provider->getAclConditionsMatches();
+    }
+
+    public function getTokenForSession(): ?string
+    {
+        return $this->provider->getTokenForSession();
+    }
+
+    /**
+     * Redirect the user to the OIDC end-session endpoint
+     *
+     * @param string $idToken
+     *
+     * @throws Exception
+     */
+    public function logout(string $idToken): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            throw new Exception('Request is not available for OpenID logout');
+        }
+        $centreonBase = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $postLogout = $centreonBase . '/login';
+
+        /** @var CustomConfiguration $customConfig */
+        $customConfig = $this->provider->getConfiguration()->getCustomConfiguration();
+        $baseUrl = $customConfig->getBaseUrl();
+        $endSessionUrl = $baseUrl . $customConfig->getEndSessionEndpoint();
+
+        $params = [
+            'post_logout_redirect_uri' => $postLogout,
+            'id_token_hint' => $idToken,
+        ];
+
+        $logoutUrl = $endSessionUrl . '?' . http_build_query($params);
+
+        header('Location: ' . $logoutUrl, true, 302);
+
+        exit;
     }
 }

@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
@@ -53,9 +54,12 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
-        $this->writeSessionTokenRepository->deleteSession($this->requestStack->getSession()->getId());
-        $centreon = $this->requestStack->getSession()->get('centreon');
-        $this->requestStack->getSession()->invalidate();
+        $session = $this->requestStack->getSession();
+        $idToken = $session->get('openid_id_token') ?? '';
+        $sessionId = $session->getId();
+        $this->writeSessionTokenRepository->deleteSession($sessionId);
+        $centreon = $session->get('centreon');
+        $session->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
             /** @var SAML $provider */
@@ -69,6 +73,17 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             ) {
                 $this->info('Logout from Centreon and SAML IDP...');
                 $provider->logout(); // The redirection is done here by the IDP
+            }
+        }
+
+        if ($centreon && $centreon->user->authType === Provider::OPENID) {
+            /** @var OpenId $provider */
+            $provider = $this->providerFactory->create(Provider::OPENID);
+            $configuration = $provider->getConfiguration();
+            /** @var CustomConfiguration $customConfiguration */
+            $customConfiguration = $configuration->getCustomConfiguration();
+            if ($configuration->isActive()) {
+                $provider->logout($idToken);
             }
         }
     }
