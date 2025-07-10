@@ -212,6 +212,7 @@ class Centreon_OpenTickets_Rule
                     hosts.state AS host_state,
                     hosts.host_id,
                     hosts.name AS host_name,
+                    hosts.alias AS host_alias,
                     hosts.instance_id
                 FROM services
                 INNER JOIN hosts
