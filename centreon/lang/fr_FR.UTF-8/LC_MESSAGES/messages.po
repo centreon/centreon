@@ -1067,7 +1067,7 @@ msgstr "Paramètres avancés"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Advanced: reverse Centreon Broker communication flow"
-msgstr "Avancé : inverser le flux de communication du broker Centreon"
+msgstr "Avancé : inverser le flux de communication du Broker Centreon"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "After"
