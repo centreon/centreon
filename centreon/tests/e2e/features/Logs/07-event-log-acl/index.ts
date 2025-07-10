@@ -244,15 +244,8 @@ Then(
       .click();
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
-    cy.getIframeBody()
-      .find("table.ToolbarTable tbody tr") // All table rows
-      .find("td:nth-child(3)") // get the 3rd column with object name with no links to any host
-      .then(($links) => {
-        const found = [...$links].some(
-          (link) => link.innerText.trim() === "Centreon-Server", // name of the host
-        );
-        expect(found).to.be.false;
-      });
+    // check event logs
+    cy.getIframeBody().find("a").contains("Centreon-Server").should("not.exist");
   },
 );
 
