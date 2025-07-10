@@ -16,7 +16,7 @@ export const labelNoDisabledHosts =
 export const labelGeneralInformation = 'General information';
 export const labelGroupMembers = 'Group members';
 export const labelResourceAccessRule = 'Resource access rules';
-export const labelExtendedInformation = 'Extended information';
+export const labelAdditionalInformation = 'Additional information';
 
 export const labelComments = 'Comments';
 export const labelSelectHosts = 'Select hosts';

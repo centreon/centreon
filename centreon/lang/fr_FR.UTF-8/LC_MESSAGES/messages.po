@@ -997,6 +997,10 @@ msgstr "Configuration additionnelle mise à jour"
 msgid "Additional freshness latency"
 msgstr "Latence additionnelle du contrôle de fraicheur"
 
+#: centreon/www/install/front_translate.php
+msgid "Additional information"
+msgstr "Informations supplémentaires"
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Address"
@@ -6812,7 +6816,6 @@ msgstr "Options avancées"
 msgid "Extended Status Information"
 msgstr "Informations étendues de statut"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneHost.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 msgid "Extended information"
