@@ -22881,3 +22881,7 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 
 #~ msgid "Export format not supported"
 #~ msgstr "Format d'export non supporté"
+
+#: unknown
+msgid "Additional information"
+msgstr "Informations supplémentaires"
