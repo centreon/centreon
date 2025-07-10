@@ -1,5 +1,5 @@
 includes:
-    - ../tools/phpstan/config/common.neon
+    - ../php-tools/phpstan/config/common.neon
     - phpstan.legacy.www.baseline.neon
 
 parameters:
