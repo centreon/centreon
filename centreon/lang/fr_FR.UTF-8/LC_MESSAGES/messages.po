@@ -23692,7 +23692,7 @@ msgstr ""
 
 #: unknown
 msgid "You are not allowed to access this host group"
-msgstr "Vous n'avez pas la permission d'accéder à ce groupe d'hôte"
+msgstr "Vous n'avez pas la permission d'accéder à ce groupe d'hôtes"
 
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
