@@ -70,20 +70,12 @@ Then("the admin user navigates to the Event Logs page", () => {
   cy.waitUntil(
     () => {
       return cy.get('div[class*="-row"]').then(($rows) => {
-        let found = false;
-
-        $rows.each((_, row) => {
-          const rowText = row.innerText.toLowerCase();
-          if (
-            rowText.includes(services.serviceCritical.name) &&
-            rowText.includes("critical")
-          ) {
-            found = true;
-            return false;
-          }
-        });
-
-        return found;
+        const targetRow = [...$rows].find(row =>
+          row.innerText.toLowerCase().includes(services.serviceCritical.name.toLowerCase())
+        );
+        if (!targetRow) return false;
+        const rowText = targetRow.innerText.toLowerCase();
+        return rowText.includes('critical');
       });
     },
     {
