@@ -169,7 +169,7 @@ Then(
 );
 
 When('the user deletes the Agents Configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).eq(0).click();
+  cy.getByLabel({ label: 'Delete' }).eq(0).click();
   cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
