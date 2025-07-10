@@ -35,20 +35,23 @@
 /**
  * Load Page
  */
-function loadPage()
-{
+function loadPage() {
     jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
         success: function (htmlData) {
-            jQuery("#hostMonitoringTable").empty().append(htmlData).append(function() {
+            jQuery("#hostMonitoringTable").empty().append(htmlData).append(function () {
                 var h = jQuery("#hostMonitoringTable").prop("scrollHeight");
                 parent.iResize(window.name, h);
             });
-            jQuery('.checkall').on('change', function() {
+            jQuery('.checkall').on('change', function () {
                 var chck = this.checked;
                 $(this).parents().find(':checkbox').each(function () {
                     $(this).prop('checked', chck);
                     clickedCb[$(this).attr('id')] = chck;
-                    localStorage.setItem('w_hm_' + $(this).attr('id'), chck ? '1' : '0');
+                    try {
+                        localStorage.setItem('w_hm_' + $(this).attr('id'), chck ? '1' : '0');
+                    } catch (e) {
+                        console.warn('Failed to save checkbox state:', e);
+                    }
                 });
             });
         }
@@ -64,9 +67,8 @@ function loadPage()
 /*
  * Load toolbar
  */
-function loadToolBar()
-{
-    jQuery("#toolBar").load("./src/toolbar.php",{widgetId: widgetId});
+function loadToolBar() {
+    jQuery("#toolBar").load("./src/toolbar.php", { widgetId: widgetId });
 }
 
 jQuery(function () {
