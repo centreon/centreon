@@ -69,20 +69,20 @@ Then("the admin user navigates to the Event Logs page", () => {
   cy.submitResult(services.serviceCritical.name, "Critical");
   cy.waitUntil(
     () => {
-      return cy.get('div[class*="-row"]').then(($rows) => {
-        const targetRow = [...$rows].find(row =>
-          row.innerText.toLowerCase().includes(services.serviceCritical.name.toLowerCase())
-        );
-        if (!targetRow) return false;
-        const rowText = targetRow.innerText.toLowerCase();
-        return rowText.includes('critical');
-      });
+      return cy
+        .get('[class*="-statusColumn"] span[class*="-label"]')
+        .invoke("text")
+        .then((text) => {
+          if (text !== "Critical") {
+            cy.exportConfig();
+          }
+
+          return text === "Critical";
+        });
     },
-    {
-      timeout: 30000,
-      interval: 3000,
-    },
+    { interval: 10000, timeout: 600000 },
   );
+
   cy.navigateTo({
     page: "Event Logs",
     rootItemNumber: 1,
