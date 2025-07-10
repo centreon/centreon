@@ -4117,7 +4117,7 @@ msgstr "Définir les valeurs des conditions autorisées"
 
 #: centreon/www/install/front_translate.php
 msgid "Define relations between roles and ACL access groups"
-msgstr "Définir les relations entre les rôles et les groupes d'accès ACL"
+msgstr "Définir les relations entre les rôles et les groupes d'accès"
 
 #: centreon/www/install/front_translate.php
 msgid "Define the password security policy"
