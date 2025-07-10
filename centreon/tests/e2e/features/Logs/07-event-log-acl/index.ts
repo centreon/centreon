@@ -69,7 +69,7 @@ Then("the admin user navigates to the Event Logs page", () => {
   cy.submitResult(services.serviceCritical.name, "Critical");
   cy.waitUntil(
     () => {
-      return cy.get('div[class*="-intersectionRow"]').then(($rows) => {
+      return cy.get('div[class*="-row"]').then(($rows) => {
         let found = false;
 
         $rows.each((_, row) => {
@@ -100,9 +100,9 @@ Then("the admin user navigates to the Event Logs page", () => {
 
 Then("the admin user should see all event logs", () => {
   // Select all host groups
-  cy.waitForElementInIframe("#main-content", 'select[id="host_group_filter"]');
+  cy.waitForElementInIframe("#main-content", 'select[id="host_filter"]');
   cy.getIframeBody()
-    .find('select[id="host_group_filter"]')
+    .find('select[id="host_filter"]')
     .siblings("span.select2-container")
     .click();
 
