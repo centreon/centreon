@@ -129,6 +129,10 @@ class AddHostGroupValidator
         if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
         }
+
+        if ($existentRules === []) {
+            throw HostGroupException::errorResourceAccessRulesEmpty();
+        }
     }
 
     /**
