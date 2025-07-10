@@ -116,6 +116,7 @@ Then("the admin user should see all event logs", () => {
 });
 
 When("the admin creates an access group for the restricted user", () => {
+  cy.setUserTokenApiV1();
   cy.addContact({
     admin: restrictedUser.admin,
     email: restrictedUser.email,
@@ -244,7 +245,7 @@ Then(
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
     cy.getIframeBody()
-      .find("table.ListTable tbody tr") // All table rows
+      .find("table.ToolbarTable tbody tr") // All table rows
       .find("td:nth-child(3)") // get the 3rd column with object name with no links to any host
       .then(($links) => {
         const found = [...$links].some(
@@ -365,7 +366,7 @@ Then(
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
     // check event logs
     cy.getIframeBody()
-      .find("table.ListTable tbody tr") // All table rows
+      .find("table.ToolbarTable tbody tr") // All table rows
       .find("td:nth-child(3)") // get the 3rd column with object name with no links to any host
       .then(($links) => {
         const found = [...$links].some(
