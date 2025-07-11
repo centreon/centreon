@@ -146,8 +146,14 @@ runs:
         # if non-cloud, delivery to onprem testing or unstable
         # if feature delivery, delivery to dedicated feature repository
 
+        # FEATURE REPOSITORY
+        if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
+          echo "[DEBUG] : Delivery to feature repositories, using rpm-feature repo."
+          ROOT_REPO_PATHS="rpm-standard-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
-        if [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.release_type }}" == "release" ]]); then
+        elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "true" ]] && ([[ "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.release_type }}" == "release" ]]); then
           echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
@@ -162,12 +168,6 @@ runs:
         elif [[ "${{ inputs.delivery_type }}" == "classic" ]] && [[ "${{ inputs.is_cloud }}" == "false" ]]; then
           echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
-          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
-
-        # FEATURE REPOSITORY
-        elif [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
-          echo "[DEBUG] : Delivery to feature repositories, using rpm-feature repo."
-          ROOT_REPO_PATHS="rpm-standard-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*-MON-[0-9]+')"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # ANYTHING ELSE

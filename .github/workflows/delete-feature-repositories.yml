@@ -1,4 +1,4 @@
-name: docker-keycloak
+name: delete-feature-repositories
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
