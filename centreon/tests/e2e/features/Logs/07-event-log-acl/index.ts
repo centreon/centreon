@@ -60,30 +60,6 @@ Given("the admin user logs in", () => {
 
 Then("the admin user navigates to the Event Logs page", () => {
   cy.navigateTo({
-    page: "Resources Status",
-    rootItemNumber: 1,
-  });
-  cy.waitForElementToBeVisible('div[data-testid="Search bar"]');
-  cy.get('input[placeholder="Search"]').clear();
-  cy.get('[data-testid="Refresh"]').click();
-  cy.submitResult(services.serviceCritical.name, "Critical");
-  cy.waitUntil(
-    () => {
-      return cy
-        .get('[class*="-statusColumn"] span[class*="-label"]')
-        .invoke("text")
-        .then((text) => {
-          if (text !== "Critical") {
-            cy.exportConfig();
-          }
-
-          return text === "Critical";
-        });
-    },
-    { interval: 10000, timeout: 600000 },
-  );
-
-  cy.navigateTo({
     page: "Event Logs",
     rootItemNumber: 1,
     subMenu: "Event Logs",
@@ -283,6 +259,30 @@ When("the admin creates host resources", () => {
     { name: services.serviceWarning.name },
   ]);
   cy.submitResults(resultsToSubmit);
+  //change host status to critical
+  cy.navigateTo({
+    page: "Resources Status",
+    rootItemNumber: 1,
+  });
+  cy.waitForElementToBeVisible('div[data-testid="Search bar"]');
+  cy.get('input[placeholder="Search"]').clear();
+  cy.get('[data-testid="Refresh"]').click();
+  cy.submitResult(services.serviceCritical.name, "Critical");
+  cy.waitUntil(
+    () => {
+      return cy
+        .get('[class*="-statusColumn"] span[class*="-label"]')
+        .invoke("text")
+        .then((text) => {
+          if (text !== "Critical") {
+            cy.exportConfig();
+          }
+
+          return text === "Critical";
+        });
+    },
+    { interval: 10000, timeout: 600000 },
+  );
 });
 
 
@@ -361,7 +361,7 @@ Then(
     // check event logs
     cy.getIframeBody()
       .find("a")
-      .contains(services.serviceWarning.name)
+      .contains(services.serviceCritical.name)
       .should("exist");
   },
 );
