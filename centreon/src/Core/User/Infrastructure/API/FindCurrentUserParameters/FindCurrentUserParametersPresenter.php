@@ -53,6 +53,7 @@ implements FindCurrentUserParametersPresenterInterface
                 'locale' => $data->locale,
                 'is_admin' => $data->isAdmin,
                 'use_deprecated_pages' => $data->useDeprecatedPages,
+                'use_deprecated_custom_views' => $data->useDeprecatedCustomViews,
                 'is_export_button_enabled' => $data->isExportButtonEnabled,
                 'can_manage_api_tokens' => $data->canManageApiTokens,
                 'theme' => UserThemeConverter::toString($data->theme),
