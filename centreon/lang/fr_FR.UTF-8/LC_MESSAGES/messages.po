@@ -861,7 +861,9 @@ msgstr "Ajouter un filtre"
 
 #: centreon/www/install/front_translate.php
 msgid "Add host group"
-msgstr "Ajouter un groupe d'hôtes"#: centreon/www/install/steps/process/installConfigurationDb.php
+msgstr "Ajouter un groupe d'hôtes"
+
+#: centreon/www/install/steps/process/installConfigurationDb.php
 msgid ""
 "Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and "
 "restart MySQL Server."
@@ -3581,10 +3583,6 @@ msgstr "Créer un ticket"
 #: centreon/www/install/smarty_translate.php
 msgid "Create a view"
 msgstr "Créer une vue"
-
-#: centreon/www/install/front_translate.php
-msgid "Create additional configuration"
-msgstr "Créer une configuration additionnelle"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Create and edit pollers"
@@ -6474,8 +6472,8 @@ msgstr "Erreur lors de la recherche de catégories d'hôtes"
 #, php-format
 msgid "Error while searching provider configuration: '%s'"
 msgstr ""
-"Erreur pendant la recherche de configuration du fournisseur d'identification "
-": '%s'"
+"Erreur pendant la recherche de configuration du fournisseur "
+"d'identification : '%s'"
 
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 msgid "Error while searching providers configurations"
@@ -7278,7 +7276,9 @@ msgid ""
 msgstr ""
 "Pour certains connecteurs, vous devez définir sur le collecteur les "
 "identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le "
-"faire facilement depuis cette page."#: centreon/www/include/Administration/parameters/engine/form.php
+"faire facilement depuis cette page."
+
+#: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
 msgstr "Forcer les contrôles actifs"
 
@@ -10635,6 +10635,7 @@ msgstr "Modifier une information supplémentaire"
 #: centreon/www/install/front_translate.php
 msgid "Modify an additional configuration"
 msgstr "Modifier une configuration additionnelle"
+
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
 msgstr "Modifier le répertoire"
@@ -17153,10 +17154,6 @@ msgid "Update"
 msgstr "Mise à jour"
 
 #: centreon/www/install/front_translate.php
-msgid "Update additional configuration"
-msgstr "Mettre à jour la configuration additionnelle"
-
-#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr "Tout mettre à jour"
 
@@ -18126,7 +18123,8 @@ msgstr ""
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "You are not allowed to access additional configurations"
-msgstr "Vous n'avez pas la permission d'accéder aux configurations additionnelles"
+msgstr ""
+"Vous n'avez pas la permission d'accéder aux configurations additionnelles"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "You are not allowed to access commands"
@@ -18171,7 +18169,8 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 msgid "You are not allowed to access poller/agent configurations"
-msgstr "Vous n'avez pas la permission d'accéder aux configurations collecteur/agent"
+msgstr ""
+"Vous n'avez pas la permission d'accéder aux configurations collecteur/agent"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to access service categories"
@@ -18196,11 +18195,13 @@ msgstr "Vous n'avez pas la permission d'accéder aux services"
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to access services in the real time context"
 msgstr ""
-"Vous n'avez pas la permission d'accéder aux services dans le cadre du temps réel"
+"Vous n'avez pas la permission d'accéder aux services dans le cadre du temps "
+"réel"
 
 #: centreon/src/Centreon/Application/Controller/FilterController.php
 msgid "You are not allowed to access the Resources Status page"
-msgstr "Vous n'avez pas la permission d'accéder à la page Statut des ressources"
+msgstr ""
+"Vous n'avez pas la permission d'accéder à la page Statut des ressources"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You are not allowed to access this contact"
@@ -18224,7 +18225,8 @@ msgstr "Vous n'avez pas la permission d'accéder à ce méta-service"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "You are not allowed to access this monitoring instance"
-msgstr "Vous n'avez pas la permission d'accéder à cette instance de supervision"
+msgstr ""
+"Vous n'avez pas la permission d'accéder à cette instance de supervision"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configResources/formResources.php
@@ -18313,7 +18315,8 @@ msgstr "Vous n'avez pas la permission de supprimer un hôte"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to delete a notification configuration"
-msgstr "Vous n'avez pas la permission de supprimer une configuration de notification"
+msgstr ""
+"Vous n'avez pas la permission de supprimer une configuration de notification"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "You are not allowed to delete a service"
@@ -18351,7 +18354,8 @@ msgstr "Vous n'avez pas la permission de supprimer des tokens"
 #, php-format
 msgid "You are not allowed to delete tokens linked to user ID %d"
 msgstr ""
-"Vous n'avez pas la permission de supprimer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de supprimer des tokens liés à l'ID "
+"d'utilisateur %d"
 
 #: centreon/www/include/options/session/connected_user.php
 msgid "You are not allowed to disconnect this user"
@@ -18359,7 +18363,8 @@ msgstr "Vous n'avez pas la permission de déconnecter cet utilisateur"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to display the details of the notification"
-msgstr "Vous n'avez pas la permission d'afficher les détails de la notification"
+msgstr ""
+"Vous n'avez pas la permission d'afficher les détails de la notification"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "You are not allowed to edit a broker configuration"
@@ -18377,7 +18382,8 @@ msgstr "Vous n'avez pas la permission d'éditer un service"
 #, php-format
 msgid "You are not allowed to edit access rights on the dashboard #%d"
 msgstr ""
-"Vous n'avez pas la permission d'éditer les droits d'accès du tableau de bord #%d"
+"Vous n'avez pas la permission d'éditer les droits d'accès du tableau de bord "
+"#%d"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "You are not allowed to edit service severities"
@@ -18401,11 +18407,13 @@ msgstr "Vous n'avez pas la permission de lister les médias"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to list notification resources"
-msgstr "Vous n'avez pas la permission d'afficher les ressources des notifications"
+msgstr ""
+"Vous n'avez pas la permission d'afficher les ressources des notifications"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to list notifications configurations"
-msgstr "Vous n'avez pas la permission de lister les configurations de notifications"
+msgstr ""
+"Vous n'avez pas la permission de lister les configurations de notifications"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "You are not allowed to list resource access rules"
@@ -18430,26 +18438,26 @@ msgstr "Vous n'avez pas la permission de mettre à jour partiellement le jeton"
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to perform write actions on host templates"
 msgstr ""
-"Vous n'avez pas la permission d'effectuer des actions d'écriture sur les modèles "
-"d'hôte"
+"Vous n'avez pas la permission d'effectuer des actions d'écriture sur les "
+"modèles d'hôte"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "You are not allowed to perform write operations on dashboards"
 msgstr ""
-"Vous n'avez pas la permission de faire des opérations d'écriture sur les tableaux "
-"de bord"
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les "
+"tableaux de bord"
 
 #: centreon/src/Core/HostGroup/Application/Exceptions/HostGroupException.php
 msgid "You are not allowed to perform write operations on host groups"
 msgstr ""
-"Vous n'avez pas la permission de faire des opérations d'écriture sur les groupes "
-"d'hôtes"
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les "
+"groupes d'hôtes"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to perform write operations on service groups"
 msgstr ""
-"Vous n'avez pas la permission de faire des opérations d'écriture sur les groupes "
-"de services"
+"Vous n'avez pas la permission de faire des opérations d'écriture sur les "
+"groupes de services"
 
 #: centreon/www/include/core/errors/alt_error.php
 #: centreon/www/include/configuration/configServers/formServers.php
@@ -18471,7 +18479,8 @@ msgstr "Vous n'avez pas la permission de mettre à jour des médias"
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to update the notification configuration"
 msgstr ""
-"Vous n'avez pas la permission de mettre à jour la configuration de la notification"
+"Vous n'avez pas la permission de mettre à jour la configuration de la "
+"notification"
 
 #: centreon/www/install/front_translate.php
 msgid "You are not authorized to access the configuration"
@@ -18505,8 +18514,8 @@ msgid ""
 "You can't edit this downtime because you don't have access to all of its "
 "resources"
 msgstr ""
-"Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la permission "
-"d'accéder à toutes les ressources liées"
+"Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la "
+"permission d'accéder à toutes les ressources liées"
 
 #: centreon/www/install/smarty_translate.php
 msgid "You cannot add more charts. The maximum charts is "
@@ -18535,8 +18544,8 @@ msgstr ""
 #, php-format
 msgid "You cannot view access rights on the dashboard #%d"
 msgstr ""
-"Vous n'avez pas la permission de consulter les droits d'accès du tableau de bord "
-"#%d"
+"Vous n'avez pas la permission de consulter les droits d'accès du tableau de "
+"bord #%d"
 
 #: centreon/src/Centreon/Domain/PlatformInformation/Exception/PlatformInformationException.php
 msgid "You do not have sufficent rights for this action."
@@ -19407,7 +19416,8 @@ msgstr "Coordonnées 3D"
 #: unknown
 msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
 msgstr ""
-"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée vers "
+"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
+"vers "
 
 #: unknown
 msgid "<br><b>Centreon : </b>All configuration will be send to "
@@ -19706,8 +19716,8 @@ msgid ""
 "envelope will stay the same."
 msgstr ""
 "Souhaitez-vous vraiment modifier la taille de l'enveloppe ? Notez que la "
-"nouvelle taille d'enveloppe s’appliquera seulement à partir de maintenant. L’"
-"ancienne enveloppe restera inchangée."
+"nouvelle taille d'enveloppe s’appliquera seulement à partir de "
+"maintenant. L’ancienne enveloppe restera inchangée."
 
 #: unknown
 msgid ""
@@ -19956,8 +19966,8 @@ msgid ""
 "Central platform's data are not consistent. Please check the 'Remote "
 "Access' form"
 msgstr ""
-"Les données sur le serveur central ne sont pas cohérentes. Veuillez vérifier "
-"le formulaire 'Accès au serveur distant'"
+"Les données sur le serveur central ne sont pas cohérentes. Veuillez "
+"vérifier le formulaire 'Accès au serveur distant'"
 
 #: unknown
 msgid "Central's API URI."
@@ -19968,8 +19978,8 @@ msgid ""
 "Central's path is missing on: '%s'@'%s'. Please check the Remote Access "
 "form."
 msgstr ""
-"Le chemin vers le central de la plateforme '%s'@'%s est manquant. Veuillez "
-"vérifier le formulaire 'Accès au serveur distant'."
+"Le chemin vers le central de la plateforme '%s'@'%s est manquant. "
+"Veuillez vérifier le formulaire 'Accès au serveur distant'."
 
 #: unknown
 msgid "Central's response : "
@@ -20138,8 +20148,8 @@ msgstr ""
 #: unknown
 msgid "Commands containing a request body are not allowed at the moment"
 msgstr ""
-"Les commandes contenant un corps de requête ne sont pas autorisées "
-"pour le moment"
+"Les commandes contenant un corps de requête ne sont pas autorisées pour "
+"le moment"
 
 #: unknown
 msgid "Communication port"
@@ -20168,7 +20178,8 @@ msgstr "Configuration sauvegardée."
 #: unknown
 msgid "Congratulations, you have successfully installed Centreon!"
 msgstr ""
-"Félicitations, vous avez installé avec succès Centreon en version <b>%s</b> !"
+"Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
+"b> !"
 
 #: unknown
 msgid "Connected Users"
@@ -20265,6 +20276,10 @@ msgstr "Impossible d'importer ndo2db"
 #: unknown
 msgid "Could not import ndomod"
 msgstr "Impossible d'importer ndomod"
+
+#: unknown
+msgid "Create additional configuration"
+msgstr "Créer une configuration additionnelle"
 
 #: unknown
 msgid "Create new object with prefix"
@@ -20870,7 +20885,8 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 #: unknown
 msgid "Failed to get the auth token from Central : '%s'"
-msgstr "Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
+msgstr ""
+"Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
 
 #: unknown
 msgid "Failover"
@@ -21542,8 +21558,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -22957,8 +22973,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -23338,6 +23354,10 @@ msgid "Up Time"
 msgstr "Temps état disponible"
 
 #: unknown
+msgid "Update additional configuration"
+msgstr "Mettre à jour la configuration additionnelle"
+
+#: unknown
 msgid "Update definition in case of double definition"
 msgstr "Mettre à jour la définition en cas de définition en double"
 
@@ -23652,7 +23672,8 @@ msgstr ""
 "la supprimer ?"
 
 #: unknown
-msgid """You are about to delete the <strong>{{ name }}</strong> host group. This "
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host group. This "
 "action cannot be undone. Do you want to delete it?"
 msgstr ""
 "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</"
@@ -23700,7 +23721,8 @@ msgstr "Vous n'avez pas la permission d'accéder à ce groupe d'hôtes"
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr ""
-"Vous n'avez pas la permission de créer des tokens liés à l'ID d'utilisateur %d"
+"Vous n'avez pas la permission de créer des tokens liés à l'ID "
+"d'utilisateur %d"
 
 #: unknown
 msgid "You are not allowed to create host categories"
@@ -23708,7 +23730,8 @@ msgstr "Vous n'avez pas la permission de créer des catégories d'hôtes"
 
 #: unknown
 msgid "You are not allowed to list authentication tokens"
-msgstr "Vous n'avez pas la permission de lister les jetons d'authentification"
+msgstr ""
+"Vous n'avez pas la permission de lister les jetons d'authentification"
 
 #: unknown
 msgid "You are not authorized to access this resource"
@@ -23745,8 +23768,8 @@ msgid ""
 "You can't edit this hostgroup because you don't have access to all its "
 "resources"
 msgstr ""
-"Vous ne pouvez pas éditer ce groupe d'hôtes car vous n'avez pas la permission "
-"d'accéder à toutes les ressources liées"
+"Vous ne pouvez pas éditer ce groupe d'hôtes car vous n'avez pas la "
+"permission d'accéder à toutes les ressources liées"
 
 #: unknown
 msgid "You cannot add the same dashboard to a playlist several times."
@@ -23774,7 +23797,8 @@ msgstr ""
 
 #: unknown
 msgid "You have unsaved changes, do you want to proceed?"
-msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
+msgstr ""
+"Vous avez des modifications non enregistrées, voulez-vous continuer ?"
 
 #: unknown
 msgid ""
