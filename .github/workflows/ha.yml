@@ -23,11 +23,15 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version.centreon-ha"
       - "centreon-ha/**"
       - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
+    tags:
+      - "centreon-ha-*"
 
 env:
   module: ha
