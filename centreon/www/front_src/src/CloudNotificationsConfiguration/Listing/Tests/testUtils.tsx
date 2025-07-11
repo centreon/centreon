@@ -55,8 +55,7 @@ export const fillNotifications = (numberOfRows: number): unknown => {
 
 export const getListingResponse = ({
   page = 1,
-  limit = 10,
-  rows = 56
+  limit = 10
 }: {
   limit?: number;
   page?: number;
@@ -70,7 +69,7 @@ export const getListingResponse = ({
       sort_by: {},
       total: 56
     },
-    result: fillNotifications(rows)
+    result: fillNotifications(10)
   };
 };
 

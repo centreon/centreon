@@ -239,5 +239,30 @@ export default () => {
       cy.findByLabelText('close').click();
       cy.findByLabelText('Discard').click();
     });
+
+    it('disables the save button when the platform is cloud and Resource Access Rules field is empty', () => {
+      initialize({ isCloudPlatform: true, hasWriteAccess: true });
+
+      cy.waitForRequest('@getAllHostGroups');
+
+      cy.get(`[data-testid="add-resource"]`).click();
+
+      cy.findAllByTestId(labelName).eq(1).clear().type('name');
+
+      cy.get(`button[data-testid="submit"`).should('be.disabled');
+
+      cy.findByTestId(labelApplyResourceAccessRule).click();
+
+      cy.waitForRequest('@getAccessRules');
+
+      cy.contains('rule 1').click();
+
+      cy.get(`button[data-testid="submit"`).should('not.be.disabled');
+
+      cy.makeSnapshot();
+
+      cy.findByLabelText('close').click();
+      cy.findByLabelText('Discard').click();
+    });
   });
 };

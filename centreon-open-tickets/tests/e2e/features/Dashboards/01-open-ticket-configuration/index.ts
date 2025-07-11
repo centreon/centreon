@@ -204,7 +204,7 @@ When(
   'the dashboard administrator user selects the option to add a new widget',
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -270,7 +270,7 @@ Then(
       cy.get('td.FormRowField').should('include.text', 'New ticket opened');
     });
     cy.get('[class$="modalCloseButton"]')
-      .find('[data-testid="CloseIcon"]')
+      .find('[aria-label="close"]')
       .eq(1)
       .click();
     cy.getByLabel({ label: 'Resources linked to a ticket' }).click();
@@ -296,7 +296,7 @@ When(
 Then(
   'the ticket should be deleted and the resource should no longer be associated with the ticket',
   () => {
-    cy.waitForElementToBeVisible('[class*="root-emptyDataCell"]');
+    cy.waitForElementToBeVisible("div.MuiTableCell-root:contains('No result found')");
     cy.contains('div', 'No result found').should('be.visible');
   }
 );
