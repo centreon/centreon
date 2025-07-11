@@ -538,7 +538,7 @@ jobs:
               releaseScope = scope;
             }
             // handle if triggering event is a push
-            else if (eventName === "push" && ref.startsWith("refs/heads/")) {
+            else if (ref.startsWith("refs/heads/") && (eventName === "push" || eventName === "workflow_dispatch")) {
               const branch = ref.replace("refs/heads/", "");
               console.log(`🚀 Push to branch: ${branch}`);
 
