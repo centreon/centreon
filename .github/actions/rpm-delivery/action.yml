@@ -55,7 +55,7 @@ runs:
         . .version
         major_version=$(grep -E "MAJOR" .version | cut -d '=' -f2)
         feature_ticket=$(echo "${{ github.event.pull_request.head.ref }}" | grep -oE 'MON-[0-9]+')
-        echo "[INFO] Creating a yum feature repository if it does not exist"
+        echo "[INFO] Creating a rpm feature repository if it does not exist"
 
         curl -X POST \
             -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
