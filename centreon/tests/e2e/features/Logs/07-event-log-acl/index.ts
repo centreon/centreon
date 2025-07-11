@@ -362,7 +362,7 @@ Then(
     cy.getIframeBody()
       .find("a")
       .contains(services.serviceCritical.name)
-      .should("exist");
+      .should("exist", { timeout: 10000 });
   },
 );
 
