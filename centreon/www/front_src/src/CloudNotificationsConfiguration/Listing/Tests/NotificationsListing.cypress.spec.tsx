@@ -40,7 +40,7 @@ const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <div style={{ height: '100vh' }}>
+    <div style={{ height: '90vh' }}>
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>

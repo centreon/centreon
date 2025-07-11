@@ -307,6 +307,13 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
+<<<<<<< HEAD
+=======
+
+        cy.contains('Hello world');
+
+        cy.makeSnapshot();
+>>>>>>> develop
       });
 
       it('does not disable the description field when the display description checkbox is not checked', () => {
