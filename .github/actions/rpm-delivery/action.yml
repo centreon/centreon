@@ -45,7 +45,7 @@ runs:
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - if: inputs.delivery_type == 'feature'
-      name: Create a yum feature repository
+      name: Create a rpm feature repository
       shell: bash
       env:
         JF_URL: https://centreon.jfrog.io
