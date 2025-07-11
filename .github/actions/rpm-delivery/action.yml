@@ -51,7 +51,7 @@ runs:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
-        set -x
+        set -eu
         . .version
         major_version=$(grep -E "MAJOR" .version | cut -d '=' -f2)
         feature_ticket=$(echo "${{ github.event.pull_request.head.ref }}" | grep -oE 'MON-[0-9]+')
