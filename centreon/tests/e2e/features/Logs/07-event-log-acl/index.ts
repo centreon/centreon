@@ -361,8 +361,8 @@ Then(
     // check event logs
     cy.getIframeBody()
       .find("a")
-      .contains(services.serviceCritical.name)
-      .should("exist", { timeout: 10000 });
+      .contains(services.serviceCritical.name, { timeout: 10000 })
+      .should("exist");
   },
 );
 
