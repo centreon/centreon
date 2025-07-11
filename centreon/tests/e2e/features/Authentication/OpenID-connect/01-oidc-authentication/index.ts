@@ -2,7 +2,8 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
+  initializeOIDCUserAndGetLoginPage,
+  saveOpenIdFormIfEnabled
 } from '../common';
 import { configureProviderAcls } from '../../../../commons';
 
@@ -57,12 +58,9 @@ When(
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  saveOpenIdFormIfEnabled();
 
-  cy.wait('@updateOIDCProvider')
-    .its('response.statusCode')
-    .should('eq', 204)
-    .getByLabel({ label: 'Client secret', tag: 'input' })
+  cy.getByLabel({ label: 'Client secret', tag: 'input' })
     .should('have.attr', 'type', 'password')
     .logout();
 
@@ -127,21 +125,17 @@ When(
       .getByLabel({
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
-      })
-      .check();
+      }).then(($input) => {
+        if ($input.is(":checked")) {
+          return;
+        }
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+        cy.wrap($input).check();
 
-    cy.wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204)
-      .getByLabel({
-        label: 'Enable OpenID Connect authentication',
-        tag: 'input'
-      })
-      .should('be.checked')
-      .and('have.value', 'on')
-      .logout();
+        saveOpenIdFormIfEnabled();
+      });
+
+    cy.logout();
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
@@ -153,7 +147,9 @@ Then(
     const username = 'user-non-admin-for-OIDC-authentication';
 
     cy.visit('/');
+
     cy.contains('Login with openid').should('be.visible').click();
+
     cy.loginKeycloak(username);
 
     cy.url().should('include', '/monitoring/resources');

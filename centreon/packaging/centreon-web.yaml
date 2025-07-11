@@ -227,6 +227,13 @@ contents:
       group: "centreon"
       mode: 0755
 
+  - src: "../bin/console.new"
+    dst: "/usr/share/centreon/bin/console.new"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
   - src: "../bin/migration"
     dst: "/usr/share/centreon/bin/migration"
     file_info:
@@ -417,7 +424,8 @@ overrides:
     depends:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
-      - centreon-perl-libs
+      - centreon-perl-libs >= ${MAJOR_VERSION}
+      - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
@@ -504,7 +512,8 @@ overrides:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-perl-libs
+      - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
+      - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
