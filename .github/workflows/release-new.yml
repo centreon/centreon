@@ -53,7 +53,7 @@ jobs:
           echo "Given inputs:"
           echo "Release branch: ${{ inputs.release_branch }}"
           echo "Release number: ${{ inputs.release_number }}"
-          echo "Release type: ${{ inputs.release_type}}"
+          echo "Release type: ${{ inputs.release_type }}"
           echo "Release scope: ${{ inputs.release_scope }}"
           echo "Checking for release branch based on workflow input..."
           if git ls-remote --exit-code --heads origin "refs/heads/${{ inputs.release_branch }}"; then
