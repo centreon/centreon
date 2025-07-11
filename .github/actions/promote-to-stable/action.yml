@@ -5,7 +5,7 @@ inputs:
     description: "Artifactory token"
     required: true
   module:
-    description: "Module"
+    description: "Module name"
     required: true
   distrib:
     description: "The distribution used for packaging"
@@ -32,7 +32,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
+    - uses: jfrog/setup-jfrog-cli@ff5cb544114ffc152db9cea1cd3d5978d5074946 # v4.5.11
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -57,10 +57,11 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
         echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
+        echo "[DEBUG] - stability: ${{ inputs.stability}}"
 
         # Cloud specific promote
-        # delivery by default to onprem, override to internal if base branch is master
-        if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
+        # delivery by default to onprem, override to internal if is_cloud is true
+        if [[ ${{ inputs.is_cloud }} == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
