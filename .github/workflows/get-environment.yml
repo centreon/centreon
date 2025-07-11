@@ -382,11 +382,6 @@ jobs:
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
         run: |
-          # RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
-          # if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
-          #   echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          # fi
-
           # Set REF_NAME (branch or tag)
           REF_NAME="${{ github.head_ref || github.ref_name }}"
 
@@ -444,7 +439,7 @@ jobs:
               if (['develop'].includes(finalTargetBranch)) {
                 releaseScope = "cloud";
               } else {
-                // compare developMajorVersion and curentMajorVersion
+                // compare developMajorVersion and currentMajorVersion
                 const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
                 const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
 
