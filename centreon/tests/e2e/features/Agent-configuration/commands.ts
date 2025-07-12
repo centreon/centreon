@@ -121,7 +121,7 @@ Cypress.Commands.add('addCMAToken', () => {
   cy.getByTestId({ testId: 'Type' }).click();
   cy.contains('Centreon monitoring agent').click();
   cy.contains('button', 'Generate token').click();
-  cy.wait('@getTokens');
+  cy.wait('@addToken');
   cy.contains('button', 'Done').click();
   cy.logout();
 });
