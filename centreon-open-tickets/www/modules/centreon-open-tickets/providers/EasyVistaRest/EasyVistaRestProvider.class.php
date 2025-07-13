@@ -127,9 +127,8 @@ class EasyVistaRestProvider extends AbstractProvider
         foreach ($queryValues as $bindName => $bindValue) {
             $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
         }
-        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT)
-
-        . $dbQuery->execute();
+        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT);
+        $dbQuery->execute();
 
         $result = [];
         while ($row = $dbQuery->fetch()) {
