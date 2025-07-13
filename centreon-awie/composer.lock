@@ -1623,7 +1623,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "9ca480dac66ecffc649adc4b3f93de65aedf56d1"
+                "reference": "01fb65c4a6347818cb0a2942d52fa7097a4cbb1b"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1737,8 +1737,7 @@
                 "psr-4": {
                     "": "src/",
                     "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-                    "Tests\\": "tests/php/",
-                    "Centreon\\Test\\Api\\": "tests/api/"
+                    "Tests\\": "tests/php/"
                 },
                 "classmap": [
                     "www/class/",
@@ -2306,16 +2305,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "4.2.4",
+            "version": "4.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "b37d160498ea91a2382a2ebe825c4ea6254fc0ec"
+                "reference": "acb68b388b2577bb211bb26dc22d20a8ad93d97d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/b37d160498ea91a2382a2ebe825c4ea6254fc0ec",
-                "reference": "b37d160498ea91a2382a2ebe825c4ea6254fc0ec",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/acb68b388b2577bb211bb26dc22d20a8ad93d97d",
+                "reference": "acb68b388b2577bb211bb26dc22d20a8ad93d97d",
                 "shasum": ""
             },
             "require": {
@@ -2392,7 +2391,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/4.2.4"
+                "source": "https://github.com/doctrine/dbal/tree/4.2.5"
             },
             "funding": [
                 {
@@ -2408,7 +2407,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-15T23:15:01+00:00"
+            "time": "2025-06-26T22:51:46+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -7281,16 +7280,16 @@
         },
         {
             "name": "respect/validation",
-            "version": "2.4.3",
+            "version": "2.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Respect/Validation.git",
-                "reference": "7f4b3b3ec3ccdf330dfc4567bb43698018f3562a"
+                "reference": "f13f10f19978aea33af2a102a2f58f2db1e63619"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Respect/Validation/zipball/7f4b3b3ec3ccdf330dfc4567bb43698018f3562a",
-                "reference": "7f4b3b3ec3ccdf330dfc4567bb43698018f3562a",
+                "url": "https://api.github.com/repos/Respect/Validation/zipball/f13f10f19978aea33af2a102a2f58f2db1e63619",
+                "reference": "f13f10f19978aea33af2a102a2f58f2db1e63619",
                 "shasum": ""
             },
             "require": {
@@ -7343,9 +7342,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Respect/Validation/issues",
-                "source": "https://github.com/Respect/Validation/tree/2.4.3"
+                "source": "https://github.com/Respect/Validation/tree/2.4.4"
             },
-            "time": "2025-05-14T12:14:59+00:00"
+            "time": "2025-06-07T00:07:21+00:00"
         },
         {
             "name": "riverline/multipart-parser",
