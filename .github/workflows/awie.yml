@@ -127,12 +127,12 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies for quality tools
+      - name: Install dependencies for PHP quality tools
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
-        working-directory: tools
+        working-directory: php-tools
         shell: bash
 
-      - name: Install Dependencies for centreon-awie
+      - name: Install dependencies for centreon-awie
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon-awie
         shell: bash
