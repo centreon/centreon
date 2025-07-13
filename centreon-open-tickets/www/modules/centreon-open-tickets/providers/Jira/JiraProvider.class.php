@@ -22,7 +22,6 @@
 
 class JiraProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
     public const JIRA_PROJECT = 30;
     public const JIRA_ASSIGNEE = 31;
     public const JIRA_ISSUETYPE = 32;
@@ -33,6 +32,8 @@ class JiraProvider extends AbstractProvider
     public const ARG_ASSIGNEE = 4;
     public const ARG_ISSUETYPE = 5;
     public const ARG_PRIORITY = 6;
+
+    protected $proxy_enabled = 1;
 
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_PROJECT => 'Project', self::ARG_SUMMARY => 'Summary', self::ARG_DESCRIPTION => 'Description', self::ARG_ASSIGNEE => 'Assignee', self::ARG_PRIORITY => 'Priority', self::ARG_ISSUETYPE => 'IssueType'];
@@ -45,6 +46,15 @@ class JiraProvider extends AbstractProvider
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -302,15 +312,6 @@ class JiraProvider extends AbstractProvider
         } elseif ($entry['Type'] == self::JIRA_PRIORITY) {
             $this->assignJiraPriority($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)

@@ -22,7 +22,6 @@
 
 class RequestTracker2Provider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
     public const RT_QUEUE_TYPE = 10;
     public const RT_CUSTOMFIELD_TYPE = 11;
     public const ARG_QUEUE = 1;
@@ -30,6 +29,8 @@ class RequestTracker2Provider extends AbstractProvider
     public const ARG_REQUESTOR = 3;
     public const ARG_CC = 4;
     public const ARG_CONTENT = 5;
+
+    protected $proxy_enabled = 1;
 
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_QUEUE => 'Queue', self::ARG_SUBJECT => 'Priority', self::ARG_REQUESTOR => 'Requestor', self::ARG_CC => 'Cc', self::ARG_CONTENT => 'Content'];
@@ -42,6 +43,14 @@ class RequestTracker2Provider extends AbstractProvider
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -262,14 +271,6 @@ class RequestTracker2Provider extends AbstractProvider
         } elseif ($entry['Type'] == self::RT_CUSTOMFIELD_TYPE) {
             $this->assignRtCustomField($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     /**

@@ -22,21 +22,6 @@
 
 class OtrsProvider extends AbstractProvider
 {
-    /** @var string */
-    protected $ws_error;
-
-    /** @var int */
-    protected $otrs_connected = 0;
-
-    /** @var null|string */
-    protected $otrs_session = null;
-
-    /** @var null|array */
-    protected $otrs_call_response;
-
-    protected $attach_files = 1;
-
-    protected $close_advanced = 1;
     public const OTRS_QUEUE_TYPE = 10;
     public const OTRS_PRIORITY_TYPE = 11;
     public const OTRS_STATE_TYPE = 12;
@@ -56,11 +41,51 @@ class OtrsProvider extends AbstractProvider
     public const ARG_OWNER = 17;
     public const ARG_RESPONSIBLE = 18;
 
+    /** @var string */
+    protected $ws_error;
+
+    /** @var int */
+    protected $otrs_connected = 0;
+
+    /** @var null|string */
+    protected $otrs_session = null;
+
+    /** @var null|array */
+    protected $otrs_call_response;
+
+    protected $attach_files = 1;
+
+    protected $close_advanced = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_QUEUE => 'Queue', self::ARG_PRIORITY => 'Priority', self::ARG_STATE => 'State', self::ARG_TYPE => 'Type', self::ARG_CUSTOMERUSER => 'CustomerUser', self::ARG_SUBJECT => 'Subject', self::ARG_BODY => 'Body', self::ARG_FROM => 'From', self::ARG_CONTENTTYPE => 'ContentType', self::ARG_OWNER => 'Owner', self::ARG_RESPONSIBLE => 'Responsible'];
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                if ($this->closeTicketOtrs($k) == 0) {
+                    $tickets[$k]['status'] = 2;
+                } else {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $this->ws_error;
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
     }
 
     /**
@@ -479,14 +504,6 @@ class OtrsProvider extends AbstractProvider
         }
     }
 
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
-    }
-
     /**
      * @param string $select_input_id
      * @param string $selected_id
@@ -888,21 +905,5 @@ class OtrsProvider extends AbstractProvider
         $this->otrs_call_response = $decoded_result;
 
         return 0;
-    }
-
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                if ($this->closeTicketOtrs($k) == 0) {
-                    $tickets[$k]['status'] = 2;
-                } else {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $this->ws_error;
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
     }
 }

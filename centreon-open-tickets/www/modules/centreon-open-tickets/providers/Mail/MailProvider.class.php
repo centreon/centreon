@@ -30,6 +30,14 @@ class MailProvider extends AbstractProvider
 {
     protected $attach_files = 1;
 
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     protected function setDefaultValueMain($body_html = 0)
     {
         parent::setDefaultValueMain(1);
@@ -118,14 +126,6 @@ class MailProvider extends AbstractProvider
             isset($this->submitted_config['ishtml'])
             && $this->submitted_config['ishtml'] == 'yes'
         ) ? $this->submitted_config['ishtml'] : '';
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)

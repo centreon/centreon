@@ -22,15 +22,6 @@
 
 class GlpiProvider extends AbstractProvider
 {
-    protected $glpi_connected = 0;
-
-    protected $glpi_session = null;
-
-    /** @var null|array */
-    protected $glpi_call_response;
-
-    /** @var string */
-    protected $rpc_error;
     public const GPLI_ENTITIES_TYPE = 10;
     public const GPLI_GROUPS_TYPE = 11;
     public const GLPI_ITIL_CATEGORIES_TYPE = 12;
@@ -45,12 +36,30 @@ class GlpiProvider extends AbstractProvider
     public const ARG_GROUP_ASSIGN = 9;
     public const ARG_TITLE = 10;
 
+    protected $glpi_connected = 0;
+
+    protected $glpi_session = null;
+
+    /** @var null|array */
+    protected $glpi_call_response;
+
+    /** @var string */
+    protected $rpc_error;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_CONTENT => 'content', self::ARG_ENTITY => 'entity', self::ARG_URGENCY => 'urgency', self::ARG_IMPACT => 'impact', self::ARG_CATEGORY => 'category', self::ARG_USER => 'user', self::ARG_USER_EMAIL => 'user_email', self::ARG_GROUP => 'group', self::ARG_GROUP_ASSIGN => 'groupassign', self::ARG_TITLE => 'title'];
 
     public function __destruct()
     {
         $this->logoutGlpi();
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -283,14 +292,6 @@ class GlpiProvider extends AbstractProvider
         } elseif ($entry['Type'] == self::GLPI_ITIL_CATEGORIES_TYPE) {
             $this->assignItilCategories($entry, $groups_order, $groups);
         }
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function assignSubmittedValuesSelectMore($select_input_id, $selected_id)

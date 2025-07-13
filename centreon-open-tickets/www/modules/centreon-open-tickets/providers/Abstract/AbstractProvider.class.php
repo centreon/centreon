@@ -24,59 +24,17 @@ require_once __DIR__ . '/CentreonCommon.php';
 
 abstract class AbstractProvider
 {
-    /**
-     * Set the default extra data
-     * @return void
-     */
-    abstract protected function setDefaultValueExtra();
-
-    /**
-     * Check the configuration form
-     * @return void
-     */
-    abstract protected function checkConfigForm();
-
-    /**
-     * Prepare the extra configuration block
-     * @return void
-     */
-    abstract protected function getConfigContainer1Extra();
-
-    /**
-     * Prepare the extra configuration block
-     * @return void
-     */
-    abstract protected function getConfigContainer2Extra();
-
-    /**
-     * Add specific configuration field
-     * @return void
-     */
-    abstract protected function saveConfigExtra();
-
-    /**
-     * Validate the popup for submit a ticket
-     *
-     * @return array The status of validation (
-     *               'code' => int,
-     *               'message' => string
-     *               )
-     */
-    abstract public function validateFormatPopup();
-
-    /**
-     * Create a ticket
-     *
-     * @param CentreonDB $db_storage The centreon_storage database connection
-     * @param string $contact The contact who open the ticket
-     * @param array $host_problems The list of host issues link to the ticket
-     * @param array $service_problems The list of service issues link to the ticket
-     * @return array The status of action (
-     *               'code' => int,
-     *               'message' => string
-     *               )
-     */
-    abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
+    public const HOSTGROUP_TYPE = 0;
+    public const HOSTCATEGORY_TYPE = 1;
+    public const HOSTSEVERITY_TYPE = 2;
+    public const SERVICEGROUP_TYPE = 3;
+    public const SERVICECATEGORY_TYPE = 4;
+    public const SERVICESEVERITY_TYPE = 5;
+    public const SERVICECONTACTGROUP_TYPE = 6;
+    public const CUSTOM_TYPE = 7;
+    public const BODY_TYPE = 8;
+    public const DATA_TYPE_JSON = 0;
+    public const DATA_TYPE_XML = 1;
 
     /** @var array<mixed> */
     protected $rule_data;
@@ -134,17 +92,6 @@ abstract class AbstractProvider
 
     /** @var int */
     protected $proxy_enabled = 0;
-    public const HOSTGROUP_TYPE = 0;
-    public const HOSTCATEGORY_TYPE = 1;
-    public const HOSTSEVERITY_TYPE = 2;
-    public const SERVICEGROUP_TYPE = 3;
-    public const SERVICECATEGORY_TYPE = 4;
-    public const SERVICESEVERITY_TYPE = 5;
-    public const SERVICECONTACTGROUP_TYPE = 6;
-    public const CUSTOM_TYPE = 7;
-    public const BODY_TYPE = 8;
-    public const DATA_TYPE_JSON = 0;
-    public const DATA_TYPE_XML = 1;
 
     /**
      * constructor
@@ -197,25 +144,14 @@ abstract class AbstractProvider
     }
 
     /**
-     * @param string $path
-     * @return SmartyBC
+     * Validate the popup for submit a ticket
+     *
+     * @return array The status of validation (
+     *               'code' => int,
+     *               'message' => string
+     *               )
      */
-    protected function initSmartyTemplate($path = 'providers/Abstract/templates')
-    {
-        // Smarty template initialization
-        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, $path);
-
-        $tpl->loadPlugin('smarty_function_host_get_hostgroups');
-        $tpl->loadPlugin('smarty_function_host_get_severity');
-        $tpl->loadPlugin('smarty_function_host_get_hostcategories');
-        $tpl->loadPlugin('smarty_function_host_get_macro_value_in_config');
-        $tpl->loadPlugin('smarty_function_host_get_macro_values_in_config');
-        $tpl->loadPlugin('smarty_function_service_get_servicecategories');
-        $tpl->loadPlugin('smarty_function_service_get_servicegroups');
-        $tpl->loadPlugin('smarty_function_sortgroup');
-
-        return $tpl;
-    }
+    abstract public function validateFormatPopup();
 
     /**
      * @param int $widget_id
@@ -244,6 +180,292 @@ abstract class AbstractProvider
     public function setForm($form): void
     {
         $this->submitted_config = $form;
+    }
+
+    /**
+     * @return void
+     */
+    public function clearUploadFiles(): void
+    {
+        $upload_files = $this->getUploadFiles();
+        foreach ($upload_files as $file) {
+            unlink($file['filepath']);
+        }
+
+        unset($_SESSION['ot_upload_files'][$this->uniq_id]);
+    }
+
+    /**
+     * Build the config form
+     *
+     * @return array<mixed>
+     */
+    public function getConfig()
+    {
+        $this->getConfigContainer1Extra();
+        $this->getConfigContainer1Main();
+        $this->getConfigContainer2Main();
+        $this->getConfigContainer2Extra();
+
+        return $this->config;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChainRuleList()
+    {
+        $result = [];
+        if (isset($this->rule_data['clones']['chainruleList'])) {
+            $result = $this->rule_data['clones']['chainruleList'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMacroTicketId()
+    {
+        return $this->rule_data['macro_ticket_id'];
+    }
+
+    /**
+     * @return void
+     */
+    public function saveConfig(): void
+    {
+        $this->checkConfigForm();
+        $this->save_config = ['clones' => [], 'simple' => []];
+
+        $this->saveConfigMain();
+        $this->saveConfigExtra();
+
+        $this->rule->save($this->rule_id, $this->save_config);
+    }
+
+    /**
+     * Check select lists requirement
+     *
+     * @return array
+     */
+    public function automateValidateFormatPopupLists()
+    {
+        $rv = ['code' => 0, 'lists' => []];
+        if (isset($this->rule_data['clones']['groupList'])) {
+            foreach ($this->rule_data['clones']['groupList'] as $values) {
+                if (
+                    $values['Mandatory'] == 1
+                    && ! isset($this->submitted_config['select_' . $values['Id']])
+                ) {
+                    $rv['code'] = 1;
+                    $rv['lists'][] = $values['Id'];
+                }
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
+     * @param array<mixed> $args
+     * @param bool $addGroups
+     * @return array<mixed>|null
+     */
+    public function getFormatPopup($args, $addGroups = false)
+    {
+        if (
+            ! isset($this->rule_data['format_popup'])
+            || is_null($this->rule_data['format_popup'])
+            || $this->rule_data['format_popup']  == ''
+        ) {
+            return null;
+        }
+
+        $result = ['format_popup' => null];
+
+        $tpl = $this->initSmartyTemplate();
+
+        $groups = $this->assignFormatPopupTemplate($tpl, $args);
+        $tpl->assign('string', $this->rule_data['format_popup']);
+        $result['format_popup'] = $tpl->fetch('eval.ihtml');
+        $result['attach_files_enable'] = $this->rule_data['attach_files'] ?? 0;
+        if ($addGroups === true) {
+            $result['groups'] = $groups;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doAck()
+    {
+        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Check if schedule check is needed
+     *
+     * @return bool
+     */
+    public function doesScheduleCheck(): bool
+    {
+        return
+            isset($this->rule_data['schedule_check'])
+            && $this->rule_data['schedule_check'] === 'yes';
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doCloseTicket()
+    {
+        if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return 0|1
+     */
+    public function doCloseTicketContinueOnError()
+    {
+        if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param CentreonDB $db_storage
+     * @param string $contact
+     * @param array<mixed> $host_problems
+     * @param array<mixed> $service_problems
+     * @return array<mixed>
+     */
+    public function submitTicket($db_storage, $contact, $host_problems, $service_problems)
+    {
+        $result = ['confirm_popup' => null];
+
+        $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
+        if ($submit_result['ticket_is_ok'] == 1) {
+            $this->executeCmd($host_problems, $service_problems, $submit_result);
+        }
+        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
+        $result['ticket_id'] = $submit_result['ticket_id'];
+        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
+        $result['ticket_time'] = $submit_result['ticket_time'];
+        $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
+
+        return $result;
+    }
+
+    /**
+     * @param int|string $ticket_id
+     * @param array<mixed> $data
+     * @return false|string
+     */
+    public function getUrl($ticket_id, $data)
+    {
+        $tpl = $this->initSmartyTemplate();
+        foreach ($data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+
+        foreach ($this->rule_data as $label => $value) {
+            $tpl->assign($label, $value);
+        }
+        $tpl->assign('ticket_id', $ticket_id);
+        $tpl->assign('string', $this->rule_data['url']);
+
+        return $tpl->fetch('eval.ihtml');
+    }
+
+    /**
+     * @param array<mixed> $tickets
+     * @return void
+     */
+    public function closeTicket(&$tickets): void
+    {
+        // By default, yes tickets are removed (even no). -1 means a error
+        foreach ($tickets as $k => $v) {
+            $tickets[$k]['status'] = 1;
+        }
+    }
+
+    /**
+     * Set the default extra data
+     * @return void
+     */
+    abstract protected function setDefaultValueExtra();
+
+    /**
+     * Check the configuration form
+     * @return void
+     */
+    abstract protected function checkConfigForm();
+
+    /**
+     * Prepare the extra configuration block
+     * @return void
+     */
+    abstract protected function getConfigContainer1Extra();
+
+    /**
+     * Prepare the extra configuration block
+     * @return void
+     */
+    abstract protected function getConfigContainer2Extra();
+
+    /**
+     * Add specific configuration field
+     * @return void
+     */
+    abstract protected function saveConfigExtra();
+
+    /**
+     * Create a ticket
+     *
+     * @param CentreonDB $db_storage The centreon_storage database connection
+     * @param string $contact The contact who open the ticket
+     * @param array $host_problems The list of host issues link to the ticket
+     * @param array $service_problems The list of service issues link to the ticket
+     * @return array The status of action (
+     *               'code' => int,
+     *               'message' => string
+     *               )
+     */
+    abstract protected function doSubmit($db_storage, $contact, $host_problems, $service_problems);
+
+    /**
+     * @param string $path
+     * @return SmartyBC
+     */
+    protected function initSmartyTemplate($path = 'providers/Abstract/templates')
+    {
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, $path);
+
+        $tpl->loadPlugin('smarty_function_host_get_hostgroups');
+        $tpl->loadPlugin('smarty_function_host_get_severity');
+        $tpl->loadPlugin('smarty_function_host_get_hostcategories');
+        $tpl->loadPlugin('smarty_function_host_get_macro_value_in_config');
+        $tpl->loadPlugin('smarty_function_host_get_macro_values_in_config');
+        $tpl->loadPlugin('smarty_function_service_get_servicecategories');
+        $tpl->loadPlugin('smarty_function_service_get_servicegroups');
+        $tpl->loadPlugin('smarty_function_sortgroup');
+
+        return $tpl;
     }
 
     /**
@@ -290,19 +512,6 @@ abstract class AbstractProvider
         }
 
         return $upload_files;
-    }
-
-    /**
-     * @return void
-     */
-    public function clearUploadFiles(): void
-    {
-        $upload_files = $this->getUploadFiles();
-        foreach ($upload_files as $file) {
-            unlink($file['filepath']);
-        }
-
-        unset($_SESSION['ot_upload_files'][$this->uniq_id]);
     }
 
     /**
@@ -591,42 +800,6 @@ Output: {$service.output|substr:0:1024}
             $this->check_error_message .= $this->check_error_message_append . $error_msg;
             $this->check_error_message_append = '<br/>';
         }
-    }
-
-    /**
-     * Build the config form
-     *
-     * @return array<mixed>
-     */
-    public function getConfig()
-    {
-        $this->getConfigContainer1Extra();
-        $this->getConfigContainer1Main();
-        $this->getConfigContainer2Main();
-        $this->getConfigContainer2Extra();
-
-        return $this->config;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getChainRuleList()
-    {
-        $result = [];
-        if (isset($this->rule_data['clones']['chainruleList'])) {
-            $result = $this->rule_data['clones']['chainruleList'];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMacroTicketId()
-    {
-        return $this->rule_data['macro_ticket_id'];
     }
 
     /**
@@ -939,20 +1112,6 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * @return void
-     */
-    public function saveConfig(): void
-    {
-        $this->checkConfigForm();
-        $this->save_config = ['clones' => [], 'simple' => []];
-
-        $this->saveConfigMain();
-        $this->saveConfigExtra();
-
-        $this->rule->save($this->rule_id, $this->save_config);
-    }
-
-    /**
      * @param array<mixed> $entry
      * @param array<mixed> $groups_order
      * @param array<mixed> $groups
@@ -1212,107 +1371,6 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * Check select lists requirement
-     *
-     * @return array
-     */
-    public function automateValidateFormatPopupLists()
-    {
-        $rv = ['code' => 0, 'lists' => []];
-        if (isset($this->rule_data['clones']['groupList'])) {
-            foreach ($this->rule_data['clones']['groupList'] as $values) {
-                if (
-                    $values['Mandatory'] == 1
-                    && ! isset($this->submitted_config['select_' . $values['Id']])
-                ) {
-                    $rv['code'] = 1;
-                    $rv['lists'][] = $values['Id'];
-                }
-            }
-        }
-
-        return $rv;
-    }
-
-    /**
-     * @param array<mixed> $args
-     * @param bool $addGroups
-     * @return array<mixed>|null
-     */
-    public function getFormatPopup($args, $addGroups = false)
-    {
-        if (
-            ! isset($this->rule_data['format_popup'])
-            || is_null($this->rule_data['format_popup'])
-            || $this->rule_data['format_popup']  == ''
-        ) {
-            return null;
-        }
-
-        $result = ['format_popup' => null];
-
-        $tpl = $this->initSmartyTemplate();
-
-        $groups = $this->assignFormatPopupTemplate($tpl, $args);
-        $tpl->assign('string', $this->rule_data['format_popup']);
-        $result['format_popup'] = $tpl->fetch('eval.ihtml');
-        $result['attach_files_enable'] = $this->rule_data['attach_files'] ?? 0;
-        if ($addGroups === true) {
-            $result['groups'] = $groups;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doAck()
-    {
-        if (isset($this->rule_data['ack']) && $this->rule_data['ack'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * Check if schedule check is needed
-     *
-     * @return bool
-     */
-    public function doesScheduleCheck(): bool
-    {
-        return
-            isset($this->rule_data['schedule_check'])
-            && $this->rule_data['schedule_check'] === 'yes';
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doCloseTicket()
-    {
-        if (isset($this->rule_data['close_ticket_enable']) && $this->rule_data['close_ticket_enable'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * @return 0|1
-     */
-    public function doCloseTicketContinueOnError()
-    {
-        if (isset($this->rule_data['error_close_centreon']) && $this->rule_data['error_close_centreon'] == 'yes') {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
      * @param SmartyBC $tpl
      * @return void
      */
@@ -1497,44 +1555,6 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * @param string $cmd
-     * @param int $timeout
-     * @return string
-     */
-    private function ExecWaitTimeout($cmd, $timeout = 10)
-    {
-        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $pipes = [];
-
-        $timeout += time();
-        $process = proc_open($cmd, $descriptorspec, $pipes);
-        if (! is_resource($process)) {
-            throw new Exception('proc_open failed on: ' . $cmd);
-        }
-
-        $output = '';
-        do {
-            $timeleft = $timeout - time();
-            $read = [$pipes[1]];
-            $write = null;
-            $exceptions = null;
-            stream_select($read, $write, $exceptions, $timeleft, null);
-
-            if ($read !== []) {
-                $output .= fread($pipes[1], 8192);
-            }
-        } while (! feof($pipes[1]) && $timeleft > 0);
-
-        if ($timeleft <= 0) {
-            proc_terminate($process);
-
-            throw new Exception('command timeout on: ' . $cmd);
-        }
-
-        return $output;
-    }
-
-    /**
      * @param array<mixed> $host_problems
      * @param array<mixed> $service_problems
      * @param array<mixed> $submit_result
@@ -1572,51 +1592,6 @@ Output: {$service.output|substr:0:1024}
 
             $submit_result['commands'][] = ['output' => $output, 'error' => $error];
         }
-    }
-
-    /**
-     * @param CentreonDB $db_storage
-     * @param string $contact
-     * @param array<mixed> $host_problems
-     * @param array<mixed> $service_problems
-     * @return array<mixed>
-     */
-    public function submitTicket($db_storage, $contact, $host_problems, $service_problems)
-    {
-        $result = ['confirm_popup' => null];
-
-        $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
-        if ($submit_result['ticket_is_ok'] == 1) {
-            $this->executeCmd($host_problems, $service_problems, $submit_result);
-        }
-        $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
-        $result['ticket_id'] = $submit_result['ticket_id'];
-        $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
-        $result['ticket_time'] = $submit_result['ticket_time'];
-        $result['confirm_autoclose'] = $this->rule_data['confirm_autoclose'];
-
-        return $result;
-    }
-
-    /**
-     * @param int|string $ticket_id
-     * @param array<mixed> $data
-     * @return false|string
-     */
-    public function getUrl($ticket_id, $data)
-    {
-        $tpl = $this->initSmartyTemplate();
-        foreach ($data as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-
-        foreach ($this->rule_data as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        $tpl->assign('ticket_id', $ticket_id);
-        $tpl->assign('string', $this->rule_data['url']);
-
-        return $tpl->fetch('eval.ihtml');
     }
 
     /**
@@ -1713,18 +1688,6 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * @param array<mixed> $tickets
-     * @return void
-     */
-    public function closeTicket(&$tickets): void
-    {
-        // By default, yes tickets are removed (even no). -1 means a error
-        foreach ($tickets as $k => $v) {
-            $tickets[$k]['status'] = 1;
-        }
-    }
-
-    /**
      * Add a value to the cache
      *
      * @param string $key The cache key name
@@ -1781,5 +1744,43 @@ Output: {$service.output|substr:0:1024}
         }
 
         return 0;
+    }
+
+    /**
+     * @param string $cmd
+     * @param int $timeout
+     * @return string
+     */
+    private function ExecWaitTimeout($cmd, $timeout = 10)
+    {
+        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+        $pipes = [];
+
+        $timeout += time();
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+        if (! is_resource($process)) {
+            throw new Exception('proc_open failed on: ' . $cmd);
+        }
+
+        $output = '';
+        do {
+            $timeleft = $timeout - time();
+            $read = [$pipes[1]];
+            $write = null;
+            $exceptions = null;
+            stream_select($read, $write, $exceptions, $timeleft, null);
+
+            if ($read !== []) {
+                $output .= fread($pipes[1], 8192);
+            }
+        } while (! feof($pipes[1]) && $timeleft > 0);
+
+        if ($timeleft <= 0) {
+            proc_terminate($process);
+
+            throw new Exception('command timeout on: ' . $cmd);
+        }
+
+        return $output;
     }
 }

@@ -35,7 +35,6 @@
  */
 class ServiceNowProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
     public const SERVICENOW_LIST_CATEGORY = 20;
     public const SERVICENOW_LIST_SUBCATEGORY = 21;
     public const SERVICENOW_LIST_IMPACT = 22;
@@ -53,8 +52,62 @@ class ServiceNowProvider extends AbstractProvider
     public const ARG_ASSIGNMENT_GROUP = 8;
     public const ARG_SEVERITY = 9;
 
+    protected $proxy_enabled = 1;
+
     /** @var array<int, string> */
     protected $internal_arg_name = [self::ARG_SHORT_DESCRIPTION => 'ShortDescription', self::ARG_COMMENTS => 'Comments', self::ARG_IMPACT => 'Impact', self::ARG_URGENCY => 'Urgency', self::ARG_CATEGORY => 'Category', self::ARG_SEVERITY => 'Severity', self::ARG_SUBCATEGORY => 'Subcategory', self::ARG_ASSIGNED_TO => 'AssignedTo', self::ARG_ASSIGNMENT_GROUP => 'AssignmentGroup'];
+
+    /**
+     * Validate the popup for submit a ticket
+     */
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    /**
+     * Test the service
+     *
+     * @param TokenInfo $info The post information from webservice
+     * @return bool
+     */
+    public static function test($info)
+    {
+        // Test arguments
+        if (
+            ! isset($info['instance'])
+            || ! isset($info['clientId'])
+            || ! isset($info['clientSecret'])
+            || ! isset($info['username'])
+            || ! isset($info['password'])
+        ) {
+            throw new Exception('Missing arguments.');
+        }
+
+        try {
+            $tokens = self::getAccessToken(
+                [
+                    'instance' => $info['instance'],
+                    'client_id' => $info['clientId'],
+                    'client_secret' => $info['clientSecret'],
+                    'username' => $info['username'],
+                    'password' => $info['password'],
+                    'proxy_address' => $info['proxyAddress'],
+                    'proxy_port' => $info['proxyPort'],
+                    'proxy_username' => $info['proxyUsername'],
+                    'proxy_password' => $info['proxyPassword'],
+                ]
+            );
+
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
     /**
      * Set the default extra data
@@ -299,18 +352,6 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-     * Validate the popup for submit a ticket
-     */
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-
-        $this->validateFormatPopupLists($result);
-
-        return $result;
-    }
-
-    /**
      * Get an access token
      *
      * @param TokenInfo $info
@@ -347,46 +388,6 @@ class ServiceNowProvider extends AbstractProvider
         $return = json_decode($returnJson, true);
 
         return ['accessToken' => $return['access_token'], 'refreshToken' => $return['refresh_token']];
-    }
-
-    /**
-     * Test the service
-     *
-     * @param TokenInfo $info The post information from webservice
-     * @return bool
-     */
-    public static function test($info)
-    {
-        // Test arguments
-        if (
-            ! isset($info['instance'])
-            || ! isset($info['clientId'])
-            || ! isset($info['clientSecret'])
-            || ! isset($info['username'])
-            || ! isset($info['password'])
-        ) {
-            throw new Exception('Missing arguments.');
-        }
-
-        try {
-            $tokens = self::getAccessToken(
-                [
-                    'instance' => $info['instance'],
-                    'client_id' => $info['clientId'],
-                    'client_secret' => $info['clientSecret'],
-                    'username' => $info['username'],
-                    'password' => $info['password'],
-                    'proxy_address' => $info['proxyAddress'],
-                    'proxy_port' => $info['proxyPort'],
-                    'proxy_username' => $info['proxyUsername'],
-                    'proxy_password' => $info['proxyPassword'],
-                ]
-            );
-
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
     }
 
     /**

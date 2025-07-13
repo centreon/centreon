@@ -74,6 +74,115 @@ class Automatic
     }
 
     /**
+     * Open a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $service = $this->getServiceInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
+
+        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Open a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $host = $this->getHostInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
+
+        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Close a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $host = $this->getHostInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+
+        $ticketId = $this->getHostTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroHost($macroName, $host);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
+     * Close a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $service = $this->getServiceInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+
+        $ticketId = $this->getServiceTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
+            . $service['host_name'] . ' ' . $service['description']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroService($macroName, $service);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
      * Get rule information
      *
      * @param string $name
@@ -594,46 +703,6 @@ class Automatic
     }
 
     /**
-     * Open a service ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function openService($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $service = $this->getServiceInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
-
-        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
-
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
-    }
-
-    /**
-     * Open a host ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function openHost($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $host = $this->getHostInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
-
-        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
-
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
-    }
-
-    /**
      * @param mixed $params
      * @param string $macroName
      * @return ?int $ticketId
@@ -684,75 +753,6 @@ class Automatic
         }
 
         return $ticketId ?? null;
-    }
-
-    /**
-     * Close a host ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function closeHost($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $host = $this->getHostInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-
-        $ticketId = $this->getHostTicket($params, $macroName);
-
-        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => [],
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroHost($macroName, $host);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = ['code' => -1, 'message' => $e->getMessage()];
-            }
-        }
-
-        return $rv;
-    }
-
-    /**
-     * Close a service ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function closeService($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $service = $this->getServiceInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-
-        $ticketId = $this->getServiceTicket($params, $macroName);
-
-        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
-            . $service['host_name'] . ' ' . $service['description']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => [],
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroService($macroName, $service);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = ['code' => -1, 'message' => $e->getMessage()];
-            }
-        }
-
-        return $rv;
     }
 
     /**

@@ -21,9 +21,6 @@
 */
 class ItopProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-
-    protected $close_advanced = 1;
     public const ITOP_ORGANIZATION_TYPE = 10;
     public const ITOP_CALLER_TYPE = 11;
     public const ITOP_SERVICE_TYPE = 12;
@@ -38,6 +35,10 @@ class ItopProvider extends AbstractProvider
     public const ARG_IMPACT = 8;
     public const ARG_URGENCY = 9;
 
+    protected $proxy_enabled = 1;
+
+    protected $close_advanced = 1;
+
     protected $internal_arg_name = [
         self::ARG_CONTENT => 'content',
         self::ARG_TITLE => 'title',
@@ -49,6 +50,223 @@ class ItopProvider extends AbstractProvider
         self::ARG_IMPACT => 'impact',
         self::ARG_URGENCY => 'urgency',
     ];
+
+    /*
+    * checks if all mandatory fields have been filled
+    *
+    * @return {array} telling us if there is a missing parameter
+    */
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    /*
+    * test if we can reach Itop webservice with the given Configuration
+    *
+    * @param {array} $info required information to reach the itop api
+    *
+    * @return {bool}
+    *
+    * throw \Exception if there are some missing parameters
+    * throw \Exception if the connection failed
+    */
+    public static function test($info)
+    {
+        // this is called through our javascript code. Those parameters are already checked in JS code.
+        // but since this function is public, we check again because anyone could use this function
+        if (
+            ! isset($info['address'])
+            || ! isset($info['api_version'])
+            || ! isset($info['username'])
+            || ! isset($info['password'])
+            || ! isset($info['protocol'])
+        ) {
+            throw new Exception('missing arguments', 13);
+        }
+        // check if php curl is installed
+        if (! extension_loaded('curl')) {
+            throw new Exception("couldn't find php curl", 10);
+        }
+
+        $curl = curl_init();
+        $apiAddress = $info['protocol'] . '://' . $info['address'] . '/webservices/rest.php?version='
+        . $info['api_version'];
+
+        $data = ['operation' => 'list_operations'];
+
+        $query = ['auth_user' => $info['username'], 'auth_pwd' => $info['password'], 'json_data' => json_encode($data)];
+
+        // initiate our curl options
+        curl_setopt($curl, CURLOPT_URL, $apiAddress);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
+        // execute curl and get status information
+        $curlResult = json_decode(curl_exec($curl), true);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($httpCode >= 400) {
+            // return false;
+            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 1);
+        }
+
+        if ($curlResult['code'] !== 0) {
+            throw new Exception($curlResult['message']);
+        }
+
+        return true;
+    }
+
+    /*
+    * get callers from itop
+    *
+    * $param {array} $data selected organization and ITOP_CALLER_TYPE group data
+    *
+    * @return {array} $listCallers list of callers
+    *
+    * throw \Exception if we can't get callers data
+    */
+    public function getCallers($data)
+    {
+        $key = "SELECT Person WHERE status='active'";
+
+        if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
+            $key .= " AND org_id='" . $matches[1] . "'";
+        } else {
+            throw new Exception('No organization found', 1);
+        }
+
+        $filter = $data['groups']['itop_caller']['filter'];
+        if (isset($filter) && $filter != '') {
+            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+        }
+
+        $data = ['operation' => 'core/get', 'class' => 'Person', 'key' => $key, 'output_fields' => 'friendlyname'];
+
+        try {
+            $listCallers = $this->getCache('itop_caller_' . $matches[1]);
+            if (is_null($listCallers)) {
+                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
+                $listCallers = $this->curlQuery($data);
+                $this->setCache('itop_caller_' . $matches[1], $listCallers, 8 * 3600);
+            }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
+        }
+
+        return $listCallers;
+    }
+
+    /*
+    * get services from itop
+    *
+    * $param {array} $data selected organization and ITOP_SERVICE_TYPE group data
+    *
+    * @return {array} $listServices list of services
+    *
+    * throw \Exception if we can't get services data
+    */
+    public function getServices($data)
+    {
+        $key = 'SELECT Service';
+
+        if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
+            $key .= " WHERE org_id='" . $matches[1] . "'";
+        } else {
+            throw new Exception('No organization found', 1);
+        }
+
+        $filter = $data['groups']['itop_service']['filter'];
+        if (isset($filter) && $filter != '') {
+            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+        }
+
+        $data = ['operation' => 'core/get', 'class' => 'Service', 'key' => $key, 'output_fields' => 'friendlyname'];
+
+        try {
+            $listServices = $this->getCache('itop_service_' . $matches[1]);
+            if (is_null($listServices)) {
+                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
+                $listServices = $this->curlQuery($data);
+                $this->setCache('itop_service_' . $matches[1], $listServices, 8 * 3600);
+            }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
+        }
+
+        return $listServices;
+    }
+
+    /*
+    * get service subcategories from itop
+    *
+    * $param {array} $data selected service and ITOP_SERVICE_SUBCATEGORY_TYPE group data
+    *
+    * @return {array} $listServiceSubcategories list of service subcategories
+    *
+    * throw \Exception if we can't get service subcategories data
+    */
+    public function getServiceSubcategories($data)
+    {
+        $key = 'SELECT ServiceSubcategory';
+
+        if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
+            $key .= " WHERE service_id='" . $matches[1] . "'";
+        } else {
+            throw new Exception('No service found', 1);
+        }
+
+        $filter = $data['groups']['itop_service_subcategory']['filter'];
+        if (isset($filter) && $filter != '') {
+            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+        }
+
+        $data = ['operation' => 'core/get', 'class' => 'ServiceSubcategory', 'key' => $key, 'output_fields' => 'friendlyname'];
+
+        try {
+            $listServiceSubcategories = $this->getCache('itop_service_subcategory_' . $matches[1]);
+            if (is_null($listServiceSubcategories)) {
+                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
+                $listServiceSubcategories = $this->curlQuery($data);
+                $this->setCache('itop_service_subcategory_' . $matches[1], $listServiceSubcategories, 8 * 3600);
+            }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
+        }
+
+        return $listServiceSubcategories;
+    }
+
+    /*
+    * check if the close option is enabled, if so, try to close every selected ticket
+    *
+    * @param {array} $tickets
+    *
+    * @return void
+    */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->closeTicketItop($k);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
 
     // Set default values for our rule form options
     protected function setDefaultValueExtra()
@@ -297,19 +515,6 @@ class ItopProvider extends AbstractProvider
     }
 
     /*
-    * checks if all mandatory fields have been filled
-    *
-    * @return {array} telling us if there is a missing parameter
-    */
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
-    }
-
-    /*
     * brings all parameters together in order to build the ticket arguments and save
     * ticket data in the database
     *
@@ -357,66 +562,6 @@ class ItopProvider extends AbstractProvider
         $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[self::ARG_TITLE], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
 
         return $result;
-    }
-
-    /*
-    * test if we can reach Itop webservice with the given Configuration
-    *
-    * @param {array} $info required information to reach the itop api
-    *
-    * @return {bool}
-    *
-    * throw \Exception if there are some missing parameters
-    * throw \Exception if the connection failed
-    */
-    public static function test($info)
-    {
-        // this is called through our javascript code. Those parameters are already checked in JS code.
-        // but since this function is public, we check again because anyone could use this function
-        if (
-            ! isset($info['address'])
-            || ! isset($info['api_version'])
-            || ! isset($info['username'])
-            || ! isset($info['password'])
-            || ! isset($info['protocol'])
-        ) {
-            throw new Exception('missing arguments', 13);
-        }
-        // check if php curl is installed
-        if (! extension_loaded('curl')) {
-            throw new Exception("couldn't find php curl", 10);
-        }
-
-        $curl = curl_init();
-        $apiAddress = $info['protocol'] . '://' . $info['address'] . '/webservices/rest.php?version='
-        . $info['api_version'];
-
-        $data = ['operation' => 'list_operations'];
-
-        $query = ['auth_user' => $info['username'], 'auth_pwd' => $info['password'], 'json_data' => json_encode($data)];
-
-        // initiate our curl options
-        curl_setopt($curl, CURLOPT_URL, $apiAddress);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
-        // execute curl and get status information
-        $curlResult = json_decode(curl_exec($curl), true);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        if ($httpCode >= 400) {
-            // return false;
-            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 1);
-        }
-
-        if ($curlResult['code'] !== 0) {
-            throw new Exception($curlResult['message']);
-        }
-
-        return true;
     }
 
     /*
@@ -509,126 +654,6 @@ class ItopProvider extends AbstractProvider
         return $organizations;
     }
 
-    /*
-    * get callers from itop
-    *
-    * $param {array} $data selected organization and ITOP_CALLER_TYPE group data
-    *
-    * @return {array} $listCallers list of callers
-    *
-    * throw \Exception if we can't get callers data
-    */
-    public function getCallers($data)
-    {
-        $key = "SELECT Person WHERE status='active'";
-
-        if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " AND org_id='" . $matches[1] . "'";
-        } else {
-            throw new Exception('No organization found', 1);
-        }
-
-        $filter = $data['groups']['itop_caller']['filter'];
-        if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
-        }
-
-        $data = ['operation' => 'core/get', 'class' => 'Person', 'key' => $key, 'output_fields' => 'friendlyname'];
-
-        try {
-            $listCallers = $this->getCache('itop_caller_' . $matches[1]);
-            if (is_null($listCallers)) {
-                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
-                $listCallers = $this->curlQuery($data);
-                $this->setCache('itop_caller_' . $matches[1], $listCallers, 8 * 3600);
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-
-        return $listCallers;
-    }
-
-    /*
-    * get services from itop
-    *
-    * $param {array} $data selected organization and ITOP_SERVICE_TYPE group data
-    *
-    * @return {array} $listServices list of services
-    *
-    * throw \Exception if we can't get services data
-    */
-    public function getServices($data)
-    {
-        $key = 'SELECT Service';
-
-        if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " WHERE org_id='" . $matches[1] . "'";
-        } else {
-            throw new Exception('No organization found', 1);
-        }
-
-        $filter = $data['groups']['itop_service']['filter'];
-        if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
-        }
-
-        $data = ['operation' => 'core/get', 'class' => 'Service', 'key' => $key, 'output_fields' => 'friendlyname'];
-
-        try {
-            $listServices = $this->getCache('itop_service_' . $matches[1]);
-            if (is_null($listServices)) {
-                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
-                $listServices = $this->curlQuery($data);
-                $this->setCache('itop_service_' . $matches[1], $listServices, 8 * 3600);
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-
-        return $listServices;
-    }
-
-    /*
-    * get service subcategories from itop
-    *
-    * $param {array} $data selected service and ITOP_SERVICE_SUBCATEGORY_TYPE group data
-    *
-    * @return {array} $listServiceSubcategories list of service subcategories
-    *
-    * throw \Exception if we can't get service subcategories data
-    */
-    public function getServiceSubcategories($data)
-    {
-        $key = 'SELECT ServiceSubcategory';
-
-        if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
-            $key .= " WHERE service_id='" . $matches[1] . "'";
-        } else {
-            throw new Exception('No service found', 1);
-        }
-
-        $filter = $data['groups']['itop_service_subcategory']['filter'];
-        if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
-        }
-
-        $data = ['operation' => 'core/get', 'class' => 'ServiceSubcategory', 'key' => $key, 'output_fields' => 'friendlyname'];
-
-        try {
-            $listServiceSubcategories = $this->getCache('itop_service_subcategory_' . $matches[1]);
-            if (is_null($listServiceSubcategories)) {
-                // if no callers were found in cache, get them from itop and put them in cache for 8 hours
-                $listServiceSubcategories = $this->curlQuery($data);
-                $this->setCache('itop_service_subcategory_' . $matches[1], $listServiceSubcategories, 8 * 3600);
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-
-        return $listServiceSubcategories;
-    }
-
     /**
      * @param array $ticketArguments
      * @return mixed
@@ -705,29 +730,5 @@ class ItopProvider extends AbstractProvider
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return void
-    */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketItop($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
     }
 }

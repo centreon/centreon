@@ -22,6 +22,14 @@
 
 class SimpleProvider extends AbstractProvider
 {
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     protected function setDefaultValueExtra()
     {
     }
@@ -66,14 +74,6 @@ class SimpleProvider extends AbstractProvider
 
     protected function saveConfigExtra()
     {
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)

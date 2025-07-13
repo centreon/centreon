@@ -38,35 +38,6 @@ class Centreon_OpenTickets_Rule
         $this->_db = $db;
     }
 
-    /**
-     * Sets the activate field
-     *
-     * @param array $select
-     * @param int $val
-     * @return void
-     */
-    protected function _setActivate($select, $val): void
-    {
-        $query = "UPDATE mod_open_tickets_rule SET `activate` = '" . $val . "' WHERE rule_id IN (";
-        $ruleList = '';
-        $ruleListAppend = '';
-        if (is_array($select)) {
-            foreach ($select as $key => $value) {
-                $ruleList .= $ruleListAppend . "'" . $key . "'";
-                $ruleListAppend = ', ';
-            }
-        }
-        if (isset($_REQUEST['rule_id'])) {
-            $ruleList .= $ruleListAppend . "'" . $_REQUEST['rule_id'] . "'";
-        }
-        $query .= $ruleList;
-        $query .= ')';
-        if (! $ruleList) {
-            return;
-        }
-        $this->_db->query($query);
-    }
-
     public function getAliasAndProviderId($rule_id)
     {
         $result = [];
@@ -83,56 +54,6 @@ class Centreon_OpenTickets_Rule
         }
 
         return $result;
-    }
-
-    protected function loadProvider($rule_id, $provider_id, $widget_id, $uniq_id = null)
-    {
-        global $centreon_path, $register_providers;
-
-        if (! is_null($this->_provider)) {
-            return;
-        }
-
-        $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
-        require_once $centreon_open_tickets_path . 'providers/register.php';
-        require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
-
-        $provider_name = null;
-        foreach ($register_providers as $name => $id) {
-            if ($id == $provider_id) {
-                $provider_name = $name;
-                break;
-            }
-        }
-
-        if (is_null($provider_name)
-            || ! file_exists(
-                $centreon_open_tickets_path
-                . 'providers/'
-                . $provider_name . '/'
-                . $provider_name
-                . 'Provider.class.php'
-            )
-        ) {
-            throw new Exception(sprintf('Cannot find provider'));
-        }
-
-        include_once $centreon_open_tickets_path
-            . 'providers/'
-            . $provider_name . '/'
-            . $provider_name
-            . 'Provider.class.php';
-        $classname = $provider_name . 'Provider';
-        $this->_provider = new $classname(
-            $this,
-            $centreon_path,
-            $centreon_open_tickets_path,
-            $rule_id,
-            null,
-            $provider_id
-        );
-        $this->_provider->setWidgetId($widget_id);
-        $this->_provider->setUniqId($uniq_id);
     }
 
     public function getUrl($rule_id, $ticket_id, $data, $widget_id)
@@ -748,6 +669,85 @@ class Centreon_OpenTickets_Rule
         }
 
         return $result;
+    }
+
+    /**
+     * Sets the activate field
+     *
+     * @param array $select
+     * @param int $val
+     * @return void
+     */
+    protected function _setActivate($select, $val): void
+    {
+        $query = "UPDATE mod_open_tickets_rule SET `activate` = '" . $val . "' WHERE rule_id IN (";
+        $ruleList = '';
+        $ruleListAppend = '';
+        if (is_array($select)) {
+            foreach ($select as $key => $value) {
+                $ruleList .= $ruleListAppend . "'" . $key . "'";
+                $ruleListAppend = ', ';
+            }
+        }
+        if (isset($_REQUEST['rule_id'])) {
+            $ruleList .= $ruleListAppend . "'" . $_REQUEST['rule_id'] . "'";
+        }
+        $query .= $ruleList;
+        $query .= ')';
+        if (! $ruleList) {
+            return;
+        }
+        $this->_db->query($query);
+    }
+
+    protected function loadProvider($rule_id, $provider_id, $widget_id, $uniq_id = null)
+    {
+        global $centreon_path, $register_providers;
+
+        if (! is_null($this->_provider)) {
+            return;
+        }
+
+        $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';
+        require_once $centreon_open_tickets_path . 'providers/register.php';
+        require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
+
+        $provider_name = null;
+        foreach ($register_providers as $name => $id) {
+            if ($id == $provider_id) {
+                $provider_name = $name;
+                break;
+            }
+        }
+
+        if (is_null($provider_name)
+            || ! file_exists(
+                $centreon_open_tickets_path
+                . 'providers/'
+                . $provider_name . '/'
+                . $provider_name
+                . 'Provider.class.php'
+            )
+        ) {
+            throw new Exception(sprintf('Cannot find provider'));
+        }
+
+        include_once $centreon_open_tickets_path
+            . 'providers/'
+            . $provider_name . '/'
+            . $provider_name
+            . 'Provider.class.php';
+        $classname = $provider_name . 'Provider';
+        $this->_provider = new $classname(
+            $this,
+            $centreon_path,
+            $centreon_open_tickets_path,
+            $rule_id,
+            null,
+            $provider_id
+        );
+        $this->_provider->setWidgetId($widget_id);
+        $this->_provider->setUniqId($uniq_id);
     }
 
     private function getServiceStateStr($state)

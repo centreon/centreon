@@ -44,6 +44,15 @@ class BmcFootprints11Provider extends AbstractProvider
     /** @var string */
     protected $_ticket_number;
 
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     /**
      * Set default extra value
      */
@@ -188,15 +197,6 @@ class BmcFootprints11Provider extends AbstractProvider
             'mappingTicketProjectField',
             ['Name', 'Value']
         );
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)

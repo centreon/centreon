@@ -45,6 +45,14 @@ class SerenaProvider extends AbstractProvider
     {
     }
 
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
     /**
      * Set default extra value
      */
@@ -154,14 +162,6 @@ class SerenaProvider extends AbstractProvider
      */
     protected function getConfigContainer2Extra()
     {
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function saveConfigExtra()

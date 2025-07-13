@@ -22,9 +22,6 @@
 
 class EasyvistaSoapProvider extends AbstractProvider
 {
-    protected $proxy_enabled = 1;
-
-    protected $attach_files = 1;
     public const ARG_ACCOUNT = 1;
     public const ARG_CATALOG_GUID = 2;
     public const ARG_CATALOG_CODE = 3;
@@ -54,6 +51,10 @@ class EasyvistaSoapProvider extends AbstractProvider
     public const ARG_CI_NAME = 27;
     public const ARG_SUBMIT_DATE = 28;
 
+    protected $proxy_enabled = 1;
+
+    protected $attach_files = 1;
+
     /** @var array<int, array<mixed>> */
     protected $internal_arg_name = [self::ARG_ACCOUNT => ['formid' => 'Account', 'soapname' => 'Account'], self::ARG_CATALOG_GUID => ['formid' => 'CatalogGUID', 'soapname' => 'Catalog_GUID'], self::ARG_CATALOG_CODE => ['formid' => 'CatalogCode', 'soapname' => 'Catalog_Code'], self::ARG_ASSET_ID => ['formid' => 'AssetID', 'soapname' => 'AssetID'], self::ARG_ASSET_TAG => ['formid' => 'AssetTag', 'soapname' => 'AssetTag'], self::ARG_ASSET_NAME => ['formid' => 'AssetName', 'soapname' => 'ASSET_NAME'], self::ARG_URGENCY_ID => ['formid' => 'UrgencyId', 'soapname' => 'Urgency_ID'], self::ARG_SEVERITY_ID => ['formid' => 'SeverityId', 'soapname' => 'Severity_ID'], self::ARG_EXTERNAL_REFERENCE => ['formid' => 'ExternalReference', 'soapname' => 'External_reference'], self::ARG_PHONE => ['formid' => 'Phone', 'soapname' => 'Phone'], self::ARG_REQUESTOR_IDENTIFICATION => ['formid' => 'RequestorIdentification', 'soapname' => 'Requestor_Identification'], self::ARG_REQUESTOR_MAIL => ['formid' => 'RequestorMail', 'soapname' => 'Requestor_Mail'], self::ARG_REQUESTOR_NAME => ['formid' => 'RequestorName', 'soapname' => 'Requestor_Name'], self::ARG_LOCATION_ID => ['formid' => 'LocationID', 'soapname' => 'Location_ID'], self::ARG_LOCATION_CODE => ['formid' => 'LocationCode', 'soapname' => 'Location_Code'], self::ARG_DEPARTMENT_ID => ['formid' => 'DepartmentID', 'soapname' => 'Department_ID'], self::ARG_DEPARTMENT_CODE => ['formid' => 'DepartmentCode', 'soapname' => 'Department_Code'], self::ARG_RECIPIENT_ID => ['formid' => 'RecipientID', 'soapname' => 'Recipient_ID'], self::ARG_RECIPIENT_IDENTIFICATION => ['formid' => 'RecipientIdentification', 'soapname' => 'Recipient_Identification'], self::ARG_RECIPIENT_MAIL => ['formid' => 'RecipientMail', 'soapname' => 'Recipient_Mail'], self::ARG_RECIPIENT_NAME => ['formid' => 'RecipientName', 'soapname' => 'Recipient_Name'], self::ARG_ORIGIN => ['formid' => 'Origin', 'soapname' => 'Origin'], self::ARG_DESCRIPTION => ['formid' => 'Description', 'soapname' => 'Description'], self::ARG_PARENT_REQUEST => ['formid' => 'ParentRequest', 'soapname' => 'ParentRequest'], self::ARG_CI_ID => ['formid' => 'CiID', 'soapname' => 'CI_ID'], self::ARG_CI_ASSET_TAG => ['formid' => 'CiAssetTag', 'soapname' => 'CI_ASSET_TAG'], self::ARG_CI_NAME => ['formid' => 'CiName', 'soapname' => 'CI_NAME'], self::ARG_SUBMIT_DATE => ['formid' => 'SubmitDate', 'soapname' => 'SUBMIT_DATE']];
 
@@ -68,6 +69,14 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     public function __destruct()
     {
+    }
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
     }
 
     /**
@@ -220,14 +229,6 @@ class EasyvistaSoapProvider extends AbstractProvider
             'mappingTicket',
             ['Arg', 'Value']
         );
-    }
-
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
     }
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)

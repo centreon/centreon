@@ -39,40 +39,6 @@ class Centreon_OpenTickets_Log
         $this->_dbStorage = $dbStorage;
     }
 
-    protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
-    {
-        $start = null;
-        $end = null;
-        $auto_period = 1;
-        if (! is_null($start_date) && $start_date != '') {
-            $auto_period = 0;
-            if ($start_time == '') {
-                $start_time = '00:00';
-            }
-
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
-            preg_match('/^([0-9]*):([0-9]*)/', $start_time, $matchesT);
-            $start = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
-        }
-        if (! is_null($end_date) && $end_date != '') {
-            $auto_period = 0;
-            if ($end_time == '') {
-                $end_time = '00:00';
-            }
-
-            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
-            preg_match('/^([0-9]*):([0-9]*)/', $end_time, $matchesT);
-            $end = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
-        }
-
-        if ($auto_period == 1 && ! is_null($period) && $period > 0) {
-            $start = time() - ($period);
-            $end = time();
-        }
-
-        return ['start' => $start, 'end' => $end];
-    }
-
     /*
      * Params example:
      *       [host_filter] => Array
@@ -171,5 +137,39 @@ class Centreon_OpenTickets_Log
         $result['end'] = $range_time['end'];
 
         return $result;
+    }
+
+    protected function getTime($start_date, $start_time, $end_date, $end_time, $period)
+    {
+        $start = null;
+        $end = null;
+        $auto_period = 1;
+        if (! is_null($start_date) && $start_date != '') {
+            $auto_period = 0;
+            if ($start_time == '') {
+                $start_time = '00:00';
+            }
+
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $start_date, $matchesD);
+            preg_match('/^([0-9]*):([0-9]*)/', $start_time, $matchesT);
+            $start = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
+        }
+        if (! is_null($end_date) && $end_date != '') {
+            $auto_period = 0;
+            if ($end_time == '') {
+                $end_time = '00:00';
+            }
+
+            preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $end_date, $matchesD);
+            preg_match('/^([0-9]*):([0-9]*)/', $end_time, $matchesT);
+            $end = mktime($matchesT[1], $matchesT[2], '0', $matchesD[1], $matchesD[2], $matchesD[3]);
+        }
+
+        if ($auto_period == 1 && ! is_null($period) && $period > 0) {
+            $start = time() - ($period);
+            $end = time();
+        }
+
+        return ['start' => $start, 'end' => $end];
     }
 }

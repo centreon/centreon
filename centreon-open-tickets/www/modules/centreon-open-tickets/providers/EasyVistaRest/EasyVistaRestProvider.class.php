@@ -22,9 +22,6 @@
 
 class EasyVistaRestProvider extends AbstractProvider
 {
-    protected $close_advanced = 1;
-
-    protected $proxy_enabled = 1;
     public const EZV_ASSET_TYPE = 16;
     public const ARG_TITLE = 1;
     public const ARG_URGENCY_ID = 2;
@@ -42,6 +39,10 @@ class EasyVistaRestProvider extends AbstractProvider
     public const ARG_CATALOG_CODE = 14;
     public const ARG_CUSTOM_EZV = 15;
 
+    protected $close_advanced = 1;
+
+    protected $proxy_enabled = 1;
+
     protected $internal_arg_name = [
         self::ARG_TITLE => 'title',
         self::ARG_URGENCY_ID => 'urgency',
@@ -58,6 +59,85 @@ class EasyVistaRestProvider extends AbstractProvider
         self::ARG_CATALOG_GUID => 'catalog_guid',
         self::ARG_CATALOG_CODE => 'catalog_code',
     ];
+
+    /*
+    * checks if all mandatory fields have been filled
+    *
+    * @return {array} telling us if there is a missing parameter
+    */
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    public static function test($info): void
+    {
+        // not implemented because there's no known url to test the api connection
+    }
+
+    /*
+    * check if the close option is enabled, if so, try to close every selected ticket
+    *
+    * @param {array} $tickets
+    *
+    * @return void
+    */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->closeTicketEzv($k);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
+
+    // webservice methods
+    public function getHostgroups($centreon_path, $data)
+    {
+        $hostCount = count($data['host_list']);
+        $listIds = '';
+
+        $queryValues = [];
+        foreach ($data['host_list'] as $hostId) {
+            $listIds .= ':hId_' . $hostId . ', ';
+            $queryValues[':hId_' . $hostId] = (int) $hostId;
+        }
+
+        $listIds = rtrim($listIds, ', ');
+
+        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
+        $db_storage = new CentreonDBManager('centstorage');
+
+        $query = 'SELECT name FROM hostgroups WHERE hostgroup_id IN'
+            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
+            . ' GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)';
+
+        $dbQuery = $db_storage->prepare($query);
+        foreach ($queryValues as $bindName => $bindValue) {
+            $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
+        }
+        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT)
+
+        . $dbQuery->execute();
+
+        $result = [];
+        while ($row = $dbQuery->fetch()) {
+            array_push($result, $row['name']);
+        }
+
+        return $result;
+    }
 
     // Set default values for our rule form options
     protected function setDefaultValueExtra()
@@ -366,19 +446,6 @@ class EasyVistaRestProvider extends AbstractProvider
     }
 
     /*
-    * checks if all mandatory fields have been filled
-    *
-    * @return {array} telling us if there is a missing parameter
-    */
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-
-        return $result;
-    }
-
-    /*
     * brings all parameters together in order to build the ticket arguments and save
     * ticket data in the database
     *
@@ -437,11 +504,6 @@ class EasyVistaRestProvider extends AbstractProvider
         $this->saveHistory($db_storage, $result, ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $ticketId, 'subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode($ticketArguments)]);
 
         return $result;
-    }
-
-    public static function test($info): void
-    {
-        // not implemented because there's no known url to test the api connection
     }
 
     protected function curlQuery($info)
@@ -622,66 +684,5 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return void
-    */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
-    }
-
-    // webservice methods
-    public function getHostgroups($centreon_path, $data)
-    {
-        $hostCount = count($data['host_list']);
-        $listIds = '';
-
-        $queryValues = [];
-        foreach ($data['host_list'] as $hostId) {
-            $listIds .= ':hId_' . $hostId . ', ';
-            $queryValues[':hId_' . $hostId] = (int) $hostId;
-        }
-
-        $listIds = rtrim($listIds, ', ');
-
-        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
-        $db_storage = new CentreonDBManager('centstorage');
-
-        $query = 'SELECT name FROM hostgroups WHERE hostgroup_id IN'
-            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
-            . ' GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)';
-
-        $dbQuery = $db_storage->prepare($query);
-        foreach ($queryValues as $bindName => $bindValue) {
-            $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
-        }
-        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT)
-
-        . $dbQuery->execute();
-
-        $result = [];
-        while ($row = $dbQuery->fetch()) {
-            array_push($result, $row['name']);
-        }
-
-        return $result;
     }
 }
