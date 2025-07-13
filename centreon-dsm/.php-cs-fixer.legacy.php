@@ -31,7 +31,7 @@ $finder = Finder::create()
     ])
     ->append([
         __DIR__ . '/.php-cs-fixer.legacy.php',
-        __DIR__ . '/rector.php',
+        __DIR__ . '/rector.legacy.php',
     ]);
 
 return $config
