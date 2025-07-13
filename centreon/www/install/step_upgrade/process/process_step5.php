@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,15 +41,15 @@ require_once '../../steps/functions.php';
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 
 $updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInterface::class);
 
 $parameters = filter_input_array(INPUT_POST);
-$current = filter_var($_POST['current'] ?? "step 5", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$current = filter_var($_POST['current'] ?? 'step 5', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 if ($parameters) {
-    if ((int)$parameters["send_statistics"] === 1) {
+    if ((int) $parameters['send_statistics'] === 1) {
         $query = "INSERT INTO options (`key`, `value`) VALUES ('send_statistics', '1')";
     } else {
         $query = "INSERT INTO options (`key`, `value`) VALUES ('send_statistics', '0')";
@@ -60,11 +61,11 @@ if ($parameters) {
 }
 
 try {
-    if (!isset($_SESSION['CURRENT_VERSION']) || ! preg_match('/^\d+\.\d+\.\d+/', $_SESSION['CURRENT_VERSION'])) {
-        throw new \Exception('Cannot get current version');
+    if (! isset($_SESSION['CURRENT_VERSION']) || ! preg_match('/^\d+\.\d+\.\d+/', $_SESSION['CURRENT_VERSION'])) {
+        throw new Exception('Cannot get current version');
     }
 
-    $moduleService = $dependencyInjector[\CentreonModule\ServiceProvider::CENTREON_MODULE];
+    $moduleService = $dependencyInjector[CentreonModule\ServiceProvider::CENTREON_MODULE];
     $widgets = $moduleService->getList(null, true, null, ['widget']);
     foreach ($widgets['widget'] as $widget) {
         if ($widget->isInternal()) {
@@ -73,7 +74,7 @@ try {
     }
 
     $updateWriteRepository->runPostUpdate($_SESSION['CURRENT_VERSION']);
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     exitUpgradeProcess(
         1,
         $current,

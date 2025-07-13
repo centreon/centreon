@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2020 CENTREON
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -42,11 +43,11 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonACL.class.php";
-require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Contact.php";
-require_once __DIR__ . "/../../../lib/Centreon/Object/Contact/Group.php";
-require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Contact/Group/Contact.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonACL.class.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Contact.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Group/Contact.php';
 
 /**
  * Class
@@ -77,24 +78,25 @@ class CentreonContactGroup extends CentreonObject
         $this->params = ['cg_activate' => '1'];
         $this->insertParams = ['cg_name', 'cg_alias'];
         $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
-        $this->action = "CG";
+        $this->action = 'CG';
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->activateField = "cg_activate";
+        $this->activateField = 'cg_activate';
     }
 
     /**
      * Get contact group ID
      *
      * @param string|null $contactGroupName
-     * @return int
      * @throws CentreonClapiException
+     * @return int
      */
     public function getContactGroupID($contactGroupName = null)
     {
         $cgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$contactGroupName]);
         if (count($cgIds) !== 1) {
-            throw new CentreonClapiException("Unknown contact group: " . $contactGroupName);
+            throw new CentreonClapiException('Unknown contact group: ' . $contactGroupName);
         }
+
         return (int) $cgIds[0];
     }
 
@@ -108,10 +110,10 @@ class CentreonContactGroup extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
         $params = ['cg_id', 'cg_name', 'cg_alias'];
-        $paramString = str_replace("cg_", "", implode($this->delim, $params));
+        $paramString = str_replace('cg_', '', implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
         foreach ($elements as $tab) {
@@ -122,9 +124,9 @@ class CentreonContactGroup extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -141,8 +143,8 @@ class CentreonContactGroup extends CentreonObject
 
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters)
     {
@@ -153,15 +155,16 @@ class CentreonContactGroup extends CentreonObject
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
-            if (!preg_match("/^cg_/", $params[1]) && $params[1] !== 'ar_id') {
-                $params[1] = "cg_" . $params[1];
+            if (! preg_match('/^cg_/', $params[1]) && $params[1] !== 'ar_id') {
+                $params[1] = 'cg_' . $params[1];
             }
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -173,46 +176,46 @@ class CentreonContactGroup extends CentreonObject
      */
     public function __call($name, $arg)
     {
-        /* Get the method name */
+        // Get the method name
         $name = strtolower($name);
-        /* Get the action and the object */
-        if (preg_match("/^(get|set|add|del)contact$/", $name, $matches)) {
+        // Get the action and the object
+        if (preg_match('/^(get|set|add|del)contact$/', $name, $matches)) {
             $relobj = new Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
             $obj = new Centreon_Object_Contact($this->dependencyInjector);
 
-            /* Parse arguments */
-            if (!isset($arg[0])) {
+            // Parse arguments
+            if (! isset($arg[0])) {
                 throw new CentreonClapiException(self::MISSINGPARAMETER);
             }
             $args = explode($this->delim, $arg[0]);
             $cgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-            if (!count($cgIds)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
+            if (! count($cgIds)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
             }
             $cgId = $cgIds[0];
 
-            if ($matches[1] == "get") {
+            if ($matches[1] == 'get') {
                 $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $cgIds);
-                echo "id" . $this->delim . "name" . "\n";
+                echo 'id' . $this->delim . 'name' . "\n";
                 foreach ($tab as $value) {
                     $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
                     echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
                 }
             } else {
-                if (!isset($args[1])) {
+                if (! isset($args[1])) {
                     throw new CentreonClapiException(self::MISSINGPARAMETER);
                 }
                 $relation = $args[1];
-                $relations = explode("|", $relation);
+                $relations = explode('|', $relation);
                 $relationTable = [];
                 foreach ($relations as $rel) {
                     $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
-                    if (!count($tab)) {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
+                    if (! count($tab)) {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
                     }
                     $relationTable[] = $tab[0];
                 }
-                if ($matches[1] == "set") {
+                if ($matches[1] == 'set') {
                     $relobj->delete($cgId);
                 }
                 $existingRelationIds = $relobj->getTargetIdFromSourceId(
@@ -221,10 +224,10 @@ class CentreonContactGroup extends CentreonObject
                     [$cgId]
                 );
                 foreach ($relationTable as $relationId) {
-                    if ($matches[1] == "del") {
+                    if ($matches[1] == 'del') {
                         $relobj->delete($cgId, $relationId);
-                    } elseif ($matches[1] == "set" || $matches[1] == "add") {
-                        if (!in_array($relationId, $existingRelationIds)) {
+                    } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
+                        if (! in_array($relationId, $existingRelationIds)) {
                             $relobj->insert($cgId, $relationId);
                         }
                     }
@@ -242,12 +245,12 @@ class CentreonContactGroup extends CentreonObject
      *
      * @param null $filterName
      *
-     * @return false|void
      * @throws Exception
+     * @return false|void
      */
     public function export($filterName = null)
     {
-        if (!parent::export($filterName)) {
+        if (! parent::export($filterName)) {
             return false;
         }
 
@@ -256,12 +259,12 @@ class CentreonContactGroup extends CentreonObject
         $cgFieldName = $this->object->getUniqueLabelField();
         $cFieldName = $contactObj->getUniqueLabelField();
         $filters = [];
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filters[$cgFieldName] = $filterName;
         }
         $elements = $relObj->getMergedParameters(
             [$cgFieldName],
-            [$cFieldName, "contact_id"],
+            [$cFieldName, 'contact_id'],
             -1,
             0,
             $cgFieldName . ', contact_alias',
@@ -271,9 +274,9 @@ class CentreonContactGroup extends CentreonObject
         );
         foreach ($elements as $element) {
             CentreonContact::getInstance()->export($element[$cFieldName]);
-            echo $this->action . $this->delim . "addcontact" .
-                $this->delim . $element[$cgFieldName] . $this->delim . $element[$cFieldName] .
-                $this->delim . $element['contact_alias'] . "\n";
+            echo $this->action . $this->delim . 'addcontact'
+                . $this->delim . $element[$cgFieldName] . $this->delim . $element[$cFieldName]
+                . $this->delim . $element['contact_alias'] . "\n";
         }
     }
 }

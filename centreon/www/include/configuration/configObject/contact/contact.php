@@ -34,11 +34,11 @@
  *
  */
 
-use Centreon\ServiceProvider;
 use Centreon\Infrastructure\Event\EventDispatcher;
 use Centreon\Infrastructure\Event\EventHandler;
+use Centreon\ServiceProvider;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -73,28 +73,26 @@ const SYNC_LDAP_CONTACTS = 'sync';
 // Unblock contact
 const UNBLOCK_CONTACT = 'un';
 
-$cG = $_GET["contact_id"] ?? null;
-$cP = $_POST["contact_id"] ?? null;
+$cG = $_GET['contact_id'] ?? null;
+$cP = $_POST['contact_id'] ?? null;
 $contactId = $cG ?: $cP;
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = $_GET['select'] ?? null;
+$cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = $_GET['dupNbr'] ?? null;
+$cP = $_POST['dupNbr'] ?? null;
 $dupNbr = $cG ?: $cP;
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/contact/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/contact/';
 
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -102,11 +100,11 @@ $acl = $oreon->user->access;
 $allowedAclGroups = $acl->getAccessGroups();
 
 /**
- * @var $eventDispatcher EventDispatcher
+ * @var EventDispatcher $eventDispatcher
  */
 $eventDispatcher = $dependencyInjector[ServiceProvider::CENTREON_EVENT_DISPATCHER];
 
-if (!is_null($eventDispatcher->getDispatcherLoader())) {
+if (! is_null($eventDispatcher->getDispatcherLoader())) {
     $eventDispatcher->getDispatcherLoader()->load();
 }
 
@@ -118,6 +116,7 @@ $duplicateEventHandler->setProcessing(
                 $arguments['contact_ids'],
                 $arguments['numbers']
             );
+
             // We store the result for possible future use
             return ['new_contact_ids' => $newContactIds];
         }
@@ -129,9 +128,7 @@ $eventDispatcher->addEventHandler(
     $duplicateEventHandler
 );
 
-/*
- * We define a event to delete a list of contacts
- */
+// We define a event to delete a list of contacts
 $deleteEventHandler = new EventHandler();
 $deleteEventHandler->setProcessing(
     function ($arguments): void {
@@ -150,9 +147,7 @@ $eventDispatcher->addEventHandler(
     $deleteEventHandler
 );
 
-/*
- * Defining an event to manually request a LDAP synchronization of an array of contacts
- */
+// Defining an event to manually request a LDAP synchronization of an array of contacts
 $synchronizeEventHandler = new EventHandler();
 $synchronizeEventHandler->setProcessing(
     function ($arguments): void {
@@ -169,13 +164,13 @@ $eventDispatcher->addEventHandler(
 
 switch ($o) {
     case LDAP_IMPORT_FORM:
-        require_once($path . "ldapImportContact.php");
+        require_once $path . 'ldapImportContact.php';
         break;
     case MASSIVE_CHANGE:
     case ADD_CONTACT:
     case WATCH_CONTACT:
     case MODIFY_CONTACT:
-        require_once($path . "formContact.php");
+        require_once $path . 'formContact.php';
         break;
     case ACTIVATE_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -185,7 +180,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case MASSIVE_ACTIVATE_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -195,7 +190,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case DEACTIVATE_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -205,7 +200,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case MASSIVE_DEACTIVATE_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -215,7 +210,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case MASSIVE_UNBLOCK_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -225,7 +220,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case DUPLICATE_CONTACTS:
         purgeOutdatedCSRFTokens();
@@ -236,13 +231,13 @@ switch ($o) {
                 EventDispatcher::EVENT_DUPLICATE,
                 [
                     'contact_ids' => $select,
-                    'numbers' => $dupNbr
+                    'numbers' => $dupNbr,
                 ]
             );
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case DELETE_CONTACTS:
         purgeOutdatedCSRFTokens();
@@ -256,7 +251,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case DISPLAY_NOTIFICATION:
         require_once $path . 'displayNotification.php';
@@ -273,7 +268,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     case UNBLOCK_CONTACT:
         purgeOutdatedCSRFTokens();
@@ -283,9 +278,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
     default:
-        require_once($path . "listContact.php");
+        require_once $path . 'listContact.php';
         break;
 }

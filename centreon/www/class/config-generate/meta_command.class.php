@@ -43,14 +43,16 @@ class MetaCommand extends AbstractObject
 {
     /** @var string */
     protected $generate_filename = 'meta_commands.cfg';
+
     /** @var string */
     protected string $object_name = 'command';
+
     /** @var string[] */
     protected $attributes_write = ['command_name', 'command_line'];
 
     /**
-     * @return int|void
      * @throws Exception
+     * @return int|void
      */
     public function generateObjects()
     {
@@ -60,14 +62,14 @@ class MetaCommand extends AbstractObject
 
         $object = [];
         $object['command_name'] = 'check_meta';
-        $object['command_line'] = '$CENTREONPLUGINS$/centreon_centreon_central.pl ' .
-            '--plugin=apps::centreon::local::plugin --mode=metaservice --centreon-config=/etc/centreon/conf.pm ' .
-            '--meta-id $ARG1$';
+        $object['command_line'] = '$CENTREONPLUGINS$/centreon_centreon_central.pl '
+            . '--plugin=apps::centreon::local::plugin --mode=metaservice --centreon-config=/etc/centreon/conf.pm '
+            . '--meta-id $ARG1$';
         $this->generateObjectInFile($object, 0);
 
         $object['command_name'] = 'check_meta_host_alive';
-        $object['command_line'] = '$CENTREONPLUGINS$/centreon_centreon_central.pl ' .
-            '--plugin=apps::centreon::local::plugin --mode=dummy --status=\'0\' --output=\'This is a dummy check\'';
+        $object['command_line'] = '$CENTREONPLUGINS$/centreon_centreon_central.pl '
+            . '--plugin=apps::centreon::local::plugin --mode=dummy --status=\'0\' --output=\'This is a dummy check\'';
         $this->generateObjectInFile($object, 0);
     }
 }

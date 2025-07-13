@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,19 +21,18 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use ConfigGenerateRemote\Command;
 use ConfigGenerateRemote\Contact;
 use ConfigGenerateRemote\ContactGroup;
 use ConfigGenerateRemote\HostTemplate;
 use ConfigGenerateRemote\Media;
-use ConfigGenerateRemote\TimePeriod;
-use ConfigGenerateRemote\Relations\ContactHostRelation;
 use ConfigGenerateRemote\Relations\ContactGroupHostRelation;
-use ConfigGenerateRemote\Relations\HostTemplateRelation;
+use ConfigGenerateRemote\Relations\ContactHostRelation;
 use ConfigGenerateRemote\Relations\HostPollerRelation;
+use ConfigGenerateRemote\Relations\HostTemplateRelation;
 use ConfigGenerateRemote\Relations\MacroHost;
+use ConfigGenerateRemote\TimePeriod;
+use PDO;
 use PDOStatement;
 
 /**
@@ -45,8 +45,10 @@ abstract class AbstractHost extends AbstractObject
 {
     /** @var PDOStatement */
     protected $stmt_htpl;
+
     /** @var array */
     protected $hosts;
+
     /** @var string */
     protected $attributesSelect = '
         host_id,
@@ -112,19 +114,24 @@ abstract class AbstractHost extends AbstractObject
         'host_register',
         'host_location',
         'host_acknowledgement_timeout',
-        'geo_coords'
+        'geo_coords',
     ];
 
     /** @var array */
     protected $loopHtpl = []; // To be reset
+
     /** @var null */
     protected $stmtMacro = null;
+
     /** @var null */
     protected $stmtHtpl = null;
+
     /** @var null */
     protected $stmtContact = null;
+
     /** @var null */
     protected $stmtCg = null;
+
     /** @var null */
     protected $stmtPoller = null;
 
@@ -148,13 +155,7 @@ abstract class AbstractHost extends AbstractObject
             'ehi_3d_coords' => $host['ehi_3d_coords'],
         ];
 
-        unset($host['ehi_notes']);
-        unset($host['ehi_notes_url']);
-        unset($host['ehi_action_url']);
-        unset($host['ehi_icon_image']);
-        unset($host['ehi_icon_image_alt']);
-        unset($host['ehi_2d_coords']);
-        unset($host['ehi_3d_coords']);
+        unset($host['ehi_notes'], $host['ehi_notes_url'], $host['ehi_action_url'], $host['ehi_icon_image'], $host['ehi_icon_image_alt'], $host['ehi_2d_coords'], $host['ehi_3d_coords']);
 
         return $extendedInformation;
     }
@@ -185,6 +186,7 @@ abstract class AbstractHost extends AbstractObject
         }
         $host['macros'] = MacroHost::getInstance($this->dependencyInjector)
             ->getHostMacroByHostId($host['host_id']);
+
         return 0;
     }
 
@@ -196,13 +198,13 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getHostTemplates(array &$host): void
     {
-        if (!isset($host['htpl'])) {
+        if (! isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
                 $this->stmt_htpl = $this->backendInstance->db->prepare(
-                    "SELECT host_tpl_id
+                    'SELECT host_tpl_id
                     FROM host_template_relation
                     WHERE host_host_id = :host_id
-                    ORDER BY `order` ASC"
+                    ORDER BY `order` ASC'
                 );
             }
             $this->stmt_htpl->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -230,9 +232,9 @@ abstract class AbstractHost extends AbstractObject
     {
         if (is_null($this->stmtPoller)) {
             $this->stmtPoller = $this->backendInstance->db->prepare(
-                "SELECT nagios_server_id
+                'SELECT nagios_server_id
                 FROM ns_host_relation
-                WHERE host_host_id = :host_id"
+                WHERE host_host_id = :host_id'
             );
         }
         $this->stmtPoller->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -251,12 +253,12 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContacts(array &$host): void
     {
-        if (!isset($host['contacts_cache'])) {
+        if (! isset($host['contacts_cache'])) {
             if (is_null($this->stmtContact)) {
                 $this->stmtContact = $this->backendInstance->db->prepare(
-                    "SELECT contact_id
+                    'SELECT contact_id
                     FROM contact_host_relation
-                    WHERE host_host_id = :host_id"
+                    WHERE host_host_id = :host_id'
                 );
             }
             $this->stmtContact->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -279,12 +281,12 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContactGroups(array &$host): void
     {
-        if (!isset($host['contact_groups_cache'])) {
+        if (! isset($host['contact_groups_cache'])) {
             if (is_null($this->stmtCg)) {
                 $this->stmtCg = $this->backendInstance->db->prepare(
-                    "SELECT contactgroup_cg_id
+                    'SELECT contactgroup_cg_id
                     FROM contactgroup_host_relation
-                    WHERE host_host_id = :host_id"
+                    WHERE host_host_id = :host_id'
                 );
             }
             $this->stmtCg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -292,7 +294,7 @@ abstract class AbstractHost extends AbstractObject
             $host['contact_groups_cache'] = $this->stmtCg->fetchAll(PDO::FETCH_COLUMN);
         }
 
-        $cg = Contactgroup::getInstance($this->dependencyInjector);
+        $cg = ContactGroup::getInstance($this->dependencyInjector);
         foreach ($host['contact_groups_cache'] as $cgId) {
             $cg->generateFromCgId($cgId);
             ContactGroupHostRelation::getInstance($this->dependencyInjector)->addRelation($host['host_id'], $cgId);

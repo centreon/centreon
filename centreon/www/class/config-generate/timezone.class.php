@@ -43,16 +43,17 @@ class Timezone extends AbstractObject
 {
     /** @var null */
     private $aTimezone = null;
+
     /** @var null */
     private $defaultTimezone = null;
 
     /**
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function getDefaultTimezone()
     {
-        if (!is_null($this->defaultTimezone)) {
+        if (! is_null($this->defaultTimezone)) {
             return $this->defaultTimezone;
         }
 
@@ -67,20 +68,20 @@ class Timezone extends AbstractObject
     }
 
     /**
-     * @return void|null
      * @throws PDOException
+     * @return void|null
      */
     private function getTimezone()
     {
-        if (!is_null($this->aTimezone)) {
+        if (! is_null($this->aTimezone)) {
             return $this->aTimezone;
         }
 
         $this->aTimezone = [];
-        $stmt = $this->backend_instance->db->prepare("SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT 
                 timezone_id,
                 timezone_name
-            FROM timezone");
+            FROM timezone');
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($results as $res) {
@@ -92,8 +93,8 @@ class Timezone extends AbstractObject
      * @param $iTimezone
      * @param $returnDefault
      *
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function getTimezoneFromId($iTimezone, $returnDefault = false)
     {
@@ -102,7 +103,7 @@ class Timezone extends AbstractObject
         }
 
         $result = null;
-        if (!is_null($iTimezone) && isset($this->aTimezone[$iTimezone])) {
+        if (! is_null($iTimezone) && isset($this->aTimezone[$iTimezone])) {
             $result = $this->aTimezone[$iTimezone];
         } elseif ($returnDefault === true) {
             $result = $this->getDefaultTimezone();

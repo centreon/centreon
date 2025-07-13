@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -43,14 +44,19 @@ class CentreonObjects
 {
     /** @var CentreonDB */
     private $DB;
+
     /** @var array */
     public $hosts;
+
     /** @var array */
     public $services;
+
     /** @var array */
     public $hostgoups;
+
     /** @var array */
     public $servicegroups;
+
     /** @var array */
     public $commandes;
 
@@ -62,6 +68,6 @@ class CentreonObjects
     public function __construct($pearDB)
     {
         $this->DB = $pearDB;
-        //$this->hostgroups = new CentreonHostGroups($pearDB);
+        // $this->hostgroups = new CentreonHostGroups($pearDB);
     }
 }

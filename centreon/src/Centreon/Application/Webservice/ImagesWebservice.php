@@ -21,10 +21,10 @@
 
 namespace Centreon\Application\Webservice;
 
-use Centreon\Infrastructure\Webservice;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Application\Serializer;
 use Centreon\Domain\Repository\ImagesRepository;
+use Centreon\Infrastructure\Webservice;
 use Centreon\ServiceProvider;
 
 /**
@@ -36,7 +36,7 @@ class ImagesWebservice extends Webservice\WebServiceAbstract implements
     use Webservice\DependenciesTrait;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getName(): string
     {
@@ -44,7 +44,7 @@ class ImagesWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function dependencies(): array
     {
@@ -141,9 +141,7 @@ class ImagesWebservice extends Webservice\WebServiceAbstract implements
      */
     public function getList(): Response
     {
-        /*
-         * process request
-         */
+        // process request
         $request = $this->query();
 
         $limit = isset($request['limit']) ? (int) $request['limit'] : null;

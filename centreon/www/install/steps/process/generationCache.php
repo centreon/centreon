@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,7 +34,7 @@ function extractErrorMessage(BufferedOutput $output): ?string
     $messages = explode("\n", $rawMessage);
     $filteredMessages = [];
     foreach ($messages as $rawMessage) {
-        if (!empty(trim($rawMessage))) {
+        if (! empty(trim($rawMessage))) {
             $filteredMessages[] = $rawMessage;
         }
     }
@@ -41,15 +42,17 @@ function extractErrorMessage(BufferedOutput $output): ?string
         if (str_starts_with(strtolower($filteredMessages[0]), 'in')) {
             array_shift($filteredMessages);
         }
+
         return implode('<br/>', $filteredMessages);
     }
+
     return null;
 }
 
 $return = ['id' => 'generationCache', 'result' => 0, 'msg' => 'OK'];
 
 try {
-    if (!class_exists(Application::class)) {
+    if (! class_exists(Application::class)) {
         throw new RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
     }
 
@@ -63,13 +66,14 @@ try {
     $input = new ArgvInput(['', 'cache:clear']);
 
     $code = $application->run($input, $consoleOutput);
-    if (!is_null($message = extractErrorMessage($consoleOutput))) {
-        throw new \Exception($message);
+    if (! is_null($message = extractErrorMessage($consoleOutput))) {
+        throw new Exception($message);
     }
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $return['result'] = 1;
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
+
     exit;
 }
 

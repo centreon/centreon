@@ -42,9 +42,7 @@ use ReflectionClass;
 
 class Entity implements JsonSerializable
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     private $entity;
 
     /**
@@ -69,8 +67,8 @@ class Entity implements JsonSerializable
 
     /**
      * @param object $object
-     * @return array<mixed>
      * @throws \ReflectionException
+     * @return array<mixed>
      */
     public static function dismount(object $object): array
     {

@@ -31,53 +31,51 @@ use Core\Service\Domain\Model\NotificationType;
 use Core\Service\Domain\Model\Service;
 
 beforeEach(function (): void {
-    $this->createService = static function (array $fields = []): Service {
-        return new Service(
-            ...[
-                'id' => 1,
-                'name' => 'service-name',
-                'hostId' => 1,
-                'commandId' => 1,
-                'commandArguments' => ['args1', 'args2'],
-                'eventHandlerArguments' => ['args3', 'args4'],
-                'notificationTypes' => [NotificationType::Warning, NotificationType::Critical],
-                'contactAdditiveInheritance' => false,
-                'contactGroupAdditiveInheritance' => false,
-                'isActivated' => true,
-                'activeChecks' => YesNoDefault::Yes,
-                'passiveCheck' => YesNoDefault::No,
-                'volatility' => YesNoDefault::Yes,
-                'checkFreshness' => YesNoDefault::No,
-                'eventHandlerEnabled' => YesNoDefault::Yes,
-                'flapDetectionEnabled' => YesNoDefault::No,
-                'notificationsEnabled' => YesNoDefault::Yes,
-                'comment' => 'some-comment',
-                'note' => 'some-note',
-                'noteUrl' => 'some-url',
-                'actionUrl' => 'some-action-url',
-                'iconAlternativeText' => 'icon-alt',
-                'graphTemplateId' => 12,
-                'serviceTemplateParentId' => 52,
-                'eventHandlerId' => 14,
-                'notificationTimePeriodId' => 65,
-                'checkTimePeriodId' => 82,
-                'iconId' => 27,
-                'severityId' => 16,
-                'maxCheckAttempts' => 3,
-                'normalCheckInterval' => 5,
-                'retryCheckInterval' => 1,
-                'freshnessThreshold' => 12,
-                'lowFlapThreshold' => 6,
-                'highFlapThreshold' => 8,
-                'notificationInterval' => 15,
-                'recoveryNotificationDelay' => 10,
-                'firstNotificationDelay' => 5,
-                'acknowledgementTimeout' => 20,
-                'geoCoords' => new GeoCoords('12.25', '46.8'),
-                ...$fields,
-            ]
-        );
-    };
+    $this->createService = static fn (array $fields = []): Service => new Service(
+        ...[
+            'id' => 1,
+            'name' => 'service-name',
+            'hostId' => 1,
+            'commandId' => 1,
+            'commandArguments' => ['args1', 'args2'],
+            'eventHandlerArguments' => ['args3', 'args4'],
+            'notificationTypes' => [NotificationType::Warning, NotificationType::Critical],
+            'contactAdditiveInheritance' => false,
+            'contactGroupAdditiveInheritance' => false,
+            'isActivated' => true,
+            'activeChecks' => YesNoDefault::Yes,
+            'passiveCheck' => YesNoDefault::No,
+            'volatility' => YesNoDefault::Yes,
+            'checkFreshness' => YesNoDefault::No,
+            'eventHandlerEnabled' => YesNoDefault::Yes,
+            'flapDetectionEnabled' => YesNoDefault::No,
+            'notificationsEnabled' => YesNoDefault::Yes,
+            'comment' => 'some-comment',
+            'note' => 'some-note',
+            'noteUrl' => 'some-url',
+            'actionUrl' => 'some-action-url',
+            'iconAlternativeText' => 'icon-alt',
+            'graphTemplateId' => 12,
+            'serviceTemplateParentId' => 52,
+            'eventHandlerId' => 14,
+            'notificationTimePeriodId' => 65,
+            'checkTimePeriodId' => 82,
+            'iconId' => 27,
+            'severityId' => 16,
+            'maxCheckAttempts' => 3,
+            'normalCheckInterval' => 5,
+            'retryCheckInterval' => 1,
+            'freshnessThreshold' => 12,
+            'lowFlapThreshold' => 6,
+            'highFlapThreshold' => 8,
+            'notificationInterval' => 15,
+            'recoveryNotificationDelay' => 10,
+            'firstNotificationDelay' => 5,
+            'acknowledgementTimeout' => 20,
+            'geoCoords' => new GeoCoords('12.25', '46.8'),
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set service instance (all properties)', function (): void {
@@ -171,7 +169,7 @@ it('should return properly set host instance (mandatory properties only)', funct
 // mandatory fields
 it(
     'should throw an exception when service name is an empty string',
-    fn() => ($this->createService)(['name' => '    '])
+    fn () => ($this->createService)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::notEmptyString('Service::name')->getMessage()
@@ -193,7 +191,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service {$field} is not > 0",
-        fn() => ($this->createService)([$field => 0])
+        fn () => ($this->createService)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "Service::{$field}")->getMessage()
@@ -242,7 +240,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service {$field} is too long",
-        fn() => ($this->createService)([$field => $tooLong])
+        fn () => ($this->createService)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "Service::{$field}")->getMessage()
@@ -266,7 +264,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service {$field} is not >= 0",
-        fn() => ($this->createService)([$field => -1])
+        fn () => ($this->createService)([$field => -1])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::min(-1, 0, "Service::{$field}")->getMessage()

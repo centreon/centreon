@@ -22,12 +22,12 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.8: ';
 $errorMessage = '';
 
-$alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
-    if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+$alterTopologyForFeatureFlag = function (CentreonDB $pearDB): void {
+    if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `topology`
@@ -41,7 +41,7 @@ $alterTopologyForFeatureFlag = function(CentreonDB $pearDB): void {
 try {
     $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
     $alterTopologyForFeatureFlag($pearDB);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
@@ -50,6 +50,5 @@ try {
             . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
-

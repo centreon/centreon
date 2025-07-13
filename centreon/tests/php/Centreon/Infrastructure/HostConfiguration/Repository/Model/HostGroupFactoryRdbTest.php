@@ -30,9 +30,7 @@ use PHPUnit\Framework\TestCase;
  */
 class HostGroupFactoryRdbTest extends TestCase
 {
-    /**
-     * @var array<string, string|int> $rdbData
-     */
+    /** @var array<string, string|int> */
     private $rdbData;
 
     protected function setUp(): void
@@ -43,7 +41,7 @@ class HostGroupFactoryRdbTest extends TestCase
             'hg_alias' => 'hg alias',
             'geo_coords' => '2;4',
             'hg_comment' => 'comment',
-            'hg_activate' => '1'
+            'hg_activate' => '1',
         ];
     }
 

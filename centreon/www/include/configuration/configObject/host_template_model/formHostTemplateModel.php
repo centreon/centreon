@@ -188,7 +188,7 @@ if (($o === HOST_TEMPLATE_MODIFY || $o === HOST_TEMPLATE_WATCH) && isset($hostId
             ON ehi.host_host_id = host.host_id
         WHERE host_id = :host_id LIMIT 1'
     );
-    $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
     $statement->execute();
 
     // Set base value
@@ -213,7 +213,7 @@ if (($o === HOST_TEMPLATE_MODIFY || $o === HOST_TEMPLATE_WATCH) && isset($hostId
             WHERE hcr.host_host_id = :host_id AND hc.level IS NOT NULL
             ORDER BY hc.level ASC LIMIT 1'
         );
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
         $statement->execute();
 
         if ($statement->rowCount()) {
@@ -346,12 +346,12 @@ $form->addElement('select', 'host_snmp_version', _('Version'), [null => null, 1 
 switch ($o) {
     case HOST_TEMPLATE_ADD:
     case HOST_TEMPLATE_MASSIVE_CHANGE:
-        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        $form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText);
         break;
     default:
         $snmpAttribute = $attrsText;
         $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
-        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        $form->addElement('password', 'host_snmp_community', _('SNMP Community'), $snmpAttribute);
         break;
 }
 
@@ -360,7 +360,7 @@ $form->addElement('select2', 'host_location', _('Timezone'), [], $attributes['ti
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
     $mc_mod_tplp = [
         $form->createElement('radio', 'mc_mod_tplp', null, _('Incremental'), '0'),
-        $form->createElement('radio', 'mc_mod_tplp', null, _('Replacement'), '1')
+        $form->createElement('radio', 'mc_mod_tplp', null, _('Replacement'), '1'),
     ];
     $form->addGroup($mc_mod_tplp, 'mc_mod_tplp', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_tplp' => '0']);
@@ -446,9 +446,9 @@ $checkCommandSelect->addJsCallback(
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
 $hostEHE = [
-        $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2'),
+    $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
+    $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),
+    $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2'),
 ];
 
 $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
@@ -458,8 +458,8 @@ if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
 
 $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
 $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
 );
 
 $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
@@ -469,7 +469,7 @@ if (! $isCloudPlatform) {
     $hostACE = [
         $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2')
+        $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2'),
     ];
 
     $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
@@ -481,7 +481,7 @@ if (! $isCloudPlatform) {
     $hostPCE = [
         $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2')
+        $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2'),
     ];
     $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
     if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
@@ -526,7 +526,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
             null,
             _('Default'),
             '2'
-        )
+        ),
     ];
 
     $form->addGroup($contactAdditive, 'mc_contact_additive_inheritance', _('Contact additive inheritance'), '&nbsp;');
@@ -540,7 +540,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
             null,
             _('Default'),
             '2'
-        )
+        ),
     ];
     $form->addGroup(
         $contactGroupAdditive,
@@ -567,7 +567,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
             null,
             _('Replacement'),
             '1'
-        )
+        ),
     ];
     $form->addGroup(
         $mc_mod_notifopt_first_notification_delay,
@@ -623,7 +623,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
             null,
             _('Replacement'),
             '1'
-        )
+        ),
     ];
     $form->addGroup(
         $mc_mod_notifopt_notification_interval,
@@ -651,7 +651,7 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
             null,
             _('Replacement'),
             '1'
-        )
+        ),
     ];
     $form->addGroup($mc_mod_notifopt_timeperiod, 'mc_mod_notifopt_timeperiod', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_notifopt_timeperiod' => '0']);
@@ -662,7 +662,7 @@ $form->addElement('select2', 'timeperiod_tp_id2', _('Notification Period'), [], 
 if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
     $mc_mod_notifopts = [
         $form->createElement('radio', 'mc_mod_notifopts', null, _('Incremental'), '0'),
-        $form->createElement('radio', 'mc_mod_notifopts', null, _('Replacement'), '1')
+        $form->createElement('radio', 'mc_mod_notifopts', null, _('Replacement'), '1'),
     ];
 
     $form->addGroup($mc_mod_notifopts, 'mc_mod_notifopts', _('Update mode'), '&nbsp;');
@@ -710,7 +710,7 @@ $hostNotifOpt = [
         '&nbsp;',
         _('None'),
         ['id' => 'notifN', 'onClick' => 'uncheckNotifOption(this);']
-    )
+    ),
 ];
 
 $form->addGroup($hostNotifOpt, 'host_notifOpts', _('Notification Options'), '&nbsp;&nbsp;');
@@ -718,7 +718,7 @@ $form->addGroup($hostNotifOpt, 'host_notifOpts', _('Notification Options'), '&nb
 $hostStalOpt = [
     $form->createElement('checkbox', 'o', '&nbsp;', _('Up')),
     $form->createElement('checkbox', 'd', '&nbsp;', _('Down')),
-    $form->createElement('checkbox', 'u', '&nbsp;', _('Unreachable'))
+    $form->createElement('checkbox', 'u', '&nbsp;', _('Unreachable')),
 ];
 $form->addGroup($hostStalOpt, 'host_stalOpts', _('Stalking Options'), '&nbsp;&nbsp;');
 
@@ -773,7 +773,7 @@ $form->addElement('header', 'treatment', _('Data Processing'));
 $hostCF = [
     $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1'),
     $form->createElement('radio', 'host_check_freshness', null, _('No'), '0'),
-    $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2')
+    $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2'),
 ];
 
 $form->addGroup($hostCF, 'host_check_freshness', _('Check Freshness'), '&nbsp;');

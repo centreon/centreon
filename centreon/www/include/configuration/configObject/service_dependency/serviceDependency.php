@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,16 +44,12 @@ const MODIFY_DEPENDENCY = 'c';
 const DUPLICATE_DEPENDENCY = 'm';
 const DELETE_DEPENDENCY = 'd';
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/service_dependency/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/service_dependency/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $dep_id = filter_var(
     $_GET['dep_id'] ?? $_POST['dep_id'] ?? null,
@@ -70,19 +66,19 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
-    $acl = $oreon->user->access;
-    $dbmon = $acl->getNameDBAcl();
+$acl = $oreon->user->access;
+$dbmon = $acl->getNameDBAcl();
 
 switch ($o) {
     case ADD_DEPENDENCY:
     case WATCH_DEPENDENCY:
     case MODIFY_DEPENDENCY:
-        require_once($path . "formServiceDependency.php");
+        require_once $path . 'formServiceDependency.php';
         break;
     case DUPLICATE_DEPENDENCY:
         purgeOutdatedCSRFTokens();
@@ -95,7 +91,7 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceDependency.php");
+        require_once $path . 'listServiceDependency.php';
         break;
     case DELETE_DEPENDENCY:
         purgeOutdatedCSRFTokens();
@@ -105,9 +101,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceDependency.php");
+        require_once $path . 'listServiceDependency.php';
         break;
     default:
-        require_once($path . "listServiceDependency.php");
+        require_once $path . 'listServiceDependency.php';
         break;
 }

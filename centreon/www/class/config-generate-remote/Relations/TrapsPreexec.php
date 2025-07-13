@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote\Relations;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Pimple\Container;
 
 /**
@@ -35,6 +36,7 @@ class TrapsPreexec extends AbstractObject
 {
     /** @var int */
     private $useCache = 1;
+
     /** @var int */
     private $doneCache = 0;
 
@@ -43,8 +45,10 @@ class TrapsPreexec extends AbstractObject
 
     /** @var string */
     protected $table = 'traps_preexec';
+
     /** @var string */
     protected $generateFilename = 'traps_preexec.infile';
+
     /** @var null */
     protected $stmtTrap = null;
 
@@ -52,7 +56,7 @@ class TrapsPreexec extends AbstractObject
     protected $attributesWrite = [
         'trap_id',
         'tpe_order',
-        'tpe_string'
+        'tpe_string',
     ];
 
     /**
@@ -74,14 +78,14 @@ class TrapsPreexec extends AbstractObject
     private function cacheTrapPreexec(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT *
-            FROM traps_preexec"
+            'SELECT *
+            FROM traps_preexec'
         );
 
         $stmt->execute();
         $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($values as &$value) {
-            if (!isset($this->trapPreexecCache[$value['trap_id']])) {
+            if (! isset($this->trapPreexecCache[$value['trap_id']])) {
                 $this->trapPreexecCache[$value['trap_id']] = [];
             }
             $this->trapPreexecCache[$value['trap_id']][] = &$value;
@@ -109,8 +113,8 @@ class TrapsPreexec extends AbstractObject
      * @param int $trapId
      * @param array $trapPreexecCache
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateObject($trapId, $trapPreexecCache): void
     {
@@ -124,25 +128,27 @@ class TrapsPreexec extends AbstractObject
      *
      * @param int $trapId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function getTrapPreexecByTrapId(int $trapId)
     {
         // Get from the cache
         if (isset($this->trapPreexecCache[$trapId])) {
             $this->generateObject($trapId, $this->trapPreexecCache[$trapId]);
+
             return $this->trapPreexecCache[$trapId];
-        } elseif ($this->useCache == 1) {
+        }
+        if ($this->useCache == 1) {
             return null;
         }
 
         // We get unitary
         if (is_null($this->stmtTrap)) {
             $this->stmtTrap = $this->backendInstance->db->prepare(
-                "SELECT *
+                'SELECT *
                 FROM traps_preexec
-                WHERE trap_id = :trap_id"
+                WHERE trap_id = :trap_id'
             );
         }
 

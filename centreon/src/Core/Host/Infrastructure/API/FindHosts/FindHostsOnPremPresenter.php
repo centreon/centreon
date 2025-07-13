@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Infrastructure\API\FindHosts;
 
@@ -47,8 +47,7 @@ final class FindHostsOnPremPresenter extends AbstractPresenter implements FindHo
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
-        }
-        else {
+        } else {
             $result = [];
             foreach ($response->hostDto as $dto) {
                 $result[] = [
@@ -70,12 +69,12 @@ final class FindHostsOnPremPresenter extends AbstractPresenter implements FindHo
                         ? [
                             'id' => $dto->notificationTimeperiod->id,
                             'name' => $dto->notificationTimeperiod->name,
-                        ]: null,
+                        ] : null,
                     'check_timeperiod' => $dto->checkTimeperiod !== null
                         ? [
                             'id' => $dto->checkTimeperiod->id,
                             'name' => $dto->checkTimeperiod->name,
-                        ]: null,
+                        ] : null,
                     'severity' => $dto->severity !== null
                         ? ['id' => $dto->severity->id, 'name' => $dto->severity->name]
                         : null,

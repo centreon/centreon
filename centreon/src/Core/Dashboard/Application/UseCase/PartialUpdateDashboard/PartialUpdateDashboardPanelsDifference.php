@@ -106,7 +106,7 @@ final class PartialUpdateDashboardPanelsDifference
         if (null === $this->panelIdsToDelete) {
             $this->panelIdsToDelete = [];
             $panelDtoIds = array_map(
-                static fn(PanelRequestDto $dtoPanel): ?int => $dtoPanel->id,
+                static fn (PanelRequestDto $dtoPanel): ?int => $dtoPanel->id,
                 $this->panelsFromRequest
             );
             foreach ($this->panelIdsFromRepository as $id) {

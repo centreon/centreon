@@ -24,19 +24,13 @@ namespace Centreon\Domain\Monitoring\Comment;
 
 class Comment
 {
-    /**
-     * @var int Resource ID
-     */
+    /** @var int Resource ID */
     public $resourceId;
 
-    /**
-     * @var int|null Parent Resource ID
-     */
+    /** @var int|null Parent Resource ID */
     private $parentResourceId;
 
-    /**
-     * @var string added comment
-     */
+    /** @var string added comment */
     public $comment;
 
     /**
@@ -67,6 +61,7 @@ class Comment
     public function setResourceId(int $resourceId): Comment
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -85,6 +80,7 @@ class Comment
     public function setParentResourceId(?int $parentResourceId): Comment
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 
@@ -109,10 +105,11 @@ class Comment
         $comment = trim($comment);
         if (empty($comment)) {
             throw new \InvalidArgumentException(
-                "Comment can not be empty"
+                'Comment can not be empty'
             );
         }
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -135,6 +132,7 @@ class Comment
     public function setDate(\DateTime $date)
     {
         $this->date = $date;
+
         return $this;
     }
 }

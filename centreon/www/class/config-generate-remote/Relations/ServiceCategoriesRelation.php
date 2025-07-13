@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -33,8 +34,10 @@ class ServiceCategoriesRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'service_categories_relation';
+
     /** @var string */
     protected $generateFilename = 'service_categories_relation.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'sc_id',
@@ -47,8 +50,8 @@ class ServiceCategoriesRelation extends AbstractObject
      * @param int $scId
      * @param int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $scId, int $serviceId): void
     {

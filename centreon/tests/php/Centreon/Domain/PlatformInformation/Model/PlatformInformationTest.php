@@ -51,7 +51,7 @@ class PlatformInformationTest extends TestCase
      */
     public function testInvalidApiPathException(): void
     {
-        $path = "";
+        $path = '';
         $this->expectException(PlatformInformationException::class);
         $this->expectExceptionMessage(
             "Central platform's API data is not consistent. Please check the 'Remote Access' form."
@@ -66,7 +66,7 @@ class PlatformInformationTest extends TestCase
      */
     public static function createEntityForCentralInformation(): PlatformInformation
     {
-        return (new PlatformInformation(false));
+        return new PlatformInformation(false);
     }
 
     /**

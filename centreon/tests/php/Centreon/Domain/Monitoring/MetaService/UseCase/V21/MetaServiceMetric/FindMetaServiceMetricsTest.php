@@ -33,13 +33,10 @@ use Tests\Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetricTest;
  */
 class FindMetaServiceMetricsTest extends TestCase
 {
-    /**
-     * @var MetaServiceMetricService&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var MetaServiceMetricService&\PHPUnit\Framework\MockObject\MockObject */
     private $metaServiceMetricService;
-    /**
-     * @var \Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric
-     */
+
+    /** @var \Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric */
     private $metaServiceMetric;
 
     protected function setUp(): void
@@ -57,7 +54,7 @@ class FindMetaServiceMetricsTest extends TestCase
         $contact = new Contact();
         $contact->setAdmin(true);
 
-        return (new FindMetaServiceMetrics($this->metaServiceMetricService, $contact));
+        return new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
     }
 
     /**

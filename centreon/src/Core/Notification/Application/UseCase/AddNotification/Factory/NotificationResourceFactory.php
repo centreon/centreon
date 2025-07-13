@@ -112,7 +112,7 @@ class NotificationResourceFactory
     private function createNotificationResource(
         NotificationResourceRepositoryInterface $resourceRepository,
         array $resource
-    ): NotificationResource{
+    ): NotificationResource {
         $resourceIds = array_unique($resource['ids']);
 
         if ($this->user->isAdmin()) {
@@ -139,7 +139,7 @@ class NotificationResourceFactory
         return new NotificationResource(
             $resourceRepository->resourceType(),
             $resourceRepository->eventEnum(),
-            array_map((fn($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
+            array_map((fn ($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
             ($resourceRepository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])

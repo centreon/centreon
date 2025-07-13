@@ -35,8 +35,6 @@ use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Used to manage filters of the current user
@@ -45,11 +43,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 class FilterController extends AbstractController
 {
-    /**
-     * @var FilterServiceInterface
-     */
+    /** @var FilterServiceInterface */
     private $filterService;
-
     public const SERIALIZER_GROUPS_MAIN = ['filter_main'];
 
     /**
@@ -65,8 +60,8 @@ class FilterController extends AbstractController
      * validate filter data according to json schema
      *
      * @param array<mixed> $filter sent json
-     * @return void
      * @throws FilterException
+     * @return void
      */
     private function validateFilterSchema(array $filter, string $schemaPath): void
     {
@@ -78,11 +73,12 @@ class FilterController extends AbstractController
             Constraint::CHECK_MODE_VALIDATE_SCHEMA
         );
 
-        if (!$validator->isValid()) {
+        if (! $validator->isValid()) {
             $message = '';
             foreach ($validator->getErrors() as $error) {
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
+
             throw new FilterException($message);
         }
     }
@@ -92,8 +88,8 @@ class FilterController extends AbstractController
      *
      * @param Request $request
      * @param string $pageName
-     * @return View
      * @throws FilterException
+     * @return View
      */
     public function addFilter(Request $request, string $pageName): View
     {
@@ -156,9 +152,9 @@ class FilterController extends AbstractController
      * @param Request $request
      * @param string $pageName
      * @param int $filterId
-     * @return View
      * @throws EntityNotFoundException
      * @throws FilterException
+     * @return View
      */
     public function updateFilter(
         Request $request,
@@ -213,9 +209,9 @@ class FilterController extends AbstractController
      * @param Request $request
      * @param string $pageName
      * @param int $filterId
-     * @return View
      * @throws EntityNotFoundException
      * @throws FilterException
+     * @return View
      */
     public function patchFilter(Request $request, string $pageName, int $filterId): View
     {
@@ -232,7 +228,7 @@ class FilterController extends AbstractController
         $this->filterService->filterByContact($user);
 
         $propertyToPatch = json_decode((string) $request->getContent(), true);
-        if (!is_array($propertyToPatch)) {
+        if (! is_array($propertyToPatch)) {
             throw new FilterException(_('Error when decoding sent data'));
         }
 
@@ -263,8 +259,8 @@ class FilterController extends AbstractController
      *
      * @param string $pageName
      * @param int $filterId
-     * @return View
      * @throws EntityNotFoundException
+     * @return View
      */
     public function deleteFilter(string $pageName, int $filterId): View
     {
@@ -324,8 +320,8 @@ class FilterController extends AbstractController
      *
      * @param string $pageName
      * @param int $filterId
-     * @return View
      * @throws EntityNotFoundException
+     * @return View
      */
     public function getFilter(string $pageName, int $filterId): View
     {
@@ -366,15 +362,15 @@ class FilterController extends AbstractController
         }
     }
 
-     /**
-      * @param Contact $user
-      *
-      * @throws \RestForbiddenException
-      */
-     private function userHasAccessToResourceStatusOrFail(Contact $user): void
-     {
+    /**
+     * @param Contact $user
+     *
+     * @throws \RestForbiddenException
+     */
+    private function userHasAccessToResourceStatusOrFail(Contact $user): void
+    {
         if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
             throw new FilterException(_('You are not allowed to access the Resources Status page'), 403);
         }
-     }
+    }
 }

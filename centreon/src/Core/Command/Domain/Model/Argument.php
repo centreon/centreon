@@ -27,7 +27,8 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
 
-class Argument {
+class Argument
+{
     public const NAME_MAX_LENGTH = 255;
     public const DESCRIPTION_MAX_LENGTH = 255;
 

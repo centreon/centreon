@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2012 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -41,14 +42,13 @@
  */
 function getActionList($domName)
 {
-    $tab = ['onchange' => "javascript: " .
-        "if (this.form.elements['$domName'].selectedIndex == 1 && confirm('"
-        . _("Do you confirm the deletion ?") . "')) {" .
-        " 	setA(this.form.elements['$domName'].value); submit();} " .
-        "else if (this.form.elements['$domName'].selectedIndex == 2) {" .
-        " 	setA(this.form.elements['$domName'].value); submit();} " .
-        "else if (this.form.elements['$domName'].selectedIndex == 3) {" .
-        " 	setA(this.form.elements['$domName'].value); submit();} " .
-        "this.form.elements['$domName'].selectedIndex = 0"];
-    return $tab;
+    return ['onchange' => 'javascript: '
+        . "if (this.form.elements['{$domName}'].selectedIndex == 1 && confirm('"
+        . _('Do you confirm the deletion ?') . "')) {"
+        . " 	setA(this.form.elements['{$domName}'].value); submit();} "
+        . "else if (this.form.elements['{$domName}'].selectedIndex == 2) {"
+        . " 	setA(this.form.elements['{$domName}'].value); submit();} "
+        . "else if (this.form.elements['{$domName}'].selectedIndex == 3) {"
+        . " 	setA(this.form.elements['{$domName}'].value); submit();} "
+        . "this.form.elements['{$domName}'].selectedIndex = 0"];
 }

@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Icon;
 
-use Centreon\Domain\Configuration\Icon\Interfaces\IconRepositoryInterface;
 use Centreon\Domain\Configuration\Icon\Icon;
+use Centreon\Domain\Configuration\Icon\Interfaces\IconRepositoryInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -31,9 +31,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -110,13 +108,13 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
         ');
 
         // Search
-        $request .= !is_null($searchRequest) ? $searchRequest : '';
+        $request .= ! is_null($searchRequest) ? $searchRequest : '';
 
         // Sort
-        $request .= !is_null($sortRequest) ? $sortRequest : ' ORDER BY vi.img_id ASC';
+        $request .= ! is_null($sortRequest) ? $sortRequest : ' ORDER BY vi.img_id ASC';
 
         // Pagination
-        $request .= !is_null($paginationRequest) ? $paginationRequest : '';
+        $request .= ! is_null($paginationRequest) ? $paginationRequest : '';
 
         $statement = $this->db->prepare($request);
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
@@ -153,15 +151,15 @@ class IconRepositoryRDB extends AbstractRepositoryDRB implements IconRepositoryI
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
-                SELECT vi.*, vid.dir_name AS `img_dir`
-                    FROM `:db`.`view_img` AS `vi`
-                LEFT JOIN `:db`.`view_img_dir_relation` AS `vidr`
-                    ON vi.img_id = vidr.img_img_id
-                LEFT JOIN `:db`.`view_img_dir` AS `vid`
-                    ON vid.dir_id = vidr.dir_dir_parent_id
-                WHERE vi.img_id = :id
-                SQL
+                <<<'SQL'
+                    SELECT vi.*, vid.dir_name AS `img_dir`
+                        FROM `:db`.`view_img` AS `vi`
+                    LEFT JOIN `:db`.`view_img_dir_relation` AS `vidr`
+                        ON vi.img_id = vidr.img_img_id
+                    LEFT JOIN `:db`.`view_img_dir` AS `vid`
+                        ON vid.dir_id = vidr.dir_dir_parent_id
+                    WHERE vi.img_id = :id
+                    SQL
             )
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);

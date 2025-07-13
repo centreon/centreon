@@ -76,7 +76,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->serviceSeverityRepository
         ->expects($this->once())
         ->method('findByRequestParameter')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->presenter);
 

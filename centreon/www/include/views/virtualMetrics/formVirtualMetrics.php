@@ -36,22 +36,20 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit;
 }
 
-/*
- * Database retrieve information
- */
+// Database retrieve information
 $vmetric = [];
 
 if (($o == METRIC_MODIFY || $o == METRIC_WATCH)
     && is_int($vmetricId)
 ) {
-    $query = "SELECT *, hidden vhidden FROM virtual_metrics WHERE vmetric_id = $vmetricId LIMIT 1";
+    $query = "SELECT *, hidden vhidden FROM virtual_metrics WHERE vmetric_id = {$vmetricId} LIMIT 1";
     $p_qy = $pearDB->query($query);
     // Set base value
-    $vmetric = array_map("myDecode", $p_qy->fetchRow());
+    $vmetric = array_map('myDecode', $p_qy->fetchRow());
     $p_qy->closeCursor();
 }
 /*
@@ -59,136 +57,121 @@ if (($o == METRIC_MODIFY || $o == METRIC_WATCH)
  *
  * Existing Data Index List comes from DBO -> Store in $indds Array
  */
-$indds = ["" => sprintf("%s%s", _("Host list"), "&nbsp;&nbsp;&nbsp;")];
-$mx_l = strlen($indds[""]);
+$indds = ['' => sprintf('%s%s', _('Host list'), '&nbsp;&nbsp;&nbsp;')];
+$mx_l = strlen($indds['']);
 
 try {
-    $dbindd = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, host_id, host_name FROM index_data;");
-} catch (\PDOException $e) {
-    print "DB Error : " . $e->getMessage() . "<br />";
+    $dbindd = $pearDBO->query('SELECT DISTINCT 1 AS REALTIME, host_id, host_name FROM index_data;');
+} catch (PDOException $e) {
+    echo 'DB Error : ' . $e->getMessage() . '<br />';
 }
 while ($indd = $dbindd->fetchRow()) {
-    $indds[$indd["host_id"]] = $indd["host_name"] . "&nbsp;&nbsp;&nbsp;";
-    $hn_l = strlen($indd["host_name"]);
+    $indds[$indd['host_id']] = $indd['host_name'] . '&nbsp;&nbsp;&nbsp;';
+    $hn_l = strlen($indd['host_name']);
     if ($hn_l > $mx_l) {
         $mx_l = $hn_l;
     }
 }
 $dbindd->closeCursor();
 
-/*
- * End of "database-retrieved" information
- */
+// End of "database-retrieved" information
 
-/*
- * Var information to format the element
- */
+// Var information to format the element
 
-$attrsText = ["size" => "30"];
-$attrsText2 = ["size" => "10"];
-$attrsAdvSelect = ["style" => "width: 200px; height: 100px;"];
-$attrsTextarea = ["rows" => "4", "cols" => "60"];
-
+$attrsText = ['size' => '30'];
+$attrsText2 = ['size' => '10'];
+$attrsAdvSelect = ['style' => 'width: 200px; height: 100px;'];
+$attrsTextarea = ['rows' => '4', 'cols' => '60'];
 
 $availableRoute = './api/internal.php?object=centreon_configuration_service&action=list';
 
 $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $availableRoute, 'linkedObject' => 'centreonService', 'multiple' => false];
 
 if ($o !== METRIC_ADD) {
-    $defaultRoute = './api/internal.php?object=centreon_configuration_graphvirtualmetric' .
-        '&action=defaultValues&target=graphVirtualMetric&field=host_id&id=' . $vmetricId;
+    $defaultRoute = './api/internal.php?object=centreon_configuration_graphvirtualmetric'
+        . '&action=defaultValues&target=graphVirtualMetric&field=host_id&id=' . $vmetricId;
 
     $attrServices['defaultDatasetRoute'] = $defaultRoute;
 }
 
-
-
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+// Form begin
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o == METRIC_ADD) {
-    $form->addElement('header', 'ftitle', _("Add a Virtual Metric"));
+    $form->addElement('header', 'ftitle', _('Add a Virtual Metric'));
 } elseif ($o == METRIC_MODIFY) {
-    $form->addElement('header', 'ftitle', _("Modify a Virtual Metric"));
+    $form->addElement('header', 'ftitle', _('Modify a Virtual Metric'));
 } elseif ($o == METRIC_WATCH) {
-    $form->addElement('header', 'ftitle', _("View a Virtual Metric"));
+    $form->addElement('header', 'ftitle', _('View a Virtual Metric'));
 }
 
 /*
  * Basic information
  * Header
  */
-$form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'function', _("RPN Function"));
-$form->addElement('header', 'options', _("Options"));
+$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'function', _('RPN Function'));
+$form->addElement('header', 'options', _('Options'));
 // General Information
-$form->addElement('text', 'vmetric_name', _("Metric Name"), $attrsText);
-#$form->addElement('text', 'hs_relation', _("Host / Service Data Source"), $attrsText);
-$form->addElement('static', 'hsr_text', _("Choose a service if you want a specific virtual metric for it."));
-$form->addElement('select2', 'host_id', _("Linked Host Services"), [], $attrServices);
+$form->addElement('text', 'vmetric_name', _('Metric Name'), $attrsText);
+// $form->addElement('text', 'hs_relation', _("Host / Service Data Source"), $attrsText);
+$form->addElement('static', 'hsr_text', _('Choose a service if you want a specific virtual metric for it.'));
+$form->addElement('select2', 'host_id', _('Linked Host Services'), [], $attrServices);
 
 $form->addElement(
     'select',
     'def_type',
-    _("DEF Type"),
-    [0 => "CDEF&nbsp;&nbsp;&nbsp;", 1 => "VDEF&nbsp;&nbsp;&nbsp;"],
-    "onChange=manageVDEF();"
+    _('DEF Type'),
+    [0 => 'CDEF&nbsp;&nbsp;&nbsp;', 1 => 'VDEF&nbsp;&nbsp;&nbsp;'],
+    'onChange=manageVDEF();'
 );
 // RPN Function
-$form->addElement('textarea', 'rpn_function', _("RPN (Reverse Polish Notation) Function"), $attrsTextarea);
+$form->addElement('textarea', 'rpn_function', _('RPN (Reverse Polish Notation) Function'), $attrsTextarea);
 $form->addElement(
     'static',
     'rpn_text',
-    _("<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>- " .
-        "Do not mix metrics of different sources.<br>- " .
-        "Only aggregation functions work in VDEF rpn expressions.")
+    _('<br><i><b><font color="#B22222">Notes </font>:</b></i><br>- '
+        . 'Do not mix metrics of different sources.<br>- '
+        . 'Only aggregation functions work in VDEF rpn expressions.')
 );
-#$form->addElement('select', 'real_metrics', null, $rmetrics);
-$form->addElement('text', 'unit_name', _("Metric Unit"), $attrsText2);
-$form->addElement('text', 'warn', _("Warning Threshold"), $attrsText2);
+// $form->addElement('select', 'real_metrics', null, $rmetrics);
+$form->addElement('text', 'unit_name', _('Metric Unit'), $attrsText2);
+$form->addElement('text', 'warn', _('Warning Threshold'), $attrsText2);
 $form->addRule('warn', _('Must be a number'), 'numeric');
-$form->addElement('text', 'crit', _("Critical Threshold"), $attrsText2);
+$form->addElement('text', 'crit', _('Critical Threshold'), $attrsText2);
 $form->addRule('crit', _('Must be a number'), 'numeric');
 // Options
-$form->addElement('checkbox', 'vhidden', _("Hidden Graph And Legend"), "", "onChange=manageVDEF();");
-$form->addElement('textarea', 'comment', _("Comments"), $attrsTextarea);
+$form->addElement('checkbox', 'vhidden', _('Hidden Graph And Legend'), '', 'onChange=manageVDEF();');
+$form->addElement('textarea', 'comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('hidden', 'vmetric_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-
-/*
- * Form Rules
- */
+// Form Rules
 $form->applyFilter('__ALL__', 'myTrim');
-$form->addRule('vmetric_name', _("Compulsory Name"), 'required');
-$form->addRule('rpn_function', _("Required Field"), 'required');
-$form->addRule('host_id', _("Required service"), 'required');
-
+$form->addRule('vmetric_name', _('Compulsory Name'), 'required');
+$form->addRule('rpn_function', _('Required Field'), 'required');
+$form->addRule('host_id', _('Required service'), 'required');
 
 $form->registerRule('existName', 'callback', 'hasVirtualNameNeverUsed');
 $form->registerRule('RPNInfinityLoop', 'callback', '_TestRPNInfinityLoop');
 $form->addRule(
     'vmetric_name',
-    _("Name already in use for this Host/Service"),
+    _('Name already in use for this Host/Service'),
     'existName',
     $vmetric['index_id'] ?? null
 );
 $form->addRule(
     'rpn_function',
-    _("Can't Use This Virtual Metric '" . (isset($_POST["vmetric_name"])
-            ? htmlentities($_POST["vmetric_name"], ENT_QUOTES, "UTF-8")
+    _("Can't Use This Virtual Metric '" . (isset($_POST['vmetric_name'])
+            ? htmlentities($_POST['vmetric_name'], ENT_QUOTES, 'UTF-8')
             : '') . "' In This RPN Function"),
     'RPNInfinityLoop'
 );
 
-$form->setRequiredNote("<font style='color: red;'>*</font>" . _(" Required fields"));
+$form->setRequiredNote("<font style='color: red;'>*</font>" . _(' Required fields'));
 
-/*
- * End of form definition
- */
+// End of form definition
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -196,27 +179,27 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 if ($o == METRIC_WATCH) {
     // Just watch
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&vmetric_id=" . $vmetricId . "'"]
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&vmetric_id=' . $vmetricId . "'"]
     );
     $form->setDefaults($vmetric);
     $form->freeze();
 } elseif ($o == METRIC_MODIFY) {
     // Modify
-    $hostId = $vmetric["host_id"] ?? null;
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["onClick" => "javascript:resetLists($hostId,{$vmetric["index_id"]});", "class" => "btc bt_default"]);
+    $hostId = $vmetric['host_id'] ?? null;
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['onClick' => "javascript:resetLists({$hostId},{$vmetric['index_id']});", 'class' => 'btc bt_default']);
     $form->setDefaults($vmetric);
 } elseif ($o == METRIC_ADD) {
     // Add
-    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement(
         'reset',
         'reset',
-        _("Reset"),
-        ["onClick" => "javascript:resetLists(0,0)", "class" => "btc bt_default"]
+        _('Reset'),
+        ['onClick' => 'javascript:resetLists(0,0)', 'class' => 'btc bt_default']
     );
 }
 
@@ -261,17 +244,17 @@ if ($o == METRIC_MODIFY || $o == METRIC_ADD) {
     </script>
     <?php
 }
-$tpl->assign('msg', ["changeL" => "main.php?p=" . $p . "&o=c&vmetric_id=" . $vmetricId, "changeT" => _("Modify")]);
+$tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&vmetric_id=' . $vmetricId, 'changeT' => _('Modify')]);
 
-$tpl->assign("sort1", _("Properties"));
-$tpl->assign("sort2", _("Graphs"));
+$tpl->assign('sort1', _('Properties'));
+$tpl->assign('sort2', _('Graphs'));
 // prepare help texts
-$helptext = "";
-include_once("help.php");
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
 $valid = false;
 if ($form->validate()) {
@@ -291,24 +274,24 @@ if ($form->validate()) {
             $error = $e->getMessage();
         }
     }
-    if (!isset($error)) {
+    if (! isset($error)) {
         $o = METRIC_WATCH;
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            ["onClick" => "javascript:window.location.href='?p=$p&o=c&vmetric_id=" . $vmetricObj->getValue() . "'"]
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "javascript:window.location.href='?p={$p}&o=c&vmetric_id=" . $vmetricObj->getValue() . "'"]
         );
         $form->freeze();
         $valid = true;
     }
 }
-$action = $form->getSubmitValue("action");
+$action = $form->getSubmitValue('action');
 if ($valid) {
-    require_once("listVirtualMetrics.php");
+    require_once 'listVirtualMetrics.php';
 } else {
     if (isset($error)) {
-        print "<p style='text-align: center'><span class='msg'>$error</span></p>";
+        echo "<p style='text-align: center'><span class='msg'>{$error}</span></p>";
     }
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
@@ -317,17 +300,17 @@ if ($valid) {
     $form->accept($renderer);
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
-    $tpl->display("formVirtualMetrics.ihtml");
+    $tpl->display('formVirtualMetrics.ihtml');
 }
-$vdef = 1; /* Display VDEF too */
+$vdef = 1; // Display VDEF too
 
 if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
-    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $_POST["host_id"]
-        : $vmetric["host_id"];
+    $host_service_id = isset($_POST['host_id']) && $_POST['host_id'] != null
+        ? $_POST['host_id']
+        : $vmetric['host_id'];
 } elseif ($o == METRIC_ADD) {
-    $host_service_id = isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $_POST["host_id"]
+    $host_service_id = isset($_POST['host_id']) && $_POST['host_id'] != null
+        ? $_POST['host_id']
         : 0;
 }
 ?>

@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\RealTime\Model;
 
-use PHPUnit\Framework\TestCase;
-use Core\Domain\RealTime\Model\Icon;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Domain\RealTime\Model\Icon;
 use Core\Domain\RealTime\Model\Service;
 use Core\Domain\RealTime\Model\ServiceStatus;
+use PHPUnit\Framework\TestCase;
 
 class ServiceTest extends TestCase
 {
     /**
-    * test name too long exception
-    */
+     * test name too long exception
+     */
     public function testNameTooLongException(): void
     {
         $name = str_repeat('.', Service::MAX_NAME_LENGTH + 1);
@@ -40,7 +40,7 @@ class ServiceTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 Service::MAX_NAME_LENGTH,
                 'Service::name'
             )->getMessage()

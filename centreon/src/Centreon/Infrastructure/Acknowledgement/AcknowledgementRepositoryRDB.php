@@ -27,37 +27,27 @@ use Centreon\Domain\Acknowledgement\Interfaces\AcknowledgementRepositoryInterfac
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implements AcknowledgementRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
-    /**
-     * @var AccessGroup[] List of access group used to filter the requests
-     */
+    /** @var AccessGroup[] List of access group used to filter the requests */
     private $accessGroups;
 
-    /**
-     * @var bool Indicates whether the contact is an admin or not
-     */
+    /** @var bool Indicates whether the contact is an admin or not */
     private $isAdmin = false;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private $hostConcordanceArray = [
         'author_id' => 'contact.contact_id',
         'comment' => 'ack.comment_data',
@@ -73,9 +63,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         'type' => 'ack.type',
     ];
 
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private $serviceConcordanceArray;
 
     /**
@@ -108,6 +96,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     public function filterByAccessGroups(?array $accessGroups): AcknowledgementRepositoryInterface
     {
         $this->accessGroups = $accessGroups;
+
         return $this;
     }
 
@@ -117,6 +106,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     public function setAdmin(bool $isAdmin): AcknowledgementRepositoryInterface
     {
         $this->isAdmin = $isAdmin;
+
         return $this;
     }
 
@@ -166,8 +156,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                   AND acg.acl_group_activate = \'1\'
                   AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
-        $request =
-            'SELECT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT ack.*, contact.contact_id AS author_id
             FROM `:dbstg`.acknowledgements ack
             LEFT JOIN `:db`.contact
               ON contact.contact_alias = ack.author'
@@ -202,8 +192,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                   AND acg.acl_group_activate = \'1\'
                   AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
-        $request =
-            'SELECT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT ack.*, contact.contact_id AS author_id
             FROM `:dbstg`.acknowledgements ack
             LEFT JOIN `:db`.contact
               ON contact.contact_alias = ack.author'
@@ -236,8 +226,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                   AND acg.acl_group_activate = \'1\'
                   AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
-        $request =
-            'SELECT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT ack.*, contact.contact_id AS author_id
             FROM `:dbstg`.acknowledgements ack
             LEFT JOIN `:db`.contact
             ON contact.contact_alias = ack.author
@@ -284,8 +274,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                   AND acg.acl_group_activate = \'1\'
                   AND acg.acl_group_id IN (' . $this->accessGroupIdToString($this->accessGroups) . ') ';
 
-        $request =
-            'SELECT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT ack.*, contact.contact_id AS author_id
         FROM `:dbstg`.acknowledgements ack
         LEFT JOIN `:db`.contact
           ON contact.contact_alias = ack.author
@@ -317,10 +307,10 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      * Generic function to find acknowledgement.
      *
      * @param int $type Type of acknowledgement
-     * @return Acknowledgement[]
      * @throws \Exception
      * @throws \PDOException
      * @throws RequestParametersTranslatorException
+     * @return Acknowledgement[]
      */
     private function findAcknowledgementsOf(int $type = Acknowledgement::TYPE_HOST_ACKNOWLEDGEMENT): array
     {
@@ -334,7 +324,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
             ? ' '
             : ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = ack.host_id'
-                .  (($type === Acknowledgement::TYPE_SERVICE_ACKNOWLEDGEMENT)
+                . (
+                    ($type === Acknowledgement::TYPE_SERVICE_ACKNOWLEDGEMENT)
                     ? ' AND acl.service_id = ack.service_id '
                     : ''
                 )
@@ -386,16 +377,16 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      *
      * @param int $acknowledgementId Acknowledgement id
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      * @throws \Exception
+     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      */
     private function findOneAcknowledgement(int $acknowledgementId, bool $isAdmin = false): ?Acknowledgement
     {
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = ack.host_id
                   AND (acl.service_id = ack.service_id OR acl.service_id IS NULL)
                 INNER JOIN `:db`.`acl_groups` acg
@@ -405,8 +396,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                 . $this->accessGroupIdToString($this->accessGroups) . ') ';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ack.*, contact.contact_id AS author_id
             FROM `:dbstg`.acknowledgements ack
             LEFT JOIN `:db`.`contact`
                 ON contact.contact_alias = ack.author'
@@ -424,9 +415,9 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                 Acknowledgement::class,
                 $row
             );
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -455,8 +446,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      * Find all acknowledgements.
      *
      * @param bool $isAdmin Indicates whether user is an admin
-     * @return Acknowledgement[]
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     private function findAcknowledgements(bool $isAdmin): array
     {
@@ -465,8 +456,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         $aclRequest = '';
 
         if ($isAdmin === false) {
-            $aclRequest =
-                ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            $aclRequest
+                = ' INNER JOIN `:dbstg`.`centreon_acl` acl
                   ON acl.host_id = ack.host_id
                   AND (acl.service_id = ack.service_id OR acl.service_id IS NULL)
                 INNER JOIN `:db`.`acl_groups` acg
@@ -476,8 +467,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
                 . $this->accessGroupIdToString($this->accessGroups) . ') ';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT ack.*, contact.contact_id AS author_id
+        $request
+            = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ack.*, contact.contact_id AS author_id
             FROM `:dbstg`.acknowledgements ack
             LEFT JOIN `:db`.`contact`
               ON contact.contact_alias = ack.author
@@ -509,16 +500,17 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     public function setContact(ContactInterface $contact): AcknowledgementRepositoryInterface
     {
         $this->contact = $contact;
+
         return $this;
     }
 
     /**
-     * @return bool Return TRUE if the contact is an admin or has at least one access group.
+     * @return bool return TRUE if the contact is an admin or has at least one access group
      */
     private function hasNotEnoughRightsToContinue(): bool
     {
         return ($this->contact !== null)
-            ? !($this->contact->isAdmin() || count($this->accessGroups) > 0)
+            ? ! ($this->contact->isAdmin() || count($this->accessGroups) > 0)
             : count($this->accessGroups) == 0;
     }
 
@@ -526,8 +518,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      * Execute the request and retrieve the acknowledgements list
      *
      * @param string $request Request to execute
-     * @return Acknowledgement[]
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     private function processListingRequest(string $request): array
     {
@@ -535,11 +527,11 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
-        $request .= !is_null($searchRequest) ? $searchRequest : '';
+        $request .= ! is_null($searchRequest) ? $searchRequest : '';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= !is_null($sortRequest)
+        $request .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY ack.host_id, ack.service_id, ack.entry_time DESC';
 

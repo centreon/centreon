@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -23,7 +24,7 @@ namespace Centreon\Domain\Service\JsonValidator;
 
 class ValidatorException extends \Exception
 {
-    public function __construct($message = "", $code = 0, \Throwable $previous = null)
+    public function __construct($message = '', $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

@@ -77,8 +77,7 @@ final class AddHostTemplateController extends AbstractController
         AddHostTemplate $useCase,
         AddHostTemplateOnPremPresenter $presenter,
         Request $request
-    ): Response
-    {
+    ): Response {
         try {
             /**
              * @var array{
@@ -191,8 +190,7 @@ final class AddHostTemplateController extends AbstractController
         AddHostTemplate $useCase,
         AddHostTemplateSaasPresenter $presenter,
         Request $request
-    ): Response
-    {
+    ): Response {
         try {
             /**
              * @var array{

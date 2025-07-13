@@ -29,49 +29,67 @@ use PDOStatement;
 
 class QueryGenerator
 {
-    /**
-     * @var array<array<int,mixed>>
-     */
+    /** @var array<array<int,mixed>> */
     private array $queryValues = [];
+
     private ?int $is_admin = null;
+
     private string $openid = '';
+
     private string $output = '';
+
     private CentreonACL $access;
+
     private int $start;
+
     private int $end;
+
     private string $up;
+
     private string $down;
+
     private string $unreachable;
+
     private string $ok;
+
     private string $warning;
+
     private string $critical;
+
     private string $unknown;
+
     private string $acknowledgement;
+
     private string $notification;
+
     private string $alert;
+
     private string $error;
+
     private string $oh;
-    /**
-     * @var String[]
-     */
+
+    /** @var string[] */
     private array $hostMsgStatusSet = [];
-    /**
-     * @var String[]
-     */
+
+    /** @var string[] */
     private array $svcMsgStatusSet = [];
-    /**
-     * @var String[]
-     */
+
+    /** @var string[] */
     private array $tabHostIds = [];
+
     private string $searchHost = '';
-    /**
-     * @var array<mixed>
-     */
+
+    /** @var array<mixed> */
     private array $tabSvc;
+
     private string $searchService = '';
+
     private string $engine;
+
     private string|int $export;
+
     private int $num = 0;
+
     private ?int $limit = null;
 
     public function __construct(private CentreonDB $pearDBO)
@@ -232,7 +250,7 @@ class QueryGenerator
     }
 
     /**
-     * @param String[] $hostMsgStatusSet
+     * @param string[] $hostMsgStatusSet
      * @return void
      */
     public function setHostMsgStatusSet(array $hostMsgStatusSet): void
@@ -250,7 +268,7 @@ class QueryGenerator
     }
 
     /**
-     * @param String[] $tabHostIds
+     * @param string[] $tabHostIds
      * @return void
      */
     public function setTabHostIds(array $tabHostIds): void
@@ -268,7 +286,7 @@ class QueryGenerator
     }
 
     /**
-     * @param String[] $tabSvc
+     * @param string[] $tabSvc
      * @return void
      */
     public function setTabSvc(array $tabSvc): void
@@ -357,7 +375,7 @@ class QueryGenerator
         $msg_req = $this->generateMsgHost();
 
         // Build final request
-        $req = "SELECT SQL_CALC_FOUND_ROWS " . (!$this->is_admin ? "DISTINCT" : "") . "
+        $req = 'SELECT SQL_CALC_FOUND_ROWS ' . (! $this->is_admin ? 'DISTINCT' : '') . '
             1 AS REALTIME,
             logs.ctime,
             logs.host_id,
@@ -372,99 +390,95 @@ class QueryGenerator
             logs.status,
             logs.type,
             logs.instance_name
-            FROM logs " . $this->generateInnerJoinQuery()
+            FROM logs ' . $this->generateInnerJoinQuery()
             . (
-            !$this->is_admin ?
-                " INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR "
-                . " acl.service_id = logs.service_id)) "
-                . " WHERE acl.group_id IN (" . $this->access->getAccessGroupsString() . ") AND " :
-                "WHERE "
+                ! $this->is_admin
+                ? ' INNER JOIN centreon_acl acl ON (logs.host_id = acl.host_id AND (acl.service_id IS NULL OR '
+                . ' acl.service_id = logs.service_id)) '
+                . ' WHERE acl.group_id IN (' . $this->access->getAccessGroupsString() . ') AND '
+                : 'WHERE '
             )
             . " logs.ctime > '{$this->start}' AND logs.ctime <= '{$this->end}' {$whereOutput} {$msg_req}";
 
-        /*
-         * Add Host
-         */
-        $str_unitH = "";
-        $str_unitH_append = "";
-        $host_search_sql = "";
+        // Add Host
+        $str_unitH = '';
+        $str_unitH_append = '';
+        $host_search_sql = '';
         if (count($this->tabHostIds) == 0 && count($this->tabSvc) == 0) {
-            if ($this->engine == "false") {
+            if ($this->engine == 'false') {
                 $req .= " AND `msg_type` NOT IN ('4','5') ";
                 $req .= " AND logs.host_name NOT LIKE '\\_Module\\_BAM%' ";
             }
         } else {
             foreach ($this->tabHostIds as $host_id) {
-                if ($host_id != "") {
-                    $str_unitH .= $str_unitH_append . "'$host_id'";
-                    $str_unitH_append = ", ";
+                if ($host_id != '') {
+                    $str_unitH .= $str_unitH_append . "'{$host_id}'";
+                    $str_unitH_append = ', ';
                 }
             }
-            if ($str_unitH != "") {
-                $str_unitH = "(logs.host_id IN ($str_unitH) AND (logs.service_id IS NULL OR logs.service_id = 0))";
-                if (isset($this->searchHost) && $this->searchHost != "") {
-                    $host_search_sql =
-                        " AND logs.host_name LIKE '%" . $this->pearDBO->escape($this->searchHost) . "%' ";
+            if ($str_unitH != '') {
+                $str_unitH = "(logs.host_id IN ({$str_unitH}) AND (logs.service_id IS NULL OR logs.service_id = 0))";
+                if (isset($this->searchHost) && $this->searchHost != '') {
+                    $host_search_sql
+                        = " AND logs.host_name LIKE '%" . $this->pearDBO->escape($this->searchHost) . "%' ";
                 }
             }
 
-            /*
-             * Add services
-             */
+            // Add services
             $flag = 0;
-            $str_unitSVC = "";
-            $service_search_sql = "";
+            $str_unitSVC = '';
+            $service_search_sql = '';
             if (
-                (count($this->tabSvc) || count($this->tabHostIds)) &&
-                (
-                    $this->up == 'true' ||
-                    $this->down == 'true' ||
-                    $this->unreachable == 'true' ||
-                    $this->ok == 'true' || $this->warning == 'true' ||
-                    $this->critical == 'true' ||
-                    $this->unknown == 'true' ||
-                    $this->acknowledgement == 'true'
+                (count($this->tabSvc) || count($this->tabHostIds))
+                && (
+                    $this->up == 'true'
+                    || $this->down == 'true'
+                    || $this->unreachable == 'true'
+                    || $this->ok == 'true' || $this->warning == 'true'
+                    || $this->critical == 'true'
+                    || $this->unknown == 'true'
+                    || $this->acknowledgement == 'true'
                 )
             ) {
-                $req_append = "";
+                $req_append = '';
                 foreach ($this->tabSvc as $host_id => $services) {
-                    $str = "";
-                    $str_append = "";
+                    $str = '';
+                    $str_append = '';
                     foreach ($services as $svc_id => $svc_name) {
-                        if ($svc_id != "") {
+                        if ($svc_id != '') {
                             $str .= $str_append . $svc_id;
-                            $str_append = ", ";
+                            $str_append = ', ';
                         }
                     }
-                    if ($str != "") {
+                    if ($str != '') {
                         if ($host_id === '_Module_Meta') {
                             $str_unitSVC .= $req_append . " (logs.host_name = '" . $host_id . "' "
-                                . "AND logs.service_id IN (" . $str . ")) ";
+                                . 'AND logs.service_id IN (' . $str . ')) ';
                         } else {
-                            $str_unitSVC .= $req_append .
-                                " (logs.host_id = '" . $host_id . "' AND logs.service_id IN ($str)) ";
+                            $str_unitSVC .= $req_append
+                                . " (logs.host_id = '" . $host_id . "' AND logs.service_id IN ({$str})) ";
                         }
-                        $req_append = " OR";
+                        $req_append = ' OR';
                     }
                 }
-                if (isset($this->searchService) && $this->searchService != "") {
-                    $service_search_sql =
-                        " AND logs.service_description LIKE '%" . $this->pearDBO->escape($this->searchService) . "%' ";
+                if (isset($this->searchService) && $this->searchService != '') {
+                    $service_search_sql
+                        = " AND logs.service_description LIKE '%" . $this->pearDBO->escape($this->searchService) . "%' ";
                 }
-                if ($str_unitH != "" && $str_unitSVC != "") {
-                    $str_unitSVC = " OR " . $str_unitSVC;
+                if ($str_unitH != '' && $str_unitSVC != '') {
+                    $str_unitSVC = ' OR ' . $str_unitSVC;
                 }
-                if ($str_unitH != "" || $str_unitSVC != "") {
-                    $req .= " AND (" . $str_unitH . $str_unitSVC . ")";
+                if ($str_unitH != '' || $str_unitSVC != '') {
+                    $req .= ' AND (' . $str_unitH . $str_unitSVC . ')';
                 }
             } else {
-                $req .= "AND 0 ";
+                $req .= 'AND 0 ';
             }
             $req .= " AND logs.host_name NOT LIKE '\\_Module\\_BAM%' ";
             $req .= $host_search_sql . $service_search_sql;
         }
 
-        $limit = ($this->export !== "1" && $this->num) ? $this->generateLimit() : '';
+        $limit = ($this->export !== '1' && $this->num) ? $this->generateLimit() : '';
 
         $req .= ' ORDER BY ctime DESC ' . $limit;
 
@@ -485,7 +499,7 @@ class QueryGenerator
         $this->queryValues['offset'] = [\PDO::PARAM_INT => $offset];
         $this->queryValues['limit'] = [\PDO::PARAM_INT => $this->limit];
 
-        return " LIMIT :offset, :limit";
+        return ' LIMIT :offset, :limit';
     }
 
     /**
@@ -495,7 +509,7 @@ class QueryGenerator
     private function generateInnerJoinQuery(): string
     {
         $innerJoinEngineLog = '';
-        if ($this->engine == "true" && isset($this->openid) && $this->openid != "") {
+        if ($this->engine == 'true' && isset($this->openid) && $this->openid != '') {
             // filtering poller ids and keeping only real ids
             $pollerIds = explode(',', $this->openid);
             $filteredIds = array_filter($pollerIds, function ($id) {
@@ -522,10 +536,10 @@ class QueryGenerator
      */
     private function generateWhere(): string
     {
-        $whereOutput = "";
-        if (isset($this->output) && $this->output != "") {
+        $whereOutput = '';
+        if (isset($this->output) && $this->output != '') {
             $this->queryValues[':output'] = [\PDO::PARAM_STR => '%' . $this->output . '%'];
-            $whereOutput = " AND logs.output like :output ";
+            $whereOutput = ' AND logs.output like :output ';
         }
 
         return $whereOutput;
@@ -543,22 +557,22 @@ class QueryGenerator
 
         if ($this->notification == 'true') {
             if ($this->hostMsgStatusSet !== []) {
-                $msg_req .= "(";
+                $msg_req .= '(';
                 $flag_begin = 1;
                 $msg_req .= " (`msg_type` = '3' ";
-                $msg_req .= " AND `status` IN (" . implode(',', $this->hostMsgStatusSet) . "))";
-                $msg_req .= ") ";
+                $msg_req .= ' AND `status` IN (' . implode(',', $this->hostMsgStatusSet) . '))';
+                $msg_req .= ') ';
             }
             if ($this->svcMsgStatusSet !== []) {
                 if ($flag_begin == 0) {
-                    $msg_req .= "(";
+                    $msg_req .= '(';
                 } else {
-                    $msg_req .= " OR ";
+                    $msg_req .= ' OR ';
                 }
                 $msg_req .= " (`msg_type` = '2' ";
-                $msg_req .= " AND `status` IN (" . implode(',', $this->svcMsgStatusSet) . "))";
+                $msg_req .= ' AND `status` IN (' . implode(',', $this->svcMsgStatusSet) . '))';
                 if ($flag_begin == 0) {
-                    $msg_req .= ") ";
+                    $msg_req .= ') ';
                 }
                 $flag_begin = 1;
             }
@@ -567,34 +581,34 @@ class QueryGenerator
         if ($this->alert == 'true') {
             if ($this->hostMsgStatusSet !== []) {
                 if ($flag_begin) {
-                    $msg_req .= " OR ";
+                    $msg_req .= ' OR ';
                 }
                 if ($this->oh == true) {
-                    $msg_req .= " ( ";
+                    $msg_req .= ' ( ';
                     $flag_oh = true;
                 }
                 $flag_begin = 1;
                 $msg_req .= " ((`msg_type` IN ('1', '10', '11') ";
-                $msg_req .= " AND `status` IN (" . implode(',', $this->hostMsgStatusSet) . ")) ";
-                $msg_req .= ") ";
+                $msg_req .= ' AND `status` IN (' . implode(',', $this->hostMsgStatusSet) . ')) ';
+                $msg_req .= ') ';
             }
             if ($this->svcMsgStatusSet !== []) {
                 if ($flag_begin) {
-                    $msg_req .= " OR ";
+                    $msg_req .= ' OR ';
                 }
-                if ($this->oh == true && !isset($flag_oh)) {
-                    $msg_req .= " ( ";
+                if ($this->oh == true && ! isset($flag_oh)) {
+                    $msg_req .= ' ( ';
                 }
                 $flag_begin = 1;
                 $msg_req .= " ((`msg_type` IN ('0', '10', '11') ";
-                $msg_req .= " AND `status` IN (" . implode(',', $this->svcMsgStatusSet) . ")) ";
-                $msg_req .= ") ";
+                $msg_req .= ' AND `status` IN (' . implode(',', $this->svcMsgStatusSet) . ')) ';
+                $msg_req .= ') ';
             }
             if ($flag_begin) {
-                $msg_req .= ")";
+                $msg_req .= ')';
             }
             if ((count($this->hostMsgStatusSet) || count($this->svcMsgStatusSet)) && $this->oh == 'true') {
-                $msg_req .= " AND ";
+                $msg_req .= ' AND ';
             }
             if ($this->oh == 'true') {
                 $flag_begin = 1;
@@ -604,14 +618,14 @@ class QueryGenerator
         // Error filter is only used in the engine log page.
         if ($this->error == 'true') {
             if ($flag_begin == 0) {
-                $msg_req .= "AND ";
+                $msg_req .= 'AND ';
             } else {
-                $msg_req .= " OR ";
+                $msg_req .= ' OR ';
             }
             $msg_req .= " `msg_type` IN ('4','5') ";
         }
         if ($flag_begin) {
-            $msg_req = " AND (" . $msg_req . ") ";
+            $msg_req = ' AND (' . $msg_req . ') ';
         }
 
         return $msg_req;

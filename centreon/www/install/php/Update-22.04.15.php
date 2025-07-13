@@ -22,22 +22,21 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.04.15: ';
 $errorMessage = '';
 
-//Change the type of check_attempt and max_check_attempts columns from table resources
+// Change the type of check_attempt and max_check_attempts columns from table resources
 $errorMessage = "Couldn't modify resources table";
-$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
-    MODIFY max_check_attempts SMALLINT UNSIGNED";
+$alterResourceTableStmnt = 'ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
+    MODIFY max_check_attempts SMALLINT UNSIGNED';
 
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
     $errorMessage = '';
 
-} catch (\Exception $e) {
-
+} catch (Exception $e) {
 
     $centreonLog->insertLog(
         4,
@@ -47,5 +46,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

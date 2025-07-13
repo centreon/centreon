@@ -51,8 +51,8 @@ class ReloadAllConfigurationsTest extends TestCase
     protected function setUp(): void
     {
         $this->monitoringServerRepository = $this->createMock(MonitoringServerRepositoryInterface::class);
-        $this->monitoringServerConfigurationRepository =
-            $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
+        $this->monitoringServerConfigurationRepository
+            = $this->createMock(MonitoringServerConfigurationRepositoryInterface::class);
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
         $this->contact = $this->createMock(ContactInterface::class);
     }
@@ -128,7 +128,7 @@ class ReloadAllConfigurationsTest extends TestCase
             ->willReturn(true);
 
         $monitoringServers = [
-            (new MonitoringServer())->setId(1)
+            (new MonitoringServer())->setId(1),
         ];
 
         $repositoryException = new RepositoryException('Test exception message');

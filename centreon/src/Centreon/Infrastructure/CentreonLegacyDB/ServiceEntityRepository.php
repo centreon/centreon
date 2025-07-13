@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,34 +37,24 @@
 
 namespace Centreon\Infrastructure\CentreonLegacyDB;
 
-use CentreonDB;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\Infrastructure\CentreonLegacyDB\EntityPersister;
-use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
+use CentreonDB;
 
 /**
  * Compatibility with Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository
  */
 abstract class ServiceEntityRepository
 {
-    /**
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $db;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var CentreonDBManagerService */
     protected $manager;
 
-    /**
-     * @var \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata
-     */
+    /** @var Mapping\ClassMetadata */
     protected $classMetadata;
 
-    /**
-     * @var \Centreon\Infrastructure\CentreonLegacyDB\EntityPersister
-     */
+    /** @var EntityPersister */
     protected $entityPersister;
 
     /**
@@ -90,10 +81,10 @@ abstract class ServiceEntityRepository
     /**
      * Construct
      *
-     * @param \CentreonDB $db
-     * @param \Centreon\Infrastructure\Service\CentreonDBManagerService $manager
+     * @param CentreonDB $db
+     * @param CentreonDBManagerService $manager
      */
-    public function __construct(CentreonDB $db, CentreonDBManagerService $manager = null)
+    public function __construct(CentreonDB $db, ?CentreonDBManagerService $manager = null)
     {
         $this->db = $db;
         $this->manager = $manager;
@@ -126,7 +117,7 @@ abstract class ServiceEntityRepository
     /**
      * Get ClassMetadata
      *
-     * @return \Centreon\Infrastructure\CentreonLegacyDB\Mapping\ClassMetadata
+     * @return Mapping\ClassMetadata
      */
     public function getClassMetadata(): Mapping\ClassMetadata
     {
@@ -153,15 +144,14 @@ abstract class ServiceEntityRepository
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(":{$columnA}", $id, \PDO::PARAM_INT);
             $stmt->execute();
-            $rows = $stmt->fetchAll();
 
-            return $rows;
+            return $stmt->fetchAll();
         })();
 
         // to remove
         foreach ($rows as $row) {
             $pollerId = $row[$columnB];
-            if (!in_array($pollerId, $list)) {
+            if (! in_array($pollerId, $list)) {
                 $listRemove[] = $pollerId;
             }
 
@@ -171,7 +161,7 @@ abstract class ServiceEntityRepository
 
         // to add
         foreach ($list as $pollerId) {
-            if (!in_array($pollerId, $listExists)) {
+            if (! in_array($pollerId, $listExists)) {
                 $listAdd[] = $pollerId;
             }
             unset($pollerId);
@@ -192,7 +182,7 @@ abstract class ServiceEntityRepository
         // adding
         foreach ($listAdd as $pollerId) {
             (function () use ($id, $pollerId, $tableName, $columnA, $columnB): void {
-                $sql = "INSERT INTO `{$tableName}` (`{$columnA}`, `{$columnB}`)  VALUES (:{$columnA}, :$columnB)";
+                $sql = "INSERT INTO `{$tableName}` (`{$columnA}`, `{$columnB}`)  VALUES (:{$columnA}, :{$columnB})";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindValue(":{$columnA}", $id, \PDO::PARAM_INT);
                 $stmt->bindValue(":{$columnB}", $pollerId, \PDO::PARAM_INT);

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
@@ -61,7 +61,7 @@ class DataStorageObserver implements DataStorageEngineInterface
     {
         $this->debug(
             'Starting the data storage engine transaction',
-            ['engines' => array_map(fn(DataStorageEngineInterface $engine) => $engine::class, $this->engines)]
+            ['engines' => array_map(fn (DataStorageEngineInterface $engine) => $engine::class, $this->engines)]
         );
         $status = true;
         foreach ($this->engines as $engine) {

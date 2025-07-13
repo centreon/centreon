@@ -265,8 +265,7 @@ class ParametersValidation
         int $serviceTemplateId,
         ContactInterface $contact,
         array $accessGroups
-    ): void
-    {
+    ): void {
         if ($serviceGroupDtos === []) {
             return;
         }

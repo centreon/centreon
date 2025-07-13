@@ -55,7 +55,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHostGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait, HostCategoryRepositoryTrait, HostGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
+    use HostCategoryRepositoryTrait;
+    use HostGroupRepositoryTrait;
 
     public function __construct(DatabaseConnection $db)
     {

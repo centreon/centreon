@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-require_once realpath(__DIR__ . "/centreonLDAP.class.php");
-require_once realpath(__DIR__ . "/centreonACL.class.php");
+require_once realpath(__DIR__ . '/centreonLDAP.class.php');
+require_once realpath(__DIR__ . '/centreonACL.class.php');
 
 /**
  * Class
@@ -62,39 +63,39 @@ class CentreonContactgroup
      * @param bool $withLdap if include LDAP group
      * @param bool $dbOnly | will not return ldap groups that are not stored in db
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getListContactgroup($withLdap = false, $dbOnly = false)
     {
         // Contactgroup from database
         $contactgroups = [];
 
-        $query = "SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ";
-        $query .= " LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id";
+        $query = 'SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ';
+        $query .= ' LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id';
         if (false === $withLdap) {
             $query .= " WHERE a.cg_type != 'ldap'";
         }
-        $query .= " ORDER BY a.cg_name";
+        $query .= ' ORDER BY a.cg_name';
 
         $res = $this->db->query($query);
         while ($contactgroup = $res->fetch()) {
-            $contactgroups[$contactgroup["cg_id"]] = $contactgroup["cg_name"];
-            if ($withLdap && isset($contactgroup['cg_ldap_dn']) && $contactgroup['cg_ldap_dn'] != "") {
-                $contactgroups[$contactgroup["cg_id"]] = $this->formatLdapContactgroupName(
-                    $contactgroup["cg_name"],
+            $contactgroups[$contactgroup['cg_id']] = $contactgroup['cg_name'];
+            if ($withLdap && isset($contactgroup['cg_ldap_dn']) && $contactgroup['cg_ldap_dn'] != '') {
+                $contactgroups[$contactgroup['cg_id']] = $this->formatLdapContactgroupName(
+                    $contactgroup['cg_name'],
                     $contactgroup['ar_name']
                 );
             }
         }
         $res->closeCursor();
 
-        # Get ldap contactgroups
+        // Get ldap contactgroups
         if ($withLdap && $dbOnly === false) {
             $ldapContactgroups = $this->getLdapContactgroups();
             $contactgroupNames = array_values($contactgroups);
             foreach ($ldapContactgroups as $id => $name) {
-                if (!in_array($name, $contactgroupNames)) {
+                if (! in_array($name, $contactgroupNames)) {
                     $contactgroups[$id] = $name;
                 }
             }
@@ -108,8 +109,8 @@ class CentreonContactgroup
      *
      * @param string $filter
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getLdapContactgroups($filter = '')
     {
@@ -129,10 +130,10 @@ class CentreonContactgroup
                 foreach ($ldapGroups as $ldapGroup) {
                     $ldapGroupName = $ldapGroup['name'];
                     if (
-                        false === array_search($ldapGroupName . " (LDAP : " . $ldapRow['ar_name'] . ")", $cgs)
+                        false === array_search($ldapGroupName . ' (LDAP : ' . $ldapRow['ar_name'] . ')', $cgs)
                         && preg_match('/' . $filter . '/i', $ldapGroupName)
                     ) {
-                        $cgs["[" . $ldapRow['ar_id'] . "]" . $ldapGroupName] = $this->formatLdapContactgroupName(
+                        $cgs['[' . $ldapRow['ar_id'] . ']' . $ldapGroupName] = $this->formatLdapContactgroupName(
                             $ldapGroupName,
                             $ldapRow['ar_name']
                         );
@@ -154,7 +155,7 @@ class CentreonContactgroup
      */
     public function formatLdapContactgroupName($cg_name, $ldap_name)
     {
-        return $cg_name . " (LDAP : " . $ldap_name . ")";
+        return $cg_name . ' (LDAP : ' . $ldap_name . ')';
     }
 
     /**
@@ -163,17 +164,17 @@ class CentreonContactgroup
      * @param int $ldapId
      * @param string $name
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     private function findLdapGroupIdByName(int $ldapId, string $name): ?int
     {
         $ldapGroupId = null;
 
-        $query = "SELECT cg_id "
-            . "FROM contactgroup "
-            . "WHERE cg_name = :name "
-            . "AND ar_id = :ldapId";
+        $query = 'SELECT cg_id '
+            . 'FROM contactgroup '
+            . 'WHERE cg_name = :name '
+            . 'AND ar_id = :ldapId';
         $statement = $this->db->prepare($query);
         $statement->bindValue(':name', $name, PDO::PARAM_STR);
         $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
@@ -192,17 +193,17 @@ class CentreonContactgroup
      * @param int $ldapId
      * @param string $dn
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     private function findLdapGroupIdByDn(int $ldapId, string $dn): ?int
     {
         $ldapGroupId = null;
 
-        $query = "SELECT cg_id "
-            . "FROM contactgroup "
-            . "WHERE cg_ldap_dn = :dn "
-            . "AND ar_id = :ldapId";
+        $query = 'SELECT cg_id '
+            . 'FROM contactgroup '
+            . 'WHERE cg_ldap_dn = :dn '
+            . 'AND ar_id = :ldapId';
         $statement = $this->db->prepare($query);
         $statement->bindValue(':dn', $dn, PDO::PARAM_STR);
         $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
@@ -222,8 +223,8 @@ class CentreonContactgroup
      * @param string $name
      * @param string $dn
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     public function insertLdapGroupByNameAndDn(int $ldapId, string $name, string $dn): ?int
     {
@@ -233,7 +234,7 @@ class CentreonContactgroup
             return $ldapGroupId;
         }
 
-        $query = "INSERT INTO contactgroup (cg_name, cg_alias, cg_activate, cg_type, cg_ldap_dn, ar_id) "
+        $query = 'INSERT INTO contactgroup (cg_name, cg_alias, cg_activate, cg_type, cg_ldap_dn, ar_id) '
             . "VALUES (:name, :name, '1', 'ldap', :dn, :ldapId)";
         $statement = $this->db->prepare($query);
         $statement->bindValue(':name', $name, PDO::PARAM_STR);
@@ -249,8 +250,8 @@ class CentreonContactgroup
      *
      * @param string $cgName The ldap group name
      *
-     * @return int|null The contactgroup id or null if not found
      * @throws PDOException
+     * @return int|null The contactgroup id or null if not found
      */
     public function insertLdapGroup(string $cgName): ?int
     {
@@ -276,6 +277,7 @@ class CentreonContactgroup
 
         if ($ldapDn !== false) {
             $this->insertLdapGroupByNameAndDn($arId, $cgName, $ldapDn);
+
             return $this->findLdapGroupIdByDn($arId, $ldapDn);
         }
 
@@ -286,8 +288,8 @@ class CentreonContactgroup
      * Optimized method to get better performance at config generation when LDAP have groups
      * Useful to avoid calculating and refreshing configuration from LDAP when nothing has changed
      *
-     * @return array $msg array of error messages
      * @throws PDOException
+     * @return array $msg array of error messages
      */
     public function syncWithLdapConfigGen()
     {
@@ -325,55 +327,56 @@ class CentreonContactgroup
             // if $currentLdapId == cgRow['ar_id'], then nothing has changed and we can skip the next operations
             if ($currentLdapId != $cgRow['ar_id']) {
                 $currentLdapId = $cgRow['ar_id'];
-                if (!is_null($ldapConn)) {
+                if (! is_null($ldapConn)) {
                     $ldapConn->close();
                 }
-                $ldapConn = new CentreonLDAP($this->db, null, (int)$cgRow['ar_id']);
+                $ldapConn = new CentreonLDAP($this->db, null, (int) $cgRow['ar_id']);
                 $connectionResult = $ldapConn->connect();
                 if ($connectionResult == false) {
                     $ldapServerConnError[$cgRow['ar_id']] = 1;
-                    $msg[] = "Unable to connect to LDAP server : " . $cgRow['ar_name'] . ".";
+                    $msg[] = 'Unable to connect to LDAP server : ' . $cgRow['ar_name'] . '.';
                     continue;
                 }
             }
 
             // Refresh Users Groups by deleting old relations and inserting new ones if needed.
-            $this->db->query("DELETE FROM contactgroup_contact_relation " .
-                "WHERE contactgroup_cg_id = " . (int)$cgRow['cg_id']);
+            $this->db->query('DELETE FROM contactgroup_contact_relation '
+                . 'WHERE contactgroup_cg_id = ' . (int) $cgRow['cg_id']);
 
             $members = $ldapConn->listUserForGroup($cgRow['cg_ldap_dn']);
             $contact = '';
             foreach ($members as $member) {
                 $contact .= $this->db->quote($member) . ',';
             }
-            $contact = rtrim($contact, ",");
+            $contact = rtrim($contact, ',');
 
-            if (!$contact) {
+            if (! $contact) {
                 // no need to continue. If there's no contact, there's no relation to insert.
-                $msg[] = "Error : there's no contact to update for LDAP : " . $cgRow['ar_name'] . ".";
+                $msg[] = "Error : there's no contact to update for LDAP : " . $cgRow['ar_name'] . '.';
+
                 return $msg;
             }
             try {
-                $resContact = $this->db->query("SELECT contact_id FROM contact " .
-                    "WHERE contact_ldap_dn IN (" . $contact . ")");
+                $resContact = $this->db->query('SELECT contact_id FROM contact '
+                    . 'WHERE contact_ldap_dn IN (' . $contact . ')');
 
                 while ($rowContact = $resContact->fetch()) {
                     try {
                         // inserting the LDAP contactgroups relation between the cg and the user
-                        $this->db->query("INSERT INTO contactgroup_contact_relation " .
-                            "(contactgroup_cg_id, contact_contact_id) " .
-                            "VALUES (" . (int)$cgRow['cg_id'] . ", " . (int)$rowContact['contact_id'] . ")");
+                        $this->db->query('INSERT INTO contactgroup_contact_relation '
+                            . '(contactgroup_cg_id, contact_contact_id) '
+                            . 'VALUES (' . (int) $cgRow['cg_id'] . ', ' . (int) $rowContact['contact_id'] . ')');
                     } catch (PDOException $e) {
-                        $stmt = $this->db->query("SELECT c.contact_name, cg_name FROM contact c " .
-                            "INNER JOIN contactgroup_contact_relation cgr ON cgr.contact_contact_id = c.contact_id " .
-                            "INNER JOIN contactgroup cg ON cg.cg_id = cgr.contactgroup_cg_id");
+                        $stmt = $this->db->query('SELECT c.contact_name, cg_name FROM contact c '
+                            . 'INNER JOIN contactgroup_contact_relation cgr ON cgr.contact_contact_id = c.contact_id '
+                            . 'INNER JOIN contactgroup cg ON cg.cg_id = cgr.contactgroup_cg_id');
                         $res = $stmt->fetch();
-                        $msg[] = "Error inserting relation between contactgroup : " . $res['cg_name'] .
-                            " and contact : " . $res['contact_name'] . ".";
+                        $msg[] = 'Error inserting relation between contactgroup : ' . $res['cg_name']
+                            . ' and contact : ' . $res['contact_name'] . '.';
                     }
                 }
             } catch (PDOException $e) {
-                $msg[] = "Error in getting contact ID's list : " . $contact . " from members.";
+                $msg[] = "Error in getting contact ID's list : " . $contact . ' from members.';
                 continue;
             }
         }
@@ -384,8 +387,8 @@ class CentreonContactgroup
     /**
      * Synchronize with LDAP groups
      *
-     * @return array of error messages
      * @throws PDOException
+     * @return array of error messages
      */
     public function syncWithLdap()
     {
@@ -400,8 +403,8 @@ class CentreonContactgroup
             $connectionResult = $ldapConn->connect();
             if (false != $connectionResult) {
                 $res = $this->db->prepare(
-                    "SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup " .
-                    "WHERE cg_type = 'ldap' AND ar_id = :arId"
+                    'SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup '
+                    . "WHERE cg_type = 'ldap' AND ar_id = :arId"
                 );
                 $res->bindValue(':arId', $ldapRow['ar_id'], PDO::PARAM_INT);
                 $res->execute();
@@ -416,7 +419,7 @@ class CentreonContactgroup
                 $ldapGroups = $ldapConn->listOfGroups();
 
                 foreach ($ldapGroups as $ldapGroup) {
-                    if (!in_array($ldapGroup['name'], $registeredGroups)) {
+                    if (! in_array($ldapGroup['name'], $registeredGroups)) {
                         $this->insertLdapGroupByNameAndDn(
                             (int) $ldapRow['ar_id'],
                             $ldapGroup['name'],
@@ -426,8 +429,8 @@ class CentreonContactgroup
                 }
 
                 $res = $this->db->prepare(
-                    "SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup " .
-                    "WHERE cg_type = 'ldap' AND ar_id = :arId"
+                    'SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup '
+                    . "WHERE cg_type = 'ldap' AND ar_id = :arId"
                 );
                 $res->bindValue(':arId', $ldapRow['ar_id'], PDO::PARAM_INT);
                 $res->execute();
@@ -444,38 +447,40 @@ class CentreonContactgroup
                                 // Delete the ldap group in contactgroup
                                 try {
                                     $stmt = $this->db->prepare(
-                                        "DELETE FROM contactgroup WHERE cg_id = :cgId"
+                                        'DELETE FROM contactgroup WHERE cg_id = :cgId'
                                     );
                                     $stmt->bindValue('cgId', $row['cg_id'], PDO::PARAM_INT);
                                     $stmt->execute();
                                 } catch (PDOException $e) {
-                                    $msg[] = "Error processing delete contactgroup request of ldap group : " .
-                                        $row['cg_name'];
+                                    $msg[] = 'Error processing delete contactgroup request of ldap group : '
+                                        . $row['cg_name'];
+
                                     throw $e;
                                 }
                                 continue;
-                            } else { // Update the ldap group dn in contactgroup
-                                try {
-                                    $updateDnStatement = $this->db->prepare(
-                                        "UPDATE contactgroup SET cg_ldap_dn = :cg_dn WHERE cg_id = :cg_id"
-                                    );
-                                    $updateDnStatement->bindValue(':cg_dn', $dn, PDO::PARAM_STR);
-                                    $updateDnStatement->bindValue(':cg_id', $row['cg_id'], PDO::PARAM_INT);
-                                    $updateDnStatement->execute();
-                                    $row['cg_ldap_dn'] = $dn;
-                                } catch (PDOException $e) {
-                                    $msg[] = "Error processing update contactgroup request of ldap group : " .
-                                        $row['cg_name'];
-                                    throw $e;
-                                }
+                            }   // Update the ldap group dn in contactgroup
+                            try {
+                                $updateDnStatement = $this->db->prepare(
+                                    'UPDATE contactgroup SET cg_ldap_dn = :cg_dn WHERE cg_id = :cg_id'
+                                );
+                                $updateDnStatement->bindValue(':cg_dn', $dn, PDO::PARAM_STR);
+                                $updateDnStatement->bindValue(':cg_id', $row['cg_id'], PDO::PARAM_INT);
+                                $updateDnStatement->execute();
+                                $row['cg_ldap_dn'] = $dn;
+                            } catch (PDOException $e) {
+                                $msg[] = 'Error processing update contactgroup request of ldap group : '
+                                    . $row['cg_name'];
+
+                                throw $e;
                             }
+
                         }
                         $members = $ldapConn->listUserForGroup($row['cg_ldap_dn']);
 
                         // Refresh Users Groups.
                         $deleteStmt = $this->db->prepare(
-                            "DELETE FROM contactgroup_contact_relation
-                            WHERE contactgroup_cg_id = :cgId"
+                            'DELETE FROM contactgroup_contact_relation
+                            WHERE contactgroup_cg_id = :cgId'
                         );
                         $deleteStmt->bindValue(':cgId', $row['cg_id'], PDO::PARAM_INT);
                         $deleteStmt->execute();
@@ -483,30 +488,32 @@ class CentreonContactgroup
                         foreach ($members as $member) {
                             $contactDns .= $this->db->quote($member) . ',';
                         }
-                        $contactDns = rtrim($contactDns, ",");
+                        $contactDns = rtrim($contactDns, ',');
 
                         if ($contactDns !== '') {
                             try {
                                 $resContact = $this->db->query(
-                                    "SELECT contact_id FROM contact WHERE contact_ldap_dn IN (" . $contactDns . ")"
+                                    'SELECT contact_id FROM contact WHERE contact_ldap_dn IN (' . $contactDns . ')'
                                 );
                             } catch (PDOException $e) {
-                                $msg[] = "Error in getting contact id from members.";
+                                $msg[] = 'Error in getting contact id from members.';
+
                                 throw $e;
                             }
                             while ($rowContact = $resContact->fetch()) {
                                 try {
                                     $insertStmt = $this->db->prepare(
-                                        "INSERT INTO contactgroup_contact_relation
+                                        'INSERT INTO contactgroup_contact_relation
                                         (contactgroup_cg_id, contact_contact_id)
-                                        VALUES (:cgId, :contactId)"
+                                        VALUES (:cgId, :contactId)'
                                     );
                                     $insertStmt->bindValue(':cgId', $row['cg_id'], PDO::PARAM_INT);
                                     $insertStmt->bindValue(':contactId', $rowContact['contact_id'], PDO::PARAM_INT);
                                     $insertStmt->execute();
                                 } catch (PDOException $e) {
-                                    $msg[] = "Error insert relation between contactgroup " . $row['cg_id'] .
-                                        " and contact " . $rowContact['contact_id'];
+                                    $msg[] = 'Error insert relation between contactgroup ' . $row['cg_id']
+                                        . ' and contact ' . $rowContact['contact_id'];
+
                                     throw $e;
                                 }
                             }
@@ -523,9 +530,10 @@ class CentreonContactgroup
                     $this->db->rollBack();
                 }
             } else {
-                $msg[] = "Unable to connect to LDAP server.";
+                $msg[] = 'Unable to connect to LDAP server.';
             }
         }
+
         return $msg;
     }
 
@@ -533,19 +541,20 @@ class CentreonContactgroup
      * Get contact group name from contact group id
      *
      * @param int $cgId : The id of the contactgroup
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getNameFromCgId($cgId)
     {
-        $query = "SELECT cg_name FROM contactgroup WHERE cg_id = " . CentreonDB::escape($cgId) . " LIMIT 1";
+        $query = 'SELECT cg_name FROM contactgroup WHERE cg_id = ' . CentreonDB::escape($cgId) . ' LIMIT 1';
         $res = $this->db->query($query);
         if ($res->rowCount()) {
             $row = $res->fetch();
+
             return $row['cg_name'];
-        } else {
-            throw new Exception('No contact group name found');
         }
+
+        throw new Exception('No contact group name found');
     }
 
     /**
@@ -566,8 +575,8 @@ class CentreonContactgroup
                 $cg_name = $matches[2];
 
                 // Query test if exists
-                $query = "SELECT COUNT(*) as nb FROM contactgroup " .
-                    "WHERE cg_name = '" . $pearDB->escape($cg_name) . "' AND cg_type != 'ldap' ";
+                $query = 'SELECT COUNT(*) as nb FROM contactgroup '
+                    . "WHERE cg_name = '" . $pearDB->escape($cg_name) . "' AND cg_type != 'ldap' ";
                 try {
                     $res = $pearDB->query($query);
                 } catch (PDOException $e) {
@@ -579,11 +588,11 @@ class CentreonContactgroup
                 }
             }
         }
+
         return true;
     }
 
     /**
-     *
      * @param int $field
      * @return array
      */
@@ -625,16 +634,16 @@ class CentreonContactgroup
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
         $items = [];
 
-        # get list of authorized contactgroups
-        if (!$centreon->user->access->admin) {
+        // get list of authorized contactgroups
+        if (! $centreon->user->access->admin) {
             $cgAcl = $centreon->user->access->getContactGroupAclConf(
                 ['fields' => ['cg_id'], 'get_row' => 'cg_id', 'keys' => ['cg_id'], 'conditions' => ['cg_id' => ['IN', $values]]],
                 false
@@ -646,11 +655,11 @@ class CentreonContactgroup
             foreach ($values as $value) {
                 if (preg_match_all('/\[(\w+)\]/', $value, $matches, PREG_SET_ORDER)) {
                     foreach ($matches as $match) {
-                        if (!in_array($match[1], $aElement)) {
+                        if (! in_array($match[1], $aElement)) {
                             $aElement[] = $match[1];
                         }
                     }
-                } elseif (!in_array($value, $aElement)) {
+                } elseif (! in_array($value, $aElement)) {
                     $aElement[] = $value;
                 }
             }
@@ -661,17 +670,17 @@ class CentreonContactgroup
         if ($aElement !== []) {
             foreach ($aElement as $k => $v) {
                 $listValues .= ':cg' . $v . ',';
-                $queryValues['cg' . $v] = (int)$v;
+                $queryValues['cg' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected contactgroups
-        $query = "SELECT cg.cg_id, cg.cg_name, cg.cg_ldap_dn, ar.ar_id, ar.ar_name FROM contactgroup cg " .
-            "LEFT JOIN auth_ressource ar ON cg.ar_id = ar.ar_id " .
-            "WHERE cg.cg_id IN (" . $listValues . ") ORDER BY cg.cg_name ";
+        // get list of selected contactgroups
+        $query = 'SELECT cg.cg_id, cg.cg_name, cg.cg_ldap_dn, ar.ar_id, ar.ar_name FROM contactgroup cg '
+            . 'LEFT JOIN auth_ressource ar ON cg.ar_id = ar.ar_id '
+            . 'WHERE cg.cg_id IN (' . $listValues . ') ORDER BY cg.cg_name ';
 
         $stmt = $this->db->prepare($query);
         foreach ($queryValues as $key => $id) {
@@ -680,16 +689,16 @@ class CentreonContactgroup
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            if (isset($row['cg_ldap_dn']) && $row['cg_ldap_dn'] != "") {
+            if (isset($row['cg_ldap_dn']) && $row['cg_ldap_dn'] != '') {
                 $cgName = $this->formatLdapContactgroupName($row['cg_name'], $row['ar_name']);
             } else {
                 $cgName = $row['cg_name'];
             }
             $cgId = $row['cg_id'];
 
-            # hide unauthorized contactgroups
+            // hide unauthorized contactgroups
             $hide = false;
-            if (!$centreon->user->access->admin && !in_array($cgId, $cgAcl)) {
+            if (! $centreon->user->access->admin && ! in_array($cgId, $cgAcl)) {
                 $hide = true;
             }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -36,36 +37,39 @@
 
 namespace Centreon\Infrastructure\CentreonLegacyDB;
 
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use ReflectionClass;
+use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use CentreonDB;
+use ReflectionClass;
 
 /**
  * Executes commands against Centreon database backend.
  */
 class CentreonDBAdapter
 {
-    /** @var \CentreonDB */
+    /** @var CentreonDB */
     private $db;
 
-    /**
-     * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
-     */
+    /** @var CentreonDBManagerService */
     protected $manager;
+
     private $count = 0;
+
     private $error = false;
+
     private $errorInfo = '';
+
     private $query;
+
     private $result;
 
     /**
      * Construct
      *
-     * @param \CentreonDB $db
-     * @param \Centreon\Infrastructure\Service\CentreonDBManagerService $manager
+     * @param CentreonDB $db
+     * @param CentreonDBManagerService $manager
      */
-    public function __construct(CentreonDB $db, CentreonDBManagerService $manager = null)
+    public function __construct(CentreonDB $db, ?CentreonDBManagerService $manager = null)
     {
         $this->db = $db;
         $this->manager = $manager;
@@ -81,9 +85,7 @@ class CentreonDBAdapter
             throw new NotFoundException(sprintf('Repository %s must implement %s', $repository, $interface));
         }
 
-        $repositoryInstance = new $repository($this->db, $this->manager);
-
-        return $repositoryInstance;
+        return new $repository($this->db, $this->manager);
     }
 
     public function getCentreonDBInstance(): CentreonDB
@@ -93,11 +95,10 @@ class CentreonDBAdapter
 
     /**
      * @param string $query
-     * @param array  $params
+     * @param array $params
      *
-     * @return $this
      * @throws \Exception
-     *
+     * @return $this
      */
     public function query($query, $params = [])
     {
@@ -106,7 +107,7 @@ class CentreonDBAdapter
 
         $this->query = $this->db->prepare($query);
 
-        if (!$this->query) {
+        if (! $this->query) {
             throw new \Exception('Error at preparing the query.');
         }
 
@@ -126,7 +127,7 @@ class CentreonDBAdapter
             if ($result && $isSelect) {
                 $this->result = $this->query->fetchAll(\PDO::FETCH_OBJ);
                 $this->count = $this->query->rowCount();
-            } elseif (!$result) {
+            } elseif (! $result) {
                 $this->error = true;
                 $this->errorInfo = $this->query->errorInfo();
             }
@@ -139,15 +140,14 @@ class CentreonDBAdapter
 
     /**
      * @param string $table
-     * @param array  $fields
+     * @param array $fields
      *
-     * @return int Last inserted ID
      * @throws \Exception
-     *
+     * @return int Last inserted ID
      */
     public function insert($table, array $fields)
     {
-        if (!$fields) {
+        if (! $fields) {
             throw new \Exception("The argument `fields` can't be empty");
         }
 
@@ -182,15 +182,14 @@ class CentreonDBAdapter
     /**
      * Insert data using load data infile
      *
-     * @param string $file         Path and name of file to load
-     * @param string $table        Table name
-     * @param array  $fieldsClause Values of subclauses of FIELDS clause
-     * @param array  $linesClause  Values of subclauses of LINES clause
-     * @param array  $columns      Columns name
+     * @param string $file Path and name of file to load
+     * @param string $table Table name
+     * @param array $fieldsClause Values of subclauses of FIELDS clause
+     * @param array $linesClause Values of subclauses of LINES clause
+     * @param array $columns Columns name
      *
-     * @return void
      * @throws \Exception
-     *
+     * @return void
      */
     public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns): void
     {
@@ -203,13 +202,13 @@ class CentreonDBAdapter
         // (`col_name`, `col_name`,...)
 
         // Construct SQL statement
-        $sql = "LOAD DATA LOCAL INFILE '$file'";
-        $sql .= " INTO TABLE $table";
-        $sql .= " FIELDS TERMINATED BY '" . $fieldsClause["terminated_by"] . "' ENCLOSED BY '"
-            . $fieldsClause["enclosed_by"] . "' ESCAPED BY '" . $fieldsClause["escaped_by"] . "'";
-        $sql .= " LINES TERMINATED BY '" . $linesClause["terminated_by"] . "' STARTING BY '"
-            . $linesClause["starting_by"] . "'";
-        $sql .= " (`" . implode("`, `", $columns) . "`)";
+        $sql = "LOAD DATA LOCAL INFILE '{$file}'";
+        $sql .= " INTO TABLE {$table}";
+        $sql .= " FIELDS TERMINATED BY '" . $fieldsClause['terminated_by'] . "' ENCLOSED BY '"
+            . $fieldsClause['enclosed_by'] . "' ESCAPED BY '" . $fieldsClause['escaped_by'] . "'";
+        $sql .= " LINES TERMINATED BY '" . $linesClause['terminated_by'] . "' STARTING BY '"
+            . $linesClause['starting_by'] . "'";
+        $sql .= ' (`' . implode('`, `', $columns) . '`)';
 
         // Prepare PDO statement.
         $stmt = $this->db->prepare($sql);
@@ -224,12 +223,11 @@ class CentreonDBAdapter
 
     /**
      * @param string $table
-     * @param array  $fields
-     * @param int    $id
+     * @param array $fields
+     * @param int $id
      *
-     * @return bool|int Updated ID
      * @throws \Exception
-     *
+     * @return bool|int Updated ID
      */
     public function update($table, array $fields, int $id)
     {
@@ -242,7 +240,7 @@ class CentreonDBAdapter
             array_push($keyValues, [$key, $value]);
         }
 
-        $sql = "UPDATE {$table} SET " . implode(', ', $keys) . " WHERE id = :id";
+        $sql = "UPDATE {$table} SET " . implode(', ', $keys) . ' WHERE id = :id';
 
         $qq = $this->db->prepare($sql);
         $qq->bindParam(':id', $id);
@@ -259,7 +257,6 @@ class CentreonDBAdapter
 
         return $result;
     }
-
 
     public function results()
     {
@@ -278,7 +275,7 @@ class CentreonDBAdapter
 
     public function passes()
     {
-        return !$this->error;
+        return ! $this->error;
     }
 
     public function errorInfo()

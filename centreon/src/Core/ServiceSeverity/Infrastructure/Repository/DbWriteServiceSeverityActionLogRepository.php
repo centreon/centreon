@@ -80,8 +80,10 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while deleting service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -110,8 +112,10 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             return $serviceSeverityId;
         } catch (\Throwable $ex) {
-            $this->error("Error while adding service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -129,7 +133,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
             }
 
             $this->writeServiceSeverityRepository->update($serviceSeverity);
-            
+
             $diff = $this->getServiceSeverityDiff($initialSeverity, $serviceSeverity);
 
             // If enable/disable has been changed
@@ -173,7 +177,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
                 $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
 
-            return;
+                return;
             }
             // Log change action if other properties have been changed without activation
             $actionLog = new ActionLog(
@@ -186,11 +190,13 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
-            
+
             $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
         } catch (\Throwable $ex) {
-            $this->error("Error while updating service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while updating service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -208,7 +214,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
         foreach ($reflection->getProperties() as $property) {
             $value = $property->getValue($serviceSeverity);
-            
+
             if ($value === null) {
                 $value = '';
             }

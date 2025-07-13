@@ -22,17 +22,17 @@
 namespace Centreon\Domain\Repository;
 
 use Centreon\Domain\Entity\ContactGroup;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class ContactGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
-    /** @var int $resultCountForPagination */
+    /** @var int */
     private int $resultCountForPagination = 0;
 
     /**
@@ -54,9 +54,9 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
         $collector = new StatementCollector();
 
@@ -109,13 +109,12 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
             $this->resultCountForPagination = $total;
         }
         $statement->setFetchMode(\PDO::FETCH_CLASS, ContactGroup::class);
-        $result = $statement->fetchAll();
 
-        return $result;
+        return $statement->fetchAll();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getPaginationListTotal(): int
     {

@@ -22,9 +22,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Interfaces;
 
-use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
-
 interface ResourceServiceInterface
 {
     /**
@@ -33,8 +30,8 @@ interface ResourceServiceInterface
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return ResourceServiceInterface
      * @throws \Exception
+     * @return ResourceServiceInterface
      */
     public function filterByContact($contact);
 }

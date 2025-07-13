@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2019 Centreon
  *
@@ -17,10 +18,10 @@
 
 namespace CentreonLegacy\Core\Utils;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use CentreonLegacy\Core\Utils;
 use CentreonLegacy\ServiceProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group CentreonLegacy
@@ -28,7 +29,6 @@ use CentreonLegacy\ServiceProvider;
  */
 class FactoryTest extends TestCase
 {
-
     /** @var ServiceContainer */
     public $container;
 
@@ -50,7 +50,7 @@ class FactoryTest extends TestCase
 
     public function testNewUtils(): void
     {
-        $factory = new Utils\Factory($this->container);
+        $factory = new Factory($this->container);
         $this->assertInstanceOf(Utils\Utils::class, $factory->newUtils());
     }
 }

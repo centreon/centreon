@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -41,7 +42,6 @@
  */
 class CentreonMainCfg
 {
-
     // List of broker options Centreon Engine
     // (https://documentation.centreon.com/docs/centreon-engine/en/latest/user/configuration/basics/main_configuration_file_options.html#event-broker-options)
     public const EVENT_BROKER_OPTIONS = [
@@ -72,7 +72,7 @@ class CentreonMainCfg
         4194304 => 'Group member data',
         8388608 => 'Module data',
         16777216 => 'Relation data',
-        33554432 => 'Command data'
+        33554432 => 'Command data',
     ];
 
     /** @var array */
@@ -240,23 +240,23 @@ class CentreonMainCfg
      * @param int $iId
      * @param ? $source
      *
-     * @return false|void
      * @throws PDOException
+     * @return false|void
      */
     public function insertBrokerDefaultDirectives($iId, $source)
     {
-        if (empty($iId) || !in_array($source, ['ui'])) {
+        if (empty($iId) || ! in_array($source, ['ui'])) {
             return false;
         }
 
         $query = "SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = '" . $iId . "'";
         $dbResult = $this->DB->query($query);
         if ($dbResult->rowCount() == 0) {
-            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('" .
-                $this->aDefaultBrokerDirective[$source] . "', " . $iId . ")";
+            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('"
+                . $this->aDefaultBrokerDirective[$source] . "', " . $iId . ')';
             try {
                 $res = $this->DB->query($sQuery);
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 return false;
             }
         }
@@ -269,7 +269,7 @@ class CentreonMainCfg
      */
     public function insertDefaultCfgNagiosLogger(int $nagiosId): void
     {
-        $stmt = $this->DB->prepare("INSERT INTO cfg_nagios_logger (`cfg_nagios_id`) VALUES (:nagiosId)");
+        $stmt = $this->DB->prepare('INSERT INTO cfg_nagios_logger (`cfg_nagios_id`) VALUES (:nagiosId)');
         $stmt->bindValue('nagiosId', $nagiosId);
         $stmt->execute();
     }
@@ -283,10 +283,10 @@ class CentreonMainCfg
     public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
     {
         $stmt = $this->DB->prepare(
-            "SELECT logger.* FROM cfg_nagios_logger logger, cfg_nagios cfg
-            WHERE cfg.nagios_id = logger.cfg_nagios_id AND cfg.nagios_server_id = :serverId"
+            'SELECT logger.* FROM cfg_nagios_logger logger, cfg_nagios cfg
+            WHERE cfg.nagios_id = logger.cfg_nagios_id AND cfg.nagios_server_id = :serverId'
         );
-        $stmt->bindValue('serverId', $serverId, \PDO::PARAM_INT);
+        $stmt->bindValue('serverId', $serverId, PDO::PARAM_INT);
         $stmt->execute();
         $baseValues = $stmt->fetch();
 
@@ -304,9 +304,9 @@ class CentreonMainCfg
         );
         foreach ($baseValues as $columName => $value) {
             if ($columName === 'cfg_nagios_id') {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_INT);
+                $stmt->bindValue(":{$columName}", $value, PDO::PARAM_INT);
             } else {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_STR);
+                $stmt->bindValue(":{$columName}", $value, PDO::PARAM_STR);
             }
         }
         $stmt->execute();
@@ -319,22 +319,22 @@ class CentreonMainCfg
      * @param int $iId
      * @param string $sName
      *
-     * @return false|mixed
      * @throws PDOException
+     * @return false|mixed
      */
     public function insertServerInCfgNagios($source, $iId, $sName)
     {
         if (empty($sName)) {
             $sName = 'poller';
         }
-        if (!isset($this->aInstanceDefaultValues) || !isset($iId)) {
+        if (! isset($this->aInstanceDefaultValues) || ! isset($iId)) {
             return false;
         }
 
-        $res = $this->DB->query("SELECT * FROM cfg_nagios WHERE  nagios_server_id = " . $source);
+        $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
         $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
-        $rq = "INSERT INTO `cfg_nagios` (
+        $rq = 'INSERT INTO `cfg_nagios` (
             `nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`,
             `status_file`, `status_update_interval`, `enable_notifications`,
             `execute_service_checks`, `accept_passive_service_checks`, `execute_host_checks`,
@@ -379,7 +379,7 @@ class CentreonMainCfg
             :enable_predictive_host_dependency_checks, :enable_predictive_service_dependency_checks,
             :host_down_disable_service_checks, :passive_host_checks_are_soft, :enable_environment_macros, :debug_file,
             :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
-            )";
+            )';
 
         $params = [
             ':nagios_name' => 'Centreon Engine ' . $sName,
@@ -444,8 +444,7 @@ class CentreonMainCfg
             ':nagios_activate' => $baseValues['nagios_activate'],
             ':event_broker_options' => $baseValues['event_broker_options'],
             ':enable_predictive_host_dependency_checks' => $baseValues['enable_predictive_host_dependency_checks'],
-            ':enable_predictive_service_dependency_checks' =>
-                $baseValues['enable_predictive_service_dependency_checks'],
+            ':enable_predictive_service_dependency_checks' => $baseValues['enable_predictive_service_dependency_checks'],
             ':host_down_disable_service_checks' => $baseValues['host_down_disable_service_checks'],
             ':passive_host_checks_are_soft' => $baseValues['passive_host_checks_are_soft'],
             ':enable_environment_macros' => $baseValues['enable_environment_macros'],
@@ -454,7 +453,7 @@ class CentreonMainCfg
             ':debug_level_opt' => $baseValues['debug_level_opt'],
             ':debug_verbosity' => $baseValues['debug_verbosity'],
             ':max_debug_file_size' => $baseValues['max_debug_file_size'],
-            ':cfg_file' => $baseValues['cfg_file']
+            ':cfg_file' => $baseValues['cfg_file'],
         ];
 
         try {
@@ -462,19 +461,20 @@ class CentreonMainCfg
 
             foreach ($params as $paramName => $paramValue) {
                 if ($paramName === ':nagios_server_id') {
-                    $stmt->bindValue($paramName, $paramValue, \PDO::PARAM_INT);
+                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
                 } else {
-                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, \PDO::PARAM_STR);
+                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, PDO::PARAM_STR);
                 }
             }
             $stmt->execute();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return false;
         }
 
-        $res1 = $this->DB->query("SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`");
+        $res1 = $this->DB->query('SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`');
         $nagios = $res1->fetch();
-        return $nagios["last_id"];
+
+        return $nagios['last_id'];
     }
 
     /**
@@ -482,23 +482,24 @@ class CentreonMainCfg
      *
      * @param int $id
      *
-     * @return array $entries
      * @throws PDOException
+     * @return array $entries
      */
     public function getBrokerModules($id)
     {
-        $dbResult = $this->DB->query("SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = " . $id);
+        $dbResult = $this->DB->query('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ' . $id);
         while ($row = $dbResult->fetch()) {
             $entries[] = $row;
         }
         $dbResult->closeCursor();
+
         return $entries;
     }
 
     /**
      * Explode the bitwise to an array for QuickForm
      *
-     * @param int   $value   The value to explode
+     * @param int $value The value to explode
      * @param array $sources The list of bit
      *
      * @return array An array of integer
@@ -518,6 +519,7 @@ class CentreonMainCfg
                 $listOptions[$bit] = 1;
             }
         }
+
         return $listOptions;
     }
 

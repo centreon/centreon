@@ -49,37 +49,41 @@ class Hostgroup extends AbstractObject
 
     /** @var array */
     private $hg = [];
+
     /** @var string */
     protected $generate_filename = self::HOSTGROUP_FILENAME;
+
     /** @var string */
     protected string $object_name = self::HOSTGROUP_OBJECT_NAME;
+
     /** @var string */
     protected $attributes_select = '
         hg_id,
         hg_name as hostgroup_name,
         hg_alias as alias
     ';
+
     /** @var null */
     protected $stmt_hg = null;
 
     /**
      * @param $hg_id
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getHostgroupFromId($hg_id): void
     {
         if (is_null($this->stmt_hg)) {
             $this->stmt_hg = $this->backend_instance->db->prepare(
-                "SELECT  $this->attributes_select
+                "SELECT  {$this->attributes_select}
                 FROM hostgroup
                 WHERE hg_id = :hg_id AND hg_activate = '1'"
             );
         }
         $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
         $this->stmt_hg->execute();
-        if ($hostGroup = $this->stmt_hg->fetch(\PDO::FETCH_ASSOC)) {
+        if ($hostGroup = $this->stmt_hg->fetch(PDO::FETCH_ASSOC)) {
             $this->hg[$hg_id] = $hostGroup;
             $this->hg[$hg_id]['members'] = [];
         }
@@ -90,12 +94,12 @@ class Hostgroup extends AbstractObject
      * @param $host_id
      * @param $host_name
      *
-     * @return int
      * @throws PDOException
+     * @return int
      */
     public function addHostInHg($hg_id, $host_id, $host_name)
     {
-        if (!isset($this->hg[$hg_id])) {
+        if (! isset($this->hg[$hg_id])) {
             $this->getHostgroupFromId($hg_id);
         }
         if (is_null($this->hg[$hg_id]) || isset($this->hg[$hg_id]['members'][$host_id])) {
@@ -103,6 +107,7 @@ class Hostgroup extends AbstractObject
         }
 
         $this->hg[$hg_id]['members'][$host_id] = $host_name;
+
         return 0;
     }
 
@@ -188,18 +193,19 @@ class Hostgroup extends AbstractObject
             }
             $result[$id] = &$value;
         }
+
         return $result;
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset(): void
     {
         parent::reset();
         foreach ($this->hg as &$value) {
-            if (!is_null($value)) {
+            if (! is_null($value)) {
                 $value['members'] = [];
             }
         }

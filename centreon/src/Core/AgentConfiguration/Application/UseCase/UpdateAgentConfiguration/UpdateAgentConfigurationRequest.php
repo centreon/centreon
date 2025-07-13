@@ -35,8 +35,8 @@ final class UpdateAgentConfigurationRequest
 
     public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
 
-	/** @var int[] */
-	public array $pollerIds = [];
+    /** @var int[] */
+    public array $pollerIds = [];
 
     /** @var array<string,mixed> */
     public array $configuration = [];

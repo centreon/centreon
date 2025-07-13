@@ -21,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use PDOStatement;
 
 /**
@@ -36,10 +36,13 @@ class Engine extends AbstractObject
 {
     /** @var array|null */
     protected $engine = null;
+
     /** @var string */
     protected $table = 'cfg_nagios';
+
     /** @var string */
     protected $generateFilename = 'cfg_nagios.infile';
+
     /** @var string */
     protected $attributesSelect = '
         nagios_server_id,
@@ -124,6 +127,7 @@ class Engine extends AbstractObject
         macros_filter,
         nagios_activate
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'nagios_server_id',
@@ -176,8 +180,9 @@ class Engine extends AbstractObject
         'enable_macros_filter',
         'nagios_activate',
         'cfg_dir',
-        'cfg_file'
+        'cfg_file',
     ];
+
     /** @var PDOStatement|null */
     protected $stmtEngine = null;
 
@@ -186,15 +191,15 @@ class Engine extends AbstractObject
      *
      * @param int $pollerId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function generate(int $pollerId): void
     {
         if (is_null($this->stmtEngine)) {
             $this->stmtEngine = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect FROM cfg_nagios " .
-                "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
+                "SELECT {$this->attributesSelect} FROM cfg_nagios "
+                . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
             );
         }
         $this->stmtEngine->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
@@ -219,8 +224,8 @@ class Engine extends AbstractObject
      *
      * @param array $poller
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateFromPoller(array $poller): void
     {

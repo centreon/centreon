@@ -26,19 +26,13 @@ use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 
 abstract class AbstractCommand
 {
-    /**
-     * @var string Token of the command assigned by the Gorgone server.
-     */
+    /** @var string token of the command assigned by the Gorgone server */
     private $token;
 
-    /**
-     * @var int Poller id
-     */
+    /** @var int Poller id */
     private $monitoringInstanceId;
 
-    /**
-     * @var string|null Body of the request that will be send in case of request of type POST, PUT or PATCH
-     */
+    /** @var string|null Body of the request that will be send in case of request of type POST, PUT or PATCH */
     private $bodyRequest;
 
     /**
@@ -47,7 +41,7 @@ abstract class AbstractCommand
      * @param int $monitoringServer Id of the monitoring server for which this command is intended
      * @param string|null $bodyRequest Body of the request
      */
-    public function __construct(int $monitoringServer, string $bodyRequest = null)
+    public function __construct(int $monitoringServer, ?string $bodyRequest = null)
     {
         $this->monitoringInstanceId = $monitoringServer;
         $this->bodyRequest = $bodyRequest;
