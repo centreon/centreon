@@ -40,6 +40,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/administration/tokens?*'
   }).as('getTokens');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/administration/tokens'
+  }).as('addToken');
 });
 
 after(() => {
