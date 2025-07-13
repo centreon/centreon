@@ -226,6 +226,23 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
+     * Replace all instances of :dbstg and :db by the real db names.
+     * The table names of the database are defined in the services.yaml
+     * configuration file.
+     *
+     * @param string $request Request to translate
+     * @return string Request translated
+     */
+    protected function translateDbName(string $request): string
+    {
+        return str_replace(
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
+            $request
+        );
+    }
+
+    /**
      * Find and add all topology rules defined by all menus access defined for this contact.
      * The purpose is to limit access to the API based on menus access.
      *
@@ -559,22 +576,5 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
                 break;
         }
-    }
-
-    /**
-     * Replace all instances of :dbstg and :db by the real db names.
-     * The table names of the database are defined in the services.yaml
-     * configuration file.
-     *
-     * @param string $request Request to translate
-     * @return string Request translated
-     */
-    protected function translateDbName(string $request): string
-    {
-        return str_replace(
-            [':dbstg', ':db'],
-            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
-            $request
-        );
     }
 }

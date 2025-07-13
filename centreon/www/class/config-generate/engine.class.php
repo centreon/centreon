@@ -268,6 +268,41 @@ class Engine extends AbstractObject
     protected $add_cfg_files = [];
 
     /**
+     * @param $poller
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromPoller($poller): void
+    {
+        Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
+        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
+
+        $this->generate($poller['id']);
+    }
+
+    /**
+     * @param $cfg_path
+     *
+     * @return void
+     */
+    public function addCfgPath($cfg_path): void
+    {
+        $this->add_cfg_files[] = $cfg_path;
+    }
+
+    /**
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->add_cfg_files = [];
+    }
+
+    /**
      * @param $poller_id
      *
      * @return void
@@ -470,40 +505,5 @@ class Engine extends AbstractObject
         $object['resource_file'] = $this->cfg_file['target']['resource_file'];
         $this->generateFile($object);
         $this->close_file();
-    }
-
-    /**
-     * @param $poller
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void
-     */
-    public function generateFromPoller($poller): void
-    {
-        Connector::getInstance($this->dependencyInjector)->generateObjects($poller['centreonconnector_path']);
-        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
-
-        $this->generate($poller['id']);
-    }
-
-    /**
-     * @param $cfg_path
-     *
-     * @return void
-     */
-    public function addCfgPath($cfg_path): void
-    {
-        $this->add_cfg_files[] = $cfg_path;
-    }
-
-    /**
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->add_cfg_files = [];
     }
 }

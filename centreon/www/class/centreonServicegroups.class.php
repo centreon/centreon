@@ -95,19 +95,6 @@ class CentreonServicegroups
     }
 
     /**
-     * Returns a filtered array with only integer ids
-     *
-     * @param int[] $ids
-     * @return int[] filtered
-     */
-    private function filteredArrayId(array $ids): array
-    {
-        return array_filter($ids, function ($id) {
-            return is_numeric($id);
-        });
-    }
-
-    /**
      * Get service groups id and name from ids
      *
      * @param int[] $serviceGroupsIds
@@ -197,22 +184,6 @@ class CentreonServicegroups
         }
 
         return $parameters;
-    }
-
-    /**
-     * @param array<int|string, int|string> $list
-     * @param string $prefix
-     *
-     * @return array{0: array<string, mixed>, 1: string}
-     */
-    private function createMultipleBindQuery(array $list, string $prefix): array
-    {
-        $bindValues = [];
-        foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = $id;
-        }
-
-        return [$bindValues, implode(', ', array_keys($bindValues))];
     }
 
     /**
@@ -390,5 +361,34 @@ class CentreonServicegroups
         }
 
         return $ids[$sgName] ?? 0;
+    }
+
+    /**
+     * Returns a filtered array with only integer ids
+     *
+     * @param int[] $ids
+     * @return int[] filtered
+     */
+    private function filteredArrayId(array $ids): array
+    {
+        return array_filter($ids, function ($id) {
+            return is_numeric($id);
+        });
+    }
+
+    /**
+     * @param array<int|string, int|string> $list
+     * @param string $prefix
+     *
+     * @return array{0: array<string, mixed>, 1: string}
+     */
+    private function createMultipleBindQuery(array $list, string $prefix): array
+    {
+        $bindValues = [];
+        foreach ($list as $index => $id) {
+            $bindValues[$prefix . $index] = $id;
+        }
+
+        return [$bindValues, implode(', ', array_keys($bindValues))];
     }
 }

@@ -150,50 +150,6 @@ class CentreonConfigurationChange
     }
 
     /**
-     * Return ids of services linked to templates recursively
-     *
-     * @param int[] $serviceTemplateIds
-     * @throws Exception
-     * @return int[]
-     */
-    private function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTemplateIds): array
-    {
-        if ($serviceTemplateIds === []) {
-            return [];
-        }
-
-        $bindedParams = [];
-        foreach ($serviceTemplateIds as $key => $serviceTemplateId) {
-            $bindedParams[':servicetemplate_id_' . $key] = $serviceTemplateId;
-        }
-
-        $query = "SELECT service_id, service_register FROM service
-            WHERE service.service_activate = '1'
-            AND service_template_model_stm_id IN (" . implode(', ', array_keys($bindedParams)) . ')';
-
-        $stmt = $this->db->prepare($query);
-        foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
-        }
-        $stmt->execute();
-
-        $serviceIds = [];
-        $serviceTemplateIds2 = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if ($value['service_register'] === '0') {
-                $serviceTemplateIds2[] = $value['service_id'];
-            } else {
-                $serviceIds[] = $value['service_id'];
-            }
-        }
-
-        return array_merge(
-            $serviceIds,
-            $this->findServicesForConfigChangeFlagFromServiceTemplateIds($serviceTemplateIds2)
-        );
-    }
-
-    /**
      * Return ids of hosts linked to service
      *
      * @param int $servicegroupId
@@ -277,31 +233,6 @@ class CentreonConfigurationChange
     }
 
     /**
-     * Set 'updated' flag to '1' for all listed poller ids
-     *
-     * @param int[] $pollerIds
-     * @throws Exception
-     */
-    private function definePollersToUpdated(array $pollerIds): void
-    {
-        if ($pollerIds === []) {
-            return;
-        }
-
-        $bindedParams = [];
-        foreach ($pollerIds as $key => $pollerId) {
-            $bindedParams[':poller_id_' . $key] = $pollerId;
-        }
-        $query = "UPDATE nagios_server SET updated = '1' WHERE id IN ("
-            . implode(', ', array_keys($bindedParams)) . ')';
-        $stmt = $this->db->prepare($query);
-        foreach ($bindedParams as $bindedParam => $bindedValue) {
-            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
-        }
-        $stmt->execute();
-    }
-
-    /**
      * Set relevent pollers as updated
      *
      * @param string $resourceType
@@ -349,5 +280,74 @@ class CentreonConfigurationChange
         );
 
         $this->definePollersToUpdated(array_merge($pollerIds, $previousPollers));
+    }
+
+    /**
+     * Return ids of services linked to templates recursively
+     *
+     * @param int[] $serviceTemplateIds
+     * @throws Exception
+     * @return int[]
+     */
+    private function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTemplateIds): array
+    {
+        if ($serviceTemplateIds === []) {
+            return [];
+        }
+
+        $bindedParams = [];
+        foreach ($serviceTemplateIds as $key => $serviceTemplateId) {
+            $bindedParams[':servicetemplate_id_' . $key] = $serviceTemplateId;
+        }
+
+        $query = "SELECT service_id, service_register FROM service
+            WHERE service.service_activate = '1'
+            AND service_template_model_stm_id IN (" . implode(', ', array_keys($bindedParams)) . ')';
+
+        $stmt = $this->db->prepare($query);
+        foreach ($bindedParams as $bindedParam => $bindedValue) {
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+
+        $serviceIds = [];
+        $serviceTemplateIds2 = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if ($value['service_register'] === '0') {
+                $serviceTemplateIds2[] = $value['service_id'];
+            } else {
+                $serviceIds[] = $value['service_id'];
+            }
+        }
+
+        return array_merge(
+            $serviceIds,
+            $this->findServicesForConfigChangeFlagFromServiceTemplateIds($serviceTemplateIds2)
+        );
+    }
+
+    /**
+     * Set 'updated' flag to '1' for all listed poller ids
+     *
+     * @param int[] $pollerIds
+     * @throws Exception
+     */
+    private function definePollersToUpdated(array $pollerIds): void
+    {
+        if ($pollerIds === []) {
+            return;
+        }
+
+        $bindedParams = [];
+        foreach ($pollerIds as $key => $pollerId) {
+            $bindedParams[':poller_id_' . $key] = $pollerId;
+        }
+        $query = "UPDATE nagios_server SET updated = '1' WHERE id IN ("
+            . implode(', ', array_keys($bindedParams)) . ')';
+        $stmt = $this->db->prepare($query);
+        foreach ($bindedParams as $bindedParam => $bindedValue) {
+            $stmt->bindValue($bindedParam, $bindedValue, PDO::PARAM_INT);
+        }
+        $stmt->execute();
     }
 }

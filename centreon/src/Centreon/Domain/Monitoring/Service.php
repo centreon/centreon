@@ -151,11 +151,11 @@ class Service implements EntityDescriptorMetadataInterface
     /** @var bool|null */
     protected $flapping;
 
-    /** @var ResourceStatus|null */
-    private $status;
-
     /** @var bool|null */
     protected $notify;
+
+    /** @var ResourceStatus|null */
+    private $status;
 
     /**
      * {@inheritDoc}

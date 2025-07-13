@@ -91,44 +91,6 @@ class CentreonInstance
     }
 
     /**
-     * Initialize Parameters
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function initParams()
-    {
-        $this->params = [];
-        $this->paramsByName = [];
-        $query = 'SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server';
-        $res = $this->db->query($query);
-        while ($row = $res->fetchRow()) {
-            $instanceId = $row['id'];
-            $instanceName = $row['name'];
-            $this->instances[$instanceId] = $instanceName;
-            $this->params[$instanceId] = [];
-            $this->paramsByName[$instanceName] = [];
-            foreach ($row as $key => $value) {
-                $this->params[$instanceId][$key] = $value;
-                $this->paramsByName[$instanceName][$key] = $value;
-            }
-        }
-    }
-
-    /**
-     * Returns a filtered array with only integer ids
-     *
-     * @param int[] $ids
-     * @return int[] filtered
-     */
-    private function filteredArrayId(array $ids): array
-    {
-        return array_filter($ids, function ($id) {
-            return is_numeric($id);
-        });
-    }
-
-    /**
      * Get instance_id and name from instances ids
      *
      * @param int[] $pollerIds
@@ -397,5 +359,43 @@ class CentreonInstance
         $result = $this->db->query($query);
 
         return $result->fetchrow();
+    }
+
+    /**
+     * Initialize Parameters
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function initParams()
+    {
+        $this->params = [];
+        $this->paramsByName = [];
+        $query = 'SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server';
+        $res = $this->db->query($query);
+        while ($row = $res->fetchRow()) {
+            $instanceId = $row['id'];
+            $instanceName = $row['name'];
+            $this->instances[$instanceId] = $instanceName;
+            $this->params[$instanceId] = [];
+            $this->paramsByName[$instanceName] = [];
+            foreach ($row as $key => $value) {
+                $this->params[$instanceId][$key] = $value;
+                $this->paramsByName[$instanceName][$key] = $value;
+            }
+        }
+    }
+
+    /**
+     * Returns a filtered array with only integer ids
+     *
+     * @param int[] $ids
+     * @return int[] filtered
+     */
+    private function filteredArrayId(array $ids): array
+    {
+        return array_filter($ids, function ($id) {
+            return is_numeric($id);
+        });
     }
 }

@@ -32,9 +32,6 @@ use PDO;
  */
 class HostGroup extends AbstractObject
 {
-    /** @var array */
-    private $hg = [];
-
     /** @var string */
     protected $table = 'hostgroup';
 
@@ -62,30 +59,8 @@ class HostGroup extends AbstractObject
     /** @var null */
     protected $stmtHg = null;
 
-    /**
-     * Get host group from id
-     *
-     * @param int $hgId
-     * @return void
-     */
-    private function getHostgroupFromId(int $hgId)
-    {
-        if (is_null($this->stmtHg)) {
-            $this->stmtHg = $this->backendInstance->db->prepare(
-                "SELECT {$this->attributesSelect}
-                FROM hostgroup
-                WHERE hg_id = :hg_id AND hg_activate = '1'"
-            );
-        }
-        $this->stmtHg->bindParam(':hg_id', $hgId, PDO::PARAM_INT);
-        $this->stmtHg->execute();
-        $results = $this->stmtHg->fetchAll(PDO::FETCH_ASSOC);
-        $this->hg[$hgId] = array_pop($results);
-        if (is_null($this->hg[$hgId])) {
-            return null;
-        }
-        $this->hg[$hgId]['members'] = [];
-    }
+    /** @var array */
+    private $hg = [];
 
     /**
      * Add host in host group
@@ -174,5 +149,30 @@ class HostGroup extends AbstractObject
     public function getString(int $hgId, string $attr)
     {
         return $this->hg[$hgId][$attr] ?? null;
+    }
+
+    /**
+     * Get host group from id
+     *
+     * @param int $hgId
+     * @return void
+     */
+    private function getHostgroupFromId(int $hgId)
+    {
+        if (is_null($this->stmtHg)) {
+            $this->stmtHg = $this->backendInstance->db->prepare(
+                "SELECT {$this->attributesSelect}
+                FROM hostgroup
+                WHERE hg_id = :hg_id AND hg_activate = '1'"
+            );
+        }
+        $this->stmtHg->bindParam(':hg_id', $hgId, PDO::PARAM_INT);
+        $this->stmtHg->execute();
+        $results = $this->stmtHg->fetchAll(PDO::FETCH_ASSOC);
+        $this->hg[$hgId] = array_pop($results);
+        if (is_null($this->hg[$hgId])) {
+            return null;
+        }
+        $this->hg[$hgId]['members'] = [];
     }
 }

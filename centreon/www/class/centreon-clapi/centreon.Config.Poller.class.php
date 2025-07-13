@@ -118,57 +118,6 @@ class CentreonConfigPoller
     }
 
     /**
-     * Write command to centcore pipe, using the dynamic centcore pipe file
-     * when possible
-     *
-     * @param string $cmd
-     * @param int $id
-     * @return int
-     */
-    private function writeToCentcorePipe($cmd, $id): int
-    {
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
-        } else {
-            $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
-        $fullCommand = sprintf('%s:%d' . PHP_EOL, $cmd, $id);
-        $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
-
-        return ($result !== false) ? 0 : 1;
-    }
-
-    /**
-     * Check for the existence of poller with ID or name $poller, and return
-     * the ID of that poller. If the poller does not exist, raise an exception.
-     *
-     * @param string|int $poller
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     * @return int
-     */
-    private function ensurePollerId($poller)
-    {
-        if (is_numeric($poller)) {
-            $statement = $this->DB->prepare('SELECT id FROM nagios_server WHERE id = :poller');
-            $statement->bindValue(':poller', $poller, PDO::PARAM_INT);
-        } else {
-            $statement = $this->DB->prepare('SELECT id FROM nagios_server WHERE name = :poller');
-            $statement->bindValue(':poller', $poller, PDO::PARAM_STR);
-        }
-
-        $statement->execute();
-        if ($statement->rowCount() > 0) {
-            $row = $statement->fetchRow();
-
-            return $row['id'];
-        }
-
-        throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
-    }
-
-    /**
      * @param string $format
      *
      * @throws PDOException
@@ -772,6 +721,73 @@ class CentreonConfigPoller
     }
 
     /**
+     * @throws PDOException
+     * @return array
+     */
+    public function getPollerState()
+    {
+        $pollerState = [];
+        $dbResult = $this->DBC->query('SELECT instance_id, running, name FROM instances');
+
+        while ($row = $dbResult->fetchRow()) {
+            $pollerState[$row['instance_id']] = $row['running'];
+        }
+
+        return $pollerState;
+    }
+
+    /**
+     * Write command to centcore pipe, using the dynamic centcore pipe file
+     * when possible
+     *
+     * @param string $cmd
+     * @param int $id
+     * @return int
+     */
+    private function writeToCentcorePipe($cmd, $id): int
+    {
+        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
+            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
+        } else {
+            $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
+        }
+        $fullCommand = sprintf('%s:%d' . PHP_EOL, $cmd, $id);
+        $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
+
+        return ($result !== false) ? 0 : 1;
+    }
+
+    /**
+     * Check for the existence of poller with ID or name $poller, and return
+     * the ID of that poller. If the poller does not exist, raise an exception.
+     *
+     * @param string|int $poller
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return int
+     */
+    private function ensurePollerId($poller)
+    {
+        if (is_numeric($poller)) {
+            $statement = $this->DB->prepare('SELECT id FROM nagios_server WHERE id = :poller');
+            $statement->bindValue(':poller', $poller, PDO::PARAM_INT);
+        } else {
+            $statement = $this->DB->prepare('SELECT id FROM nagios_server WHERE name = :poller');
+            $statement->bindValue(':poller', $poller, PDO::PARAM_STR);
+        }
+
+        $statement->execute();
+        if ($statement->rowCount() > 0) {
+            $row = $statement->fetchRow();
+
+            return $row['id'];
+        }
+
+        throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
+    }
+
+    /**
      * Display Copying files
      *
      * @param string|null $filename
@@ -786,21 +802,5 @@ class CentreonConfigPoller
         }
 
         return '- ' . $filename . ' -> ' . $status . "\n";
-    }
-
-    /**
-     * @throws PDOException
-     * @return array
-     */
-    public function getPollerState()
-    {
-        $pollerState = [];
-        $dbResult = $this->DBC->query('SELECT instance_id, running, name FROM instances');
-
-        while ($row = $dbResult->fetchRow()) {
-            $pollerState[$row['instance_id']] = $row['running'];
-        }
-
-        return $pollerState;
     }
 }

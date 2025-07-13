@@ -60,34 +60,6 @@ class PlatformTopologyController extends AbstractController
     }
 
     /**
-     * Validate platform topology data according to json schema
-     *
-     * @param array<mixed> $platformToAdd data sent in json
-     * @param string $schemaPath
-     *
-     * @throws PlatformTopologyException
-     */
-    private function validatePlatformTopologySchema(array $platformToAdd, string $schemaPath): void
-    {
-        $platformTopologySchemaToValidate = Validator::arrayToObjectRecursive($platformToAdd);
-        $validator = new Validator();
-        $validator->validate(
-            $platformTopologySchemaToValidate,
-            (object) ['$ref' => 'file://' . $schemaPath],
-            Constraint::CHECK_MODE_VALIDATE_SCHEMA
-        );
-
-        if (! $validator->isValid()) {
-            $message = '';
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
-            }
-
-            throw new PlatformTopologyException($message);
-        }
-    }
-
-    /**
      * Entry point to register a new server.
      *
      * @param Request $request
@@ -251,6 +223,34 @@ class PlatformTopologyController extends AbstractController
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (\Exception $ex) {
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Validate platform topology data according to json schema
+     *
+     * @param array<mixed> $platformToAdd data sent in json
+     * @param string $schemaPath
+     *
+     * @throws PlatformTopologyException
+     */
+    private function validatePlatformTopologySchema(array $platformToAdd, string $schemaPath): void
+    {
+        $platformTopologySchemaToValidate = Validator::arrayToObjectRecursive($platformToAdd);
+        $validator = new Validator();
+        $validator->validate(
+            $platformTopologySchemaToValidate,
+            (object) ['$ref' => 'file://' . $schemaPath],
+            Constraint::CHECK_MODE_VALIDATE_SCHEMA
+        );
+
+        if (! $validator->isValid()) {
+            $message = '';
+            foreach ($validator->getErrors() as $error) {
+                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
+            }
+
+            throw new PlatformTopologyException($message);
         }
     }
 }

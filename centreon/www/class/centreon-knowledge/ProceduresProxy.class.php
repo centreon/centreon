@@ -80,6 +80,89 @@ class ProceduresProxy
     }
 
     /**
+     * Get host url
+     *
+     * @param string $hostName
+     *
+     * @throws PDOException
+     * @return string|null
+     */
+    public function getHostUrl($hostName): ?string
+    {
+        $hostId = $this->getHostId($hostName);
+
+        if ($hostId === null) {
+            return null;
+        }
+
+        $hostProperties = $this->hostObj->getInheritedValues(
+            $hostId,
+            [],
+            1,
+            ['host_name', 'ehi_notes_url']
+        );
+
+        if (isset($hostProperties['ehi_notes_url'])) {
+            return $this->wikiUrl . '/index.php?title=Host_:_' . $hostProperties['host_name'];
+        }
+
+        $templates = $this->hostObj->getTemplateChain($hostId);
+        foreach ($templates as $template) {
+            $inheritedHostProperties = $this->hostObj->getInheritedValues(
+                $template['id'],
+                [],
+                1,
+                ['host_name', 'ehi_notes_url']
+            );
+
+            if (isset($inheritedHostProperties['ehi_notes_url'])) {
+                return $this->wikiUrl . '/index.php?title=Host-Template_:_' . $inheritedHostProperties['host_name'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get service url
+     *
+     * @param string $hostName
+     * @param string $serviceDescription
+     *
+     * @throws PDOException
+     * @return string|null
+     */
+    public function getServiceUrl($hostName, $serviceDescription): ?string
+    {
+        $serviceDescription = str_replace(' ', '_', $serviceDescription);
+
+        $serviceId = $this->getServiceId($hostName, $serviceDescription);
+
+        if ($serviceId === null) {
+            return null;
+        }
+
+        // Check Service
+        $notesUrl = $this->getServiceNotesUrl($serviceId);
+        if ($notesUrl !== null) {
+            return $this->wikiUrl . '/index.php?title=Service_:_' . $hostName . '_/_' . $serviceDescription;
+        }
+
+        // Check service Template
+        $serviceId = $this->getServiceId($hostName, $serviceDescription);
+        $templates = $this->serviceObj->getTemplatesChain($serviceId);
+        foreach (array_reverse($templates) as $templateId) {
+            $templateDescription = $this->serviceObj->getServiceDesc($templateId);
+            $notesUrl = $this->getServiceNotesUrl((int) $templateId);
+            if ($notesUrl !== null) {
+                return $this->wikiUrl . '/index.php?title=Service-Template_:_' . $templateDescription;
+            }
+        }
+
+        return $this->getHostUrl($hostName);
+    }
+
+    /**
      * @param string $hostName
      *
      * @throws PDOException
@@ -171,88 +254,5 @@ class ProceduresProxy
         }
 
         return $notesUrl;
-    }
-
-    /**
-     * Get host url
-     *
-     * @param string $hostName
-     *
-     * @throws PDOException
-     * @return string|null
-     */
-    public function getHostUrl($hostName): ?string
-    {
-        $hostId = $this->getHostId($hostName);
-
-        if ($hostId === null) {
-            return null;
-        }
-
-        $hostProperties = $this->hostObj->getInheritedValues(
-            $hostId,
-            [],
-            1,
-            ['host_name', 'ehi_notes_url']
-        );
-
-        if (isset($hostProperties['ehi_notes_url'])) {
-            return $this->wikiUrl . '/index.php?title=Host_:_' . $hostProperties['host_name'];
-        }
-
-        $templates = $this->hostObj->getTemplateChain($hostId);
-        foreach ($templates as $template) {
-            $inheritedHostProperties = $this->hostObj->getInheritedValues(
-                $template['id'],
-                [],
-                1,
-                ['host_name', 'ehi_notes_url']
-            );
-
-            if (isset($inheritedHostProperties['ehi_notes_url'])) {
-                return $this->wikiUrl . '/index.php?title=Host-Template_:_' . $inheritedHostProperties['host_name'];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get service url
-     *
-     * @param string $hostName
-     * @param string $serviceDescription
-     *
-     * @throws PDOException
-     * @return string|null
-     */
-    public function getServiceUrl($hostName, $serviceDescription): ?string
-    {
-        $serviceDescription = str_replace(' ', '_', $serviceDescription);
-
-        $serviceId = $this->getServiceId($hostName, $serviceDescription);
-
-        if ($serviceId === null) {
-            return null;
-        }
-
-        // Check Service
-        $notesUrl = $this->getServiceNotesUrl($serviceId);
-        if ($notesUrl !== null) {
-            return $this->wikiUrl . '/index.php?title=Service_:_' . $hostName . '_/_' . $serviceDescription;
-        }
-
-        // Check service Template
-        $serviceId = $this->getServiceId($hostName, $serviceDescription);
-        $templates = $this->serviceObj->getTemplatesChain($serviceId);
-        foreach (array_reverse($templates) as $templateId) {
-            $templateDescription = $this->serviceObj->getServiceDesc($templateId);
-            $notesUrl = $this->getServiceNotesUrl((int) $templateId);
-            if ($notesUrl !== null) {
-                return $this->wikiUrl . '/index.php?title=Service-Template_:_' . $templateDescription;
-            }
-        }
-
-        return $this->getHostUrl($hostName);
     }
 }

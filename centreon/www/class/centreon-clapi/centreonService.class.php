@@ -138,6 +138,161 @@ class CentreonService extends CentreonObject
     }
 
     /**
+     * Magic method
+     *
+     * @param string $name
+     * @param array $arg
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return void
+     */
+    public function __call($name, $arg)
+    {
+        // Get the method name
+        $name = strtolower($name);
+        // Get the action and the object
+        if (preg_match('/^(get|set|add|del)([a-zA-Z_]+)/', $name, $matches)) {
+            switch ($matches[2]) {
+                case 'host':
+                    $class = 'Centreon_Object_Host';
+                    $relclass = 'Centreon_Object_Relation_Host_Service';
+                    break;
+                case 'contact':
+                    $class = 'Centreon_Object_Contact';
+                    $relclass = 'Centreon_Object_Relation_Contact_Service';
+                    break;
+                case 'contactgroup':
+                    $class = 'Centreon_Object_Contact_Group';
+                    $relclass = 'Centreon_Object_Relation_Contact_Group_Service';
+                    break;
+                case 'trap':
+                    $class = 'Centreon_Object_Trap';
+                    $relclass = 'Centreon_Object_Relation_Trap_Service';
+                    break;
+                case 'servicegroup':
+                    $class = 'Centreon_Object_Service_Group';
+                    $relclass = 'Centreon_Object_Relation_Service_Group_Service';
+                    break;
+                case 'category':
+                    $class = 'Centreon_Object_Service_Category';
+                    $relclass = 'Centreon_Object_Relation_Service_Category_Service';
+                    break;
+                default:
+                    throw new CentreonClapiException(self::UNKNOWN_METHOD);
+                    break;
+            }
+            if (class_exists($relclass) && class_exists($class)) {
+                // Parse arguments
+                if (! isset($arg[0]) || ! $arg[0]) {
+                    throw new CentreonClapiException(self::MISSINGPARAMETER);
+                }
+                $args = explode($this->delim, $arg[0]);
+                $relObject = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+                $elements = $relObject->getMergedParameters(
+                    ['host_id'],
+                    ['service_id'],
+                    -1,
+                    0,
+                    null,
+                    null,
+                    ['host_name' => $args[0], 'service_description' => $args[1], 'host_register' => '1'],
+                    'AND'
+                );
+                if (! count($elements)) {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0] . '/' . $args[1]);
+                }
+                $serviceId = $elements[0]['service_id'];
+                $hostId = $elements[0]['host_id'];
+
+                $relobj = new $relclass($this->dependencyInjector);
+                $obj = new $class($this->dependencyInjector);
+                if ($matches[1] == 'get') {
+                    $tab = $relobj->getTargetIdFromSourceId(
+                        $relobj->getFirstKey(),
+                        $relobj->getSecondKey(),
+                        $serviceId
+                    );
+                    echo 'id' . $this->delim . 'name' . "\n";
+                    foreach ($tab as $value) {
+                        if ($value) {
+                            $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
+                            echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
+                        }
+                    }
+                } else {
+                    if (! isset($args[1]) || ! isset($args[2])) {
+                        throw new CentreonClapiException(self::MISSINGPARAMETER);
+                    }
+                    $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
+                    $hostIds = $centreonConfig->findHostsForConfigChangeFlagFromServiceIds([$serviceId]);
+                    $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
+
+                    $relation = $args[2];
+                    $relations = explode('|', $relation);
+                    $relationTable = [];
+                    foreach ($relations as $rel) {
+                        if ($matches[1] != 'del' && $matches[2] == 'host' && $this->serviceExists($rel, $args[1])) {
+                            throw new CentreonClapiException(self::OBJECTALREADYEXISTS);
+                        }
+                        if ($matches[2] == 'contact') {
+                            $tab = $obj->getIdByParameter('contact_alias', [$rel]);
+                        } elseif ($matches[2] == 'host') {
+                            $tab = [];
+                            if (($hostId = $this->getHostIdByName($rel)) !== null) {
+                                $tab[] = $hostId;
+                            }
+                        } else {
+                            $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
+                        }
+                        if (! count($tab)) {
+                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
+                        }
+                        $relationTable[] = $tab[0];
+                    }
+                    $existingRelationIds = $relobj->getTargetIdFromSourceId(
+                        $relobj->getFirstKey(),
+                        $relobj->getSecondKey(),
+                        $serviceId
+                    );
+                    if ($matches[1] == 'set') {
+                        $relobj->delete(null, $serviceId);
+                        $existingRelationIds = [];
+                    }
+                    foreach ($relationTable as $relationId) {
+                        if ($matches[1] == 'del') {
+                            $relobj->delete($relationId, $serviceId);
+                        } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
+                            if (! in_array($relationId, $existingRelationIds)) {
+                                if ($matches[2] == 'servicegroup') {
+                                    $relobj->insert($relationId, ['hostId' => $hostId, 'serviceId' => $serviceId]);
+                                } else {
+                                    $relobj->insert($relationId, $serviceId);
+                                }
+                            }
+                        }
+                    }
+
+                    $centreonConfig->signalConfigurationChange(
+                        CentreonConfigurationChange::RESOURCE_TYPE_SERVICE,
+                        $hostId,
+                        $previousPollerIds
+                    );
+
+                    if (in_array($matches[2], ['servicegroup', 'host'])) {
+                        $aclObj = new CentreonACL($this->dependencyInjector);
+                        $aclObj->reload(true);
+                    }
+                }
+            } else {
+                throw new CentreonClapiException(self::UNKNOWN_METHOD);
+            }
+        } else {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+    }
+
+    /**
      * Get Object Id
      *
      * @param string $name
@@ -418,26 +573,6 @@ class CentreonService extends CentreonObject
             [],
             false
         );
-    }
-
-    /**
-     * Get clapi action name from db column name
-     *
-     * @param string $columnName
-     * @return string
-     */
-    protected function getClapiActionName($columnName)
-    {
-        static $table;
-
-        if (! isset($table)) {
-            $table = ['command_command_id' => 'check_command', 'command_command_id2' => 'event_handler', 'timeperiod_tp_id' => 'check_period', 'timeperiod_tp_id2' => 'notification_period', 'command_command_id_arg' => 'check_command_arguments', 'command_command_id_arg2' => 'event_handler_arguments'];
-        }
-        if (preg_match('/^esi_/', $columnName)) {
-            return substr($columnName, strlen('esi_'));
-        }
-
-        return $table[$columnName] ?? $columnName;
     }
 
     /**
@@ -787,33 +922,6 @@ class CentreonService extends CentreonObject
     }
 
     /**
-     * Strip macro
-     *
-     * @param string $macroName
-     * @return string
-     */
-    protected function stripMacro($macroName)
-    {
-        $strippedMacro = $macroName;
-        if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
-            $strippedMacro = $matches[1];
-        }
-
-        return strtolower($strippedMacro);
-    }
-
-    /**
-     * Wrap macro
-     *
-     * @param string $macroName
-     * @return string
-     */
-    protected function wrapMacro($macroName)
-    {
-        return '$_SERVICE' . strtoupper($macroName) . '$';
-    }
-
-    /**
      * Get macro list of a service
      *
      * @param string $parameters
@@ -1092,196 +1200,6 @@ class CentreonService extends CentreonObject
         $tmp = $this->object->getParameters($id, ['service_description']);
 
         return $tmp['service_description'] ?? '';
-    }
-
-    /**
-     * Set the activate field
-     *
-     * @param string $objectName
-     * @param int $value
-     * @throws CentreonClapiException
-     */
-    protected function activate($objectName, $value)
-    {
-        if (! isset($objectName) || ! $objectName) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $tmp = explode($this->delim, $objectName);
-        if (count($tmp) != 2) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $relObject = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-        $elements = $relObject->getMergedParameters(
-            ['host_id'],
-            ['service_id'],
-            -1,
-            0,
-            null,
-            null,
-            ['host_name' => $tmp[0], 'service_description' => $tmp[1]],
-            'AND'
-        );
-        if (! count($elements)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $tmp[0] . '/' . $tmp[1]);
-        }
-        if (isset($this->activateField)) {
-            $this->object->update($elements[0]['service_id'], [$this->activateField => $value]);
-        }
-    }
-
-    /**
-     * Magic method
-     *
-     * @param string $name
-     * @param array $arg
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     * @return void
-     */
-    public function __call($name, $arg)
-    {
-        // Get the method name
-        $name = strtolower($name);
-        // Get the action and the object
-        if (preg_match('/^(get|set|add|del)([a-zA-Z_]+)/', $name, $matches)) {
-            switch ($matches[2]) {
-                case 'host':
-                    $class = 'Centreon_Object_Host';
-                    $relclass = 'Centreon_Object_Relation_Host_Service';
-                    break;
-                case 'contact':
-                    $class = 'Centreon_Object_Contact';
-                    $relclass = 'Centreon_Object_Relation_Contact_Service';
-                    break;
-                case 'contactgroup':
-                    $class = 'Centreon_Object_Contact_Group';
-                    $relclass = 'Centreon_Object_Relation_Contact_Group_Service';
-                    break;
-                case 'trap':
-                    $class = 'Centreon_Object_Trap';
-                    $relclass = 'Centreon_Object_Relation_Trap_Service';
-                    break;
-                case 'servicegroup':
-                    $class = 'Centreon_Object_Service_Group';
-                    $relclass = 'Centreon_Object_Relation_Service_Group_Service';
-                    break;
-                case 'category':
-                    $class = 'Centreon_Object_Service_Category';
-                    $relclass = 'Centreon_Object_Relation_Service_Category_Service';
-                    break;
-                default:
-                    throw new CentreonClapiException(self::UNKNOWN_METHOD);
-                    break;
-            }
-            if (class_exists($relclass) && class_exists($class)) {
-                // Parse arguments
-                if (! isset($arg[0]) || ! $arg[0]) {
-                    throw new CentreonClapiException(self::MISSINGPARAMETER);
-                }
-                $args = explode($this->delim, $arg[0]);
-                $relObject = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-                $elements = $relObject->getMergedParameters(
-                    ['host_id'],
-                    ['service_id'],
-                    -1,
-                    0,
-                    null,
-                    null,
-                    ['host_name' => $args[0], 'service_description' => $args[1], 'host_register' => '1'],
-                    'AND'
-                );
-                if (! count($elements)) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0] . '/' . $args[1]);
-                }
-                $serviceId = $elements[0]['service_id'];
-                $hostId = $elements[0]['host_id'];
-
-                $relobj = new $relclass($this->dependencyInjector);
-                $obj = new $class($this->dependencyInjector);
-                if ($matches[1] == 'get') {
-                    $tab = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $serviceId
-                    );
-                    echo 'id' . $this->delim . 'name' . "\n";
-                    foreach ($tab as $value) {
-                        if ($value) {
-                            $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
-                            echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
-                        }
-                    }
-                } else {
-                    if (! isset($args[1]) || ! isset($args[2])) {
-                        throw new CentreonClapiException(self::MISSINGPARAMETER);
-                    }
-                    $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
-                    $hostIds = $centreonConfig->findHostsForConfigChangeFlagFromServiceIds([$serviceId]);
-                    $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
-
-                    $relation = $args[2];
-                    $relations = explode('|', $relation);
-                    $relationTable = [];
-                    foreach ($relations as $rel) {
-                        if ($matches[1] != 'del' && $matches[2] == 'host' && $this->serviceExists($rel, $args[1])) {
-                            throw new CentreonClapiException(self::OBJECTALREADYEXISTS);
-                        }
-                        if ($matches[2] == 'contact') {
-                            $tab = $obj->getIdByParameter('contact_alias', [$rel]);
-                        } elseif ($matches[2] == 'host') {
-                            $tab = [];
-                            if (($hostId = $this->getHostIdByName($rel)) !== null) {
-                                $tab[] = $hostId;
-                            }
-                        } else {
-                            $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
-                        }
-                        if (! count($tab)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
-                        }
-                        $relationTable[] = $tab[0];
-                    }
-                    $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $serviceId
-                    );
-                    if ($matches[1] == 'set') {
-                        $relobj->delete(null, $serviceId);
-                        $existingRelationIds = [];
-                    }
-                    foreach ($relationTable as $relationId) {
-                        if ($matches[1] == 'del') {
-                            $relobj->delete($relationId, $serviceId);
-                        } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
-                            if (! in_array($relationId, $existingRelationIds)) {
-                                if ($matches[2] == 'servicegroup') {
-                                    $relobj->insert($relationId, ['hostId' => $hostId, 'serviceId' => $serviceId]);
-                                } else {
-                                    $relobj->insert($relationId, $serviceId);
-                                }
-                            }
-                        }
-                    }
-
-                    $centreonConfig->signalConfigurationChange(
-                        CentreonConfigurationChange::RESOURCE_TYPE_SERVICE,
-                        $hostId,
-                        $previousPollerIds
-                    );
-
-                    if (in_array($matches[2], ['servicegroup', 'host'])) {
-                        $aclObj = new CentreonACL($this->dependencyInjector);
-                        $aclObj->reload(true);
-                    }
-                }
-            } else {
-                throw new CentreonClapiException(self::UNKNOWN_METHOD);
-            }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
-        }
     }
 
     /**
@@ -1638,6 +1556,124 @@ class CentreonService extends CentreonObject
     }
 
     /**
+     * Return the list of template
+     *
+     * @param int $svcId The service ID
+     * @param mixed $pearDB
+     * @param mixed $alreadyProcessed
+     * @return array
+     */
+    public function getListTemplates($pearDB, $svcId, $alreadyProcessed = [])
+    {
+        $svcTmpl = [];
+        if (in_array($svcId, $alreadyProcessed)) {
+            return $svcTmpl;
+        }
+        $alreadyProcessed[] = $svcId;
+
+        $query = 'SELECT * FROM service WHERE service_id = ' . intval($svcId);
+        $stmt = $pearDB->query($query);
+        $row = $stmt->fetch();
+        if (! empty($row)) {
+            if ($row['service_template_model_stm_id'] !== null) {
+                $svcTmpl = array_merge(
+                    $svcTmpl,
+                    $this->getListTemplates(
+                        $pearDB,
+                        $row['service_template_model_stm_id'],
+                        $alreadyProcessed
+                    )
+                );
+                $svcTmpl[] = $row;
+            }
+        }
+
+        return $svcTmpl;
+    }
+
+    /**
+     * Get clapi action name from db column name
+     *
+     * @param string $columnName
+     * @return string
+     */
+    protected function getClapiActionName($columnName)
+    {
+        static $table;
+
+        if (! isset($table)) {
+            $table = ['command_command_id' => 'check_command', 'command_command_id2' => 'event_handler', 'timeperiod_tp_id' => 'check_period', 'timeperiod_tp_id2' => 'notification_period', 'command_command_id_arg' => 'check_command_arguments', 'command_command_id_arg2' => 'event_handler_arguments'];
+        }
+        if (preg_match('/^esi_/', $columnName)) {
+            return substr($columnName, strlen('esi_'));
+        }
+
+        return $table[$columnName] ?? $columnName;
+    }
+
+    /**
+     * Strip macro
+     *
+     * @param string $macroName
+     * @return string
+     */
+    protected function stripMacro($macroName)
+    {
+        $strippedMacro = $macroName;
+        if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
+            $strippedMacro = $matches[1];
+        }
+
+        return strtolower($strippedMacro);
+    }
+
+    /**
+     * Wrap macro
+     *
+     * @param string $macroName
+     * @return string
+     */
+    protected function wrapMacro($macroName)
+    {
+        return '$_SERVICE' . strtoupper($macroName) . '$';
+    }
+
+    /**
+     * Set the activate field
+     *
+     * @param string $objectName
+     * @param int $value
+     * @throws CentreonClapiException
+     */
+    protected function activate($objectName, $value)
+    {
+        if (! isset($objectName) || ! $objectName) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $tmp = explode($this->delim, $objectName);
+        if (count($tmp) != 2) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $relObject = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+        $elements = $relObject->getMergedParameters(
+            ['host_id'],
+            ['service_id'],
+            -1,
+            0,
+            null,
+            null,
+            ['host_name' => $tmp[0], 'service_description' => $tmp[1]],
+            'AND'
+        );
+        if (! count($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $tmp[0] . '/' . $tmp[1]);
+        }
+        if (isset($this->activateField)) {
+            $this->object->update($elements[0]['service_id'], [$this->activateField => $value]);
+        }
+    }
+
+    /**
      * @param $storedMacros
      * @param $finalMacros
      */
@@ -1736,42 +1772,6 @@ class CentreonService extends CentreonObject
         }
 
         return false;
-    }
-
-    /**
-     * Return the list of template
-     *
-     * @param int $svcId The service ID
-     * @param mixed $pearDB
-     * @param mixed $alreadyProcessed
-     * @return array
-     */
-    public function getListTemplates($pearDB, $svcId, $alreadyProcessed = [])
-    {
-        $svcTmpl = [];
-        if (in_array($svcId, $alreadyProcessed)) {
-            return $svcTmpl;
-        }
-        $alreadyProcessed[] = $svcId;
-
-        $query = 'SELECT * FROM service WHERE service_id = ' . intval($svcId);
-        $stmt = $pearDB->query($query);
-        $row = $stmt->fetch();
-        if (! empty($row)) {
-            if ($row['service_template_model_stm_id'] !== null) {
-                $svcTmpl = array_merge(
-                    $svcTmpl,
-                    $this->getListTemplates(
-                        $pearDB,
-                        $row['service_template_model_stm_id'],
-                        $alreadyProcessed
-                    )
-                );
-                $svcTmpl[] = $row;
-            }
-        }
-
-        return $svcTmpl;
     }
 
     /**

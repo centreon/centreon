@@ -32,9 +32,6 @@ use PDO;
  */
 class Curves extends AbstractObject
 {
-    /** @var array|null */
-    private $curves = null;
-
     /** @var string */
     protected $table = 'giv_components_template';
 
@@ -103,20 +100,8 @@ class Curves extends AbstractObject
         'comment',
     ];
 
-    /**
-     * Get curves
-     *
-     * @return void
-     */
-    private function getCurves(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT {$this->attributesSelect}
-            FROM giv_components_template"
-        );
-        $stmt->execute();
-        $this->curves = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var array|null */
+    private $curves = null;
 
     /**
      * Generate curves
@@ -142,5 +127,20 @@ class Curves extends AbstractObject
                 $this->generateObjectInFile($value, $id);
             }
         }
+    }
+
+    /**
+     * Get curves
+     *
+     * @return void
+     */
+    private function getCurves(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM giv_components_template"
+        );
+        $stmt->execute();
+        $this->curves = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

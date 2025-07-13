@@ -35,18 +35,6 @@ use Pimple\Container;
  */
 class HostCategory extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $hostSeverityCache = [];
-
-    /** @var array */
-    private $hostLinkedCache = [];
-
     /** @var string */
     protected $table = 'hostcategories';
 
@@ -68,6 +56,18 @@ class HostCategory extends AbstractObject
         'icon_id',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $hostSeverityCache = [];
+
+    /** @var array */
+    private $hostLinkedCache = [];
+
     /**
      * HostCategory constructor
      *
@@ -77,55 +77,6 @@ class HostCategory extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of host severity
-     *
-     * @return void
-     */
-    private function cacheHostSeverity(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT hc_name, hc_alias, hc_id, level, icon_id
-            FROM hostcategories
-            WHERE level IS NOT NULL AND hc_activate = '1'"
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->hostSeverityCache[$value['hc_id']] = &$value;
-        }
-    }
-
-    /**
-     * Build cache of relations between host and severities
-     *
-     * @return void
-     */
-    private function cacheHostSeverityLinked(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT hc_id, host_host_id '
-            . 'FROM hostcategories, hostcategories_relation '
-            . 'WHERE level IS NOT NULL '
-            . 'AND hc_activate = "1" '
-            . 'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->hostLinkedCache[$value['host_host_id']])) {
-                if ($this->hostSeverityCache[$value['hc_id']]['level']
-                    < $this->hostSeverityCache[$this->hostLinkedCache[$value['host_host_id']]]
-                ) {
-                    $this->hostLinkedCache[$value['host_host_id']] = $value['hc_id'];
-                }
-            } else {
-                $this->hostLinkedCache[$value['host_host_id']] = $value['hc_id'];
-            }
-        }
     }
 
     /**
@@ -202,6 +153,55 @@ class HostCategory extends AbstractObject
         }
 
         return $this->hostSeverityCache[$hcId];
+    }
+
+    /**
+     * Build cache of host severity
+     *
+     * @return void
+     */
+    private function cacheHostSeverity(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT hc_name, hc_alias, hc_id, level, icon_id
+            FROM hostcategories
+            WHERE level IS NOT NULL AND hc_activate = '1'"
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->hostSeverityCache[$value['hc_id']] = &$value;
+        }
+    }
+
+    /**
+     * Build cache of relations between host and severities
+     *
+     * @return void
+     */
+    private function cacheHostSeverityLinked(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT hc_id, host_host_id '
+            . 'FROM hostcategories, hostcategories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND hc_activate = "1" '
+            . 'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->hostLinkedCache[$value['host_host_id']])) {
+                if ($this->hostSeverityCache[$value['hc_id']]['level']
+                    < $this->hostSeverityCache[$this->hostLinkedCache[$value['host_host_id']]]
+                ) {
+                    $this->hostLinkedCache[$value['host_host_id']] = $value['hc_id'];
+                }
+            } else {
+                $this->hostLinkedCache[$value['host_host_id']] = $value['hc_id'];
+            }
+        }
     }
 
     /**

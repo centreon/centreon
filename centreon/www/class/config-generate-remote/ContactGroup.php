@@ -36,12 +36,6 @@ class ContactGroup extends AbstractObject
     /** @var int */
     protected $useCache = 1;
 
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $cgServiceLinkedCache = [];
-
     /** @var array */
     protected $cgCache = [];
 
@@ -79,58 +73,11 @@ class ContactGroup extends AbstractObject
     /** @var PDOStatement|null */
     protected $stmtCgService = null;
 
-    /**
-     * Generate contact group cache
-     *
-     * @return void
-     */
-    protected function getCgCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT {$this->attributesSelect}
-            FROM contactgroup
-            WHERE cg_activate = '1'"
-        );
-        $stmt->execute();
-        $this->cgCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var int */
+    private $doneCache = 0;
 
-    /**
-     * Get contact groups linked to services
-     *
-     * @return void
-     */
-    private function getCgForServiceCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT contactgroup_cg_id, service_service_id
-            FROM contactgroup_service_relation'
-        );
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->cgServiceLinkedCache[$value['service_service_id']])) {
-                $this->cgServiceLinkedCache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
-            } else {
-                $this->cgServiceLinkedCache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
-            }
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void|int
-     */
-    protected function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->getCgCache();
-        $this->getCgForServiceCache();
-        $this->doneCache = 1;
-    }
+    /** @var array */
+    private $cgServiceLinkedCache = [];
 
     /**
      * Get service linked contact groups
@@ -253,5 +200,58 @@ class ContactGroup extends AbstractObject
         $this->generateObjectInFile($this->cg[$cgId], $cgId);
 
         return $this->cg[$cgId]['cg_name'];
+    }
+
+    /**
+     * Generate contact group cache
+     *
+     * @return void
+     */
+    protected function getCgCache(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM contactgroup
+            WHERE cg_activate = '1'"
+        );
+        $stmt->execute();
+        $this->cgCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void|int
+     */
+    protected function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->getCgCache();
+        $this->getCgForServiceCache();
+        $this->doneCache = 1;
+    }
+
+    /**
+     * Get contact groups linked to services
+     *
+     * @return void
+     */
+    private function getCgForServiceCache(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT contactgroup_cg_id, service_service_id
+            FROM contactgroup_service_relation'
+        );
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->cgServiceLinkedCache[$value['service_service_id']])) {
+                $this->cgServiceLinkedCache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
+            } else {
+                $this->cgServiceLinkedCache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
+            }
+        }
     }
 }

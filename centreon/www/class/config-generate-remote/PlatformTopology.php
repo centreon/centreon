@@ -74,6 +74,19 @@ class PlatformTopology extends AbstractObject
      * @throws Exception
      * @return void
      */
+    public function generateFromRemoteServerId(int $remoteServerId): void
+    {
+        $this->generate($remoteServerId);
+    }
+
+    /**
+     * Generate topology configuration from remote server id
+     *
+     * @param int $remoteServerId
+     *
+     * @throws Exception
+     * @return void
+     */
     private function generate(int $remoteServerId): void
     {
         if (is_null($this->stmtPlatformTopology)) {
@@ -93,18 +106,5 @@ class PlatformTopology extends AbstractObject
             }
             $this->generateObjectInFile($entry);
         }
-    }
-
-    /**
-     * Generate topology configuration from remote server id
-     *
-     * @param int $remoteServerId
-     *
-     * @throws Exception
-     * @return void
-     */
-    public function generateFromRemoteServerId(int $remoteServerId): void
-    {
-        $this->generate($remoteServerId);
     }
 }

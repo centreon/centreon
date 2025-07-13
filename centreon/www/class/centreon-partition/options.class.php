@@ -219,18 +219,6 @@ class Options
     }
 
     /**
-     * Update verbose level of program
-     *
-     * @return void
-     */
-    private function updateVerboseLevel(): void
-    {
-        if (isset($this->options, $this->options['v'])) {
-            $this->verbosity = $verbosity;
-        }
-    }
-
-    /**
      * returns verbose level of program
      *
      * @return mixed|string
@@ -268,5 +256,17 @@ class Options
         echo "    -p <configuration file>       purge tables\n";
         echo "    -b <configuration file>       backup last part for each table\n";
         echo "    -l <table> -s <database name> List all partitions for a table.\n";
+    }
+
+    /**
+     * Update verbose level of program
+     *
+     * @return void
+     */
+    private function updateVerboseLevel(): void
+    {
+        if (isset($this->options, $this->options['v'])) {
+            $this->verbosity = $verbosity;
+        }
     }
 }

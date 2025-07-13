@@ -216,6 +216,31 @@ class CentreonGraphStatus
     }
 
     /**
+     * Get the index data id for a service
+     *
+     * @param int $hostId The host id
+     * @param int $serviceId The service id
+     * @param CentreonDB $dbc The database connection to centreon_storage
+     *
+     * @throws OutOfRangeException
+     * @throws PDOException
+     * @return int
+     */
+    public static function getIndexId($hostId, $serviceId, $dbc)
+    {
+        $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = ' . $hostId . ' AND service_id = '
+            . $serviceId;
+        $res = $dbc->query($query);
+        $row = $res->fetch();
+
+        if (false == $row) {
+            throw new OutOfRangeException();
+        }
+
+        return $row['id'];
+    }
+
+    /**
      * Get general options
      *
      * @throws RuntimeException
@@ -280,31 +305,6 @@ class CentreonGraphStatus
         }
 
         return $row['RRDdatabase_status_path'];
-    }
-
-    /**
-     * Get the index data id for a service
-     *
-     * @param int $hostId The host id
-     * @param int $serviceId The service id
-     * @param CentreonDB $dbc The database connection to centreon_storage
-     *
-     * @throws OutOfRangeException
-     * @throws PDOException
-     * @return int
-     */
-    public static function getIndexId($hostId, $serviceId, $dbc)
-    {
-        $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = ' . $hostId . ' AND service_id = '
-            . $serviceId;
-        $res = $dbc->query($query);
-        $row = $res->fetch();
-
-        if (false == $row) {
-            throw new OutOfRangeException();
-        }
-
-        return $row['id'];
     }
 
     /**

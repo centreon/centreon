@@ -86,24 +86,6 @@ abstract class AbstractObject
     protected $lineSeparatorInfile = null;
 
     /**
-     * Get instance singleton
-     *
-     * @param Container $dependencyInjector
-     * @return object
-     */
-    public static function getInstance(Container $dependencyInjector)
-    {
-        static $instances = [];
-        $calledClass = static::class;
-
-        if (! isset($instances[$calledClass])) {
-            $instances[$calledClass] = new $calledClass($dependencyInjector);
-        }
-
-        return $instances[$calledClass];
-    }
-
-    /**
      * Constructor
      *
      * @param Container $dependencyInjector
@@ -122,6 +104,24 @@ abstract class AbstractObject
     public function __destruct()
     {
         $this->closeFile();
+    }
+
+    /**
+     * Get instance singleton
+     *
+     * @param Container $dependencyInjector
+     * @return object
+     */
+    public static function getInstance(Container $dependencyInjector)
+    {
+        static $instances = [];
+        $calledClass = static::class;
+
+        if (! isset($instances[$calledClass])) {
+            $instances[$calledClass] = new $calledClass($dependencyInjector);
+        }
+
+        return $instances[$calledClass];
     }
 
     /**
@@ -155,6 +155,47 @@ abstract class AbstractObject
     }
 
     /**
+     * Check if an id has already been generated
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function checkGenerate($id): bool
+    {
+        return (bool) (isset($this->exported[$id]));
+    }
+
+    /**
+     * Get exported ids
+     *
+     * @return array
+     */
+    public function getExported(): array
+    {
+        return $this->exported ?? [];
+    }
+
+    /**
+     * Check if current object is engine
+     *
+     * @return bool
+     */
+    public function isEngineObject(): bool
+    {
+        return $this->engine;
+    }
+
+    /**
+     * Check if current object is broker
+     *
+     * @return bool
+     */
+    public function isBrokerObject(): bool
+    {
+        return $this->broker;
+    }
+
+    /**
      * Create generateFilename in given directory
      *
      * @param string $dir
@@ -181,22 +222,6 @@ abstract class AbstractObject
                 $this->attributesWrite
             );
         }
-    }
-
-    /**
-     * Convert string in UTF-8
-     *
-     * @param string $str
-     * @return string
-     */
-    private function toUTF8(string $str): string
-    {
-        $finalString = $str;
-        if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {
-            $finalString = mb_convert_encoding($finalString, 'UTF-8');
-        }
-
-        return $finalString;
     }
 
     /**
@@ -243,6 +268,39 @@ abstract class AbstractObject
     }
 
     /**
+     * Generate file
+     *
+     * @param array $object
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function generateFile(array $object): void
+    {
+        if (is_null($this->fp)) {
+            $this->createFile($this->backendInstance->getPath());
+        }
+
+        $this->writeNoObject($object);
+    }
+
+    /**
+     * Convert string in UTF-8
+     *
+     * @param string $str
+     * @return string
+     */
+    private function toUTF8(string $str): string
+    {
+        $finalString = $str;
+        if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {
+            $finalString = mb_convert_encoding($finalString, 'UTF-8');
+        }
+
+        return $finalString;
+    }
+
+    /**
      * Write string in file
      *
      * @param array $object
@@ -278,63 +336,5 @@ abstract class AbstractObject
                 fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
             }
         }
-    }
-
-    /**
-     * Generate file
-     *
-     * @param array $object
-     *
-     * @throws Exception
-     * @return void
-     */
-    protected function generateFile(array $object): void
-    {
-        if (is_null($this->fp)) {
-            $this->createFile($this->backendInstance->getPath());
-        }
-
-        $this->writeNoObject($object);
-    }
-
-    /**
-     * Check if an id has already been generated
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function checkGenerate($id): bool
-    {
-        return (bool) (isset($this->exported[$id]));
-    }
-
-    /**
-     * Get exported ids
-     *
-     * @return array
-     */
-    public function getExported(): array
-    {
-        return $this->exported ?? [];
-    }
-
-    /**
-     * Check if current object is engine
-     *
-     * @return bool
-     */
-    public function isEngineObject(): bool
-    {
-        return $this->engine;
-    }
-
-    /**
-     * Check if current object is broker
-     *
-     * @return bool
-     */
-    public function isBrokerObject(): bool
-    {
-        return $this->broker;
     }
 }

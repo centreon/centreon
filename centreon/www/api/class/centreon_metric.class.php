@@ -111,6 +111,331 @@ class CentreonMetric extends CentreonWebService
     }
 
     /**
+     * Get last metrics value by services or/and metrics
+     *
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
+     * @return array | null if arguments are not set
+     */
+    public function getLastMetricsData()
+    {
+        if (! isset($this->arguments['services']) && ! isset($this->arguments['metrics'])) {
+            self::sendResult([]);
+        }
+
+        return $this->lastMetricsData(
+            $this->arguments['services'] ?? '',
+            $this->arguments['metrics'] ?? ''
+        );
+    }
+
+    /**
+     * Get metrics data by service or/and metrics
+     *
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
+     * @return array | null if arguments are not set
+     */
+    public function getMetricsData()
+    {
+        if (! isset($this->arguments['services']) && ! isset($this->arguments['metrics'])) {
+            self::sendResult([]);
+        }
+
+        return $this->metricsData(
+            $this->arguments['services'] ?? '',
+            $this->arguments['metrics'] ?? ''
+        );
+    }
+
+    /**
+     * Get metrics datas for a service
+     *
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
+     * @return array
+     */
+    public function getMetricsDataByService()
+    {
+        if (! isset($this->arguments['ids'])) {
+            self::sendResult([]);
+        }
+
+        // Get the list of service ID
+        $ids = explode(',', $this->arguments['ids']);
+        $result = [];
+
+        if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
+            foreach ($ids as $id) {
+                $result[] = $this->serviceDatasNg($id);
+            }
+        } else {
+            foreach ($ids as $id) {
+                $result[] = $this->serviceDatas($id);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get metrics datas for a metric
+     *
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
+     * @return array
+     */
+    public function getMetricsDataByMetric()
+    {
+        if (! isset($this->arguments['ids'])) {
+            self::sendResult([]);
+        }
+
+        // Get the list of service ID
+        $ids = explode(',', $this->arguments['ids']);
+        $result = [];
+
+        if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
+            foreach ($ids as $id) {
+                [$hostId, $serviceId, $metricId] = explode('_', $id);
+                $hostId = (int) $hostId;
+                $serviceId = (int) $serviceId;
+                $metricId = (int) $metricId;
+
+                $result[] = $this->serviceDatasNg($hostId . '_' . $serviceId, $metricId);
+            }
+        } else {
+            foreach ($ids as $id) {
+                [$hostId, $serviceId, $metricId] = explode('_', $id);
+                $hostId = (int) $hostId;
+                $serviceId = (int) $serviceId;
+                $metricId = (int) $metricId;
+
+                $result[] = $this->serviceDatas($hostId . '_' . $serviceId, $metricId);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get the status for a service
+     *
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestForbiddenException
+     * @throws RestNotFoundException
+     * @throws RuntimeException
+     * @return array
+     */
+    public function getStatusByService()
+    {
+        global $centreon;
+
+        $userId = $centreon->user->user_id;
+        $isAdmin = $centreon->user->admin;
+
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
+            $acl = new CentreonACL($userId, $isAdmin);
+            $aclGroups = $acl->getAccessGroupsString();
+        }
+
+        // Validate options
+        if (
+            ! isset($this->arguments['start']) || ! is_numeric($this->arguments['start'])
+            || ! isset($this->arguments['end']) || ! is_numeric($this->arguments['end'])
+        ) {
+            throw new RestBadRequestException('Bad parameters');
+        }
+
+        $start = $this->arguments['start'];
+        $end = $this->arguments['end'];
+
+        // Get the numbers of points
+        $rows = 200;
+        if (isset($this->arguments['rows'])) {
+            if (! is_numeric($this->arguments['rows'])) {
+                throw new RestBadRequestException('Bad parameters');
+            }
+            $rows = $this->arguments['rows'];
+        }
+        if ($rows < 10) {
+            throw new RestBadRequestException('The rows must be greater as 10');
+        }
+
+        if (! isset($this->arguments['ids'])) {
+            self::sendResult([]);
+        }
+
+        // Get the list of service ID
+        $ids = explode(',', $this->arguments['ids']);
+        $result = [];
+
+        foreach ($ids as $id) {
+            [$hostId, $serviceId] = explode('_', $id);
+            if (
+                ! is_numeric($hostId)
+                || ! is_numeric($serviceId)
+            ) {
+                throw new RestBadRequestException('Bad parameters');
+            }
+
+            // Check ACL is not admin
+            if (! $isAdmin) {
+                $query = 'SELECT service_id '
+                    . 'FROM centreon_acl '
+                    . 'WHERE host_id = :hostId '
+                    . 'AND service_id = :serviceId '
+                    . 'AND group_id IN (' . $aclGroups . ')';
+
+                $stmt = $this->pearDBMonitoring->prepare($query);
+                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
+                $dbResult = $stmt->execute();
+                if (! $dbResult) {
+                    throw new Exception('An error occured');
+                }
+
+                if ($stmt->rowCount() === 0) {
+                    throw new RestForbiddenException('Access denied');
+                }
+            }
+
+            // Prepare graph
+            try {
+                // Get index data
+                $indexData = CentreonGraphStatus::getIndexId($hostId, $serviceId, $this->pearDBMonitoring);
+                $graph = new CentreonGraphStatus($indexData, $start, $end);
+            } catch (Exception $e) {
+                throw new RestNotFoundException('Graph not found');
+            }
+
+            $statusData = $graph->getData();
+
+            // Get comments for this services
+            $comments = [];
+            $query = 'SELECT `value` FROM `options` WHERE `key` = "display_comment_chart"';
+            $res = $this->pearDB->query($query);
+            $row = $res->fetch();
+            if ($row && $row['value'] === '1') {
+                $queryComment = 'SELECT `entry_time`, `author`, `data` '
+                    . 'FROM comments '
+                    . 'WHERE host_id = :hostId '
+                    . 'AND service_id = :serviceId '
+                    . 'AND type = 2 '
+                    . 'AND entry_type = 1 '
+                    . 'AND deletion_time IS NULL '
+                    . 'AND :start < entry_time '
+                    . 'AND :end > entry_time';
+                $stmt = $this->pearDBMonitoring->prepare($queryComment);
+                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
+                $stmt->bindParam(':start', $start, PDO::PARAM_INT);
+                $stmt->bindParam(':end', $end, PDO::PARAM_INT);
+                $dbResult = $stmt->execute();
+                if (! $dbResult) {
+                    throw new Exception('An error occured');
+                }
+
+                while ($row = $stmt->fetch()) {
+                    $comments[] = ['author' => $row['author'], 'comment' => $row['data'], 'time' => $row['entry_time']];
+                }
+            }
+            $result[] = ['service_id' => $id, 'data' => ['status' => $statusData, 'comments' => $comments], 'size' => $rows];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get metrics Data by poller
+     *
+     * @throws RestBadRequestException
+     * @throws RestNotFoundException
+     * @throws RuntimeException
+     * @return array
+     */
+    public function getMetricsDataByPoller()
+    {
+        global $centreon;
+
+        $userId = $centreon->user->user_id;
+        $isAdmin = $centreon->user->admin;
+
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
+            $acl = new CentreonACL($userId, $isAdmin);
+        }
+
+        // Validate options
+        if (
+            ! isset($this->arguments['ids'])
+            || ! isset($this->arguments['start'])
+            || ! is_numeric($this->arguments['start'])
+            || ! isset($this->arguments['end'])
+            || ! is_numeric($this->arguments['end'])
+        ) {
+            throw new RestBadRequestException('Bad parameters');
+        }
+
+        $explodedId = explode('-', $this->arguments['ids']);
+        $id = $explodedId[0];
+        $graphName = $explodedId[1];
+
+        $start = $this->arguments['start'];
+        $end = $this->arguments['end'];
+
+        // Get the numbers of points
+        $rows = 200;
+        if (isset($this->arguments['rows'])) {
+            if (! is_numeric($this->arguments['rows'])) {
+                throw new RestBadRequestException('Bad parameters');
+            }
+            $rows = $this->arguments['rows'];
+        }
+        if ($rows < 10) {
+            throw new RestBadRequestException('The rows must be greater as 10');
+        }
+
+        // Init graph object
+        try {
+            $graphPollerObject = new CentreonGraphPoller(
+                $this->pearDB,
+                $this->pearDBMonitoring
+            );
+            $graphPollerObject->setPoller($id, $graphName);
+        } catch (Exception $e) {
+            throw new RestNotFoundException('Graph not found');
+        }
+
+        $result = $graphPollerObject->getGraph($start, $end);
+
+        return [$result];
+    }
+
+    /**
+     * Authorize to access to the action
+     *
+     * @param string $action The action name
+     * @param array $user The current user
+     * @param bool $isInternal If the api is call in internal
+     *
+     * @return bool If the user has access to the action
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, $isInternal)
+            || ($user && $user->hasAccessRestApiRealtime())
+        );
+    }
+
+    /**
      * @throws PDOException
      * @throws RestBadRequestException
      * @return array
@@ -225,254 +550,6 @@ class CentreonMetric extends CentreonWebService
         }
 
         return ['items' => $metrics, 'total' => (int) $this->pearDBMonitoring->numberRows()];
-    }
-
-    /**
-     * Get last metrics value by services or/and metrics
-     *
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
-     * @return array | null if arguments are not set
-     */
-    public function getLastMetricsData()
-    {
-        if (! isset($this->arguments['services']) && ! isset($this->arguments['metrics'])) {
-            self::sendResult([]);
-        }
-
-        return $this->lastMetricsData(
-            $this->arguments['services'] ?? '',
-            $this->arguments['metrics'] ?? ''
-        );
-    }
-
-    /**
-     * Get metrics data by service or/and metrics
-     *
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
-     * @return array | null if arguments are not set
-     */
-    public function getMetricsData()
-    {
-        if (! isset($this->arguments['services']) && ! isset($this->arguments['metrics'])) {
-            self::sendResult([]);
-        }
-
-        return $this->metricsData(
-            $this->arguments['services'] ?? '',
-            $this->arguments['metrics'] ?? ''
-        );
-    }
-
-    /**
-     * Get metrics datas for a service
-     *
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
-     * @return array
-     */
-    public function getMetricsDataByService()
-    {
-        if (! isset($this->arguments['ids'])) {
-            self::sendResult([]);
-        }
-
-        // Get the list of service ID
-        $ids = explode(',', $this->arguments['ids']);
-        $result = [];
-
-        if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
-            foreach ($ids as $id) {
-                $result[] = $this->serviceDatasNg($id);
-            }
-        } else {
-            foreach ($ids as $id) {
-                $result[] = $this->serviceDatas($id);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get metrics datas for a metric
-     *
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
-     * @return array
-     */
-    public function getMetricsDataByMetric()
-    {
-        if (! isset($this->arguments['ids'])) {
-            self::sendResult([]);
-        }
-
-        // Get the list of service ID
-        $ids = explode(',', $this->arguments['ids']);
-        $result = [];
-
-        if (isset($this->arguments['type']) && $this->arguments['type'] === 'ng') {
-            foreach ($ids as $id) {
-                [$hostId, $serviceId, $metricId] = explode('_', $id);
-                $hostId = (int) $hostId;
-                $serviceId = (int) $serviceId;
-                $metricId = (int) $metricId;
-
-                $result[] = $this->serviceDatasNg($hostId . '_' . $serviceId, $metricId);
-            }
-        } else {
-            foreach ($ids as $id) {
-                [$hostId, $serviceId, $metricId] = explode('_', $id);
-                $hostId = (int) $hostId;
-                $serviceId = (int) $serviceId;
-                $metricId = (int) $metricId;
-
-                $result[] = $this->serviceDatas($hostId . '_' . $serviceId, $metricId);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check acl for user
-     *
-     * @param int $hostId Host id to check
-     * @param int $serviceId Service id to check
-     * @param array|null $aclGroups String with user acl groups
-     * @param bool $isAdmin User is admin or not
-     *
-     * @throws PDOException
-     * @return bool if the user is allowed to get service information
-     */
-    private function checkAcl($hostId, $serviceId, ?array $aclGroups, $isAdmin = true): bool
-    {
-        if (! $isAdmin) {
-            $query = 'SELECT service_id '
-                . 'FROM centreon_acl '
-                . 'WHERE host_id = :hostId '
-                . 'AND service_id = :serviceId '
-                . 'AND group_id IN (' . $aclGroups . ')';
-
-            $stmt = $this->pearDBMonitoring->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
-            $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (! $dbResult || $stmt->rowCount() === 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Get array builded from arguments
-     *
-     * @param string $services List of services (like hostId_serviceId,hostId2_serviceId2,...)
-     * @param string $metrics List of metrics (like metricId,metricId2,...)
-     *
-     * @throws PDOException
-     * @throws RestBadRequestException
-     * @return array
-     */
-    private function manageMetricsDataArguments($services, $metrics)
-    {
-        global $centreon;
-
-        $userId = $centreon->user->user_id;
-        $isAdmin = $centreon->user->admin;
-        $aclGroups = null;
-
-        // Get ACL if user is not admin
-        if (! $isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $aclGroups = $acl->getAccessGroupsString();
-        }
-
-        if (
-            ! isset($this->arguments['start']) || ! is_numeric($this->arguments['start'])
-            || ! isset($this->arguments['end']) || ! is_numeric($this->arguments['end'])
-        ) {
-            throw new RestBadRequestException('Bad parameters');
-        }
-
-        /*
-         * Format:
-         *    {
-         *      "hostId_serviceId": {}, # no metricsId means: all metrics
-         *      "hostId2_serviceId2: { "metricId": 1, "metricId2": 1 }
-         *    }
-         */
-        $selectedMetrics = [];
-        if (is_string($services) && strlen($services) > 0) {
-            foreach (explode(',', $services) as $service) {
-                [$hostId, $serviceId] = explode('_', $service);
-                if (! is_numeric($hostId) || ! is_numeric($serviceId)) {
-                    continue;
-                }
-                if (isset($selectedMetrics[$service])) {
-                    continue;
-                }
-
-                if (! $this->checkAcl($hostId, $serviceId, $aclGroups, $isAdmin)) {
-                    continue;
-                }
-                $selectedMetrics[$service] = [];
-            }
-        }
-
-        if (is_string($metrics) && strlen($metrics) > 0) {
-            $filter = '';
-            $filterAppend = '';
-            $queryValues = [];
-            foreach (explode(',', $metrics) as $metricId) {
-                if (! is_numeric($metricId)) {
-                    continue;
-                }
-                $filter .= $filterAppend . ' :metric' . $metricId;
-                $queryValues[':metric' . $metricId] = $metricId;
-                $filterAppend = ',';
-            }
-
-            if ($filter === '') {
-                return $selectedMetrics;
-            }
-
-            $stmt = $this->pearDBMonitoring->prepare(
-                'SELECT metric_id, host_id, service_id
-                 FROM metrics, index_data
-                 WHERE metrics.metric_id IN (' . $filter . ')
-                 AND metrics.index_id = index_data.id'
-            );
-            foreach ($queryValues as $param => $value) {
-                $stmt->bindValue($param, $value, PDO::PARAM_INT);
-            }
-            $stmt->execute();
-
-            while ($row = $stmt->fetch()) {
-                if (
-                    isset($selectedMetrics[$row['host_id'] . '_' . $row['service_id']])
-                    && count($selectedMetrics[$row['host_id'] . '_' . $row['service_id']]) <= 0
-                ) {
-                    continue;
-                }
-                if (! isset($selectedMetrics[$row['host_id'] . '_' . $row['service_id']])) {
-                    if (! $this->checkAcl($row['host_id'], $row['service_id'], $aclGroups, $isAdmin)) {
-                        continue;
-                    }
-                    $selectedMetrics[$row['host_id'] . '_' . $row['service_id']] = [];
-                }
-                $selectedMetrics[$row['host_id'] . '_' . $row['service_id']][$row['metric_id']] = 1;
-            }
-        }
-
-        return $selectedMetrics;
     }
 
     /**
@@ -619,136 +696,6 @@ class CentreonMetric extends CentreonWebService
                 (int) $this->arguments['start'],
                 (int) $this->arguments['end']
             );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get the status for a service
-     *
-     * @throws PDOException
-     * @throws RestBadRequestException
-     * @throws RestForbiddenException
-     * @throws RestNotFoundException
-     * @throws RuntimeException
-     * @return array
-     */
-    public function getStatusByService()
-    {
-        global $centreon;
-
-        $userId = $centreon->user->user_id;
-        $isAdmin = $centreon->user->admin;
-
-        // Get ACL if user is not admin
-        if (! $isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $aclGroups = $acl->getAccessGroupsString();
-        }
-
-        // Validate options
-        if (
-            ! isset($this->arguments['start']) || ! is_numeric($this->arguments['start'])
-            || ! isset($this->arguments['end']) || ! is_numeric($this->arguments['end'])
-        ) {
-            throw new RestBadRequestException('Bad parameters');
-        }
-
-        $start = $this->arguments['start'];
-        $end = $this->arguments['end'];
-
-        // Get the numbers of points
-        $rows = 200;
-        if (isset($this->arguments['rows'])) {
-            if (! is_numeric($this->arguments['rows'])) {
-                throw new RestBadRequestException('Bad parameters');
-            }
-            $rows = $this->arguments['rows'];
-        }
-        if ($rows < 10) {
-            throw new RestBadRequestException('The rows must be greater as 10');
-        }
-
-        if (! isset($this->arguments['ids'])) {
-            self::sendResult([]);
-        }
-
-        // Get the list of service ID
-        $ids = explode(',', $this->arguments['ids']);
-        $result = [];
-
-        foreach ($ids as $id) {
-            [$hostId, $serviceId] = explode('_', $id);
-            if (
-                ! is_numeric($hostId)
-                || ! is_numeric($serviceId)
-            ) {
-                throw new RestBadRequestException('Bad parameters');
-            }
-
-            // Check ACL is not admin
-            if (! $isAdmin) {
-                $query = 'SELECT service_id '
-                    . 'FROM centreon_acl '
-                    . 'WHERE host_id = :hostId '
-                    . 'AND service_id = :serviceId '
-                    . 'AND group_id IN (' . $aclGroups . ')';
-
-                $stmt = $this->pearDBMonitoring->prepare($query);
-                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
-                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
-                $dbResult = $stmt->execute();
-                if (! $dbResult) {
-                    throw new Exception('An error occured');
-                }
-
-                if ($stmt->rowCount() === 0) {
-                    throw new RestForbiddenException('Access denied');
-                }
-            }
-
-            // Prepare graph
-            try {
-                // Get index data
-                $indexData = CentreonGraphStatus::getIndexId($hostId, $serviceId, $this->pearDBMonitoring);
-                $graph = new CentreonGraphStatus($indexData, $start, $end);
-            } catch (Exception $e) {
-                throw new RestNotFoundException('Graph not found');
-            }
-
-            $statusData = $graph->getData();
-
-            // Get comments for this services
-            $comments = [];
-            $query = 'SELECT `value` FROM `options` WHERE `key` = "display_comment_chart"';
-            $res = $this->pearDB->query($query);
-            $row = $res->fetch();
-            if ($row && $row['value'] === '1') {
-                $queryComment = 'SELECT `entry_time`, `author`, `data` '
-                    . 'FROM comments '
-                    . 'WHERE host_id = :hostId '
-                    . 'AND service_id = :serviceId '
-                    . 'AND type = 2 '
-                    . 'AND entry_type = 1 '
-                    . 'AND deletion_time IS NULL '
-                    . 'AND :start < entry_time '
-                    . 'AND :end > entry_time';
-                $stmt = $this->pearDBMonitoring->prepare($queryComment);
-                $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
-                $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
-                $stmt->bindParam(':start', $start, PDO::PARAM_INT);
-                $stmt->bindParam(':end', $end, PDO::PARAM_INT);
-                $dbResult = $stmt->execute();
-                if (! $dbResult) {
-                    throw new Exception('An error occured');
-                }
-
-                while ($row = $stmt->fetch()) {
-                    $comments[] = ['author' => $row['author'], 'comment' => $row['data'], 'time' => $row['entry_time']];
-                }
-            }
-            $result[] = ['service_id' => $id, 'data' => ['status' => $statusData, 'comments' => $comments], 'size' => $rows];
         }
 
         return $result;
@@ -981,72 +928,6 @@ class CentreonMetric extends CentreonWebService
     }
 
     /**
-     * Get metrics Data by poller
-     *
-     * @throws RestBadRequestException
-     * @throws RestNotFoundException
-     * @throws RuntimeException
-     * @return array
-     */
-    public function getMetricsDataByPoller()
-    {
-        global $centreon;
-
-        $userId = $centreon->user->user_id;
-        $isAdmin = $centreon->user->admin;
-
-        // Get ACL if user is not admin
-        if (! $isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-        }
-
-        // Validate options
-        if (
-            ! isset($this->arguments['ids'])
-            || ! isset($this->arguments['start'])
-            || ! is_numeric($this->arguments['start'])
-            || ! isset($this->arguments['end'])
-            || ! is_numeric($this->arguments['end'])
-        ) {
-            throw new RestBadRequestException('Bad parameters');
-        }
-
-        $explodedId = explode('-', $this->arguments['ids']);
-        $id = $explodedId[0];
-        $graphName = $explodedId[1];
-
-        $start = $this->arguments['start'];
-        $end = $this->arguments['end'];
-
-        // Get the numbers of points
-        $rows = 200;
-        if (isset($this->arguments['rows'])) {
-            if (! is_numeric($this->arguments['rows'])) {
-                throw new RestBadRequestException('Bad parameters');
-            }
-            $rows = $this->arguments['rows'];
-        }
-        if ($rows < 10) {
-            throw new RestBadRequestException('The rows must be greater as 10');
-        }
-
-        // Init graph object
-        try {
-            $graphPollerObject = new CentreonGraphPoller(
-                $this->pearDB,
-                $this->pearDBMonitoring
-            );
-            $graphPollerObject->setPoller($id, $graphName);
-        } catch (Exception $e) {
-            throw new RestNotFoundException('Graph not found');
-        }
-
-        $result = $graphPollerObject->getGraph($start, $end);
-
-        return [$result];
-    }
-
-    /**
      * Function for test is a value is NaN
      *
      * @param mixed $element The element to test
@@ -1194,19 +1075,138 @@ class CentreonMetric extends CentreonWebService
     }
 
     /**
-     * Authorize to access to the action
+     * Check acl for user
      *
-     * @param string $action The action name
-     * @param array $user The current user
-     * @param bool $isInternal If the api is call in internal
+     * @param int $hostId Host id to check
+     * @param int $serviceId Service id to check
+     * @param array|null $aclGroups String with user acl groups
+     * @param bool $isAdmin User is admin or not
      *
-     * @return bool If the user has access to the action
+     * @throws PDOException
+     * @return bool if the user is allowed to get service information
      */
-    public function authorize($action, $user, $isInternal = false)
+    private function checkAcl($hostId, $serviceId, ?array $aclGroups, $isAdmin = true): bool
     {
-        return (bool) (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->hasAccessRestApiRealtime())
-        );
+        if (! $isAdmin) {
+            $query = 'SELECT service_id '
+                . 'FROM centreon_acl '
+                . 'WHERE host_id = :hostId '
+                . 'AND service_id = :serviceId '
+                . 'AND group_id IN (' . $aclGroups . ')';
+
+            $stmt = $this->pearDBMonitoring->prepare($query);
+            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $stmt->bindParam(':serviceId', $serviceId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+            if (! $dbResult || $stmt->rowCount() === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get array builded from arguments
+     *
+     * @param string $services List of services (like hostId_serviceId,hostId2_serviceId2,...)
+     * @param string $metrics List of metrics (like metricId,metricId2,...)
+     *
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @return array
+     */
+    private function manageMetricsDataArguments($services, $metrics)
+    {
+        global $centreon;
+
+        $userId = $centreon->user->user_id;
+        $isAdmin = $centreon->user->admin;
+        $aclGroups = null;
+
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
+            $acl = new CentreonACL($userId, $isAdmin);
+            $aclGroups = $acl->getAccessGroupsString();
+        }
+
+        if (
+            ! isset($this->arguments['start']) || ! is_numeric($this->arguments['start'])
+            || ! isset($this->arguments['end']) || ! is_numeric($this->arguments['end'])
+        ) {
+            throw new RestBadRequestException('Bad parameters');
+        }
+
+        /*
+         * Format:
+         *    {
+         *      "hostId_serviceId": {}, # no metricsId means: all metrics
+         *      "hostId2_serviceId2: { "metricId": 1, "metricId2": 1 }
+         *    }
+         */
+        $selectedMetrics = [];
+        if (is_string($services) && strlen($services) > 0) {
+            foreach (explode(',', $services) as $service) {
+                [$hostId, $serviceId] = explode('_', $service);
+                if (! is_numeric($hostId) || ! is_numeric($serviceId)) {
+                    continue;
+                }
+                if (isset($selectedMetrics[$service])) {
+                    continue;
+                }
+
+                if (! $this->checkAcl($hostId, $serviceId, $aclGroups, $isAdmin)) {
+                    continue;
+                }
+                $selectedMetrics[$service] = [];
+            }
+        }
+
+        if (is_string($metrics) && strlen($metrics) > 0) {
+            $filter = '';
+            $filterAppend = '';
+            $queryValues = [];
+            foreach (explode(',', $metrics) as $metricId) {
+                if (! is_numeric($metricId)) {
+                    continue;
+                }
+                $filter .= $filterAppend . ' :metric' . $metricId;
+                $queryValues[':metric' . $metricId] = $metricId;
+                $filterAppend = ',';
+            }
+
+            if ($filter === '') {
+                return $selectedMetrics;
+            }
+
+            $stmt = $this->pearDBMonitoring->prepare(
+                'SELECT metric_id, host_id, service_id
+                 FROM metrics, index_data
+                 WHERE metrics.metric_id IN (' . $filter . ')
+                 AND metrics.index_id = index_data.id'
+            );
+            foreach ($queryValues as $param => $value) {
+                $stmt->bindValue($param, $value, PDO::PARAM_INT);
+            }
+            $stmt->execute();
+
+            while ($row = $stmt->fetch()) {
+                if (
+                    isset($selectedMetrics[$row['host_id'] . '_' . $row['service_id']])
+                    && count($selectedMetrics[$row['host_id'] . '_' . $row['service_id']]) <= 0
+                ) {
+                    continue;
+                }
+                if (! isset($selectedMetrics[$row['host_id'] . '_' . $row['service_id']])) {
+                    if (! $this->checkAcl($row['host_id'], $row['service_id'], $aclGroups, $isAdmin)) {
+                        continue;
+                    }
+                    $selectedMetrics[$row['host_id'] . '_' . $row['service_id']] = [];
+                }
+                $selectedMetrics[$row['host_id'] . '_' . $row['service_id']][$row['metric_id']] = 1;
+            }
+        }
+
+        return $selectedMetrics;
     }
 }

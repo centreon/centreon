@@ -66,6 +66,37 @@ class Proxy
     }
 
     /**
+     * **Available formats:**
+     *
+     * <<procotol>>://<<user>>:<<password>>@<<url>>:<<port>>
+     *
+     * <<procotol>>://<<user>>:<<password>>@<<url>>
+     *
+     * <<procotol>>://<<url>>:<<port>>
+     *
+     * <<procotol>>://<<url>>
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        $uri = '';
+        if (! empty($this->url)) {
+            $uri .= $this->protocol;
+            if (! empty($this->user)) {
+                $uri .= $this->user . ':' . $this->password . '@';
+            }
+            if (! empty($this->port) && $this->port > 0 && $this->port < 65536) {
+                $uri .= $this->url . ':' . $this->port;
+            } else {
+                $uri .= $this->url;
+            }
+        }
+
+        return $uri;
+    }
+
+    /**
      * @return string|null
      */
     public function getUrl(): ?string
@@ -178,36 +209,5 @@ class Proxy
         $this->protocol = $protocol;
 
         return $this;
-    }
-
-    /**
-     * **Available formats:**
-     *
-     * <<procotol>>://<<user>>:<<password>>@<<url>>:<<port>>
-     *
-     * <<procotol>>://<<user>>:<<password>>@<<url>>
-     *
-     * <<procotol>>://<<url>>:<<port>>
-     *
-     * <<procotol>>://<<url>>
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        $uri = '';
-        if (! empty($this->url)) {
-            $uri .= $this->protocol;
-            if (! empty($this->user)) {
-                $uri .= $this->user . ':' . $this->password . '@';
-            }
-            if (! empty($this->port) && $this->port > 0 && $this->port < 65536) {
-                $uri .= $this->url . ':' . $this->port;
-            } else {
-                $uri .= $this->url;
-            }
-        }
-
-        return $uri;
     }
 }

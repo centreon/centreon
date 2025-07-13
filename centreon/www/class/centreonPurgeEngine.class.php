@@ -85,6 +85,33 @@ class CentreonPurgeEngine
      * @throws Exception
      * @return void
      */
+    public function purge(): void
+    {
+        foreach ($this->tablesToPurge as $table => $parameters) {
+            if ($parameters['retention'] > 0) {
+                echo '[' . date(DATE_RFC822) . '] Purging table ' . $table . "...\n";
+                if ($parameters['is_partitioned']) {
+                    $this->purgeParts($table);
+                } else {
+                    $this->purgeOldData($table);
+                }
+                echo '[' . date(DATE_RFC822) . '] Table ' . $table . " purged\n";
+            }
+        }
+
+        echo '[' . date(DATE_RFC822) . "] Purging index_data...\n";
+        $this->purgeIndexData();
+        echo '[' . date(DATE_RFC822) . "] index_data purged\n";
+
+        echo '[' . date(DATE_RFC822) . "] Purging log_action_modification...\n";
+        $this->purgeLogActionModification();
+        echo '[' . date(DATE_RFC822) . "] log_action_modification purged\n";
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
     private function readConfig(): void
     {
         $query = 'SELECT len_storage_mysql,archive_retention,reporting_retention, '
@@ -138,33 +165,6 @@ class CentreonPurgeEngine
                 }
             }
         }
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function purge(): void
-    {
-        foreach ($this->tablesToPurge as $table => $parameters) {
-            if ($parameters['retention'] > 0) {
-                echo '[' . date(DATE_RFC822) . '] Purging table ' . $table . "...\n";
-                if ($parameters['is_partitioned']) {
-                    $this->purgeParts($table);
-                } else {
-                    $this->purgeOldData($table);
-                }
-                echo '[' . date(DATE_RFC822) . '] Table ' . $table . " purged\n";
-            }
-        }
-
-        echo '[' . date(DATE_RFC822) . "] Purging index_data...\n";
-        $this->purgeIndexData();
-        echo '[' . date(DATE_RFC822) . "] index_data purged\n";
-
-        echo '[' . date(DATE_RFC822) . "] Purging log_action_modification...\n";
-        $this->purgeLogActionModification();
-        echo '[' . date(DATE_RFC822) . "] log_action_modification purged\n";
     }
 
     /**

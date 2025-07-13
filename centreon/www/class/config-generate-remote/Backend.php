@@ -41,9 +41,6 @@ if ($configFile !== false) {
  */
 class Backend
 {
-    /** @var Backend|null */
-    private static $instance = null;
-
     /** @var string */
     public $generatePath;
 
@@ -58,6 +55,9 @@ class Backend
 
     /** @var CentreonDB|null */
     public $dbCs = null;
+
+    /** @var Backend|null */
+    private static $instance = null;
 
     /** @var string[] */
     private $subdirs = ['configuration', 'media'];
@@ -121,34 +121,6 @@ class Backend
         }
 
         return self::$instance;
-    }
-
-    /**
-     * Delete directory recursively
-     *
-     * @param string $path
-     * @param bool $onlyContent if set to false, do not delete directory itself
-     * @return bool
-     */
-    private function deleteDir(?string $path, bool $onlyContent = false): bool
-    {
-        if (is_dir($path)) {
-            $files = array_diff(scandir($path), ['.', '..']);
-            foreach ($files as $file) {
-                $this->deleteDir(realpath($path) . '/' . $file);
-            }
-
-            if (! $onlyContent) {
-                return rmdir($path);
-            }
-
-            return true;
-        }
-        if (is_file($path)) {
-            return unlink($path);
-        }
-
-        return false;
     }
 
     /**
@@ -358,5 +330,33 @@ class Backend
         }
 
         throw new Exception('Cannot get central poller id');
+    }
+
+    /**
+     * Delete directory recursively
+     *
+     * @param string $path
+     * @param bool $onlyContent if set to false, do not delete directory itself
+     * @return bool
+     */
+    private function deleteDir(?string $path, bool $onlyContent = false): bool
+    {
+        if (is_dir($path)) {
+            $files = array_diff(scandir($path), ['.', '..']);
+            foreach ($files as $file) {
+                $this->deleteDir(realpath($path) . '/' . $file);
+            }
+
+            if (! $onlyContent) {
+                return rmdir($path);
+            }
+
+            return true;
+        }
+        if (is_file($path)) {
+            return unlink($path);
+        }
+
+        return false;
     }
 }

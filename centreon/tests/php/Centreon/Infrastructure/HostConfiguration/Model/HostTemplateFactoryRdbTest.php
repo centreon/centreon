@@ -32,8 +32,6 @@ use PHPUnit\Framework\TestCase;
  */
 class HostTemplateFactoryRdbTest extends TestCase
 {
-    /** @var array<string, string|int> */
-    private $rdbData;
     private const ALL_NOTIFICATION_OPTIONS
         = HostTemplate::NOTIFICATION_OPTION_DOWN
         | HostTemplate::NOTIFICATION_OPTION_UNREACHABLE
@@ -44,6 +42,9 @@ class HostTemplateFactoryRdbTest extends TestCase
         = HostTemplate::STALKING_OPTION_UP
         | HostTemplate::STALKING_OPTION_DOWN
         | HostTemplate::STALKING_OPTION_UNREACHABLE;
+
+    /** @var array<string, string|int> */
+    private $rdbData;
 
     protected function setUp(): void
     {

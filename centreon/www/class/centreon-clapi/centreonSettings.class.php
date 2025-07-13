@@ -73,17 +73,6 @@ class CentreonSettings extends CentreonObject
     }
 
     /**
-     * Display unsupported method
-     *
-     * @param string $method
-     * @return void
-     */
-    protected function unsupportedMethod($method)
-    {
-        echo sprintf("The %s method is not supported on this object\n", $method);
-    }
-
-    /**
      * @param null $params
      * @param array $filters
      *
@@ -168,6 +157,17 @@ class CentreonSettings extends CentreonObject
         }
 
         $this->db->query('UPDATE `options` SET `value` = ? WHERE `key` = ?', [$value, $key]);
+    }
+
+    /**
+     * Display unsupported method
+     *
+     * @param string $method
+     * @return void
+     */
+    protected function unsupportedMethod($method)
+    {
+        echo sprintf("The %s method is not supported on this object\n", $method);
     }
 
     /**

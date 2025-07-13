@@ -169,6 +169,7 @@ class PhpCsFixerRuleSet
             'types_spaces' => true,
             'whitespace_after_comma_in_array' => true,
             'yoda_style' => false,
+            'ordered_class_elements' => true,
         ];
     }
 

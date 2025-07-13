@@ -35,15 +35,6 @@ use Pimple\Container;
  */
 class MacroService extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $macroServiceCache = [];
-
     /** @var PDOStatement|null */
     protected $stmtService = null;
 
@@ -62,6 +53,15 @@ class MacroService extends AbstractObject
         'description',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $macroServiceCache = [];
+
     /**
      * MacroService constructor
      *
@@ -71,51 +71,6 @@ class MacroService extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of service macros
-     *
-     * @return void
-     */
-    private function cacheMacroService(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT svc_macro_id, svc_svc_id, svc_macro_name, svc_macro_value, is_password, description
-            FROM on_demand_macro_service'
-        );
-        $stmt->execute();
-        while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            if (! isset($this->macroServiceCache[$macro['svc_svc_id']])) {
-                $this->macroServiceCache[$macro['svc_svc_id']] = [];
-            }
-            $this->macroServiceCache[$macro['svc_svc_id']][$macro['svc_macro_id']] = [
-                'svc_svc_id' => $macro['svc_svc_id'],
-                'svc_macro_name' => $macro['svc_macro_name'],
-                'svc_macro_value' => $macro['svc_macro_value'],
-                'is_password' => $macro['is_password'],
-                'description' => $macro['description'],
-            ];
-        }
-    }
-
-    /**
-     * Generate service macros
-     *
-     * @param int $serviceId
-     *
-     * @throws Exception
-     * @return null|void
-     */
-    private function writeMacrosService(int $serviceId)
-    {
-        if ($this->checkGenerate($serviceId)) {
-            return null;
-        }
-
-        foreach ($this->macroServiceCache[$serviceId] as $value) {
-            $this->generateObjectInFile($value, $serviceId);
-        }
     }
 
     /**
@@ -163,6 +118,51 @@ class MacroService extends AbstractObject
         $this->writeMacrosService($serviceId);
 
         return $this->macroServiceCache[$serviceId];
+    }
+
+    /**
+     * Build cache of service macros
+     *
+     * @return void
+     */
+    private function cacheMacroService(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT svc_macro_id, svc_svc_id, svc_macro_name, svc_macro_value, is_password, description
+            FROM on_demand_macro_service'
+        );
+        $stmt->execute();
+        while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
+            if (! isset($this->macroServiceCache[$macro['svc_svc_id']])) {
+                $this->macroServiceCache[$macro['svc_svc_id']] = [];
+            }
+            $this->macroServiceCache[$macro['svc_svc_id']][$macro['svc_macro_id']] = [
+                'svc_svc_id' => $macro['svc_svc_id'],
+                'svc_macro_name' => $macro['svc_macro_name'],
+                'svc_macro_value' => $macro['svc_macro_value'],
+                'is_password' => $macro['is_password'],
+                'description' => $macro['description'],
+            ];
+        }
+    }
+
+    /**
+     * Generate service macros
+     *
+     * @param int $serviceId
+     *
+     * @throws Exception
+     * @return null|void
+     */
+    private function writeMacrosService(int $serviceId)
+    {
+        if ($this->checkGenerate($serviceId)) {
+            return null;
+        }
+
+        foreach ($this->macroServiceCache[$serviceId] as $value) {
+            $this->generateObjectInFile($value, $serviceId);
+        }
     }
 
     /**

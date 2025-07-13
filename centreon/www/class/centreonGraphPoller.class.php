@@ -128,44 +128,6 @@ class centreonGraphPoller
     }
 
     /**
-     * Init graph titles
-     *
-     * @return void
-     */
-    private function initGraphOptions(): void
-    {
-        $this->title = ['active_host_check' => _('Host Check Execution Time'), 'active_host_last' => _('Hosts Actively Checked'), 'host_latency' => _('Host check latency'), 'active_service_check' => _('Service Check Execution Time'), 'active_service_last' => _('Services Actively Checked'), 'service_latency' => _('Service check latency'), 'cmd_buffer' => _('Commands in buffer'), 'host_states' => _('Host status'), 'service_states' => _('Service status')];
-
-        $this->colors = ['Min' => '#88b917', 'Max' => '#e00b3d', 'Average' => '#00bfb3', 'Last_Min' => '#00bfb3', 'Last_5_Min' => '#88b917', 'Last_15_Min' => '#ff9a13', 'Last_Hour' => '#F91D05', 'Up' => '#88b917', 'Down' => '#e00b3d', 'Unreach' => '#818285', 'Ok' => '#88b917', 'Warn' => '#ff9a13', 'Crit' => '#F91D05', 'Unk' => '#bcbdc0', 'In_Use' => '#88b917', 'Max_Used' => '#F91D05', 'Total_Available' => '#00bfb3'];
-
-        $this->options = ['active_host_check' => 'nagios_active_host_execution.rrd', 'active_host_last' => 'nagios_active_host_last.rrd', 'host_latency' => 'nagios_active_host_latency.rrd', 'active_service_check' => 'nagios_active_service_execution.rrd', 'active_service_last' => 'nagios_active_service_last.rrd', 'service_latency' => 'nagios_active_service_latency.rrd', 'cmd_buffer' => 'nagios_cmd_buffer.rrd', 'host_states' => 'nagios_hosts_states.rrd', 'service_states' => 'nagios_services_states.rrd'];
-
-        $this->differentStats = ['nagios_active_host_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_host_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_host_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_service_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_cmd_buffer.rrd' => ['In_Use', 'Max_Used', 'Total_Available'], 'nagios_hosts_states.rrd' => ['Up', 'Down', 'Unreach'], 'nagios_services_states.rrd' => ['Ok', 'Warn', 'Crit', 'Unk']];
-    }
-
-    /**
-     * Get rrdtool options
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function initRrd(): void
-    {
-        $DBRESULT = $this->db->query('SELECT * FROM `options`');
-
-        $this->generalOpt = [];
-        while ($option = $DBRESULT->fetch()) {
-            $this->generalOpt[$option['key']] = $option['value'];
-        }
-        $DBRESULT->closeCursor();
-
-        $DBRESULT2 = $this->dbMonitoring->query('SELECT RRDdatabase_nagios_stats_path FROM config');
-        $nagiosStats = $DBRESULT2->fetch();
-        $this->nagiosStatsPath = $nagiosStats['RRDdatabase_nagios_stats_path'];
-        $DBRESULT2->closeCursor();
-    }
-
-    /**
      * @return string
      */
     public function getGraphName()
@@ -207,25 +169,6 @@ class centreonGraphPoller
             $value = "'" . $value . "'";
         }
         $this->rrdOptions[$name] = $value;
-    }
-
-    /**
-     * Log message
-     *
-     * @param string $message
-     *
-     * @return void
-     */
-    private function log($message): void
-    {
-        if ($this->generalOpt['debug_rrdtool']
-            && is_writable($this->generalOpt['debug_path'])) {
-            error_log(
-                '[' . date('d/m/Y H:i') . '] RDDTOOL : ' . $message . " \n",
-                3,
-                $this->generalOpt['debug_path'] . 'rrdtool.log'
-            );
-        }
     }
 
     /**
@@ -282,6 +225,63 @@ class centreonGraphPoller
         $this->buildCommandLine($start, $end);
 
         return $this->getJsonStream();
+    }
+
+    /**
+     * Init graph titles
+     *
+     * @return void
+     */
+    private function initGraphOptions(): void
+    {
+        $this->title = ['active_host_check' => _('Host Check Execution Time'), 'active_host_last' => _('Hosts Actively Checked'), 'host_latency' => _('Host check latency'), 'active_service_check' => _('Service Check Execution Time'), 'active_service_last' => _('Services Actively Checked'), 'service_latency' => _('Service check latency'), 'cmd_buffer' => _('Commands in buffer'), 'host_states' => _('Host status'), 'service_states' => _('Service status')];
+
+        $this->colors = ['Min' => '#88b917', 'Max' => '#e00b3d', 'Average' => '#00bfb3', 'Last_Min' => '#00bfb3', 'Last_5_Min' => '#88b917', 'Last_15_Min' => '#ff9a13', 'Last_Hour' => '#F91D05', 'Up' => '#88b917', 'Down' => '#e00b3d', 'Unreach' => '#818285', 'Ok' => '#88b917', 'Warn' => '#ff9a13', 'Crit' => '#F91D05', 'Unk' => '#bcbdc0', 'In_Use' => '#88b917', 'Max_Used' => '#F91D05', 'Total_Available' => '#00bfb3'];
+
+        $this->options = ['active_host_check' => 'nagios_active_host_execution.rrd', 'active_host_last' => 'nagios_active_host_last.rrd', 'host_latency' => 'nagios_active_host_latency.rrd', 'active_service_check' => 'nagios_active_service_execution.rrd', 'active_service_last' => 'nagios_active_service_last.rrd', 'service_latency' => 'nagios_active_service_latency.rrd', 'cmd_buffer' => 'nagios_cmd_buffer.rrd', 'host_states' => 'nagios_hosts_states.rrd', 'service_states' => 'nagios_services_states.rrd'];
+
+        $this->differentStats = ['nagios_active_host_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_host_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_host_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_execution.rrd' => ['Min', 'Max', 'Average'], 'nagios_active_service_last.rrd' => ['Last_Min', 'Last_5_Min', 'Last_15_Min', 'Last_Hour'], 'nagios_active_service_latency.rrd' => ['Min', 'Max', 'Average'], 'nagios_cmd_buffer.rrd' => ['In_Use', 'Max_Used', 'Total_Available'], 'nagios_hosts_states.rrd' => ['Up', 'Down', 'Unreach'], 'nagios_services_states.rrd' => ['Ok', 'Warn', 'Crit', 'Unk']];
+    }
+
+    /**
+     * Get rrdtool options
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function initRrd(): void
+    {
+        $DBRESULT = $this->db->query('SELECT * FROM `options`');
+
+        $this->generalOpt = [];
+        while ($option = $DBRESULT->fetch()) {
+            $this->generalOpt[$option['key']] = $option['value'];
+        }
+        $DBRESULT->closeCursor();
+
+        $DBRESULT2 = $this->dbMonitoring->query('SELECT RRDdatabase_nagios_stats_path FROM config');
+        $nagiosStats = $DBRESULT2->fetch();
+        $this->nagiosStatsPath = $nagiosStats['RRDdatabase_nagios_stats_path'];
+        $DBRESULT2->closeCursor();
+    }
+
+    /**
+     * Log message
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    private function log($message): void
+    {
+        if ($this->generalOpt['debug_rrdtool']
+            && is_writable($this->generalOpt['debug_path'])) {
+            error_log(
+                '[' . date('d/m/Y H:i') . '] RDDTOOL : ' . $message . " \n",
+                3,
+                $this->generalOpt['debug_path'] . 'rrdtool.log'
+            );
+        }
     }
 
     /**

@@ -46,6 +46,22 @@ class AbstractRepositoryDRB
     protected ConnectionInterface $db;
 
     /**
+     * Formats the access group ids in string. (values are separated by coma)
+     *
+     * @param AccessGroup[] $accessGroups
+     * @return string
+     */
+    public function accessGroupIdToString(array $accessGroups): string
+    {
+        $ids = [];
+        foreach ($accessGroups as $accessGroup) {
+            $ids[] = $accessGroup->getId();
+        }
+
+        return implode(',', $ids);
+    }
+
+    /**
      * Replace all instances of :dbstg and :db by the real db names.
      * The table names of the database are defined in the services.yaml
      * configuration file.
@@ -60,22 +76,6 @@ class AbstractRepositoryDRB
             [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
-    }
-
-    /**
-     * Formats the access group ids in string. (values are separated by coma)
-     *
-     * @param AccessGroup[] $accessGroups
-     * @return string
-     */
-    public function accessGroupIdToString(array $accessGroups): string
-    {
-        $ids = [];
-        foreach ($accessGroups as $accessGroup) {
-            $ids[] = $accessGroup->getId();
-        }
-
-        return implode(',', $ids);
     }
 
     /**

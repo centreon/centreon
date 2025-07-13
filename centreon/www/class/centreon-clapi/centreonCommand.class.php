@@ -403,23 +403,6 @@ class CentreonCommand extends CentreonObject
     }
 
     /**
-     * Get clapi action name from db column name
-     *
-     * @param string $columnName
-     * @return string
-     */
-    protected function getClapiActionName($columnName)
-    {
-        static $table;
-
-        if (! isset($table)) {
-            $table = ['graph_id' => 'graph'];
-        }
-
-        return $table[$columnName] ?? $columnName;
-    }
-
-    /**
      * This method gat the list of command containt a specific macro
      *
      * @param int $iIdCommand
@@ -500,6 +483,23 @@ class CentreonCommand extends CentreonObject
         }
 
         return $aReturn;
+    }
+
+    /**
+     * Get clapi action name from db column name
+     *
+     * @param string $columnName
+     * @return string
+     */
+    protected function getClapiActionName($columnName)
+    {
+        static $table;
+
+        if (! isset($table)) {
+            $table = ['graph_id' => 'graph'];
+        }
+
+        return $table[$columnName] ?? $columnName;
     }
 
     /**

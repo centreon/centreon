@@ -61,19 +61,6 @@ class CentreonHostgroups
     }
 
     /**
-     * Returns a filtered array with only integer ids
-     *
-     * @param int[] $ids
-     * @return int[] filtered
-     */
-    private function filteredArrayId(array $ids): array
-    {
-        return array_filter($ids, function ($id) {
-            return is_numeric($id);
-        });
-    }
-
-    /**
      * @param string|int|null $hg_id
      *
      * @throws PDOException
@@ -244,24 +231,6 @@ class CentreonHostgroups
     }
 
     /**
-     * @throws PDOException
-     * @return void
-     */
-    private function setHgHgCache(): void
-    {
-        $this->relationCache = [];
-        $DBRESULT = $this->DB->query('SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation');
-        while ($data = $DBRESULT->fetchRow()) {
-            if (! isset($this->relationCache[$data['hg_parent_id']])) {
-                $this->relationCache[$data['hg_parent_id']] = [];
-            }
-            $this->relationCache[$data['hg_parent_id']][$data['hg_child_id']] = 1;
-        }
-        $DBRESULT->closeCursor();
-        unset($data);
-    }
-
-    /**
      * @param $DB
      *
      * @throws PDOException
@@ -282,14 +251,6 @@ class CentreonHostgroups
         $DBRESULT->closeCursor();
 
         return $hostgroups;
-    }
-
-    /**
-     * @return void
-     */
-    private function unsetCache(): void
-    {
-        $this->dataTree = [];
     }
 
     /**
@@ -412,5 +373,44 @@ class CentreonHostgroups
         }
 
         return $hostList;
+    }
+
+    /**
+     * Returns a filtered array with only integer ids
+     *
+     * @param int[] $ids
+     * @return int[] filtered
+     */
+    private function filteredArrayId(array $ids): array
+    {
+        return array_filter($ids, function ($id) {
+            return is_numeric($id);
+        });
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function setHgHgCache(): void
+    {
+        $this->relationCache = [];
+        $DBRESULT = $this->DB->query('SELECT /* SQL_CACHE */ hg_parent_id, hg_child_id FROM hostgroup_hg_relation');
+        while ($data = $DBRESULT->fetchRow()) {
+            if (! isset($this->relationCache[$data['hg_parent_id']])) {
+                $this->relationCache[$data['hg_parent_id']] = [];
+            }
+            $this->relationCache[$data['hg_parent_id']][$data['hg_child_id']] = 1;
+        }
+        $DBRESULT->closeCursor();
+        unset($data);
+    }
+
+    /**
+     * @return void
+     */
+    private function unsetCache(): void
+    {
+        $this->dataTree = [];
     }
 }

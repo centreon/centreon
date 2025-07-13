@@ -33,9 +33,6 @@ use PDO;
  */
 class TimePeriod extends AbstractObject
 {
-    /** @var null */
-    private $timeperiods = null;
-
     /** @var string */
     protected $table = 'timeperiod';
 
@@ -76,6 +73,9 @@ class TimePeriod extends AbstractObject
         'exclude' => null,
     ];
 
+    /** @var null */
+    private $timeperiods = null;
+
     /**
      * Build cache of timeperiods
      *
@@ -87,30 +87,6 @@ class TimePeriod extends AbstractObject
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Get timeperiod exceptions from id
-     *
-     * @param int $timeperiodId
-     * @return void|int
-     */
-    protected function getTimeperiodExceptionFromId(int $timeperiodId)
-    {
-        if (isset($this->timeperiods[$timeperiodId]['exceptions'])) {
-            return 1;
-        }
-
-        $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId';
-        $stmt = $this->backendInstance->db->prepare($query);
-        $stmt->bindParam(':timeperiodId', $timeperiodId, PDO::PARAM_INT);
-        $stmt->execute();
-        $exceptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($exceptions as $exception) {
-            $exception['timeperiod_id'] = $timeperiodId;
-            Relations\TimePeriodExceptions::getInstance($this->dependencyInjector)->add($exception, $timeperiodId);
-        }
     }
 
     /**
@@ -143,5 +119,29 @@ class TimePeriod extends AbstractObject
         $this->generateObjectInFile($this->timeperiods[$timeperiodId], $timeperiodId);
 
         return $this->timeperiods[$timeperiodId]['tp_name'];
+    }
+
+    /**
+     * Get timeperiod exceptions from id
+     *
+     * @param int $timeperiodId
+     * @return void|int
+     */
+    protected function getTimeperiodExceptionFromId(int $timeperiodId)
+    {
+        if (isset($this->timeperiods[$timeperiodId]['exceptions'])) {
+            return 1;
+        }
+
+        $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId';
+        $stmt = $this->backendInstance->db->prepare($query);
+        $stmt->bindParam(':timeperiodId', $timeperiodId, PDO::PARAM_INT);
+        $stmt->execute();
+        $exceptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($exceptions as $exception) {
+            $exception['timeperiod_id'] = $timeperiodId;
+            Relations\TimePeriodExceptions::getInstance($this->dependencyInjector)->add($exception, $timeperiodId);
+        }
     }
 }

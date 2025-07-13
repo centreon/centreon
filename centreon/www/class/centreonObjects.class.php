@@ -42,9 +42,6 @@
  */
 class CentreonObjects
 {
-    /** @var CentreonDB */
-    private $DB;
-
     /** @var array */
     public $hosts;
 
@@ -59,6 +56,9 @@ class CentreonObjects
 
     /** @var array */
     public $commandes;
+
+    /** @var CentreonDB */
+    private $DB;
 
     /**
      * CentreonObjects constructor

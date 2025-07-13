@@ -52,14 +52,14 @@ class CentreonWidgetParamsException extends Exception
  */
 abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
 {
-    /** @var */
-    protected static $instances;
-
     /** @var int */
     public $userId;
 
     /** @var mixed */
     public $element;
+
+    /** @var */
+    protected static $instances;
 
     /** @var CentreonDB */
     protected $db;
@@ -108,40 +108,6 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
         }
         $this->acl = new CentreonACL($userId);
         $this->monitoringDb = new CentreonDB('centstorage');
-    }
-
-    /**
-     * Get User Preferences
-     *
-     * @param array $params
-     *
-     * @throws PDOException
-     * @return mixed
-     */
-    protected function getUserPreferences($params)
-    {
-        $query = 'SELECT preference_value
-                  FROM widget_preferences wp, widget_views wv, custom_view_user_relation cvur
-                  WHERE wp.parameter_id = ' . $this->db->escape($params['parameter_id']) . '
-                  AND wp.widget_view_id = wv.widget_view_id
-                  AND wv.widget_id = ' . $this->db->escape($params['widget_id']) . '
-                  AND wv.custom_view_id = cvur.custom_view_id
-                  AND wp.user_id = ' . $this->db->escape($this->userId) . '
-                  AND (cvur.user_id = wp.user_id';
-        if (count($this->userGroups)) {
-            $cglist = implode(',', $this->userGroups);
-            $query .= " OR cvur.usergroup_id IN ({$cglist}) ";
-        }
-        $query .= ') AND cvur.custom_view_id = ' . $this->db->escape($params['custom_view_id']) . '
-                                  LIMIT 1';
-        $res = $this->db->query($query);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-
-            return $row['preference_value'];
-        }
-
-        return null;
     }
 
     /**
@@ -236,5 +202,39 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     public function getTrigger()
     {
         return $this->trigger;
+    }
+
+    /**
+     * Get User Preferences
+     *
+     * @param array $params
+     *
+     * @throws PDOException
+     * @return mixed
+     */
+    protected function getUserPreferences($params)
+    {
+        $query = 'SELECT preference_value
+                  FROM widget_preferences wp, widget_views wv, custom_view_user_relation cvur
+                  WHERE wp.parameter_id = ' . $this->db->escape($params['parameter_id']) . '
+                  AND wp.widget_view_id = wv.widget_view_id
+                  AND wv.widget_id = ' . $this->db->escape($params['widget_id']) . '
+                  AND wv.custom_view_id = cvur.custom_view_id
+                  AND wp.user_id = ' . $this->db->escape($this->userId) . '
+                  AND (cvur.user_id = wp.user_id';
+        if (count($this->userGroups)) {
+            $cglist = implode(',', $this->userGroups);
+            $query .= " OR cvur.usergroup_id IN ({$cglist}) ";
+        }
+        $query .= ') AND cvur.custom_view_id = ' . $this->db->escape($params['custom_view_id']) . '
+                                  LIMIT 1';
+        $res = $this->db->query($query);
+        if ($res->rowCount()) {
+            $row = $res->fetchRow();
+
+            return $row['preference_value'];
+        }
+
+        return null;
     }
 }

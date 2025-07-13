@@ -187,6 +187,20 @@ class Engine extends AbstractObject
     protected $stmtEngine = null;
 
     /**
+     * Generate engine configuration from poller
+     *
+     * @param array $poller
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function generateFromPoller(array $poller): void
+    {
+        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
+        $this->generate($poller['id']);
+    }
+
+    /**
      * Generate engine configuration from poller id
      *
      * @param int $pollerId
@@ -217,19 +231,5 @@ class Engine extends AbstractObject
             $this->engine,
             $pollerId
         );
-    }
-
-    /**
-     * Generate engine configuration from poller
-     *
-     * @param array $poller
-     *
-     * @throws Exception
-     * @return void
-     */
-    public function generateFromPoller(array $poller): void
-    {
-        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
-        $this->generate($poller['id']);
     }
 }
