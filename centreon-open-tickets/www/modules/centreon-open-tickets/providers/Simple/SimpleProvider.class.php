@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016-2019 Centreon (http://www.centreon.com/)
  *
@@ -71,6 +72,7 @@ class SimpleProvider extends AbstractProvider
     {
         $result = ['code' => 0, 'message' => 'ok'];
         $this->validateFormatPopupLists($result);
+
         return $result;
     }
 
@@ -83,6 +85,7 @@ class SimpleProvider extends AbstractProvider
             $result,
             ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems]
         );
+
         return $result;
     }
 }
