@@ -81,4 +81,3 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
         }
     }
 }
-
