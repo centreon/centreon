@@ -158,7 +158,7 @@ final class FindResourcesRequestValidator
     public function __construct(\Traversable $resourceTypes)
     {
         $this->resourceTypes = array_map(
-            static fn(ResourceTypeInterface $resourceType): string => $resourceType->getName(),
+            static fn (ResourceTypeInterface $resourceType): string => $resourceType->getName(),
             iterator_to_array($resourceTypes)
         );
 

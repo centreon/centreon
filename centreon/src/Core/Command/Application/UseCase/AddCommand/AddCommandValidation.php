@@ -63,7 +63,7 @@ class AddCommandValidation
      */
     public function assertAreValidArguments(AddCommandRequest $request): void
     {
-        $argumentNames = array_unique(array_map(fn(ArgumentDto $arg) => $arg->name, $request->arguments));
+        $argumentNames = array_unique(array_map(fn (ArgumentDto $arg) => $arg->name, $request->arguments));
 
         preg_match_all('/\$(?<args>ARG\d+)\$/', $request->commandLine, $matches);
         $commandArguments = array_unique($matches['args']);

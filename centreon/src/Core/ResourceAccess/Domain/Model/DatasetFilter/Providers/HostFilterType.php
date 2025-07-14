@@ -45,4 +45,3 @@ class HostFilterType extends AbstractDatasetFilterType
         return true;
     }
 }
-

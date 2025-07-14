@@ -82,7 +82,8 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    public function validateTimePeriod(int $timePeriodId): void {
+    public function validateTimePeriod(int $timePeriodId): void
+    {
         if (false === $this->readTimePeriodRepository->exists($timePeriodId)) {
             $this->error('Time period does not exist', ['timePeriodId' => $timePeriodId]);
 
@@ -132,7 +133,8 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(array $contactGroupIds): void {
+    private function validateContactGroups(array $contactGroupIds): void
+    {
         $contactGroupIds = array_unique($contactGroupIds);
 
         if ($this->currentContact->isAdmin()) {

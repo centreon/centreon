@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use FOS\RestBundle\View\View;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindMetaServicesConfigurations;
 use Centreon\Domain\MetaServiceConfiguration\UseCase\V2110\FindOneMetaServiceConfiguration;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\MetaServiceConfiguration\API\Model\MetaServiceConfigurationV2110Factory;
+use FOS\RestBundle\View\View;
 
 /**
  * This class is designed to provide APIs for the context of meta service configuration.
@@ -40,8 +40,8 @@ class MetaServiceConfigurationController extends AbstractController
      * @param RequestParametersInterface $requestParameters
      * @param FindOneMetaServiceConfiguration $findMetaServiceConfiguration
      * @param int $metaId
-     * @return View
      * @throws MetaServiceConfigurationException
+     * @return View
      */
     public function findOneMetaServiceConfiguration(
         RequestParametersInterface $requestParameters,
@@ -50,10 +50,11 @@ class MetaServiceConfigurationController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetaServiceConfiguration->execute($metaId);
+
         return $this->view(
             [
                 'result' => MetaServiceConfigurationV2110Factory::createOneFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }
@@ -61,8 +62,8 @@ class MetaServiceConfigurationController extends AbstractController
     /**
      * @param RequestParametersInterface $requestParameters
      * @param FindMetaServicesConfigurations $findMetasServicesConfigurations
-     * @return View
      * @throws MetaServiceConfigurationException
+     * @return View
      */
     public function findMetaServicesConfigurations(
         RequestParametersInterface $requestParameters,
@@ -70,10 +71,11 @@ class MetaServiceConfigurationController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $response = $findMetasServicesConfigurations->execute();
+
         return $this->view(
             [
                 'result' => MetaServiceConfigurationV2110Factory::createAllFromResponse($response),
-                'meta' => $requestParameters->toArray()
+                'meta' => $requestParameters->toArray(),
             ]
         );
     }

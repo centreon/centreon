@@ -33,125 +33,83 @@ use Centreon\Domain\Service\EntityDescriptorMetadataInterface;
 class Downtime implements EntityDescriptorMetadataInterface
 {
     public const DOWNTIME_YEAR_MAX = 2100;
+
     // Groups for serialization
     public const SERIALIZER_GROUPS_MAIN = ['Default', 'downtime_host'];
     public const SERIALIZER_GROUPS_SERVICE = ['Default', 'downtime_service'];
     public const SERIALIZER_GROUPS_RESOURCE_DOWNTIME = ['resource_dt'];
 
-    //Groups for validation
+    // Groups for validation
     public const VALIDATION_GROUP_DT_RESOURCE = ['resource_dt'];
 
     // Types
     public const TYPE_HOST_DOWNTIME = 0;
     public const TYPE_SERVICE_DOWNTIME = 1;
 
-    /**
-     * @var int|null Unique id
-     */
+    /** @var int|null Unique id */
     private $id;
 
-    /**
-     * @var \DateTime|null Creation date
-     */
+    /** @var \DateTime|null Creation date */
     private $entryTime;
 
-    /**
-     * @var int|null Author id who sent this downtime
-     */
+    /** @var int|null Author id who sent this downtime */
     private $authorId;
 
-    /**
-     * @var string|null Author name who sent this downtime
-     */
+    /** @var string|null Author name who sent this downtime */
     private $authorName;
 
-    /**
-     * @var int|null Host id linked to this downtime
-     */
+    /** @var int|null Host id linked to this downtime */
     private $hostId;
 
-    /**
-     * @var int|null Service id linked to this downtime
-     */
+    /** @var int|null Service id linked to this downtime */
     private $serviceId;
 
-    /**
-     * @var int Resource id
-     */
+    /** @var int Resource id */
     private $resourceId;
 
-    /**
-     * @var int|null Parent resource id
-     */
+    /** @var int|null Parent resource id */
     private $parentResourceId;
 
-    /**
-     * @var bool Indicates if this downtime have been cancelled
-     */
+    /** @var bool Indicates if this downtime have been cancelled */
     private $isCancelled;
 
-    /**
-     * @var string|null Comments
-     */
+    /** @var string|null Comments */
     private $comment;
 
-    /**
-     * @var \DateTime|null Date when this downtime have been deleted
-     */
+    /** @var \DateTime|null Date when this downtime have been deleted */
     private $deletionTime;
 
-    /**
-     * @var int|null Duration of the downtime corresponding to endTime - startTime (in seconds)
-     */
+    /** @var int|null Duration of the downtime corresponding to endTime - startTime (in seconds) */
     private $duration;
 
-    /**
-     * @var \DateTime|null End date of the downtime
-     */
+    /** @var \DateTime|null End date of the downtime */
     private $endTime;
 
-    /**
-     * @var int|null (used to cancel a downtime)
-     */
+    /** @var int|null (used to cancel a downtime) */
     private $internalId;
 
-    /**
-     * @var bool Indicates either the downtime is fixed or not
-     */
+    /** @var bool Indicates either the downtime is fixed or not */
     private $isFixed;
 
-    /**
-     * @var int|null Poller id
-     */
+    /** @var int|null Poller id */
     private $pollerId;
 
-    /**
-     * @var \DateTime|null Start date of the downtime
-     */
+    /** @var \DateTime|null Start date of the downtime */
     private $startTime;
 
-    /**
-     * @var \DateTime|null Actual start date of the downtime
-     */
+    /** @var \DateTime|null Actual start date of the downtime */
     private $actualStartTime;
 
-    /**
-     * @var \DateTime|null Actual end date of the downtime
-     */
+    /** @var \DateTime|null Actual end date of the downtime */
     private $actualEndTime;
 
-    /**
-     * @var bool Indicates if this downtime have started
-     */
+    /** @var bool Indicates if this downtime have started */
     private $isStarted;
 
-    /**
-     * @var bool Indicates if this downtime should be applied to linked services
-     */
+    /** @var bool Indicates if this downtime should be applied to linked services */
     private $withServices = false;
-    /**
-     * @var \DateTime
-     */
+
+    /** @var \DateTime */
     private $maxDate;
 
     /**
@@ -159,14 +117,14 @@ class Downtime implements EntityDescriptorMetadataInterface
      */
     public function __construct()
     {
-        $this->maxDate = (new \DateTime('', new \DateTimeZone("UTC")))
+        $this->maxDate = (new \DateTime('', new \DateTimeZone('UTC')))
             ->setDate(self::DOWNTIME_YEAR_MAX, 1, 1)
             ->setTime(0, 0)
             ->modify('- 1 minute');
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -297,6 +255,7 @@ class Downtime implements EntityDescriptorMetadataInterface
     public function setResourceId(int $resourceId): Downtime
     {
         $this->resourceId = $resourceId;
+
         return $this;
     }
 
@@ -315,6 +274,7 @@ class Downtime implements EntityDescriptorMetadataInterface
     public function setParentResourceId(?int $parentResourceId): Downtime
     {
         $this->parentResourceId = $parentResourceId;
+
         return $this;
     }
 

@@ -69,14 +69,12 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'event_handler_enabled' => $response->eventHandlerEnabled,
                         'event_handler_command_id' => $response->eventHandlerCommandId,
                         'macros' => array_map(
-                            function ($macro) {
-                                return [
-                                    'name' => $macro['name'],
-                                    'value' => $macro['isPassword'] ? null : $macro['value'],
-                                    'is_password' => $macro['isPassword'],
-                                    'description' => $this->emptyStringAsNull($macro['description']),
-                                ];
-                            },
+                            fn ($macro) => [
+                                'name' => $macro['name'],
+                                'value' => $macro['isPassword'] ? null : $macro['value'],
+                                'is_password' => $macro['isPassword'],
+                                'description' => $this->emptyStringAsNull($macro['description']),
+                            ],
                             $response->macros
                         ),
                     ]

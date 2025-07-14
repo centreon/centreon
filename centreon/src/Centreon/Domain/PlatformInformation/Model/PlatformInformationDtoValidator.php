@@ -23,15 +23,13 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Model;
 
-use JsonSchema\Validator;
-use JsonSchema\Constraints\Constraint;
 use Centreon\Domain\PlatformInformation\Interfaces\DtoValidatorInterface;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
 
 class PlatformInformationDtoValidator implements DtoValidatorInterface
 {
-    /**
-     * @var string $jsonSchemaPath
-     */
+    /** @var string */
     private $jsonSchemaPath;
 
     public function __construct(string $jsonSchemaPath)
@@ -53,11 +51,12 @@ class PlatformInformationDtoValidator implements DtoValidatorInterface
             Constraint::CHECK_MODE_VALIDATE_SCHEMA
         );
 
-        if (!$validator->isValid()) {
+        if (! $validator->isValid()) {
             $message = '';
             foreach ($validator->getErrors() as $error) {
-                $message .= sprintf("[%s] %s" . PHP_EOL, $error['property'], $error['message']);
+                $message .= sprintf('[%s] %s' . PHP_EOL, $error['property'], $error['message']);
             }
+
             throw new \InvalidArgumentException($message);
         }
     }

@@ -168,4 +168,3 @@ final class FindRealTimeServiceStatusesCount
         return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS));
     }
 }
-

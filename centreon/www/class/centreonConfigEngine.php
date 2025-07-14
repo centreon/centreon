@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -42,7 +43,7 @@ class CentreonConfigEngine
 {
     /** @var CentreonDB */
     protected $db;
-    
+
     /**
      * CentreonConfigEngine constructor
      *
@@ -59,18 +60,18 @@ class CentreonConfigEngine
      * @param int $serverId | id of monitoring server
      * @param array $directives | event broker directives
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function insertBrokerDirectives($serverId, $directives = []): void
     {
-        $this->db->query("DELETE FROM cfg_nagios_broker_module
-                WHERE cfg_nagios_id = ".$this->db->escape($serverId));
-                    
+        $this->db->query('DELETE FROM cfg_nagios_broker_module
+                WHERE cfg_nagios_id = ' . $this->db->escape($serverId));
+
         foreach ($directives as $value) {
-            if ($value != "") {
+            if ($value != '') {
                 $this->db->query("INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) 
-                                VALUES ('". $this->db->escape($value) ."', ". $this->db->escape($serverId) .")");
+                                VALUES ('" . $this->db->escape($value) . "', " . $this->db->escape($serverId) . ')');
             }
         }
     }
@@ -80,17 +81,17 @@ class CentreonConfigEngine
      *
      * @param null $serverId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getBrokerDirectives($serverId = null)
     {
         $arr = [];
         $i = 0;
-        if (!isset($_REQUEST['in_broker']) && $serverId) {
-            $res = $this->db->query("SELECT broker_module
+        if (! isset($_REQUEST['in_broker']) && $serverId) {
+            $res = $this->db->query('SELECT broker_module
                                 FROM cfg_nagios_broker_module
-                                WHERE cfg_nagios_id = " . $this->db->escape($serverId));
+                                WHERE cfg_nagios_id = ' . $this->db->escape($serverId));
             while ($row = $res->fetchRow()) {
                 $arr[$i]['in_broker_#index#'] = $row['broker_module'];
                 $i++;
@@ -101,14 +102,15 @@ class CentreonConfigEngine
                 $i++;
             }
         }
+
         return $arr;
     }
 
     /**
      * @param $engineId
      *
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function getTimezone($engineId = null)
     {
@@ -118,17 +120,17 @@ class CentreonConfigEngine
             return $timezone;
         }
 
-        $query = "SELECT timezone FROM (" .
-            "SELECT timezone_name as timezone " .
-            "FROM cfg_nagios, timezone " .
-            "WHERE nagios_id = " . $this->db->escape($engineId) . " " .
-            "AND use_timezone = timezone_id " .
-            "UNION " .
-            "SELECT timezone_name as timezone " .
-            "FROM options, timezone " .
-            "WHERE options.key = 'gmt' " .
-            "AND options.value = timezone_id " .
-            ") as t LIMIT 1";
+        $query = 'SELECT timezone FROM ('
+            . 'SELECT timezone_name as timezone '
+            . 'FROM cfg_nagios, timezone '
+            . 'WHERE nagios_id = ' . $this->db->escape($engineId) . ' '
+            . 'AND use_timezone = timezone_id '
+            . 'UNION '
+            . 'SELECT timezone_name as timezone '
+            . 'FROM options, timezone '
+            . "WHERE options.key = 'gmt' "
+            . 'AND options.value = timezone_id '
+            . ') as t LIMIT 1';
         $result = $this->db->query($query);
         if ($row = $result->fetchRow()) {
             $timezone = $row['timezone'];

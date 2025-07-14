@@ -39,4 +39,3 @@ interface ModuleInformationRepositoryInterface
      */
     public function findByName(string $name): ?ModuleInformation;
 }
-

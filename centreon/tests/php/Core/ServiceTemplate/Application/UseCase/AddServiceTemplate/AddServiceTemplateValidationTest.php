@@ -38,7 +38,6 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
-
     $this->validation = new AddServiceTemplateValidation(
         $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
         $this->serviceSeverityRepository = $this->createMock(ReadServiceSeverityRepositoryInterface::class),
@@ -61,9 +60,8 @@ beforeEach(function (): void {
         new ServiceGroupDto(
             serviceGroupId: 2,
             hostTemplateId: 3,
-        )
+        ),
     ];
-
 });
 
 it('throws an exception when parent template ID does not exist', function (): void {
@@ -168,10 +166,10 @@ it('throws an exception when host template ID does not exist', function (): void
         ->method('findAllExistingIds')
         ->willReturn([]);
 
-    $this->validation->assertIsValidHostTemplates([1,3], 4);
+    $this->validation->assertIsValidHostTemplates([1, 3], 4);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoNotExist('host_templates', [1,3])->getMessage()
+    ServiceTemplateException::idsDoNotExist('host_templates', [1, 3])->getMessage()
 );
 
 it('throws an exception when category ID does not exist with admin user', function (): void {
@@ -184,10 +182,10 @@ it('throws an exception when category ID does not exist with admin user', functi
         ->method('findAllExistingIds')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceCategories([1,3]);
+    $this->validation->assertIsValidServiceCategories([1, 3]);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoNotExist('service_categories', [1,3])->getMessage()
+    ServiceTemplateException::idsDoNotExist('service_categories', [1, 3])->getMessage()
 );
 
 it('throws an exception when category ID does not exist with non-admin user', function (): void {
@@ -200,10 +198,10 @@ it('throws an exception when category ID does not exist with non-admin user', fu
         ->method('findAllExistingIdsByAccessGroups')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceCategories([1,3]);
+    $this->validation->assertIsValidServiceCategories([1, 3]);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoNotExist('service_categories', [1,3])->getMessage()
+    ServiceTemplateException::idsDoNotExist('service_categories', [1, 3])->getMessage()
 );
 
 it('throws an exception when group ID does not exist with admin user', function (): void {
@@ -216,7 +214,7 @@ it('throws an exception when group ID does not exist with admin user', function 
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceGroups($this->serviceGroups,[3]);
+    $this->validation->assertIsValidServiceGroups($this->serviceGroups, [3]);
 })->throws(
     ServiceTemplateException::class,
     ServiceTemplateException::idsDoNotExist('service_groups', [1, 2])->getMessage()
@@ -232,14 +230,14 @@ it('throws an exception when group ID does not exist with non-admin user', funct
         ->method('existByAccessGroups')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceGroups($this->serviceGroups,[3]);
+    $this->validation->assertIsValidServiceGroups($this->serviceGroups, [3]);
 })->throws(
     ServiceTemplateException::class,
     ServiceTemplateException::idsDoNotExist('service_groups', [1, 2])->getMessage()
 );
 
 it('throws an exception when host template used in service group associations are not linked to service template', function (): void {
-    $this->validation->assertIsValidServiceGroups($this->serviceGroups,[]);
+    $this->validation->assertIsValidServiceGroups($this->serviceGroups, []);
 })->throws(
     ServiceTemplateException::class,
     ServiceTemplateException::invalidServiceGroupAssociation()->getMessage()

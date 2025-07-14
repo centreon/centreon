@@ -34,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,15 +44,11 @@ const MODIFY_DEPENDENCY = 'c';
 const DUPLICATE_DEPENDENCY = 'm';
 const DELETE_DEPENDENCY = 'd';
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/host_dependency/";
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// Path to the configuration dir
+$path = './include/configuration/configObject/host_dependency/';
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 use Core\Common\Domain\Exception\RepositoryException;
 
@@ -71,8 +67,8 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -83,7 +79,7 @@ try {
         case ADD_DEPENDENCY:
         case WATCH_DEPENDENCY:
         case MODIFY_DEPENDENCY:
-            require_once($path . "formHostDependency.php");
+            require_once $path . 'formHostDependency.php';
             break;
         case DUPLICATE_DEPENDENCY:
             purgeOutdatedCSRFTokens();
@@ -96,7 +92,7 @@ try {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listHostDependency.php");
+            require_once $path . 'listHostDependency.php';
             break;
         case DELETE_DEPENDENCY:
             purgeOutdatedCSRFTokens();
@@ -106,20 +102,20 @@ try {
             } else {
                 unvalidFormMessage();
             }
-            require_once($path . "listHostDependency.php");
+            require_once $path . 'listHostDependency.php';
             break;
         default:
-            require_once($path . "listHostDependency.php");
+            require_once $path . 'listHostDependency.php';
             break;
     }
 } catch (RepositoryException $exception) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
-        "Error while processing host dependencies: " . $exception->getMessage(),
+        'Error while processing host dependencies: ' . $exception->getMessage(),
         exception: $exception
     );
     $msg = new CentreonMsg();
-    $msg->setImage("./img/icons/warning.png");
-    $msg->setTextStyle("bold");
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
     $msg->setText('Error while processing host dependencies');
 }

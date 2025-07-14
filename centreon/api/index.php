@@ -21,7 +21,7 @@ declare(strict_types=1);
  *
  */
 
-require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
@@ -35,5 +35,5 @@ $_SERVER['SCRIPT_NAME'] = $baseUri . '/index.php';
 $_SERVER['PHP_SELF'] = $baseUri . '/index.php';
 
 return function (array $context) {
-    return new \App\Shared\Infrastructure\Symfony\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+    return new App\Shared\Infrastructure\Symfony\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 };

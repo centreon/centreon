@@ -44,16 +44,12 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  */
 class MetaService extends AbstractObject
 {
-    /** @var int */
-    private $has_meta_services = 0;
-    /** @var array */
-    private $meta_services = [];
-    /** @var array */
-    private $generated_services = []; # for index_data build
     /** @var string */
     protected $generate_filename = 'meta_services.cfg';
+
     /** @var string */
     protected string $object_name = 'service';
+
     /** @var string */
     protected $attributes_select = '
         meta_id,
@@ -67,127 +63,40 @@ class MetaService extends AbstractObject
         notification_options,
         notifications_enabled
     ';
+
     /** @var string[] */
     protected $attributes_write = ['service_description', 'display_name', 'host_name', 'check_command', 'max_check_attempts', 'normal_check_interval', 'retry_check_interval', 'active_checks_enabled', 'passive_checks_enabled', 'check_period', 'notification_interval', 'notification_period', 'notification_options', 'register'];
+
     /** @var string[] */
     protected $attributes_default = ['notifications_enabled'];
+
     /** @var string[] */
     protected $attributes_hash = ['macros'];
+
     /** @var string[] */
     protected $attributes_array = ['contact_groups', 'contacts'];
+
+    /** @var int */
+    private $has_meta_services = 0;
+
+    /** @var array */
+    private $meta_services = [];
+
+    /** @var array */
+    private $generated_services = []; // for index_data build
+
     /** @var null */
     private $stmt_cg = null;
+
     /** @var null */
     private $stmt_contact = null;
 
     /**
-     * @param $meta_id
-     *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
-     */
-    private function getCtFromMetaId($meta_id): void
-    {
-        if (is_null($this->stmt_contact)) {
-            $this->stmt_contact = $this->backend_instance->db->prepare("SELECT 
-                    contact_id
-                FROM meta_contact
-                WHERE meta_id = :meta_id
-                ");
-        }
-        $this->stmt_contact->bindParam(':meta_id', $meta_id);
-        $this->stmt_contact->execute();
-        $this->meta_services[$meta_id]['contacts'] = [];
-        foreach ($this->stmt_contact->fetchAll(PDO::FETCH_COLUMN) as $ct_id) {
-            $this->meta_services[$meta_id]['contacts'][] =
-                Contact::getInstance($this->dependencyInjector)->generateFromContactId($ct_id);
-        }
-    }
-
-    /**
-     * @param $meta_id
-     *
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    private function getCgFromMetaId($meta_id): void
-    {
-        if (is_null($this->stmt_cg)) {
-            $this->stmt_cg = $this->backend_instance->db->prepare("SELECT 
-                    cg_cg_id
-                FROM meta_contactgroup_relation
-                WHERE meta_id = :meta_id
-                ");
-        }
-        $this->stmt_cg->bindParam(':meta_id', $meta_id);
-        $this->stmt_cg->execute();
-        $this->meta_services[$meta_id]['contact_groups'] = [];
-        foreach ($this->stmt_cg->fetchAll(PDO::FETCH_COLUMN) as $cg_id) {
-            $this->meta_services[$meta_id]['contact_groups'][] =
-                Contactgroup::getInstance($this->dependencyInjector)->generateFromCgId($cg_id);
-        }
-    }
-
-    /**
-     * @param $meta_id
-     * @param $meta_name
-     *
-     * @return mixed
-     * @throws PDOException
-     */
-    private function getServiceIdFromMetaId($meta_id, $meta_name)
-    {
-        $composed_name = 'meta_' . $meta_id;
-        $query = "SELECT service_id FROM service " .
-            "WHERE service_register = '2' " .
-            "AND service_description = :meta_composed_name " .
-            "AND display_name = :meta_name";
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->bindValue(':meta_composed_name', $composed_name);
-        $stmt->bindValue(':meta_name', html_entity_decode($meta_name));
-        $stmt->execute();
-
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $service_id = $row['service_id'];
-        }
-
-        if (!isset($service_id)) {
-            throw new Exception('Service id of Meta Module could not be found');
-        }
-
-        return $service_id;
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function buildCacheMetaServices(): void
-    {
-        $query = "SELECT $this->attributes_select FROM meta_service WHERE meta_activate = '1'";
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->execute();
-        $this->meta_services = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-        foreach ($this->meta_services as $meta_id => $meta_infos) {
-            $this->meta_services[$meta_id]['service_id'] = $this->getServiceIdFromMetaId(
-                $meta_id,
-                $meta_infos['display_name']
-            );
-        }
-    }
-
-    /**
      * @return int|void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
      */
     public function generateObjects()
     {
@@ -249,5 +158,107 @@ class MetaService extends AbstractObject
     public function getGeneratedServices()
     {
         return $this->generated_services;
+    }
+
+    /**
+     * @param $meta_id
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function getCtFromMetaId($meta_id): void
+    {
+        if (is_null($this->stmt_contact)) {
+            $this->stmt_contact = $this->backend_instance->db->prepare('SELECT 
+                    contact_id
+                FROM meta_contact
+                WHERE meta_id = :meta_id
+                ');
+        }
+        $this->stmt_contact->bindParam(':meta_id', $meta_id);
+        $this->stmt_contact->execute();
+        $this->meta_services[$meta_id]['contacts'] = [];
+        foreach ($this->stmt_contact->fetchAll(PDO::FETCH_COLUMN) as $ct_id) {
+            $this->meta_services[$meta_id]['contacts'][]
+                = Contact::getInstance($this->dependencyInjector)->generateFromContactId($ct_id);
+        }
+    }
+
+    /**
+     * @param $meta_id
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function getCgFromMetaId($meta_id): void
+    {
+        if (is_null($this->stmt_cg)) {
+            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT 
+                    cg_cg_id
+                FROM meta_contactgroup_relation
+                WHERE meta_id = :meta_id
+                ');
+        }
+        $this->stmt_cg->bindParam(':meta_id', $meta_id);
+        $this->stmt_cg->execute();
+        $this->meta_services[$meta_id]['contact_groups'] = [];
+        foreach ($this->stmt_cg->fetchAll(PDO::FETCH_COLUMN) as $cg_id) {
+            $this->meta_services[$meta_id]['contact_groups'][]
+                = Contactgroup::getInstance($this->dependencyInjector)->generateFromCgId($cg_id);
+        }
+    }
+
+    /**
+     * @param $meta_id
+     * @param $meta_name
+     *
+     * @throws PDOException
+     * @return mixed
+     */
+    private function getServiceIdFromMetaId($meta_id, $meta_name)
+    {
+        $composed_name = 'meta_' . $meta_id;
+        $query = 'SELECT service_id FROM service '
+            . "WHERE service_register = '2' "
+            . 'AND service_description = :meta_composed_name '
+            . 'AND display_name = :meta_name';
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->bindValue(':meta_composed_name', $composed_name);
+        $stmt->bindValue(':meta_name', html_entity_decode($meta_name));
+        $stmt->execute();
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $service_id = $row['service_id'];
+        }
+
+        if (! isset($service_id)) {
+            throw new Exception('Service id of Meta Module could not be found');
+        }
+
+        return $service_id;
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function buildCacheMetaServices(): void
+    {
+        $query = "SELECT {$this->attributes_select} FROM meta_service WHERE meta_activate = '1'";
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->execute();
+        $this->meta_services = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+        foreach ($this->meta_services as $meta_id => $meta_infos) {
+            $this->meta_services[$meta_id]['service_id'] = $this->getServiceIdFromMetaId(
+                $meta_id,
+                $meta_infos['display_name']
+            );
+        }
     }
 }

@@ -76,8 +76,8 @@ class CentreonSession
     /**
      * Write value in php session and close it
      *
-     * @param  string $key   session attribute
-     * @param  mixed  $value session value to save
+     * @param string $key session attribute
+     * @param mixed $value session value to save
      */
     public static function writeSessionClose($key, $value): void
     {
@@ -99,18 +99,18 @@ class CentreonSession
      */
     public function registerVar($registerVar): void
     {
-        if (!isset($_SESSION[$registerVar])) {
-            $_SESSION[$registerVar] = $$registerVar;
+        if (! isset($_SESSION[$registerVar])) {
+            $_SESSION[$registerVar] = ${$registerVar};
         }
     }
 
     /**
      * Check user session status
      *
-     * @param  string        $sessionId Session id to check
-     * @param  CentreonDB    $db
-     * @return bool
+     * @param string $sessionId Session id to check
+     * @param CentreonDB $db
      * @throws PDOException
+     * @return bool
      */
     public static function checkSession($sessionId, CentreonDB $db): bool
     {
@@ -120,6 +120,7 @@ class CentreonSession
         $prepare = $db->prepare('SELECT `session_id` FROM session WHERE `session_id` = :session_id');
         $prepare->bindValue(':session_id', $sessionId, PDO::PARAM_STR);
         $prepare->execute();
+
         return $prepare->fetch(PDO::FETCH_ASSOC) !== false;
     }
 
@@ -128,8 +129,8 @@ class CentreonSession
      *
      * @param CentreonDB $pearDB
      *
-     * @return bool If the session is updated or not
      * @throws PDOException
+     * @return bool If the session is updated or not
      */
     public function updateSession($pearDB): bool
     {
@@ -141,12 +142,12 @@ class CentreonSession
         if (self::checkSession($sessionId, $pearDB)) {
             try {
                 $sessionStatement = $pearDB->prepare(
-                    "UPDATE `session`
+                    'UPDATE `session`
                     SET `last_reload` = :lastReload, `ip_address` = :ipAddress
-                    WHERE `session_id` = :sessionId"
+                    WHERE `session_id` = :sessionId'
                 );
                 $sessionStatement->bindValue(':lastReload', time(), PDO::PARAM_INT);
-                $sessionStatement->bindValue(':ipAddress', $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+                $sessionStatement->bindValue(':ipAddress', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
                 $sessionStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
                 $sessionStatement->execute();
 
@@ -156,7 +157,7 @@ class CentreonSession
                     FROM `options`
                     WHERE `key` = 'session_expire'"
                 );
-                if (($option = $optionResult->fetch()) && !empty($option['value'])) {
+                if (($option = $optionResult->fetch()) && ! empty($option['value'])) {
                     $sessionExpire = (int) $option['value'];
                 }
 
@@ -164,9 +165,9 @@ class CentreonSession
                     ->add(new DateInterval('PT' . $sessionExpire . 'M'))
                     ->getTimestamp();
                 $tokenStatement = $pearDB->prepare(
-                    "UPDATE `security_token`
+                    'UPDATE `security_token`
                     SET `expiration_date` = :expirationDate
-                    WHERE `token` = :sessionId"
+                    WHERE `token` = :sessionId'
                 );
                 $tokenStatement->bindValue(':expirationDate', $expirationDate, PDO::PARAM_INT);
                 $tokenStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
@@ -187,20 +188,21 @@ class CentreonSession
      * @param string $sessionId
      * @param CentreonDB $pearDB
      *
-     * @return int|string
      * @throws PDOException
+     * @return int|string
      */
     public static function getUser($sessionId, $pearDB)
     {
         $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
         $DBRESULT = $pearDB->query(
             "SELECT user_id FROM session
-                WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, "UTF-8") . "'"
+                WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, 'UTF-8') . "'"
         );
         $row = $DBRESULT->fetchRow();
-        if (!$row) {
+        if (! $row) {
             return 0;
         }
+
         return $row['user_id'];
     }
 }

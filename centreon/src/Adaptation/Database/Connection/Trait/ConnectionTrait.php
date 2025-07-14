@@ -36,10 +36,9 @@ use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Trait
+ * Trait.
  *
  * @class   ConnectionTrait
- * @package Adaptation\Database\Connection\Trait
  */
 trait ConnectionTrait
 {
@@ -47,7 +46,6 @@ trait ConnectionTrait
      * To create an instance of the query builder.
      *
      * @throws QueryBuilderException
-     * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface
     {
@@ -58,23 +56,18 @@ trait ConnectionTrait
      * To create an instance of the expression builder.
      *
      * @throws ExpressionBuilderException
-     * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface
     {
         return DbalExpressionBuilderAdapter::createFromConnectionConfig($this->connectionConfig);
     }
 
-    /**
-     * @return ConnectionConfig
-     */
     abstract public function getConnectionConfig(): ConnectionConfig;
 
     /**
      * Return the database name if it exists.
      *
      * @throws ConnectionException
-     * @return string|null
      */
     public function getDatabaseName(): ?string
     {
@@ -93,7 +86,6 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- CUD METHODS -----------------------------------------
-
     /**
      * To execute all queries except the queries getting results (SELECT).
      *
@@ -106,11 +98,7 @@ trait ConnectionTrait
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -123,11 +111,7 @@ trait ConnectionTrait
      *
      * Could be only used for INSERT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
@@ -155,12 +139,9 @@ trait ConnectionTrait
      *
      * Could be only used for several INSERT.
      *
-     * @param string $tableName
      * @param array<string> $columns
-     * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
-     * @return int
      *
      * @example $batchInsertParameters = BatchInsertParameters::create([
      *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
@@ -175,7 +156,7 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
-            if (empty($columns)) {
+            if ($columns === []) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
             if ($batchInsertParameters->isEmpty()) {
@@ -206,9 +187,7 @@ trait ConnectionTrait
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
                 }
                 if (count($columns) !== $queryParameters->length()) {
-                    throw ConnectionException::batchInsertQueryBadUsage(
-                        'Columns and query parameters must have the same length'
-                    );
+                    throw ConnectionException::batchInsertQueryBadUsage('Columns and query parameters must have the same length');
                 }
 
                 $valuesInsertItem = '';
@@ -229,26 +208,18 @@ trait ConnectionTrait
                 }
 
                 $valuesInsert[] = "({$valuesInsertItem})";
-                $indexQueryParameterToInsert++;
+                ++$indexQueryParameterToInsert;
             }
 
             if (count($valuesInsert) === $queryParametersToInsert->length()) {
-                throw ConnectionException::batchInsertQueryBadUsage(
-                    'Error while building the final query : values block and query parameters have not the same length'
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Error while building the final query : values block and query parameters have not the same length');
             }
 
             $query .= implode(', ', $valuesInsert);
 
             return $this->executeStatement($query, $queryParametersToInsert);
         } catch (\Throwable $exception) {
-            throw ConnectionException::batchInsertQueryFailed(
-                previous: $exception,
-                tableName: $tableName,
-                columns: $columns,
-                batchInsertParameters: $batchInsertParameters,
-                query: $query ?? ''
-            );
+            throw ConnectionException::batchInsertQueryFailed(previous: $exception, tableName: $tableName, columns: $columns, batchInsertParameters: $batchInsertParameters, query: $query ?? '');
         }
     }
 
@@ -257,11 +228,7 @@ trait ConnectionTrait
      *
      * Could be only used for UPDATE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -289,11 +256,7 @@ trait ConnectionTrait
      *
      * Could be only used for DELETE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
@@ -317,16 +280,13 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- FETCH METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -340,10 +300,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -359,10 +317,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -384,16 +340,13 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- ITERATE METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -411,10 +364,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -432,10 +383,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -451,10 +400,7 @@ trait ConnectionTrait
             $this->validateSelectQuery($query);
             foreach ($this->iterateNumeric($query, $queryParameters) as $row) {
                 if (count($row) < 2) {
-                    throw ConnectionException::iterateKeyValueQueryBadFormat(
-                        'The query must return at least two columns',
-                        $query
-                    );
+                    throw ConnectionException::iterateKeyValueQueryBadFormat('The query must return at least two columns', $query);
                 }
                 [$key, $value] = $row;
 
@@ -472,10 +418,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -499,15 +443,6 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- PROTECTED METHODS -----------------------------------------
-
-    /**
-     * @param string $message
-     * @param array $customContext
-     * @param string $query
-     * @param \Throwable|null $previous
-     *
-     * @return void
-     */
     abstract protected function writeDbLog(
         string $message,
         array $customContext = [],
@@ -516,12 +451,8 @@ trait ConnectionTrait
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
-
     /**
-     * @param string $query
-     *
      * @throws ConnectionException
-     * @return void
      */
     private function validateSelectQuery(string $query): void
     {

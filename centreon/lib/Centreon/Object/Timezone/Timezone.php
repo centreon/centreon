@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,15 +34,16 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with timezone
- *
  */
 class Centreon_Object_Timezone extends Centreon_Object
 {
-    protected $table = "timezone";
-    protected $primaryKey = "timezone_id";
-    protected $uniqueLabelField = "timezone_name";
+    protected $table = 'timezone';
+
+    protected $primaryKey = 'timezone_id';
+
+    protected $uniqueLabelField = 'timezone_name';
 }

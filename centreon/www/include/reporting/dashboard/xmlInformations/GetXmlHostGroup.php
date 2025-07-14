@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,13 +34,13 @@
  *
  */
 $stateType = 'host';
-require_once realpath(__DIR__ . "/initXmlFeed.php");
+require_once realpath(__DIR__ . '/initXmlFeed.php');
 
 $color = array_filter($_GET['color'] ?? [], function ($oneColor) {
     return filter_var($oneColor, FILTER_VALIDATE_REGEXP, [
         'options' => [
-            'regexp' => "/^#[[:xdigit:]]{6}$/"
-        ]
+            'regexp' => '/^#[[:xdigit:]]{6}$/',
+        ],
     ]);
 });
 if (empty($color) || count($_GET['color']) !== count($color)) {
@@ -47,11 +48,12 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
     $buffer->endElement();
     header('Content-Type: text/xml');
     $buffer->output();
+
     exit;
 }
 
 if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
-    $hosts_id = $centreon->user->access->getHostHostGroupAclConf($id, "broker");
+    $hosts_id = $centreon->user->access->getHostHostGroupAclConf($id, 'broker');
     if (count($hosts_id) > 0) {
         $rq = 'SELECT `date_start`, `date_end`, sum(`UPnbEvent`) as UPnbEvent, sum(`DOWNnbEvent`) as DOWNnbEvent, '
             . 'sum(`UNREACHABLEnbEvent`) as UNREACHABLEnbEvent, '

@@ -52,7 +52,7 @@ class FindServicesSaasPresenter extends AbstractPresenter implements FindService
                 $result[] = [
                     'id' => $dto->id,
                     'name' => $dto->name,
-                    'host' => array_map(fn($host): array => [
+                    'host' => array_map(fn ($host): array => [
                         'id' => $host['id'],
                         'name' => $host['name'],
                     ], $dto->hosts),
@@ -65,11 +65,11 @@ class FindServicesSaasPresenter extends AbstractPresenter implements FindService
                     'severity' => $dto->severity
                         ? ['id' => $dto->severity['id'], 'name' => $dto->severity['name']]
                         : null,
-                    'categories' => array_map(fn($category): array => [
+                    'categories' => array_map(fn ($category): array => [
                         'id' => $category['id'],
                         'name' => $category['name'],
                     ], $dto->categories),
-                    'groups' => array_map(fn($group): array => [
+                    'groups' => array_map(fn ($group): array => [
                         'id' => $group['id'],
                         'name' => $group['name'],
                         'host_id' => $group['hostId'],

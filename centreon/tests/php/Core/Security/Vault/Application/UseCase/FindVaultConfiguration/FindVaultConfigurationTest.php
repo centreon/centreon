@@ -24,19 +24,17 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse};
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface
+    ReadVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
     FindVaultConfiguration,
-    FindVaultConfigurationRequest,
     FindVaultConfigurationResponse
 };
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Model\{VaultConfiguration};
 use Security\Encryption;
 
 beforeEach(function (): void {
@@ -121,7 +119,7 @@ it('should present FindVaultConfigurationResponse', function (): void {
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
@@ -133,7 +131,6 @@ it('should present FindVaultConfigurationResponse', function (): void {
         'myEncryptedRoleId',
         'myEncryptedSecretId'
     );
-
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
