@@ -35,18 +35,6 @@ use Pimple\Container;
  */
 class ServiceGroup extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $sg = [];
-
-    /** @var array */
-    private $sgRelationCache = [];
-
     /** @var string */
     protected $table = 'servicegroup';
 
@@ -78,6 +66,18 @@ class ServiceGroup extends AbstractObject
     /** @var PDOStatement */
     protected $stmtStplSg = null;
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $sg = [];
+
+    /** @var array */
+    private $sgRelationCache = [];
+
     /**
      * ServiceGroup constructor
      *
@@ -87,32 +87,6 @@ class ServiceGroup extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Get servicegroup frm id
-     *
-     * @param int $sgId
-     * @return void
-     */
-    private function getServicegroupFromId(int $sgId)
-    {
-        if (is_null($this->stmtSg)) {
-            $this->stmtSg = $this->backendInstance->db->prepare(
-                "SELECT {$this->attributesSelect}
-                FROM servicegroup
-                WHERE sg_id = :sg_id AND sg_activate = '1'"
-            );
-        }
-
-        $this->stmtSg->bindParam(':sg_id', $sgId, PDO::PARAM_INT);
-        $this->stmtSg->execute();
-        $results = $this->stmtSg->fetchAll(PDO::FETCH_ASSOC);
-        $this->sg[$sgId] = array_pop($results);
-        if (is_null($this->sg[$sgId])) {
-            return 1;
-        }
-        $this->sg[$sgId]['members_cache'] = [];
     }
 
     /**
@@ -140,33 +114,6 @@ class ServiceGroup extends AbstractObject
         $this->sg[$sgId]['members_cache'][$hostId . '_' . $serviceId] = [$hostName, $serviceDescription];
 
         return 0;
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $stmt = $this->backendInstance->db->prepare('SELECT 
-                  service_service_id, servicegroup_sg_id, host_host_id
-                FROM servicegroup_relation
-        ');
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->sgRelationCache[$value['service_service_id']])) {
-                $this->sgRelationCache[$value['service_service_id']][] = $value;
-            } else {
-                $this->sgRelationCache[$value['service_service_id']] = [$value];
-            }
-        }
-
-        $this->doneCache = 1;
     }
 
     /**
@@ -317,5 +264,58 @@ class ServiceGroup extends AbstractObject
     public function getString(int $sgId, string $attr)
     {
         return $this->sg[$sgId][$attr] ?? null;
+    }
+
+    /**
+     * Get servicegroup frm id
+     *
+     * @param int $sgId
+     * @return void
+     */
+    private function getServicegroupFromId(int $sgId)
+    {
+        if (is_null($this->stmtSg)) {
+            $this->stmtSg = $this->backendInstance->db->prepare(
+                "SELECT {$this->attributesSelect}
+                FROM servicegroup
+                WHERE sg_id = :sg_id AND sg_activate = '1'"
+            );
+        }
+
+        $this->stmtSg->bindParam(':sg_id', $sgId, PDO::PARAM_INT);
+        $this->stmtSg->execute();
+        $results = $this->stmtSg->fetchAll(PDO::FETCH_ASSOC);
+        $this->sg[$sgId] = array_pop($results);
+        if (is_null($this->sg[$sgId])) {
+            return 1;
+        }
+        $this->sg[$sgId]['members_cache'] = [];
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $stmt = $this->backendInstance->db->prepare('SELECT 
+                  service_service_id, servicegroup_sg_id, host_host_id
+                FROM servicegroup_relation
+        ');
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->sgRelationCache[$value['service_service_id']])) {
+                $this->sgRelationCache[$value['service_service_id']][] = $value;
+            } else {
+                $this->sgRelationCache[$value['service_service_id']] = [$value];
+            }
+        }
+
+        $this->doneCache = 1;
     }
 }

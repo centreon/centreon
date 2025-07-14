@@ -131,51 +131,6 @@ class CentreonExported
      *
      * @return int
      */
-    private function checkAriane($object, $id, $name)
-    {
-        if (! is_null($this->filter_ariane)) {
-            $ariane = join('#', $this->ariane);
-            foreach ($this->filter_ariane as $filter) {
-                if (preg_match('/' . $filter . '/', $ariane)) {
-                    return 0;
-                }
-            }
-
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param $object
-     * @param $id
-     * @param $name
-     *
-     * @return int
-     */
-    private function checkFilter($object, $id, $name)
-    {
-        if (! is_null($this->filter_type)) {
-            foreach ($this->filter_type as $filter) {
-                if (preg_match('/' . $filter . '/', $object)) {
-                    return 0;
-                }
-            }
-
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param $object
-     * @param $id
-     * @param $name
-     *
-     * @return int
-     */
     public function isExported($object, $id, $name)
     {
         if ($this->filter == 0) {
@@ -212,5 +167,50 @@ class CentreonExported
         }
 
         return self::$instance;
+    }
+
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
+     * @return int
+     */
+    private function checkAriane($object, $id, $name)
+    {
+        if (! is_null($this->filter_ariane)) {
+            $ariane = join('#', $this->ariane);
+            foreach ($this->filter_ariane as $filter) {
+                if (preg_match('/' . $filter . '/', $ariane)) {
+                    return 0;
+                }
+            }
+
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param $object
+     * @param $id
+     * @param $name
+     *
+     * @return int
+     */
+    private function checkFilter($object, $id, $name)
+    {
+        if (! is_null($this->filter_type)) {
+            foreach ($this->filter_type as $filter) {
+                if (preg_match('/' . $filter . '/', $object)) {
+                    return 0;
+                }
+            }
+
+            return 1;
+        }
+
+        return 0;
     }
 }

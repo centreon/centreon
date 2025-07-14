@@ -173,93 +173,6 @@ class CentreonACLMenu extends CentreonObject
     }
 
     /**
-     * Split params
-     *
-     * @param string $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     * @return array
-     */
-    protected function splitParams($parameters)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < 3) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
-        if (! count($aclMenuId)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[0]);
-        }
-        $processChildren = ($params[1] == '0') ? false : true;
-        $levels = [];
-        $menus = [];
-        $topologies = [];
-        $levels[self::LEVEL_1] = $params[2];
-        if (isset($params[3])) {
-            $levels[self::LEVEL_2] = $params[3];
-        }
-        if (isset($params[4])) {
-            $levels[self::LEVEL_3] = $params[4];
-        }
-        if (isset($params[5])) {
-            $levels[self::LEVEL_4] = $params[5];
-        }
-        foreach ($levels as $level => $menu) {
-            if ($menu) {
-                switch ($level) {
-                    case self::LEVEL_1:
-                        $length = 1;
-                        break;
-                    case self::LEVEL_2:
-                        $length = 3;
-                        break;
-                    case self::LEVEL_3:
-                        $length = 5;
-                        break;
-                    case self::LEVEL_4:
-                        $length = 7;
-                        break;
-                    default:
-                        break;
-                }
-                if (is_numeric($menu)) {
-                    $sql = 'SELECT topology_id, topology_page
-							FROM topology
-							WHERE topology_page = ?
-							AND LENGTH(topology_page) = ?';
-                    $res = $this->db->query($sql, [$menu, $length]);
-                } elseif ($level == self::LEVEL_1) {
-                    $sql = 'SELECT topology_id, topology_page
-                        		FROM topology
-                        		WHERE topology_name = ?
-                        		AND LENGTH(topology_page) = ?
-                        		AND topology_parent IS NULL';
-                    $res = $this->db->query($sql, [$menu, $length]);
-                } else {
-                    $sql = 'SELECT topology_id, topology_page
-                        		FROM topology
-                        		WHERE topology_name = ?
-                        		AND LENGTH(topology_page) = ?
-                        		AND topology_parent = ?';
-                    $res = $this->db->query($sql, [$menu, $length, $topologies[($level - 1)]]);
-                }
-                $row = $res->fetch();
-                if (! isset($row['topology_id'])) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $menu);
-                }
-                unset($res);
-                $menus[$level] = $row['topology_id'];
-                $topologies[$level] = $row['topology_page'];
-            } else {
-                break;
-            }
-        }
-
-        return [$aclMenuId[0], $menus, $topologies, $processChildren];
-    }
-
-    /**
      * Get Acl Group
      *
      * @param string $aclMenuName
@@ -283,45 +196,6 @@ class CentreonACLMenu extends CentreonObject
                 $result = $this->aclGroupObj->getParameters($groupId, $this->aclGroupObj->getUniqueLabelField());
                 echo $groupId . $this->delim . $result[$this->aclGroupObj->getUniqueLabelField()] . "\n";
             }
-        }
-    }
-
-    /**
-     * Process children of topology
-     * Recursive method
-     *
-     * @param string $action
-     * @param null $aclMenuId
-     * @param null $parentTopologyId
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function processChildrenOf(
-        $action = 'grant',
-        $aclMenuId = null,
-        $parentTopologyId = null
-    ) {
-        $sql = 'SELECT topology_id, topology_page FROM topology WHERE topology_parent = ?';
-        $res = $this->db->query($sql, [$parentTopologyId]);
-        $rows = $res->fetchAll();
-        foreach ($rows as $row) {
-            $this->db->query(
-                'DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?',
-                [$aclMenuId, $row['topology_id']]
-            );
-            if ($action == 'grant') {
-                $this->db->query(
-                    'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id) VALUES (?, ?)',
-                    [$aclMenuId, $row['topology_id']]
-                );
-            }
-            if ($action == 'grantro') {
-                $query = 'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
-                    . 'VALUES (?, ?, 2)';
-                $this->db->query($query, [$aclMenuId, $row['topology_id']]);
-            }
-            $this->processChildrenOf($action, $aclMenuId, $row['topology_page']);
         }
     }
 
@@ -458,6 +332,132 @@ class CentreonACLMenu extends CentreonObject
 
             echo $exportLine;
             $exportLine = '';
+        }
+    }
+
+    /**
+     * Split params
+     *
+     * @param string $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return array
+     */
+    protected function splitParams($parameters)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < 3) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $aclMenuId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
+        if (! count($aclMenuId)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[0]);
+        }
+        $processChildren = ($params[1] == '0') ? false : true;
+        $levels = [];
+        $menus = [];
+        $topologies = [];
+        $levels[self::LEVEL_1] = $params[2];
+        if (isset($params[3])) {
+            $levels[self::LEVEL_2] = $params[3];
+        }
+        if (isset($params[4])) {
+            $levels[self::LEVEL_3] = $params[4];
+        }
+        if (isset($params[5])) {
+            $levels[self::LEVEL_4] = $params[5];
+        }
+        foreach ($levels as $level => $menu) {
+            if ($menu) {
+                switch ($level) {
+                    case self::LEVEL_1:
+                        $length = 1;
+                        break;
+                    case self::LEVEL_2:
+                        $length = 3;
+                        break;
+                    case self::LEVEL_3:
+                        $length = 5;
+                        break;
+                    case self::LEVEL_4:
+                        $length = 7;
+                        break;
+                    default:
+                        break;
+                }
+                if (is_numeric($menu)) {
+                    $sql = 'SELECT topology_id, topology_page
+							FROM topology
+							WHERE topology_page = ?
+							AND LENGTH(topology_page) = ?';
+                    $res = $this->db->query($sql, [$menu, $length]);
+                } elseif ($level == self::LEVEL_1) {
+                    $sql = 'SELECT topology_id, topology_page
+                        		FROM topology
+                        		WHERE topology_name = ?
+                        		AND LENGTH(topology_page) = ?
+                        		AND topology_parent IS NULL';
+                    $res = $this->db->query($sql, [$menu, $length]);
+                } else {
+                    $sql = 'SELECT topology_id, topology_page
+                        		FROM topology
+                        		WHERE topology_name = ?
+                        		AND LENGTH(topology_page) = ?
+                        		AND topology_parent = ?';
+                    $res = $this->db->query($sql, [$menu, $length, $topologies[($level - 1)]]);
+                }
+                $row = $res->fetch();
+                if (! isset($row['topology_id'])) {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $menu);
+                }
+                unset($res);
+                $menus[$level] = $row['topology_id'];
+                $topologies[$level] = $row['topology_page'];
+            } else {
+                break;
+            }
+        }
+
+        return [$aclMenuId[0], $menus, $topologies, $processChildren];
+    }
+
+    /**
+     * Process children of topology
+     * Recursive method
+     *
+     * @param string $action
+     * @param null $aclMenuId
+     * @param null $parentTopologyId
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function processChildrenOf(
+        $action = 'grant',
+        $aclMenuId = null,
+        $parentTopologyId = null
+    ) {
+        $sql = 'SELECT topology_id, topology_page FROM topology WHERE topology_parent = ?';
+        $res = $this->db->query($sql, [$parentTopologyId]);
+        $rows = $res->fetchAll();
+        foreach ($rows as $row) {
+            $this->db->query(
+                'DELETE FROM acl_topology_relations WHERE acl_topo_id = ? AND topology_topology_id = ?',
+                [$aclMenuId, $row['topology_id']]
+            );
+            if ($action == 'grant') {
+                $this->db->query(
+                    'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id) VALUES (?, ?)',
+                    [$aclMenuId, $row['topology_id']]
+                );
+            }
+            if ($action == 'grantro') {
+                $query = 'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
+                    . 'VALUES (?, ?, 2)';
+                $this->db->query($query, [$aclMenuId, $row['topology_id']]);
+            }
+            $this->processChildrenOf($action, $aclMenuId, $row['topology_page']);
         }
     }
 

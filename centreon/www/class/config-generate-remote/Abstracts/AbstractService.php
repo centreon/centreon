@@ -95,6 +95,18 @@ abstract class AbstractService extends AbstractObject
     protected $stmtService = null;
 
     /**
+     * Get service attribute
+     *
+     * @param int $serviceId
+     * @param string $attr
+     * @return string|null
+     */
+    public function getString(int $serviceId, string $attr): ?string
+    {
+        return $this->serviceCache[$serviceId][$attr] ?? null;
+    }
+
+    /**
      * Get service extended information
      * extended information are unset on service object
      *
@@ -243,17 +255,5 @@ abstract class AbstractService extends AbstractObject
         $period = TimePeriod::getInstance($this->dependencyInjector);
         $period->generateFromTimeperiodId($service['timeperiod_tp_id']);
         $period->generateFromTimeperiodId($service['timeperiod_tp_id2']);
-    }
-
-    /**
-     * Get service attribute
-     *
-     * @param int $serviceId
-     * @param string $attr
-     * @return string|null
-     */
-    public function getString(int $serviceId, string $attr): ?string
-    {
-        return $this->serviceCache[$serviceId][$attr] ?? null;
     }
 }

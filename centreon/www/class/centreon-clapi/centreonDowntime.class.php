@@ -66,6 +66,9 @@ class CentreonDowntime extends CentreonObject
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
 
+    /** @var string[] */
+    public static $aDepends = ['SERVICE', 'HOST'];
+
     /** @var int[] */
     protected $weekDays = ['monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6, 'sunday' => 7];
 
@@ -74,9 +77,6 @@ class CentreonDowntime extends CentreonObject
 
     /** @var string[] */
     protected $availableCycles = ['first', 'second', 'third', 'fourth', 'last'];
-
-    /** @var string[] */
-    public static $aDepends = ['SERVICE', 'HOST'];
 
     /**
      * CentreonDowntime constructor

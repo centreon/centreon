@@ -32,9 +32,6 @@ use PDO;
  */
 class Graph extends AbstractObject
 {
-    /** @var array|null */
-    private $graphs = null;
-
     /** @var string */
     protected $table = 'giv_graphs_template';
 
@@ -77,20 +74,8 @@ class Graph extends AbstractObject
         'comment',
     ];
 
-    /**
-     * Get graph
-     *
-     * @return void
-     */
-    private function getGraph(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT {$this->attributesSelect}
-            FROM giv_graphs_template"
-        );
-        $stmt->execute();
-        $this->graphs = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var array|null */
+    private $graphs = null;
 
     /**
      * Generate and get graph from id
@@ -116,5 +101,20 @@ class Graph extends AbstractObject
         }
 
         return $result;
+    }
+
+    /**
+     * Get graph
+     *
+     * @return void
+     */
+    private function getGraph(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM giv_graphs_template"
+        );
+        $stmt->execute();
+        $this->graphs = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

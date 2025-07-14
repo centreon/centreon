@@ -618,18 +618,6 @@ class Contact implements UserInterface, ContactInterface
     }
 
     /**
-     * Removes an existing roles.
-     *
-     * @param string $roleName Role name to remove
-     */
-    private function removeRole(string $roleName): void
-    {
-        if (($index = array_search($roleName, $this->roles)) !== false) {
-            unset($this->roles[$index]);
-        }
-    }
-
-    /**
      * Added a topology rule.
      *
      * @param string $topologyRuleName Topology rule name
@@ -805,6 +793,18 @@ class Contact implements UserInterface, ContactInterface
         $format = $dateFormatter->getPattern();
 
         return $this->convertIntlPatternToDateTimeFormat($format);
+    }
+
+    /**
+     * Removes an existing roles.
+     *
+     * @param string $roleName Role name to remove
+     */
+    private function removeRole(string $roleName): void
+    {
+        if (($index = array_search($roleName, $this->roles)) !== false) {
+            unset($this->roles[$index]);
+        }
     }
 
     /**

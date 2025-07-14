@@ -135,6 +135,198 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getPlatformTopology(): array
+    {
+        $platformTopology = $this->platformTopologyRepository->getPlatformTopology();
+        if ($platformTopology === []) {
+            throw new EntityNotFoundException(_('No Platform Topology found.'));
+        }
+
+        foreach ($platformTopology as $platform) {
+            // Set the parent address if the platform is not the top level
+            if ($platform->getParentId() !== null) {
+                $platformParent = $this->platformTopologyRepository->findPlatform(
+                    $platform->getParentId()
+                );
+                if (null !== $platformParent) {
+                    $platform->setParentAddress($platformParent->getAddress());
+                    $platform->setParentId($platformParent->getId());
+                }
+            }
+
+            // Set the broker relation type if the platform is completely registered
+            if ($platform->getServerId() !== null) {
+                $brokerConfigurations = $this->brokerRepository->findByMonitoringServerAndParameterName(
+                    $platform->getServerId(),
+                    self::BROKER_PEER_RETENTION
+                );
+
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+                foreach ($brokerConfigurations as $brokerConfiguration) {
+                    if ($brokerConfiguration->getConfigurationValue() === 'yes') {
+                        $platform->setRelation(PlatformRelation::PEER_RETENTION_RELATION);
+                        break;
+                    }
+                }
+            } else {
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+            }
+        }
+
+        return $platformTopology;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPlatformTopologyForUser(ContactInterface $user): array
+    {
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($user)
+        );
+
+        $platformTopology = $this->platformTopologyRepository->getPlatformTopologyByAccessGroupIds($accessGroupIds);
+
+        if ($platformTopology === []) {
+            throw new EntityNotFoundException(_('No Platform Topology found.'));
+        }
+
+        foreach ($platformTopology as $platform) {
+            // Set the parent address if the platform is not the top level
+            if ($platform->getParentId() !== null) {
+                $platformParent = $this->platformTopologyRepository->findPlatform(
+                    $platform->getParentId()
+                );
+                if (null !== $platformParent) {
+                    $platform->setParentAddress($platformParent->getAddress());
+                    $platform->setParentId($platformParent->getId());
+                }
+            }
+
+            // Set the broker relation type if the platform is completely registered
+            if ($platform->getServerId() !== null) {
+                $brokerConfigurations = $this->brokerRepository->findByMonitoringServerAndParameterName(
+                    $platform->getServerId(),
+                    self::BROKER_PEER_RETENTION
+                );
+
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+                foreach ($brokerConfigurations as $brokerConfiguration) {
+                    if ($brokerConfiguration->getConfigurationValue() === 'yes') {
+                        $platform->setRelation(PlatformRelation::PEER_RETENTION_RELATION);
+                        break;
+                    }
+                }
+            } else {
+                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
+            }
+        }
+
+        return $platformTopology;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deletePlatformAndReallocateChildren(int $serverId): void
+    {
+        try {
+            if (($deletedPlatform = $this->platformTopologyRepository->findPlatform($serverId)) === null) {
+                throw new EntityNotFoundException(_('Platform not found'));
+            }
+            $childPlatforms = $this->platformTopologyRepository->findChildrenPlatformsByParentId($serverId);
+
+            if ($childPlatforms !== []) {
+                /**
+                 * If at least one children platform was found,
+                 * find the Top Parent platform and link children platform(s) to it.
+                 */
+                $topLevelPlatform = $this->findTopLevelPlatform();
+
+                if ($topLevelPlatform === null) {
+                    throw new EntityNotFoundException(_('No top level platform found to link the child platforms'));
+                }
+
+                /**
+                 * Update children parent_id.
+                 */
+                foreach ($childPlatforms as $platform) {
+                    $platform->setParentId($topLevelPlatform->getId());
+                    $this->updatePlatformParameters($platform);
+                }
+            }
+
+            /**
+             * Delete the monitoring server and the topology.
+             */
+            if ($deletedPlatform->getServerId() !== null) {
+                if ($deletedPlatform->getType() === PlatformPending::TYPE_REMOTE) {
+                    $this->remoteServerRepository->deleteRemoteServerByServerId($deletedPlatform->getServerId());
+                    $this->remoteServerRepository->deleteAdditionalRemoteServer($deletedPlatform->getServerId());
+                }
+
+                $this->monitoringServerService->deleteServer($deletedPlatform->getServerId());
+            } else {
+                $this->platformTopologyRepository->deletePlatform($deletedPlatform->getId());
+            }
+        } catch (EntityNotFoundException|PlatformTopologyException $ex) {
+            throw $ex;
+        } catch (\Exception $ex) {
+            throw new PlatformTopologyException(_('An error occurred while deleting the platform'), 0, $ex);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updatePlatformParameters(PlatformInterface $platform): void
+    {
+        try {
+            $this->platformTopologyRepository->updatePlatformParameters($platform);
+        } catch (\Exception $ex) {
+            throw new PlatformTopologyException(_('An error occurred while updating the platform'), 0, $ex);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findTopLevelPlatform(): ?PlatformInterface
+    {
+        return $this->platformTopologyRepository->findTopLevelPlatform();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isValidPlatform(ContactInterface $user, int $platformId): bool
+    {
+        if (! ($platform = $this->platformTopologyRepository->findPlatform($platformId))) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($user)
+        );
+
+        return (bool) (
+            (
+                null !== $platform->getServerId()
+                && $this->platformTopologyRepository->hasAccessToPlatform($accessGroupIds, $platform->getServerId())
+            )
+            || ! $this->platformTopologyRepository->hasRestrictedAccessToPlatforms($accessGroupIds)
+        );
+    }
+
+    /**
      * @param PlatformInterface $platformPending
      * @throws PlatformTopologyException
      * @throws PlatformInformationException
@@ -484,197 +676,5 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
         }
 
         return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPlatformTopology(): array
-    {
-        $platformTopology = $this->platformTopologyRepository->getPlatformTopology();
-        if ($platformTopology === []) {
-            throw new EntityNotFoundException(_('No Platform Topology found.'));
-        }
-
-        foreach ($platformTopology as $platform) {
-            // Set the parent address if the platform is not the top level
-            if ($platform->getParentId() !== null) {
-                $platformParent = $this->platformTopologyRepository->findPlatform(
-                    $platform->getParentId()
-                );
-                if (null !== $platformParent) {
-                    $platform->setParentAddress($platformParent->getAddress());
-                    $platform->setParentId($platformParent->getId());
-                }
-            }
-
-            // Set the broker relation type if the platform is completely registered
-            if ($platform->getServerId() !== null) {
-                $brokerConfigurations = $this->brokerRepository->findByMonitoringServerAndParameterName(
-                    $platform->getServerId(),
-                    self::BROKER_PEER_RETENTION
-                );
-
-                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
-                foreach ($brokerConfigurations as $brokerConfiguration) {
-                    if ($brokerConfiguration->getConfigurationValue() === 'yes') {
-                        $platform->setRelation(PlatformRelation::PEER_RETENTION_RELATION);
-                        break;
-                    }
-                }
-            } else {
-                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
-            }
-        }
-
-        return $platformTopology;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPlatformTopologyForUser(ContactInterface $user): array
-    {
-        $accessGroupIds = array_map(
-            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
-            $this->readAccessGroupRepository->findByContact($user)
-        );
-
-        $platformTopology = $this->platformTopologyRepository->getPlatformTopologyByAccessGroupIds($accessGroupIds);
-
-        if ($platformTopology === []) {
-            throw new EntityNotFoundException(_('No Platform Topology found.'));
-        }
-
-        foreach ($platformTopology as $platform) {
-            // Set the parent address if the platform is not the top level
-            if ($platform->getParentId() !== null) {
-                $platformParent = $this->platformTopologyRepository->findPlatform(
-                    $platform->getParentId()
-                );
-                if (null !== $platformParent) {
-                    $platform->setParentAddress($platformParent->getAddress());
-                    $platform->setParentId($platformParent->getId());
-                }
-            }
-
-            // Set the broker relation type if the platform is completely registered
-            if ($platform->getServerId() !== null) {
-                $brokerConfigurations = $this->brokerRepository->findByMonitoringServerAndParameterName(
-                    $platform->getServerId(),
-                    self::BROKER_PEER_RETENTION
-                );
-
-                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
-                foreach ($brokerConfigurations as $brokerConfiguration) {
-                    if ($brokerConfiguration->getConfigurationValue() === 'yes') {
-                        $platform->setRelation(PlatformRelation::PEER_RETENTION_RELATION);
-                        break;
-                    }
-                }
-            } else {
-                $platform->setRelation(PlatformRelation::NORMAL_RELATION);
-            }
-        }
-
-        return $platformTopology;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function deletePlatformAndReallocateChildren(int $serverId): void
-    {
-        try {
-            if (($deletedPlatform = $this->platformTopologyRepository->findPlatform($serverId)) === null) {
-                throw new EntityNotFoundException(_('Platform not found'));
-            }
-            $childPlatforms = $this->platformTopologyRepository->findChildrenPlatformsByParentId($serverId);
-
-            if ($childPlatforms !== []) {
-                /**
-                 * If at least one children platform was found,
-                 * find the Top Parent platform and link children platform(s) to it.
-                 */
-                $topLevelPlatform = $this->findTopLevelPlatform();
-
-                if ($topLevelPlatform === null) {
-                    throw new EntityNotFoundException(_('No top level platform found to link the child platforms'));
-                }
-
-                /**
-                 * Update children parent_id.
-                 */
-                foreach ($childPlatforms as $platform) {
-                    $platform->setParentId($topLevelPlatform->getId());
-                    $this->updatePlatformParameters($platform);
-                }
-            }
-
-            /**
-             * Delete the monitoring server and the topology.
-             */
-            if ($deletedPlatform->getServerId() !== null) {
-                if ($deletedPlatform->getType() === PlatformPending::TYPE_REMOTE) {
-                    $this->remoteServerRepository->deleteRemoteServerByServerId($deletedPlatform->getServerId());
-                    $this->remoteServerRepository->deleteAdditionalRemoteServer($deletedPlatform->getServerId());
-                }
-
-                $this->monitoringServerService->deleteServer($deletedPlatform->getServerId());
-            } else {
-                $this->platformTopologyRepository->deletePlatform($deletedPlatform->getId());
-            }
-        } catch (EntityNotFoundException|PlatformTopologyException $ex) {
-            throw $ex;
-        } catch (\Exception $ex) {
-            throw new PlatformTopologyException(_('An error occurred while deleting the platform'), 0, $ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function updatePlatformParameters(PlatformInterface $platform): void
-    {
-        try {
-            $this->platformTopologyRepository->updatePlatformParameters($platform);
-        } catch (\Exception $ex) {
-            throw new PlatformTopologyException(_('An error occurred while updating the platform'), 0, $ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findTopLevelPlatform(): ?PlatformInterface
-    {
-        return $this->platformTopologyRepository->findTopLevelPlatform();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isValidPlatform(ContactInterface $user, int $platformId): bool
-    {
-        if (! ($platform = $this->platformTopologyRepository->findPlatform($platformId))) {
-            return false;
-        }
-
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        $accessGroupIds = array_map(
-            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
-            $this->readAccessGroupRepository->findByContact($user)
-        );
-
-        return (bool) (
-            (
-                null !== $platform->getServerId()
-                && $this->platformTopologyRepository->hasAccessToPlatform($accessGroupIds, $platform->getServerId())
-            )
-            || ! $this->platformTopologyRepository->hasRestrictedAccessToPlatforms($accessGroupIds)
-        );
     }
 }

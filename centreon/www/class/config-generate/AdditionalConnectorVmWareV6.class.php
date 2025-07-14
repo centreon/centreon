@@ -54,6 +54,45 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     }
 
     /**
+     * @param int $pollerId
+     *
+     * @throws AssertionFailedException
+     * @return void
+     */
+    public function generateFromPollerId(int $pollerId): void
+    {
+        $this->generate($pollerId);
+    }
+
+    /**
+     * Write the file ACC configuration centreon_vmware.json file in the given directory
+     *
+     * @param $dir
+     *
+     * @throws RuntimeException|Exception
+     */
+    protected function writeFile($dir)
+    {
+        $fullFile = $dir . '/' . $this->generate_filename;
+        if ($handle = fopen($fullFile, 'w')) {
+            $content = is_array($this->content) ? json_encode($this->content) : $this->content;
+            if (! fwrite($handle, $content)) {
+                throw new RuntimeException('Cannot write to file "' . $fullFile . '"');
+            }
+            fclose($handle);
+
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
+            chmod($fullFile, 0660);
+            chgrp($fullFile, self::CENTREON_SYSTEM_USER);
+        } else {
+            throw new Exception('Cannot open file ' . $fullFile);
+        }
+    }
+
+    /**
      * Generate VM Ware v6 configuration file for plugins.
      *
      * @param int $pollerId
@@ -112,44 +151,5 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         $this->generate_filename = 'centreon_vmware.json';
         $this->generateFile($object, false);
         $this->writeFile($this->backend->getPath());
-    }
-
-    /**
-     * @param int $pollerId
-     *
-     * @throws AssertionFailedException
-     * @return void
-     */
-    public function generateFromPollerId(int $pollerId): void
-    {
-        $this->generate($pollerId);
-    }
-
-    /**
-     * Write the file ACC configuration centreon_vmware.json file in the given directory
-     *
-     * @param $dir
-     *
-     * @throws RuntimeException|Exception
-     */
-    protected function writeFile($dir)
-    {
-        $fullFile = $dir . '/' . $this->generate_filename;
-        if ($handle = fopen($fullFile, 'w')) {
-            $content = is_array($this->content) ? json_encode($this->content) : $this->content;
-            if (! fwrite($handle, $content)) {
-                throw new RuntimeException('Cannot write to file "' . $fullFile . '"');
-            }
-            fclose($handle);
-
-            /**
-             * Change VMWare files owner to '660 apache centreon'
-             * RW for centreon group are necessary for Gorgone Daemon.
-             */
-            chmod($fullFile, 0660);
-            chgrp($fullFile, self::CENTREON_SYSTEM_USER);
-        } else {
-            throw new Exception('Cannot open file ' . $fullFile);
-        }
     }
 }

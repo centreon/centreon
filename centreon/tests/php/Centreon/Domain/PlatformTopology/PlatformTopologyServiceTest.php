@@ -65,12 +65,6 @@ class PlatformTopologyServiceTest extends TestCase
     /** @var HttpClientInterface|null */
     protected $httpClient;
 
-    /** @var PlatformInformationServiceInterface&MockObject */
-    private $platformInformationService;
-
-    /** @var ProxyServiceInterface&MockObject */
-    private $proxyService;
-
     /** @var EngineConfiguration|null */
     protected $engineConfiguration;
 
@@ -88,6 +82,12 @@ class PlatformTopologyServiceTest extends TestCase
 
     /** @var BrokerRepositoryInterface&MockObject */
     protected $brokerRepository;
+
+    /** @var PlatformInformationServiceInterface&MockObject */
+    private $platformInformationService;
+
+    /** @var ProxyServiceInterface&MockObject */
+    private $proxyService;
 
     /** @var PlatformTopologyRegisterRepositoryInterface&MockObject */
     private $platformTopologyRegisterRepository;

@@ -88,54 +88,6 @@ class CentreonTopCounter extends CentreonWebService
     }
 
     /**
-     * Get refresh interval of top counter
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function initRefreshInterval(): void
-    {
-        $refreshInterval = 60;
-
-        $query = 'SELECT `value` FROM options WHERE `key` = "AjaxTimeReloadStatistic"';
-        $res = $this->pearDB->query($query);
-        if ($row = $res->fetch()) {
-            $refreshInterval = (int) $row['value'];
-        }
-
-        $this->refreshTime = $refreshInterval;
-    }
-
-    /**
-     * @return void
-     */
-    private function checkAccess(): void
-    {
-        if ($this->centreon->user->access->admin == 0) {
-            $tabActionACL = $this->centreon->user->access->getActions();
-            session_start();
-            $_SESSION['centreon'] = $this->centreon;
-            session_write_close();
-            if (isset($tabActionACL['top_counter'])) {
-                $this->hasAccessToTopCounter = true;
-            }
-            if (isset($tabActionACL['poller_stats'])) {
-                $this->hasAccessToPollers = true;
-            }
-        } else {
-            $this->hasAccessToTopCounter = true;
-            $this->hasAccessToPollers = true;
-        }
-
-        if (
-            isset($this->centreon->user->access->topology[50104])
-            && $this->centreon->user->access->topology[50104] === 1
-        ) {
-            $this->hasAccessToProfile = true;
-        }
-    }
-
-    /**
      * The current time of the server
      *
      * Method GET
@@ -280,39 +232,6 @@ class CentreonTopCounter extends CentreonWebService
             'soundNotificationsEnabled' => $this->soundNotificationsEnabled,
             'password_remaining_time' => $this->getPasswordRemainingTime(),
         ];
-    }
-
-    /**
-     * Get password remaining time
-     * null : never expired
-     * int : number of seconds before expiration
-     *
-     * @throws PDOException
-     * @return int|null
-     */
-    private function getPasswordRemainingTime(): ?int
-    {
-        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
-            return null;
-        }
-        $passwordRemainingTime = null;
-        $contact = new CentreonContact($this->pearDB);
-        $passwordCreationDate = $contact->findLastPasswordCreationDate((int) $this->centreon->user->user_id);
-
-        if ($passwordCreationDate !== null) {
-            $passwordPolicy = $contact->getPasswordSecurityPolicy();
-            $expirationDelay = $passwordPolicy['password_expiration']['expiration_delay'];
-            $excludedUsers = $passwordPolicy['password_expiration']['excluded_users'];
-
-            if ($expirationDelay !== null && ! in_array($this->centreon->user->alias, $excludedUsers)) {
-                $passwordRemainingTime = $passwordCreationDate->getTimestamp() + $expirationDelay - time();
-                if ($passwordRemainingTime < 0) {
-                    $passwordRemainingTime = 0;
-                }
-            }
-        }
-
-        return $passwordRemainingTime;
     }
 
     /**
@@ -674,6 +593,22 @@ class CentreonTopCounter extends CentreonWebService
     }
 
     /**
+     * Authorize to access to the action
+     *
+     * @param string $action The action name
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the has access to the action
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, $isInternal)
+            || ($user && $user->hasAccessRestApiRealtime())
+        );
+    }
+
+    /**
      * Get the configured pollers
      *
      * @throws RestInternalServerErrorException
@@ -778,18 +713,83 @@ class CentreonTopCounter extends CentreonWebService
     }
 
     /**
-     * Authorize to access to the action
+     * Get refresh interval of top counter
      *
-     * @param string $action The action name
-     * @param CentreonUser $user The current user
-     * @param bool $isInternal If the api is call in internal
-     * @return bool If the has access to the action
+     * @throws PDOException
+     * @return void
      */
-    public function authorize($action, $user, $isInternal = false)
+    private function initRefreshInterval(): void
     {
-        return (bool) (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->hasAccessRestApiRealtime())
-        );
+        $refreshInterval = 60;
+
+        $query = 'SELECT `value` FROM options WHERE `key` = "AjaxTimeReloadStatistic"';
+        $res = $this->pearDB->query($query);
+        if ($row = $res->fetch()) {
+            $refreshInterval = (int) $row['value'];
+        }
+
+        $this->refreshTime = $refreshInterval;
+    }
+
+    /**
+     * @return void
+     */
+    private function checkAccess(): void
+    {
+        if ($this->centreon->user->access->admin == 0) {
+            $tabActionACL = $this->centreon->user->access->getActions();
+            session_start();
+            $_SESSION['centreon'] = $this->centreon;
+            session_write_close();
+            if (isset($tabActionACL['top_counter'])) {
+                $this->hasAccessToTopCounter = true;
+            }
+            if (isset($tabActionACL['poller_stats'])) {
+                $this->hasAccessToPollers = true;
+            }
+        } else {
+            $this->hasAccessToTopCounter = true;
+            $this->hasAccessToPollers = true;
+        }
+
+        if (
+            isset($this->centreon->user->access->topology[50104])
+            && $this->centreon->user->access->topology[50104] === 1
+        ) {
+            $this->hasAccessToProfile = true;
+        }
+    }
+
+    /**
+     * Get password remaining time
+     * null : never expired
+     * int : number of seconds before expiration
+     *
+     * @throws PDOException
+     * @return int|null
+     */
+    private function getPasswordRemainingTime(): ?int
+    {
+        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+            return null;
+        }
+        $passwordRemainingTime = null;
+        $contact = new CentreonContact($this->pearDB);
+        $passwordCreationDate = $contact->findLastPasswordCreationDate((int) $this->centreon->user->user_id);
+
+        if ($passwordCreationDate !== null) {
+            $passwordPolicy = $contact->getPasswordSecurityPolicy();
+            $expirationDelay = $passwordPolicy['password_expiration']['expiration_delay'];
+            $excludedUsers = $passwordPolicy['password_expiration']['excluded_users'];
+
+            if ($expirationDelay !== null && ! in_array($this->centreon->user->alias, $excludedUsers)) {
+                $passwordRemainingTime = $passwordCreationDate->getTimestamp() + $expirationDelay - time();
+                if ($passwordRemainingTime < 0) {
+                    $passwordRemainingTime = 0;
+                }
+            }
+        }
+
+        return $passwordRemainingTime;
     }
 }

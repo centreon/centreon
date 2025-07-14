@@ -159,64 +159,6 @@ class CentreonContactgroup
     }
 
     /**
-     * find LDAP group id by name
-     *
-     * @param int $ldapId
-     * @param string $name
-     *
-     * @throws PDOException
-     * @return int|null
-     */
-    private function findLdapGroupIdByName(int $ldapId, string $name): ?int
-    {
-        $ldapGroupId = null;
-
-        $query = 'SELECT cg_id '
-            . 'FROM contactgroup '
-            . 'WHERE cg_name = :name '
-            . 'AND ar_id = :ldapId';
-        $statement = $this->db->prepare($query);
-        $statement->bindValue(':name', $name, PDO::PARAM_STR);
-        $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
-        $statement->execute();
-
-        if ($row = $statement->fetch()) {
-            $ldapGroupId = (int) $row['cg_id'];
-        }
-
-        return $ldapGroupId;
-    }
-
-    /**
-     * find LDAP group id by dn
-     *
-     * @param int $ldapId
-     * @param string $dn
-     *
-     * @throws PDOException
-     * @return int|null
-     */
-    private function findLdapGroupIdByDn(int $ldapId, string $dn): ?int
-    {
-        $ldapGroupId = null;
-
-        $query = 'SELECT cg_id '
-            . 'FROM contactgroup '
-            . 'WHERE cg_ldap_dn = :dn '
-            . 'AND ar_id = :ldapId';
-        $statement = $this->db->prepare($query);
-        $statement->bindValue(':dn', $dn, PDO::PARAM_STR);
-        $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
-        $statement->execute();
-
-        if ($row = $statement->fetch()) {
-            $ldapGroupId = (int) $row['cg_id'];
-        }
-
-        return $ldapGroupId;
-    }
-
-    /**
      * Insert ldap group if does not exist
      *
      * @param int $ldapId
@@ -706,5 +648,63 @@ class CentreonContactgroup
         }
 
         return $items;
+    }
+
+    /**
+     * find LDAP group id by name
+     *
+     * @param int $ldapId
+     * @param string $name
+     *
+     * @throws PDOException
+     * @return int|null
+     */
+    private function findLdapGroupIdByName(int $ldapId, string $name): ?int
+    {
+        $ldapGroupId = null;
+
+        $query = 'SELECT cg_id '
+            . 'FROM contactgroup '
+            . 'WHERE cg_name = :name '
+            . 'AND ar_id = :ldapId';
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':name', $name, PDO::PARAM_STR);
+        $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($row = $statement->fetch()) {
+            $ldapGroupId = (int) $row['cg_id'];
+        }
+
+        return $ldapGroupId;
+    }
+
+    /**
+     * find LDAP group id by dn
+     *
+     * @param int $ldapId
+     * @param string $dn
+     *
+     * @throws PDOException
+     * @return int|null
+     */
+    private function findLdapGroupIdByDn(int $ldapId, string $dn): ?int
+    {
+        $ldapGroupId = null;
+
+        $query = 'SELECT cg_id '
+            . 'FROM contactgroup '
+            . 'WHERE cg_ldap_dn = :dn '
+            . 'AND ar_id = :ldapId';
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':dn', $dn, PDO::PARAM_STR);
+        $statement->bindValue(':ldapId', $ldapId, PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($row = $statement->fetch()) {
+            $ldapGroupId = (int) $row['cg_id'];
+        }
+
+        return $ldapGroupId;
     }
 }

@@ -165,32 +165,6 @@ class CentreonHost
     }
 
     /**
-     *  get number of hosts
-     *
-     * @throws PDOException
-     * @return int
-     */
-    private function getHostNumber(): int
-    {
-        $query = $this->db->query('SELECT COUNT(*) AS `num` FROM host WHERE host_register = "1"');
-
-        return (int) $query->fetch()['num'];
-    }
-
-    /**
-     * Returns a filtered array with only integer ids
-     *
-     * @param int[] $ids
-     * @return int[] filtered
-     */
-    private function filteredArrayId(array $ids): array
-    {
-        return array_filter($ids, function ($id) {
-            return is_numeric($id);
-        });
-    }
-
-    /**
      *  get list of inherited templates from plugin pack
      *
      * @throws PDOException
@@ -1480,32 +1454,6 @@ class CentreonHost
 
     /**
      * @param $hostId
-     * @param $alreadyProcessed
-     * @throws Exception
-     */
-    private function getHostChain(
-        $hostId,
-        &$alreadyProcessed
-    ): void {
-        if (! in_array($hostId, $alreadyProcessed)) {
-            $alreadyProcessed[$hostId] = $hostId;
-            $query = 'SELECT host_host_id FROM host_template_relation htr
-                WHERE htr.host_tpl_id = :hostId
-                ORDER BY `order` ASC';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (! $dbResult) {
-                throw new Exception('An error occured');
-            }
-            while ($row = $stmt->fetch()) {
-                $this->getHostChain($row['host_host_id'], $alreadyProcessed);
-            }
-        }
-    }
-
-    /**
-     * @param $hostId
      * @throws Exception
      * @return array
      */
@@ -1594,45 +1542,6 @@ class CentreonHost
         }
 
         return $values;
-    }
-
-    /**
-     * check host limitation
-     *
-     * @throws Exception
-     * @return bool
-     */
-    private function isAllowed(): bool
-    {
-        $dbResult = $this->db->query(
-            'SELECT `name` FROM modules_informations
-            WHERE `name` = "centreon-license-manager"'
-        );
-
-        if (empty($dbResult->fetch())) {
-            return false;
-        }
-        try {
-            $container = LegacyContainer::getInstance();
-        } catch (Exception $e) {
-            throw new Exception('Cannot instantiate container');
-        }
-
-        $container[ServiceProvider::LM_PRODUCT_NAME] = 'epp';
-        $container[ServiceProvider::LM_HOST_CHECK] = true;
-
-        if (! $container[ServiceProvider::LM_LICENSE]) {
-            return false;
-        }
-
-        $licenceManager = $container[ServiceProvider::LM_LICENSE];
-        if (! $licenceManager->validate()) {
-            return false;
-        }
-        $licenseData = ((int) $licenceManager->getData()['licensing']['hosts']) ?? 0;
-        $num = $this->getHostNumber();
-
-        return $licenseData === -1 || $licenseData > $num;
     }
 
     /**
@@ -1734,30 +1643,6 @@ class CentreonHost
     }
 
     /**
-     * @param array $macroA
-     * @param array $macroB
-     * @param bool $getFirst
-     *
-     * @return mixed
-     */
-    private function comparaPriority($macroA, $macroB, $getFirst = true)
-    {
-        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
-        if ($getFirst) {
-            if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
-                return $macroA;
-            }
-
-            return $macroB;
-        }
-        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
-            return $macroA;
-        }
-
-        return $macroB;
-    }
-
-    /**
      * @param array $aTempMacro
      * @return array
      */
@@ -1782,115 +1667,6 @@ class CentreonHost
         $this->addInfosToMacro($storedMacros, $finalMacros);
 
         return $finalMacros;
-    }
-
-    /**
-     * @param array $storedMacros
-     * @param array $finalMacros
-     *
-     * @return void
-     */
-    private function addInfosToMacro($storedMacros, &$finalMacros): void
-    {
-        foreach ($finalMacros as &$finalMacro) {
-            $sInput = $finalMacro['macroInput_#index#'];
-            $this->setInheritedDescription(
-                $finalMacro,
-                $this->getInheritedDescription($storedMacros[$sInput], $finalMacro)
-            );
-            switch ($finalMacro['source']) {
-                case 'direct':
-                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
-                    break;
-                case 'fromTpl':
-                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
-                    break;
-                case 'fromCommand':
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /**
-     * @param array $storedMacros
-     * @param array $finalMacro
-     *
-     * @return string
-     */
-    private function getInheritedDescription($storedMacros, $finalMacro)
-    {
-        $description = '';
-        if (empty($finalMacro['macroDescription'])) {
-            $choosedMacro = [];
-            foreach ($storedMacros as $storedMacro) {
-                if (! empty($storedMacro['macroDescription'])) {
-                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);
-                    $description = $choosedMacro['macroDescription'];
-                }
-            }
-        } else {
-            $description = $finalMacro['macroDescription'];
-        }
-
-        return $description;
-    }
-
-    /**
-     * @param array $finalMacro
-     * @param $description
-     *
-     * @return void
-     */
-    private function setInheritedDescription(&$finalMacro, $description): void
-    {
-        $finalMacro['macroDescription_#index#'] = $description;
-        $finalMacro['macroDescription'] = $description;
-    }
-
-    /**
-     * @param $tplValue
-     * @param array $finalMacro
-     *
-     * @return void
-     */
-    private function setTplValue($tplValue, &$finalMacro): void
-    {
-        if ($tplValue !== false) {
-            $finalMacro['macroTplValue_#index#'] = $tplValue;
-            $finalMacro['macroTplValToDisplay_#index#'] = 1;
-        } else {
-            $finalMacro['macroTplValue_#index#'] = '';
-            $finalMacro['macroTplValToDisplay_#index#'] = 0;
-        }
-    }
-
-    /**
-     * @param array $storedMacro
-     * @param bool $getFirst
-     * @return bool
-     */
-    private function findTplValue($storedMacro, $getFirst = true)
-    {
-        if ($getFirst) {
-            foreach ($storedMacro as $macros) {
-                if ($macros['source'] == 'fromTpl') {
-                    return $macros['macroValue_#index#'];
-                }
-            }
-        } else {
-            $macroReturn = false;
-            foreach ($storedMacro as $macros) {
-                if ($macros['source'] == 'fromTpl') {
-                    $macroReturn = $macros['macroValue_#index#'];
-                }
-            }
-
-            return $macroReturn;
-        }
-
-        return false;
     }
 
     /**
@@ -2620,5 +2396,229 @@ class CentreonHost
     public function getFormattedMacros(): array
     {
         return $this->formattedMacros;
+    }
+
+    /**
+     *  get number of hosts
+     *
+     * @throws PDOException
+     * @return int
+     */
+    private function getHostNumber(): int
+    {
+        $query = $this->db->query('SELECT COUNT(*) AS `num` FROM host WHERE host_register = "1"');
+
+        return (int) $query->fetch()['num'];
+    }
+
+    /**
+     * Returns a filtered array with only integer ids
+     *
+     * @param int[] $ids
+     * @return int[] filtered
+     */
+    private function filteredArrayId(array $ids): array
+    {
+        return array_filter($ids, function ($id) {
+            return is_numeric($id);
+        });
+    }
+
+    /**
+     * @param $hostId
+     * @param $alreadyProcessed
+     * @throws Exception
+     */
+    private function getHostChain(
+        $hostId,
+        &$alreadyProcessed
+    ): void {
+        if (! in_array($hostId, $alreadyProcessed)) {
+            $alreadyProcessed[$hostId] = $hostId;
+            $query = 'SELECT host_host_id FROM host_template_relation htr
+                WHERE htr.host_tpl_id = :hostId
+                ORDER BY `order` ASC';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+            if (! $dbResult) {
+                throw new Exception('An error occured');
+            }
+            while ($row = $stmt->fetch()) {
+                $this->getHostChain($row['host_host_id'], $alreadyProcessed);
+            }
+        }
+    }
+
+    /**
+     * check host limitation
+     *
+     * @throws Exception
+     * @return bool
+     */
+    private function isAllowed(): bool
+    {
+        $dbResult = $this->db->query(
+            'SELECT `name` FROM modules_informations
+            WHERE `name` = "centreon-license-manager"'
+        );
+
+        if (empty($dbResult->fetch())) {
+            return false;
+        }
+        try {
+            $container = LegacyContainer::getInstance();
+        } catch (Exception $e) {
+            throw new Exception('Cannot instantiate container');
+        }
+
+        $container[ServiceProvider::LM_PRODUCT_NAME] = 'epp';
+        $container[ServiceProvider::LM_HOST_CHECK] = true;
+
+        if (! $container[ServiceProvider::LM_LICENSE]) {
+            return false;
+        }
+
+        $licenceManager = $container[ServiceProvider::LM_LICENSE];
+        if (! $licenceManager->validate()) {
+            return false;
+        }
+        $licenseData = ((int) $licenceManager->getData()['licensing']['hosts']) ?? 0;
+        $num = $this->getHostNumber();
+
+        return $licenseData === -1 || $licenseData > $num;
+    }
+
+    /**
+     * @param array $macroA
+     * @param array $macroB
+     * @param bool $getFirst
+     *
+     * @return mixed
+     */
+    private function comparaPriority($macroA, $macroB, $getFirst = true)
+    {
+        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
+        if ($getFirst) {
+            if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
+                return $macroA;
+            }
+
+            return $macroB;
+        }
+        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+            return $macroA;
+        }
+
+        return $macroB;
+    }
+
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacros
+     *
+     * @return void
+     */
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
+    {
+        foreach ($finalMacros as &$finalMacro) {
+            $sInput = $finalMacro['macroInput_#index#'];
+            $this->setInheritedDescription(
+                $finalMacro,
+                $this->getInheritedDescription($storedMacros[$sInput], $finalMacro)
+            );
+            switch ($finalMacro['source']) {
+                case 'direct':
+                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
+                    break;
+                case 'fromTpl':
+                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
+                    break;
+                case 'fromCommand':
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacro
+     *
+     * @return string
+     */
+    private function getInheritedDescription($storedMacros, $finalMacro)
+    {
+        $description = '';
+        if (empty($finalMacro['macroDescription'])) {
+            $choosedMacro = [];
+            foreach ($storedMacros as $storedMacro) {
+                if (! empty($storedMacro['macroDescription'])) {
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro);
+                    $description = $choosedMacro['macroDescription'];
+                }
+            }
+        } else {
+            $description = $finalMacro['macroDescription'];
+        }
+
+        return $description;
+    }
+
+    /**
+     * @param array $finalMacro
+     * @param $description
+     *
+     * @return void
+     */
+    private function setInheritedDescription(&$finalMacro, $description): void
+    {
+        $finalMacro['macroDescription_#index#'] = $description;
+        $finalMacro['macroDescription'] = $description;
+    }
+
+    /**
+     * @param $tplValue
+     * @param array $finalMacro
+     *
+     * @return void
+     */
+    private function setTplValue($tplValue, &$finalMacro): void
+    {
+        if ($tplValue !== false) {
+            $finalMacro['macroTplValue_#index#'] = $tplValue;
+            $finalMacro['macroTplValToDisplay_#index#'] = 1;
+        } else {
+            $finalMacro['macroTplValue_#index#'] = '';
+            $finalMacro['macroTplValToDisplay_#index#'] = 0;
+        }
+    }
+
+    /**
+     * @param array $storedMacro
+     * @param bool $getFirst
+     * @return bool
+     */
+    private function findTplValue($storedMacro, $getFirst = true)
+    {
+        if ($getFirst) {
+            foreach ($storedMacro as $macros) {
+                if ($macros['source'] == 'fromTpl') {
+                    return $macros['macroValue_#index#'];
+                }
+            }
+        } else {
+            $macroReturn = false;
+            foreach ($storedMacro as $macros) {
+                if ($macros['source'] == 'fromTpl') {
+                    $macroReturn = $macros['macroValue_#index#'];
+                }
+            }
+
+            return $macroReturn;
+        }
+
+        return false;
     }
 }

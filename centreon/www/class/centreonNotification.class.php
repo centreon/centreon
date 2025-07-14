@@ -96,28 +96,6 @@ class CentreonNotification
     }
 
     /**
-     * Checks if notification is enabled
-     *
-     * @param int $contactId
-     *
-     * @throws PDOException
-     * @return bool true if notification is enabled, false otherwise
-     */
-    protected function isNotificationEnabled($contactId)
-    {
-        $sql = 'SELECT contact_enable_notifications FROM contact WHERE contact_id = ' . $contactId;
-        $res = $this->db->query($sql);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-            if ($row['contact_enable_notifications']) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Get contact groups
      *
      * @param int $contactGroupId
@@ -214,6 +192,28 @@ class CentreonNotification
         }
 
         return $resources;
+    }
+
+    /**
+     * Checks if notification is enabled
+     *
+     * @param int $contactId
+     *
+     * @throws PDOException
+     * @return bool true if notification is enabled, false otherwise
+     */
+    protected function isNotificationEnabled($contactId)
+    {
+        $sql = 'SELECT contact_enable_notifications FROM contact WHERE contact_id = ' . $contactId;
+        $res = $this->db->query($sql);
+        if ($res->rowCount()) {
+            $row = $res->fetchRow();
+            if ($row['contact_enable_notifications']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

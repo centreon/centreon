@@ -97,6 +97,96 @@ class CentreonHostGroup extends CentreonObject
     }
 
     /**
+     * Magic method
+     *
+     * @param $name
+     * @param $arg
+     * @throws CentreonClapiException
+     */
+    public function __call($name, $arg)
+    {
+        // Get the method name
+        $name = strtolower($name);
+        // Get the action and the object
+        if (preg_match('/^(get|set|add|del)(member|host|servicegroup)$/', $name, $matches)) {
+            // Parse arguments
+            if (! isset($arg[0])) {
+                throw new CentreonClapiException(self::MISSINGPARAMETER);
+            }
+            $args = explode($this->delim, $arg[0]);
+            $hgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
+            if (! count($hgIds)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
+            }
+            $groupId = $hgIds[0];
+
+            if ($matches[2] == 'host' || $matches[2] == 'member') {
+                $relobj = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
+                $obj = new Centreon_Object_Host($this->dependencyInjector);
+            } elseif ($matches[2] == 'servicegroup') {
+                $relobj = new Centreon_Object_Relation_Host_Group_Service_Group($this->dependencyInjector);
+                $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
+            }
+            if ($matches[1] == 'get') {
+                $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hgIds);
+                echo 'id' . $this->delim . 'name' . "\n";
+                foreach ($tab as $value) {
+                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
+                    echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
+                }
+            } else {
+                if (! isset($args[1])) {
+                    throw new CentreonClapiException(self::MISSINGPARAMETER);
+                }
+
+                $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
+                $hostIds = $centreonConfig->findHostsForConfigChangeFlagFromHostGroupIds([$groupId]);
+                $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
+
+                $relation = $args[1];
+                $relations = explode('|', $relation);
+                $relationTable = [];
+                foreach ($relations as $rel) {
+                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
+                    if (isset($tab[0]) && $tab[0] != '') {
+                        $relationTable[] = $tab[0];
+                    } elseif ($rel != '') {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
+                    }
+                }
+                if ($matches[1] == 'set') {
+                    $relobj->delete($groupId);
+                }
+                $existingRelationIds = $relobj->getTargetIdFromSourceId(
+                    $relobj->getSecondKey(),
+                    $relobj->getFirstKey(),
+                    [$groupId]
+                );
+                foreach ($relationTable as $relationId) {
+                    if ($matches[1] == 'del') {
+                        $relobj->delete($groupId, $relationId);
+                    } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
+                        if (! in_array($relationId, $existingRelationIds)) {
+                            $relobj->insert($groupId, $relationId);
+                        }
+                    }
+                }
+
+                $centreonConfig->signalConfigurationChange(
+                    CentreonConfigurationChange::RESOURCE_TYPE_HOSTGROUP,
+                    $groupId,
+                    $previousPollerIds
+                );
+
+                $acl = new CentreonACL($this->dependencyInjector);
+                $acl->reload(true);
+            }
+        } else {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+    }
+
+    /**
      * @param null $parameters
      * @param array $filters
      *
@@ -377,96 +467,6 @@ class CentreonHostGroup extends CentreonObject
         $row = $vidrStatement->fetch();
 
         return $row['vidr_id'];
-    }
-
-    /**
-     * Magic method
-     *
-     * @param $name
-     * @param $arg
-     * @throws CentreonClapiException
-     */
-    public function __call($name, $arg)
-    {
-        // Get the method name
-        $name = strtolower($name);
-        // Get the action and the object
-        if (preg_match('/^(get|set|add|del)(member|host|servicegroup)$/', $name, $matches)) {
-            // Parse arguments
-            if (! isset($arg[0])) {
-                throw new CentreonClapiException(self::MISSINGPARAMETER);
-            }
-            $args = explode($this->delim, $arg[0]);
-            $hgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-            if (! count($hgIds)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
-            }
-            $groupId = $hgIds[0];
-
-            if ($matches[2] == 'host' || $matches[2] == 'member') {
-                $relobj = new Centreon_Object_Relation_Host_Group_Host($this->dependencyInjector);
-                $obj = new Centreon_Object_Host($this->dependencyInjector);
-            } elseif ($matches[2] == 'servicegroup') {
-                $relobj = new Centreon_Object_Relation_Host_Group_Service_Group($this->dependencyInjector);
-                $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
-            }
-            if ($matches[1] == 'get') {
-                $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hgIds);
-                echo 'id' . $this->delim . 'name' . "\n";
-                foreach ($tab as $value) {
-                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
-                    echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
-                }
-            } else {
-                if (! isset($args[1])) {
-                    throw new CentreonClapiException(self::MISSINGPARAMETER);
-                }
-
-                $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
-                $hostIds = $centreonConfig->findHostsForConfigChangeFlagFromHostGroupIds([$groupId]);
-                $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
-
-                $relation = $args[1];
-                $relations = explode('|', $relation);
-                $relationTable = [];
-                foreach ($relations as $rel) {
-                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
-                    if (isset($tab[0]) && $tab[0] != '') {
-                        $relationTable[] = $tab[0];
-                    } elseif ($rel != '') {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
-                    }
-                }
-                if ($matches[1] == 'set') {
-                    $relobj->delete($groupId);
-                }
-                $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                    $relobj->getSecondKey(),
-                    $relobj->getFirstKey(),
-                    [$groupId]
-                );
-                foreach ($relationTable as $relationId) {
-                    if ($matches[1] == 'del') {
-                        $relobj->delete($groupId, $relationId);
-                    } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
-                        if (! in_array($relationId, $existingRelationIds)) {
-                            $relobj->insert($groupId, $relationId);
-                        }
-                    }
-                }
-
-                $centreonConfig->signalConfigurationChange(
-                    CentreonConfigurationChange::RESOURCE_TYPE_HOSTGROUP,
-                    $groupId,
-                    $previousPollerIds
-                );
-
-                $acl = new CentreonACL($this->dependencyInjector);
-                $acl->reload(true);
-            }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
-        }
     }
 
     /**

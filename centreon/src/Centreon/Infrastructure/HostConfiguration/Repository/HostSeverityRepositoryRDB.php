@@ -78,6 +78,38 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHost(Host $host): ?HostSeverity
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'SELECT hc.*, icon.img_id AS img_id, icon.img_name AS img_name,
+                CONCAT(iconD.dir_name,\'/\',icon.img_path) AS img_path, icon.img_comment AS img_comment
+                FROM `:db`.hostcategories hc
+                LEFT JOIN `:db`.view_img icon
+                    ON icon.img_id = hc.icon_id
+                LEFT JOIN `:db`.view_img_dir_relation iconR
+                    ON iconR.img_img_id = icon.img_id
+                LEFT JOIN `:db`.view_img_dir iconD
+                    ON iconD.dir_id = iconR.dir_dir_parent_id
+                INNER JOIN `:db`.hostcategories_relation hc_rel
+                    ON hc.hc_id = hc_rel.hostcategories_hc_id
+                WHERE hc.level IS NOT NULL
+                AND hc_rel.host_host_id = :host_id'
+            )
+        );
+        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return HostSeverityFactoryRdb::create($result);
+        }
+
+        return null;
+    }
+
+    /**
      * Find a severity by id and contact id.
      *
      * @param int $hostSeverityId Id of the host severity to be found
@@ -136,38 +168,6 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         }
 
         $statement->bindValue(':id', $hostSeverityId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return HostSeverityFactoryRdb::create($result);
-        }
-
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findByHost(Host $host): ?HostSeverity
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                'SELECT hc.*, icon.img_id AS img_id, icon.img_name AS img_name,
-                CONCAT(iconD.dir_name,\'/\',icon.img_path) AS img_path, icon.img_comment AS img_comment
-                FROM `:db`.hostcategories hc
-                LEFT JOIN `:db`.view_img icon
-                    ON icon.img_id = hc.icon_id
-                LEFT JOIN `:db`.view_img_dir_relation iconR
-                    ON iconR.img_img_id = icon.img_id
-                LEFT JOIN `:db`.view_img_dir iconD
-                    ON iconD.dir_id = iconR.dir_dir_parent_id
-                INNER JOIN `:db`.hostcategories_relation hc_rel
-                    ON hc.hc_id = hc_rel.hostcategories_hc_id
-                WHERE hc.level IS NOT NULL
-                AND hc_rel.host_host_id = :host_id'
-            )
-        );
-        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
         $statement->execute();
 
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {

@@ -43,15 +43,6 @@ require_once __DIR__ . '/abstract/service.class.php';
  */
 class ServiceTemplate extends AbstractService
 {
-    /** @var null */
-    protected $hosts = null;
-
-    /** @var string */
-    protected $generate_filename = 'serviceTemplates.cfg';
-
-    /** @var string */
-    protected string $object_name = 'service';
-
     /** @var array */
     public $service_cache = [];
 
@@ -66,6 +57,15 @@ class ServiceTemplate extends AbstractService
 
     /** @var null */
     public $current_service_id = null;
+
+    /** @var null */
+    protected $hosts = null;
+
+    /** @var string */
+    protected $generate_filename = 'serviceTemplates.cfg';
+
+    /** @var string */
+    protected string $object_name = 'service';
 
     /** @var array */
     protected $loop_tpl = [];
@@ -122,32 +122,6 @@ class ServiceTemplate extends AbstractService
     protected $attributes_write = ['service_description', 'name', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
 
     /**
-     * @param $serviceId
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getServiceGroups($serviceId): void
-    {
-        $host = Host::getInstance($this->dependencyInjector);
-        $servicegroup = Servicegroup::getInstance($this->dependencyInjector);
-        $this->service_cache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForStpl($serviceId);
-        $this->service_cache[$serviceId]['group_tags'] = [];
-        foreach ($this->service_cache[$serviceId]['sg'] as &$sg) {
-            if ($host->isHostTemplate($this->current_host_id, $sg['host_host_id'])) {
-                $this->service_cache[$serviceId]['group_tags'][] = $sg['servicegroup_sg_id'];
-                $servicegroup->addServiceInSg(
-                    $sg['servicegroup_sg_id'],
-                    $this->current_service_id,
-                    $this->current_service_description,
-                    $this->current_host_id,
-                    $this->current_host_name
-                );
-            }
-        }
-    }
-
-    /**
      * @param int $serviceId
      *
      * @throws PDOException
@@ -167,36 +141,6 @@ class ServiceTemplate extends AbstractService
         $this->stmt_service->execute();
         $results = $this->stmt_service->fetchAll(PDO::FETCH_ASSOC);
         $this->service_cache[$serviceId] = array_pop($results);
-    }
-
-    /**
-     * @param $service_id
-     *
-     * @throws PDOException
-     * @return int|void
-     */
-    private function getSeverity($service_id)
-    {
-        if (isset($this->service_cache[$service_id]['severity_id'])) {
-            return 0;
-        }
-
-        $this->service_cache[$service_id]['severity_id']
-            = Severity::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($service_id);
-        $severity = Severity::getInstance($this->dependencyInjector)
-            ->getServiceSeverityById($this->service_cache[$service_id]['severity_id']);
-        if (! is_null($severity)) {
-            $macros = [
-                '_CRITICALITY_LEVEL' => $severity['level'],
-                '_CRITICALITY_ID' => $severity['sc_id'],
-                'severity' =>  $severity['sc_id'],
-            ];
-
-            $this->service_cache[$service_id]['macros'] = array_merge(
-                $this->service_cache[$service_id]['macros'] ?? [],
-                $macros
-            );
-        }
     }
 
     /**
@@ -277,5 +221,61 @@ class ServiceTemplate extends AbstractService
         $this->loop_stpl = [];
         $this->service_cache = [];
         parent::reset();
+    }
+
+    /**
+     * @param $serviceId
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function getServiceGroups($serviceId): void
+    {
+        $host = Host::getInstance($this->dependencyInjector);
+        $servicegroup = Servicegroup::getInstance($this->dependencyInjector);
+        $this->service_cache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForStpl($serviceId);
+        $this->service_cache[$serviceId]['group_tags'] = [];
+        foreach ($this->service_cache[$serviceId]['sg'] as &$sg) {
+            if ($host->isHostTemplate($this->current_host_id, $sg['host_host_id'])) {
+                $this->service_cache[$serviceId]['group_tags'][] = $sg['servicegroup_sg_id'];
+                $servicegroup->addServiceInSg(
+                    $sg['servicegroup_sg_id'],
+                    $this->current_service_id,
+                    $this->current_service_description,
+                    $this->current_host_id,
+                    $this->current_host_name
+                );
+            }
+        }
+    }
+
+    /**
+     * @param $service_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function getSeverity($service_id)
+    {
+        if (isset($this->service_cache[$service_id]['severity_id'])) {
+            return 0;
+        }
+
+        $this->service_cache[$service_id]['severity_id']
+            = Severity::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($service_id);
+        $severity = Severity::getInstance($this->dependencyInjector)
+            ->getServiceSeverityById($this->service_cache[$service_id]['severity_id']);
+        if (! is_null($severity)) {
+            $macros = [
+                '_CRITICALITY_LEVEL' => $severity['level'],
+                '_CRITICALITY_ID' => $severity['sc_id'],
+                'severity' =>  $severity['sc_id'],
+            ];
+
+            $this->service_cache[$service_id]['macros'] = array_merge(
+                $this->service_cache[$service_id]['macros'] ?? [],
+                $macros
+            );
+        }
     }
 }

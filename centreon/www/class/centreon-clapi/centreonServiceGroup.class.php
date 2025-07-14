@@ -92,144 +92,6 @@ class CentreonServiceGroup extends CentreonObject
     }
 
     /**
-     * @param mixed|null $parameters
-     * @param array $filters
-     *
-     * @throws Exception
-     */
-    public function show($parameters = null, $filters = []): void
-    {
-        $filters = [];
-        if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
-        }
-        $params = ['sg_id', 'sg_name', 'sg_alias'];
-        $paramString = str_replace('sg_', '', implode($this->delim, $params));
-        echo $paramString . "\n";
-        $elements = $this->object->getList(
-            $params,
-            -1,
-            0,
-            null,
-            null,
-            $filters
-        );
-        foreach ($elements as $tab) {
-            $tab = array_map('html_entity_decode', $tab);
-            $tab = array_map(function ($s) {
-                return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');
-            }, $tab);
-            echo implode($this->delim, $tab) . "\n";
-        }
-    }
-
-    /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     * @return void
-     */
-    public function initInsertParameters($parameters): void
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < $this->nbOfCompulsoryParams) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $addParams = [];
-        $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
-        $addParams['sg_alias'] = $params[self::ORDER_ALIAS];
-        $this->params = array_merge($this->params, $addParams);
-        $this->checkParameters();
-    }
-
-    /**
-     * Get a parameter
-     *
-     * @param string|null $parameters
-     * @throws CentreonClapiException
-     */
-    public function getparam($parameters = null): void
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < 2) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $authorizeParam = ['alias', 'comment', 'name', 'activate', 'geo_coords'];
-        $unknownParam = [];
-
-        if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
-            $listParam = explode('|', $params[1]);
-            $exportedFields = [];
-            $resultString = '';
-            foreach ($listParam as $paramSearch) {
-                $paramString = ! $paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
-                $field = $paramSearch;
-                if (! in_array($field, $authorizeParam)) {
-                    $unknownParam[] = $field;
-                } else {
-                    switch ($paramSearch) {
-                        case 'geo_coords':
-                            break;
-                        default:
-                            if (! preg_match('/^sg_/', $paramSearch)) {
-                                $field = 'sg_' . $paramSearch;
-                            }
-                            break;
-                    }
-
-                    $ret = $this->object->getParameters($objectId, $field);
-                    $ret = $ret[$field];
-
-                    if (! isset($exportedFields[$paramSearch])) {
-                        $resultString .= $this->csvEscape($ret) . $this->delim;
-                        $exportedFields[$paramSearch] = 1;
-                    }
-                }
-            }
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-        }
-
-        if ($unknownParam !== []) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . implode('|', $unknownParam));
-        }
-        echo implode(';', array_unique(explode(';', $paramString))) . "\n";
-        echo substr($resultString, 0, -1) . "\n";
-    }
-
-    /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    public function initUpdateParameters($parameters)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < self::NB_UPDATE_PARAMS) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            if (! preg_match('/^sg_/', $params[1]) && $params[1] != 'geo_coords') {
-                $params[1] = 'sg_' . $params[1];
-            } elseif ($params[1] === 'geo_coords') {
-                if (! CentreonUtils::validateGeoCoords($params[2])) {
-                    throw new CentreonClapiException(self::INVALID_GEO_COORDS);
-                }
-            }
-
-            $updateParams = [$params[1] => $params[2]];
-            $updateParams['objectId'] = $objectId;
-
-            return $updateParams;
-        }
-
-        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-    }
-
-    /**
      * Magic method for get/set/add/del relations
      *
      * @param string $name
@@ -403,6 +265,144 @@ class CentreonServiceGroup extends CentreonObject
         } else {
             throw new CentreonClapiException(self::UNKNOWN_METHOD);
         }
+    }
+
+    /**
+     * @param mixed|null $parameters
+     * @param array $filters
+     *
+     * @throws Exception
+     */
+    public function show($parameters = null, $filters = []): void
+    {
+        $filters = [];
+        if (isset($parameters)) {
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
+        }
+        $params = ['sg_id', 'sg_name', 'sg_alias'];
+        $paramString = str_replace('sg_', '', implode($this->delim, $params));
+        echo $paramString . "\n";
+        $elements = $this->object->getList(
+            $params,
+            -1,
+            0,
+            null,
+            null,
+            $filters
+        );
+        foreach ($elements as $tab) {
+            $tab = array_map('html_entity_decode', $tab);
+            $tab = array_map(function ($s) {
+                return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');
+            }, $tab);
+            echo implode($this->delim, $tab) . "\n";
+        }
+    }
+
+    /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return void
+     */
+    public function initInsertParameters($parameters): void
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < $this->nbOfCompulsoryParams) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $addParams = [];
+        $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
+        $addParams['sg_alias'] = $params[self::ORDER_ALIAS];
+        $this->params = array_merge($this->params, $addParams);
+        $this->checkParameters();
+    }
+
+    /**
+     * Get a parameter
+     *
+     * @param string|null $parameters
+     * @throws CentreonClapiException
+     */
+    public function getparam($parameters = null): void
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < 2) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $authorizeParam = ['alias', 'comment', 'name', 'activate', 'geo_coords'];
+        $unknownParam = [];
+
+        if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
+            $listParam = explode('|', $params[1]);
+            $exportedFields = [];
+            $resultString = '';
+            foreach ($listParam as $paramSearch) {
+                $paramString = ! $paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
+                $field = $paramSearch;
+                if (! in_array($field, $authorizeParam)) {
+                    $unknownParam[] = $field;
+                } else {
+                    switch ($paramSearch) {
+                        case 'geo_coords':
+                            break;
+                        default:
+                            if (! preg_match('/^sg_/', $paramSearch)) {
+                                $field = 'sg_' . $paramSearch;
+                            }
+                            break;
+                    }
+
+                    $ret = $this->object->getParameters($objectId, $field);
+                    $ret = $ret[$field];
+
+                    if (! isset($exportedFields[$paramSearch])) {
+                        $resultString .= $this->csvEscape($ret) . $this->delim;
+                        $exportedFields[$paramSearch] = 1;
+                    }
+                }
+            }
+        } else {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+        }
+
+        if ($unknownParam !== []) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . implode('|', $unknownParam));
+        }
+        echo implode(';', array_unique(explode(';', $paramString))) . "\n";
+        echo substr($resultString, 0, -1) . "\n";
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    public function initUpdateParameters($parameters)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < self::NB_UPDATE_PARAMS) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
+        if ($objectId != 0) {
+            if (! preg_match('/^sg_/', $params[1]) && $params[1] != 'geo_coords') {
+                $params[1] = 'sg_' . $params[1];
+            } elseif ($params[1] === 'geo_coords') {
+                if (! CentreonUtils::validateGeoCoords($params[2])) {
+                    throw new CentreonClapiException(self::INVALID_GEO_COORDS);
+                }
+            }
+
+            $updateParams = [$params[1] => $params[2]];
+            $updateParams['objectId'] = $objectId;
+
+            return $updateParams;
+        }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**

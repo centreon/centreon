@@ -47,11 +47,11 @@ use ReflectionClass;
  */
 class CentreonDBAdapter
 {
-    /** @var CentreonDB */
-    private $db;
-
     /** @var CentreonDBManagerService */
     protected $manager;
+
+    /** @var CentreonDB */
+    private $db;
 
     private $count = 0;
 

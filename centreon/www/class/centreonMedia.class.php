@@ -181,30 +181,6 @@ class CentreonMedia
     }
 
     /**
-     * Add directory
-     *
-     * @param string $dirname
-     *
-     * @throws Exception
-     */
-    private function createDirectory($dirname): void
-    {
-        $mediaDirectory = $this->getMediaDirectory();
-
-        $fullPath = $mediaDirectory . '/' . basename($dirname);
-
-        // Create directory and nested folder structure
-        if (! is_dir($fullPath)) {
-            @mkdir($fullPath, 0755, true);
-            if (! is_dir($fullPath)) {
-                error_log('Impossible to create directory ' . $fullPath);
-            }
-        } elseif (fileperms($fullPath) !== 0755) {
-            chmod($fullPath, 0755);
-        }
-    }
-
-    /**
      * Returns ID of target Image
      *
      * @param string $imagename
@@ -327,19 +303,6 @@ class CentreonMedia
     }
 
     /**
-     * @param string $path
-     *
-     * @return string
-     */
-    private function sanitizePath($path)
-    {
-        $cleanstr = htmlentities($path, ENT_QUOTES, 'UTF-8');
-        $cleanstr = str_replace('/', '_', $cleanstr);
-
-        return str_replace('\\', '_', $cleanstr);
-    }
-
-    /**
      * @param array $parameters
      * @param string|null $binary
      *
@@ -429,6 +392,43 @@ class CentreonMedia
         }
 
         return $imageId;
+    }
+
+    /**
+     * Add directory
+     *
+     * @param string $dirname
+     *
+     * @throws Exception
+     */
+    private function createDirectory($dirname): void
+    {
+        $mediaDirectory = $this->getMediaDirectory();
+
+        $fullPath = $mediaDirectory . '/' . basename($dirname);
+
+        // Create directory and nested folder structure
+        if (! is_dir($fullPath)) {
+            @mkdir($fullPath, 0755, true);
+            if (! is_dir($fullPath)) {
+                error_log('Impossible to create directory ' . $fullPath);
+            }
+        } elseif (fileperms($fullPath) !== 0755) {
+            chmod($fullPath, 0755);
+        }
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    private function sanitizePath($path)
+    {
+        $cleanstr = htmlentities($path, ENT_QUOTES, 'UTF-8');
+        $cleanstr = str_replace('/', '_', $cleanstr);
+
+        return str_replace('\\', '_', $cleanstr);
     }
 
     /**

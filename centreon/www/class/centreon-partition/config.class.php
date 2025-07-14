@@ -50,13 +50,13 @@ class Config
     public $XMLFile;
 
     /** @var array */
-    private $defaultConfiguration;
-
-    /** @var array */
     public $tables = [];
 
     /** @var CentreonDB */
     public $centstorageDb;
+
+    /** @var array */
+    private $defaultConfiguration;
 
     /** @var CentreonDB */
     private $centreonDb;

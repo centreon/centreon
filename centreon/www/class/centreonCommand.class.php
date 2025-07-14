@@ -41,14 +41,14 @@
  */
 class CentreonCommand
 {
-    /** @var CentreonDB */
-    protected $db;
-
     /** @var string[] */
     public $aTypeMacro = ['1' => 'HOST', '2' => 'SERVICE'];
 
     /** @var array[] */
     public $aTypeCommand = ['host' => ['key' => '$_HOST', 'preg' => '/\$_HOST([\w_-]+)\$/'], 'service' => ['key' => '$_SERVICE', 'preg' => '/\$_SERVICE([\w_-]+)\$/']];
+
+    /** @var CentreonDB */
+    protected $db;
 
     /**
      * CentreonCommand constructor
@@ -58,31 +58,6 @@ class CentreonCommand
     public function __construct($db)
     {
         $this->db = $db;
-    }
-
-    /**
-     * @param $commandType
-     * @throws Exception
-     * @return array
-     */
-    protected function getCommandList($commandType)
-    {
-        $query = 'SELECT command_id, command_name '
-            . 'FROM command '
-            . 'WHERE command_type = :type '
-            . 'ORDER BY command_name';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':type', $commandType, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-        $arr = [];
-        while ($row = $stmt->fetch()) {
-            $arr[$row['command_id']] = $row['command_name'];
-        }
-
-        return $arr;
     }
 
     /**
@@ -583,5 +558,30 @@ class CentreonCommand
         }
 
         return $linkedCommands;
+    }
+
+    /**
+     * @param $commandType
+     * @throws Exception
+     * @return array
+     */
+    protected function getCommandList($commandType)
+    {
+        $query = 'SELECT command_id, command_name '
+            . 'FROM command '
+            . 'WHERE command_type = :type '
+            . 'ORDER BY command_name';
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':type', $commandType, PDO::PARAM_INT);
+        $dbResult = $stmt->execute();
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+        $arr = [];
+        while ($row = $stmt->fetch()) {
+            $arr[$row['command_id']] = $row['command_name'];
+        }
+
+        return $arr;
     }
 }

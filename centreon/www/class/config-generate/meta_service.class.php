@@ -44,15 +44,6 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
  */
 class MetaService extends AbstractObject
 {
-    /** @var int */
-    private $has_meta_services = 0;
-
-    /** @var array */
-    private $meta_services = [];
-
-    /** @var array */
-    private $generated_services = []; // for index_data build
-
     /** @var string */
     protected $generate_filename = 'meta_services.cfg';
 
@@ -85,11 +76,89 @@ class MetaService extends AbstractObject
     /** @var string[] */
     protected $attributes_array = ['contact_groups', 'contacts'];
 
+    /** @var int */
+    private $has_meta_services = 0;
+
+    /** @var array */
+    private $meta_services = [];
+
+    /** @var array */
+    private $generated_services = []; // for index_data build
+
     /** @var null */
     private $stmt_cg = null;
 
     /** @var null */
     private $stmt_contact = null;
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return int|void
+     */
+    public function generateObjects()
+    {
+        $this->buildCacheMetaServices();
+        if (count($this->meta_services) == 0) {
+            return 0;
+        }
+
+        $host_id = MetaHost::getInstance($this->dependencyInjector)->getHostIdByHostName('_Module_Meta');
+        if (is_null($host_id)) {
+            return 0;
+        }
+        MetaCommand::getInstance($this->dependencyInjector)->generateObjects();
+        MetaTimeperiod::getInstance($this->dependencyInjector)->generateObjects();
+        MetaHost::getInstance($this->dependencyInjector)->generateObject($host_id);
+
+        $this->has_meta_services = 1;
+
+        foreach ($this->meta_services as $meta_id => &$meta_service) {
+            $meta_service['macros'] = ['_SERVICE_ID' => $meta_service['service_id']];
+            $this->getCtFromMetaId($meta_id);
+            $this->getCgFromMetaId($meta_id);
+            $meta_service['check_period'] = Timeperiod::getInstance($this->dependencyInjector)
+                ->generateFromTimeperiodId($meta_service['check_period_id']);
+            $meta_service['notification_period'] = Timeperiod::getInstance($this->dependencyInjector)
+                ->generateFromTimeperiodId($meta_service['notification_period_id']);
+            $meta_service['register'] = 1;
+            $meta_service['active_checks_enabled'] = 1;
+            $meta_service['passive_checks_enabled'] = 0;
+            $meta_service['host_name'] = '_Module_Meta';
+            $meta_service['service_description'] = 'meta_' . $meta_id;
+            $meta_service['display_name'] = html_entity_decode($meta_service['display_name']);
+            $meta_service['check_command'] = 'check_meta!' . $meta_id;
+
+            $this->generated_services[] = $meta_id;
+            $this->generateObjectInFile($meta_service, $meta_id);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetaServices()
+    {
+        return $this->meta_services;
+    }
+
+    /**
+     * @return int
+     */
+    public function hasMetaServices()
+    {
+        return $this->has_meta_services;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratedServices()
+    {
+        return $this->generated_services;
+    }
 
     /**
      * @param $meta_id
@@ -191,74 +260,5 @@ class MetaService extends AbstractObject
                 $meta_infos['display_name']
             );
         }
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int|void
-     */
-    public function generateObjects()
-    {
-        $this->buildCacheMetaServices();
-        if (count($this->meta_services) == 0) {
-            return 0;
-        }
-
-        $host_id = MetaHost::getInstance($this->dependencyInjector)->getHostIdByHostName('_Module_Meta');
-        if (is_null($host_id)) {
-            return 0;
-        }
-        MetaCommand::getInstance($this->dependencyInjector)->generateObjects();
-        MetaTimeperiod::getInstance($this->dependencyInjector)->generateObjects();
-        MetaHost::getInstance($this->dependencyInjector)->generateObject($host_id);
-
-        $this->has_meta_services = 1;
-
-        foreach ($this->meta_services as $meta_id => &$meta_service) {
-            $meta_service['macros'] = ['_SERVICE_ID' => $meta_service['service_id']];
-            $this->getCtFromMetaId($meta_id);
-            $this->getCgFromMetaId($meta_id);
-            $meta_service['check_period'] = Timeperiod::getInstance($this->dependencyInjector)
-                ->generateFromTimeperiodId($meta_service['check_period_id']);
-            $meta_service['notification_period'] = Timeperiod::getInstance($this->dependencyInjector)
-                ->generateFromTimeperiodId($meta_service['notification_period_id']);
-            $meta_service['register'] = 1;
-            $meta_service['active_checks_enabled'] = 1;
-            $meta_service['passive_checks_enabled'] = 0;
-            $meta_service['host_name'] = '_Module_Meta';
-            $meta_service['service_description'] = 'meta_' . $meta_id;
-            $meta_service['display_name'] = html_entity_decode($meta_service['display_name']);
-            $meta_service['check_command'] = 'check_meta!' . $meta_id;
-
-            $this->generated_services[] = $meta_id;
-            $this->generateObjectInFile($meta_service, $meta_id);
-        }
-    }
-
-    /**
-     * @return array
-     */
-    public function getMetaServices()
-    {
-        return $this->meta_services;
-    }
-
-    /**
-     * @return int
-     */
-    public function hasMetaServices()
-    {
-        return $this->has_meta_services;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratedServices()
-    {
-        return $this->generated_services;
     }
 }

@@ -130,6 +130,17 @@ abstract class AbstractService extends AbstractObject
     protected $stmt_service = null;
 
     /**
+     * @param $service_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($service_id, $attr)
+    {
+        return $this->service_cache[$service_id][$attr] ?? null;
+    }
+
+    /**
      * @param $service
      *
      * @throws PDOException
@@ -298,17 +309,6 @@ abstract class AbstractService extends AbstractObject
         $service['check_period'] = $period->generateFromTimeperiodId($service['check_period_id'] ?? null);
         // Mandatory "notification_period_id" field.
         $service['notification_period'] = $period->generateFromTimeperiodId($service['notification_period_id']);
-    }
-
-    /**
-     * @param $service_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($service_id, $attr)
-    {
-        return $this->service_cache[$service_id][$attr] ?? null;
     }
 
     /**

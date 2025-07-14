@@ -95,6 +95,8 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /** @var int The number of element in the pagination */
     public $_pagination;
 
+    public $_memOptions = [];
+
     /**
      * @param string $elementName
      * @param string $elementLabel
@@ -337,8 +339,6 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
 
         return $datas;
     }
-
-    public $_memOptions = [];
 
     public function setDefaultFixedDatas(): void
     {

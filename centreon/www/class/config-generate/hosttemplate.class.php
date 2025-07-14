@@ -140,50 +140,6 @@ class HostTemplate extends AbstractHost
     }
 
     /**
-     * @throws PDOException
-     * @return void
-     */
-    private function getHosts(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT {$this->attributes_select}
-            FROM host
-            LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
-            WHERE host.host_register = '0' AND host.host_activate = '1'"
-        );
-        $stmt->execute();
-        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * @param $host_id
-     *
-     * @throws PDOException
-     * @return int|void
-     */
-    private function getSeverity($host_id)
-    {
-        if (isset($this->hosts[$host_id]['severity_id'])) {
-            return 0;
-        }
-
-        $this->hosts[$host_id]['severity_id']
-            = Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
-        $severity
-            = Severity::getInstance($this->dependencyInjector)
-                ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
-        if (! is_null($severity)) {
-            $macros = [
-                '_CRITICALITY_LEVEL' => $severity['level'],
-                '_CRITICALITY_ID' => $severity['hc_id'],
-                'severity' =>  $severity['hc_id'],
-            ];
-
-            $this->hosts[$host_id]['macros'] = array_merge($this->hosts[$host_id]['macros'] ?? [], $macros);
-        }
-    }
-
-    /**
      * @param $host_id
      *
      * @throws LogicException
@@ -241,5 +197,49 @@ class HostTemplate extends AbstractHost
     {
         $this->loop_htpl = [];
         parent::reset();
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getHosts(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT {$this->attributes_select}
+            FROM host
+            LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
+            WHERE host.host_register = '0' AND host.host_activate = '1'"
+        );
+        $stmt->execute();
+        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param $host_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function getSeverity($host_id)
+    {
+        if (isset($this->hosts[$host_id]['severity_id'])) {
+            return 0;
+        }
+
+        $this->hosts[$host_id]['severity_id']
+            = Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
+        $severity
+            = Severity::getInstance($this->dependencyInjector)
+                ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
+        if (! is_null($severity)) {
+            $macros = [
+                '_CRITICALITY_LEVEL' => $severity['level'],
+                '_CRITICALITY_ID' => $severity['hc_id'],
+                'severity' =>  $severity['hc_id'],
+            ];
+
+            $this->hosts[$host_id]['macros'] = array_merge($this->hosts[$host_id]['macros'] ?? [], $macros);
+        }
     }
 }

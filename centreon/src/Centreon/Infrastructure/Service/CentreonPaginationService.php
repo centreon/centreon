@@ -85,6 +85,18 @@ class CentreonPaginationService
     private $symfonyContainer;
 
     /**
+     * Construct
+     *
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->db = $container->get(ServiceProvider::CENTREON_DB_MANAGER);
+        $this->serializer = $container->get(ServiceProvider::SERIALIZER);
+        $this->symfonyContainer = (Kernel::createForWeb())->getContainer();
+    }
+
+    /**
      * List of required services
      *
      * @return array
@@ -95,18 +107,6 @@ class CentreonPaginationService
             ServiceProvider::CENTREON_DB_MANAGER,
             ServiceProvider::SERIALIZER,
         ];
-    }
-
-    /**
-     * Construct
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->db = $container->get(ServiceProvider::CENTREON_DB_MANAGER);
-        $this->serializer = $container->get(ServiceProvider::SERIALIZER);
-        $this->symfonyContainer = (Kernel::createForWeb())->getContainer();
     }
 
     /**

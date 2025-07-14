@@ -100,18 +100,6 @@ class MysqlTable
     }
 
     /**
-     * Set table name
-     *
-     * @param string $name the name
-     *
-     * @return null
-     */
-    private function setName($name): void
-    {
-        $this->name = isset($name) && $name != '' ? $name : null;
-    }
-
-    /**
      * Get table name
      *
      * @return string
@@ -119,18 +107,6 @@ class MysqlTable
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set table schema
-     *
-     * @param string $schema the schema
-     *
-     * @return null
-     */
-    private function setSchema($schema): void
-    {
-        $this->schema = isset($schema) && $schema != '' ? $schema : null;
     }
 
     /**
@@ -481,5 +457,29 @@ class MysqlTable
         }
 
         return ! (! $found);
+    }
+
+    /**
+     * Set table name
+     *
+     * @param string $name the name
+     *
+     * @return null
+     */
+    private function setName($name): void
+    {
+        $this->name = isset($name) && $name != '' ? $name : null;
+    }
+
+    /**
+     * Set table schema
+     *
+     * @param string $schema the schema
+     *
+     * @return null
+     */
+    private function setSchema($schema): void
+    {
+        $this->schema = isset($schema) && $schema != '' ? $schema : null;
     }
 }

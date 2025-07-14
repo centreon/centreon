@@ -69,6 +69,71 @@ class CentreonCfgWriter
     }
 
     /**
+     *  Defines cfg type
+     *
+     * @param string $type
+     * @return void
+     */
+    public function startCfg($type): void
+    {
+        $this->writeText('define ' . $type . "{\n");
+        $this->xmlBuffer->startElement($type);
+    }
+
+    /**
+     *  Ends cfg
+     *
+     * @return void
+     */
+    public function endCfg(): void
+    {
+        $this->writeText("\t}\n\n");
+        $this->xmlBuffer->endElement();
+    }
+
+    /**
+     *  Sets attributes
+     *
+     * @param string $key
+     * @param string $value
+     * @return void
+     */
+    public function attribute($key, $value): void
+    {
+        $len = strlen($key);
+        if ($len <= 9) {
+            $this->writeText("\t" . $key . "\t\t\t\t" . $value . "\n");
+        } elseif ($len > 9 && $len <= 18) {
+            $this->writeText("\t" . $key . "\t\t\t" . $value . "\n");
+        } elseif ($len >= 19 && $len <= 27) {
+            $this->writeText("\t" . $key . "\t\t" . $value . "\n");
+        } elseif ($len > 27) {
+            $this->writeText("\t" . $key . "\t" . $value . "\n");
+        }
+        $this->xmlBuffer->writeElement($key, $value);
+    }
+
+    /**
+     * Writes in file
+     *
+     * @return void
+     */
+    public function createCfgFile(): void
+    {
+        file_put_contents($this->file_path, $this->buffer);
+    }
+
+    /**
+     * Returns XML format
+     *
+     * @return CentreonXML
+     */
+    public function getXML()
+    {
+        return $this->xmlBuffer;
+    }
+
+    /**
      *  Creates the file
      *
      * @return void
@@ -133,70 +198,5 @@ class CentreonCfgWriter
         $this->writeText("#\n");
         $this->writeText("#                                                                 #\n");
         $this->writeText("###################################################################\n\n");
-    }
-
-    /**
-     *  Defines cfg type
-     *
-     * @param string $type
-     * @return void
-     */
-    public function startCfg($type): void
-    {
-        $this->writeText('define ' . $type . "{\n");
-        $this->xmlBuffer->startElement($type);
-    }
-
-    /**
-     *  Ends cfg
-     *
-     * @return void
-     */
-    public function endCfg(): void
-    {
-        $this->writeText("\t}\n\n");
-        $this->xmlBuffer->endElement();
-    }
-
-    /**
-     *  Sets attributes
-     *
-     * @param string $key
-     * @param string $value
-     * @return void
-     */
-    public function attribute($key, $value): void
-    {
-        $len = strlen($key);
-        if ($len <= 9) {
-            $this->writeText("\t" . $key . "\t\t\t\t" . $value . "\n");
-        } elseif ($len > 9 && $len <= 18) {
-            $this->writeText("\t" . $key . "\t\t\t" . $value . "\n");
-        } elseif ($len >= 19 && $len <= 27) {
-            $this->writeText("\t" . $key . "\t\t" . $value . "\n");
-        } elseif ($len > 27) {
-            $this->writeText("\t" . $key . "\t" . $value . "\n");
-        }
-        $this->xmlBuffer->writeElement($key, $value);
-    }
-
-    /**
-     * Writes in file
-     *
-     * @return void
-     */
-    public function createCfgFile(): void
-    {
-        file_put_contents($this->file_path, $this->buffer);
-    }
-
-    /**
-     * Returns XML format
-     *
-     * @return CentreonXML
-     */
-    public function getXML()
-    {
-        return $this->xmlBuffer;
     }
 }

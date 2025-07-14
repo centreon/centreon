@@ -110,20 +110,6 @@ class CentreonAuthLDAP
     }
 
     /**
-     * Is loging enable ?
-     *
-     * @throws PDOException
-     * @return int 1 enable 0 disable
-     */
-    private function getLogFlag()
-    {
-        $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_ldap_import'");
-        $data = $res->fetch();
-
-        return $data['value'] ?? 0;
-    }
-
-    /**
      * Check the user pass
      */
     public function checkPassword()
@@ -431,5 +417,19 @@ class CentreonAuthLDAP
         }
 
         return false;
+    }
+
+    /**
+     * Is loging enable ?
+     *
+     * @throws PDOException
+     * @return int 1 enable 0 disable
+     */
+    private function getLogFlag()
+    {
+        $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_ldap_import'");
+        $data = $res->fetch();
+
+        return $data['value'] ?? 0;
     }
 }

@@ -34,15 +34,6 @@ use Pimple\Container;
  */
 class TrapsPreexec extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $trapPreexecCache = [];
-
     /** @var string */
     protected $table = 'traps_preexec';
 
@@ -59,6 +50,15 @@ class TrapsPreexec extends AbstractObject
         'tpe_string',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $trapPreexecCache = [];
+
     /**
      * TrapsPreexec constructor
      *
@@ -68,43 +68,6 @@ class TrapsPreexec extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of trap preexec
-     *
-     * @return void
-     */
-    private function cacheTrapPreexec(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT *
-            FROM traps_preexec'
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            if (! isset($this->trapPreexecCache[$value['trap_id']])) {
-                $this->trapPreexecCache[$value['trap_id']] = [];
-            }
-            $this->trapPreexecCache[$value['trap_id']][] = &$value;
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->cacheTrapPreexec();
-        $this->doneCache = 1;
     }
 
     /**
@@ -162,5 +125,42 @@ class TrapsPreexec extends AbstractObject
         $this->generateObject($trapId, $trapPreexecCache[$trapId]);
 
         return $trapPreexecCache;
+    }
+
+    /**
+     * Build cache of trap preexec
+     *
+     * @return void
+     */
+    private function cacheTrapPreexec(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT *
+            FROM traps_preexec'
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            if (! isset($this->trapPreexecCache[$value['trap_id']])) {
+                $this->trapPreexecCache[$value['trap_id']] = [];
+            }
+            $this->trapPreexecCache[$value['trap_id']][] = &$value;
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->cacheTrapPreexec();
+        $this->doneCache = 1;
     }
 }

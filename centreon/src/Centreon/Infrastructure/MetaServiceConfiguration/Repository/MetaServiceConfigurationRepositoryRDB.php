@@ -74,6 +74,24 @@ class MetaServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implem
     }
 
     /**
+     * @inheritDoc
+     * @throws AssertionFailedException
+     */
+    public function findById(int $metaId): ?MetaServiceConfiguration
+    {
+        return $this->findByIdRequest($metaId, null);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws AssertionFailedException
+     */
+    public function findByIdAndContact(int $metaId, ContactInterface $contact): ?MetaServiceConfiguration
+    {
+        return $this->findByIdRequest($metaId, $contact->getId());
+    }
+
+    /**
      * Find all meta services configurations filtered by contact id.
      *
      * @param int|null $contactId Contact id related to host categories
@@ -184,24 +202,6 @@ class MetaServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implem
         }
 
         return $metaServicesConfigurations;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws AssertionFailedException
-     */
-    public function findById(int $metaId): ?MetaServiceConfiguration
-    {
-        return $this->findByIdRequest($metaId, null);
-    }
-
-    /**
-     * @inheritDoc
-     * @throws AssertionFailedException
-     */
-    public function findByIdAndContact(int $metaId, ContactInterface $contact): ?MetaServiceConfiguration
-    {
-        return $this->findByIdRequest($metaId, $contact->getId());
     }
 
     /**

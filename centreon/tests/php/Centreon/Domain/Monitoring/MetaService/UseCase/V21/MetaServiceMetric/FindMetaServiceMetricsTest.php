@@ -47,17 +47,6 @@ class FindMetaServiceMetricsTest extends TestCase
     }
 
     /**
-     * @return FindMetaServiceMetrics
-     */
-    private function createMetaServiceMetricUseCase(): FindMetaServiceMetrics
-    {
-        $contact = new Contact();
-        $contact->setAdmin(true);
-
-        return new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
-    }
-
-    /**
      * Test as admin user
      */
     public function testExecuteAsAdmin(): void
@@ -89,5 +78,16 @@ class FindMetaServiceMetricsTest extends TestCase
         $findMetaServiceMetrics = new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
         $response = $findMetaServiceMetrics->execute(1);
         $this->assertCount(1, $response->getMetaServiceMetrics());
+    }
+
+    /**
+     * @return FindMetaServiceMetrics
+     */
+    private function createMetaServiceMetricUseCase(): FindMetaServiceMetrics
+    {
+        $contact = new Contact();
+        $contact->setAdmin(true);
+
+        return new FindMetaServiceMetrics($this->metaServiceMetricService, $contact);
     }
 }

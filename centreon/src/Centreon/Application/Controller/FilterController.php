@@ -43,9 +43,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class FilterController extends AbstractController
 {
+    public const SERIALIZER_GROUPS_MAIN = ['filter_main'];
+
     /** @var FilterServiceInterface */
     private $filterService;
-    public const SERIALIZER_GROUPS_MAIN = ['filter_main'];
 
     /**
      * PollerController constructor.
@@ -54,33 +55,6 @@ class FilterController extends AbstractController
     public function __construct(FilterServiceInterface $filterService)
     {
         $this->filterService = $filterService;
-    }
-
-    /**
-     * validate filter data according to json schema
-     *
-     * @param array<mixed> $filter sent json
-     * @throws FilterException
-     * @return void
-     */
-    private function validateFilterSchema(array $filter, string $schemaPath): void
-    {
-        $filterToValidate = Validator::arrayToObjectRecursive($filter);
-        $validator = new Validator();
-        $validator->validate(
-            $filterToValidate,
-            (object) ['$ref' => 'file://' . $schemaPath],
-            Constraint::CHECK_MODE_VALIDATE_SCHEMA
-        );
-
-        if (! $validator->isValid()) {
-            $message = '';
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
-            }
-
-            throw new FilterException($message);
-        }
     }
 
     /**
@@ -125,25 +99,6 @@ class FilterController extends AbstractController
         $context = (new Context())->setGroups(self::SERIALIZER_GROUPS_MAIN);
 
         return $this->view($filter)->setContext($context);
-    }
-
-    /**
-     * @param array<mixed> $data
-     * @return FilterCriteria[]
-     */
-    private function createFilterCriterias(array $data): array
-    {
-        $filterCriterias = [];
-        foreach ($data['criterias'] as $criteria) {
-            $filterCriterias[] = (new FilterCriteria())
-                ->setName($criteria['name'])
-                ->setType($criteria['type'])
-                ->setValue($criteria['value'])
-                ->setObjectType($criteria['object_type'] ?? null)
-                ->setSearchData($criteria['search_data'] ?? null);
-        }
-
-        return $filterCriterias;
     }
 
     /**
@@ -345,6 +300,52 @@ class FilterController extends AbstractController
         $context = (new Context())->setGroups(self::SERIALIZER_GROUPS_MAIN);
 
         return $this->view($filter)->setContext($context);
+    }
+
+    /**
+     * validate filter data according to json schema
+     *
+     * @param array<mixed> $filter sent json
+     * @throws FilterException
+     * @return void
+     */
+    private function validateFilterSchema(array $filter, string $schemaPath): void
+    {
+        $filterToValidate = Validator::arrayToObjectRecursive($filter);
+        $validator = new Validator();
+        $validator->validate(
+            $filterToValidate,
+            (object) ['$ref' => 'file://' . $schemaPath],
+            Constraint::CHECK_MODE_VALIDATE_SCHEMA
+        );
+
+        if (! $validator->isValid()) {
+            $message = '';
+            foreach ($validator->getErrors() as $error) {
+                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
+            }
+
+            throw new FilterException($message);
+        }
+    }
+
+    /**
+     * @param array<mixed> $data
+     * @return FilterCriteria[]
+     */
+    private function createFilterCriterias(array $data): array
+    {
+        $filterCriterias = [];
+        foreach ($data['criterias'] as $criteria) {
+            $filterCriterias[] = (new FilterCriteria())
+                ->setName($criteria['name'])
+                ->setType($criteria['type'])
+                ->setValue($criteria['value'])
+                ->setObjectType($criteria['object_type'] ?? null)
+                ->setSearchData($criteria['search_data'] ?? null);
+        }
+
+        return $filterCriterias;
     }
 
     /**

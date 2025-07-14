@@ -33,11 +33,11 @@ class FindInstallationStatusPresenterStub implements FindInstallationStatusPrese
     /** @var FindInstallationStatusResponse */
     public $response;
 
-    /** @var ResponseStatusInterface|null */
-    private $responseStatus;
-
     /** @var mixed[] */
     public $responseHeaders;
+
+    /** @var ResponseStatusInterface|null */
+    private $responseStatus;
 
     /**
      * @inheritDoc

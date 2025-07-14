@@ -32,9 +32,6 @@ use PDO;
  */
 class Media extends AbstractObject
 {
-    /** @var array|null */
-    private $medias = null;
-
     /** @var string */
     protected $table = 'view_img';
 
@@ -64,42 +61,8 @@ class Media extends AbstractObject
     /** @var string|null */
     protected $pathImg = null;
 
-    /**
-     * Get medias
-     *
-     * @return void
-     */
-    private function getMedias(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT {$this->attributesSelect}
-            FROM view_img, view_img_dir_relation, view_img_dir
-            WHERE view_img.img_id = view_img_dir_relation.img_img_id
-            AND view_img_dir_relation.dir_dir_parent_id = view_img_dir.dir_id"
-        );
-        $stmt->execute();
-        $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-
-        $this->pathImg = \CentreonMedia::CENTREON_MEDIA_PATH;
-    }
-
-    /**
-     * Copy media
-     *
-     * @param string $dir
-     * @param string $file
-     *
-     * @throws \Exception
-     * @return void
-     */
-    protected function copyMedia(string $dir, string $file)
-    {
-        $this->backendInstance->createDirectories([$this->backendInstance->getPath() . '/media/' . $dir]);
-        @copy(
-            $this->pathImg . '/' . $dir . '/' . $file,
-            $this->backendInstance->getPath() . '/media/' . $dir . '/' . $file
-        );
-    }
+    /** @var array|null */
+    private $medias = null;
 
     /**
      * Generate media object and get path
@@ -137,5 +100,42 @@ class Media extends AbstractObject
         }
 
         return $result;
+    }
+
+    /**
+     * Copy media
+     *
+     * @param string $dir
+     * @param string $file
+     *
+     * @throws \Exception
+     * @return void
+     */
+    protected function copyMedia(string $dir, string $file)
+    {
+        $this->backendInstance->createDirectories([$this->backendInstance->getPath() . '/media/' . $dir]);
+        @copy(
+            $this->pathImg . '/' . $dir . '/' . $file,
+            $this->backendInstance->getPath() . '/media/' . $dir . '/' . $file
+        );
+    }
+
+    /**
+     * Get medias
+     *
+     * @return void
+     */
+    private function getMedias(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM view_img, view_img_dir_relation, view_img_dir
+            WHERE view_img.img_id = view_img_dir_relation.img_img_id
+            AND view_img_dir_relation.dir_dir_parent_id = view_img_dir.dir_id"
+        );
+        $stmt->execute();
+        $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+
+        $this->pathImg = \CentreonMedia::CENTREON_MEDIA_PATH;
     }
 }

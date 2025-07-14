@@ -32,9 +32,6 @@ use PDO;
  */
 class Command extends AbstractObject
 {
-    /** @var array|null */
-    private $commands = null;
-
     /** @var string */
     protected $table = 'command';
 
@@ -61,18 +58,8 @@ class Command extends AbstractObject
         'graph_id',
     ];
 
-    /**
-     * Get commands
-     *
-     * @return void
-     */
-    private function getCommands(): void
-    {
-        $query = "SELECT {$this->attributesSelect} FROM command";
-        $stmt = $this->backendInstance->db->prepare($query);
-        $stmt->execute();
-        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var array|null */
+    private $commands = null;
 
     /**
      * Generate command and get command name
@@ -103,5 +90,18 @@ class Command extends AbstractObject
         );
 
         return $this->commands[$commandId]['command_name'];
+    }
+
+    /**
+     * Get commands
+     *
+     * @return void
+     */
+    private function getCommands(): void
+    {
+        $query = "SELECT {$this->attributesSelect} FROM command";
+        $stmt = $this->backendInstance->db->prepare($query);
+        $stmt->execute();
+        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

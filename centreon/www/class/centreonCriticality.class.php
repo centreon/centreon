@@ -226,6 +226,34 @@ class CentreonCriticality
     }
 
     /**
+     * Create a buffer with all criticality informations
+     *
+     * @param $service_id
+     *                   return array
+     *
+     * @throws PDOException
+     * @return int|mixed
+     */
+    public function criticitiesConfigOnSTpl($service_id)
+    {
+        global $pearDB, $critCache;
+
+        if (! count($this->tree)) {
+            $request = "SELECT service_id, service_template_model_stm_id FROM service
+                WHERE service_register = '0' AND service_activate = '1' ORDER BY service_template_model_stm_id ASC";
+            $RES = $pearDB->query($request);
+            while ($data = $RES->fetchRow()) {
+                $this->tree[$data['service_id']] = $this->getServiceCriticality($data['service_id']);
+            }
+        }
+        if (isset($this->tree[$service_id]) && $this->tree[$service_id] != 0) {
+            return $this->tree[$service_id];
+        }
+
+        return 0;
+    }
+
+    /**
      * Get list of host criticalities
      *
      * @param null $searchString
@@ -311,34 +339,6 @@ class CentreonCriticality
         }
 
         return $elements;
-    }
-
-    /**
-     * Create a buffer with all criticality informations
-     *
-     * @param $service_id
-     *                   return array
-     *
-     * @throws PDOException
-     * @return int|mixed
-     */
-    public function criticitiesConfigOnSTpl($service_id)
-    {
-        global $pearDB, $critCache;
-
-        if (! count($this->tree)) {
-            $request = "SELECT service_id, service_template_model_stm_id FROM service
-                WHERE service_register = '0' AND service_activate = '1' ORDER BY service_template_model_stm_id ASC";
-            $RES = $pearDB->query($request);
-            while ($data = $RES->fetchRow()) {
-                $this->tree[$data['service_id']] = $this->getServiceCriticality($data['service_id']);
-            }
-        }
-        if (isset($this->tree[$service_id]) && $this->tree[$service_id] != 0) {
-            return $this->tree[$service_id];
-        }
-
-        return 0;
     }
 
     /**

@@ -132,6 +132,232 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
     }
 
     /**
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @return array
+     */
+    public function getServiceState()
+    {
+        $queryValues = [];
+
+        /** * *************************************************
+         * Get Service status
+         */
+        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ' . $this->fieldList . ' ';
+        $query .= ' FROM hosts h, instances i ';
+        if (isset($this->hostgroup) && $this->hostgroup != 0) {
+            $query .= ', hosts_hostgroups hg, hostgroups hg2';
+        }
+        if (isset($this->servicegroup) && $this->servicegroup != 0) {
+            $query .= ', services_servicegroups ssg, servicegroups sg';
+        }
+        if ($this->criticality) {
+            $query .= ', customvariables cvs ';
+        }
+        if (! $this->admin) {
+            $query .= ', centreon_acl ';
+        }
+        $query .= ', services s LEFT JOIN customvariables cv ON (s.service_id = cv.service_id '
+            . "AND cv.host_id = s.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
+        $query .= ' WHERE h.host_id = s.host_id '
+            . 'AND s.enabled = 1 '
+            . 'AND h.enabled = 1 '
+            . 'AND h.instance_id = i.instance_id ';
+
+        if ($this->criticality) {
+            $query .= ' AND s.service_id = cvs. service_id '
+                . 'AND cvs.host_id = h.host_id '
+                . "AND cvs.name = 'CRITICALITY_LEVEL' "
+                . 'AND cvs.value =  :criticality';
+            $queryValues['criticality'] = (string) $this->criticality;
+        }
+        $query .= " AND h.name NOT LIKE '\_Module\_BAM%' ";
+
+        // Search string to a host name, alias or address
+        if ($this->searchHost) {
+            $query .= ' AND (h.name LIKE :searchName ';
+            $queryValues['searchName'] = (string) '%' . $this->searchHost . '%';
+            $query .= ' OR h.alias LIKE :searchAlias ';
+            $queryValues['searchAlias'] = (string) '%' . $this->searchHost . '%';
+            $query .= ' OR h.address LIKE :searchAddress ) ';
+            $queryValues['searchAddress'] = (string) '%' . $this->searchHost . '%';
+        }
+        // Search string to a service
+        if ($this->search) {
+            $query .= ' AND (s.description LIKE :serviceName ';
+            $queryValues['serviceName'] = (string) '%' . $this->search . '%';
+            $query .= ' OR s.display_name LIKE :serviceDisplay )';
+            $queryValues['serviceDisplay'] = (string) '%' . $this->search . '%';
+        }
+
+        if ($this->searchOutput) {
+            $query .= ' AND s.output LIKE :output ';
+            $queryValues['output'] = (string) '%' . $this->searchOutput . '%';
+        }
+
+        if ($this->instance != -1 && ! empty($this->instance)) {
+            $query .= ' AND h.instance_id = :instanceId ';
+            $queryValues['instanceId'] = (int) $this->instance;
+        }
+
+        $q = 'ASC';
+        if (isset($this->order) && strtoupper($this->order) === 'DESC') {
+            $q = 'DESC';
+        }
+        $tabOrder = [];
+        $tabOrder['criticality_id'] = " ORDER BY criticality {$q}, h.name, s.description ";
+        $tabOrder['service_id'] = " ORDER BY s.service_id {$q} ";
+        $tabOrder['host_name'] = " ORDER BY h.name {$q}, s.description ";
+        $tabOrder['service_description'] = " ORDER BY s.description {$q}, h.name";
+        $tabOrder['current_state'] = " ORDER BY s.state {$q}, h.name, s.description";
+        $tabOrder['last_state_change'] = " ORDER BY s.last_state_change {$q}, h.name, s.description";
+        $tabOrder['last_hard_state_change'] = " ORDER by s.last_hard_state_change {$q}, h.name, s.description";
+        $tabOrder['last_check'] = " ORDER BY s.last_check {$q}, h.name, s.description";
+        $tabOrder['current_attempt'] = " ORDER BY s.check_attempt {$q}, h.name, s.description";
+        $tabOrder['output'] = " ORDER BY s.output {$q}, h.name, s.description";
+        $tabOrder['default'] = " ORDER BY s.description {$q}, h.name";
+
+        if ($this->viewType !== null && preg_match('/^unhandled/', $this->viewType)) {
+            if (preg_match('/^unhandled_(warning|critical|unknown)$/', $this->viewType, $matches)) {
+                if (isset($matches[1]) && $matches[1] == 'warning') {
+                    $query .= ' AND s.state = 1 ';
+                } elseif (isset($matches[1]) && $matches[1] == 'critical') {
+                    $query .= ' AND s.state = 2 ';
+                } elseif (isset($matches[1]) && $matches[1] == 'unknown') {
+                    $query .= ' AND s.state = 3 ';
+                } elseif (isset($matches[1]) && $matches[1] == 'pending') {
+                    $query .= ' AND s.state = 4 ';
+                } else {
+                    $query .= ' AND s.state <> 0 ';
+                }
+            } else {
+                $query .= ' AND (s.state <> 0 AND s.state <> 4) ';
+            }
+            $query .= ' AND s.state_type = 1';
+            $query .= ' AND s.acknowledged = 0';
+            $query .= ' AND s.scheduled_downtime_depth = 0';
+            $query .= ' AND h.acknowledged = 0 AND h.scheduled_downtime_depth = 0 ';
+        } elseif ($this->viewType == 'problems') {
+            $query .= ' AND s.state <> 0 AND s.state <> 4 ';
+        }
+
+        if ($this->status == 'ok') {
+            $query .= ' AND s.state = 0';
+        } elseif ($this->status == 'warning') {
+            $query .= ' AND s.state = 1';
+        } elseif ($this->status == 'critical') {
+            $query .= ' AND s.state = 2';
+        } elseif ($this->status == 'unknown') {
+            $query .= ' AND s.state = 3';
+        } elseif ($this->status == 'pending') {
+            $query .= ' AND s.state = 4';
+        }
+
+        /**
+         * HostGroup Filter
+         */
+        if (isset($this->hostgroup) && $this->hostgroup != 0) {
+            $explodedValues = '';
+            foreach (explode(',', $this->hostgroup) as $hgId => $hgValue) {
+                if (! is_numeric($hgValue)) {
+                    throw new RestBadRequestException('Error, host group id must be numerical');
+                }
+                $explodedValues .= ':hostgroup' . $hgId . ',';
+                $queryValues['hostgroup'][$hgId] = (int) $hgValue;
+            }
+            $explodedValues = rtrim($explodedValues, ',');
+            $query .= ' AND hg.hostgroup_id = hg2.hostgroup_id '
+                . 'AND hg.host_id = h.host_id AND hg.hostgroup_id IN (' . $explodedValues . ') ';
+        }
+
+        /**
+         * ServiceGroup Filter
+         */
+        if (isset($this->servicegroup) && $this->servicegroup != 0) {
+            $explodedValues = '';
+
+            foreach (explode(',', $this->servicegroup) as $sgId => $sgValue) {
+                if (! is_numeric($sgValue)) {
+                    throw new RestBadRequestException('Error, service group id must be numerical');
+                }
+                $explodedValues .= ':servicegroup' . $sgId . ',';
+                $queryValues['servicegroup'][$sgId] = (int) $sgValue;
+            }
+            $explodedValues = rtrim($explodedValues, ',');
+
+            $query .= ' AND ssg.servicegroup_id = sg.servicegroup_id '
+                . 'AND ssg.service_id = s.service_id AND ssg.servicegroup_id IN (' . $explodedValues . ') ';
+        }
+
+        /**
+         * ACL activation
+         */
+        if (! $this->admin) {
+            $query .= ' AND h.host_id = centreon_acl.host_id '
+                . 'AND s.service_id = centreon_acl.service_id '
+                . 'AND group_id IN (' . $this->aclObj->getAccessGroupsString() . ') ';
+        }
+
+        (isset($tabOrder[$this->sortType])) ? $query .= $tabOrder[$this->sortType] : $query .= $tabOrder['default'];
+
+        $query .= ' LIMIT :offset,:limit';
+        $queryValues['offset'] = (int) ($this->number * $this->limit);
+        $queryValues['limit'] = (int) $this->limit;
+
+        $stmt = $this->realTimeDb->prepare($query);
+
+        if (isset($queryValues['criticality'])) {
+            $stmt->bindParam(':criticality', $queryValues['criticality'], PDO::PARAM_INT);
+        }
+
+        if (isset($queryValues['searchName'])) {
+            $stmt->bindParam(':searchName', $queryValues['searchName'], PDO::PARAM_STR);
+            $stmt->bindParam(':searchAlias', $queryValues['searchAlias'], PDO::PARAM_STR);
+            $stmt->bindParam(':searchAddress', $queryValues['searchAddress'], PDO::PARAM_STR);
+        }
+
+        if (isset($queryValues['serviceName'])) {
+            $stmt->bindParam(':serviceName', $queryValues['serviceName'], PDO::PARAM_STR);
+            $stmt->bindParam(':serviceDisplay', $queryValues['serviceDisplay'], PDO::PARAM_STR);
+        }
+
+        if (isset($queryValues['output'])) {
+            $stmt->bindParam(':output', $queryValues['output'], PDO::PARAM_STR);
+        }
+
+        if (isset($queryValues['instanceId'])) {
+            $stmt->bindParam(':instanceId', $queryValues['instanceId'], PDO::PARAM_INT);
+        }
+
+        if (isset($queryValues['hostgroup'])) {
+            foreach ($queryValues['hostgroup'] as $hgId => $hgValue) {
+                $stmt->bindValue(':hostgroup' . $hgId, $hgValue, PDO::PARAM_INT);
+            }
+        }
+
+        if (isset($queryValues['servicegroup'])) {
+            foreach ($queryValues['servicegroup'] as $hgId => $hgValue) {
+                $stmt->bindValue(':servicegroup' . $hgId, $hgValue, PDO::PARAM_INT);
+            }
+        }
+
+        $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $dataList = [];
+        while ($data = $stmt->fetch()) {
+            if (isset($data['criticality'], $this->criticalityList[$data['criticality']])) {
+                $data['criticality'] = $this->criticalityList[$data['criticality']];
+            }
+            $dataList[] = $data;
+        }
+
+        return $dataList;
+    }
+
+    /**
      * @return array
      */
     protected function getFieldContent()
@@ -361,232 +587,6 @@ class CentreonRealtimeServices extends CentreonRealtimeBase
             }
             $this->fieldList .= $key;
         }
-    }
-
-    /**
-     * @throws PDOException
-     * @throws RestBadRequestException
-     * @return array
-     */
-    public function getServiceState()
-    {
-        $queryValues = [];
-
-        /** * *************************************************
-         * Get Service status
-         */
-        $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT ' . $this->fieldList . ' ';
-        $query .= ' FROM hosts h, instances i ';
-        if (isset($this->hostgroup) && $this->hostgroup != 0) {
-            $query .= ', hosts_hostgroups hg, hostgroups hg2';
-        }
-        if (isset($this->servicegroup) && $this->servicegroup != 0) {
-            $query .= ', services_servicegroups ssg, servicegroups sg';
-        }
-        if ($this->criticality) {
-            $query .= ', customvariables cvs ';
-        }
-        if (! $this->admin) {
-            $query .= ', centreon_acl ';
-        }
-        $query .= ', services s LEFT JOIN customvariables cv ON (s.service_id = cv.service_id '
-            . "AND cv.host_id = s.host_id AND cv.name = 'CRITICALITY_LEVEL') ";
-        $query .= ' WHERE h.host_id = s.host_id '
-            . 'AND s.enabled = 1 '
-            . 'AND h.enabled = 1 '
-            . 'AND h.instance_id = i.instance_id ';
-
-        if ($this->criticality) {
-            $query .= ' AND s.service_id = cvs. service_id '
-                . 'AND cvs.host_id = h.host_id '
-                . "AND cvs.name = 'CRITICALITY_LEVEL' "
-                . 'AND cvs.value =  :criticality';
-            $queryValues['criticality'] = (string) $this->criticality;
-        }
-        $query .= " AND h.name NOT LIKE '\_Module\_BAM%' ";
-
-        // Search string to a host name, alias or address
-        if ($this->searchHost) {
-            $query .= ' AND (h.name LIKE :searchName ';
-            $queryValues['searchName'] = (string) '%' . $this->searchHost . '%';
-            $query .= ' OR h.alias LIKE :searchAlias ';
-            $queryValues['searchAlias'] = (string) '%' . $this->searchHost . '%';
-            $query .= ' OR h.address LIKE :searchAddress ) ';
-            $queryValues['searchAddress'] = (string) '%' . $this->searchHost . '%';
-        }
-        // Search string to a service
-        if ($this->search) {
-            $query .= ' AND (s.description LIKE :serviceName ';
-            $queryValues['serviceName'] = (string) '%' . $this->search . '%';
-            $query .= ' OR s.display_name LIKE :serviceDisplay )';
-            $queryValues['serviceDisplay'] = (string) '%' . $this->search . '%';
-        }
-
-        if ($this->searchOutput) {
-            $query .= ' AND s.output LIKE :output ';
-            $queryValues['output'] = (string) '%' . $this->searchOutput . '%';
-        }
-
-        if ($this->instance != -1 && ! empty($this->instance)) {
-            $query .= ' AND h.instance_id = :instanceId ';
-            $queryValues['instanceId'] = (int) $this->instance;
-        }
-
-        $q = 'ASC';
-        if (isset($this->order) && strtoupper($this->order) === 'DESC') {
-            $q = 'DESC';
-        }
-        $tabOrder = [];
-        $tabOrder['criticality_id'] = " ORDER BY criticality {$q}, h.name, s.description ";
-        $tabOrder['service_id'] = " ORDER BY s.service_id {$q} ";
-        $tabOrder['host_name'] = " ORDER BY h.name {$q}, s.description ";
-        $tabOrder['service_description'] = " ORDER BY s.description {$q}, h.name";
-        $tabOrder['current_state'] = " ORDER BY s.state {$q}, h.name, s.description";
-        $tabOrder['last_state_change'] = " ORDER BY s.last_state_change {$q}, h.name, s.description";
-        $tabOrder['last_hard_state_change'] = " ORDER by s.last_hard_state_change {$q}, h.name, s.description";
-        $tabOrder['last_check'] = " ORDER BY s.last_check {$q}, h.name, s.description";
-        $tabOrder['current_attempt'] = " ORDER BY s.check_attempt {$q}, h.name, s.description";
-        $tabOrder['output'] = " ORDER BY s.output {$q}, h.name, s.description";
-        $tabOrder['default'] = " ORDER BY s.description {$q}, h.name";
-
-        if ($this->viewType !== null && preg_match('/^unhandled/', $this->viewType)) {
-            if (preg_match('/^unhandled_(warning|critical|unknown)$/', $this->viewType, $matches)) {
-                if (isset($matches[1]) && $matches[1] == 'warning') {
-                    $query .= ' AND s.state = 1 ';
-                } elseif (isset($matches[1]) && $matches[1] == 'critical') {
-                    $query .= ' AND s.state = 2 ';
-                } elseif (isset($matches[1]) && $matches[1] == 'unknown') {
-                    $query .= ' AND s.state = 3 ';
-                } elseif (isset($matches[1]) && $matches[1] == 'pending') {
-                    $query .= ' AND s.state = 4 ';
-                } else {
-                    $query .= ' AND s.state <> 0 ';
-                }
-            } else {
-                $query .= ' AND (s.state <> 0 AND s.state <> 4) ';
-            }
-            $query .= ' AND s.state_type = 1';
-            $query .= ' AND s.acknowledged = 0';
-            $query .= ' AND s.scheduled_downtime_depth = 0';
-            $query .= ' AND h.acknowledged = 0 AND h.scheduled_downtime_depth = 0 ';
-        } elseif ($this->viewType == 'problems') {
-            $query .= ' AND s.state <> 0 AND s.state <> 4 ';
-        }
-
-        if ($this->status == 'ok') {
-            $query .= ' AND s.state = 0';
-        } elseif ($this->status == 'warning') {
-            $query .= ' AND s.state = 1';
-        } elseif ($this->status == 'critical') {
-            $query .= ' AND s.state = 2';
-        } elseif ($this->status == 'unknown') {
-            $query .= ' AND s.state = 3';
-        } elseif ($this->status == 'pending') {
-            $query .= ' AND s.state = 4';
-        }
-
-        /**
-         * HostGroup Filter
-         */
-        if (isset($this->hostgroup) && $this->hostgroup != 0) {
-            $explodedValues = '';
-            foreach (explode(',', $this->hostgroup) as $hgId => $hgValue) {
-                if (! is_numeric($hgValue)) {
-                    throw new RestBadRequestException('Error, host group id must be numerical');
-                }
-                $explodedValues .= ':hostgroup' . $hgId . ',';
-                $queryValues['hostgroup'][$hgId] = (int) $hgValue;
-            }
-            $explodedValues = rtrim($explodedValues, ',');
-            $query .= ' AND hg.hostgroup_id = hg2.hostgroup_id '
-                . 'AND hg.host_id = h.host_id AND hg.hostgroup_id IN (' . $explodedValues . ') ';
-        }
-
-        /**
-         * ServiceGroup Filter
-         */
-        if (isset($this->servicegroup) && $this->servicegroup != 0) {
-            $explodedValues = '';
-
-            foreach (explode(',', $this->servicegroup) as $sgId => $sgValue) {
-                if (! is_numeric($sgValue)) {
-                    throw new RestBadRequestException('Error, service group id must be numerical');
-                }
-                $explodedValues .= ':servicegroup' . $sgId . ',';
-                $queryValues['servicegroup'][$sgId] = (int) $sgValue;
-            }
-            $explodedValues = rtrim($explodedValues, ',');
-
-            $query .= ' AND ssg.servicegroup_id = sg.servicegroup_id '
-                . 'AND ssg.service_id = s.service_id AND ssg.servicegroup_id IN (' . $explodedValues . ') ';
-        }
-
-        /**
-         * ACL activation
-         */
-        if (! $this->admin) {
-            $query .= ' AND h.host_id = centreon_acl.host_id '
-                . 'AND s.service_id = centreon_acl.service_id '
-                . 'AND group_id IN (' . $this->aclObj->getAccessGroupsString() . ') ';
-        }
-
-        (isset($tabOrder[$this->sortType])) ? $query .= $tabOrder[$this->sortType] : $query .= $tabOrder['default'];
-
-        $query .= ' LIMIT :offset,:limit';
-        $queryValues['offset'] = (int) ($this->number * $this->limit);
-        $queryValues['limit'] = (int) $this->limit;
-
-        $stmt = $this->realTimeDb->prepare($query);
-
-        if (isset($queryValues['criticality'])) {
-            $stmt->bindParam(':criticality', $queryValues['criticality'], PDO::PARAM_INT);
-        }
-
-        if (isset($queryValues['searchName'])) {
-            $stmt->bindParam(':searchName', $queryValues['searchName'], PDO::PARAM_STR);
-            $stmt->bindParam(':searchAlias', $queryValues['searchAlias'], PDO::PARAM_STR);
-            $stmt->bindParam(':searchAddress', $queryValues['searchAddress'], PDO::PARAM_STR);
-        }
-
-        if (isset($queryValues['serviceName'])) {
-            $stmt->bindParam(':serviceName', $queryValues['serviceName'], PDO::PARAM_STR);
-            $stmt->bindParam(':serviceDisplay', $queryValues['serviceDisplay'], PDO::PARAM_STR);
-        }
-
-        if (isset($queryValues['output'])) {
-            $stmt->bindParam(':output', $queryValues['output'], PDO::PARAM_STR);
-        }
-
-        if (isset($queryValues['instanceId'])) {
-            $stmt->bindParam(':instanceId', $queryValues['instanceId'], PDO::PARAM_INT);
-        }
-
-        if (isset($queryValues['hostgroup'])) {
-            foreach ($queryValues['hostgroup'] as $hgId => $hgValue) {
-                $stmt->bindValue(':hostgroup' . $hgId, $hgValue, PDO::PARAM_INT);
-            }
-        }
-
-        if (isset($queryValues['servicegroup'])) {
-            foreach ($queryValues['servicegroup'] as $hgId => $hgValue) {
-                $stmt->bindValue(':servicegroup' . $hgId, $hgValue, PDO::PARAM_INT);
-            }
-        }
-
-        $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
-        $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        $dataList = [];
-        while ($data = $stmt->fetch()) {
-            if (isset($data['criticality'], $this->criticalityList[$data['criticality']])) {
-                $data['criticality'] = $this->criticalityList[$data['criticality']];
-            }
-            $dataList[] = $data;
-        }
-
-        return $dataList;
     }
 
     /**

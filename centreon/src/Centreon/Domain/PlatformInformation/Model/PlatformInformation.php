@@ -230,20 +230,6 @@ class PlatformInformation
     }
 
     /**
-     * @param int $port
-     * @throws PlatformInformationException
-     * @return int
-     */
-    private function checkPortConsistency(int $port): int
-    {
-        if (1 > $port || $port > 65535) {
-            throw PlatformInformationException::inconsistentDataException();
-        }
-
-        return $port;
-    }
-
-    /**
      * @return int|null
      */
     public function getApiPort(): ?int
@@ -306,5 +292,19 @@ class PlatformInformation
         $this->apiPeerValidation = $status;
 
         return $this;
+    }
+
+    /**
+     * @param int $port
+     * @throws PlatformInformationException
+     * @return int
+     */
+    private function checkPortConsistency(int $port): int
+    {
+        if (1 > $port || $port > 65535) {
+            throw PlatformInformationException::inconsistentDataException();
+        }
+
+        return $port;
     }
 }
