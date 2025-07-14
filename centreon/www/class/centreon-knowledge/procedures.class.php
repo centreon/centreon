@@ -45,9 +45,6 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php'
  */
 class procedures
 {
-    /** @var array */
-    private $procList = [];
-
     /** @var CentreonDB */
     public $DB;
 
@@ -56,6 +53,9 @@ class procedures
 
     /** @var WikiApi */
     public $api;
+
+    /** @var array */
+    private $procList = [];
 
     /**
      * procedures constructor

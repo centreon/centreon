@@ -359,6 +359,52 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
+     *  @inheritDoc
+     */
+    public function findHostTemplatesByHost(Host $host): array
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostTemplatesByHost($host);
+        } catch (\Throwable $ex) {
+            throw new HostConfigurationException(_('Error when searching for host templates'), 0, $ex);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostByName(string $hostName): ?Host
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostByName($hostName);
+        } catch (\Throwable $ex) {
+            throw new HostConfigurationException(_('Error while searching for the host'), 0, $ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws HostConfigurationException
+     */
+    public function findHostTemplate(int $hostTemplateId): ?Host
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostTemplate($hostTemplateId);
+        } catch (\Throwable $ex) {
+            $message = sprintf(
+                _('Error while searching for the host template %d'),
+                $hostTemplateId
+            );
+            $this->error(
+                $message,
+                ['message' => $ex->getMessage()]
+            );
+
+            throw new HostConfigurationException($message, 0, $ex);
+        }
+    }
+
+    /**
      * Create host categories if they don't exist, otherwise we initialise the ids with the existing categories.
      *
      * @param HostCategory[] $categories Host categories to be created
@@ -624,18 +670,6 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
-     *  @inheritDoc
-     */
-    public function findHostTemplatesByHost(Host $host): array
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostTemplatesByHost($host);
-        } catch (\Throwable $ex) {
-            throw new HostConfigurationException(_('Error when searching for host templates'), 0, $ex);
-        }
-    }
-
-    /**
      * Add the host macros that does not exist.
      * The host macros added will be those that are not present in the $existingHostMacros list.
      *
@@ -666,40 +700,6 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 );
                 $this->hostMacroService->addMacroToHost($host, $hostMacro);
             }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostByName(string $hostName): ?Host
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostByName($hostName);
-        } catch (\Throwable $ex) {
-            throw new HostConfigurationException(_('Error while searching for the host'), 0, $ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws HostConfigurationException
-     */
-    public function findHostTemplate(int $hostTemplateId): ?Host
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostTemplate($hostTemplateId);
-        } catch (\Throwable $ex) {
-            $message = sprintf(
-                _('Error while searching for the host template %d'),
-                $hostTemplateId
-            );
-            $this->error(
-                $message,
-                ['message' => $ex->getMessage()]
-            );
-
-            throw new HostConfigurationException($message, 0, $ex);
         }
     }
 }

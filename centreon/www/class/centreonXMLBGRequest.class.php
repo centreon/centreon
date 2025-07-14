@@ -245,67 +245,6 @@ class CentreonXMLBGRequest
     }
 
     /**
-     * @return void
-     */
-    private function isUserAdmin(): void
-    {
-        $statement = $this->DB->prepare('SELECT contact_admin, contact_id FROM contact '
-            . 'WHERE contact.contact_id = :userId LIMIT 1');
-        $statement->bindValue(':userId', (int) $this->user_id, PDO::PARAM_INT);
-        $statement->execute();
-        $admin = $statement->fetchRow();
-        $statement->closeCursor();
-        $this->is_admin = $admin !== false && $admin['contact_admin'] ? 1 : 0;
-    }
-
-    /**
-     * Get user id from session_id
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function getUserIdFromSID()
-    {
-        $query = 'SELECT user_id FROM session '
-            . "WHERE session_id = '" . CentreonDB::escape($this->session_id) . "' LIMIT 1";
-        $dbResult = $this->DB->query($query);
-        $admin = $dbResult->fetchRow();
-        unset($dbResult);
-        if (isset($admin['user_id'])) {
-            $this->user_id = $admin['user_id'];
-        }
-    }
-
-    /**
-     * Decode Function
-     *
-     * @param string $arg
-     *
-     * @return string
-     */
-    private function myDecode($arg)
-    {
-        return html_entity_decode($arg ?? '', ENT_QUOTES, 'UTF-8');
-    }
-
-    /**
-     * Get Status Color
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function getStatusColor()
-    {
-        $this->general_opt = [];
-        $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
-        while ($c = $DBRESULT->fetchRow()) {
-            $this->general_opt[$c['key']] = $this->myDecode($c['value']);
-        }
-        $DBRESULT->closeCursor();
-        unset($c);
-    }
-
-    /**
      * Send headers information for web server
      *
      * @return void
@@ -431,5 +370,66 @@ class CentreonXMLBGRequest
         $name = str_replace('/', '#S#', $name);
 
         return str_replace('\\', '#BS#', $name);
+    }
+
+    /**
+     * Get user id from session_id
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function getUserIdFromSID()
+    {
+        $query = 'SELECT user_id FROM session '
+            . "WHERE session_id = '" . CentreonDB::escape($this->session_id) . "' LIMIT 1";
+        $dbResult = $this->DB->query($query);
+        $admin = $dbResult->fetchRow();
+        unset($dbResult);
+        if (isset($admin['user_id'])) {
+            $this->user_id = $admin['user_id'];
+        }
+    }
+
+    /**
+     * Get Status Color
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function getStatusColor()
+    {
+        $this->general_opt = [];
+        $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
+        while ($c = $DBRESULT->fetchRow()) {
+            $this->general_opt[$c['key']] = $this->myDecode($c['value']);
+        }
+        $DBRESULT->closeCursor();
+        unset($c);
+    }
+
+    /**
+     * @return void
+     */
+    private function isUserAdmin(): void
+    {
+        $statement = $this->DB->prepare('SELECT contact_admin, contact_id FROM contact '
+            . 'WHERE contact.contact_id = :userId LIMIT 1');
+        $statement->bindValue(':userId', (int) $this->user_id, PDO::PARAM_INT);
+        $statement->execute();
+        $admin = $statement->fetchRow();
+        $statement->closeCursor();
+        $this->is_admin = $admin !== false && $admin['contact_admin'] ? 1 : 0;
+    }
+
+    /**
+     * Decode Function
+     *
+     * @param string $arg
+     *
+     * @return string
+     */
+    private function myDecode($arg)
+    {
+        return html_entity_decode($arg ?? '', ENT_QUOTES, 'UTF-8');
     }
 }

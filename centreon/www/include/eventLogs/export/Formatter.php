@@ -71,6 +71,15 @@ class Formatter
     private string $acknowledgement = '';
 
     /**
+     * @param string $up
+     * @return void
+     */
+    public function setUp(string $up): void
+    {
+        $this->up = $up;
+    }
+
+    /**
      * @param int $start
      * @return void
      */
@@ -113,15 +122,6 @@ class Formatter
     public function setError(string $error): void
     {
         $this->error = $error;
-    }
-
-    /**
-     * @param string $up
-     * @return void
-     */
-    public function setUp(string $up): void
-    {
-        $this->up = $up;
     }
 
     /**

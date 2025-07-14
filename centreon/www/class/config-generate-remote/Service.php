@@ -32,14 +32,8 @@ use PDO;
  */
 class Service extends AbstractService
 {
-    /** @var int */
-    private $useCache = 0;
-
-    /** @var int */
-    private $useCachePoller = 1;
-
-    /** @var int */
-    private $doneCache = 0;
+    /** @var int|null */
+    public $pollerId = null; // for by poller cache
 
     /** @var array|null */
     protected $serviceCache = null;
@@ -50,8 +44,14 @@ class Service extends AbstractService
     /** @var string */
     protected $generateFilename = 'services.infile';
 
-    /** @var int|null */
-    public $pollerId = null; // for by poller cache
+    /** @var int */
+    private $useCache = 0;
+
+    /** @var int */
+    private $useCachePoller = 1;
+
+    /** @var int */
+    private $doneCache = 0;
 
     /**
      * Set useCache to 1
@@ -64,70 +64,6 @@ class Service extends AbstractService
     }
 
     /**
-     * Get servicegroups
-     *
-     * @param int $serviceId
-     * @param int $hostId
-     * @param string $hostName
-     * @return void
-     */
-    private function getServiceGroups(int $serviceId, int $hostId, string $hostName): void
-    {
-        $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
-        $this->serviceCache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForService($hostId, $serviceId);
-        foreach ($this->serviceCache[$serviceId]['sg'] as &$value) {
-            if (is_null($value['host_host_id']) || $hostId == $value['host_host_id']) {
-                $servicegroup->addServiceInSg(
-                    $value['servicegroup_sg_id'],
-                    $serviceId,
-                    $this->serviceCache[$serviceId]['service_description'],
-                    $hostId,
-                    $hostName
-                );
-                Relations\ServiceGroupRelation::getInstance($this->dependencyInjector)->addRelationHostService(
-                    $value['servicegroup_sg_id'],
-                    $hostId,
-                    $serviceId
-                );
-            }
-        }
-    }
-
-    /**
-     * Build cache of services by poller
-     *
-     * @return void
-     */
-    private function getServiceByPollerCache(): void
-    {
-        $query = "SELECT {$this->attributesSelect} FROM ns_host_relation, host_service_relation, service "
-            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
-            . 'service.service_id WHERE ns_host_relation.nagios_server_id = :server_id '
-            . 'AND ns_host_relation.host_host_id = host_service_relation.host_host_id '
-            . "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
-        $stmt = $this->backendInstance->db->prepare($query);
-        $stmt->bindParam(':server_id', $this->pollerId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        while (($value = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            $this->serviceCache[$value['service_id']] = $value;
-        }
-    }
-
-    /**
-     * Build cache of services
-     */
-    private function getServiceCache(): void
-    {
-        $query = "SELECT {$this->attributesSelect} FROM service "
-            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
-            . "service.service_id WHERE service_register = '1' AND service_activate = '1'";
-        $stmt = $this->backendInstance->db->prepare($query);
-        $stmt->execute();
-        $this->serviceCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
      * Add service in cache
      *
      * @param int $serviceId
@@ -137,77 +73,6 @@ class Service extends AbstractService
     public function addServiceCache(int $serviceId, array $attr = []): void
     {
         $this->serviceCache[$serviceId] = $attr;
-    }
-
-    /**
-     * Get service from service id
-     *
-     * @param int $serviceId
-     * @return void
-     */
-    private function getServiceFromId(int $serviceId): void
-    {
-        if (is_null($this->stmtService)) {
-            $query = "SELECT {$this->attributesSelect} FROM service "
-                . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
-                . "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
-            $this->stmtService = $this->backendInstance->db->prepare($query);
-        }
-        $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-        $this->stmtService->execute();
-        $results = $this->stmtService->fetchAll(PDO::FETCH_ASSOC);
-        $this->serviceCache[$serviceId] = array_pop($results);
-    }
-
-    /**
-     * Get severity from service id
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @return void
-     */
-    protected function getSeverity($hostId, int $serviceId)
-    {
-        $severityId
-            = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
-        if (! is_null($severityId)) {
-            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
-                ->addRelation($severityId, $serviceId);
-        }
-
-        return null;
-    }
-
-    /**
-     * Clean (nothing)
-     *
-     * @param array $service
-     * @return void
-     */
-    private function clean(array &$service)
-    {
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void|int
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1
-            || ($this->useCache == 0 && $this->useCachePoller == 0)
-        ) {
-            return 0;
-        }
-
-        if ($this->useCachePoller == 1) {
-            $this->getServiceByPollerCache();
-        } else {
-            $this->getServiceCache();
-        }
-
-        $this->doneCache = 1;
     }
 
     /**
@@ -306,5 +171,140 @@ class Service extends AbstractService
         if ($resetParent == true) {
             parent::reset($createfile);
         }
+    }
+
+    /**
+     * Get severity from service id
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @return void
+     */
+    protected function getSeverity($hostId, int $serviceId)
+    {
+        $severityId
+            = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
+        if (! is_null($severityId)) {
+            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
+                ->addRelation($severityId, $serviceId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get servicegroups
+     *
+     * @param int $serviceId
+     * @param int $hostId
+     * @param string $hostName
+     * @return void
+     */
+    private function getServiceGroups(int $serviceId, int $hostId, string $hostName): void
+    {
+        $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
+        $this->serviceCache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForService($hostId, $serviceId);
+        foreach ($this->serviceCache[$serviceId]['sg'] as &$value) {
+            if (is_null($value['host_host_id']) || $hostId == $value['host_host_id']) {
+                $servicegroup->addServiceInSg(
+                    $value['servicegroup_sg_id'],
+                    $serviceId,
+                    $this->serviceCache[$serviceId]['service_description'],
+                    $hostId,
+                    $hostName
+                );
+                Relations\ServiceGroupRelation::getInstance($this->dependencyInjector)->addRelationHostService(
+                    $value['servicegroup_sg_id'],
+                    $hostId,
+                    $serviceId
+                );
+            }
+        }
+    }
+
+    /**
+     * Build cache of services by poller
+     *
+     * @return void
+     */
+    private function getServiceByPollerCache(): void
+    {
+        $query = "SELECT {$this->attributesSelect} FROM ns_host_relation, host_service_relation, service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . 'service.service_id WHERE ns_host_relation.nagios_server_id = :server_id '
+            . 'AND ns_host_relation.host_host_id = host_service_relation.host_host_id '
+            . "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
+        $stmt = $this->backendInstance->db->prepare($query);
+        $stmt->bindParam(':server_id', $this->pollerId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        while (($value = $stmt->fetch(PDO::FETCH_ASSOC))) {
+            $this->serviceCache[$value['service_id']] = $value;
+        }
+    }
+
+    /**
+     * Build cache of services
+     */
+    private function getServiceCache(): void
+    {
+        $query = "SELECT {$this->attributesSelect} FROM service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . "service.service_id WHERE service_register = '1' AND service_activate = '1'";
+        $stmt = $this->backendInstance->db->prepare($query);
+        $stmt->execute();
+        $this->serviceCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get service from service id
+     *
+     * @param int $serviceId
+     * @return void
+     */
+    private function getServiceFromId(int $serviceId): void
+    {
+        if (is_null($this->stmtService)) {
+            $query = "SELECT {$this->attributesSelect} FROM service "
+                . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+                . "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
+            $this->stmtService = $this->backendInstance->db->prepare($query);
+        }
+        $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $this->stmtService->execute();
+        $results = $this->stmtService->fetchAll(PDO::FETCH_ASSOC);
+        $this->serviceCache[$serviceId] = array_pop($results);
+    }
+
+    /**
+     * Clean (nothing)
+     *
+     * @param array $service
+     * @return void
+     */
+    private function clean(array &$service)
+    {
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void|int
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1
+            || ($this->useCache == 0 && $this->useCachePoller == 0)
+        ) {
+            return 0;
+        }
+
+        if ($this->useCachePoller == 1) {
+            $this->getServiceByPollerCache();
+        } else {
+            $this->getServiceCache();
+        }
+
+        $this->doneCache = 1;
     }
 }

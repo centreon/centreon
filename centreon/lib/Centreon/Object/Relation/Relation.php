@@ -72,6 +72,46 @@ abstract class Centreon_Object_Relation
     }
 
     /**
+     * Generic method that allows to retrieve target ids
+     * from another another source id
+     *
+     * @param string $name
+     * @param array $args
+     * @throws Exception
+     * @return array
+     */
+    public function __call($name, $args = [])
+    {
+        if (! count($args)) {
+            throw new Exception('Missing arguments');
+        }
+        if (! isset($this->secondKey)) {
+            throw new Exception('Not a relation table');
+        }
+        if (preg_match('/^get([a-zA-Z0-9_]+)From([a-zA-Z0-9_]+)/', $name, $matches)) {
+            if (
+                ($matches[1] != $this->firstKey && $matches[1] != $this->secondKey)
+                || ($matches[2] != $this->firstKey && $matches[2] != $this->secondKey)
+            ) {
+                throw new Exception('Unknown field');
+            }
+
+            return $this->getTargetIdFromSourceId($matches[1], $matches[2], $args);
+        }
+        if (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
+            if ($matches[1] == $this->firstKey) {
+                $this->delete($args[0]);
+            } elseif ($matches[1] == $this->secondKey) {
+                $this->delete(null, $args[0]);
+            } else {
+                throw new Exception('Unknown field');
+            }
+        } else {
+            throw new Exception('Unknown method');
+        }
+    }
+
+    /**
      * Used for inserting relation into database
      *
      * @param int $fkey
@@ -104,19 +144,6 @@ abstract class Centreon_Object_Relation
             $args = [$fkey];
         }
         $this->db->query($sql, $args);
-    }
-
-    /**
-     * @param $sql
-     * @param $params
-     *
-     * @return mixed
-     */
-    protected function getResult($sql, $params = [])
-    {
-        $res = $this->db->query($sql, $params);
-
-        return $res->fetchAll();
     }
 
     /**
@@ -230,46 +257,6 @@ abstract class Centreon_Object_Relation
     }
 
     /**
-     * Generic method that allows to retrieve target ids
-     * from another another source id
-     *
-     * @param string $name
-     * @param array $args
-     * @throws Exception
-     * @return array
-     */
-    public function __call($name, $args = [])
-    {
-        if (! count($args)) {
-            throw new Exception('Missing arguments');
-        }
-        if (! isset($this->secondKey)) {
-            throw new Exception('Not a relation table');
-        }
-        if (preg_match('/^get([a-zA-Z0-9_]+)From([a-zA-Z0-9_]+)/', $name, $matches)) {
-            if (
-                ($matches[1] != $this->firstKey && $matches[1] != $this->secondKey)
-                || ($matches[2] != $this->firstKey && $matches[2] != $this->secondKey)
-            ) {
-                throw new Exception('Unknown field');
-            }
-
-            return $this->getTargetIdFromSourceId($matches[1], $matches[2], $args);
-        }
-        if (preg_match('/^delete_([a-zA-Z0-9_]+)/', $name, $matches)) {
-            if ($matches[1] == $this->firstKey) {
-                $this->delete($args[0]);
-            } elseif ($matches[1] == $this->secondKey) {
-                $this->delete(null, $args[0]);
-            } else {
-                throw new Exception('Unknown field');
-            }
-        } else {
-            throw new Exception('Unknown method');
-        }
-    }
-
-    /**
      * Get First Key
      *
      * @return string
@@ -287,5 +274,18 @@ abstract class Centreon_Object_Relation
     public function getSecondKey()
     {
         return $this->secondKey;
+    }
+
+    /**
+     * @param $sql
+     * @param $params
+     *
+     * @return mixed
+     */
+    protected function getResult($sql, $params = [])
+    {
+        $res = $this->db->query($sql, $params);
+
+        return $res->fetchAll();
     }
 }

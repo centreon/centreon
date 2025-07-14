@@ -49,6 +49,9 @@ require_once realpath(__DIR__ . '/centreonDBInstance.class.php');
  */
 class CentreonGMT
 {
+    /** @var int */
+    public $use = 1;
+
     /** @var array|null */
     protected $timezoneById = null;
 
@@ -57,9 +60,6 @@ class CentreonGMT
 
     /** @var string|null */
     protected $myGMT = null;
-
-    /** @var int */
-    public $use = 1;
 
     /** @var array */
     protected $aListTimezone;

@@ -49,18 +49,6 @@ class Servicegroup extends AbstractObject
     private const TAG_FILENAME = 'tags.cfg';
     private const TAG_OBJECT_NAME = 'tag';
 
-    /** @var int */
-    private $use_cache = 1;
-
-    /** @var int */
-    private $done_cache = 0;
-
-    /** @var array */
-    private $sg = [];
-
-    /** @var array */
-    private $sg_relation_cache = [];
-
     /** @var string */
     protected $generate_filename = self::SERVICEGROUP_FILENAME;
 
@@ -83,6 +71,18 @@ class Servicegroup extends AbstractObject
     /** @var null */
     protected $stmt_stpl_sg = null;
 
+    /** @var int */
+    private $use_cache = 1;
+
+    /** @var int */
+    private $done_cache = 0;
+
+    /** @var array */
+    private $sg = [];
+
+    /** @var array */
+    private $sg_relation_cache = [];
+
     /**
      * Servicegroup constructor
      *
@@ -94,32 +94,6 @@ class Servicegroup extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * @param $sg_id
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getServicegroupFromId($sg_id): void
-    {
-        if (is_null($this->stmt_sg)) {
-            $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
-                {$this->attributes_select}
-            FROM servicegroup
-            WHERE sg_id = :sg_id AND sg_activate = '1'
-            ");
-        }
-
-        $this->stmt_sg->bindParam(':sg_id', $sg_id, PDO::PARAM_INT);
-        $this->stmt_sg->execute();
-
-        if ($serviceGroup = $this->stmt_sg->fetch(PDO::FETCH_ASSOC)) {
-            $this->sg[$sg_id] = $serviceGroup;
-            $this->sg[$sg_id]['members_cache'] = [];
-            $this->sg[$sg_id]['members'] = [];
-        }
     }
 
     /**
@@ -144,33 +118,6 @@ class Servicegroup extends AbstractObject
         $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
 
         return 0;
-    }
-
-    /**
-     * @throws PDOException
-     * @return int|void
-     */
-    private function buildCache()
-    {
-        if ($this->done_cache == 1) {
-            return 0;
-        }
-
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT service_service_id, servicegroup_sg_id, host_host_id
-            FROM servicegroup_relation sgr, servicegroup sg
-            WHERE sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
-        );
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->sg_relation_cache[$value['service_service_id']])) {
-                $this->sg_relation_cache[$value['service_service_id']][] = $value;
-            } else {
-                $this->sg_relation_cache[$value['service_service_id']] = [$value];
-            }
-        }
-
-        $this->done_cache = 1;
     }
 
     /**
@@ -255,6 +202,101 @@ class Servicegroup extends AbstractObject
     }
 
     /**
+     * @return array
+     */
+    public function getServicegroups()
+    {
+        $result = [];
+        foreach ($this->sg as $id => &$value) {
+            if (is_null($value) || count($value['members_cache']) == 0) {
+                continue;
+            }
+            $result[$id] = &$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        parent::reset();
+        foreach ($this->sg as &$value) {
+            if (! is_null($value)) {
+                $value['members_cache'] = [];
+                $value['members'] = [];
+            }
+        }
+    }
+
+    /**
+     * @param $sg_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($sg_id, $attr)
+    {
+        return $this->sg[$sg_id][$attr] ?? null;
+    }
+
+    /**
+     * @param $sg_id
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function getServicegroupFromId($sg_id): void
+    {
+        if (is_null($this->stmt_sg)) {
+            $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
+                {$this->attributes_select}
+            FROM servicegroup
+            WHERE sg_id = :sg_id AND sg_activate = '1'
+            ");
+        }
+
+        $this->stmt_sg->bindParam(':sg_id', $sg_id, PDO::PARAM_INT);
+        $this->stmt_sg->execute();
+
+        if ($serviceGroup = $this->stmt_sg->fetch(PDO::FETCH_ASSOC)) {
+            $this->sg[$sg_id] = $serviceGroup;
+            $this->sg[$sg_id]['members_cache'] = [];
+            $this->sg[$sg_id]['members'] = [];
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return int|void
+     */
+    private function buildCache()
+    {
+        if ($this->done_cache == 1) {
+            return 0;
+        }
+
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT service_service_id, servicegroup_sg_id, host_host_id
+            FROM servicegroup_relation sgr, servicegroup sg
+            WHERE sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
+        );
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->sg_relation_cache[$value['service_service_id']])) {
+                $this->sg_relation_cache[$value['service_service_id']][] = $value;
+            } else {
+                $this->sg_relation_cache[$value['service_service_id']] = [$value];
+            }
+        }
+
+        $this->done_cache = 1;
+    }
+
+    /**
      * Generate service groups and write in file
      */
     private function generateServiceGroups(): void
@@ -317,47 +359,5 @@ class Servicegroup extends AbstractObject
 
             $this->generateObjectInFile($tag, $id);
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getServicegroups()
-    {
-        $result = [];
-        foreach ($this->sg as $id => &$value) {
-            if (is_null($value) || count($value['members_cache']) == 0) {
-                continue;
-            }
-            $result[$id] = &$value;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function reset(): void
-    {
-        parent::reset();
-        foreach ($this->sg as &$value) {
-            if (! is_null($value)) {
-                $value['members_cache'] = [];
-                $value['members'] = [];
-            }
-        }
-    }
-
-    /**
-     * @param $sg_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($sg_id, $attr)
-    {
-        return $this->sg[$sg_id][$attr] ?? null;
     }
 }

@@ -160,53 +160,6 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     }
 
     /**
-     * Add extended host information.
-     *
-     * @param int $hostId Host id for which this extended host will be associated
-     * @param ExtendedHost $extendedHost Extended host to be added
-     * @throws \Exception
-     */
-    private function addExtendedHost(int $hostId, ExtendedHost $extendedHost): void
-    {
-        $request = $this->translateDbName(
-            'INSERT INTO `:db`.extended_host_information
-            (host_host_id, ehi_notes, ehi_notes_url, ehi_action_url)
-            VALUES (:host_id, :notes, :url, :action_url)'
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-        $statement->bindValue(':notes', $extendedHost->getNotes(), \PDO::PARAM_STR);
-        $statement->bindValue(':url', $extendedHost->getNotesUrl(), \PDO::PARAM_STR);
-        $statement->bindValue(':action_url', $extendedHost->getActionUrl(), \PDO::PARAM_STR);
-        $statement->execute();
-    }
-
-    /**
-     * Link a host to a given list of host templates.
-     *
-     * @param int $hostId Host id for which this templates will be associated
-     * @param Host[] $hostTemplates Host template to be added
-     * @throws RepositoryException
-     * @throws \Exception
-     */
-    private function linkHostTemplatesToHost(int $hostId, array $hostTemplates): void
-    {
-        if ($hostTemplates === []) {
-            return;
-        }
-
-        foreach ($hostTemplates as $order => $template) {
-            if ($template->getId() !== null) {
-                // Associate the host and host template using template id
-                $this->addHostTemplateToHostById($hostId, $template->getId(), ((int) $order) + 1);
-            } elseif (! empty($template->getName())) {
-                // Associate the host and host template using template name
-                $this->addHostTemplateToHostByName($hostId, $template->getName(), ((int) $order) + 1);
-            }
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host
@@ -614,6 +567,226 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     }
 
     /**
+     * @inheritDoc
+     */
+    public function updateHost(Host $host): void
+    {
+        $isAlreadyInTransaction = $this->db->inTransaction();
+        if (! $isAlreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            $request = $this->translateDbName(
+                'UPDATE `:db`.host SET
+                    host_name = :name, host_alias = :alias, host_address = :ip_address, host_comment = :comment,
+                    geo_coords = :geo_coords, host_activate = :is_activate, host_register = :host_register,
+                    host_active_checks_enabled = :active_check_status,
+                    host_passive_checks_enabled = :passive_check_status, host_checks_enabled = :check_status,
+                    host_obsess_over_host = :obsess_over_status, host_check_freshness = :freshness_check_status,
+                    host_event_handler_enabled = :event_handler_status,
+                    host_flap_detection_enabled = :flap_detection_status, host_process_perf_data = :process_perf_status,
+                    host_retain_status_information = :retain_status_information,
+                    host_retain_nonstatus_information = :retain_nonstatus_information,
+                    host_notifications_enabled = :notifications_status
+                    WHERE host_id = :id'
+            );
+
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':id', $host->getId(), \PDO::PARAM_INT);
+            $statement->bindValue(':name', $host->getName(), \PDO::PARAM_STR);
+            $statement->bindValue(':alias', $host->getAlias(), \PDO::PARAM_STR);
+            $statement->bindValue(':ip_address', $host->getIpAddress(), \PDO::PARAM_STR);
+            $statement->bindValue(':comment', $host->getComment(), \PDO::PARAM_STR);
+            $statement->bindValue(':geo_coords', $host->getGeoCoords(), \PDO::PARAM_STR);
+            $statement->bindValue(':is_activate', $host->isActivated() ? '1' : '0', \PDO::PARAM_STR);
+            $statement->bindValue(':host_register', '1', \PDO::PARAM_STR);
+            $statement->bindValue(':active_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':passive_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':obsess_over_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':freshness_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':event_handler_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':flap_detection_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':process_perf_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':retain_status_information', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':retain_nonstatus_information', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->bindValue(':notifications_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
+            $statement->execute();
+            $this->updateMonitoringServerRelation($host->getId(), $host->getMonitoringServer()->getId());
+
+            // Update links between host groups and hosts
+            $this->removeHostGroupsToHost($host);
+            $this->linkHostGroupsToHost($host);
+
+            // Update host templates
+            $this->removeHostTemplatesFromHost($host);
+            $this->linkHostTemplatesToHost($host->getId(), $host->getTemplates());
+
+            // Update Host Categories
+            $this->removeHostCategoriesFromHost($host);
+            $this->linkHostCategoriesToHost($host);
+
+            $this->updateHostSeverity($host);
+
+            if (! $isAlreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $isAlreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostTemplatesByHost(Host $host): array
+    {
+        $request = $this->translateDbName(
+            'SELECT
+                host.host_id AS id,
+                htr.`order` AS template_order,
+                host.host_name AS name,
+                host.host_alias AS alias,
+                host.host_register AS type,
+                host.host_activate AS is_activated
+            FROM `:db`.host_template_relation htr, `:db`.host
+            WHERE
+                htr.host_host_id = :host_id AND
+                htr.host_tpl_id = host.host_id AND
+                host.host_register = 1
+            ORDER BY htr.`order` ASC'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostTemplates = [];
+        if ($statement !== false) {
+            while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+                $hostTemplates[] = EntityCreator::createEntityByArray(
+                    Host::class,
+                    $result
+                );
+            }
+        }
+
+        return $hostTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostByName(string $hostName): ?Host
+    {
+        $request = $this->translateDbName(
+            'SELECT host.host_id, host.host_name, host.host_alias, host.display_name AS host_display_name,
+            host.host_address AS host_ip_address, host.host_comment, host.geo_coords AS host_geo_coords,
+            host.host_activate AS host_is_activated, nagios.id AS monitoring_server_id,
+            nagios.name AS monitoring_server_name, ext.*
+            FROM `:db`.host host
+            LEFT JOIN `:db`.extended_host_information ext
+                ON ext.host_host_id = host.host_id
+            INNER JOIN `:db`.ns_host_relation host_server
+                ON host_server.host_host_id = host.host_id
+            INNER JOIN `:db`.nagios_server nagios
+                ON nagios.id = host_server.nagios_server_id
+            WHERE host.host_name = :host_name
+            AND host.host_register = \'1\''
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_name', $hostName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return $this->createHost($record);
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findHostTemplate(int $hostTemplateId): ?Host
+    {
+        $request = $this->translateDbName(
+            'SELECT
+                host.host_id AS id,
+                host.host_name AS name,
+                host.host_alias AS alias,
+                host.host_register AS type,
+                host.host_activate AS is_activated
+            FROM `:db`.host
+            WHERE
+                host.host_id = :host_id AND
+                host.host_register = \'0\''
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return EntityCreator::createEntityByArray(
+                Host::class,
+                $record
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Add extended host information.
+     *
+     * @param int $hostId Host id for which this extended host will be associated
+     * @param ExtendedHost $extendedHost Extended host to be added
+     * @throws \Exception
+     */
+    private function addExtendedHost(int $hostId, ExtendedHost $extendedHost): void
+    {
+        $request = $this->translateDbName(
+            'INSERT INTO `:db`.extended_host_information
+            (host_host_id, ehi_notes, ehi_notes_url, ehi_action_url)
+            VALUES (:host_id, :notes, :url, :action_url)'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':notes', $extendedHost->getNotes(), \PDO::PARAM_STR);
+        $statement->bindValue(':url', $extendedHost->getNotesUrl(), \PDO::PARAM_STR);
+        $statement->bindValue(':action_url', $extendedHost->getActionUrl(), \PDO::PARAM_STR);
+        $statement->execute();
+    }
+
+    /**
+     * Link a host to a given list of host templates.
+     *
+     * @param int $hostId Host id for which this templates will be associated
+     * @param Host[] $hostTemplates Host template to be added
+     * @throws RepositoryException
+     * @throws \Exception
+     */
+    private function linkHostTemplatesToHost(int $hostId, array $hostTemplates): void
+    {
+        if ($hostTemplates === []) {
+            return;
+        }
+
+        foreach ($hostTemplates as $order => $template) {
+            if ($template->getId() !== null) {
+                // Associate the host and host template using template id
+                $this->addHostTemplateToHostById($hostId, $template->getId(), ((int) $order) + 1);
+            } elseif (! empty($template->getName())) {
+                // Associate the host and host template using template name
+                $this->addHostTemplateToHostByName($hostId, $template->getName(), ((int) $order) + 1);
+            }
+        }
+    }
+
+    /**
      * Link the categories to host only if their id is not null.
      *
      * @param Host $host
@@ -693,80 +866,6 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             $statement->execute();
         } catch (\Throwable $ex) {
             throw HostSeverityException::notFoundException(['id' => $host->getSeverity()->getId()], $ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function updateHost(Host $host): void
-    {
-        $isAlreadyInTransaction = $this->db->inTransaction();
-        if (! $isAlreadyInTransaction) {
-            $this->db->beginTransaction();
-        }
-        try {
-            $request = $this->translateDbName(
-                'UPDATE `:db`.host SET
-                    host_name = :name, host_alias = :alias, host_address = :ip_address, host_comment = :comment,
-                    geo_coords = :geo_coords, host_activate = :is_activate, host_register = :host_register,
-                    host_active_checks_enabled = :active_check_status,
-                    host_passive_checks_enabled = :passive_check_status, host_checks_enabled = :check_status,
-                    host_obsess_over_host = :obsess_over_status, host_check_freshness = :freshness_check_status,
-                    host_event_handler_enabled = :event_handler_status,
-                    host_flap_detection_enabled = :flap_detection_status, host_process_perf_data = :process_perf_status,
-                    host_retain_status_information = :retain_status_information,
-                    host_retain_nonstatus_information = :retain_nonstatus_information,
-                    host_notifications_enabled = :notifications_status
-                    WHERE host_id = :id'
-            );
-
-            $statement = $this->db->prepare($request);
-            $statement->bindValue(':id', $host->getId(), \PDO::PARAM_INT);
-            $statement->bindValue(':name', $host->getName(), \PDO::PARAM_STR);
-            $statement->bindValue(':alias', $host->getAlias(), \PDO::PARAM_STR);
-            $statement->bindValue(':ip_address', $host->getIpAddress(), \PDO::PARAM_STR);
-            $statement->bindValue(':comment', $host->getComment(), \PDO::PARAM_STR);
-            $statement->bindValue(':geo_coords', $host->getGeoCoords(), \PDO::PARAM_STR);
-            $statement->bindValue(':is_activate', $host->isActivated() ? '1' : '0', \PDO::PARAM_STR);
-            $statement->bindValue(':host_register', '1', \PDO::PARAM_STR);
-            $statement->bindValue(':active_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':passive_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':obsess_over_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':freshness_check_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':event_handler_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':flap_detection_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':process_perf_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':retain_status_information', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':retain_nonstatus_information', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->bindValue(':notifications_status', Host::OPTION_DEFAULT, \PDO::PARAM_STR);
-            $statement->execute();
-            $this->updateMonitoringServerRelation($host->getId(), $host->getMonitoringServer()->getId());
-
-            // Update links between host groups and hosts
-            $this->removeHostGroupsToHost($host);
-            $this->linkHostGroupsToHost($host);
-
-            // Update host templates
-            $this->removeHostTemplatesFromHost($host);
-            $this->linkHostTemplatesToHost($host->getId(), $host->getTemplates());
-
-            // Update Host Categories
-            $this->removeHostCategoriesFromHost($host);
-            $this->linkHostCategoriesToHost($host);
-
-            $this->updateHostSeverity($host);
-
-            if (! $isAlreadyInTransaction) {
-                $this->db->commit();
-            }
-        } catch (\Throwable $ex) {
-            if (! $isAlreadyInTransaction) {
-                $this->db->rollBack();
-            }
-
-            throw $ex;
         }
     }
 
@@ -866,43 +965,6 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findHostTemplatesByHost(Host $host): array
-    {
-        $request = $this->translateDbName(
-            'SELECT
-                host.host_id AS id,
-                htr.`order` AS template_order,
-                host.host_name AS name,
-                host.host_alias AS alias,
-                host.host_register AS type,
-                host.host_activate AS is_activated
-            FROM `:db`.host_template_relation htr, `:db`.host
-            WHERE
-                htr.host_host_id = :host_id AND
-                htr.host_tpl_id = host.host_id AND
-                host.host_register = 1
-            ORDER BY htr.`order` ASC'
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
-        $statement->execute();
-
-        $hostTemplates = [];
-        if ($statement !== false) {
-            while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-                $hostTemplates[] = EntityCreator::createEntityByArray(
-                    Host::class,
-                    $result
-                );
-            }
-        }
-
-        return $hostTemplates;
-    }
-
-    /**
      * Removes all links between a given host and its host templates
      *
      * @param Host $host
@@ -985,67 +1047,5 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         $host->setMonitoringServer($monitoringServer);
 
         return $host;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostByName(string $hostName): ?Host
-    {
-        $request = $this->translateDbName(
-            'SELECT host.host_id, host.host_name, host.host_alias, host.display_name AS host_display_name,
-            host.host_address AS host_ip_address, host.host_comment, host.geo_coords AS host_geo_coords,
-            host.host_activate AS host_is_activated, nagios.id AS monitoring_server_id,
-            nagios.name AS monitoring_server_name, ext.*
-            FROM `:db`.host host
-            LEFT JOIN `:db`.extended_host_information ext
-                ON ext.host_host_id = host.host_id
-            INNER JOIN `:db`.ns_host_relation host_server
-                ON host_server.host_host_id = host.host_id
-            INNER JOIN `:db`.nagios_server nagios
-                ON nagios.id = host_server.nagios_server_id
-            WHERE host.host_name = :host_name
-            AND host.host_register = \'1\''
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_name', $hostName, \PDO::PARAM_STR);
-        $statement->execute();
-
-        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return $this->createHost($record);
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function findHostTemplate(int $hostTemplateId): ?Host
-    {
-        $request = $this->translateDbName(
-            'SELECT
-                host.host_id AS id,
-                host.host_name AS name,
-                host.host_alias AS alias,
-                host.host_register AS type,
-                host.host_activate AS is_activated
-            FROM `:db`.host
-            WHERE
-                host.host_id = :host_id AND
-                host.host_register = \'0\''
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_id', $hostTemplateId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return EntityCreator::createEntityByArray(
-                Host::class,
-                $record
-            );
-        }
-
-        return null;
     }
 }

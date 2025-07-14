@@ -158,6 +158,18 @@ class Broker extends AbstractObjectJSON
     }
 
     /**
+     * @param $poller
+     *
+     * @throws PDOException
+     * @throws RuntimeException
+     * @return void
+     */
+    public function generateFromPoller($poller): void
+    {
+        $this->generate($poller['id'], $poller['localhost']);
+    }
+
+    /**
      * @throws PDOException
      * @return void
      */
@@ -537,18 +549,6 @@ class Broker extends AbstractObjectJSON
         } catch (Exception $e) {
             throw new Exception('Exception received : ' . $e->getMessage() . "\n");
         }
-    }
-
-    /**
-     * @param $poller
-     *
-     * @throws PDOException
-     * @throws RuntimeException
-     * @return void
-     */
-    public function generateFromPoller($poller): void
-    {
-        $this->generate($poller['id'], $poller['localhost']);
     }
 
     /**

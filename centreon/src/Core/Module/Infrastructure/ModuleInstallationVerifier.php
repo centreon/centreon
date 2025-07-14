@@ -60,4 +60,3 @@ final readonly class ModuleInstallationVerifier
         return version_compare($getConfigFileVersion(), $moduleInformation->version, '=');
     }
 }
-

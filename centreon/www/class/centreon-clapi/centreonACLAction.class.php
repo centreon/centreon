@@ -163,25 +163,6 @@ class CentreonACLAction extends CentreonObject
     }
 
     /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    protected function splitParams($parameters)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < 2) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
-        if (! count($aclActionId)) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[0]);
-        }
-
-        return [$aclActionId[0], $params[1]];
-    }
-
-    /**
      * @param $aclActionName
      * @throws CentreonClapiException
      */
@@ -323,31 +304,6 @@ class CentreonACLAction extends CentreonObject
     }
 
     /**
-     * @param $aclActionRuleId
-     * @param $aclActionName
-     *
-     * @throws PDOException
-     * @return string
-     */
-    private function exportGrantActions($aclActionRuleId, $aclActionName)
-    {
-        $grantActions = '';
-        $query = 'SELECT * FROM acl_actions_rules WHERE acl_action_rule_id = :ruleId';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':ruleId', $aclActionRuleId);
-        $stmt->execute();
-        $aclActionList = $stmt->fetchAll();
-
-        foreach ($aclActionList as $aclAction) {
-            $grantActions .= $this->action . $this->delim . 'GRANT' . $this->delim
-                . $aclActionName . $this->delim
-                . $aclAction['acl_action_name'] . $this->delim . "\n";
-        }
-
-        return $grantActions;
-    }
-
-    /**
      * Del Action
      *
      * @param string $objectName
@@ -411,6 +367,50 @@ class CentreonACLAction extends CentreonObject
                 );
             }
         }
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    protected function splitParams($parameters)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < 2) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $aclActionId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
+        if (! count($aclActionId)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[0]);
+        }
+
+        return [$aclActionId[0], $params[1]];
+    }
+
+    /**
+     * @param $aclActionRuleId
+     * @param $aclActionName
+     *
+     * @throws PDOException
+     * @return string
+     */
+    private function exportGrantActions($aclActionRuleId, $aclActionName)
+    {
+        $grantActions = '';
+        $query = 'SELECT * FROM acl_actions_rules WHERE acl_action_rule_id = :ruleId';
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':ruleId', $aclActionRuleId);
+        $stmt->execute();
+        $aclActionList = $stmt->fetchAll();
+
+        foreach ($aclActionList as $aclAction) {
+            $grantActions .= $this->action . $this->delim . 'GRANT' . $this->delim
+                . $aclActionName . $this->delim
+                . $aclAction['acl_action_name'] . $this->delim . "\n";
+        }
+
+        return $grantActions;
     }
 
     /**

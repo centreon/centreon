@@ -193,6 +193,48 @@ class TimelineController extends AbstractController
     }
 
     /**
+     * Entry point to get timeline for a meta service
+     *
+     * @param int $metaId ID of the Meta
+     * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
+     * @throws EntityNotFoundException
+     * @return View
+     */
+    public function getMetaServiceTimeline(int $metaId, RequestParametersInterface $requestParameters): View
+    {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+
+        $context = (new Context())
+            ->setGroups(static::SERIALIZER_GROUPS_MAIN)
+            ->enableMaxDepth();
+
+        return $this->view(
+            [
+                'result' => $this->getMetaServiceTimelineById($metaId),
+                'meta' => $requestParameters->toArray(),
+            ]
+        )->setContext($context);
+    }
+
+    /**
+     * @param int $metaId
+     * @param RequestParametersInterface $requestParameters
+     * @throws EntityNotFoundException
+     * @return StreamedResponse
+     */
+    public function downloadMetaserviceTimeline(
+        int $metaId,
+        RequestParametersInterface $requestParameters
+    ): StreamedResponse {
+        $this->denyAccessUnlessGrantedForApiRealtime();
+        $this->addDownloadParametersInRequestParameters($requestParameters);
+
+        $timeLines = $this->formatTimeLinesForDownload($this->getMetaServiceTimelineById($metaId));
+
+        return $this->streamTimeLines($timeLines);
+    }
+
+    /**
      * @param RequestParametersInterface $requestParameters
      * @return void
      */
@@ -263,48 +305,6 @@ class TimelineController extends AbstractController
         $service->setHost($host);
 
         return $this->timelineService->findTimelineEventsByService($service);
-    }
-
-    /**
-     * Entry point to get timeline for a meta service
-     *
-     * @param int $metaId ID of the Meta
-     * @param RequestParametersInterface $requestParameters Request parameters used to filter the request
-     * @throws EntityNotFoundException
-     * @return View
-     */
-    public function getMetaServiceTimeline(int $metaId, RequestParametersInterface $requestParameters): View
-    {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-
-        $context = (new Context())
-            ->setGroups(static::SERIALIZER_GROUPS_MAIN)
-            ->enableMaxDepth();
-
-        return $this->view(
-            [
-                'result' => $this->getMetaServiceTimelineById($metaId),
-                'meta' => $requestParameters->toArray(),
-            ]
-        )->setContext($context);
-    }
-
-    /**
-     * @param int $metaId
-     * @param RequestParametersInterface $requestParameters
-     * @throws EntityNotFoundException
-     * @return StreamedResponse
-     */
-    public function downloadMetaserviceTimeline(
-        int $metaId,
-        RequestParametersInterface $requestParameters
-    ): StreamedResponse {
-        $this->denyAccessUnlessGrantedForApiRealtime();
-        $this->addDownloadParametersInRequestParameters($requestParameters);
-
-        $timeLines = $this->formatTimeLinesForDownload($this->getMetaServiceTimelineById($metaId));
-
-        return $this->streamTimeLines($timeLines);
     }
 
     /**

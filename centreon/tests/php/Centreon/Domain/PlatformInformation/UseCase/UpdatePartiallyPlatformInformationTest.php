@@ -90,24 +90,6 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
     }
 
     /**
-     * @return UpdatePartiallyPlatformInformation
-     */
-    private function createUpdatePartiallyPlatformUseCase(): UpdatePartiallyPlatformInformation
-    {
-        $useCase = new UpdatePartiallyPlatformInformation(
-            $this->writeRepository,
-            $this->readRepository,
-            $this->proxyService,
-            $this->remoteServerService,
-            $this->platformTopologyService,
-            $this->user
-        );
-        $useCase->setEncryptionFirstKey('encryptionF0rT3st');
-
-        return $useCase;
-    }
-
-    /**
      * Test that the use case will call the central to remote conversion method
      *
      * @return void
@@ -145,5 +127,23 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
         $updatePartiallyPlatformInformation = $this->createUpdatePartiallyPlatformUseCase();
         $this->remoteServerService->expects($this->once())->method('convertRemoteToCentral');
         $updatePartiallyPlatformInformation->execute($this->centralInformationRequest);
+    }
+
+    /**
+     * @return UpdatePartiallyPlatformInformation
+     */
+    private function createUpdatePartiallyPlatformUseCase(): UpdatePartiallyPlatformInformation
+    {
+        $useCase = new UpdatePartiallyPlatformInformation(
+            $this->writeRepository,
+            $this->readRepository,
+            $this->proxyService,
+            $this->remoteServerService,
+            $this->platformTopologyService,
+            $this->user
+        );
+        $useCase->setEncryptionFirstKey('encryptionF0rT3st');
+
+        return $useCase;
     }
 }

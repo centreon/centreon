@@ -40,6 +40,14 @@ class HtmlAnalyzer
     private int $deepTag = 0;
 
     /**
+     * @param string $stringToSanitize
+     */
+    public function __construct(string $stringToSanitize)
+    {
+        $this->stringToSanitize = $stringToSanitize;
+    }
+
+    /**
      * Sanitize and remove html tags
      *
      * @param mixed $stringToSanitize
@@ -55,14 +63,6 @@ class HtmlAnalyzer
         $newString = $html->removeHtmlTag();
 
         return str_replace(["'", '"'], ['&#39;', '&#34;'], $newString);
-    }
-
-    /**
-     * @param string $stringToSanitize
-     */
-    public function __construct(string $stringToSanitize)
-    {
-        $this->stringToSanitize = $stringToSanitize;
     }
 
     /**

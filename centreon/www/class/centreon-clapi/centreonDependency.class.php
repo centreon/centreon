@@ -182,6 +182,142 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
+     * @param null $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    public function initUpdateParameters($parameters = null)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < self::NB_UPDATE_PARAMS) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
+        if ($objectId != 0) {
+            if (in_array($params[1], ['comment', 'name', 'description']) && ! preg_match('/^dep_/', $params[1])) {
+                $params[1] = 'dep_' . $params[1];
+            }
+            $params[2] = str_replace('<br/>', "\n", $params[2]);
+            $updateParams = [$params[1] => htmlentities($params[2], ENT_QUOTES, 'UTF-8')];
+            $updateParams['objectId'] = $objectId;
+
+            return $updateParams;
+        }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+    }
+
+    /**
+     * List dependencies
+     *
+     * @param string $parameters | dependency name
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function listdep($parameters): void
+    {
+        $type = $this->getDependencyType($parameters);
+
+        if ($type == '') {
+            throw new CentreonClapiException('Could not define type of dependency');
+        }
+
+        $depId = $this->getObjectId($parameters);
+
+        // header
+        echo implode($this->delim, ['parents', 'children']) . "\n";
+
+        switch ($type) {
+            case self::DEP_TYPE_HOST:
+                $this->listhostdep($depId);
+                break;
+            case self::DEP_TYPE_HOSTGROUP:
+                $this->listhostgroupdep($depId);
+                break;
+            case self::DEP_TYPE_SERVICE:
+                $this->listservicedep($depId);
+                break;
+            case self::DEP_TYPE_SERVICEGROUP:
+                $this->listservicegroupdep($depId);
+                break;
+            case self::DEP_TYPE_META:
+                $this->listmetadep($depId);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function delparent($parameters): void
+    {
+        $this->deleteRelations($parameters, 'parent');
+    }
+
+    /**
+     * Delete child
+     *
+     * @param string $parameters | dep_name;children_to_delete
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function delchild($parameters): void
+    {
+        $this->deleteRelations($parameters, 'child');
+    }
+
+    /**
+     * Add parent
+     *
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function addparent($parameters): void
+    {
+        $this->addRelations($parameters, 'parent');
+    }
+
+    /**
+     * Add child
+     *
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return void
+     */
+    public function addchild($parameters): void
+    {
+        $this->addRelations($parameters, 'child');
+    }
+
+    /**
+     * Export
+     *
+     * @param $filterName
+     *
+     * @return void
+     */
+    public function export($filterName = null): void
+    {
+        $this->exportHostDep();
+        $this->exportServiceDep();
+        $this->exportHostgroupDep();
+        $this->exportServicegroupDep();
+        $this->exportMetaDep();
+    }
+
+    /**
      * Return the type of dependency
      *
      * @param string $dependencyName
@@ -399,75 +535,6 @@ class CentreonDependency extends CentreonObject
             $params['parents'],
             $relObj
         );
-    }
-
-    /**
-     * @param null $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    public function initUpdateParameters($parameters = null)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < self::NB_UPDATE_PARAMS) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            if (in_array($params[1], ['comment', 'name', 'description']) && ! preg_match('/^dep_/', $params[1])) {
-                $params[1] = 'dep_' . $params[1];
-            }
-            $params[2] = str_replace('<br/>', "\n", $params[2]);
-            $updateParams = [$params[1] => htmlentities($params[2], ENT_QUOTES, 'UTF-8')];
-            $updateParams['objectId'] = $objectId;
-
-            return $updateParams;
-        }
-
-        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-    }
-
-    /**
-     * List dependencies
-     *
-     * @param string $parameters | dependency name
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function listdep($parameters): void
-    {
-        $type = $this->getDependencyType($parameters);
-
-        if ($type == '') {
-            throw new CentreonClapiException('Could not define type of dependency');
-        }
-
-        $depId = $this->getObjectId($parameters);
-
-        // header
-        echo implode($this->delim, ['parents', 'children']) . "\n";
-
-        switch ($type) {
-            case self::DEP_TYPE_HOST:
-                $this->listhostdep($depId);
-                break;
-            case self::DEP_TYPE_HOSTGROUP:
-                $this->listhostgroupdep($depId);
-                break;
-            case self::DEP_TYPE_SERVICE:
-                $this->listservicedep($depId);
-                break;
-            case self::DEP_TYPE_SERVICEGROUP:
-                $this->listservicegroupdep($depId);
-                break;
-            case self::DEP_TYPE_META:
-                $this->listmetadep($depId);
-                break;
-            default:
-                break;
-        }
     }
 
     /**
@@ -1241,73 +1308,6 @@ class CentreonDependency extends CentreonObject
             $params = [$depId, $hostIds[0]];
         }
         $this->db->query($sql, $params);
-    }
-
-    /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function delparent($parameters): void
-    {
-        $this->deleteRelations($parameters, 'parent');
-    }
-
-    /**
-     * Delete child
-     *
-     * @param string $parameters | dep_name;children_to_delete
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function delchild($parameters): void
-    {
-        $this->deleteRelations($parameters, 'child');
-    }
-
-    /**
-     * Add parent
-     *
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function addparent($parameters): void
-    {
-        $this->addRelations($parameters, 'parent');
-    }
-
-    /**
-     * Add child
-     *
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     * @return void
-     */
-    public function addchild($parameters): void
-    {
-        $this->addRelations($parameters, 'child');
-    }
-
-    /**
-     * Export
-     *
-     * @param $filterName
-     *
-     * @return void
-     */
-    public function export($filterName = null): void
-    {
-        $this->exportHostDep();
-        $this->exportServiceDep();
-        $this->exportHostgroupDep();
-        $this->exportServicegroupDep();
-        $this->exportMetaDep();
     }
 
     /**

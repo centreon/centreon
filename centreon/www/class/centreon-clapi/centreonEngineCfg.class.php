@@ -160,29 +160,6 @@ class CentreonEngineCfg extends CentreonObject
     }
 
     /**
-     * Set Broker Module
-     *
-     * @param int $objectId
-     * @param string $brokerModule
-     *
-     * @throws PDOException
-     * @return void
-     * @todo we should implement this object in the centreon api so that we don't have to write our own query
-     */
-    protected function setBrokerModule($objectId, $brokerModule)
-    {
-        $query = 'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ?';
-        $this->db->query($query, [$objectId]);
-        $brokerModuleArray = explode('|', $brokerModule);
-        foreach ($brokerModuleArray as $bkModule) {
-            $this->db->query(
-                'INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)',
-                [$objectId, $bkModule]
-            );
-        }
-    }
-
-    /**
      * @param $parameters
      * @throws CentreonClapiException
      * @return void
@@ -409,6 +386,60 @@ class CentreonEngineCfg extends CentreonObject
     }
 
     /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function delbrokermodule($parameters): void
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < 2) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
+            $this->delBkModule($objectId, $params[1]);
+        } else {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+        }
+    }
+
+    /**
+     * This method is automatically called in CentreonObject
+     *
+     * @param int $nagiosId
+     *
+     * @throws PDOException
+     */
+    public function insertRelations(int $nagiosId): void
+    {
+        $this->createLoggerV2Cfg($nagiosId);
+    }
+
+    /**
+     * Set Broker Module
+     *
+     * @param int $objectId
+     * @param string $brokerModule
+     *
+     * @throws PDOException
+     * @return void
+     * @todo we should implement this object in the centreon api so that we don't have to write our own query
+     */
+    protected function setBrokerModule($objectId, $brokerModule)
+    {
+        $query = 'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ?';
+        $this->db->query($query, [$objectId]);
+        $brokerModuleArray = explode('|', $brokerModule);
+        foreach ($brokerModuleArray as $bkModule) {
+            $this->db->query(
+                'INSERT INTO cfg_nagios_broker_module (cfg_nagios_id, broker_module) VALUES (?, ?)',
+                [$objectId, $bkModule]
+            );
+        }
+    }
+
+    /**
      * Set Broker Module
      *
      * @param int $objectId
@@ -441,25 +472,6 @@ class CentreonEngineCfg extends CentreonObject
     }
 
     /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function delbrokermodule($parameters): void
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < 2) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
-            $this->delBkModule($objectId, $params[1]);
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-        }
-    }
-
-    /**
      * Set Broker Module
      *
      * @param int $objectId
@@ -486,18 +498,6 @@ class CentreonEngineCfg extends CentreonObject
                 throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $bkModule);
             }
         }
-    }
-
-    /**
-     * This method is automatically called in CentreonObject
-     *
-     * @param int $nagiosId
-     *
-     * @throws PDOException
-     */
-    public function insertRelations(int $nagiosId): void
-    {
-        $this->createLoggerV2Cfg($nagiosId);
     }
 
     /**

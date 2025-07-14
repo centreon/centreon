@@ -31,9 +31,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 class NagiosServerRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
-
-    /** @var int */
-    private int $resultCountForPagination = 0;
     private const CONCORDANCE_ARRAY = [
         'id' => 'id',
         'name' => 'name',
@@ -64,6 +61,9 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         'remoteId' => 'remote_id',
         'remoteServerUseAsProxy' => 'remote_server_use_as_proxy',
     ];
+
+    /** @var int */
+    private int $resultCountForPagination = 0;
 
     /**
      * @param DatabaseConnection $db
@@ -157,41 +157,6 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         return $result;
     }
 
-    private function createNagiosServerFromArray(array $data): NagiosServer
-    {
-        $nagiosServer = new NagiosServer();
-        $nagiosServer->setId((int) $data['id']);
-        $nagiosServer->setName($data['name']);
-        $nagiosServer->setLocalhost($data['localhost']);
-        $nagiosServer->setIsDefault((int) $data['is_default']);
-        $nagiosServer->setLastRestart((int) $data['last_restart']);
-        $nagiosServer->setNsIpAddress($data['ns_ip_address']);
-        $nagiosServer->setNsActivate($data['ns_activate']);
-        $nagiosServer->setEngineStartCommand($data['engine_start_command']);
-        $nagiosServer->setEngineStopCommand($data['engine_stop_command']);
-        $nagiosServer->setEngineRestartCommand($data['engine_restart_command']);
-        $nagiosServer->setEngineReloadCommand($data['engine_reload_command']);
-        $nagiosServer->setNagiosBin($data['nagios_bin']);
-        $nagiosServer->setNagiostatsBin($data['nagiostats_bin']);
-        $nagiosServer->setNagiosPerfdata($data['nagios_perfdata']);
-        $nagiosServer->setBrokerReloadCommand($data['broker_reload_command']);
-        $nagiosServer->setCentreonbrokerCfgPath($data['centreonbroker_cfg_path']);
-        $nagiosServer->setCentreonbrokerModulePath($data['centreonbroker_module_path']);
-        $nagiosServer->setCentreonconnectorPath($data['centreonconnector_path']);
-        $nagiosServer->setSshPort((int) $data['ssh_port']);
-        $nagiosServer->setGorgoneCommunicationType((int) $data['gorgone_communication_type']);
-        $nagiosServer->setGorgonePort((int) $data['gorgone_port']);
-        $nagiosServer->setInitScriptCentreontrapd($data['init_script_centreontrapd']);
-        $nagiosServer->setSnmpTrapdPathConf($data['snmp_trapd_path_conf']);
-        $nagiosServer->setEngineName($data['engine_name']);
-        $nagiosServer->setEngineVersion($data['engine_version']);
-        $nagiosServer->setCentreonbrokerLogsPath($data['centreonbroker_logs_path']);
-        $nagiosServer->setRemoteId((int) $data['remote_id']);
-        $nagiosServer->setRemoteServerUseAsProxy($data['remote_server_use_as_proxy']);
-
-        return $nagiosServer;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -272,5 +237,40 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         }
 
         return (int) $stmt->fetch()['id'];
+    }
+
+    private function createNagiosServerFromArray(array $data): NagiosServer
+    {
+        $nagiosServer = new NagiosServer();
+        $nagiosServer->setId((int) $data['id']);
+        $nagiosServer->setName($data['name']);
+        $nagiosServer->setLocalhost($data['localhost']);
+        $nagiosServer->setIsDefault((int) $data['is_default']);
+        $nagiosServer->setLastRestart((int) $data['last_restart']);
+        $nagiosServer->setNsIpAddress($data['ns_ip_address']);
+        $nagiosServer->setNsActivate($data['ns_activate']);
+        $nagiosServer->setEngineStartCommand($data['engine_start_command']);
+        $nagiosServer->setEngineStopCommand($data['engine_stop_command']);
+        $nagiosServer->setEngineRestartCommand($data['engine_restart_command']);
+        $nagiosServer->setEngineReloadCommand($data['engine_reload_command']);
+        $nagiosServer->setNagiosBin($data['nagios_bin']);
+        $nagiosServer->setNagiostatsBin($data['nagiostats_bin']);
+        $nagiosServer->setNagiosPerfdata($data['nagios_perfdata']);
+        $nagiosServer->setBrokerReloadCommand($data['broker_reload_command']);
+        $nagiosServer->setCentreonbrokerCfgPath($data['centreonbroker_cfg_path']);
+        $nagiosServer->setCentreonbrokerModulePath($data['centreonbroker_module_path']);
+        $nagiosServer->setCentreonconnectorPath($data['centreonconnector_path']);
+        $nagiosServer->setSshPort((int) $data['ssh_port']);
+        $nagiosServer->setGorgoneCommunicationType((int) $data['gorgone_communication_type']);
+        $nagiosServer->setGorgonePort((int) $data['gorgone_port']);
+        $nagiosServer->setInitScriptCentreontrapd($data['init_script_centreontrapd']);
+        $nagiosServer->setSnmpTrapdPathConf($data['snmp_trapd_path_conf']);
+        $nagiosServer->setEngineName($data['engine_name']);
+        $nagiosServer->setEngineVersion($data['engine_version']);
+        $nagiosServer->setCentreonbrokerLogsPath($data['centreonbroker_logs_path']);
+        $nagiosServer->setRemoteId((int) $data['remote_id']);
+        $nagiosServer->setRemoteServerUseAsProxy($data['remote_server_use_as_proxy']);
+
+        return $nagiosServer;
     }
 }

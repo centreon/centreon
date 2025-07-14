@@ -66,6 +66,10 @@ class CentreonAuth
     /** @var array */
     public $userInfos;
 
+    // Flags
+    /** @var */
+    public $passwdOk;
+
     /** @var string */
     protected $login;
 
@@ -95,10 +99,6 @@ class CentreonAuth
 
     /** @var Container */
     protected $dependencyInjector;
-
-    // Flags
-    /** @var */
-    public $passwdOk;
 
     /** @var */
     protected $authType;
@@ -219,160 +219,6 @@ class CentreonAuth
             || $this->userInfos['contact_auth_type'] === self::AUTH_TYPE_LOCAL
         ) {
             $this->checkLocalPassword($password);
-
-            return;
-        }
-
-        $this->passwdOk = self::PASSWORD_INVALID;
-    }
-
-    /**
-     * Check autologin key
-     *
-     * @param string $password
-     * @param string $token
-     */
-    private function checkAutologinKey($password, $token): void
-    {
-        if (
-            array_key_exists('contact_oreon', $this->userInfos)
-            && $this->userInfos['contact_oreon'] !== '1'
-        ) {
-            $this->passwdOk = self::PASSWORD_INVALID;
-
-            return;
-        }
-
-        if (
-            ! empty($this->userInfos['contact_autologin_key'])
-            && $this->userInfos['contact_autologin_key'] === $token
-        ) {
-            $this->passwdOk = self::PASSWORD_VALID;
-        } elseif (
-            ! empty($password)
-            && $this->userInfos['contact_passwd'] === $password
-        ) {
-            $this->passwdOk = self::PASSWORD_VALID;
-        } else {
-            $this->passwdOk = self::PASSWORD_INVALID;
-        }
-    }
-
-    /**
-     * Check ldap user password
-     *
-     * @param string $password
-     * @param bool $autoImport
-     *
-     * @throws PDOException
-     */
-    private function checkLdapPassword($password, $autoImport): void
-    {
-        $res = $this->pearDB->query("SELECT ar_id FROM auth_ressource WHERE ar_enable = '1'");
-        $authResources = [];
-        while ($row = $res->fetch()) {
-            $index = $row['ar_id'];
-            if (isset($this->userInfos['ar_id']) && $this->userInfos['ar_id'] == $row['ar_id']) {
-                $index = 0;
-            }
-            $authResources[$index] = $row['ar_id'];
-        }
-
-        foreach ($authResources as $arId) {
-            if ($autoImport && ! isset($this->ldap_auto_import[$arId])) {
-                break;
-            }
-            if ($this->passwdOk == self::PASSWORD_VALID) {
-                break;
-            }
-            $authLDAP = new CentreonAuthLDAP(
-                $this->pearDB,
-                $this->CentreonLog,
-                $this->login,
-                $this->password,
-                $this->userInfos,
-                $arId
-            );
-            $this->passwdOk = $authLDAP->checkPassword();
-
-            if ($this->passwdOk == self::PASSWORD_VALID) {
-                if (isset($this->ldap_store_password[$arId]) && $this->ldap_store_password[$arId]) {
-                    if (! isset($this->userInfos['contact_passwd'])) {
-                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new CentreonContact($this->pearDB);
-                        $contactId = $contact->findContactIdByAlias($this->login);
-                        if ($contactId !== null) {
-                            $contact->addPasswordByContactId($contactId, $hashedPassword);
-                        }
-                        // Update password if LDAP authentication is valid but password not up to date in Centreon.
-                    } elseif (! password_verify($this->password, $this->userInfos['contact_passwd'])) {
-                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
-                        $contact = new CentreonContact($this->pearDB);
-                        $contactId = $contact->findContactIdByAlias($this->login);
-                        if ($contactId !== null) {
-                            $contact->replacePasswordByContactId(
-                                $contactId,
-                                $this->userInfos['contact_passwd'],
-                                $hashedPassword
-                            );
-                        }
-                    }
-                }
-                break;
-            }
-        }
-
-        if ($this->passwdOk == self::PASSWORD_CANNOT_BE_VERIFIED) {
-            if (
-                ! empty($password)
-                && ! empty($this->userInfos['contact_passwd'])
-                && password_verify($password, $this->userInfos['contact_passwd'])
-            ) {
-                $this->passwdOk = self::PASSWORD_VALID;
-            } else {
-                $this->passwdOk = self::PASSWORD_INVALID;
-            }
-        }
-    }
-
-    /**
-     * Check local user password
-     *
-     * @param string $password
-     *
-     * @throws PDOException
-     */
-    private function checkLocalPassword($password): void
-    {
-        if (empty($password)) {
-            $this->passwdOk = self::PASSWORD_INVALID;
-
-            return;
-        }
-
-        if (password_verify($password, $this->userInfos['contact_passwd'])) {
-            $this->passwdOk = self::PASSWORD_VALID;
-
-            return;
-        }
-
-        if (
-            (
-                str_starts_with($this->userInfos['contact_passwd'], 'md5__')
-                && $this->userInfos['contact_passwd'] === $this->myCrypt($password)
-            )
-            || 'md5__' . $this->userInfos['contact_passwd'] === $this->myCrypt($password)
-        ) {
-            $newPassword = password_hash($password, self::PASSWORD_HASH_ALGORITHM);
-            $statement = $this->pearDB->prepare(
-                'UPDATE `contact_password` SET password = :newPassword
-                WHERE password = :oldPassword AND contact_id = :contactId'
-            );
-            $statement->bindValue(':newPassword', $newPassword, PDO::PARAM_STR);
-            $statement->bindValue(':oldPassword', $this->userInfos['contact_passwd'], PDO::PARAM_STR);
-            $statement->bindValue(':contactId', $this->userInfos['contact_id'], PDO::PARAM_INT);
-            $statement->execute();
-            $this->passwdOk = self::PASSWORD_VALID;
 
             return;
         }
@@ -536,6 +382,160 @@ class CentreonAuth
     protected function getAuthType()
     {
         return $this->authType;
+    }
+
+    /**
+     * Check autologin key
+     *
+     * @param string $password
+     * @param string $token
+     */
+    private function checkAutologinKey($password, $token): void
+    {
+        if (
+            array_key_exists('contact_oreon', $this->userInfos)
+            && $this->userInfos['contact_oreon'] !== '1'
+        ) {
+            $this->passwdOk = self::PASSWORD_INVALID;
+
+            return;
+        }
+
+        if (
+            ! empty($this->userInfos['contact_autologin_key'])
+            && $this->userInfos['contact_autologin_key'] === $token
+        ) {
+            $this->passwdOk = self::PASSWORD_VALID;
+        } elseif (
+            ! empty($password)
+            && $this->userInfos['contact_passwd'] === $password
+        ) {
+            $this->passwdOk = self::PASSWORD_VALID;
+        } else {
+            $this->passwdOk = self::PASSWORD_INVALID;
+        }
+    }
+
+    /**
+     * Check ldap user password
+     *
+     * @param string $password
+     * @param bool $autoImport
+     *
+     * @throws PDOException
+     */
+    private function checkLdapPassword($password, $autoImport): void
+    {
+        $res = $this->pearDB->query("SELECT ar_id FROM auth_ressource WHERE ar_enable = '1'");
+        $authResources = [];
+        while ($row = $res->fetch()) {
+            $index = $row['ar_id'];
+            if (isset($this->userInfos['ar_id']) && $this->userInfos['ar_id'] == $row['ar_id']) {
+                $index = 0;
+            }
+            $authResources[$index] = $row['ar_id'];
+        }
+
+        foreach ($authResources as $arId) {
+            if ($autoImport && ! isset($this->ldap_auto_import[$arId])) {
+                break;
+            }
+            if ($this->passwdOk == self::PASSWORD_VALID) {
+                break;
+            }
+            $authLDAP = new CentreonAuthLDAP(
+                $this->pearDB,
+                $this->CentreonLog,
+                $this->login,
+                $this->password,
+                $this->userInfos,
+                $arId
+            );
+            $this->passwdOk = $authLDAP->checkPassword();
+
+            if ($this->passwdOk == self::PASSWORD_VALID) {
+                if (isset($this->ldap_store_password[$arId]) && $this->ldap_store_password[$arId]) {
+                    if (! isset($this->userInfos['contact_passwd'])) {
+                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
+                        $contact = new CentreonContact($this->pearDB);
+                        $contactId = $contact->findContactIdByAlias($this->login);
+                        if ($contactId !== null) {
+                            $contact->addPasswordByContactId($contactId, $hashedPassword);
+                        }
+                        // Update password if LDAP authentication is valid but password not up to date in Centreon.
+                    } elseif (! password_verify($this->password, $this->userInfos['contact_passwd'])) {
+                        $hashedPassword = password_hash($this->password, self::PASSWORD_HASH_ALGORITHM);
+                        $contact = new CentreonContact($this->pearDB);
+                        $contactId = $contact->findContactIdByAlias($this->login);
+                        if ($contactId !== null) {
+                            $contact->replacePasswordByContactId(
+                                $contactId,
+                                $this->userInfos['contact_passwd'],
+                                $hashedPassword
+                            );
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        if ($this->passwdOk == self::PASSWORD_CANNOT_BE_VERIFIED) {
+            if (
+                ! empty($password)
+                && ! empty($this->userInfos['contact_passwd'])
+                && password_verify($password, $this->userInfos['contact_passwd'])
+            ) {
+                $this->passwdOk = self::PASSWORD_VALID;
+            } else {
+                $this->passwdOk = self::PASSWORD_INVALID;
+            }
+        }
+    }
+
+    /**
+     * Check local user password
+     *
+     * @param string $password
+     *
+     * @throws PDOException
+     */
+    private function checkLocalPassword($password): void
+    {
+        if (empty($password)) {
+            $this->passwdOk = self::PASSWORD_INVALID;
+
+            return;
+        }
+
+        if (password_verify($password, $this->userInfos['contact_passwd'])) {
+            $this->passwdOk = self::PASSWORD_VALID;
+
+            return;
+        }
+
+        if (
+            (
+                str_starts_with($this->userInfos['contact_passwd'], 'md5__')
+                && $this->userInfos['contact_passwd'] === $this->myCrypt($password)
+            )
+            || 'md5__' . $this->userInfos['contact_passwd'] === $this->myCrypt($password)
+        ) {
+            $newPassword = password_hash($password, self::PASSWORD_HASH_ALGORITHM);
+            $statement = $this->pearDB->prepare(
+                'UPDATE `contact_password` SET password = :newPassword
+                WHERE password = :oldPassword AND contact_id = :contactId'
+            );
+            $statement->bindValue(':newPassword', $newPassword, PDO::PARAM_STR);
+            $statement->bindValue(':oldPassword', $this->userInfos['contact_passwd'], PDO::PARAM_STR);
+            $statement->bindValue(':contactId', $this->userInfos['contact_id'], PDO::PARAM_INT);
+            $statement->execute();
+            $this->passwdOk = self::PASSWORD_VALID;
+
+            return;
+        }
+
+        $this->passwdOk = self::PASSWORD_INVALID;
     }
 
     /**

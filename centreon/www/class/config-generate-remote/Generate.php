@@ -91,6 +91,9 @@ require_once __DIR__ . '/Relations/CfgResourceInstanceRelation.php';
  */
 class Generate
 {
+    /** @var Container|null */
+    protected $dependencyInjector = null;
+
     /** @var array */
     private $pollerCache = [];
 
@@ -106,9 +109,6 @@ class Generate
     /** @var array|null */
     private $moduleObjects = null;
 
-    /** @var Container|null */
-    protected $dependencyInjector = null;
-
     /**
      * Constructor
      *
@@ -121,77 +121,6 @@ class Generate
     }
 
     /**
-     * Remove delimiters and add ucfirst on following string
-     *
-     * @param array $delimiters
-     * @param string $string
-     * @return string
-     */
-    private function ucFirst(array $delimiters, string $string): string
-    {
-        $string = str_replace($delimiters, $delimiters[0], $string);
-        $result = '';
-        foreach (explode($delimiters[0], $string) as $value) {
-            $result .= ucfirst($value);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get poller information
-     *
-     * @param int $pollerId
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function getPollerFromId(int $pollerId): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT * FROM nagios_server
-            WHERE id = :poller_id'
-        );
-        $stmt->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->currentPoller = array_pop($result);
-        if (is_null($this->currentPoller)) {
-            throw new Exception("Cannot find poller id '" . $pollerId . "'");
-        }
-    }
-
-    /**
-     * Get pollers information
-     *
-     * @param int $remoteId
-     * @return void
-     */
-    private function getPollersFromRemote(int $remoteId)
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT ns1.*
-            FROM nagios_server AS ns1
-            WHERE ns1.remote_id = :remote_id
-            GROUP BY ns1.id
-            UNION
-            SELECT ns2.*
-            FROM nagios_server AS ns2
-            INNER JOIN rs_poller_relation AS rspr ON rspr.poller_server_id = ns2.id
-            AND rspr.remote_server_id = :remote_id
-            GROUP BY ns2.id'
-        );
-        $stmt->bindParam(':remote_id', $remoteId, PDO::PARAM_INT);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (is_null($result)) {
-            $result = [];
-        }
-
-        return $result;
-    }
-
-    /**
      * Reset linked objects
      *
      * @return void
@@ -200,25 +129,6 @@ class Generate
     {
         Host::getInstance($this->dependencyInjector)->reset();
         Service::getInstance($this->dependencyInjector)->reset();
-    }
-
-    /**
-     * Generate host and engine objects
-     *
-     * @param string $username
-     * @return void
-     */
-    private function configPoller($username = 'unknown'): void
-    {
-        $this->resetObjectsEngine();
-
-        Host::getInstance($this->dependencyInjector)->generateFromPollerId(
-            $this->currentPoller['id'],
-            $this->currentPoller['localhost']
-        );
-
-        Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
-        Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
     }
 
     /**
@@ -351,6 +261,107 @@ class Generate
     }
 
     /**
+     * Reset the cache and the instance
+     */
+    public function reset(): void
+    {
+        $this->pollerCache = [];
+        $this->currentPoller = null;
+        $this->installedModules = null;
+        $this->moduleObjects = null;
+    }
+
+    /**
+     * Remove delimiters and add ucfirst on following string
+     *
+     * @param array $delimiters
+     * @param string $string
+     * @return string
+     */
+    private function ucFirst(array $delimiters, string $string): string
+    {
+        $string = str_replace($delimiters, $delimiters[0], $string);
+        $result = '';
+        foreach (explode($delimiters[0], $string) as $value) {
+            $result .= ucfirst($value);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get poller information
+     *
+     * @param int $pollerId
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function getPollerFromId(int $pollerId): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT * FROM nagios_server
+            WHERE id = :poller_id'
+        );
+        $stmt->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->currentPoller = array_pop($result);
+        if (is_null($this->currentPoller)) {
+            throw new Exception("Cannot find poller id '" . $pollerId . "'");
+        }
+    }
+
+    /**
+     * Get pollers information
+     *
+     * @param int $remoteId
+     * @return void
+     */
+    private function getPollersFromRemote(int $remoteId)
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT ns1.*
+            FROM nagios_server AS ns1
+            WHERE ns1.remote_id = :remote_id
+            GROUP BY ns1.id
+            UNION
+            SELECT ns2.*
+            FROM nagios_server AS ns2
+            INNER JOIN rs_poller_relation AS rspr ON rspr.poller_server_id = ns2.id
+            AND rspr.remote_server_id = :remote_id
+            GROUP BY ns2.id'
+        );
+        $stmt->bindParam(':remote_id', $remoteId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (is_null($result)) {
+            $result = [];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Generate host and engine objects
+     *
+     * @param string $username
+     * @return void
+     */
+    private function configPoller($username = 'unknown'): void
+    {
+        $this->resetObjectsEngine();
+
+        Host::getInstance($this->dependencyInjector)->generateFromPollerId(
+            $this->currentPoller['id'],
+            $this->currentPoller['localhost']
+        );
+
+        Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
+        Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->currentPoller);
+    }
+
+    /**
      * Force to create a manifest and empty file
      *
      * @return void
@@ -467,16 +478,5 @@ class Generate
         Relations\TrapsVendor::getInstance($this->dependencyInjector)->reset();
         Relations\ViewImageDir::getInstance($this->dependencyInjector)->reset();
         Relations\ViewImgDirRelation::getInstance($this->dependencyInjector)->reset();
-    }
-
-    /**
-     * Reset the cache and the instance
-     */
-    public function reset(): void
-    {
-        $this->pollerCache = [];
-        $this->currentPoller = null;
-        $this->installedModules = null;
-        $this->moduleObjects = null;
     }
 }

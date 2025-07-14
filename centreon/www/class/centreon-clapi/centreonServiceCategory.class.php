@@ -87,74 +87,6 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     }
 
     /**
-     * @param null $parameters
-     * @param array $filters
-     *
-     * @throws Exception
-     */
-    public function show($parameters = null, $filters = []): void
-    {
-        $filters = [];
-        if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
-        }
-        $params = ['sc_id', 'sc_name', 'sc_description', 'level'];
-        $paramString = str_replace('sc_', '', implode($this->delim, $params));
-        echo $paramString . "\n";
-        $elements = $this->object->getList($params, -1, 0, null, null, $filters);
-        foreach ($elements as $tab) {
-            if (! $tab['level']) {
-                $tab['level'] = 'none';
-            }
-            echo implode($this->delim, $tab) . "\n";
-        }
-    }
-
-    /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return void
-     */
-    public function initInsertParameters($parameters): void
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < $this->nbOfCompulsoryParams) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $addParams = [];
-        $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
-        $addParams['sc_description'] = $params[self::ORDER_ALIAS];
-        $this->params = array_merge($this->params, $addParams);
-        $this->checkParameters();
-    }
-
-    /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    public function initUpdateParameters($parameters)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < self::NB_UPDATE_PARAMS) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            if (! preg_match('/^sc_/', $params[1])) {
-                $params[1] = 'sc_' . $params[1];
-            }
-            $updateParams = [$params[1] => $params[2]];
-            $updateParams['objectId'] = $objectId;
-
-            return $updateParams;
-        }
-
-        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-    }
-
-    /**
      * @param $name
      * @param $arg
      *
@@ -286,6 +218,137 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     }
 
     /**
+     * @param null $parameters
+     * @param array $filters
+     *
+     * @throws Exception
+     */
+    public function show($parameters = null, $filters = []): void
+    {
+        $filters = [];
+        if (isset($parameters)) {
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
+        }
+        $params = ['sc_id', 'sc_name', 'sc_description', 'level'];
+        $paramString = str_replace('sc_', '', implode($this->delim, $params));
+        echo $paramString . "\n";
+        $elements = $this->object->getList($params, -1, 0, null, null, $filters);
+        foreach ($elements as $tab) {
+            if (! $tab['level']) {
+                $tab['level'] = 'none';
+            }
+            echo implode($this->delim, $tab) . "\n";
+        }
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return void
+     */
+    public function initInsertParameters($parameters): void
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < $this->nbOfCompulsoryParams) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $addParams = [];
+        $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
+        $addParams['sc_description'] = $params[self::ORDER_ALIAS];
+        $this->params = array_merge($this->params, $addParams);
+        $this->checkParameters();
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    public function initUpdateParameters($parameters)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < self::NB_UPDATE_PARAMS) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
+        if ($objectId != 0) {
+            if (! preg_match('/^sc_/', $params[1])) {
+                $params[1] = 'sc_' . $params[1];
+            }
+            $updateParams = [$params[1] => $params[2]];
+            $updateParams['objectId'] = $objectId;
+
+            return $updateParams;
+        }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+    }
+
+    /**
+     * Export
+     *
+     * @param string|null $filterName
+     *
+     * @throws Exception
+     * @return false|void
+     */
+    public function export($filterName = null)
+    {
+        if (! parent::export($filterName)) {
+            return false;
+        }
+
+        $labelField = $this->object->getUniqueLabelField();
+        $filters = [];
+        if (! is_null($filterName)) {
+            $filters[$labelField] = $filterName;
+        }
+        $scs = $this->object->getList(
+            [$this->object->getPrimaryKey(), $labelField],
+            -1,
+            0,
+            $labelField,
+            'ASC',
+            $filters
+        );
+        $relobj = new Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
+        $hostServiceRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
+        $svcObj = new Centreon_Object_Service($this->dependencyInjector);
+        foreach ($scs as $sc) {
+            $scId = $sc[$this->object->getPrimaryKey()];
+            $scName = $sc[$labelField];
+            $relations = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $scId);
+            foreach ($relations as $serviceId) {
+                $svcParam = $svcObj->getParameters($serviceId, ['service_description', 'service_register']);
+                if ($svcParam['service_register'] == 1) {
+                    $elements = $hostServiceRel->getMergedParameters(
+                        ['host_name'],
+                        ['service_description'],
+                        -1,
+                        0,
+                        null,
+                        null,
+                        ['service_id' => $serviceId],
+                        'AND'
+                    );
+                    foreach ($elements as $element) {
+                        echo $this->action . $this->delim
+                            . 'addservice' . $this->delim
+                            . $scName . $this->delim
+                            . $element['host_name'] . ',' . $element['service_description'] . "\n";
+                    }
+                } else {
+                    echo $this->action . $this->delim
+                        . 'addservicetemplate' . $this->delim
+                        . $scName . $this->delim
+                        . $svcParam['service_description'] . "\n";
+                }
+            }
+        }
+    }
+
+    /**
      * @param $args
      * @param $relobj
      * @param $categoryId
@@ -400,68 +463,5 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
         }
         $acl = new CentreonACL($this->dependencyInjector);
         $acl->reload(true);
-    }
-
-    /**
-     * Export
-     *
-     * @param string|null $filterName
-     *
-     * @throws Exception
-     * @return false|void
-     */
-    public function export($filterName = null)
-    {
-        if (! parent::export($filterName)) {
-            return false;
-        }
-
-        $labelField = $this->object->getUniqueLabelField();
-        $filters = [];
-        if (! is_null($filterName)) {
-            $filters[$labelField] = $filterName;
-        }
-        $scs = $this->object->getList(
-            [$this->object->getPrimaryKey(), $labelField],
-            -1,
-            0,
-            $labelField,
-            'ASC',
-            $filters
-        );
-        $relobj = new Centreon_Object_Relation_Service_Category_Service($this->dependencyInjector);
-        $hostServiceRel = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
-        $svcObj = new Centreon_Object_Service($this->dependencyInjector);
-        foreach ($scs as $sc) {
-            $scId = $sc[$this->object->getPrimaryKey()];
-            $scName = $sc[$labelField];
-            $relations = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $scId);
-            foreach ($relations as $serviceId) {
-                $svcParam = $svcObj->getParameters($serviceId, ['service_description', 'service_register']);
-                if ($svcParam['service_register'] == 1) {
-                    $elements = $hostServiceRel->getMergedParameters(
-                        ['host_name'],
-                        ['service_description'],
-                        -1,
-                        0,
-                        null,
-                        null,
-                        ['service_id' => $serviceId],
-                        'AND'
-                    );
-                    foreach ($elements as $element) {
-                        echo $this->action . $this->delim
-                            . 'addservice' . $this->delim
-                            . $scName . $this->delim
-                            . $element['host_name'] . ',' . $element['service_description'] . "\n";
-                    }
-                } else {
-                    echo $this->action . $this->delim
-                        . 'addservicetemplate' . $this->delim
-                        . $scName . $this->delim
-                        . $svcParam['service_description'] . "\n";
-                }
-            }
-        }
     }
 }

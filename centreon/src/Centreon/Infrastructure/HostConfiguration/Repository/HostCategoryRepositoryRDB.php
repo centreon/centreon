@@ -99,57 +99,6 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
     }
 
     /**
-     * Find a category by id and contact id.
-     *
-     * @param int $categoryId Id of the host category to be found
-     * @param int|null $contactId Contact id related to host categories
-     * @throws AssertionFailedException
-     * @return HostCategory|null
-     */
-    private function findByIdRequest(int $categoryId, ?int $contactId): ?HostCategory
-    {
-        if ($contactId === null) {
-            $statement = $this->db->prepare(
-                $this->translateDbName('SELECT * FROM `:db`.hostcategories WHERE level IS NULL AND hc_id = :id')
-            );
-        } else {
-            $statement = $this->db->prepare(
-                $this->translateDbName(
-                    'SELECT hc.*
-                    FROM `:db`.hostcategories hc
-                    INNER JOIN `:db`.acl_resources_hc_relations arhr
-                        ON hc.hc_id = arhr.hc_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    LEFT JOIN `:db`.acl_group_contacts_relations agcr
-                        ON ag.acl_group_id = agcr.acl_group_id
-                    LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
-                        ON ag.acl_group_id = agcgr.acl_group_id
-                    LEFT JOIn `:db`.contactgroup_contact_relation cgcr
-                        ON  cgcr.contactgroup_cg_id = agcgr.cg_cg_id
-                    WHERE hc.level IS NULL
-                        AND hc.hc_id = :id
-                        AND (agcr.contact_contact_id = :contact_id OR cgcr.contact_contact_id = :contact_id)'
-                )
-            );
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-        }
-
-        $statement->bindValue(':id', $categoryId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return HostCategoryFactoryRdb::create($result);
-        }
-
-        return null;
-    }
-
-    /**
      * @inheritDoc
      * @throws AssertionFailedException
      */
@@ -198,5 +147,56 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         }
 
         return $hostCategories;
+    }
+
+    /**
+     * Find a category by id and contact id.
+     *
+     * @param int $categoryId Id of the host category to be found
+     * @param int|null $contactId Contact id related to host categories
+     * @throws AssertionFailedException
+     * @return HostCategory|null
+     */
+    private function findByIdRequest(int $categoryId, ?int $contactId): ?HostCategory
+    {
+        if ($contactId === null) {
+            $statement = $this->db->prepare(
+                $this->translateDbName('SELECT * FROM `:db`.hostcategories WHERE level IS NULL AND hc_id = :id')
+            );
+        } else {
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    'SELECT hc.*
+                    FROM `:db`.hostcategories hc
+                    INNER JOIN `:db`.acl_resources_hc_relations arhr
+                        ON hc.hc_id = arhr.hc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    LEFT JOIN `:db`.acl_group_contacts_relations agcr
+                        ON ag.acl_group_id = agcr.acl_group_id
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
+                        ON ag.acl_group_id = agcgr.acl_group_id
+                    LEFT JOIn `:db`.contactgroup_contact_relation cgcr
+                        ON  cgcr.contactgroup_cg_id = agcgr.cg_cg_id
+                    WHERE hc.level IS NULL
+                        AND hc.hc_id = :id
+                        AND (agcr.contact_contact_id = :contact_id OR cgcr.contact_contact_id = :contact_id)'
+                )
+            );
+            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
+        }
+
+        $statement->bindValue(':id', $categoryId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return HostCategoryFactoryRdb::create($result);
+        }
+
+        return null;
     }
 }

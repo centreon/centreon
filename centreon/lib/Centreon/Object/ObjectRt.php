@@ -64,18 +64,21 @@ abstract class Centreon_ObjectRt
     }
 
     /**
-     * Get result from sql query
+     * Generic method that allows to retrieve object ids
+     * from another object parameter
      *
-     * @param string $sqlQuery
-     * @param array $sqlParams
-     * @param string $fetchMethod
+     * @param string $name
+     * @param array $args
+     * @throws Exception
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    public function __call($name, $args)
     {
-        $res = $this->dbMon->query($sqlQuery, $sqlParams);
+        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
+            return $this->getIdByParameter($matches[1], $args);
+        }
 
-        return $res->{$fetchMethod}();
+        throw new Exception('Unknown method');
     }
 
     /**
@@ -183,24 +186,6 @@ abstract class Centreon_ObjectRt
     }
 
     /**
-     * Generic method that allows to retrieve object ids
-     * from another object parameter
-     *
-     * @param string $name
-     * @param array $args
-     * @throws Exception
-     * @return array
-     */
-    public function __call($name, $args)
-    {
-        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
-            return $this->getIdByParameter($matches[1], $args);
-        }
-
-        throw new Exception('Unknown method');
-    }
-
-    /**
      * Primary Key Getter
      *
      * @return string
@@ -228,5 +213,20 @@ abstract class Centreon_ObjectRt
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * Get result from sql query
+     *
+     * @param string $sqlQuery
+     * @param array $sqlParams
+     * @param string $fetchMethod
+     * @return array
+     */
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    {
+        $res = $this->dbMon->query($sqlQuery, $sqlParams);
+
+        return $res->{$fetchMethod}();
     }
 }

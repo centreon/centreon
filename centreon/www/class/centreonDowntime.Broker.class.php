@@ -236,105 +236,6 @@ class CentreonDowntimeBroker extends CentreonDowntime
     }
 
     /**
-     * @param $downtimeStartTime
-     * @param $now
-     * @param $delay
-     *
-     * @throws Exception
-     * @return bool
-     */
-    private function isTomorrow($downtimeStartTime, $now, $delay)
-    {
-        $tomorrow = false;
-
-        // startDelay must be between midnight - delay and midnight - 1 second
-        $nowTimestamp = strtotime($now->format('H:i'));
-        $midnightMoins1SecondDate = new DateTime('midnight -1seconds');
-        $midnightMoins1SecondTimestamp = strtotime($midnightMoins1SecondDate->format('H:i:s'));
-        $midnightMoinsDelayDate = new DateTime('midnight -' . $delay . 'seconds');
-        $midnightMoinsDelayTimestamp = strtotime($midnightMoinsDelayDate->format('H:i'));
-
-        $downtimeStartTimeTimestamp = strtotime($downtimeStartTime);
-
-        // YYYY-MM-DD 00:00:00
-        $midnightDate = new DateTime('midnight');
-        // 00:00
-        $midnight = $midnightDate->format('H:i');
-        $midnightTimestamp = strtotime($midnight);
-
-        // YYYY-MM-DD 00:00:10 (for 600 seconds delay)
-        $midnightPlusDelayDate = new DateTime('midnight +' . $delay . 'seconds');
-        // 00:10 (for 600 seconds delay)
-        $midnightPlusDelay = $midnightPlusDelayDate->format('H:i');
-        $midnightPlusDelayTimestamp = strtotime($midnightPlusDelay);
-
-        if ($downtimeStartTimeTimestamp >= $midnightTimestamp
-            && $downtimeStartTimeTimestamp <= $midnightPlusDelayTimestamp
-            && $nowTimestamp <= $midnightMoins1SecondTimestamp
-            && $nowTimestamp >= $midnightMoinsDelayTimestamp
-        ) {
-            $tomorrow = true;
-        }
-
-        return $tomorrow;
-    }
-
-    /**
-     * @param $downtimeStart
-     * @param $delayStart
-     * @param $delayEnd
-     *
-     * @return bool
-     */
-    private function isApproachingTime($downtimeStart, $delayStart, $delayEnd)
-    {
-        $approachingTime = false;
-        if ($downtimeStart >= $delayStart && $downtimeStart <= $delayEnd) {
-            $approachingTime = true;
-        }
-
-        return $approachingTime;
-    }
-
-    /**
-     * reset timestamp at beginning of hour if we jump forward
-     * example:
-     *   - current date is 2021-03-28
-     *   - $time is 02:30
-     *   ==> return timestamp corresponding to 02:00 cause 02:30 does not exist (jump from 02:00 to 03:00)
-     *
-     * @param DateTime $datetime
-     * @param string $time time formatted as HH:mm
-     *
-     * @return int the calculated timestamp
-     */
-    private function manageWinterToSummerTimestamp(DateTime $datetime, string $time): int
-    {
-        $hour = explode(':', $time)[0];
-        if ((int) $datetime->format('H') > (int) $hour) {
-            $datetime->setTime($hour, '00');
-        }
-
-        return $datetime->getTimestamp();
-    }
-
-    /**
-     * @param Datetime $dateTime
-     *
-     * @return int
-     */
-    private function manageSummerToWinterTimestamp(DateTime $dateTime)
-    {
-        $datetimePlusOneHour = clone $dateTime;
-        $datetimePlusOneHour->sub(new DateInterval('PT1H'));
-        if ($datetimePlusOneHour->format('H:m') === $dateTime->format('H:m')) {
-            return $dateTime->getTimestamp() - 3600;
-        }
-
-        return $dateTime->getTimestamp();
-    }
-
-    /**
      * @param $delay
      *
      * @throws Exception
@@ -535,5 +436,104 @@ class CentreonDowntimeBroker extends CentreonDowntime
         if ($remoteCommands) {
             file_put_contents($this->remoteCmdDir . '/' . time() . '-downtimes', $remoteCommands, FILE_APPEND);
         }
+    }
+
+    /**
+     * @param $downtimeStartTime
+     * @param $now
+     * @param $delay
+     *
+     * @throws Exception
+     * @return bool
+     */
+    private function isTomorrow($downtimeStartTime, $now, $delay)
+    {
+        $tomorrow = false;
+
+        // startDelay must be between midnight - delay and midnight - 1 second
+        $nowTimestamp = strtotime($now->format('H:i'));
+        $midnightMoins1SecondDate = new DateTime('midnight -1seconds');
+        $midnightMoins1SecondTimestamp = strtotime($midnightMoins1SecondDate->format('H:i:s'));
+        $midnightMoinsDelayDate = new DateTime('midnight -' . $delay . 'seconds');
+        $midnightMoinsDelayTimestamp = strtotime($midnightMoinsDelayDate->format('H:i'));
+
+        $downtimeStartTimeTimestamp = strtotime($downtimeStartTime);
+
+        // YYYY-MM-DD 00:00:00
+        $midnightDate = new DateTime('midnight');
+        // 00:00
+        $midnight = $midnightDate->format('H:i');
+        $midnightTimestamp = strtotime($midnight);
+
+        // YYYY-MM-DD 00:00:10 (for 600 seconds delay)
+        $midnightPlusDelayDate = new DateTime('midnight +' . $delay . 'seconds');
+        // 00:10 (for 600 seconds delay)
+        $midnightPlusDelay = $midnightPlusDelayDate->format('H:i');
+        $midnightPlusDelayTimestamp = strtotime($midnightPlusDelay);
+
+        if ($downtimeStartTimeTimestamp >= $midnightTimestamp
+            && $downtimeStartTimeTimestamp <= $midnightPlusDelayTimestamp
+            && $nowTimestamp <= $midnightMoins1SecondTimestamp
+            && $nowTimestamp >= $midnightMoinsDelayTimestamp
+        ) {
+            $tomorrow = true;
+        }
+
+        return $tomorrow;
+    }
+
+    /**
+     * @param $downtimeStart
+     * @param $delayStart
+     * @param $delayEnd
+     *
+     * @return bool
+     */
+    private function isApproachingTime($downtimeStart, $delayStart, $delayEnd)
+    {
+        $approachingTime = false;
+        if ($downtimeStart >= $delayStart && $downtimeStart <= $delayEnd) {
+            $approachingTime = true;
+        }
+
+        return $approachingTime;
+    }
+
+    /**
+     * reset timestamp at beginning of hour if we jump forward
+     * example:
+     *   - current date is 2021-03-28
+     *   - $time is 02:30
+     *   ==> return timestamp corresponding to 02:00 cause 02:30 does not exist (jump from 02:00 to 03:00)
+     *
+     * @param DateTime $datetime
+     * @param string $time time formatted as HH:mm
+     *
+     * @return int the calculated timestamp
+     */
+    private function manageWinterToSummerTimestamp(DateTime $datetime, string $time): int
+    {
+        $hour = explode(':', $time)[0];
+        if ((int) $datetime->format('H') > (int) $hour) {
+            $datetime->setTime($hour, '00');
+        }
+
+        return $datetime->getTimestamp();
+    }
+
+    /**
+     * @param Datetime $dateTime
+     *
+     * @return int
+     */
+    private function manageSummerToWinterTimestamp(DateTime $dateTime)
+    {
+        $datetimePlusOneHour = clone $dateTime;
+        $datetimePlusOneHour->sub(new DateInterval('PT1H'));
+        if ($datetimePlusOneHour->format('H:m') === $dateTime->format('H:m')) {
+            return $dateTime->getTimestamp() - 3600;
+        }
+
+        return $dateTime->getTimestamp();
     }
 }

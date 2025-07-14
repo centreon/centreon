@@ -65,6 +65,17 @@ abstract class AbstractObjectJSON
     protected $readVaultRepository = null;
 
     /**
+     * AbstractObjectJSON constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    protected function __construct(Container $dependencyInjector)
+    {
+        $this->dependencyInjector = $dependencyInjector;
+        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+    }
+
+    /**
      * Get Centreon Vault Configuration Status
      *
      * @throws LogicException
@@ -107,17 +118,6 @@ abstract class AbstractObjectJSON
         }
 
         return $instances[$calledClass];
-    }
-
-    /**
-     * AbstractObjectJSON constructor
-     *
-     * @param Container $dependencyInjector
-     */
-    protected function __construct(Container $dependencyInjector)
-    {
-        $this->dependencyInjector = $dependencyInjector;
-        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
     }
 
     /**

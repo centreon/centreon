@@ -137,6 +137,63 @@ abstract class AbstractHost extends AbstractObject
     protected $stmt_cg = null;
 
     /**
+     * @param $host_id
+     * @param $host_tpl_id
+     *
+     * @return int
+     */
+    public function isHostTemplate($host_id, $host_tpl_id)
+    {
+        $loop = [];
+        $stack = [];
+
+        $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
+        $stack = $this->hosts[$host_id]['htpl'];
+        while (($host_id = array_shift($stack))) {
+            if (isset($loop[$host_id])) {
+                continue;
+            }
+            $loop[$host_id] = 1;
+            if ($host_id == $host_tpl_id) {
+                return 1;
+            }
+            $stack = array_merge($hosts_tpl[$host_id]['htpl'], $stack);
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($host_id, $attr)
+    {
+        return $this->hosts[$host_id][$attr] ?? null;
+    }
+
+    /**
+     * @param HostCategory $hostCategory
+     * @param array<string,mixed> $host
+     *
+     * @throws PDOException
+     */
+    public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
+    {
+        $host['hostCategories'] = $this->getHostCategoriesByHost($host);
+
+        foreach ($host['hostCategories'] as $hostCategoryId) {
+            $hostCategory->insertHostToCategoryMembers(
+                $hostCategoryId,
+                $host['host_id'],
+                $host['name'] ?? $host['host_name']
+            );
+        }
+    }
+
+    /**
      * @param int $hostId
      * @param int|null $hostType
      *
@@ -291,33 +348,6 @@ abstract class AbstractHost extends AbstractObject
 
     /**
      * @param $host_id
-     * @param $host_tpl_id
-     *
-     * @return int
-     */
-    public function isHostTemplate($host_id, $host_tpl_id)
-    {
-        $loop = [];
-        $stack = [];
-
-        $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $stack = $this->hosts[$host_id]['htpl'];
-        while (($host_id = array_shift($stack))) {
-            if (isset($loop[$host_id])) {
-                continue;
-            }
-            $loop[$host_id] = 1;
-            if ($host_id == $host_tpl_id) {
-                return 1;
-            }
-            $stack = array_merge($hosts_tpl[$host_id]['htpl'], $stack);
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param $host_id
      * @param $command_label
      *
      * @return mixed|null
@@ -429,17 +459,6 @@ abstract class AbstractHost extends AbstractObject
     }
 
     /**
-     * @param $host_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($host_id, $attr)
-    {
-        return $this->hosts[$host_id][$attr] ?? null;
-    }
-
-    /**
      * @param array<string,mixed> $host
      *
      * @throws PDOException
@@ -459,24 +478,5 @@ abstract class AbstractHost extends AbstractObject
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @param HostCategory $hostCategory
-     * @param array<string,mixed> $host
-     *
-     * @throws PDOException
-     */
-    public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
-    {
-        $host['hostCategories'] = $this->getHostCategoriesByHost($host);
-
-        foreach ($host['hostCategories'] as $hostCategoryId) {
-            $hostCategory->insertHostToCategoryMembers(
-                $hostCategoryId,
-                $host['host_id'],
-                $host['name'] ?? $host['host_name']
-            );
-        }
     }
 }

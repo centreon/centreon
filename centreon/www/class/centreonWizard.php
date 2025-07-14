@@ -67,6 +67,28 @@ class Centreon_Wizard
     }
 
     /**
+     * Magic method __sleep
+     *
+     * @return string[]
+     */
+    public function __sleep()
+    {
+        $this->_lastUpdate = time();
+
+        return ['_uuid', '_lastUpdate', '_name', '_values'];
+    }
+
+    /**
+     * Magic method __wakeup
+     *
+     * @return void
+     */
+    public function __wakeup()
+    {
+        $this->_lastUpdate = time();
+    }
+
+    /**
      * Get values for a step
      *
      * @param int $step The step position
@@ -130,27 +152,5 @@ class Centreon_Wizard
     public function testUuid($uuid)
     {
         return (bool) ($uuid == $this->_uuid);
-    }
-
-    /**
-     * Magic method __sleep
-     *
-     * @return string[]
-     */
-    public function __sleep()
-    {
-        $this->_lastUpdate = time();
-
-        return ['_uuid', '_lastUpdate', '_name', '_values'];
-    }
-
-    /**
-     * Magic method __wakeup
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        $this->_lastUpdate = time();
     }
 }

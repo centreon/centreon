@@ -51,6 +51,15 @@ class Macro extends AbstractObject
     /** @var */
     public $stmt_host;
 
+    /** @var null */
+    protected $generate_filename = null;
+
+    /** @var string */
+    protected string $object_name;
+
+    /** @var null */
+    protected $stmt_service = null;
+
     /** @var int */
     private $use_cache = 1;
 
@@ -61,15 +70,6 @@ class Macro extends AbstractObject
     private $macro_service_cache = [];
 
     private $macroHostCache = [];
-
-    /** @var null */
-    protected $generate_filename = null;
-
-    /** @var string */
-    protected string $object_name;
-
-    /** @var null */
-    protected $stmt_service = null;
 
     /**
      * Macro constructor
@@ -90,6 +90,38 @@ class Macro extends AbstractObject
         }
 
         $this->buildCache();
+    }
+
+    /**
+     * @param $service_id
+     *
+     * @return array|mixed|null
+     */
+    public function getServiceMacroByServiceId($service_id)
+    {
+        // Get from the cache
+        if (isset($this->macro_service_cache[$service_id])) {
+            return $this->macro_service_cache[$service_id];
+        }
+        if ($this->done_cache == 1) {
+            return null;
+        }
+    }
+
+    /**
+     * @param $hostId
+     *
+     * @return array|mixed|null
+     */
+    public function getHostMacroByHostId($hostId)
+    {
+        // Get from the cache
+        if (isset($this->macroHostCache[$hostId])) {
+            return $this->macroHostCache[$hostId];
+        }
+        if ($this->done_cache == 1) {
+            return null;
+        }
     }
 
     /**
@@ -205,38 +237,6 @@ class Macro extends AbstractObject
         }
 
         return $vaultPathByResources;
-    }
-
-    /**
-     * @param $service_id
-     *
-     * @return array|mixed|null
-     */
-    public function getServiceMacroByServiceId($service_id)
-    {
-        // Get from the cache
-        if (isset($this->macro_service_cache[$service_id])) {
-            return $this->macro_service_cache[$service_id];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
-    }
-
-    /**
-     * @param $hostId
-     *
-     * @return array|mixed|null
-     */
-    public function getHostMacroByHostId($hostId)
-    {
-        // Get from the cache
-        if (isset($this->macroHostCache[$hostId])) {
-            return $this->macroHostCache[$hostId];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
     }
 
     /**

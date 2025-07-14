@@ -71,20 +71,6 @@ class I18nService
     }
 
     /**
-     * Initialize lang object to bind language
-     *
-     * @return void
-     */
-    private function initLang(): void
-    {
-        $this->lang = getenv('LANG');
-
-        if (! str_contains($this->lang, '.UTF-8')) {
-            $this->lang .= '.UTF-8';
-        }
-    }
-
-    /**
      * Get translation from centreon and its extensions
      *
      * @return array
@@ -108,6 +94,20 @@ class I18nService
         $modulesTranslation = $this->getAllModulesTranslation();
 
         return array_replace_recursive($centreonTranslation, $modulesTranslation);
+    }
+
+    /**
+     * Initialize lang object to bind language
+     *
+     * @return void
+     */
+    private function initLang(): void
+    {
+        $this->lang = getenv('LANG');
+
+        if (! str_contains($this->lang, '.UTF-8')) {
+            $this->lang .= '.UTF-8';
+        }
     }
 
     /**

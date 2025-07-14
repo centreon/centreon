@@ -33,14 +33,12 @@ use Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface;
  */
 class MonitoringResourceController extends AbstractController
 {
-    // @var HypermediaProviderInterface[]
-    private array $hyperMediaProviders = [];
-    private const RESOURCE_LISTING_URI = '/monitoring/resources';
     public const TAB_DETAILS_NAME = 'details';
     public const TAB_GRAPH_NAME = 'graph';
     public const TAB_SERVICES_NAME = 'services';
     public const TAB_TIMELINE_NAME = 'timeline';
     public const TAB_SHORTCUTS_NAME = 'shortcuts';
+    private const RESOURCE_LISTING_URI = '/monitoring/resources';
     private const ALLOWED_TABS = [
         self::TAB_DETAILS_NAME,
         self::TAB_GRAPH_NAME,
@@ -48,6 +46,9 @@ class MonitoringResourceController extends AbstractController
         self::TAB_TIMELINE_NAME,
         self::TAB_SHORTCUTS_NAME,
     ];
+
+    // @var HypermediaProviderInterface[]
+    private array $hyperMediaProviders = [];
 
     /**
      * @param \Traversable<HypermediaProviderInterface> $hyperMediaProviders
@@ -57,57 +58,6 @@ class MonitoringResourceController extends AbstractController
     ) {
         $this->hasProviders($hyperMediaProviders);
         $this->hyperMediaProviders = iterator_to_array($hyperMediaProviders);
-    }
-
-    /**
-     * @param \Traversable<mixed> $providers
-     * @return void
-     */
-    private function hasProviders(\Traversable $providers): void
-    {
-        if ($providers instanceof \Countable && count($providers) === 0) {
-            throw new \InvalidArgumentException(
-                _('You must add at least one provider')
-            );
-        }
-    }
-
-    /**
-     * Generates a resource details endpoint
-     *
-     * @param array<string, int> $urlParameters
-     * @param string $resourceType
-     * @return string
-     */
-    private function generateResourceDetailsEndpoint(array $urlParameters, string $resourceType): string
-    {
-        $resourceDetailsEndpoint = null;
-        foreach ($this->hyperMediaProviders as $hyperMediaProvider) {
-            if ($hyperMediaProvider->isValidFor($resourceType)) {
-                $resourceDetailsEndpoint = $hyperMediaProvider->generateResourceDetailsUri($urlParameters);
-            }
-        }
-
-        return $resourceDetailsEndpoint;
-    }
-
-    /**
-     * Generates a resource details redirection link
-     *
-     * @param string $resourceType
-     * @param int $resourceId
-     * @param array<string, int> $parameters
-     * @return string
-     */
-    private function buildResourceDetailsUri(string $resourceType, int $resourceId, array $parameters): string
-    {
-        return $this->buildListingUri([
-            'details' => json_encode([
-                'id' => $resourceId,
-                'tab' => self::TAB_DETAILS_NAME,
-                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, $resourceType),
-            ]),
-        ]);
     }
 
     /**
@@ -228,5 +178,56 @@ class MonitoringResourceController extends AbstractController
         }
 
         return $baseListingUri;
+    }
+
+    /**
+     * @param \Traversable<mixed> $providers
+     * @return void
+     */
+    private function hasProviders(\Traversable $providers): void
+    {
+        if ($providers instanceof \Countable && count($providers) === 0) {
+            throw new \InvalidArgumentException(
+                _('You must add at least one provider')
+            );
+        }
+    }
+
+    /**
+     * Generates a resource details endpoint
+     *
+     * @param array<string, int> $urlParameters
+     * @param string $resourceType
+     * @return string
+     */
+    private function generateResourceDetailsEndpoint(array $urlParameters, string $resourceType): string
+    {
+        $resourceDetailsEndpoint = null;
+        foreach ($this->hyperMediaProviders as $hyperMediaProvider) {
+            if ($hyperMediaProvider->isValidFor($resourceType)) {
+                $resourceDetailsEndpoint = $hyperMediaProvider->generateResourceDetailsUri($urlParameters);
+            }
+        }
+
+        return $resourceDetailsEndpoint;
+    }
+
+    /**
+     * Generates a resource details redirection link
+     *
+     * @param string $resourceType
+     * @param int $resourceId
+     * @param array<string, int> $parameters
+     * @return string
+     */
+    private function buildResourceDetailsUri(string $resourceType, int $resourceId, array $parameters): string
+    {
+        return $this->buildListingUri([
+            'details' => json_encode([
+                'id' => $resourceId,
+                'tab' => self::TAB_DETAILS_NAME,
+                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, $resourceType),
+            ]),
+        ]);
     }
 }

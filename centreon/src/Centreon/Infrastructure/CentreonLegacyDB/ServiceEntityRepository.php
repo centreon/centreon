@@ -58,6 +58,22 @@ abstract class ServiceEntityRepository
     protected $entityPersister;
 
     /**
+     * Construct
+     *
+     * @param CentreonDB $db
+     * @param CentreonDBManagerService $manager
+     */
+    public function __construct(CentreonDB $db, ?CentreonDBManagerService $manager = null)
+    {
+        $this->db = $db;
+        $this->manager = $manager;
+        $this->classMetadata = new Mapping\ClassMetadata();
+
+        // load metadata for Entity implemented MetadataInterface
+        $this->loadMetadata();
+    }
+
+    /**
      * Get class name and namespace of the Entity
      *
      * <example>
@@ -78,20 +94,19 @@ abstract class ServiceEntityRepository
         );
     }
 
-    /**
-     * Construct
-     *
-     * @param CentreonDB $db
-     * @param CentreonDBManagerService $manager
-     */
-    public function __construct(CentreonDB $db, ?CentreonDBManagerService $manager = null)
+    public function getEntityPersister(): ?EntityPersister
     {
-        $this->db = $db;
-        $this->manager = $manager;
-        $this->classMetadata = new Mapping\ClassMetadata();
+        return $this->entityPersister;
+    }
 
-        // load metadata for Entity implemented MetadataInterface
-        $this->loadMetadata();
+    /**
+     * Get ClassMetadata
+     *
+     * @return Mapping\ClassMetadata
+     */
+    public function getClassMetadata(): Mapping\ClassMetadata
+    {
+        return $this->classMetadata;
     }
 
     /**
@@ -107,21 +122,6 @@ abstract class ServiceEntityRepository
             // prepare the Entity persister
             $this->entityPersister = new EntityPersister(static::entityClass(), $this->classMetadata);
         }
-    }
-
-    public function getEntityPersister(): ?EntityPersister
-    {
-        return $this->entityPersister;
-    }
-
-    /**
-     * Get ClassMetadata
-     *
-     * @return Mapping\ClassMetadata
-     */
-    public function getClassMetadata(): Mapping\ClassMetadata
-    {
-        return $this->classMetadata;
     }
 
     /**

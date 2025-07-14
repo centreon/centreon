@@ -90,6 +90,9 @@ class CentreonACLResource extends CentreonObject
     public const ORDER_ALIAS = 1;
     public const UNSUPPORTED_WILDCARD = "Action does not support the '*' wildcard";
 
+    /** @var string[] */
+    public $aDepends = ['HOST', 'SERVICE', 'HG', 'SG', 'INSTANCE', 'HC', 'SC'];
+
     /** @var Centreon_Object_Acl_Group */
     protected $aclGroupObj;
 
@@ -110,9 +113,6 @@ class CentreonACLResource extends CentreonObject
      */
     protected $resourceTypeObjectRelation;
 
-    /** @var string[] */
-    public $aDepends = ['HOST', 'SERVICE', 'HG', 'SG', 'INSTANCE', 'HC', 'SC'];
-
     /**
      * CentreonACLResource constructor
      *
@@ -130,6 +130,28 @@ class CentreonACLResource extends CentreonObject
         $this->nbOfCompulsoryParams = 2;
         $this->activateField = 'acl_res_activate';
         $this->action = 'ACLRESOURCE';
+    }
+
+    /**
+     * Magic method
+     *
+     * @param string $name
+     * @param array $arg
+     * @throws CentreonClapiException
+     * @return void
+     */
+    public function __call($name, $arg)
+    {
+        $name = strtolower($name);
+        if (preg_match('/^(grant|revoke|addfilter|delfilter)_([a-zA-Z_]+)/', $name, $matches)) {
+            if (! isset($arg[0])) {
+                throw new CentreonClapiException(self::MISSINGPARAMETER);
+            }
+            $action = $matches[1];
+            $this->{$action}($matches[2], $arg[0]);
+        } else {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
     }
 
     /**
@@ -229,6 +251,80 @@ class CentreonACLResource extends CentreonObject
                 $result = $this->aclGroupObj->getParameters($groupId, $this->aclGroupObj->getUniqueLabelField());
                 echo $groupId . $this->delim . $result[$this->aclGroupObj->getUniqueLabelField()] . "\n";
             }
+        }
+    }
+
+    /**
+     * Add host exclusion
+     *
+     * @param string $parameters
+     *
+     * @throws CentreonClapiException
+     * @return void
+     */
+    public function addhostexclusion($parameters): void
+    {
+        $this->grant('excludehost', $parameters);
+    }
+
+    /**
+     * Delete host exclusion
+     *
+     * @param string $parameters
+     *
+     * @throws CentreonClapiException
+     * @return void
+     */
+    public function delhostexclusion($parameters): void
+    {
+        $this->revoke('excludehost', $parameters);
+    }
+
+    /**
+     * @param null $filterName
+     *
+     * @throws Exception
+     * @return bool|void
+     */
+    public function export($filterName = null)
+    {
+        if (! $this->canBeExported($filterName)) {
+            return false;
+        }
+
+        $labelField = $this->object->getUniqueLabelField();
+        $filters = [];
+        if (! is_null($filterName)) {
+            $filters[$labelField] = $filterName;
+        }
+        $aclResourceList = $this->object->getList(
+            '*',
+            -1,
+            0,
+            $labelField,
+            'ASC',
+            $filters
+        );
+
+        $exportLine = '';
+        foreach ($aclResourceList as $aclResource) {
+            $exportLine .= $this->action . $this->delim . 'ADD' . $this->delim
+                . $aclResource['acl_res_name'] . $this->delim
+                . $aclResource['acl_res_alias'] . $this->delim . "\n";
+
+            $exportLine .= $this->action . $this->delim . 'SETPARAM' . $this->delim
+                . $aclResource['acl_res_name'] . $this->delim;
+
+            if (! empty($aclResource['acl_res_comment'])) {
+                $exportLine .= 'comment' . $this->delim . $aclResource['acl_res_comment'] . $this->delim;
+            }
+
+            $exportLine .= 'activate' . $this->delim . $aclResource['acl_res_activate'] . $this->delim . "\n";
+
+            $exportLine .= $this->exportGrantResources($aclResource);
+
+            echo $exportLine;
+            $exportLine = '';
         }
     }
 
@@ -400,102 +496,6 @@ class CentreonACLResource extends CentreonObject
     protected function delfilter($type, $arg)
     {
         $this->revoke($type, $arg);
-    }
-
-    /**
-     * Add host exclusion
-     *
-     * @param string $parameters
-     *
-     * @throws CentreonClapiException
-     * @return void
-     */
-    public function addhostexclusion($parameters): void
-    {
-        $this->grant('excludehost', $parameters);
-    }
-
-    /**
-     * Delete host exclusion
-     *
-     * @param string $parameters
-     *
-     * @throws CentreonClapiException
-     * @return void
-     */
-    public function delhostexclusion($parameters): void
-    {
-        $this->revoke('excludehost', $parameters);
-    }
-
-    /**
-     * Magic method
-     *
-     * @param string $name
-     * @param array $arg
-     * @throws CentreonClapiException
-     * @return void
-     */
-    public function __call($name, $arg)
-    {
-        $name = strtolower($name);
-        if (preg_match('/^(grant|revoke|addfilter|delfilter)_([a-zA-Z_]+)/', $name, $matches)) {
-            if (! isset($arg[0])) {
-                throw new CentreonClapiException(self::MISSINGPARAMETER);
-            }
-            $action = $matches[1];
-            $this->{$action}($matches[2], $arg[0]);
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
-        }
-    }
-
-    /**
-     * @param null $filterName
-     *
-     * @throws Exception
-     * @return bool|void
-     */
-    public function export($filterName = null)
-    {
-        if (! $this->canBeExported($filterName)) {
-            return false;
-        }
-
-        $labelField = $this->object->getUniqueLabelField();
-        $filters = [];
-        if (! is_null($filterName)) {
-            $filters[$labelField] = $filterName;
-        }
-        $aclResourceList = $this->object->getList(
-            '*',
-            -1,
-            0,
-            $labelField,
-            'ASC',
-            $filters
-        );
-
-        $exportLine = '';
-        foreach ($aclResourceList as $aclResource) {
-            $exportLine .= $this->action . $this->delim . 'ADD' . $this->delim
-                . $aclResource['acl_res_name'] . $this->delim
-                . $aclResource['acl_res_alias'] . $this->delim . "\n";
-
-            $exportLine .= $this->action . $this->delim . 'SETPARAM' . $this->delim
-                . $aclResource['acl_res_name'] . $this->delim;
-
-            if (! empty($aclResource['acl_res_comment'])) {
-                $exportLine .= 'comment' . $this->delim . $aclResource['acl_res_comment'] . $this->delim;
-            }
-
-            $exportLine .= 'activate' . $this->delim . $aclResource['acl_res_activate'] . $this->delim . "\n";
-
-            $exportLine .= $this->exportGrantResources($aclResource);
-
-            echo $exportLine;
-            $exportLine = '';
-        }
     }
 
     /**

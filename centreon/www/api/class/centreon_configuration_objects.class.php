@@ -119,6 +119,22 @@ class CentreonConfigurationObjects extends CentreonWebService
     }
 
     /**
+     * Authorize to access to the action
+     *
+     * @param string $action The action name
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, $isInternal)
+            || ($user && $user->hasAccessRestApiConfiguration())
+        );
+    }
+
+    /**
      * @param array $externalObject
      * @param array $values
      * @throws Exception
@@ -270,21 +286,5 @@ class CentreonConfigurationObjects extends CentreonWebService
         }
 
         return $tmpValues;
-    }
-
-    /**
-     * Authorize to access to the action
-     *
-     * @param string $action The action name
-     * @param CentreonUser $user The current user
-     * @param bool $isInternal If the api is call in internal
-     * @return bool If the user has access to the action
-     */
-    public function authorize($action, $user, $isInternal = false)
-    {
-        return (bool) (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->hasAccessRestApiConfiguration())
-        );
     }
 }

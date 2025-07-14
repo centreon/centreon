@@ -32,15 +32,6 @@ use PDO;
  */
 class BrokerInfo extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $brokerInfoCache = [];
-
     /** @var string */
     protected $table = 'cfg_centreonbroker_info';
 
@@ -63,6 +54,15 @@ class BrokerInfo extends AbstractObject
         'fieldIndex',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $brokerInfoCache = [];
+
     /**
      * BrokerInfo constructor
      *
@@ -72,41 +72,6 @@ class BrokerInfo extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of broker info
-     *
-     * @return void
-     */
-    private function cacheBrokerInfo(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT *
-             FROM cfg_centreonbroker_info'
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            if (! isset($this->brokerInfoCache[$value['config_id']])) {
-                $this->brokerInfoCache[$value['config_id']] = [];
-            }
-            $this->brokerInfoCache[$value['config_id']][] = $value;
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void
-     */
-    private function buildCache(): void
-    {
-        if ($this->doneCache === 0) {
-            $this->cacheBrokerInfo();
-            $this->doneCache = 1;
-        }
     }
 
     /**
@@ -164,5 +129,40 @@ class BrokerInfo extends AbstractObject
         $this->generateObject($configId, $brokerInfoCache);
 
         return $brokerInfoCache;
+    }
+
+    /**
+     * Build cache of broker info
+     *
+     * @return void
+     */
+    private function cacheBrokerInfo(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT *
+             FROM cfg_centreonbroker_info'
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            if (! isset($this->brokerInfoCache[$value['config_id']])) {
+                $this->brokerInfoCache[$value['config_id']] = [];
+            }
+            $this->brokerInfoCache[$value['config_id']][] = $value;
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache(): void
+    {
+        if ($this->doneCache === 0) {
+            $this->cacheBrokerInfo();
+            $this->doneCache = 1;
+        }
     }
 }

@@ -66,73 +66,6 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
     }
 
     /**
-     * Get a valid token to request the API.
-     * @param PlatformInformation $platformInformation
-     * @param Proxy|null $proxy
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws PlatformTopologyRepositoryException
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     * @return string
-     */
-    private function getToken(
-        PlatformInformation $platformInformation,
-        ?Proxy $proxy = null
-    ): string {
-        // Central's API endpoints base path building
-        $this->baseApiEndpoint = $platformInformation->getApiScheme() . '://'
-            . $platformInformation->getCentralServerAddress() . ':'
-            . $platformInformation->getApiPort() . DIRECTORY_SEPARATOR
-            . $platformInformation->getApiPath() . '/api/v'
-            . ((string) $this->apiPlatform->getVersion());
-
-        // Enable specific options
-        $optionPayload = [];
-        // Enable proxy
-        if (null !== $proxy && ! empty((string) $proxy)) {
-            $optionPayload['proxy'] = (string) $proxy;
-        }
-        // On https scheme, the SSL verify_peer needs to be specified
-        if ('https' === $platformInformation->getApiScheme()) {
-            $optionPayload['verify_peer'] = $platformInformation->hasApiPeerValidation();
-            $optionPayload['verify_host'] = $platformInformation->hasApiPeerValidation();
-        }
-        // Set the options for next http_client calls
-        if ($optionPayload !== []) {
-            $this->httpClient = HttpClient::create($optionPayload);
-        }
-
-        // Central's API login payload
-        $loginPayload = [
-            'json' => [
-                'security' => [
-                    'credentials' => [
-                        'login' => $platformInformation->getApiUsername(),
-                        'password' => $platformInformation->getApiCredentials(),
-                    ],
-                ],
-            ],
-        ];
-
-        // Login on the Central to get a valid token
-        $loginResponse = $this->httpClient->request(
-            'POST',
-            $this->baseApiEndpoint . '/login',
-            $loginPayload
-        );
-
-        $token = $loginResponse->toArray()['security']['token'] ?? false;
-
-        if (false === $token) {
-            throw PlatformTopologyRepositoryException::failToGetToken($platformInformation->getCentralServerAddress());
-        }
-
-        return $token;
-    }
-
-    /**
      * @inheritDoc
      */
     public function registerPlatformToParent(
@@ -303,5 +236,72 @@ class PlatformTopologyRegisterRepositoryAPI implements PlatformTopologyRegisterR
         } catch (\Exception $e) {
             throw PlatformTopologyRepositoryException::apiUndeterminedError($e->getMessage());
         }
+    }
+
+    /**
+     * Get a valid token to request the API.
+     * @param PlatformInformation $platformInformation
+     * @param Proxy|null $proxy
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws PlatformTopologyRepositoryException
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @return string
+     */
+    private function getToken(
+        PlatformInformation $platformInformation,
+        ?Proxy $proxy = null
+    ): string {
+        // Central's API endpoints base path building
+        $this->baseApiEndpoint = $platformInformation->getApiScheme() . '://'
+            . $platformInformation->getCentralServerAddress() . ':'
+            . $platformInformation->getApiPort() . DIRECTORY_SEPARATOR
+            . $platformInformation->getApiPath() . '/api/v'
+            . ((string) $this->apiPlatform->getVersion());
+
+        // Enable specific options
+        $optionPayload = [];
+        // Enable proxy
+        if (null !== $proxy && ! empty((string) $proxy)) {
+            $optionPayload['proxy'] = (string) $proxy;
+        }
+        // On https scheme, the SSL verify_peer needs to be specified
+        if ('https' === $platformInformation->getApiScheme()) {
+            $optionPayload['verify_peer'] = $platformInformation->hasApiPeerValidation();
+            $optionPayload['verify_host'] = $platformInformation->hasApiPeerValidation();
+        }
+        // Set the options for next http_client calls
+        if ($optionPayload !== []) {
+            $this->httpClient = HttpClient::create($optionPayload);
+        }
+
+        // Central's API login payload
+        $loginPayload = [
+            'json' => [
+                'security' => [
+                    'credentials' => [
+                        'login' => $platformInformation->getApiUsername(),
+                        'password' => $platformInformation->getApiCredentials(),
+                    ],
+                ],
+            ],
+        ];
+
+        // Login on the Central to get a valid token
+        $loginResponse = $this->httpClient->request(
+            'POST',
+            $this->baseApiEndpoint . '/login',
+            $loginPayload
+        );
+
+        $token = $loginResponse->toArray()['security']['token'] ?? false;
+
+        if (false === $token) {
+            throw PlatformTopologyRepositoryException::failToGetToken($platformInformation->getCentralServerAddress());
+        }
+
+        return $token;
     }
 }

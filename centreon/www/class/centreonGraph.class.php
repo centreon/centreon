@@ -68,18 +68,27 @@ class CentreonGraph
     /** @var int */
     public $areaNb;
 
+    /** @var SimpleXMLElement */
+    public $XML;
+
+    /** @var CentreonGMT */
+    public $GMT;
+
+    /** @var string */
+    public $user_id;
+
+    /** @var bool */
+    public $onecurve;
+
+    /** @var bool */
+    public $checkcurve;
+
     // Objects
     /** @var CentreonDB */
     protected $DB;
 
     /** @var CentreonDB */
     protected $DBC;
-
-    /** @var SimpleXMLElement */
-    public $XML;
-
-    /** @var CentreonGMT */
-    public $GMT;
 
     /** @var CentreonHost */
     protected $hostObj;
@@ -118,9 +127,6 @@ class CentreonGraph
 
     /** @var int|mixed */
     protected $compress;
-
-    /** @var string */
-    public $user_id;
 
     /** @var array */
     protected $generalOpt;
@@ -184,12 +190,6 @@ class CentreonGraph
 
     /** @var array */
     protected $rrdCachedOptions;
-
-    /** @var bool */
-    public $onecurve;
-
-    /** @var bool */
-    public $checkcurve;
 
     /**
      * CentreonGraph constructor
@@ -355,42 +355,6 @@ class CentreonGraph
     }
 
     /**
-     * Clean up ds name
-     *
-     * @param string $dsname
-     * @param bool $reverse set to true if we want to retrieve the original string to display
-     * @return string
-     */
-    protected function cleanupDsName($dsname, $reverse = false)
-    {
-        if ($reverse === true) {
-            $newDsName = str_replace(['slash_', 'bslash_', 'pct_', '\\#'], ['/', '\\', '%', '#'], $dsname);
-        } else {
-            $newDsName = str_replace(['/', '\\', '%', '#'], ['slash_', 'bslash_', 'pct_', '\\#'], $dsname);
-        }
-
-        return preg_replace("/[^\w\-_]/", '-', $newDsName);
-    }
-
-    /**
-     * Clean up ds name in Legend
-     *
-     * @param string $dsname
-     * @param bool $reverse set to true if we want to retrieve the original string to display
-     * @return string
-     */
-    protected function cleanupDsNameForLegend($dsname, $reverse = false)
-    {
-        $newDsName = str_replace(
-            ['slash_', 'bslash_', 'pct_', "'", '\\'],
-            ['/', '\\', '%', ' ', '\\\\'],
-            $dsname
-        );
-
-        return mb_convert_encoding($newDsName, 'UTF-8');
-    }
-
-    /**
      * @param string|array $metrics
      *
      * @return void
@@ -458,38 +422,6 @@ class CentreonGraph
             // Suppress Scaling in Text Output
             $this->gprintScaleOption = '';
         }
-    }
-
-    /**
-     * @param $elem
-     *
-     * @return mixed
-     */
-    private static function quote($elem)
-    {
-        return $elem;
-    }
-
-    /**
-     * @param $elem
-     *
-     * @return string
-     */
-    private static function vquote($elem)
-    {
-        return substr($elem, 1, strlen($elem) - 1);
-    }
-
-    /**
-     * Return the appropriate comparison operator (GT or LT).
-     * $tm   a reference to a curve definition
-     * @param array $tm
-     *
-     * @return string
-     */
-    private static function getCmpOperator(&$tm)
-    {
-        return ($tm['warn'] > $tm['crit']) ? 'LT' : 'GT';
     }
 
     /**
@@ -1086,79 +1018,6 @@ class CentreonGraph
     }
 
     /**
-     * @param int|null $l_value
-     * @param string|null $l_unit
-     *
-     * @return string|void
-     */
-    private function humanReadable($l_value = null, $l_unit = null)
-    {
-        if (empty($l_value)) {
-            return;
-        }
-
-        if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
-            $l_base = $this->RRDoptions['base'] ?? 1000;
-
-            $l_px = ['8' => ['1000' => 'Y', '1024' => 'Yi'], '7' => ['1000' => 'Z', '1024' => 'Zi'], '6' => ['1000' => 'E', '1024' => 'Ei'], '5' => ['1000' => 'P', '1024' => 'Pi'], '4' => ['1000' => 'T', '1024' => 'Ti'], '3' => ['1000' => 'G', '1024' => 'Gi'], '2' => ['1000' => 'M', '1024' => 'Mi'], '1' => ['1000' => 'K', '1024' => 'Ki']];
-            $l_sign = '';
-            if ($l_value < 0) {
-                $l_sign = '-';
-                $l_value *= -1;
-            }
-            $l_cpx = 0;
-            while ($l_value > $l_base) {
-                $l_value /= $l_base;
-                $l_cpx++;
-            }
-            $l_upx = $l_px[$l_cpx][$l_base];
-
-            return $l_sign . sprintf('%.2f', $l_value) . $l_upx . $l_unit;
-        }
-
-        return sprintf('%.2f', $l_value) . $l_unit;
-    }
-
-    /**
-     * @throws PDOException
-     * @return void
-     */
-    private function getDefaultGraphTemplate(): void
-    {
-        $template_id = $this->getServiceGraphID();
-        if ($template_id != '') {
-            $this->templateId = $template_id;
-
-            return;
-        }
-        $command_id = getMyServiceField($this->indexData['service_id'], 'command_command_id');
-        $statement = $this->DB->prepare('SELECT graph_id FROM command WHERE `command_id` = :command_id');
-        $statement->bindValue(':command_id', (int) $command_id, PDO::PARAM_INT);
-        $statement->execute();
-        if ($statement->rowCount()) {
-            $data = $statement->fetch();
-            if ($data['graph_id'] != 0) {
-                $this->templateId = $data['graph_id'];
-                unset($data);
-
-                return;
-            }
-        }
-        $statement->closeCursor();
-        unset($command_id);
-
-        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
-        if ($DBRESULT->rowCount()) {
-            $data = $DBRESULT->fetch();
-            $this->templateId = $data['graph_id'];
-            unset($data);
-            $DBRESULT->closeCursor();
-
-            return;
-        }
-    }
-
-    /**
      * @param string|null $template_id
      *
      * @throws PDOException
@@ -1197,92 +1056,6 @@ class CentreonGraph
         $statement->execute();
         $this->templateInformations = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
-    }
-
-    /**
-     * @throws PDOException
-     * @return int|mixed|string
-     */
-    private function getServiceGraphID()
-    {
-        $service_id = $this->indexData['service_id'];
-
-        $tab = [];
-        $statement = $this->DB->prepare('SELECT esi.graph_id, service_template_model_stm_id
-                    FROM service
-                    LEFT JOIN extended_service_information esi ON esi.service_service_id = service_id
-                    WHERE service_id = :service_id LIMIT 1');
-        while (1) {
-            $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
-            $statement->execute();
-            $row = $statement->fetch();
-            if ($row['graph_id']) {
-                $this->graphID = $row['graph_id'];
-
-                return $this->graphID;
-            }
-            if ($row['service_template_model_stm_id']) {
-                if (isset($tab[$row['service_template_model_stm_id']])) {
-                    break;
-                }
-                $service_id = $row['service_template_model_stm_id'];
-                $tab[$service_id] = 1;
-            } else {
-                break;
-            }
-        }
-
-        return $this->graphID;
-    }
-
-    /**
-     * @throws PDOException
-     * @return void
-     */
-    private function getIndexData(): void
-    {
-        $svc_instance = isset($this->metricsEnabled) ? $this->metrics[$this->metricsEnabled[0]]['index_id'] : $this->index;
-
-        $this->log('index_data for ' . $svc_instance);
-        $DBRESULT = $this->DBC->prepare('SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1');
-        $DBRESULT->bindParam(':svc_instance', $svc_instance, PDO::PARAM_INT);
-        $DBRESULT->execute();
-
-        if ($DBRESULT->rowCount()) {
-            $this->indexData = $DBRESULT->fetch();
-            // Check Meta Service description
-            if (preg_match('/meta_([0-9]*)/', $this->indexData['service_description'], $matches)) {
-                $DBRESULT_meta = $this->DB->prepare('SELECT meta_name FROM meta_service WHERE `meta_id` = :meta_id');
-                $DBRESULT_meta->bindParam(':meta_id', $matches[1], PDO::PARAM_INT);
-                $DBRESULT_meta->execute();
-
-                $meta = $DBRESULT_meta->fetch();
-                $this->indexData['service_description'] = $meta['meta_name'];
-                unset($meta);
-                $DBRESULT_meta->closeCursor();
-            }
-        }
-        $DBRESULT->closeCursor();
-
-        if (isset($this->metricsEnabled)) {
-            $metrictitle = ' metric ' . $this->metrics[$this->metricsEnabled]['metric_name']; // FIXME metricsEnabled is an array ??
-        } else {
-            $metrictitle = '';
-        }
-
-        if ($this->indexData['host_name'] != '_Module_Meta') {
-            $sdesc = $this->indexData['service_description'];
-            $hname = $this->indexData['host_name'];
-            if (! mb_detect_encoding($sdesc, 'UTF-8', true)) {
-                $sdesc = mb_convert_encoding($sdesc, 'UTF-8', 'ISO-8859-1');
-            }
-            if (! mb_detect_encoding($hname, 'UTF-8', true)) {
-                $hname = mb_convert_encoding($hname, 'UTF-8', 'ISO-8859-1');
-            }
-            $this->setRRDOption('title', _('Graph') . ' ' . $hname . '/' . $sdesc . $metrictitle);
-        } else {
-            $this->setRRDOption('title', _('Graph') . ' ' . $this->indexData['service_description'] . $metrictitle);
-        }
     }
 
     /**
@@ -1345,26 +1118,6 @@ class CentreonGraph
     public function setRRDOption($name, $value = null): void
     {
         $this->RRDoptions[$name] = $value;
-    }
-
-    /**
-     * @param $lower
-     * @param $upper
-     *
-     * @return void
-     */
-    private function switchRRDLimitOption($lower = null, $upper = null): void
-    {
-        if (is_null($lower)) {
-            unset($this->RRDoptions['upper-limit']);
-        } else {
-            $this->RRDoptions['upper-limit'] = $lower;
-        }
-        if (is_null($upper)) {
-            unset($this->RRDoptions['lower-limit']);
-        } else {
-            $this->RRDoptions['lower-limit'] = $upper;
-        }
     }
 
     /**
@@ -1591,6 +1344,394 @@ class CentreonGraph
     }
 
     /**
+     * Returns index data id
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     *
+     * @throws PDOException
+     * @return int
+     */
+    public function getIndexDataId($hostId, $serviceId)
+    {
+        $sql = 'SELECT id FROM index_data WHERE host_id = :host_id AND service_id = :service_id';
+        $res = $this->DBC->prepare($sql);
+        $res->bindParam(':host_id', $hostId, PDO::PARAM_INT);
+        $res->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $res->execute();
+
+        if ($res->rowCount()) {
+            $row = $res->fetch();
+
+            return $row['id'];
+        }
+        $res->closeCursor();
+
+        return 0;
+    }
+
+    /**
+     * Returns true if status graph exists
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     *
+     * @throws PDOException
+     * @return bool
+     */
+    public function statusGraphExists($hostId, $serviceId)
+    {
+        $id = $this->getIndexDataId($hostId, $serviceId);
+
+        return (bool) (is_file($this->dbStatusPath . '/' . $id . '.rrd'));
+    }
+
+    /**
+     * Clean up ds name
+     *
+     * @param string $dsname
+     * @param bool $reverse set to true if we want to retrieve the original string to display
+     * @return string
+     */
+    protected function cleanupDsName($dsname, $reverse = false)
+    {
+        if ($reverse === true) {
+            $newDsName = str_replace(['slash_', 'bslash_', 'pct_', '\\#'], ['/', '\\', '%', '#'], $dsname);
+        } else {
+            $newDsName = str_replace(['/', '\\', '%', '#'], ['slash_', 'bslash_', 'pct_', '\\#'], $dsname);
+        }
+
+        return preg_replace("/[^\w\-_]/", '-', $newDsName);
+    }
+
+    /**
+     * Clean up ds name in Legend
+     *
+     * @param string $dsname
+     * @param bool $reverse set to true if we want to retrieve the original string to display
+     * @return string
+     */
+    protected function cleanupDsNameForLegend($dsname, $reverse = false)
+    {
+        $newDsName = str_replace(
+            ['slash_', 'bslash_', 'pct_', "'", '\\'],
+            ['/', '\\', '%', ' ', '\\\\'],
+            $dsname
+        );
+
+        return mb_convert_encoding($newDsName, 'UTF-8');
+    }
+
+    /**
+     * @param string $rpn
+     * @param string $vname
+     * @param string|null $suffix
+     *
+     * @return string
+     */
+    protected function subsRPN($rpn, $vname, $suffix = null)
+    {
+        $l_list = preg_split("/\,/", $rpn);
+        $l_rpn = '';
+        foreach ($l_list as $l_m) {
+            if (isset($vname[$l_m])) {
+                if ($suffix == null) {
+                    $l_rpn .= $vname[$l_m];
+                } elseif (isset($vname[$l_m . $suffix])) {
+                    $l_rpn .= $vname[$l_m . $suffix];
+                } else {
+                    return 'No_RPN_Found';
+                }
+                $l_rpn .= ',';
+            } else {
+                $l_rpn .= $l_m . ',';
+            }
+        }
+
+        return substr($l_rpn, 0, strlen($l_rpn) - 1);
+    }
+
+    /**
+     * Flush metrics in rrdcached
+     *
+     * @param array $metricsId The list of metrics
+     * @return bool
+     */
+    protected function flushRrdcached($metricsId)
+    {
+        if (
+            ! isset($this->rrdCachedOptions['rrd_cached_option'])
+            || ! in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
+        ) {
+            return true;
+        }
+
+        // Connect to rrdcached
+        $errno = 0;
+        $errstr = '';
+        if ($this->rrdCachedOptions['rrd_cached_option'] === 'tcp') {
+            $sock = fsockopen('127.0.0.1', trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
+        } elseif ($this->rrdCachedOptions['rrd_cached_option'] === 'unix') {
+            $sock = fsockopen('unix://' . trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
+        } else {
+            return false;
+        }
+
+        if (false === $sock) {
+            // @todo log the error
+            return false;
+        }
+        // Run batch mode
+        if (false === fputs($sock, "BATCH\n")) {
+            @fclose($sock);
+
+            return false;
+        }
+        if (false === fgets($sock)) {
+            @fclose($sock);
+
+            return false;
+        }
+        // Run flushs
+        foreach ($metricsId as $metricId) {
+            $fullpath = realpath($this->dbPath . $metricId . '.rrd');
+            $cmd = 'FLUSH ' . $fullpath;
+            if (false === fputs($sock, $cmd . "\n")) {
+                @fclose($sock);
+
+                return false;
+            }
+        }
+        // Execute commands
+        if (false === fputs($sock, ".\n")) {
+            @fclose($sock);
+
+            return false;
+        }
+        if (false === fgets($sock)) {
+            @fclose($sock);
+
+            return false;
+        }
+        // Send close
+        fputs($sock, "QUIT\n");
+        @fclose($sock);
+
+        return true;
+    }
+
+    /**
+     * @param $elem
+     *
+     * @return mixed
+     */
+    private static function quote($elem)
+    {
+        return $elem;
+    }
+
+    /**
+     * @param $elem
+     *
+     * @return string
+     */
+    private static function vquote($elem)
+    {
+        return substr($elem, 1, strlen($elem) - 1);
+    }
+
+    /**
+     * Return the appropriate comparison operator (GT or LT).
+     * $tm   a reference to a curve definition
+     * @param array $tm
+     *
+     * @return string
+     */
+    private static function getCmpOperator(&$tm)
+    {
+        return ($tm['warn'] > $tm['crit']) ? 'LT' : 'GT';
+    }
+
+    /**
+     * @param int|null $l_value
+     * @param string|null $l_unit
+     *
+     * @return string|void
+     */
+    private function humanReadable($l_value = null, $l_unit = null)
+    {
+        if (empty($l_value)) {
+            return;
+        }
+
+        if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
+            $l_base = $this->RRDoptions['base'] ?? 1000;
+
+            $l_px = ['8' => ['1000' => 'Y', '1024' => 'Yi'], '7' => ['1000' => 'Z', '1024' => 'Zi'], '6' => ['1000' => 'E', '1024' => 'Ei'], '5' => ['1000' => 'P', '1024' => 'Pi'], '4' => ['1000' => 'T', '1024' => 'Ti'], '3' => ['1000' => 'G', '1024' => 'Gi'], '2' => ['1000' => 'M', '1024' => 'Mi'], '1' => ['1000' => 'K', '1024' => 'Ki']];
+            $l_sign = '';
+            if ($l_value < 0) {
+                $l_sign = '-';
+                $l_value *= -1;
+            }
+            $l_cpx = 0;
+            while ($l_value > $l_base) {
+                $l_value /= $l_base;
+                $l_cpx++;
+            }
+            $l_upx = $l_px[$l_cpx][$l_base];
+
+            return $l_sign . sprintf('%.2f', $l_value) . $l_upx . $l_unit;
+        }
+
+        return sprintf('%.2f', $l_value) . $l_unit;
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getDefaultGraphTemplate(): void
+    {
+        $template_id = $this->getServiceGraphID();
+        if ($template_id != '') {
+            $this->templateId = $template_id;
+
+            return;
+        }
+        $command_id = getMyServiceField($this->indexData['service_id'], 'command_command_id');
+        $statement = $this->DB->prepare('SELECT graph_id FROM command WHERE `command_id` = :command_id');
+        $statement->bindValue(':command_id', (int) $command_id, PDO::PARAM_INT);
+        $statement->execute();
+        if ($statement->rowCount()) {
+            $data = $statement->fetch();
+            if ($data['graph_id'] != 0) {
+                $this->templateId = $data['graph_id'];
+                unset($data);
+
+                return;
+            }
+        }
+        $statement->closeCursor();
+        unset($command_id);
+
+        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+        if ($DBRESULT->rowCount()) {
+            $data = $DBRESULT->fetch();
+            $this->templateId = $data['graph_id'];
+            unset($data);
+            $DBRESULT->closeCursor();
+
+            return;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return int|mixed|string
+     */
+    private function getServiceGraphID()
+    {
+        $service_id = $this->indexData['service_id'];
+
+        $tab = [];
+        $statement = $this->DB->prepare('SELECT esi.graph_id, service_template_model_stm_id
+                    FROM service
+                    LEFT JOIN extended_service_information esi ON esi.service_service_id = service_id
+                    WHERE service_id = :service_id LIMIT 1');
+        while (1) {
+            $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+            $statement->execute();
+            $row = $statement->fetch();
+            if ($row['graph_id']) {
+                $this->graphID = $row['graph_id'];
+
+                return $this->graphID;
+            }
+            if ($row['service_template_model_stm_id']) {
+                if (isset($tab[$row['service_template_model_stm_id']])) {
+                    break;
+                }
+                $service_id = $row['service_template_model_stm_id'];
+                $tab[$service_id] = 1;
+            } else {
+                break;
+            }
+        }
+
+        return $this->graphID;
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getIndexData(): void
+    {
+        $svc_instance = isset($this->metricsEnabled) ? $this->metrics[$this->metricsEnabled[0]]['index_id'] : $this->index;
+
+        $this->log('index_data for ' . $svc_instance);
+        $DBRESULT = $this->DBC->prepare('SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1');
+        $DBRESULT->bindParam(':svc_instance', $svc_instance, PDO::PARAM_INT);
+        $DBRESULT->execute();
+
+        if ($DBRESULT->rowCount()) {
+            $this->indexData = $DBRESULT->fetch();
+            // Check Meta Service description
+            if (preg_match('/meta_([0-9]*)/', $this->indexData['service_description'], $matches)) {
+                $DBRESULT_meta = $this->DB->prepare('SELECT meta_name FROM meta_service WHERE `meta_id` = :meta_id');
+                $DBRESULT_meta->bindParam(':meta_id', $matches[1], PDO::PARAM_INT);
+                $DBRESULT_meta->execute();
+
+                $meta = $DBRESULT_meta->fetch();
+                $this->indexData['service_description'] = $meta['meta_name'];
+                unset($meta);
+                $DBRESULT_meta->closeCursor();
+            }
+        }
+        $DBRESULT->closeCursor();
+
+        if (isset($this->metricsEnabled)) {
+            $metrictitle = ' metric ' . $this->metrics[$this->metricsEnabled]['metric_name']; // FIXME metricsEnabled is an array ??
+        } else {
+            $metrictitle = '';
+        }
+
+        if ($this->indexData['host_name'] != '_Module_Meta') {
+            $sdesc = $this->indexData['service_description'];
+            $hname = $this->indexData['host_name'];
+            if (! mb_detect_encoding($sdesc, 'UTF-8', true)) {
+                $sdesc = mb_convert_encoding($sdesc, 'UTF-8', 'ISO-8859-1');
+            }
+            if (! mb_detect_encoding($hname, 'UTF-8', true)) {
+                $hname = mb_convert_encoding($hname, 'UTF-8', 'ISO-8859-1');
+            }
+            $this->setRRDOption('title', _('Graph') . ' ' . $hname . '/' . $sdesc . $metrictitle);
+        } else {
+            $this->setRRDOption('title', _('Graph') . ' ' . $this->indexData['service_description'] . $metrictitle);
+        }
+    }
+
+    /**
+     * @param $lower
+     * @param $upper
+     *
+     * @return void
+     */
+    private function switchRRDLimitOption($lower = null, $upper = null): void
+    {
+        if (is_null($lower)) {
+            unset($this->RRDoptions['upper-limit']);
+        } else {
+            $this->RRDoptions['upper-limit'] = $lower;
+        }
+        if (is_null($upper)) {
+            unset($this->RRDoptions['lower-limit']);
+        } else {
+            $this->RRDoptions['lower-limit'] = $upper;
+        }
+    }
+
+    /**
      * @param array $a
      * @param array $b
      *
@@ -1626,35 +1767,6 @@ class CentreonGraph
         }
 
         return ($a['cdef_order'] < $b['cdef_order']) ? -1 : 1;
-    }
-
-    /**
-     * @param string $rpn
-     * @param string $vname
-     * @param string|null $suffix
-     *
-     * @return string
-     */
-    protected function subsRPN($rpn, $vname, $suffix = null)
-    {
-        $l_list = preg_split("/\,/", $rpn);
-        $l_rpn = '';
-        foreach ($l_list as $l_m) {
-            if (isset($vname[$l_m])) {
-                if ($suffix == null) {
-                    $l_rpn .= $vname[$l_m];
-                } elseif (isset($vname[$l_m . $suffix])) {
-                    $l_rpn .= $vname[$l_m . $suffix];
-                } else {
-                    return 'No_RPN_Found';
-                }
-                $l_rpn .= ',';
-            } else {
-                $l_rpn .= $l_m . ',';
-            }
-        }
-
-        return substr($l_rpn, 0, strlen($l_rpn) - 1);
     }
 
     /**
@@ -1816,117 +1928,5 @@ class CentreonGraph
         }
 
         return 1;
-    }
-
-    /**
-     * Flush metrics in rrdcached
-     *
-     * @param array $metricsId The list of metrics
-     * @return bool
-     */
-    protected function flushRrdcached($metricsId)
-    {
-        if (
-            ! isset($this->rrdCachedOptions['rrd_cached_option'])
-            || ! in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
-        ) {
-            return true;
-        }
-
-        // Connect to rrdcached
-        $errno = 0;
-        $errstr = '';
-        if ($this->rrdCachedOptions['rrd_cached_option'] === 'tcp') {
-            $sock = fsockopen('127.0.0.1', trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
-        } elseif ($this->rrdCachedOptions['rrd_cached_option'] === 'unix') {
-            $sock = fsockopen('unix://' . trim($this->rrdCachedOptions['rrd_cached']), $errno, $errstr);
-        } else {
-            return false;
-        }
-
-        if (false === $sock) {
-            // @todo log the error
-            return false;
-        }
-        // Run batch mode
-        if (false === fputs($sock, "BATCH\n")) {
-            @fclose($sock);
-
-            return false;
-        }
-        if (false === fgets($sock)) {
-            @fclose($sock);
-
-            return false;
-        }
-        // Run flushs
-        foreach ($metricsId as $metricId) {
-            $fullpath = realpath($this->dbPath . $metricId . '.rrd');
-            $cmd = 'FLUSH ' . $fullpath;
-            if (false === fputs($sock, $cmd . "\n")) {
-                @fclose($sock);
-
-                return false;
-            }
-        }
-        // Execute commands
-        if (false === fputs($sock, ".\n")) {
-            @fclose($sock);
-
-            return false;
-        }
-        if (false === fgets($sock)) {
-            @fclose($sock);
-
-            return false;
-        }
-        // Send close
-        fputs($sock, "QUIT\n");
-        @fclose($sock);
-
-        return true;
-    }
-
-    /**
-     * Returns index data id
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     *
-     * @throws PDOException
-     * @return int
-     */
-    public function getIndexDataId($hostId, $serviceId)
-    {
-        $sql = 'SELECT id FROM index_data WHERE host_id = :host_id AND service_id = :service_id';
-        $res = $this->DBC->prepare($sql);
-        $res->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-        $res->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-        $res->execute();
-
-        if ($res->rowCount()) {
-            $row = $res->fetch();
-
-            return $row['id'];
-        }
-        $res->closeCursor();
-
-        return 0;
-    }
-
-    /**
-     * Returns true if status graph exists
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     *
-     * @throws PDOException
-     * @return bool
-     */
-    public function statusGraphExists($hostId, $serviceId)
-    {
-        $id = $this->getIndexDataId($hostId, $serviceId);
-
-        return (bool) (is_file($this->dbStatusPath . '/' . $id . '.rrd'));
     }
 }

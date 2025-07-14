@@ -45,20 +45,6 @@ class Media extends AbstractObject
     private $medias = null;
 
     /**
-     * @throws PDOException
-     * @return void
-     */
-    private function getMedias(): void
-    {
-        $query = 'SELECT img_id, img_name, img_path, dir_name FROM view_img, view_img_dir_relation, view_img_dir '
-            . 'WHERE view_img.img_id = view_img_dir_relation.img_img_id '
-            . 'AND view_img_dir_relation.dir_dir_parent_id = view_img_dir.dir_id';
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->execute();
-        $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
      * @param $media_id
      *
      * @throws PDOException
@@ -76,5 +62,19 @@ class Media extends AbstractObject
         }
 
         return $result;
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getMedias(): void
+    {
+        $query = 'SELECT img_id, img_name, img_path, dir_name FROM view_img, view_img_dir_relation, view_img_dir '
+            . 'WHERE view_img.img_id = view_img_dir_relation.img_img_id '
+            . 'AND view_img_dir_relation.dir_dir_parent_id = view_img_dir.dir_id';
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->execute();
+        $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

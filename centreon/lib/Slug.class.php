@@ -64,6 +64,17 @@ class Slug implements ArrayAccess
     }
 
     /**
+     * Returns the slug-string
+     *
+     * @return string the slug
+     * @see    getSlug()
+     */
+    public function __toString()
+    {
+        return $this->getSlug();
+    }
+
+    /**
      * Generate the slug.
      */
     public function generateSlug(): void
@@ -88,33 +99,6 @@ class Slug implements ArrayAccess
     }
 
     /**
-     * Shorten the slug.
-     * @param mixed $slug
-     * @param mixed $maxLen
-     */
-    protected function shortenSlug($slug, $maxLen)
-    {
-        // $maxLen must be greater than 1
-        if ($maxLen < 1) {
-            return $slug;
-        }
-        // check whether there is work to do
-        if (strlen($slug) < $maxLen) {
-            return $slug;
-        }
-        // cut to $maxLen
-        $cutted_slug = trim(substr($slug, 0, $maxLen), $this['seperator_char']);
-        // cut to the last position of '-' in cutted string
-        $beautified_slug = trim(preg_replace('/[^' . preg_quote($this['seperator_char']) . ']*$/', '', $cutted_slug), $this['seperator_char']);
-        // only return the beautified string when it is long enough
-        if (strlen($beautified_slug) < ($maxLen / 2)) {
-            return $cutted_slug;
-        }
-
-        return $beautified_slug;
-    }
-
-    /**
      * Returns the slug-string
      *
      * @return string the slug
@@ -127,17 +111,6 @@ class Slug implements ArrayAccess
         }
 
         return $this->slug;
-    }
-
-    /**
-     * Returns the slug-string
-     *
-     * @return string the slug
-     * @see    getSlug()
-     */
-    public function __toString()
-    {
-        return $this->getSlug();
     }
 
     /**
@@ -197,5 +170,32 @@ class Slug implements ArrayAccess
     public function offsetGet($offset)
     {
         return $this->options[$offset] ?? null;
+    }
+
+    /**
+     * Shorten the slug.
+     * @param mixed $slug
+     * @param mixed $maxLen
+     */
+    protected function shortenSlug($slug, $maxLen)
+    {
+        // $maxLen must be greater than 1
+        if ($maxLen < 1) {
+            return $slug;
+        }
+        // check whether there is work to do
+        if (strlen($slug) < $maxLen) {
+            return $slug;
+        }
+        // cut to $maxLen
+        $cutted_slug = trim(substr($slug, 0, $maxLen), $this['seperator_char']);
+        // cut to the last position of '-' in cutted string
+        $beautified_slug = trim(preg_replace('/[^' . preg_quote($this['seperator_char']) . ']*$/', '', $cutted_slug), $this['seperator_char']);
+        // only return the beautified string when it is long enough
+        if (strlen($beautified_slug) < ($maxLen / 2)) {
+            return $cutted_slug;
+        }
+
+        return $beautified_slug;
     }
 }

@@ -111,6 +111,116 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findOneDowntimeForAdminUser(int $downtimeId): ?Downtime
+    {
+        // Internal call for an admin user
+        return $this->findOneDowntime($downtimeId, true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findOneDowntimeForNonAdminUser(int $downtimeId): ?Downtime
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return null;
+        }
+
+        // Internal call for non admin user
+        return $this->findOneDowntime($downtimeId, false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesForAdminUser(): array
+    {
+        // Internal call for an admin user
+        return $this->findDowntimes(true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesForNonAdminUser(): array
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return [];
+        }
+
+        // Internal call for non admin user
+        return $this->findDowntimes(false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesByHostForAdminUser(int $hostId, bool $withServices = false): array
+    {
+        // Internal call for an admin user
+        return $this->findDowntimesByHost($hostId, $withServices, true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesByHostForNonAdminUser(int $hostId, bool $withServices = false): array
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return [];
+        }
+
+        // Internal call for non admin user
+        return $this->findDowntimesByHost($hostId, $withServices, false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServicesDowntimesForNonAdminUser(): array
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return [];
+        }
+
+        // Internal call for non admin user
+        return $this->findServicesDowntimes(false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServicesDowntimesForAdminUser(): array
+    {
+        // Internal call for an admin user
+        return $this->findServicesDowntimes(true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesByServiceForNonAdminUser(int $hostId, int $serviceId): array
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return [];
+        }
+
+        // Internal call for non admin user
+        return $this->findDowntimesByService($hostId, $serviceId, false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDowntimesByServiceForAdminUser(int $hostId, int $serviceId): array
+    {
+        // Internal call for an admin user
+        return $this->findDowntimesByService($hostId, $serviceId, true);
+    }
+
+    /**
      * @return bool return TRUE if the contact is an admin or has at least one access group
      */
     private function hasNotEnoughRightsToContinue(): bool
@@ -152,28 +262,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
             . $aclRequest;
 
         return $this->processRequest($request);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findOneDowntimeForAdminUser(int $downtimeId): ?Downtime
-    {
-        // Internal call for an admin user
-        return $this->findOneDowntime($downtimeId, true);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findOneDowntimeForNonAdminUser(int $downtimeId): ?Downtime
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return null;
-        }
-
-        // Internal call for non admin user
-        return $this->findOneDowntime($downtimeId, false);
     }
 
     /**
@@ -222,28 +310,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
         }
 
         return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findDowntimesForAdminUser(): array
-    {
-        // Internal call for an admin user
-        return $this->findDowntimes(true);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findDowntimesForNonAdminUser(): array
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return [];
-        }
-
-        // Internal call for non admin user
-        return $this->findDowntimes(false);
     }
 
     /**
@@ -310,28 +376,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findDowntimesByHostForAdminUser(int $hostId, bool $withServices = false): array
-    {
-        // Internal call for an admin user
-        return $this->findDowntimesByHost($hostId, $withServices, true);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findDowntimesByHostForNonAdminUser(int $hostId, bool $withServices = false): array
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return [];
-        }
-
-        // Internal call for non admin user
-        return $this->findDowntimesByHost($hostId, $withServices, false);
-    }
-
-    /**
      * Find all downtimes for a host.
      *
      * @param int $hostId host id for which we want to find downtimes
@@ -394,28 +438,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findServicesDowntimesForNonAdminUser(): array
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return [];
-        }
-
-        // Internal call for non admin user
-        return $this->findServicesDowntimes(false);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findServicesDowntimesForAdminUser(): array
-    {
-        // Internal call for an admin user
-        return $this->findServicesDowntimes(true);
-    }
-
-    /**
      * Find all downtimes of all services.
      *
      * @param bool $isAdmin $isAdmin Indicates whether user is an admin
@@ -453,28 +475,6 @@ class DowntimeRepositoryRDB extends AbstractRepositoryDRB implements DowntimeRep
             . $aclRequest;
 
         return $this->processRequest($request);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findDowntimesByServiceForNonAdminUser(int $hostId, int $serviceId): array
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return [];
-        }
-
-        // Internal call for non admin user
-        return $this->findDowntimesByService($hostId, $serviceId, false);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findDowntimesByServiceForAdminUser(int $hostId, int $serviceId): array
-    {
-        // Internal call for an admin user
-        return $this->findDowntimesByService($hostId, $serviceId, true);
     }
 
     /**

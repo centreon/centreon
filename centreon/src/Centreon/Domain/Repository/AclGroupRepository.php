@@ -31,9 +31,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
-
-    /** @var int */
-    private int $resultCountForPagination = 0;
     private const CONCORDANCE_ARRAY = [
         'id' => 'acl_group_id',
         'name' => 'acl_group_name',
@@ -41,6 +38,9 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
         'changed' => 'acl_group_changed',
         'activate' => 'acl_group_activate',
     ];
+
+    /** @var int */
+    private int $resultCountForPagination = 0;
 
     /**
      * @param DatabaseConnection $db
@@ -138,6 +138,14 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
         return $aclGroups;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginationListTotal(): int
+    {
+        return $this->resultCountForPagination;
+    }
+
     private function createAclGroupFromArray(array $data): AclGroup
     {
         $aclGroup = new AclGroup();
@@ -148,13 +156,5 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
         $aclGroup->setActivate($data['acl_group_activate']);
 
         return $aclGroup;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getPaginationListTotal(): int
-    {
-        return $this->resultCountForPagination;
     }
 }

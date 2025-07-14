@@ -132,90 +132,6 @@ class CentreonRtDowntime extends CentreonObject
     }
 
     /**
-     * @param $date
-     * @param string $format
-     * @return bool
-     */
-    private function validateDate($date, $format = 'Y/m/d H:i')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-
-        return $d && $d->format($format) == $date;
-    }
-
-    /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    private function parseParameters($parameters)
-    {
-        // Make safe the inputs
-        [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', $parameters);
-
-        // Check if object type is supported
-        if (! in_array(strtoupper($type), $this->downtimeType)) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        // Check date format
-        $checkStart = $this->validateDate($start);
-        $checkEnd = $this->validateDate($end);
-
-        if (! $checkStart || ! $checkEnd) {
-            throw new CentreonClapiException('Wrong date format, expected : YYYY/MM/DD HH:mm');
-        }
-
-        // Check if fixed is 0 or 1
-        if (! preg_match('/^(0|1)$/', $fixed)) {
-            throw new CentreonClapiException('Bad fixed parameter (0 or 1)');
-        }
-
-        // Check duration parameters
-        if (
-            ($fixed == 0 && (! preg_match('/^\d+$/', $duration) || $duration <= 0))
-            || ($fixed == 1 && ! preg_match('/(^$)||(^\d+$)/', $duration))
-        ) {
-            throw new CentreonClapiException('Bad duration parameter');
-        }
-
-        // Check if host with services
-        if (strtoupper($type) === 'HOST') {
-            if (! preg_match('/^(0|1)$/', $withServices)) {
-                throw new CentreonClapiException('Bad "apply to services" parameter (0 or 1)');
-            }
-        }
-
-        $withServices = ($withServices == 1) ? true : false;
-
-        // Make safe the comment
-        $comment = escapeshellarg($comment);
-
-        return ['type' => $type, 'resource' => $resource, 'start' => $start, 'end' => $end, 'fixed' => $fixed, 'duration' => $duration, 'withServices' => $withServices, 'comment' => $comment];
-    }
-
-    /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @return array
-     */
-    private function parseShowParameters($parameters)
-    {
-        $parameters = explode(';', $parameters);
-        if (count($parameters) === 1) {
-            $resource = '';
-        } elseif (count($parameters) === 2) {
-            $resource = $parameters[1];
-        } else {
-            throw new CentreonClapiException('Bad parameters');
-        }
-        $type = $parameters[0];
-
-        return ['type' => $type, 'resource' => $resource];
-    }
-
-    /**
      * @param null $parameters
      * @param array $filter
      * @throws CentreonClapiException
@@ -462,6 +378,133 @@ class CentreonRtDowntime extends CentreonObject
                 $parsedParameters['comment']
             );
         }
+    }
+
+    /**
+     * @param null $parameters
+     * @throws CentreonClapiException
+     */
+    public function cancel($parameters = null): void
+    {
+        if (empty($parameters) || is_null($parameters)) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $listDowntime = explode('|', $parameters);
+        $unknownDowntime = [];
+
+        foreach ($listDowntime as $downtime) {
+            if (! is_numeric($downtime)) {
+                $unknownDowntime[] = $downtime;
+            } else {
+                $infoDowntime = $this->object->getCurrentDowntime($downtime);
+                if ($infoDowntime) {
+                    $hostName = $this->hostObject->getHostName($infoDowntime['host_id']);
+                    if ($infoDowntime['type'] == 2) {
+                        $this->externalCmdObj->deleteDowntime(
+                            'HOST',
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
+                        );
+                    } else {
+                        $this->externalCmdObj->deleteDowntime(
+                            'SVC',
+                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
+                        );
+                    }
+                } else {
+                    $unknownDowntime[] = $downtime;
+                }
+            }
+        }
+
+        if (count($unknownDowntime)) {
+            throw new CentreonClapiException(
+                self::OBJECT_NOT_FOUND . ' DOWNTIME ID : ' . implode('|', $unknownDowntime)
+            );
+        }
+    }
+
+    /**
+     * @param $date
+     * @param string $format
+     * @return bool
+     */
+    private function validateDate($date, $format = 'Y/m/d H:i')
+    {
+        $d = DateTime::createFromFormat($format, $date);
+
+        return $d && $d->format($format) == $date;
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    private function parseParameters($parameters)
+    {
+        // Make safe the inputs
+        [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', $parameters);
+
+        // Check if object type is supported
+        if (! in_array(strtoupper($type), $this->downtimeType)) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        // Check date format
+        $checkStart = $this->validateDate($start);
+        $checkEnd = $this->validateDate($end);
+
+        if (! $checkStart || ! $checkEnd) {
+            throw new CentreonClapiException('Wrong date format, expected : YYYY/MM/DD HH:mm');
+        }
+
+        // Check if fixed is 0 or 1
+        if (! preg_match('/^(0|1)$/', $fixed)) {
+            throw new CentreonClapiException('Bad fixed parameter (0 or 1)');
+        }
+
+        // Check duration parameters
+        if (
+            ($fixed == 0 && (! preg_match('/^\d+$/', $duration) || $duration <= 0))
+            || ($fixed == 1 && ! preg_match('/(^$)||(^\d+$)/', $duration))
+        ) {
+            throw new CentreonClapiException('Bad duration parameter');
+        }
+
+        // Check if host with services
+        if (strtoupper($type) === 'HOST') {
+            if (! preg_match('/^(0|1)$/', $withServices)) {
+                throw new CentreonClapiException('Bad "apply to services" parameter (0 or 1)');
+            }
+        }
+
+        $withServices = ($withServices == 1) ? true : false;
+
+        // Make safe the comment
+        $comment = escapeshellarg($comment);
+
+        return ['type' => $type, 'resource' => $resource, 'start' => $start, 'end' => $end, 'fixed' => $fixed, 'duration' => $duration, 'withServices' => $withServices, 'comment' => $comment];
+    }
+
+    /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @return array
+     */
+    private function parseShowParameters($parameters)
+    {
+        $parameters = explode(';', $parameters);
+        if (count($parameters) === 1) {
+            $resource = '';
+        } elseif (count($parameters) === 2) {
+            $resource = $parameters[1];
+        } else {
+            throw new CentreonClapiException('Bad parameters');
+        }
+        $type = $parameters[0];
+
+        return ['type' => $type, 'resource' => $resource];
     }
 
     /**
@@ -736,49 +779,6 @@ class CentreonRtDowntime extends CentreonObject
 
         if ($unknownPoller !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' INSTANCE : ' . implode('|', $unknownPoller));
-        }
-    }
-
-    /**
-     * @param null $parameters
-     * @throws CentreonClapiException
-     */
-    public function cancel($parameters = null): void
-    {
-        if (empty($parameters) || is_null($parameters)) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $listDowntime = explode('|', $parameters);
-        $unknownDowntime = [];
-
-        foreach ($listDowntime as $downtime) {
-            if (! is_numeric($downtime)) {
-                $unknownDowntime[] = $downtime;
-            } else {
-                $infoDowntime = $this->object->getCurrentDowntime($downtime);
-                if ($infoDowntime) {
-                    $hostName = $this->hostObject->getHostName($infoDowntime['host_id']);
-                    if ($infoDowntime['type'] == 2) {
-                        $this->externalCmdObj->deleteDowntime(
-                            'HOST',
-                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
-                        );
-                    } else {
-                        $this->externalCmdObj->deleteDowntime(
-                            'SVC',
-                            [$hostName . ';' . $infoDowntime['internal_id'] => 'on']
-                        );
-                    }
-                } else {
-                    $unknownDowntime[] = $downtime;
-                }
-            }
-        }
-
-        if (count($unknownDowntime)) {
-            throw new CentreonClapiException(
-                self::OBJECT_NOT_FOUND . ' DOWNTIME ID : ' . implode('|', $unknownDowntime)
-            );
         }
     }
 }

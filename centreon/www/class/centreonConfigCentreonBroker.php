@@ -637,45 +637,6 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * @param array<string,mixed> $values
-     * @return string[]
-     */
-    private function getColumnNamesForQuery(array $values): array
-    {
-        $columnNames = [
-            'config_name',
-            'config_filename',
-            'ns_nagios_server',
-            'config_activate',
-            'daemon',
-            'cache_directory',
-            'event_queue_max_size',
-            'event_queues_total_size',
-            'command_file',
-            'pool_size',
-            'log_directory',
-            'log_filename',
-        ];
-        if (isset($values['write_timestamp']['write_timestamp'])) {
-            $columnNames[] = 'config_write_timestamp';
-        }
-        if (isset($values['write_thread_id']['write_thread_id'])) {
-            $columnNames[] = 'config_write_thread_id';
-        }
-        if (isset($values['stats_activate']['stats_activate'])) {
-            $columnNames[] = 'stats_activate';
-        }
-        if (isset($values['log_max_size'])) {
-            $columnNames[] = 'log_max_size';
-        }
-        if (isset($values['bbdo_version'])) {
-            $columnNames[] = 'bbdo_version';
-        }
-
-        return $columnNames;
-    }
-
-    /**
      * Insert a configuration into the database
      *
      * @param array $values The post array
@@ -908,6 +869,552 @@ class CentreonConfigCentreonBroker
     }
 
     /**
+     * Get the list of forms for a config_id
+     *
+     * @param int $config_id The id of config
+     * @param string $tag The tag name
+     * @param int $page The page topology
+     * @param Smarty $tpl The template Smarty
+     * @throws HTML_QuickForm_Error
+     * @return array
+     */
+    public function getForms($config_id, $tag, $page, $tpl)
+    {
+        $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
+            FROM cfg_centreonbroker_info WHERE config_id = %d
+            AND config_group = '%s'
+            AND subgrp_id IS NULL
+            ORDER BY config_group_id";
+        try {
+            $res = $this->db->query(sprintf($query, $config_id, $tag));
+        } catch (PDOException $e) {
+            return [];
+        }
+        $formsInfos = [];
+        $arrayMultipleValues = [];
+        $isTypePassword = false;
+        while ($row = $res->fetch()) {
+            $fieldname = $tag . '[' . $row['config_group_id'] . ']['
+                . $this->getConfigFieldName($config_id, $tag, $row) . ']';
+            // Multi value for a multiselect
+            if (isset($row['fieldIndex']) && ! is_null($row['fieldIndex']) && $row['fieldIndex'] != '') {
+                $fieldname = $tag . '[' . $row['config_group_id'] . ']['
+                    . $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
+                $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
+                $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
+                $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']]
+                    = $isTypePassword && $suffix === 'value' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
+                if ($suffix === 'type' && $row['config_value'] === 'password') {
+                    $isTypePassword = true;
+                } elseif ($isTypePassword && $suffix === 'value') {
+                    $isTypePassword = false;
+                }
+            } else {
+                if (isset($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
+                    if (! is_array($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
+                        $formsInfos[$row['config_group_id']]['defaults'][$fieldname] = [$formsInfos[$row['config_group_id']]['defaults'][$fieldname]];
+                    }
+                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname][]
+                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
+                } else {
+                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname]
+                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
+                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname . '[' . $row['config_key'] . ']']
+                        = $row['config_key'] === 'db_password'
+                        ? CentreonAuth::PWS_OCCULTATION
+                        : $row['config_value']; // Radio button
+                }
+                if ($row['config_key'] == 'blockId') {
+                    $formsInfos[$row['config_group_id']]['blockId'] = $row['config_value'];
+                }
+            }
+        }
+        $forms = [];
+        $isMultiple = false;
+        foreach (array_keys($formsInfos) as $key) {
+            $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
+            // Replace loaded configuration with defaults external values
+            [$tagId, $typeId] = explode('_', $formsInfos[$key]['blockId']);
+            $tag = $this->getTagName($tagId);
+            $fields = $this->getBlockInfos($typeId);
+
+            foreach ($fields as $field) {
+                $elementName = $this->getElementName($tag, $key, $field, $isMultiple);
+                if (! is_null($field['value']) && $field['value'] != false) {
+                    unset($formsInfos[$key]['defaults'][$elementName]); // = $this->getInfoDb($field['value']);
+                }
+                if (isset($arrayMultipleValues[$elementName])) {
+                    if ($isMultiple && $field['group'] !== '') {
+                        $parentGroup = $this->getParentGroups($field['group'], $isMultiple);
+                        $parentGroup = $parentGroup . '_' . $key;
+                        $radioButtonName = $elementName . '[' . $arrayMultipleValues[$elementName]['suffix'] . ']';
+                        $arrayMultiple[$parentGroup][$elementName] = $arrayMultipleValues[$elementName]['values'];
+                        $arrayMultiple[$parentGroup][$radioButtonName] = $arrayMultipleValues[$elementName]['values'];
+                    }
+                }
+            }
+            $qf->setDefaults($formsInfos[$key]['defaults']);
+            $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
+            $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
+            $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
+            $qf->accept($renderer);
+            $forms[] = $renderer->toArray();
+        }
+        if (isset($arrayMultiple)) {
+            foreach ($arrayMultiple as $key => $arrayMultipleS) {
+                foreach ($arrayMultipleS as $key2 => $oneElemArray) {
+                    foreach ($oneElemArray as $index => $oneElem) {
+                        $this->arrayMultiple[$key][$index][$key2] = $oneElem;
+                    }
+                }
+            }
+        }
+
+        $this->generateCdata();
+
+        return $forms;
+    }
+
+    /**
+     * Generate fieldtype array
+     *
+     * @param int $typeId The type id
+     * @return array
+     */
+    public function getFieldtypes($typeId)
+    {
+        if (isset($this->fieldtypeCache[$typeId])) {
+            return $this->fieldtypeCache[$typeId];
+        }
+        $fieldTypes = [];
+        $block = $this->getBlockInfos($typeId);
+        foreach ($block as $fieldInfos) {
+            $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+        }
+        $this->fieldtypeCache[$typeId] = $fieldTypes;
+
+        return $this->fieldtypeCache[$typeId];
+    }
+
+    /**
+     * Get helps message for forms
+     *
+     * @param int $config_id The configuration id
+     * @param string $tag The tag of configuration
+     * @return array The list of helps order by position in page
+     */
+    public function getHelps($config_id, $tag)
+    {
+        $this->nbSubGroup = 1;
+        $query = "SELECT config_value, config_group_id
+            FROM cfg_centreonbroker_info
+            WHERE config_id = %d AND config_group = '%s'
+            AND config_key = 'blockId'
+            ORDER BY config_group_id";
+        try {
+            $res = $this->db->query(sprintf($query, $config_id, $tag));
+        } catch (PDOException $e) {
+            return [];
+        }
+        $helps = [];
+        while ($row = $res->fetchRow()) {
+            [$tagId, $typeId] = explode('_', $row['config_value']);
+            $pos = $row['config_group_id'];
+            $fields = $this->getBlockInfos((int) $typeId);
+            $help = [];
+            $help[] = ['name' => $tag . '[' . $pos . '][name]', 'desc' => _('The name of block configuration')];
+            $help[] = ['name' => $tag . '[' . $pos . '][type]', 'desc' => _('The type of block configuration')];
+            foreach ($fields as $field) {
+                $fieldname = '';
+                if ($field['group'] !== '') {
+                    $fieldname .= $this->getParentGroups($field['group']);
+                }
+                $fieldname .= $field['fieldname'];
+                $help[] = ['name' => $tag . '[' . $pos . '][' . $fieldname . ']', 'desc' => _($field['description'])];
+            }
+            $helps[] = $help;
+            $pos++;
+        }
+
+        return $helps;
+    }
+
+    /**
+     * Get the default value for a list
+     *
+     * @param int $fieldId The field ID
+     * @return string|null
+     */
+    public function getDefaults($fieldId)
+    {
+        if (isset($this->defaults[$fieldId])) {
+            return $this->defaults[$fieldId];
+        }
+        $query = 'SELECT cbl.default_value, cblv.value_value FROM cb_list_values cblv '
+            . 'LEFT JOIN cb_list cbl ON cblv.cb_list_id = cbl.cb_list_id '
+            . 'INNER JOIN cb_field cbf ON cbf.cb_field_id = cbl.cb_field_id '
+            . 'WHERE cbl.cb_field_id = %d '
+            . "AND cbf.fieldtype != 'multiselect' ";
+        try {
+            $res = $this->db->query(sprintf($query, $fieldId));
+        } catch (PDOException $e) {
+            return null;
+        }
+        $row = $res->fetch();
+
+        $this->defaults[$fieldId] = null;
+        if (! is_null($row) && $row !== false) {
+            if (! is_null($row['default_value']) && $row['default_value'] != '') {
+                $this->defaults[$fieldId] = $row['default_value'];
+            } elseif (! is_null($row['value_value']) && $row['value_value'] != '') {
+                $this->defaults[$fieldId] = $row['value_value'];
+            }
+        } else {
+            $externalDefaultValue = $this->getExternalDefaultValue($fieldId);
+            if (! is_null($externalDefaultValue) && $externalDefaultValue != '') {
+                $this->defaults[$fieldId] = $externalDefaultValue;
+            }
+        }
+
+        return $this->defaults[$fieldId];
+    }
+
+    /**
+     * Get static information from database
+     *
+     * @param string $string The string for get information
+     * @throws Exception
+     * @return array|bool|mixed|string
+     */
+    public function getInfoDb($string)
+    {
+        global $pearDBO;
+
+        if ($string === null) {
+            return false;
+        }
+
+        $monitoringDb = $pearDBO ?? new CentreonDB('centstorage');
+
+        // Default values
+        $s_db = 'centreon';
+        $s_rpn = null;
+        // Parse string
+        $configs = explode(':', $string);
+        foreach ($configs as $config) {
+            if (! str_contains($config, '=')) {
+                continue;
+            }
+            [$key, $value] = explode('=', $config);
+            switch ($key) {
+                case 'D':
+                    $s_db = $value;
+                    break;
+                case 'T':
+                    $s_table = $value;
+                    break;
+                case 'C':
+                    $s_column = $value;
+                    break;
+                case 'F':
+                    $s_filter = $value;
+                    break;
+                case 'K':
+                    $s_key = $value;
+                    break;
+                case 'CK':
+                    $s_column_key = $value;
+                    break;
+                case 'RPN':
+                    $s_rpn = $value;
+                    break;
+            }
+        }
+        // Construct query
+        if (! isset($s_table) || ! isset($s_column)) {
+            return false;
+        }
+        $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
+        if (isset($s_column_key, $s_key)) {
+            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
+        }
+
+        // Execute the query
+        try {
+            switch ($s_db) {
+                case 'centreon':
+                    $res = $this->db->query($query);
+                    break;
+                case 'centreon_storage':
+                    $res = $monitoringDb->query($query);
+                    break;
+            }
+        } catch (PDOException $e) {
+            return false;
+        }
+        $infos = [];
+        while ($row = $res->fetchRow()) {
+            $val = $row[$s_column];
+            if (! is_null($s_rpn)) {
+                $val = $this->rpnCalc($s_rpn, $val);
+            }
+            $infos[] = $val;
+        }
+        if (count($infos) == 0) {
+            return '';
+        }
+        if (count($infos) == 1) {
+            return $infos[0];
+        }
+
+        return $infos;
+    }
+
+    /**
+     * Get the string for parent groups
+     *
+     * @param int $groupId The group id
+     * @param mixed $isMultiple
+     * @param mixed $displayName
+     * @return string
+     */
+    public function getParentGroups($groupId, &$isMultiple = false, &$displayName = '')
+    {
+        $elemStr = '';
+        try {
+            $res = $this->db->query(
+                sprintf(
+                    'SELECT groupname, group_parent_id, multiple, displayname
+                FROM cb_fieldgroup WHERE cb_fieldgroup_id = %d',
+                    $groupId
+                )
+            );
+        } catch (PDOException $e) {
+            return '';
+        }
+        if ($row = $res->fetchRow()) {
+            if ($row['group_parent_id'] !== '') {
+                $elemStr .= $this->getParentGroups($row['group_parent_id'], $isMultiple, $displayName);
+            }
+            if ($row['multiple'] !== '' && $row['multiple'] == 1) {
+                $isMultiple = true;
+            }
+            if (! $isMultiple) {
+                $elemStr .= $row['groupname'] . '__' . $this->nbSubGroup++ . '__';
+            } elseif ($elemStr != '') {
+                $elemStr .= '__' . $row['groupname'] . '__';
+            } else {
+                $elemStr .= $row['groupname'] . '__';
+            }
+            if (! empty($row['displayname'])) {
+                $displayName = $row['displayname'];
+            }
+        }
+
+        return $elemStr;
+    }
+
+    /**
+     * @param $sName
+     *
+     * @throws PDOException
+     * @return int
+     */
+    public function isExist($sName)
+    {
+        $bExist = 0;
+        if (empty($sName)) {
+            return $bExist;
+        }
+
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                SELECT COUNT(config_id) as nb FROm cfg_centreonbroker
+                WHERE config_name = :configName
+                SQL
+        );
+        $statement->bindValue(':configName', $this->db->escape($sName), PDO::PARAM_STR);
+        $statement->execute();
+
+        $row = $statement->fetch();
+        if ($row['nb'] > 0) {
+            $bExist = 1;
+        }
+
+        return $bExist;
+    }
+
+    /**
+     * Replace a Broker config inputs and outputs configurations.
+     *
+     * @param int $configId
+     * @param array<string|int|array> $values
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Throwable
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @throws Symfony\Component\HttpClient\Exception\InvalidArgumentException
+     * @throws TransportException
+     * @throws InvalidParameterException
+     * @throws MissingMandatoryParametersException
+     * @throws RouteNotFoundException
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function updateCentreonBrokerInfosByAPI(int $configId, array $values): void
+    {
+        global $basePath;
+
+        // exclude multiple parameters load with broker js hook
+        $keepLuaParameters = false;
+        if (isset($values['output'])) {
+            foreach ($values['output'] as $key => $output) {
+                if ($output['type'] === 'lua') {
+                    if ($this->removeUnindexedLuaParameters($values, $key)) {
+                        $keepLuaParameters = true;
+                    }
+                    $this->removeEmptyLuaParameters($values, $key);
+                }
+            }
+        }
+
+        $this->revealLuaPasswords($configId, $values);
+        $this->revealPasswords($configId, $values);
+
+        // Clean the informations for this id
+        $kernel = Kernel::createForWeb();
+        /** @var Logger $logger */
+        $logger = $kernel->getContainer()->get(Logger::class);
+        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
+        $readVaultConfigurationRepository = $kernel->getContainer()->get(
+            ReadVaultConfigurationRepositoryInterface::class
+        );
+        /** @var FeatureFlags $featureFlagManager */
+        $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
+
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
+        if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
+            $this->retrievePasswordsFromVault($values, $readVaultRepository);
+            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
+        }
+
+        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
+            . $configId
+            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
+        $this->db->query($query);
+
+        [$groups_infos] = $this->getGroupsInfos($values);
+
+        /** @var Core\Infrastructure\Common\Api\Router $router */
+        $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+        ?? throw new LogicException('Router not found in container');
+        $client = new Symfony\Component\HttpClient\CurlHttpClient();
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+        ];
+        $parameters = ['brokerId' => $configId];
+        if ($basePath) {
+            $parameters['base_uri'] = $basePath;
+        }
+
+        foreach ($groups_infos as $tag => $groups) {
+            $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
+            $url = $router->generate(
+                'AddBrokerInputOutput',
+                $parameters,
+                Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            );
+
+            foreach ($groups as $group) {
+                $payload = $this->buildPayload($group);
+                $response = $client->request(
+                    'POST',
+                    $url,
+                    [
+                        'headers' => $headers,
+                        'body' => json_encode($payload),
+                    ],
+                );
+                if ($response->getStatusCode() !== 201) {
+                    $content = json_decode($response->getContent(false));
+
+                    throw new Exception($content->message ?? 'Unexpected return status');
+                }
+            }
+        }
+    }
+
+    /**
+     * Generate fieldtype array.
+     *
+     * @param int $typeId The type id
+     * @return array
+     */
+    public function getFieldtypesWithGroup($typeId)
+    {
+        $fieldTypes = [];
+        $block = $this->getBlockInfos($typeId);
+        foreach ($block as $fieldInfos) {
+            if ($fieldInfos['group_name'] !== null) {
+                $fieldTypes[$fieldInfos['group_name']][$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+            } else {
+                $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+            }
+        }
+
+        return $fieldTypes;
+    }
+
+    /**
+     * @param array<string,mixed> $values
+     * @return string[]
+     */
+    private function getColumnNamesForQuery(array $values): array
+    {
+        $columnNames = [
+            'config_name',
+            'config_filename',
+            'ns_nagios_server',
+            'config_activate',
+            'daemon',
+            'cache_directory',
+            'event_queue_max_size',
+            'event_queues_total_size',
+            'command_file',
+            'pool_size',
+            'log_directory',
+            'log_filename',
+        ];
+        if (isset($values['write_timestamp']['write_timestamp'])) {
+            $columnNames[] = 'config_write_timestamp';
+        }
+        if (isset($values['write_thread_id']['write_thread_id'])) {
+            $columnNames[] = 'config_write_thread_id';
+        }
+        if (isset($values['stats_activate']['stats_activate'])) {
+            $columnNames[] = 'stats_activate';
+        }
+        if (isset($values['log_max_size'])) {
+            $columnNames[] = 'log_max_size';
+        }
+        if (isset($values['bbdo_version'])) {
+            $columnNames[] = 'bbdo_version';
+        }
+
+        return $columnNames;
+    }
+
+    /**
      * Find a broker config original value based on fieldIndex
      *
      * @param int $configId
@@ -1057,113 +1564,6 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Get the list of forms for a config_id
-     *
-     * @param int $config_id The id of config
-     * @param string $tag The tag name
-     * @param int $page The page topology
-     * @param Smarty $tpl The template Smarty
-     * @throws HTML_QuickForm_Error
-     * @return array
-     */
-    public function getForms($config_id, $tag, $page, $tpl)
-    {
-        $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
-            FROM cfg_centreonbroker_info WHERE config_id = %d
-            AND config_group = '%s'
-            AND subgrp_id IS NULL
-            ORDER BY config_group_id";
-        try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
-        } catch (PDOException $e) {
-            return [];
-        }
-        $formsInfos = [];
-        $arrayMultipleValues = [];
-        $isTypePassword = false;
-        while ($row = $res->fetch()) {
-            $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                . $this->getConfigFieldName($config_id, $tag, $row) . ']';
-            // Multi value for a multiselect
-            if (isset($row['fieldIndex']) && ! is_null($row['fieldIndex']) && $row['fieldIndex'] != '') {
-                $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                    . $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
-                $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
-                $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
-                $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']]
-                    = $isTypePassword && $suffix === 'value' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-                if ($suffix === 'type' && $row['config_value'] === 'password') {
-                    $isTypePassword = true;
-                } elseif ($isTypePassword && $suffix === 'value') {
-                    $isTypePassword = false;
-                }
-            } else {
-                if (isset($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
-                    if (! is_array($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
-                        $formsInfos[$row['config_group_id']]['defaults'][$fieldname] = [$formsInfos[$row['config_group_id']]['defaults'][$fieldname]];
-                    }
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname][]
-                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-                } else {
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname]
-                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname . '[' . $row['config_key'] . ']']
-                        = $row['config_key'] === 'db_password'
-                        ? CentreonAuth::PWS_OCCULTATION
-                        : $row['config_value']; // Radio button
-                }
-                if ($row['config_key'] == 'blockId') {
-                    $formsInfos[$row['config_group_id']]['blockId'] = $row['config_value'];
-                }
-            }
-        }
-        $forms = [];
-        $isMultiple = false;
-        foreach (array_keys($formsInfos) as $key) {
-            $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
-            // Replace loaded configuration with defaults external values
-            [$tagId, $typeId] = explode('_', $formsInfos[$key]['blockId']);
-            $tag = $this->getTagName($tagId);
-            $fields = $this->getBlockInfos($typeId);
-
-            foreach ($fields as $field) {
-                $elementName = $this->getElementName($tag, $key, $field, $isMultiple);
-                if (! is_null($field['value']) && $field['value'] != false) {
-                    unset($formsInfos[$key]['defaults'][$elementName]); // = $this->getInfoDb($field['value']);
-                }
-                if (isset($arrayMultipleValues[$elementName])) {
-                    if ($isMultiple && $field['group'] !== '') {
-                        $parentGroup = $this->getParentGroups($field['group'], $isMultiple);
-                        $parentGroup = $parentGroup . '_' . $key;
-                        $radioButtonName = $elementName . '[' . $arrayMultipleValues[$elementName]['suffix'] . ']';
-                        $arrayMultiple[$parentGroup][$elementName] = $arrayMultipleValues[$elementName]['values'];
-                        $arrayMultiple[$parentGroup][$radioButtonName] = $arrayMultipleValues[$elementName]['values'];
-                    }
-                }
-            }
-            $qf->setDefaults($formsInfos[$key]['defaults']);
-            $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
-            $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
-            $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
-            $qf->accept($renderer);
-            $forms[] = $renderer->toArray();
-        }
-        if (isset($arrayMultiple)) {
-            foreach ($arrayMultiple as $key => $arrayMultipleS) {
-                foreach ($arrayMultipleS as $key2 => $oneElemArray) {
-                    foreach ($oneElemArray as $index => $oneElem) {
-                        $this->arrayMultiple[$key][$index][$key2] = $oneElem;
-                    }
-                }
-            }
-        }
-
-        $this->generateCdata();
-
-        return $forms;
-    }
-
-    /**
      * Sort the fields by order display
      *
      * @param array $field1 The first field to sort
@@ -1180,70 +1580,6 @@ class CentreonConfigCentreonBroker
         }
 
         return 1;
-    }
-
-    /**
-     * Generate fieldtype array
-     *
-     * @param int $typeId The type id
-     * @return array
-     */
-    public function getFieldtypes($typeId)
-    {
-        if (isset($this->fieldtypeCache[$typeId])) {
-            return $this->fieldtypeCache[$typeId];
-        }
-        $fieldTypes = [];
-        $block = $this->getBlockInfos($typeId);
-        foreach ($block as $fieldInfos) {
-            $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
-        }
-        $this->fieldtypeCache[$typeId] = $fieldTypes;
-
-        return $this->fieldtypeCache[$typeId];
-    }
-
-    /**
-     * Get helps message for forms
-     *
-     * @param int $config_id The configuration id
-     * @param string $tag The tag of configuration
-     * @return array The list of helps order by position in page
-     */
-    public function getHelps($config_id, $tag)
-    {
-        $this->nbSubGroup = 1;
-        $query = "SELECT config_value, config_group_id
-            FROM cfg_centreonbroker_info
-            WHERE config_id = %d AND config_group = '%s'
-            AND config_key = 'blockId'
-            ORDER BY config_group_id";
-        try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
-        } catch (PDOException $e) {
-            return [];
-        }
-        $helps = [];
-        while ($row = $res->fetchRow()) {
-            [$tagId, $typeId] = explode('_', $row['config_value']);
-            $pos = $row['config_group_id'];
-            $fields = $this->getBlockInfos((int) $typeId);
-            $help = [];
-            $help[] = ['name' => $tag . '[' . $pos . '][name]', 'desc' => _('The name of block configuration')];
-            $help[] = ['name' => $tag . '[' . $pos . '][type]', 'desc' => _('The type of block configuration')];
-            foreach ($fields as $field) {
-                $fieldname = '';
-                if ($field['group'] !== '') {
-                    $fieldname .= $this->getParentGroups($field['group']);
-                }
-                $fieldname .= $field['fieldname'];
-                $help[] = ['name' => $tag . '[' . $pos . '][' . $fieldname . ']', 'desc' => _($field['description'])];
-            }
-            $helps[] = $help;
-            $pos++;
-        }
-
-        return $helps;
     }
 
     /**
@@ -1274,46 +1610,6 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Get the default value for a list
-     *
-     * @param int $fieldId The field ID
-     * @return string|null
-     */
-    public function getDefaults($fieldId)
-    {
-        if (isset($this->defaults[$fieldId])) {
-            return $this->defaults[$fieldId];
-        }
-        $query = 'SELECT cbl.default_value, cblv.value_value FROM cb_list_values cblv '
-            . 'LEFT JOIN cb_list cbl ON cblv.cb_list_id = cbl.cb_list_id '
-            . 'INNER JOIN cb_field cbf ON cbf.cb_field_id = cbl.cb_field_id '
-            . 'WHERE cbl.cb_field_id = %d '
-            . "AND cbf.fieldtype != 'multiselect' ";
-        try {
-            $res = $this->db->query(sprintf($query, $fieldId));
-        } catch (PDOException $e) {
-            return null;
-        }
-        $row = $res->fetch();
-
-        $this->defaults[$fieldId] = null;
-        if (! is_null($row) && $row !== false) {
-            if (! is_null($row['default_value']) && $row['default_value'] != '') {
-                $this->defaults[$fieldId] = $row['default_value'];
-            } elseif (! is_null($row['value_value']) && $row['value_value'] != '') {
-                $this->defaults[$fieldId] = $row['value_value'];
-            }
-        } else {
-            $externalDefaultValue = $this->getExternalDefaultValue($fieldId);
-            if (! is_null($externalDefaultValue) && $externalDefaultValue != '') {
-                $this->defaults[$fieldId] = $externalDefaultValue;
-            }
-        }
-
-        return $this->defaults[$fieldId];
-    }
-
-    /**
      * @param $fieldId
      *
      * @throws PDOException
@@ -1338,97 +1634,6 @@ class CentreonConfigCentreonBroker
         }
 
         return $externalValue;
-    }
-
-    /**
-     * Get static information from database
-     *
-     * @param string $string The string for get information
-     * @throws Exception
-     * @return array|bool|mixed|string
-     */
-    public function getInfoDb($string)
-    {
-        global $pearDBO;
-
-        if ($string === null) {
-            return false;
-        }
-
-        $monitoringDb = $pearDBO ?? new CentreonDB('centstorage');
-
-        // Default values
-        $s_db = 'centreon';
-        $s_rpn = null;
-        // Parse string
-        $configs = explode(':', $string);
-        foreach ($configs as $config) {
-            if (! str_contains($config, '=')) {
-                continue;
-            }
-            [$key, $value] = explode('=', $config);
-            switch ($key) {
-                case 'D':
-                    $s_db = $value;
-                    break;
-                case 'T':
-                    $s_table = $value;
-                    break;
-                case 'C':
-                    $s_column = $value;
-                    break;
-                case 'F':
-                    $s_filter = $value;
-                    break;
-                case 'K':
-                    $s_key = $value;
-                    break;
-                case 'CK':
-                    $s_column_key = $value;
-                    break;
-                case 'RPN':
-                    $s_rpn = $value;
-                    break;
-            }
-        }
-        // Construct query
-        if (! isset($s_table) || ! isset($s_column)) {
-            return false;
-        }
-        $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
-        if (isset($s_column_key, $s_key)) {
-            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
-        }
-
-        // Execute the query
-        try {
-            switch ($s_db) {
-                case 'centreon':
-                    $res = $this->db->query($query);
-                    break;
-                case 'centreon_storage':
-                    $res = $monitoringDb->query($query);
-                    break;
-            }
-        } catch (PDOException $e) {
-            return false;
-        }
-        $infos = [];
-        while ($row = $res->fetchRow()) {
-            $val = $row[$s_column];
-            if (! is_null($s_rpn)) {
-                $val = $this->rpnCalc($s_rpn, $val);
-            }
-            $infos[] = $val;
-        }
-        if (count($infos) == 0) {
-            return '';
-        }
-        if (count($infos) == 1) {
-            return $infos[0];
-        }
-
-        return $infos;
     }
 
     /**
@@ -1524,50 +1729,6 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Get the string for parent groups
-     *
-     * @param int $groupId The group id
-     * @param mixed $isMultiple
-     * @param mixed $displayName
-     * @return string
-     */
-    public function getParentGroups($groupId, &$isMultiple = false, &$displayName = '')
-    {
-        $elemStr = '';
-        try {
-            $res = $this->db->query(
-                sprintf(
-                    'SELECT groupname, group_parent_id, multiple, displayname
-                FROM cb_fieldgroup WHERE cb_fieldgroup_id = %d',
-                    $groupId
-                )
-            );
-        } catch (PDOException $e) {
-            return '';
-        }
-        if ($row = $res->fetchRow()) {
-            if ($row['group_parent_id'] !== '') {
-                $elemStr .= $this->getParentGroups($row['group_parent_id'], $isMultiple, $displayName);
-            }
-            if ($row['multiple'] !== '' && $row['multiple'] == 1) {
-                $isMultiple = true;
-            }
-            if (! $isMultiple) {
-                $elemStr .= $row['groupname'] . '__' . $this->nbSubGroup++ . '__';
-            } elseif ($elemStr != '') {
-                $elemStr .= '__' . $row['groupname'] . '__';
-            } else {
-                $elemStr .= $row['groupname'] . '__';
-            }
-            if (! empty($row['displayname'])) {
-                $displayName = $row['displayname'];
-            }
-        }
-
-        return $elemStr;
-    }
-
-    /**
      * Get configuration fieldname for loading configuration from database
      *
      * @param int $configId The configuration ID
@@ -1610,146 +1771,6 @@ class CentreonConfigCentreonBroker
         }
 
         return $elemStr;
-    }
-
-    /**
-     * @param $sName
-     *
-     * @throws PDOException
-     * @return int
-     */
-    public function isExist($sName)
-    {
-        $bExist = 0;
-        if (empty($sName)) {
-            return $bExist;
-        }
-
-        $statement = $this->db->prepare(
-            <<<'SQL'
-                SELECT COUNT(config_id) as nb FROm cfg_centreonbroker
-                WHERE config_name = :configName
-                SQL
-        );
-        $statement->bindValue(':configName', $this->db->escape($sName), PDO::PARAM_STR);
-        $statement->execute();
-
-        $row = $statement->fetch();
-        if ($row['nb'] > 0) {
-            $bExist = 1;
-        }
-
-        return $bExist;
-    }
-
-    /**
-     * Replace a Broker config inputs and outputs configurations.
-     *
-     * @param int $configId
-     * @param array<string|int|array> $values
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Throwable
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @throws Symfony\Component\HttpClient\Exception\InvalidArgumentException
-     * @throws TransportException
-     * @throws InvalidParameterException
-     * @throws MissingMandatoryParametersException
-     * @throws RouteNotFoundException
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     */
-    public function updateCentreonBrokerInfosByAPI(int $configId, array $values): void
-    {
-        global $basePath;
-
-        // exclude multiple parameters load with broker js hook
-        $keepLuaParameters = false;
-        if (isset($values['output'])) {
-            foreach ($values['output'] as $key => $output) {
-                if ($output['type'] === 'lua') {
-                    if ($this->removeUnindexedLuaParameters($values, $key)) {
-                        $keepLuaParameters = true;
-                    }
-                    $this->removeEmptyLuaParameters($values, $key);
-                }
-            }
-        }
-
-        $this->revealLuaPasswords($configId, $values);
-        $this->revealPasswords($configId, $values);
-
-        // Clean the informations for this id
-        $kernel = Kernel::createForWeb();
-        /** @var Logger $logger */
-        $logger = $kernel->getContainer()->get(Logger::class);
-        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            ReadVaultConfigurationRepositoryInterface::class
-        );
-        /** @var FeatureFlags $featureFlagManager */
-        $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
-
-        $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
-            /** @var ReadVaultRepositoryInterface $readVaultRepository */
-            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-            $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
-            $this->retrievePasswordsFromVault($values, $readVaultRepository);
-            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
-        }
-
-        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
-            . $configId
-            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
-        $this->db->query($query);
-
-        [$groups_infos] = $this->getGroupsInfos($values);
-
-        /** @var Core\Infrastructure\Common\Api\Router $router */
-        $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
-        ?? throw new LogicException('Router not found in container');
-        $client = new Symfony\Component\HttpClient\CurlHttpClient();
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
-        ];
-        $parameters = ['brokerId' => $configId];
-        if ($basePath) {
-            $parameters['base_uri'] = $basePath;
-        }
-
-        foreach ($groups_infos as $tag => $groups) {
-            $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
-            $url = $router->generate(
-                'AddBrokerInputOutput',
-                $parameters,
-                Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
-            );
-
-            foreach ($groups as $group) {
-                $payload = $this->buildPayload($group);
-                $response = $client->request(
-                    'POST',
-                    $url,
-                    [
-                        'headers' => $headers,
-                        'body' => json_encode($payload),
-                    ],
-                );
-                if ($response->getStatusCode() !== 201) {
-                    $content = json_decode($response->getContent(false));
-
-                    throw new Exception($content->message ?? 'Unexpected return status');
-                }
-            }
-        }
     }
 
     /**
@@ -1904,26 +1925,5 @@ class CentreonConfigCentreonBroker
                 }
             }
         }
-    }
-
-    /**
-     * Generate fieldtype array.
-     *
-     * @param int $typeId The type id
-     * @return array
-     */
-    public function getFieldtypesWithGroup($typeId)
-    {
-        $fieldTypes = [];
-        $block = $this->getBlockInfos($typeId);
-        foreach ($block as $fieldInfos) {
-            if ($fieldInfos['group_name'] !== null) {
-                $fieldTypes[$fieldInfos['group_name']][$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
-            } else {
-                $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
-            }
-        }
-
-        return $fieldTypes;
     }
 }
