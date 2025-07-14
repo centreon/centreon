@@ -1262,31 +1262,6 @@ class CentreonService
     }
 
     /**
-     * @param array $macroA
-     * @param array $macroB
-     * @param bool $getFirst
-     *
-     * @return mixed
-     */
-    private function comparaPriority($macroA, $macroB, $getFirst = true)
-    {
-
-        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromService' => 1];
-        if ($getFirst) {
-            if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
-                return $macroA;
-            }
-
-            return $macroB;
-        }
-        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
-            return $macroA;
-        }
-
-        return $macroB;
-    }
-
-    /**
      * @param array $aTempMacro
      *
      * @return array
@@ -1313,118 +1288,6 @@ class CentreonService
         $this->addInfosToMacro($storedMacros, $finalMacros);
 
         return $finalMacros;
-    }
-
-    /**
-     * @param array $storedMacros
-     * @param array $finalMacros
-     *
-     * @return void
-     */
-    private function addInfosToMacro($storedMacros, &$finalMacros): void
-    {
-
-        foreach ($finalMacros as &$finalMacro) {
-            $sInput = $finalMacro['macroInput_#index#'];
-            $this->setInheritedDescription(
-                $finalMacro,
-                $this->getInheritedDescription($storedMacros[$sInput], $finalMacro)
-            );
-            switch ($finalMacro['source']) {
-                case 'direct':
-                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
-                    break;
-                case 'fromTpl':
-                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
-                    break;
-                case 'fromService':
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /**
-     * @param array $storedMacros
-     * @param array $finalMacro
-     *
-     * @return mixed|string
-     */
-    private function getInheritedDescription($storedMacros, $finalMacro)
-    {
-        $description = '';
-        if (empty($finalMacro['macroDescription'])) {
-            $choosedMacro = [];
-            foreach ($storedMacros as $storedMacro) {
-                if (! empty($storedMacro['macroDescription'])) {
-                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro, false);
-                    $description = $choosedMacro['macroDescription'];
-                }
-            }
-        } else {
-            $description = $finalMacro['macroDescription'];
-        }
-
-        return $description;
-    }
-
-    /**
-     * @param array $finalMacro
-     * @param string $description
-     *
-     * @return void
-     */
-    private function setInheritedDescription(&$finalMacro, $description): void
-    {
-        $finalMacro['macroDescription_#index#'] = $description;
-        $finalMacro['macroDescription'] = $description;
-    }
-
-    /**
-     * @param $tplValue
-     * @param array $finalMacro
-     *
-     * @return void
-     */
-    private function setTplValue($tplValue, &$finalMacro): void
-    {
-
-        if ($tplValue !== false) {
-            $finalMacro['macroTplValue_#index#'] = $tplValue;
-            $finalMacro['macroTplValToDisplay_#index#'] = 1;
-        } else {
-            $finalMacro['macroTplValue_#index#'] = '';
-            $finalMacro['macroTplValToDisplay_#index#'] = 0;
-        }
-    }
-
-    /**
-     * @param array $storedMacro
-     * @param bool $getFirst
-     *
-     * @return false|mixed
-     */
-    private function findTplValue($storedMacro, $getFirst = false)
-    {
-        if ($getFirst) {
-            foreach ($storedMacro as $macros) {
-                if ($macros['source'] == 'fromTpl') {
-                    return $macros['macroValue_#index#'];
-                }
-            }
-        } else {
-            $macroReturn = false;
-            foreach ($storedMacro as $macros) {
-                if ($macros['source'] == 'fromTpl') {
-                    $macroReturn = $macros['macroValue_#index#'];
-                }
-            }
-
-            return $macroReturn;
-        }
-
-        return false;
     }
 
     /**
@@ -2025,5 +1888,142 @@ class CentreonService
     public function getFormattedMacros(): array
     {
         return $this->formattedMacros;
+    }
+
+    /**
+     * @param array $macroA
+     * @param array $macroB
+     * @param bool $getFirst
+     *
+     * @return mixed
+     */
+    private function comparaPriority($macroA, $macroB, $getFirst = true)
+    {
+
+        $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromService' => 1];
+        if ($getFirst) {
+            if ($arrayPrio[$macroA['source']] > $arrayPrio[$macroB['source']]) {
+                return $macroA;
+            }
+
+            return $macroB;
+        }
+        if ($arrayPrio[$macroA['source']] >= $arrayPrio[$macroB['source']]) {
+            return $macroA;
+        }
+
+        return $macroB;
+    }
+
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacros
+     *
+     * @return void
+     */
+    private function addInfosToMacro($storedMacros, &$finalMacros): void
+    {
+
+        foreach ($finalMacros as &$finalMacro) {
+            $sInput = $finalMacro['macroInput_#index#'];
+            $this->setInheritedDescription(
+                $finalMacro,
+                $this->getInheritedDescription($storedMacros[$sInput], $finalMacro)
+            );
+            switch ($finalMacro['source']) {
+                case 'direct':
+                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
+                    break;
+                case 'fromTpl':
+                    $this->setTplValue($this->findTplValue($storedMacros[$sInput]), $finalMacro);
+                    break;
+                case 'fromService':
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param array $storedMacros
+     * @param array $finalMacro
+     *
+     * @return mixed|string
+     */
+    private function getInheritedDescription($storedMacros, $finalMacro)
+    {
+        $description = '';
+        if (empty($finalMacro['macroDescription'])) {
+            $choosedMacro = [];
+            foreach ($storedMacros as $storedMacro) {
+                if (! empty($storedMacro['macroDescription'])) {
+                    $choosedMacro = empty($choosedMacro) ? $storedMacro : $this->comparaPriority($storedMacro, $choosedMacro, false);
+                    $description = $choosedMacro['macroDescription'];
+                }
+            }
+        } else {
+            $description = $finalMacro['macroDescription'];
+        }
+
+        return $description;
+    }
+
+    /**
+     * @param array $finalMacro
+     * @param string $description
+     *
+     * @return void
+     */
+    private function setInheritedDescription(&$finalMacro, $description): void
+    {
+        $finalMacro['macroDescription_#index#'] = $description;
+        $finalMacro['macroDescription'] = $description;
+    }
+
+    /**
+     * @param $tplValue
+     * @param array $finalMacro
+     *
+     * @return void
+     */
+    private function setTplValue($tplValue, &$finalMacro): void
+    {
+
+        if ($tplValue !== false) {
+            $finalMacro['macroTplValue_#index#'] = $tplValue;
+            $finalMacro['macroTplValToDisplay_#index#'] = 1;
+        } else {
+            $finalMacro['macroTplValue_#index#'] = '';
+            $finalMacro['macroTplValToDisplay_#index#'] = 0;
+        }
+    }
+
+    /**
+     * @param array $storedMacro
+     * @param bool $getFirst
+     *
+     * @return false|mixed
+     */
+    private function findTplValue($storedMacro, $getFirst = false)
+    {
+        if ($getFirst) {
+            foreach ($storedMacro as $macros) {
+                if ($macros['source'] == 'fromTpl') {
+                    return $macros['macroValue_#index#'];
+                }
+            }
+        } else {
+            $macroReturn = false;
+            foreach ($storedMacro as $macros) {
+                if ($macros['source'] == 'fromTpl') {
+                    $macroReturn = $macros['macroValue_#index#'];
+                }
+            }
+
+            return $macroReturn;
+        }
+
+        return false;
     }
 }

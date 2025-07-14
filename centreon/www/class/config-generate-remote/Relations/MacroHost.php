@@ -37,9 +37,6 @@ use Pimple\Container;
  */
 class MacroHost extends AbstractObject
 {
-    /** @var CentreonDB */
-    private CentreonDB $databaseConnection;
-
     /** @var string */
     protected $table = 'on_demand_macro_host';
 
@@ -54,6 +51,9 @@ class MacroHost extends AbstractObject
         'is_password',
         'description',
     ];
+
+    /** @var CentreonDB */
+    private CentreonDB $databaseConnection;
 
     /**
      * @param Container $dependencyInjector

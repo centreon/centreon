@@ -36,12 +36,6 @@ class Contact extends AbstractObject
     /** @var int */
     protected $useCache = 1;
 
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $contactsServiceLinkedCache = [];
-
     /** @var array */
     protected $contactsCache = [];
 
@@ -101,42 +95,11 @@ class Contact extends AbstractObject
     /** @var PDOStatement|null */
     protected $stmtContactService = null;
 
-    /**
-     * Store contacts in cache
-     *
-     * @return void
-     */
-    private function getContactCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT {$this->attributesSelect}
-            FROM contact
-            WHERE contact_activate = '1'"
-        );
-        $stmt->execute();
-        $this->contactsCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var int */
+    private $doneCache = 0;
 
-    /**
-     * Store contacts linked to a service in cache
-     *
-     * @return void
-     */
-    private function getContactForServiceCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT contact_id, service_service_id
-            FROM contact_service_relation'
-        );
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->contactsServiceLinkedCache[$value['service_service_id']])) {
-                $this->contactsServiceLinkedCache[$value['service_service_id']][] = $value['contact_id'];
-            } else {
-                $this->contactsServiceLinkedCache[$value['service_service_id']] = [$value['contact_id']];
-            }
-        }
-    }
+    /** @var array */
+    private $contactsServiceLinkedCache = [];
 
     /**
      * Get contact information linked to a service id
@@ -169,6 +132,64 @@ class Contact extends AbstractObject
         $this->contactsServiceLinkedCache[$serviceId] = $this->stmtContactService->fetchAll(PDO::FETCH_COLUMN);
 
         return $this->contactsServiceLinkedCache[$serviceId];
+    }
+
+    /**
+     * Generation configuration from a contact id
+     *
+     * @param null|int $contactId
+     *
+     * @throws \Exception
+     * @return string|null the contact name or alias
+     */
+    public function generateFromContactId(?int $contactId): ?string
+    {
+        if (is_null($contactId)) {
+            return null;
+        }
+
+        $this->buildCache();
+
+        if ($this->useCache == 1) {
+            if (! isset($this->contactsCache[$contactId])) {
+                return null;
+            }
+            $this->contacts[$contactId] = &$this->contactsCache[$contactId];
+        } elseif (! isset($this->contacts[$contactId])) {
+            $this->getContactFromId($contactId);
+        }
+
+        if (is_null($this->contacts[$contactId])) {
+            return null;
+        }
+        if ($this->checkGenerate($contactId)) {
+            return $this->contacts[$contactId]['contact_register'] == 1
+                ? $this->contacts[$contactId]['contact_name']
+                : $this->contacts[$contactId]['contact_alias'];
+        }
+
+        $this->generateFromContactId($this->contacts[$contactId]['contact_template_id']);
+        $this->getContactNotificationCommands(
+            $contactId,
+            'host',
+            Relations\ContactHostCommandsRelation::getInstance($this->dependencyInjector)
+        );
+        $this->getContactNotificationCommands(
+            $contactId,
+            'service',
+            Relations\ContactServiceCommandsRelation::getInstance($this->dependencyInjector)
+        );
+
+        $period = Timeperiod::getInstance($this->dependencyInjector);
+        $period->generateFromTimeperiodId($this->contacts[$contactId]['timeperiod_tp_id']);
+        $period->generateFromTimeperiodId($this->contacts[$contactId]['timeperiod_tp_id2']);
+
+        $this->contacts[$contactId]['contact_id'] = $contactId;
+        $this->generateObjectInFile($this->contacts[$contactId], $contactId);
+
+        return $this->contacts[$contactId]['contact_register'] == 1
+            ? $this->contacts[$contactId]['contact_name']
+            : $this->contacts[$contactId]['contact_alias'];
     }
 
     /**
@@ -246,60 +267,39 @@ class Contact extends AbstractObject
     }
 
     /**
-     * Generation configuration from a contact id
+     * Store contacts in cache
      *
-     * @param null|int $contactId
-     *
-     * @throws \Exception
-     * @return string|null the contact name or alias
+     * @return void
      */
-    public function generateFromContactId(?int $contactId): ?string
+    private function getContactCache(): void
     {
-        if (is_null($contactId)) {
-            return null;
-        }
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM contact
+            WHERE contact_activate = '1'"
+        );
+        $stmt->execute();
+        $this->contactsCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
 
-        $this->buildCache();
-
-        if ($this->useCache == 1) {
-            if (! isset($this->contactsCache[$contactId])) {
-                return null;
+    /**
+     * Store contacts linked to a service in cache
+     *
+     * @return void
+     */
+    private function getContactForServiceCache(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT contact_id, service_service_id
+            FROM contact_service_relation'
+        );
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->contactsServiceLinkedCache[$value['service_service_id']])) {
+                $this->contactsServiceLinkedCache[$value['service_service_id']][] = $value['contact_id'];
+            } else {
+                $this->contactsServiceLinkedCache[$value['service_service_id']] = [$value['contact_id']];
             }
-            $this->contacts[$contactId] = &$this->contactsCache[$contactId];
-        } elseif (! isset($this->contacts[$contactId])) {
-            $this->getContactFromId($contactId);
         }
-
-        if (is_null($this->contacts[$contactId])) {
-            return null;
-        }
-        if ($this->checkGenerate($contactId)) {
-            return $this->contacts[$contactId]['contact_register'] == 1
-                ? $this->contacts[$contactId]['contact_name']
-                : $this->contacts[$contactId]['contact_alias'];
-        }
-
-        $this->generateFromContactId($this->contacts[$contactId]['contact_template_id']);
-        $this->getContactNotificationCommands(
-            $contactId,
-            'host',
-            Relations\ContactHostCommandsRelation::getInstance($this->dependencyInjector)
-        );
-        $this->getContactNotificationCommands(
-            $contactId,
-            'service',
-            Relations\ContactServiceCommandsRelation::getInstance($this->dependencyInjector)
-        );
-
-        $period = Timeperiod::getInstance($this->dependencyInjector);
-        $period->generateFromTimeperiodId($this->contacts[$contactId]['timeperiod_tp_id']);
-        $period->generateFromTimeperiodId($this->contacts[$contactId]['timeperiod_tp_id2']);
-
-        $this->contacts[$contactId]['contact_id'] = $contactId;
-        $this->generateObjectInFile($this->contacts[$contactId], $contactId);
-
-        return $this->contacts[$contactId]['contact_register'] == 1
-            ? $this->contacts[$contactId]['contact_name']
-            : $this->contacts[$contactId]['contact_alias'];
     }
 }

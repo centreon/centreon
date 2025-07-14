@@ -271,30 +271,6 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     }
 
     /**
-     * Completes hosts with their services.
-     *
-     * @param Host[] $hosts Host list for which we want to complete with their services
-     * @throws \Exception
-     * @return Host[] Returns the host list with their services
-     */
-    private function completeHostsWithTheirServices(array $hosts): array
-    {
-        $hostIds = [];
-        foreach ($hosts as $host) {
-            $hostIds[] = $host->getId();
-        }
-        $services = $this->monitoringRepository->findServicesByHosts($hostIds);
-
-        foreach ($hosts as $host) {
-            if (array_key_exists($host->getId(), $services)) {
-                $host->setServices($services[$host->getId()]);
-            }
-        }
-
-        return $hosts;
-    }
-
-    /**
      * @inheritDoc
      */
     public function findCommandLineOfService(int $hostId, int $serviceId): ?string
@@ -403,5 +379,29 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
         if (! empty($builtCommand)) {
             $monitoringService->setCommandLine($builtCommand);
         }
+    }
+
+    /**
+     * Completes hosts with their services.
+     *
+     * @param Host[] $hosts Host list for which we want to complete with their services
+     * @throws \Exception
+     * @return Host[] Returns the host list with their services
+     */
+    private function completeHostsWithTheirServices(array $hosts): array
+    {
+        $hostIds = [];
+        foreach ($hosts as $host) {
+            $hostIds[] = $host->getId();
+        }
+        $services = $this->monitoringRepository->findServicesByHosts($hostIds);
+
+        foreach ($hosts as $host) {
+            if (array_key_exists($host->getId(), $services)) {
+                $host->setServices($services[$host->getId()]);
+            }
+        }
+
+        return $hosts;
     }
 }

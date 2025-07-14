@@ -202,37 +202,6 @@ class Request
     }
 
     /**
-     * Converts date string to timestamp
-     * Expected format of date string : 06/22/2022 00:00
-     *
-     * @param string $dateString
-     * @return int
-     */
-    private function dateStringToTimestamp(string $dateString): int
-    {
-        preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $dateString, $matchesD);
-        preg_match('/([0-9]*):([0-9]*)/', $dateString, $matchesT);
-
-        $hour = array_key_exists(1, $matchesT) ? (int) $matchesT[1] : 0;
-        $minute = array_key_exists(2, $matchesT) ? (int) $matchesT[2] : 0;
-
-        $tmstp = mktime(
-            $hour,
-            $minute,
-            0,
-            (int) $matchesD[1],
-            (int) $matchesD[2],
-            (int) $matchesD[3]
-        );
-
-        if ($tmstp === false) {
-            throw new \InvalidArgumentException('Unable to convert string to timestamp');
-        }
-
-        return $tmstp;
-    }
-
-    /**
      * @return string|null
      */
     public function getEndDate(): ?string
@@ -529,32 +498,6 @@ class Request
     }
 
     /**
-     * Splits open id string into associative array of id, hostId and type
-     *
-     * @param string $openid
-     * @return array<string, string>
-     */
-    private function splitOpenId(string $openid): array
-    {
-        $chunks = preg_split("/\_/", $openid);
-        if (! is_array($chunks)) {
-            return ['id' => '', 'hostId' => '', 'type' => ''];
-        }
-
-        $id = '';
-        $hostId = '';
-
-        if (isset($chunks[2])) {
-            $hostId = $chunks[1];
-            $id = $chunks[2];
-        } elseif (isset($chunks[1])) {
-            $id = $chunks[1];
-        }
-
-        return ['id' => $id, 'hostId' => $hostId, 'type' => $chunks[0]];
-    }
-
-    /**
      * Retrieves service ids depending on open id parameter
      * @return array<mixed>
      */
@@ -606,6 +549,63 @@ class Request
         }
 
         return $this->tabSvc;
+    }
+
+    /**
+     * Converts date string to timestamp
+     * Expected format of date string : 06/22/2022 00:00
+     *
+     * @param string $dateString
+     * @return int
+     */
+    private function dateStringToTimestamp(string $dateString): int
+    {
+        preg_match("/^([0-9]*)\/([0-9]*)\/([0-9]*)/", $dateString, $matchesD);
+        preg_match('/([0-9]*):([0-9]*)/', $dateString, $matchesT);
+
+        $hour = array_key_exists(1, $matchesT) ? (int) $matchesT[1] : 0;
+        $minute = array_key_exists(2, $matchesT) ? (int) $matchesT[2] : 0;
+
+        $tmstp = mktime(
+            $hour,
+            $minute,
+            0,
+            (int) $matchesD[1],
+            (int) $matchesD[2],
+            (int) $matchesD[3]
+        );
+
+        if ($tmstp === false) {
+            throw new \InvalidArgumentException('Unable to convert string to timestamp');
+        }
+
+        return $tmstp;
+    }
+
+    /**
+     * Splits open id string into associative array of id, hostId and type
+     *
+     * @param string $openid
+     * @return array<string, string>
+     */
+    private function splitOpenId(string $openid): array
+    {
+        $chunks = preg_split("/\_/", $openid);
+        if (! is_array($chunks)) {
+            return ['id' => '', 'hostId' => '', 'type' => ''];
+        }
+
+        $id = '';
+        $hostId = '';
+
+        if (isset($chunks[2])) {
+            $hostId = $chunks[1];
+            $id = $chunks[2];
+        } elseif (isset($chunks[1])) {
+            $id = $chunks[1];
+        }
+
+        return ['id' => $id, 'hostId' => $hostId, 'type' => $chunks[0]];
     }
 
     /**

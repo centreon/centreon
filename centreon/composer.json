@@ -26,7 +26,7 @@
     "ext-xmlwriter": "*",
     "ext-zip": "*",
     "amphp/http-client": "4.6.*",
-    "api-platform/core": "^4.1",
+    "api-platform/core": "4.1.*",
     "api-platform/symfony": "*",
     "beberlei/assert": "3.3.*",
     "curl/curl": "2.5.*",

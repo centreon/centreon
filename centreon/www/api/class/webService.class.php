@@ -75,71 +75,6 @@ class CentreonWebService
     }
 
     /**
-     * Load database
-     *
-     * @return void
-     */
-    protected function loadDb()
-    {
-        $this->pearDB ??= new CentreonDB();
-    }
-
-    /**
-     * Load arguments compared http method
-     *
-     * @return void
-     */
-    protected function loadArguments()
-    {
-        switch ($_SERVER['REQUEST_METHOD']) {
-            case 'GET':
-                $httpParams = $_GET;
-                unset($httpParams['action'], $httpParams['object']);
-
-                $this->arguments = $httpParams;
-                break;
-            case 'POST':
-            case 'PUT':
-            case 'PATCH':
-                $this->arguments = $this->parseBody();
-                break;
-            case 'DELETE':
-                break;
-            default:
-                static::sendResult('Bad request', 400);
-                break;
-        }
-    }
-
-    /**
-     * Parse the body for get arguments
-     * The body must be JSON format
-     * @return array
-     */
-    protected function parseBody()
-    {
-        try {
-            $httpParams = json_decode(file_get_contents('php://input'), true);
-        } catch (Exception $e) {
-            static::sendResult('Bad parameters', 400);
-        }
-
-        return $httpParams;
-    }
-
-    /**
-     * Load the token for class if exists
-     *
-     * @return void
-     */
-    protected function loadToken()
-    {
-        if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
-            $this->token = $_SERVER['HTTP_CENTREON_AUTH_TOKEN'];
-        }
-    }
-
-    /**
      * Authorize to access to the action
      *
      * @param string $action The action name
@@ -150,37 +85,6 @@ class CentreonWebService
     public function authorize($action, $user, $isInternal = false)
     {
         return (bool) ($isInternal || ($user && $user->admin));
-    }
-
-    /**
-     * Get webservice
-     *
-     * @param string $object
-     *
-     * @return array|mixed
-     */
-    protected static function webservicePath($object = '')
-    {
-        $webServiceClass = [];
-        foreach (self::$webServicePaths as $webServicePath) {
-            if (str_contains($webServicePath, $object . '.class.php')) {
-                require_once $webServicePath;
-                $explodedClassName = explode('_', $object);
-                $className = '';
-                foreach ($explodedClassName as $partClassName) {
-                    $className .= ucfirst(strtolower($partClassName));
-                }
-                if (class_exists($className)) {
-                    $webServiceClass = ['path' => $webServicePath, 'class' => $className];
-                }
-            }
-        }
-
-        if ($webServiceClass === []) {
-            static::sendResult('Method not found', 404);
-        }
-
-        return $webServiceClass;
     }
 
     /**
@@ -244,34 +148,6 @@ class CentreonWebService
         }
 
         exit();
-    }
-
-    /**
-     * Update the ttl for a token if the authentication is by token
-     *
-     * @return void
-     */
-    protected static function updateTokenTtl()
-    {
-        global $pearDB;
-
-        if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
-            try {
-                $stmt = $pearDB->prepare(
-                    'UPDATE security_token
-                    SET expiration_date = (
-                        SELECT UNIX_TIMESTAMP(NOW() + INTERVAL (`value` * 60) SECOND)
-                        FROM `options`
-                        wHERE `key` = \'session_expire\'
-                    )
-                    WHERE token = :token'
-                );
-                $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
-                $stmt->execute();
-            } catch (Exception $e) {
-                static::sendResult('Internal error', 500);
-            }
-        }
     }
 
     /**
@@ -369,6 +245,130 @@ class CentreonWebService
             $wsObj::sendResult($e->getMessage(), $e->getCode());
         } catch (Exception $e) {
             $wsObj::sendResult($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Load database
+     *
+     * @return void
+     */
+    protected function loadDb()
+    {
+        $this->pearDB ??= new CentreonDB();
+    }
+
+    /**
+     * Load arguments compared http method
+     *
+     * @return void
+     */
+    protected function loadArguments()
+    {
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'GET':
+                $httpParams = $_GET;
+                unset($httpParams['action'], $httpParams['object']);
+
+                $this->arguments = $httpParams;
+                break;
+            case 'POST':
+            case 'PUT':
+            case 'PATCH':
+                $this->arguments = $this->parseBody();
+                break;
+            case 'DELETE':
+                break;
+            default:
+                static::sendResult('Bad request', 400);
+                break;
+        }
+    }
+
+    /**
+     * Parse the body for get arguments
+     * The body must be JSON format
+     * @return array
+     */
+    protected function parseBody()
+    {
+        try {
+            $httpParams = json_decode(file_get_contents('php://input'), true);
+        } catch (Exception $e) {
+            static::sendResult('Bad parameters', 400);
+        }
+
+        return $httpParams;
+    }
+
+    /**
+     * Load the token for class if exists
+     *
+     * @return void
+     */
+    protected function loadToken()
+    {
+        if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
+            $this->token = $_SERVER['HTTP_CENTREON_AUTH_TOKEN'];
+        }
+    }
+
+    /**
+     * Get webservice
+     *
+     * @param string $object
+     *
+     * @return array|mixed
+     */
+    protected static function webservicePath($object = '')
+    {
+        $webServiceClass = [];
+        foreach (self::$webServicePaths as $webServicePath) {
+            if (str_contains($webServicePath, $object . '.class.php')) {
+                require_once $webServicePath;
+                $explodedClassName = explode('_', $object);
+                $className = '';
+                foreach ($explodedClassName as $partClassName) {
+                    $className .= ucfirst(strtolower($partClassName));
+                }
+                if (class_exists($className)) {
+                    $webServiceClass = ['path' => $webServicePath, 'class' => $className];
+                }
+            }
+        }
+
+        if ($webServiceClass === []) {
+            static::sendResult('Method not found', 404);
+        }
+
+        return $webServiceClass;
+    }
+
+    /**
+     * Update the ttl for a token if the authentication is by token
+     *
+     * @return void
+     */
+    protected static function updateTokenTtl()
+    {
+        global $pearDB;
+
+        if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
+            try {
+                $stmt = $pearDB->prepare(
+                    'UPDATE security_token
+                    SET expiration_date = (
+                        SELECT UNIX_TIMESTAMP(NOW() + INTERVAL (`value` * 60) SECOND)
+                        FROM `options`
+                        wHERE `key` = \'session_expire\'
+                    )
+                    WHERE token = :token'
+                );
+                $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
+                $stmt->execute();
+            } catch (Exception $e) {
+                static::sendResult('Internal error', 500);
+            }
         }
     }
 

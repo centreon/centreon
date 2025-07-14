@@ -72,9 +72,6 @@ require_once 'centreon.Config.Poller.class.php';
  */
 class CentreonAPI
 {
-    /** @var null */
-    private static $instance = null;
-
     /** @var int */
     public $dateStart;
 
@@ -114,6 +111,12 @@ class CentreonAPI
     /** @var string */
     public $centreon_path;
 
+    /** @var string */
+    public $delim = ';';
+
+    /** @var null */
+    private static $instance = null;
+
     /** @var int */
     private $return_code = 0;
 
@@ -128,9 +131,6 @@ class CentreonAPI
 
     /** @var array */
     private $aExport = [];
-
-    /** @var string */
-    public $delim = ';';
 
     /**
      * CentreonAPI constructor
@@ -451,67 +451,6 @@ class CentreonAPI
     public function setReturnCode($returnCode): void
     {
         $this->return_code = $returnCode;
-    }
-
-    /**
-     * Centreon Object Management
-     *
-     * @param string $object
-     *
-     * @return void
-     */
-    protected function requireLibs($object)
-    {
-        if ($object != '') {
-            if (
-                isset($this->relationObject[$object]['class'], $this->relationObject[$object]['module'])
-
-                && ! class_exists("\CentreonClapi\Centreon" . $this->relationObject[$object]['class'])
-            ) {
-                if ($this->relationObject[$object]['module'] == 'core') {
-                    require_once 'centreon' . $this->relationObject[$object]['class'] . '.class.php';
-                } else {
-                    require_once _CENTREON_PATH_ . '/www/modules/'
-                        . $this->relationObject[$object]['module']
-                        . '/centreon-clapi/class/centreon'
-                        . $this->relationObject[$object]['class']
-                        . '.class.php';
-                }
-            }
-
-            if (
-                isset($this->relationObject[$object]['libs'])
-                && ! array_walk($this->relationObject[$object]['libs'], 'class_exists')
-            ) {
-                array_walk($this->relationObject[$object]['libs'], 'require_once');
-            }
-        } else {
-            foreach ($this->relationObject as $sSynonyme => $oObjet) {
-                if (
-                    isset($oObjet['class'], $oObjet['module'])
-
-                    && ! class_exists("\CentreonClapi\Centreon" . $oObjet['class'])
-                ) {
-                    if ($oObjet['module'] == 'core') {
-                        require_once _CENTREON_PATH_
-                            . 'www/class/centreon-clapi/centreon'
-                            . $oObjet['class'] . '.class.php';
-                    } else {
-                        require_once _CENTREON_PATH_
-                            . '/www/modules/' . $oObjet['module']
-                            . '/centreon-clapi/class/centreon'
-                            . $oObjet['class'] . '.class.php';
-                    }
-                }
-                if (isset($oObjet['libs']) && ! array_walk($oObjet['libs'], 'class_exists')) {
-                    array_walk($oObjet['libs'], 'require_once');
-                }
-            }
-        }
-
-        // Default class needed
-        require_once __DIR__ . '/centreonTimePeriod.class.php';
-        require_once __DIR__ . '/centreonACLResources.class.php';
     }
 
     /**
@@ -1031,55 +970,6 @@ class CentreonAPI
     }
 
     /**
-     * @param string $objname
-     *
-     * @return void
-     */
-    private function iniObject($objname): void
-    {
-        $className = '';
-        if (
-            isset($this->relationObject[$objname]['namespace'])
-            && $this->relationObject[$objname]['namespace']
-        ) {
-            $className .= '\\' . $this->relationObject[$objname]['namespace'];
-        }
-        $className .= '\CentreonClapi\centreon' . $this->relationObject[$objname]['class'];
-        $this->requireLibs($objname);
-        $this->objectTable[$objname] = new $className($this->dependencyInjector, $objname);
-    }
-
-    /**
-     * Init All object instance in order to export all informations
-     *
-     * @return void
-     */
-    private function initAllObjects(): void
-    {
-        if (count($this->aExport) > 0) {
-            foreach ($this->aExport as $oObjet) {
-                $this->iniObject($oObjet);
-            }
-        }
-    }
-
-    /**
-     * Check if file exists
-     *
-     * @param string $filename
-     *
-     * @return void
-     */
-    private function fileExists($filename): void
-    {
-        if (! file_exists($filename)) {
-            echo "{$filename} : File doesn't exists\n";
-
-            exit(1);
-        }
-    }
-
-    /**
      * Print centreon version and legal use
      *
      * @throws PDOException
@@ -1319,6 +1209,116 @@ class CentreonAPI
                     array_pop($aObject);
                 }
             }
+        }
+    }
+
+    /**
+     * Centreon Object Management
+     *
+     * @param string $object
+     *
+     * @return void
+     */
+    protected function requireLibs($object)
+    {
+        if ($object != '') {
+            if (
+                isset($this->relationObject[$object]['class'], $this->relationObject[$object]['module'])
+
+                && ! class_exists("\CentreonClapi\Centreon" . $this->relationObject[$object]['class'])
+            ) {
+                if ($this->relationObject[$object]['module'] == 'core') {
+                    require_once 'centreon' . $this->relationObject[$object]['class'] . '.class.php';
+                } else {
+                    require_once _CENTREON_PATH_ . '/www/modules/'
+                        . $this->relationObject[$object]['module']
+                        . '/centreon-clapi/class/centreon'
+                        . $this->relationObject[$object]['class']
+                        . '.class.php';
+                }
+            }
+
+            if (
+                isset($this->relationObject[$object]['libs'])
+                && ! array_walk($this->relationObject[$object]['libs'], 'class_exists')
+            ) {
+                array_walk($this->relationObject[$object]['libs'], 'require_once');
+            }
+        } else {
+            foreach ($this->relationObject as $sSynonyme => $oObjet) {
+                if (
+                    isset($oObjet['class'], $oObjet['module'])
+
+                    && ! class_exists("\CentreonClapi\Centreon" . $oObjet['class'])
+                ) {
+                    if ($oObjet['module'] == 'core') {
+                        require_once _CENTREON_PATH_
+                            . 'www/class/centreon-clapi/centreon'
+                            . $oObjet['class'] . '.class.php';
+                    } else {
+                        require_once _CENTREON_PATH_
+                            . '/www/modules/' . $oObjet['module']
+                            . '/centreon-clapi/class/centreon'
+                            . $oObjet['class'] . '.class.php';
+                    }
+                }
+                if (isset($oObjet['libs']) && ! array_walk($oObjet['libs'], 'class_exists')) {
+                    array_walk($oObjet['libs'], 'require_once');
+                }
+            }
+        }
+
+        // Default class needed
+        require_once __DIR__ . '/centreonTimePeriod.class.php';
+        require_once __DIR__ . '/centreonACLResources.class.php';
+    }
+
+    /**
+     * @param string $objname
+     *
+     * @return void
+     */
+    private function iniObject($objname): void
+    {
+        $className = '';
+        if (
+            isset($this->relationObject[$objname]['namespace'])
+            && $this->relationObject[$objname]['namespace']
+        ) {
+            $className .= '\\' . $this->relationObject[$objname]['namespace'];
+        }
+        $className .= '\CentreonClapi\centreon' . $this->relationObject[$objname]['class'];
+        $this->requireLibs($objname);
+        $this->objectTable[$objname] = new $className($this->dependencyInjector, $objname);
+    }
+
+    /**
+     * Init All object instance in order to export all informations
+     *
+     * @return void
+     */
+    private function initAllObjects(): void
+    {
+        if (count($this->aExport) > 0) {
+            foreach ($this->aExport as $oObjet) {
+                $this->iniObject($oObjet);
+            }
+        }
+    }
+
+    /**
+     * Check if file exists
+     *
+     * @param string $filename
+     *
+     * @return void
+     */
+    private function fileExists($filename): void
+    {
+        if (! file_exists($filename)) {
+            echo "{$filename} : File doesn't exists\n";
+
+            exit(1);
         }
     }
 

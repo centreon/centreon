@@ -61,18 +61,6 @@ class CentreonXML
     }
 
     /**
-     * Clean string
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    protected function cleanStr($str)
-    {
-        return preg_replace('/[\x00-\x09\x0B-\x0C\x0E-\x1F\x0D]/', '', $str);
-    }
-
-    /**
      * Starts an element that contains other elements
      *
      * @param string $element_tag
@@ -114,22 +102,6 @@ class CentreonXML
         } else {
             $this->buffer->text($txt);
         }
-    }
-
-    /**
-     * Checks if string is encoded
-     *
-     * @param string $string
-     *
-     * @return int
-     */
-    protected function is_utf8($string)
-    {
-        if (mb_detect_encoding($string, 'UTF-8', true) == 'UTF-8') {
-            return 1;
-        }
-
-        return 0;
     }
 
     /**
@@ -202,5 +174,33 @@ class CentreonXML
         } else {
             echo "Can't open file: {$filename}";
         }
+    }
+
+    /**
+     * Clean string
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    protected function cleanStr($str)
+    {
+        return preg_replace('/[\x00-\x09\x0B-\x0C\x0E-\x1F\x0D]/', '', $str);
+    }
+
+    /**
+     * Checks if string is encoded
+     *
+     * @param string $string
+     *
+     * @return int
+     */
+    protected function is_utf8($string)
+    {
+        if (mb_detect_encoding($string, 'UTF-8', true) == 'UTF-8') {
+            return 1;
+        }
+
+        return 0;
     }
 }

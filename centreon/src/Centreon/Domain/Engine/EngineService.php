@@ -53,6 +53,9 @@ class EngineService extends AbstractCentreonService implements
     EngineServiceInterface,
     EngineConfigurationServiceInterface
 {
+    private const ACKNOWLEDGEMENT_WITH_STICKY_OPTION = 2;
+    private const ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION = 0;
+
     /** @var EngineRepositoryInterface */
     private $engineRepository;
 
@@ -61,8 +64,6 @@ class EngineService extends AbstractCentreonService implements
 
     /** @var EngineConfigurationRepositoryInterface */
     private $engineConfigurationRepository;
-    private const ACKNOWLEDGEMENT_WITH_STICKY_OPTION = 2;
-    private const ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION = 0;
 
     /**
      * CentCoreService constructor.

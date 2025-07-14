@@ -47,12 +47,6 @@ class Contactgroup extends AbstractObject
     /** @var int */
     protected $use_cache = 1;
 
-    /** @var int */
-    private $done_cache = 0;
-
-    /** @var array */
-    private $cg_service_linked_cache = [];
-
     /** @var array */
     protected $cg_cache = [];
 
@@ -87,56 +81,11 @@ class Contactgroup extends AbstractObject
     /** @var null */
     protected $stmt_cg_service = null;
 
-    /**
-     * @throws PDOException
-     * @return void
-     */
-    protected function getCgCache()
-    {
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    {$this->attributes_select}
-                FROM contactgroup
-                WHERE cg_activate = '1'
-        ");
-        $stmt->execute();
-        $this->cg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var int */
+    private $done_cache = 0;
 
-    /**
-     * @see Contactgroup::$cg_service_linked_cache
-     */
-    private function getCgForServiceCache(): void
-    {
-        $stmt = $this->backend_instance->db->prepare("
-            SELECT csr.contactgroup_cg_id, service_service_id
-            FROM contactgroup_service_relation csr, contactgroup
-            WHERE csr.contactgroup_cg_id = contactgroup.cg_id
-            AND cg_activate = '1'
-        ");
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->cg_service_linked_cache[$value['service_service_id']])) {
-                $this->cg_service_linked_cache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
-            } else {
-                $this->cg_service_linked_cache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
-            }
-        }
-    }
-
-    /**
-     * @see Contactgroup::getCgCache()
-     * @see Contactgroup::getCgForServiceCache()
-     */
-    protected function buildCache(): void
-    {
-        if ($this->done_cache == 1) {
-            return;
-        }
-
-        $this->getCgCache();
-        $this->getCgForServiceCache();
-        $this->done_cache = 1;
-    }
+    /** @var array */
+    private $cg_service_linked_cache = [];
 
     /**
      * @param int $serviceId
@@ -268,5 +217,56 @@ class Contactgroup extends AbstractObject
         $this->generateObjectInFile($this->cg[$cgId], $cgId);
 
         return $this->cg[$cgId]['contactgroup_name'];
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    protected function getCgCache()
+    {
+        $stmt = $this->backend_instance->db->prepare("SELECT 
+                    {$this->attributes_select}
+                FROM contactgroup
+                WHERE cg_activate = '1'
+        ");
+        $stmt->execute();
+        $this->cg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @see Contactgroup::getCgCache()
+     * @see Contactgroup::getCgForServiceCache()
+     */
+    protected function buildCache(): void
+    {
+        if ($this->done_cache == 1) {
+            return;
+        }
+
+        $this->getCgCache();
+        $this->getCgForServiceCache();
+        $this->done_cache = 1;
+    }
+
+    /**
+     * @see Contactgroup::$cg_service_linked_cache
+     */
+    private function getCgForServiceCache(): void
+    {
+        $stmt = $this->backend_instance->db->prepare("
+            SELECT csr.contactgroup_cg_id, service_service_id
+            FROM contactgroup_service_relation csr, contactgroup
+            WHERE csr.contactgroup_cg_id = contactgroup.cg_id
+            AND cg_activate = '1'
+        ");
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->cg_service_linked_cache[$value['service_service_id']])) {
+                $this->cg_service_linked_cache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
+            } else {
+                $this->cg_service_linked_cache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
+            }
+        }
     }
 }

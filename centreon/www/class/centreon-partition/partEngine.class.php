@@ -43,212 +43,6 @@
 class PartEngine
 {
     /**
-     * @param $db
-     * @param $tableName
-     * @param $table
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function createMaxvaluePartition($db, $tableName, $table): void
-    {
-        if ($this->hasMaxValuePartition($db, $table) === false) {
-            try {
-                $dbResult = $db->query(
-                    'ALTER TABLE ' . $tableName . ' ADD PARTITION (PARTITION `pmax` VALUES LESS THAN MAXVALUE)'
-                );
-            } catch (PDOException $e) {
-                throw new Exception(
-                    'Error: cannot add a maxvalue partition for table '
-                    . $tableName . ', ' . $e->getMessage() . "\n"
-                );
-            }
-        }
-    }
-
-    /**
-     * @param $table
-     *
-     * @return string
-     */
-    private function purgeDailyPartitionCondition($table)
-    {
-        date_default_timezone_set($table->getTimezone());
-        $ltime = localtime();
-        $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] - $table->getRetention(), $ltime[5] + 1900);
-
-        return 'AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) < ' . $current_time . ' '
-            . "AND PARTITION_DESCRIPTION != 'MAXVALUE' ";
-    }
-
-    /**
-     * @param $db
-     * @param $tableName
-     * @param $month
-     * @param $day
-     * @param $year
-     * @param $hasMaxValuePartition
-     *
-     * @throws Exception
-     * @return false|int
-     */
-    private function updateAddDailyPartitions($db, $tableName, $month, $day, $year, $hasMaxValuePartition = false)
-    {
-        $current_time = mktime(0, 0, 0, $month, $day, $year);
-        $ntime = localtime($current_time);
-        $month = $ntime[4] + 1;
-        $day = $ntime[3];
-        if ($month < 10) {
-            $month = '0' . $month;
-        }
-        if ($day < 10) {
-            $day = '0' . $day;
-        }
-
-        $partitionQuery = 'PARTITION `p' . ($ntime[5] + 1900) . $month . $day
-            . '` VALUES LESS THAN(' . $current_time . ')';
-
-        $request = 'ALTER TABLE ' . $tableName . ' ';
-
-        if ($hasMaxValuePartition) {
-            $request .= 'REORGANIZE PARTITION `pmax` INTO ('
-                . $partitionQuery
-                . ', PARTITION `pmax` VALUES LESS THAN MAXVALUE)';
-        } else {
-            $request .= 'ADD PARTITION ('
-                . $partitionQuery
-                . ')';
-        }
-
-        try {
-            $dbResult = $db->query($request);
-        } catch (PDOException $e) {
-            throw new Exception("Error: cannot add a new partition 'p" . ($ntime[5] + 1900) . $month . $day
-                . "' for table " . $tableName . ', ' . $e->getMessage() . "\n");
-        }
-
-        return $current_time;
-    }
-
-    /**
-     * @param $db
-     * @param $tableName
-     * @param $table
-     * @param $lastTime
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function updateDailyPartitions($db, $tableName, $table, $lastTime): void
-    {
-        $hasMaxValuePartition = $this->hasMaxValuePartition($db, $table);
-
-        date_default_timezone_set($table->getTimezone());
-        $how_much_forward = 0;
-        $ltime = localtime();
-        $currentTime = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3], $ltime[5] + 1900);
-
-        // Avoid to add since 1970 if we have only pmax partition
-        if ($lastTime == 0) {
-            $lastTime = $currentTime;
-        }
-
-        // Gap when you have a cron not updated
-        while ($lastTime < $currentTime) {
-            $ntime = localtime($lastTime);
-            $lastTime = $this->updateAddDailyPartitions(
-                $db,
-                $tableName,
-                $ntime[4] + 1,
-                $ntime[3] + 1,
-                $ntime[5] + 1900,
-                $hasMaxValuePartition
-            );
-        }
-        while ($currentTime < $lastTime) {
-            $how_much_forward++;
-            $currentTime = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] + $how_much_forward, $ltime[5] + 1900);
-        }
-        $num_days_forward = $table->getRetentionForward();
-        while ($how_much_forward < $num_days_forward) {
-            $this->updateAddDailyPartitions(
-                $db,
-                $tableName,
-                $ltime[4] + 1,
-                $ltime[3] + $how_much_forward + 1,
-                $ltime[5] + 1900,
-                $hasMaxValuePartition
-            );
-            $how_much_forward++;
-        }
-
-        if (! $hasMaxValuePartition) {
-            $this->createMaxvaluePartition($db, $tableName, $table);
-        }
-    }
-
-    /**
-     * Generate query part to build partitions
-     *
-     * @param MysqlTable $table The table to partition
-     * @param bool $createPastPartitions If the past partitions need to be created
-     *
-     * @return string The built partitions query
-     */
-    private function createDailyPartitions($table, $createPastPartitions): string
-    {
-        date_default_timezone_set($table->getTimezone());
-        $ltime = localtime();
-
-        $createPart = ' PARTITION BY RANGE(' . $table->getColumn() . ') (';
-
-        // Create past partitions if needed (not needed in fresh install)
-        $num_days = ($createPastPartitions === true) ? $table->getRetention() : 0;
-
-        $append = '';
-        while ($num_days >= 0) {
-            $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] - $num_days, $ltime[5] + 1900);
-            $ntime = localtime($current_time);
-            $month = $ntime[4] + 1;
-            $day = $ntime[3];
-            if ($month < 10) {
-                $month = '0' . $month;
-            }
-            if ($day < 10) {
-                $day = '0' . $day;
-            }
-            $createPart .= $append . 'PARTITION p' . ($ntime[5] + 1900)
-                . $month . $day . ' VALUES LESS THAN (' . $current_time . ')';
-            $num_days--;
-            $append = ',';
-        }
-
-        // Create future partitions
-        $num_days_forward = $table->getRetentionForward();
-        $count = 1;
-        while ($count <= $num_days_forward) {
-            $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] + $count, $ltime[5] + 1900);
-            $ntime = localtime($current_time);
-            $month = $ntime[4] + 1;
-            $day = $ntime[3];
-            if ($month < 10) {
-                $month = '0' . $month;
-            }
-            if ($day < 10) {
-                $day = '0' . $day;
-            }
-            $createPart .= $append . 'PARTITION p' . ($ntime[5] + 1900)
-                . $month . $day . ' VALUES LESS THAN (' . $current_time . ')';
-            $append = ',';
-            $count++;
-        }
-
-        $createPart .= ');';
-
-        return $createPart;
-    }
-
-    /**
      * Create a new table with partitions
      *
      * @param MysqlTable $table The table to partition
@@ -295,46 +89,6 @@ class PartEngine
         if ($table->getType() == 'date') {
             $this->createMaxvaluePartition($db, $tableName, $table);
         }
-    }
-
-    /**
-     * Get last part range max value
-     *
-     * @param $table
-     * @param $db
-     *
-     * @throws Exception
-     * @return int|string
-     */
-    private function getLastPartRange($table, $db)
-    {
-        $error = false;
-        try {
-            $dbResult = $db->query(
-                'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
-            );
-        } catch (PDOException $e) {
-            $error = true;
-        }
-        if ($error || ! $dbResult->rowCount()) {
-            throw new Exception(
-                'Error: cannot get table ' . $table->getSchema() . '.' . $table->getName()
-                . " last partition range \n"
-            );
-        }
-        $row = $dbResult->fetch();
-
-        $lastPart = 0;
-        // dont care of MAXVALUE
-        if (preg_match_all('/PARTITION (.*?) VALUES LESS THAN \(([0-9]+?)\)/', $row['Create Table'], $matches)) {
-            for ($i = 0; isset($matches[2][$i]); $i++) {
-                if ($matches[2][$i] > $lastPart) {
-                    $lastPart = $matches[2][$i];
-                }
-            }
-        }
-
-        return $lastPart;
     }
 
     /**
@@ -667,6 +421,252 @@ class PartEngine
         }
 
         return false;
+    }
+
+    /**
+     * @param $db
+     * @param $tableName
+     * @param $table
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function createMaxvaluePartition($db, $tableName, $table): void
+    {
+        if ($this->hasMaxValuePartition($db, $table) === false) {
+            try {
+                $dbResult = $db->query(
+                    'ALTER TABLE ' . $tableName . ' ADD PARTITION (PARTITION `pmax` VALUES LESS THAN MAXVALUE)'
+                );
+            } catch (PDOException $e) {
+                throw new Exception(
+                    'Error: cannot add a maxvalue partition for table '
+                    . $tableName . ', ' . $e->getMessage() . "\n"
+                );
+            }
+        }
+    }
+
+    /**
+     * @param $table
+     *
+     * @return string
+     */
+    private function purgeDailyPartitionCondition($table)
+    {
+        date_default_timezone_set($table->getTimezone());
+        $ltime = localtime();
+        $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] - $table->getRetention(), $ltime[5] + 1900);
+
+        return 'AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) < ' . $current_time . ' '
+            . "AND PARTITION_DESCRIPTION != 'MAXVALUE' ";
+    }
+
+    /**
+     * @param $db
+     * @param $tableName
+     * @param $month
+     * @param $day
+     * @param $year
+     * @param $hasMaxValuePartition
+     *
+     * @throws Exception
+     * @return false|int
+     */
+    private function updateAddDailyPartitions($db, $tableName, $month, $day, $year, $hasMaxValuePartition = false)
+    {
+        $current_time = mktime(0, 0, 0, $month, $day, $year);
+        $ntime = localtime($current_time);
+        $month = $ntime[4] + 1;
+        $day = $ntime[3];
+        if ($month < 10) {
+            $month = '0' . $month;
+        }
+        if ($day < 10) {
+            $day = '0' . $day;
+        }
+
+        $partitionQuery = 'PARTITION `p' . ($ntime[5] + 1900) . $month . $day
+            . '` VALUES LESS THAN(' . $current_time . ')';
+
+        $request = 'ALTER TABLE ' . $tableName . ' ';
+
+        if ($hasMaxValuePartition) {
+            $request .= 'REORGANIZE PARTITION `pmax` INTO ('
+                . $partitionQuery
+                . ', PARTITION `pmax` VALUES LESS THAN MAXVALUE)';
+        } else {
+            $request .= 'ADD PARTITION ('
+                . $partitionQuery
+                . ')';
+        }
+
+        try {
+            $dbResult = $db->query($request);
+        } catch (PDOException $e) {
+            throw new Exception("Error: cannot add a new partition 'p" . ($ntime[5] + 1900) . $month . $day
+                . "' for table " . $tableName . ', ' . $e->getMessage() . "\n");
+        }
+
+        return $current_time;
+    }
+
+    /**
+     * @param $db
+     * @param $tableName
+     * @param $table
+     * @param $lastTime
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function updateDailyPartitions($db, $tableName, $table, $lastTime): void
+    {
+        $hasMaxValuePartition = $this->hasMaxValuePartition($db, $table);
+
+        date_default_timezone_set($table->getTimezone());
+        $how_much_forward = 0;
+        $ltime = localtime();
+        $currentTime = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3], $ltime[5] + 1900);
+
+        // Avoid to add since 1970 if we have only pmax partition
+        if ($lastTime == 0) {
+            $lastTime = $currentTime;
+        }
+
+        // Gap when you have a cron not updated
+        while ($lastTime < $currentTime) {
+            $ntime = localtime($lastTime);
+            $lastTime = $this->updateAddDailyPartitions(
+                $db,
+                $tableName,
+                $ntime[4] + 1,
+                $ntime[3] + 1,
+                $ntime[5] + 1900,
+                $hasMaxValuePartition
+            );
+        }
+        while ($currentTime < $lastTime) {
+            $how_much_forward++;
+            $currentTime = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] + $how_much_forward, $ltime[5] + 1900);
+        }
+        $num_days_forward = $table->getRetentionForward();
+        while ($how_much_forward < $num_days_forward) {
+            $this->updateAddDailyPartitions(
+                $db,
+                $tableName,
+                $ltime[4] + 1,
+                $ltime[3] + $how_much_forward + 1,
+                $ltime[5] + 1900,
+                $hasMaxValuePartition
+            );
+            $how_much_forward++;
+        }
+
+        if (! $hasMaxValuePartition) {
+            $this->createMaxvaluePartition($db, $tableName, $table);
+        }
+    }
+
+    /**
+     * Generate query part to build partitions
+     *
+     * @param MysqlTable $table The table to partition
+     * @param bool $createPastPartitions If the past partitions need to be created
+     *
+     * @return string The built partitions query
+     */
+    private function createDailyPartitions($table, $createPastPartitions): string
+    {
+        date_default_timezone_set($table->getTimezone());
+        $ltime = localtime();
+
+        $createPart = ' PARTITION BY RANGE(' . $table->getColumn() . ') (';
+
+        // Create past partitions if needed (not needed in fresh install)
+        $num_days = ($createPastPartitions === true) ? $table->getRetention() : 0;
+
+        $append = '';
+        while ($num_days >= 0) {
+            $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] - $num_days, $ltime[5] + 1900);
+            $ntime = localtime($current_time);
+            $month = $ntime[4] + 1;
+            $day = $ntime[3];
+            if ($month < 10) {
+                $month = '0' . $month;
+            }
+            if ($day < 10) {
+                $day = '0' . $day;
+            }
+            $createPart .= $append . 'PARTITION p' . ($ntime[5] + 1900)
+                . $month . $day . ' VALUES LESS THAN (' . $current_time . ')';
+            $num_days--;
+            $append = ',';
+        }
+
+        // Create future partitions
+        $num_days_forward = $table->getRetentionForward();
+        $count = 1;
+        while ($count <= $num_days_forward) {
+            $current_time = mktime(0, 0, 0, $ltime[4] + 1, $ltime[3] + $count, $ltime[5] + 1900);
+            $ntime = localtime($current_time);
+            $month = $ntime[4] + 1;
+            $day = $ntime[3];
+            if ($month < 10) {
+                $month = '0' . $month;
+            }
+            if ($day < 10) {
+                $day = '0' . $day;
+            }
+            $createPart .= $append . 'PARTITION p' . ($ntime[5] + 1900)
+                . $month . $day . ' VALUES LESS THAN (' . $current_time . ')';
+            $append = ',';
+            $count++;
+        }
+
+        $createPart .= ');';
+
+        return $createPart;
+    }
+
+    /**
+     * Get last part range max value
+     *
+     * @param $table
+     * @param $db
+     *
+     * @throws Exception
+     * @return int|string
+     */
+    private function getLastPartRange($table, $db)
+    {
+        $error = false;
+        try {
+            $dbResult = $db->query(
+                'SHOW CREATE TABLE `' . $table->getSchema() . '`.`' . $table->getName() . '`'
+            );
+        } catch (PDOException $e) {
+            $error = true;
+        }
+        if ($error || ! $dbResult->rowCount()) {
+            throw new Exception(
+                'Error: cannot get table ' . $table->getSchema() . '.' . $table->getName()
+                . " last partition range \n"
+            );
+        }
+        $row = $dbResult->fetch();
+
+        $lastPart = 0;
+        // dont care of MAXVALUE
+        if (preg_match_all('/PARTITION (.*?) VALUES LESS THAN \(([0-9]+?)\)/', $row['Create Table'], $matches)) {
+            for ($i = 0; isset($matches[2][$i]); $i++) {
+                if ($matches[2][$i] > $lastPart) {
+                    $lastPart = $matches[2][$i];
+                }
+            }
+        }
+
+        return $lastPart;
     }
 
     /**

@@ -34,14 +34,6 @@ class ImagesRepository extends AbstractRepositoryRDB implements PaginationReposi
 {
     use CheckListOfIdsTrait;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function checkListOfIds(array $ids): bool
-    {
-        return $this->checkListOfIdsTrait($ids, Image::TABLE, 'img_id');
-    }
-
     /** @var int */
     private int $resultCountForPagination = 0;
 
@@ -51,6 +43,14 @@ class ImagesRepository extends AbstractRepositoryRDB implements PaginationReposi
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function checkListOfIds(array $ids): bool
+    {
+        return $this->checkListOfIdsTrait($ids, Image::TABLE, 'img_id');
     }
 
     /**

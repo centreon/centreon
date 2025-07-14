@@ -41,12 +41,6 @@
  */
 class Command extends AbstractObject
 {
-    /** @var null */
-    private $commands = null;
-
-    /** @var null */
-    private $mail_bin = null;
-
     /** @var string */
     protected $generate_filename = 'commands.cfg';
 
@@ -65,33 +59,11 @@ class Command extends AbstractObject
     /** @var string[] */
     protected $attributes_write = ['command_name', 'command_line', 'connector'];
 
-    /**
-     * Create the cache of commands.
-     */
-    private function createCommandsCache(): void
-    {
-        $query = "SELECT {$this->attributes_select} FROM command "
-            . "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' "
-            . "AND command.command_activate = '1'";
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->execute();
-        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var null */
+    private $commands = null;
 
-    /**
-     * @throws PDOException
-     * @return void
-     */
-    private function getMailBin(): void
-    {
-        $stmt = $this->backend_instance->db->prepare("SELECT
-              options.value
-            FROM options
-                WHERE options.key = 'mailer_path_bin'
-            ");
-        $stmt->execute();
-        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
-    }
+    /** @var null */
+    private $mail_bin = null;
 
     /**
      * @param $command_id
@@ -170,5 +142,33 @@ class Command extends AbstractObject
         }
 
         return $this->commands[$commandId] ?? null;
+    }
+
+    /**
+     * Create the cache of commands.
+     */
+    private function createCommandsCache(): void
+    {
+        $query = "SELECT {$this->attributes_select} FROM command "
+            . "LEFT JOIN connector ON connector.id = command.connector_id AND connector.enabled = '1' "
+            . "AND command.command_activate = '1'";
+        $stmt = $this->backend_instance->db->prepare($query);
+        $stmt->execute();
+        $this->commands = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getMailBin(): void
+    {
+        $stmt = $this->backend_instance->db->prepare("SELECT
+              options.value
+            FROM options
+                WHERE options.key = 'mailer_path_bin'
+            ");
+        $stmt->execute();
+        $this->mail_bin = ($row = $stmt->fetch(PDO::FETCH_ASSOC)) ? $row['value'] : '';
     }
 }

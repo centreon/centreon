@@ -123,24 +123,6 @@ class CentreonCustomView
     }
 
     /**
-     * @throws CentreonCustomViewException
-     * @throws PDOException
-     * @return mixed
-     */
-    protected function getLastViewId()
-    {
-        $query = 'SELECT MAX(custom_view_id) as last_id FROM custom_views';
-        $stmt = $this->db->query($query);
-        if ($stmt->rowCount()) {
-            $row = $stmt->fetch();
-
-            return $row['last_id'];
-        }
-
-        throw new CentreonCustomViewException('No view inserted.');
-    }
-
-    /**
      * Check number of view unlocked and consume
      *
      * @param $userId
@@ -557,73 +539,6 @@ class CentreonCustomView
         $dbResult = $stmt->execute();
 
         return $viewId;
-    }
-
-    /**
-     * Copy Preferences
-     *
-     * @param $viewId
-     * @param null $userId
-     * @param null $userGroupId
-     * @throws Exception
-     * @return int|null
-     */
-    protected function copyPreferences($viewId, $userId = null, $userGroupId = null)
-    {
-        if (isset($userId) && $userId) {
-            $query = 'REPLACE INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '
-                . '(SELECT wp.widget_view_id, wp.parameter_id, wp.preference_value, :userId '
-                . 'FROM widget_preferences wp, widget_views wv '
-                . 'WHERE wv.custom_view_id = :viewId '
-                . 'AND wv.widget_view_id = wp.widget_view_id '
-                . 'AND wp.user_id = :widgetUser)';
-
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-            $stmt->bindParam(':viewId', $viewId, PDO::PARAM_INT);
-            $stmt->bindParam(':widgetUser', $this->userId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (! $dbResult) {
-                throw new Exception('An error occured');
-            }
-        } elseif (isset($userGroupId) && $userGroupId) {
-            if (! is_numeric($userGroupId)) {
-                $userGroupId = $this->cg->insertLdapGroup($userGroupId);
-            }
-            $query = 'SELECT contact_contact_id FROM contactgroup_contact_relation WHERE contactgroup_cg_id = :id';
-
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':id', $userGroupId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (! $dbResult) {
-                throw new Exception('An error occured');
-            }
-
-            while ($row = $stmt->fetch()) {
-                $query2 = 'REPLACE INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '
-                    . '(SELECT wp.widget_view_id, wp.parameter_id, wp.preference_value, :contactId '
-                    . 'FROM widget_preferences wp, widget_views wv '
-                    . 'WHERE wv.custom_view_id = :viewId '
-                    . 'AND wv.widget_view_id = wp.widget_view_id '
-                    . 'AND wp.user_id = :userId)';
-                $stmt2 = $this->db->prepare($query2);
-                $stmt2->bindParam(':contactId', $row['contact_contact_id'], PDO::PARAM_INT);
-                $stmt2->bindParam(':viewId', $viewId, PDO::PARAM_INT);
-                $stmt2->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-                $dbResult2 = $stmt2->execute();
-                if (! $dbResult2) {
-                    throw new Exception('An error occured');
-                }
-            }
-        }
-        if (! is_null($userId)) {
-            return $userId;
-        }
-        if (! is_null($userGroupId)) {
-            return $userGroupId;
-        }
-
-        return null;
     }
 
     /**
@@ -1313,5 +1228,90 @@ class CentreonCustomView
             $customView->syncCustomView((int) $row['custom_view_id'], $contactId);
             unset($customView);
         }
+    }
+
+    /**
+     * @throws CentreonCustomViewException
+     * @throws PDOException
+     * @return mixed
+     */
+    protected function getLastViewId()
+    {
+        $query = 'SELECT MAX(custom_view_id) as last_id FROM custom_views';
+        $stmt = $this->db->query($query);
+        if ($stmt->rowCount()) {
+            $row = $stmt->fetch();
+
+            return $row['last_id'];
+        }
+
+        throw new CentreonCustomViewException('No view inserted.');
+    }
+
+    /**
+     * Copy Preferences
+     *
+     * @param $viewId
+     * @param null $userId
+     * @param null $userGroupId
+     * @throws Exception
+     * @return int|null
+     */
+    protected function copyPreferences($viewId, $userId = null, $userGroupId = null)
+    {
+        if (isset($userId) && $userId) {
+            $query = 'REPLACE INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '
+                . '(SELECT wp.widget_view_id, wp.parameter_id, wp.preference_value, :userId '
+                . 'FROM widget_preferences wp, widget_views wv '
+                . 'WHERE wv.custom_view_id = :viewId '
+                . 'AND wv.widget_view_id = wp.widget_view_id '
+                . 'AND wp.user_id = :widgetUser)';
+
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':viewId', $viewId, PDO::PARAM_INT);
+            $stmt->bindParam(':widgetUser', $this->userId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+            if (! $dbResult) {
+                throw new Exception('An error occured');
+            }
+        } elseif (isset($userGroupId) && $userGroupId) {
+            if (! is_numeric($userGroupId)) {
+                $userGroupId = $this->cg->insertLdapGroup($userGroupId);
+            }
+            $query = 'SELECT contact_contact_id FROM contactgroup_contact_relation WHERE contactgroup_cg_id = :id';
+
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':id', $userGroupId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+            if (! $dbResult) {
+                throw new Exception('An error occured');
+            }
+
+            while ($row = $stmt->fetch()) {
+                $query2 = 'REPLACE INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '
+                    . '(SELECT wp.widget_view_id, wp.parameter_id, wp.preference_value, :contactId '
+                    . 'FROM widget_preferences wp, widget_views wv '
+                    . 'WHERE wv.custom_view_id = :viewId '
+                    . 'AND wv.widget_view_id = wp.widget_view_id '
+                    . 'AND wp.user_id = :userId)';
+                $stmt2 = $this->db->prepare($query2);
+                $stmt2->bindParam(':contactId', $row['contact_contact_id'], PDO::PARAM_INT);
+                $stmt2->bindParam(':viewId', $viewId, PDO::PARAM_INT);
+                $stmt2->bindParam(':userId', $this->userId, PDO::PARAM_INT);
+                $dbResult2 = $stmt2->execute();
+                if (! $dbResult2) {
+                    throw new Exception('An error occured');
+                }
+            }
+        }
+        if (! is_null($userId)) {
+            return $userId;
+        }
+        if (! is_null($userGroupId)) {
+            return $userGroupId;
+        }
+
+        return null;
     }
 }

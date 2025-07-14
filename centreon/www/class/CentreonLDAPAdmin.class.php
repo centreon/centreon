@@ -102,56 +102,6 @@ class CentreonLdapAdmin
     }
 
     /**
-     * Update Ldap servers
-     *
-     * @param int $arId auth resource id
-     *
-     * @throws PDOException
-     */
-    protected function updateLdapServers($arId): void
-    {
-        $statement = $this->db->prepare(
-            'DELETE FROM auth_ressource_host WHERE auth_ressource_id = :id'
-        );
-        $statement->bindValue(':id', $arId, PDO::PARAM_INT);
-        $statement->execute();
-
-        if (isset($_REQUEST['address'])) {
-            $subRequest = '';
-            $bindValues = [];
-            $bindIndex = 0;
-            foreach ($_REQUEST['address'] as $index => $address) {
-                $bindValues[':address_' . $bindIndex] = [PDO::PARAM_STR => $address];
-                $bindValues[':port_' . $bindIndex] = [PDO::PARAM_INT => $_REQUEST['port'][$index]];
-                $bindValues[':tls_' . $bindIndex] = [PDO::PARAM_STR => isset($_REQUEST['tls'][$index]) ? '1' : '0'];
-                $bindValues[':ssl_' . $bindIndex] = [PDO::PARAM_STR => isset($_REQUEST['ssl'][$index]) ? '1' : '0'];
-                $bindValues[':order_' . $bindIndex] = [PDO::PARAM_INT => $bindIndex + 1];
-                if (! empty($subRequest)) {
-                    $subRequest .= ', ';
-                }
-                $subRequest
-                    .= '(:id, :address_' . $bindIndex . ', :port_' . $bindIndex . ', :ssl_' . $bindIndex
-                    . ', :tls_' . $bindIndex . ', :order_' . $bindIndex . ')';
-                $bindIndex++;
-            }
-
-            if (! empty($subRequest)) {
-                $bindValues[':id'] = [PDO::PARAM_INT => (int) $arId];
-                $statement = $this->db->prepare(
-                    'INSERT INTO auth_ressource_host
-                    (auth_ressource_id, host_address, host_port, use_ssl, use_tls, host_order)
-                    VALUES ' . $subRequest
-                );
-                foreach ($bindValues as $bindKey => $bindValue) {
-                    $bindType = key($bindValue);
-                    $statement->bindValue($bindKey, $bindValue[$bindType], $bindType);
-                }
-                $statement->execute();
-            }
-        }
-    }
-
-    /**
      * Set ldap options
      *
      * 'ldap_auth_enable', 'ldap_auto_import', 'ldap_srv_dns', 'ldap_search_limit', 'ldap_search_timeout'
@@ -658,6 +608,56 @@ class CentreonLdapAdmin
         }
 
         return $arr;
+    }
+
+    /**
+     * Update Ldap servers
+     *
+     * @param int $arId auth resource id
+     *
+     * @throws PDOException
+     */
+    protected function updateLdapServers($arId): void
+    {
+        $statement = $this->db->prepare(
+            'DELETE FROM auth_ressource_host WHERE auth_ressource_id = :id'
+        );
+        $statement->bindValue(':id', $arId, PDO::PARAM_INT);
+        $statement->execute();
+
+        if (isset($_REQUEST['address'])) {
+            $subRequest = '';
+            $bindValues = [];
+            $bindIndex = 0;
+            foreach ($_REQUEST['address'] as $index => $address) {
+                $bindValues[':address_' . $bindIndex] = [PDO::PARAM_STR => $address];
+                $bindValues[':port_' . $bindIndex] = [PDO::PARAM_INT => $_REQUEST['port'][$index]];
+                $bindValues[':tls_' . $bindIndex] = [PDO::PARAM_STR => isset($_REQUEST['tls'][$index]) ? '1' : '0'];
+                $bindValues[':ssl_' . $bindIndex] = [PDO::PARAM_STR => isset($_REQUEST['ssl'][$index]) ? '1' : '0'];
+                $bindValues[':order_' . $bindIndex] = [PDO::PARAM_INT => $bindIndex + 1];
+                if (! empty($subRequest)) {
+                    $subRequest .= ', ';
+                }
+                $subRequest
+                    .= '(:id, :address_' . $bindIndex . ', :port_' . $bindIndex . ', :ssl_' . $bindIndex
+                    . ', :tls_' . $bindIndex . ', :order_' . $bindIndex . ')';
+                $bindIndex++;
+            }
+
+            if (! empty($subRequest)) {
+                $bindValues[':id'] = [PDO::PARAM_INT => (int) $arId];
+                $statement = $this->db->prepare(
+                    'INSERT INTO auth_ressource_host
+                    (auth_ressource_id, host_address, host_port, use_ssl, use_tls, host_order)
+                    VALUES ' . $subRequest
+                );
+                foreach ($bindValues as $bindKey => $bindValue) {
+                    $bindType = key($bindValue);
+                    $statement->bindValue($bindKey, $bindValue[$bindType], $bindType);
+                }
+                $statement->execute();
+            }
+        }
     }
 
     /**

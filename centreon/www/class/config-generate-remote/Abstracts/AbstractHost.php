@@ -136,6 +136,46 @@ abstract class AbstractHost extends AbstractObject
     protected $stmtPoller = null;
 
     /**
+     * Check if a host id is a host template
+     *
+     * @param int $hostId
+     * @param int $hostTplId
+     * @return bool
+     */
+    public function isHostTemplate(int $hostId, int $hostTplId): bool
+    {
+        $loop = [];
+        $stack = [];
+
+        $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
+        $stack = $this->hosts[$hostId]['htpl'];
+        while (($hostId = array_shift($stack))) {
+            if (isset($loop[$hostId])) {
+                continue;
+            }
+            $loop[$hostId] = 1;
+            if ($hostId == $hostTplId) {
+                return true;
+            }
+            $stack = array_merge($hostsTpl[$hostId]['htpl'], $stack);
+        }
+
+        return false;
+    }
+
+    /**
+     * Get host attribute
+     *
+     * @param int $hostId
+     * @param string $attr
+     * @return string|null
+     */
+    public function getString(int $hostId, string $attr): ?string
+    {
+        return $this->hosts[$hostId][$attr] ?? null;
+    }
+
+    /**
      * Get host extended information
      * extended information are unset on host object
      *
@@ -302,34 +342,6 @@ abstract class AbstractHost extends AbstractObject
     }
 
     /**
-     * Check if a host id is a host template
-     *
-     * @param int $hostId
-     * @param int $hostTplId
-     * @return bool
-     */
-    public function isHostTemplate(int $hostId, int $hostTplId): bool
-    {
-        $loop = [];
-        $stack = [];
-
-        $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $stack = $this->hosts[$hostId]['htpl'];
-        while (($hostId = array_shift($stack))) {
-            if (isset($loop[$hostId])) {
-                continue;
-            }
-            $loop[$hostId] = 1;
-            if ($hostId == $hostTplId) {
-                return true;
-            }
-            $stack = array_merge($hostsTpl[$hostId]['htpl'], $stack);
-        }
-
-        return false;
-    }
-
-    /**
      * Get host timezone
      *
      * @param array $host
@@ -377,17 +389,5 @@ abstract class AbstractHost extends AbstractObject
         $period = TimePeriod::getInstance($this->dependencyInjector);
         $period->generateFromTimeperiodId($host['timeperiod_tp_id']);
         $period->generateFromTimeperiodId($host['timeperiod_tp_id2']);
-    }
-
-    /**
-     * Get host attribute
-     *
-     * @param int $hostId
-     * @param string $attr
-     * @return string|null
-     */
-    public function getString(int $hostId, string $attr): ?string
-    {
-        return $this->hosts[$hostId][$attr] ?? null;
     }
 }

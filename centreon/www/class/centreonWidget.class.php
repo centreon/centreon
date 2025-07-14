@@ -96,34 +96,6 @@ class CentreonWidget
     }
 
     /**
-     * @param int $widgetModelId
-     * @throws Exception
-     * @return array
-     */
-    protected function getParamsFromWidgetModelId($widgetModelId)
-    {
-        static $tab;
-
-        if (! isset($tab)) {
-            $query = 'SELECT parameter_code_name '
-                . 'FROM widget_parameters '
-                . 'WHERE widget_model_id = :modelId';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':modelId', $widgetModelId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-            if (! $dbResult) {
-                throw new Exception('An error occured');
-            }
-            $tab = [];
-            while ($row = $stmt->fetch()) {
-                $tab[$row['parameter_code_name']] = $row['parameter_code_name'];
-            }
-        }
-
-        return $tab;
-    }
-
-    /**
      * @param int $widgetId
      * @throws Exception
      * @return null
@@ -814,6 +786,234 @@ class CentreonWidget
     }
 
     /**
+     * @param string $widgetPath
+     * @param string $directory
+     *
+     * @throws Exception
+     */
+    public function install($widgetPath, $directory): void
+    {
+        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
+        if (! $config['autoRefresh']) {
+            $config['autoRefresh'] = 0;
+        }
+        $queryValues = [];
+        $query = 'INSERT INTO widget_models (title, description, url, version, directory, author, email, '
+            . 'website, keywords, screenshot, thumbnail, autoRefresh) '
+            . 'VALUES (:title, :description, :url, :version, :directory, :author, :email, '
+            . ':website, :keywords, :screenshot, :thumbnail, :autoRefresh)';
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':title', $config['title'], PDO::PARAM_STR);
+        $stmt->bindParam(':description', $config['description'], PDO::PARAM_STR);
+        $stmt->bindParam(':url', $config['url'], PDO::PARAM_STR);
+        $stmt->bindParam(':version', $config['version'], PDO::PARAM_STR);
+        $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
+        $stmt->bindParam(':author', $config['author'], PDO::PARAM_STR);
+        $stmt->bindParam(':email', $config['email'], PDO::PARAM_STR);
+        $stmt->bindParam(':website', $config['website'], PDO::PARAM_STR);
+        $stmt->bindParam(':keywords', $config['keywords'], PDO::PARAM_STR);
+        $stmt->bindParam(':screenshot', $config['screenshot'], PDO::PARAM_STR);
+        $stmt->bindParam(':thumbnail', $config['thumbnail'], PDO::PARAM_STR);
+        $stmt->bindParam(':autoRefresh', $config['autoRefresh'], PDO::PARAM_INT);
+
+        $dbResult = $stmt->execute();
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+
+        $lastId = $this->getLastInsertedWidgetModelId($directory);
+        $this->insertWidgetPreferences($lastId, $config);
+    }
+
+    /**
+     * @param string $widgetPath
+     * @param string $directory
+     *
+     * @throws Exception
+     */
+    public function upgrade($widgetPath, $directory): void
+    {
+        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
+        if (! $config['autoRefresh']) {
+            $config['autoRefresh'] = 0;
+        }
+        $queryValues = [];
+        $query = 'UPDATE widget_models SET '
+            . 'title = ?, '
+            . 'description = ?, '
+            . 'url = ?, '
+            . 'version = ?, '
+            . 'author = ?, '
+            . 'email = ?, '
+            . 'website = ?, '
+            . 'keywords = ?, '
+            . 'screenshot = ?, '
+            . 'thumbnail = ?, '
+            . 'autoRefresh = ? '
+            . 'WHERE directory = ?';
+
+        $queryValues[] = (string) $config['title'];
+        $queryValues[] = (string) $config['description'];
+        $queryValues[] = (string) $config['url'];
+        $queryValues[] = (string) $config['version'];
+        $queryValues[] = (string) $config['author'];
+        $queryValues[] = (string) $config['email'];
+        $queryValues[] = (string) $config['website'];
+        $queryValues[] = (string) $config['keywords'];
+        $queryValues[] = (string) $config['screenshot'];
+        $queryValues[] = (string) $config['thumbnail'];
+        $queryValues[] = (int) $config['autoRefresh'];
+        $queryValues[] = (string) $directory;
+
+        $stmt = $this->db->prepare($query);
+        $dbResult = $stmt->execute($queryValues);
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+
+        $info = $this->getWidgetInfoByDirectory($directory);
+        $this->upgradePreferences($info['widget_model_id'], $config);
+    }
+
+    /**
+     * @param string $directory
+     *
+     * @throws Exception
+     */
+    public function uninstall($directory): void
+    {
+        $query = 'DELETE FROM widget_models WHERE directory = :directory';
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
+        $dbResult = $stmt->execute();
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+    }
+
+    /**
+     * @param int $widgetId
+     *
+     * @throws Exception
+     * @return array
+     */
+    public function getWidgetPreferences($widgetId)
+    {
+        $query = 'SELECT default_value, parameter_code_name '
+            . 'FROM widget_parameters param, widgets w '
+            . 'WHERE w.widget_model_id = param.widget_model_id '
+            . 'AND w.widget_id = :widgetId';
+
+        // Prevent SQL injection with widget id
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
+        $dbResult = $stmt->execute();
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+
+        $tab = [];
+        while ($row = $stmt->fetch()) {
+            $tab[$row['parameter_code_name']] = $row['default_value'];
+        }
+
+        try {
+            $query = 'SELECT pref.preference_value, param.parameter_code_name '
+                . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
+                . 'WHERE param.parameter_id = pref.parameter_id '
+                . 'AND pref.widget_view_id = wv.widget_view_id '
+                . 'AND wv.widget_id = :widgetId '
+                . 'AND pref.user_id = :userId';
+
+            // Prevent SQL injection with widget id
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
+            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+        } catch (PDOException $e) {
+            throw new Exception(
+                'Error: cannot get preference parameter by user for widget , ' . $e->getMessage() . "\n"
+            );
+        }
+
+        // if user has no preferences take parent preferences
+        if ($this->db->numberRows() === 0) {
+            try {
+                $query = 'SELECT pref.preference_value, param.parameter_code_name '
+                    . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
+                    . 'WHERE param.parameter_id = pref.parameter_id '
+                    . 'AND pref.widget_view_id = wv.widget_view_id '
+                    . 'AND wv.widget_id = :widgetId ';
+                // Prevent SQL injection with widget id
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
+                $dbResult = $stmt->execute();
+            } catch (PDOException $e) {
+                throw new Exception(
+                    'Error: cannot get preference parameter for widget , ' . $e->getMessage() . "\n"
+                );
+            }
+        }
+
+        while ($row = $stmt->fetch()) {
+            $tab[$row['parameter_code_name']] = $row['preference_value'];
+        }
+
+        return $tab;
+    }
+
+    /**
+     * Rename widget
+     *
+     * @param int $widgetId
+     * @param string $newName widget new name
+     *
+     * @throws PDOException
+     * @return string
+     */
+    public function rename(int $widgetId, string $newName)
+    {
+        $query = 'UPDATE widgets '
+            . 'SET title = :title '
+            . 'WHERE widget_id = :widgetId';
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':title', $newName, PDO::PARAM_STR);
+        $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $newName;
+    }
+
+    /**
+     * @param int $widgetModelId
+     * @throws Exception
+     * @return array
+     */
+    protected function getParamsFromWidgetModelId($widgetModelId)
+    {
+        static $tab;
+
+        if (! isset($tab)) {
+            $query = 'SELECT parameter_code_name '
+                . 'FROM widget_parameters '
+                . 'WHERE widget_model_id = :modelId';
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':modelId', $widgetModelId, PDO::PARAM_INT);
+            $dbResult = $stmt->execute();
+            if (! $dbResult) {
+                throw new Exception('An error occured');
+            }
+            $tab = [];
+            while ($row = $stmt->fetch()) {
+                $tab[$row['parameter_code_name']] = $row['parameter_code_name'];
+            }
+        }
+
+        return $tab;
+    }
+
+    /**
      * @param string $title
      *
      * @throws Exception
@@ -1005,47 +1205,6 @@ class CentreonWidget
                 }
             }
         }
-    }
-
-    /**
-     * @param string $widgetPath
-     * @param string $directory
-     *
-     * @throws Exception
-     */
-    public function install($widgetPath, $directory): void
-    {
-        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
-        if (! $config['autoRefresh']) {
-            $config['autoRefresh'] = 0;
-        }
-        $queryValues = [];
-        $query = 'INSERT INTO widget_models (title, description, url, version, directory, author, email, '
-            . 'website, keywords, screenshot, thumbnail, autoRefresh) '
-            . 'VALUES (:title, :description, :url, :version, :directory, :author, :email, '
-            . ':website, :keywords, :screenshot, :thumbnail, :autoRefresh)';
-
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':title', $config['title'], PDO::PARAM_STR);
-        $stmt->bindParam(':description', $config['description'], PDO::PARAM_STR);
-        $stmt->bindParam(':url', $config['url'], PDO::PARAM_STR);
-        $stmt->bindParam(':version', $config['version'], PDO::PARAM_STR);
-        $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
-        $stmt->bindParam(':author', $config['author'], PDO::PARAM_STR);
-        $stmt->bindParam(':email', $config['email'], PDO::PARAM_STR);
-        $stmt->bindParam(':website', $config['website'], PDO::PARAM_STR);
-        $stmt->bindParam(':keywords', $config['keywords'], PDO::PARAM_STR);
-        $stmt->bindParam(':screenshot', $config['screenshot'], PDO::PARAM_STR);
-        $stmt->bindParam(':thumbnail', $config['thumbnail'], PDO::PARAM_STR);
-        $stmt->bindParam(':autoRefresh', $config['autoRefresh'], PDO::PARAM_INT);
-
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-
-        $lastId = $this->getLastInsertedWidgetModelId($directory);
-        $this->insertWidgetPreferences($lastId, $config);
     }
 
     /**
@@ -1304,164 +1463,5 @@ class CentreonWidget
                 throw new Exception('An error occured');
             }
         }
-    }
-
-    /**
-     * @param string $widgetPath
-     * @param string $directory
-     *
-     * @throws Exception
-     */
-    public function upgrade($widgetPath, $directory): void
-    {
-        $config = $this->readConfigFile($widgetPath . '/' . $directory . '/configs.xml');
-        if (! $config['autoRefresh']) {
-            $config['autoRefresh'] = 0;
-        }
-        $queryValues = [];
-        $query = 'UPDATE widget_models SET '
-            . 'title = ?, '
-            . 'description = ?, '
-            . 'url = ?, '
-            . 'version = ?, '
-            . 'author = ?, '
-            . 'email = ?, '
-            . 'website = ?, '
-            . 'keywords = ?, '
-            . 'screenshot = ?, '
-            . 'thumbnail = ?, '
-            . 'autoRefresh = ? '
-            . 'WHERE directory = ?';
-
-        $queryValues[] = (string) $config['title'];
-        $queryValues[] = (string) $config['description'];
-        $queryValues[] = (string) $config['url'];
-        $queryValues[] = (string) $config['version'];
-        $queryValues[] = (string) $config['author'];
-        $queryValues[] = (string) $config['email'];
-        $queryValues[] = (string) $config['website'];
-        $queryValues[] = (string) $config['keywords'];
-        $queryValues[] = (string) $config['screenshot'];
-        $queryValues[] = (string) $config['thumbnail'];
-        $queryValues[] = (int) $config['autoRefresh'];
-        $queryValues[] = (string) $directory;
-
-        $stmt = $this->db->prepare($query);
-        $dbResult = $stmt->execute($queryValues);
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-
-        $info = $this->getWidgetInfoByDirectory($directory);
-        $this->upgradePreferences($info['widget_model_id'], $config);
-    }
-
-    /**
-     * @param string $directory
-     *
-     * @throws Exception
-     */
-    public function uninstall($directory): void
-    {
-        $query = 'DELETE FROM widget_models WHERE directory = :directory';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':directory', $directory, PDO::PARAM_STR);
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-    }
-
-    /**
-     * @param int $widgetId
-     *
-     * @throws Exception
-     * @return array
-     */
-    public function getWidgetPreferences($widgetId)
-    {
-        $query = 'SELECT default_value, parameter_code_name '
-            . 'FROM widget_parameters param, widgets w '
-            . 'WHERE w.widget_model_id = param.widget_model_id '
-            . 'AND w.widget_id = :widgetId';
-
-        // Prevent SQL injection with widget id
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-
-        $tab = [];
-        while ($row = $stmt->fetch()) {
-            $tab[$row['parameter_code_name']] = $row['default_value'];
-        }
-
-        try {
-            $query = 'SELECT pref.preference_value, param.parameter_code_name '
-                . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
-                . 'WHERE param.parameter_id = pref.parameter_id '
-                . 'AND pref.widget_view_id = wv.widget_view_id '
-                . 'AND wv.widget_id = :widgetId '
-                . 'AND pref.user_id = :userId';
-
-            // Prevent SQL injection with widget id
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
-            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-            $dbResult = $stmt->execute();
-        } catch (PDOException $e) {
-            throw new Exception(
-                'Error: cannot get preference parameter by user for widget , ' . $e->getMessage() . "\n"
-            );
-        }
-
-        // if user has no preferences take parent preferences
-        if ($this->db->numberRows() === 0) {
-            try {
-                $query = 'SELECT pref.preference_value, param.parameter_code_name '
-                    . 'FROM widget_preferences pref, widget_parameters param, widget_views wv '
-                    . 'WHERE param.parameter_id = pref.parameter_id '
-                    . 'AND pref.widget_view_id = wv.widget_view_id '
-                    . 'AND wv.widget_id = :widgetId ';
-                // Prevent SQL injection with widget id
-                $stmt = $this->db->prepare($query);
-                $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
-                $dbResult = $stmt->execute();
-            } catch (PDOException $e) {
-                throw new Exception(
-                    'Error: cannot get preference parameter for widget , ' . $e->getMessage() . "\n"
-                );
-            }
-        }
-
-        while ($row = $stmt->fetch()) {
-            $tab[$row['parameter_code_name']] = $row['preference_value'];
-        }
-
-        return $tab;
-    }
-
-    /**
-     * Rename widget
-     *
-     * @param int $widgetId
-     * @param string $newName widget new name
-     *
-     * @throws PDOException
-     * @return string
-     */
-    public function rename(int $widgetId, string $newName)
-    {
-        $query = 'UPDATE widgets '
-            . 'SET title = :title '
-            . 'WHERE widget_id = :widgetId';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':title', $newName, PDO::PARAM_STR);
-        $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $newName;
     }
 }

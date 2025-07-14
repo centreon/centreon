@@ -64,6 +64,32 @@ class CentreonStatsModules
     }
 
     /**
+     * Get statistics from module
+     *
+     * @throws PDOException
+     * @return array The statistics of each module
+     */
+    public function getModulesStatistics()
+    {
+        $data = [];
+        $moduleObjects = $this->getModuleObjects(
+            $this->getInstalledModules()
+        );
+        if (is_array($moduleObjects)) {
+            foreach ($moduleObjects as $moduleObject) {
+                try {
+                    $oModuleObject = new $moduleObject();
+                    $data[] = $oModuleObject->getStats();
+                } catch (Throwable $e) {
+                    $this->logger->error($e->getMessage(), ['context' => $e]);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Get list of installed modules
      *
      * @throws PDOException
@@ -111,31 +137,5 @@ class CentreonStatsModules
         }
 
         return $moduleObjects;
-    }
-
-    /**
-     * Get statistics from module
-     *
-     * @throws PDOException
-     * @return array The statistics of each module
-     */
-    public function getModulesStatistics()
-    {
-        $data = [];
-        $moduleObjects = $this->getModuleObjects(
-            $this->getInstalledModules()
-        );
-        if (is_array($moduleObjects)) {
-            foreach ($moduleObjects as $moduleObject) {
-                try {
-                    $oModuleObject = new $moduleObject();
-                    $data[] = $oModuleObject->getStats();
-                } catch (Throwable $e) {
-                    $this->logger->error($e->getMessage(), ['context' => $e]);
-                }
-            }
-        }
-
-        return $data;
     }
 }

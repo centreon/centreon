@@ -202,29 +202,6 @@ class RequestParameters implements RequestParametersInterface
     }
 
     /**
-     * Try to fix the schema in case of bad structure
-     *
-     * @throws \Exception
-     */
-    private function fixSchema(): void
-    {
-        $search = $this->search;
-
-        if (! empty($search)) {
-            if (
-                (
-                    ! isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
-                    && ! isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
-                )
-                || (count($this->search) > 1)
-            ) {
-                $newSearch[RequestParameters::AGGREGATE_OPERATOR_AND] = $search;
-                $this->search = $newSearch;
-            }
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     public function toArray(): array
@@ -382,5 +359,28 @@ class RequestParameters implements RequestParametersInterface
     public function unsetSearch(): void
     {
         $this->search = [];
+    }
+
+    /**
+     * Try to fix the schema in case of bad structure
+     *
+     * @throws \Exception
+     */
+    private function fixSchema(): void
+    {
+        $search = $this->search;
+
+        if (! empty($search)) {
+            if (
+                (
+                    ! isset($search[RequestParameters::AGGREGATE_OPERATOR_AND])
+                    && ! isset($search[RequestParameters::AGGREGATE_OPERATOR_OR])
+                )
+                || (count($this->search) > 1)
+            ) {
+                $newSearch[RequestParameters::AGGREGATE_OPERATOR_AND] = $search;
+                $this->search = $newSearch;
+            }
+        }
     }
 }

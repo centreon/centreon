@@ -27,9 +27,6 @@ class Comment
     /** @var int Resource ID */
     public $resourceId;
 
-    /** @var int|null Parent Resource ID */
-    private $parentResourceId;
-
     /** @var string added comment */
     public $comment;
 
@@ -39,6 +36,9 @@ class Comment
      * @var \DateTime|null
      */
     public $date;
+
+    /** @var int|null Parent Resource ID */
+    private $parentResourceId;
 
     public function __construct(int $resourceId, string $comment)
     {

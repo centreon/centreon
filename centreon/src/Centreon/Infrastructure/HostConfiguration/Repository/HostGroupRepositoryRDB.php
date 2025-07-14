@@ -155,90 +155,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
     }
 
     /**
-     * Find a group by id and contact id.
-     *
-     * @param int $hostGroupId Id of the host group to be found
-     * @param int|null $contactId Contact id related to host groups
-     * @throws AssertionFailedException
-     * @return HostGroup|null
-     */
-    private function findByIdRequest(int $hostGroupId, ?int $contactId): ?HostGroup
-    {
-        if ($contactId === null) {
-            $statement = $this->db->prepare(
-                $this->translateDbName(
-                    'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
-                        CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
-                    FROM `:db`.hostgroup hg
-                    LEFT JOIN `:db`.view_img icon
-                        ON icon.img_id = hg.hg_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation iconR
-                        ON iconR.img_img_id = icon.img_id
-                    LEFT JOIN `:db`.view_img_dir iconD
-                        ON iconD.dir_id = iconR.dir_dir_parent_id
-                    LEFT JOIN `:db`.view_img imap
-                        ON imap.img_id = hg.hg_map_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation imapR
-                        ON imapR.img_img_id = imap.img_id
-                    LEFT JOIN `:db`.view_img_dir imapD
-                        ON imapD.dir_id = imapR.dir_dir_parent_id
-                    WHERE hg.hg_id = :id'
-                )
-            );
-        } else {
-            $statement = $this->db->prepare(
-                $this->translateDbName(
-                    'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
-                        CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
-                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
-                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
-                    FROM `:db`.hostgroup hg
-                    LEFT JOIN `:db`.view_img icon
-                        ON icon.img_id = hg.hg_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation iconR
-                        ON iconR.img_img_id = icon.img_id
-                    LEFT JOIN `:db`.view_img_dir iconD
-                        ON iconD.dir_id = iconR.dir_dir_parent_id
-                    LEFT JOIN `:db`.view_img imap
-                        ON imap.img_id = hg.hg_map_icon_image
-                    LEFT JOIN `:db`.view_img_dir_relation imapR
-                        ON imapR.img_img_id = imap.img_id
-                    LEFT JOIN `:db`.view_img_dir imapD
-                        ON imapD.dir_id = imapR.dir_dir_parent_id
-                    INNER JOIN `:db`.acl_resources_hg_relations arhr
-                        ON hg.hg_id = arhr.hg_hg_id
-                    INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
-                    LEFT JOIN `:db`.acl_group_contacts_relations agcr
-                        ON ag.acl_group_id = agcr.acl_group_id
-                    LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
-                        ON ag.acl_group_id = agcgr.acl_group_id
-                    LEFT JOIn `:db`.contactgroup_contact_relation cgcr
-                        ON  cgcr.contactgroup_cg_id = agcgr.cg_cg_id
-                    WHERE hg.hg_id = :id
-                        AND (agcr.contact_contact_id = :contact_id OR cgcr.contact_contact_id = :contact_id)'
-                )
-            );
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-        }
-
-        $statement->bindValue(':id', $hostGroupId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return HostGroupFactoryRdb::create($result);
-        }
-
-        return null;
-    }
-
-    /**
      * @inheritDoc
      * @throws AssertionFailedException
      */
@@ -363,5 +279,89 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
         }
 
         return $hostGroups;
+    }
+
+    /**
+     * Find a group by id and contact id.
+     *
+     * @param int $hostGroupId Id of the host group to be found
+     * @param int|null $contactId Contact id related to host groups
+     * @throws AssertionFailedException
+     * @return HostGroup|null
+     */
+    private function findByIdRequest(int $hostGroupId, ?int $contactId): ?HostGroup
+    {
+        if ($contactId === null) {
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
+                        CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
+                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
+                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                    FROM `:db`.hostgroup hg
+                    LEFT JOIN `:db`.view_img icon
+                        ON icon.img_id = hg.hg_icon_image
+                    LEFT JOIN `:db`.view_img_dir_relation iconR
+                        ON iconR.img_img_id = icon.img_id
+                    LEFT JOIN `:db`.view_img_dir iconD
+                        ON iconD.dir_id = iconR.dir_dir_parent_id
+                    LEFT JOIN `:db`.view_img imap
+                        ON imap.img_id = hg.hg_map_icon_image
+                    LEFT JOIN `:db`.view_img_dir_relation imapR
+                        ON imapR.img_img_id = imap.img_id
+                    LEFT JOIN `:db`.view_img_dir imapD
+                        ON imapD.dir_id = imapR.dir_dir_parent_id
+                    WHERE hg.hg_id = :id'
+                )
+            );
+        } else {
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    'SELECT hg.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
+                        CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
+                        icon.img_comment AS icon_comment, imap.img_id AS imap_id, imap.img_name AS imap_name,
+                        CONCAT(imapD.dir_name,\'/\',imap.img_path) AS imap_path, imap.img_comment AS imap_comment
+                    FROM `:db`.hostgroup hg
+                    LEFT JOIN `:db`.view_img icon
+                        ON icon.img_id = hg.hg_icon_image
+                    LEFT JOIN `:db`.view_img_dir_relation iconR
+                        ON iconR.img_img_id = icon.img_id
+                    LEFT JOIN `:db`.view_img_dir iconD
+                        ON iconD.dir_id = iconR.dir_dir_parent_id
+                    LEFT JOIN `:db`.view_img imap
+                        ON imap.img_id = hg.hg_map_icon_image
+                    LEFT JOIN `:db`.view_img_dir_relation imapR
+                        ON imapR.img_img_id = imap.img_id
+                    LEFT JOIN `:db`.view_img_dir imapD
+                        ON imapD.dir_id = imapR.dir_dir_parent_id
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON hg.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    LEFT JOIN `:db`.acl_group_contacts_relations agcr
+                        ON ag.acl_group_id = agcr.acl_group_id
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr
+                        ON ag.acl_group_id = agcgr.acl_group_id
+                    LEFT JOIn `:db`.contactgroup_contact_relation cgcr
+                        ON  cgcr.contactgroup_cg_id = agcgr.cg_cg_id
+                    WHERE hg.hg_id = :id
+                        AND (agcr.contact_contact_id = :contact_id OR cgcr.contact_contact_id = :contact_id)'
+                )
+            );
+            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
+        }
+
+        $statement->bindValue(':id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return HostGroupFactoryRdb::create($result);
+        }
+
+        return null;
     }
 }

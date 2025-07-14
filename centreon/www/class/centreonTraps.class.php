@@ -69,86 +69,6 @@ class CentreonTraps
     }
 
     /**
-     *  _setMatchingOptions takes the $_POST array and analyses it,
-     *  then inserts data into the  traps_matching_properties
-     *
-     * @param int $trapId
-     * @throws PDOException
-     * @return void
-     */
-    private function setMatchingOptions(int $trapId): void
-    {
-        if ($trapId > 0) {
-            $query = 'DELETE FROM traps_matching_properties WHERE trap_id = :trapId';
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-            $statement->execute();
-
-            $insertStr = '';
-            if (isset($_REQUEST['rule'])) {
-                $rules = $_REQUEST['rule'];
-                $regexp = $_REQUEST['regexp'];
-                $status = $_REQUEST['rulestatus'];
-                $severity = $_REQUEST['ruleseverity'];
-                $i = 1;
-                $queryValues = [];
-                foreach ($rules as $key => $value) {
-                    if (is_null($value) || $value == '' || filter_var($key, FILTER_VALIDATE_INT) === false) {
-                        continue;
-                    }
-                    $value = HtmlAnalyzer::sanitizeAndRemoveTags($value);
-                    $regexp[$key]
-                        = HtmlAnalyzer::sanitizeAndRemoveTags($regexp[$key])
-                        ? $regexp[$key]
-                        : '';
-                    $status[$key] = filter_var($status[$key], FILTER_VALIDATE_INT) ? (int) $status[$key] : 0;
-                    $severity[$key] = filter_var($severity[$key], FILTER_VALIDATE_INT);
-
-                    if ($insertStr) {
-                        $insertStr .= ', ';
-                    }
-
-                    $queryValues[':value' . $key] = [
-                        PDO::PARAM_STR => $value,
-                    ];
-                    $queryValues[':regexp' . $key] = [
-                        PDO::PARAM_STR => $regexp[$key],
-                    ];
-                    $queryValues[':status' . $key] = [
-                        PDO::PARAM_INT => $status[$key],
-                    ];
-
-                    if ($severity[$key] !== false) {
-                        $bindSeverity = ':severity' . $key;
-                        $queryValues[':severity' . $key] = [
-                            PDO::PARAM_INT => $severity[$key],
-                        ];
-                    } else {
-                        $bindSeverity = 'NULL';
-                    }
-                    $insertStr .= '(:trapId,  :value' . $key . ', :regexp' . $key . ', :status' . $key . ', '
-                        . $bindSeverity . ', ' . $i . ')';
-                }
-
-            }
-            if ($insertStr) {
-                $query = "INSERT INTO traps_matching_properties
-                    (trap_id, tmo_string, tmo_regexp, tmo_status, severity_id, tmo_order) VALUES {$insertStr}";
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-                if (isset($queryValues)) {
-                    foreach ($queryValues as $bindId => $bindData) {
-                        foreach ($bindData as $bindType => $bindValue) {
-                            $statement->bindValue($bindId, $bindValue, $bindType);
-                        }
-                    }
-                }
-                $statement->execute();
-            }
-        }
-    }
-
-    /**
      * Sets form if not passed to constructor beforehands
      *
      * @param $form
@@ -573,152 +493,6 @@ class CentreonTraps
     }
 
     /**
-     * Set preexec commands
-     *
-     * @param int $trapId
-     *
-     * @throws PDOException
-     */
-    protected function setPreexec(int $trapId)
-    {
-        if ($trapId > 0) {
-            $query = 'DELETE FROM traps_preexec WHERE trap_id = :trapId';
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-            $statement->execute();
-
-            $insertStr = '';
-            if (isset($_REQUEST['preexec'])) {
-                $preexec = $_REQUEST['preexec'];
-                $i = 1;
-                $queryValues = [];
-                foreach ($preexec as $key => $value) {
-                    if (is_null($value) || $value == '' || filter_var($key, FILTER_VALIDATE_INT) === false) {
-                        continue;
-                    }
-                    $queryValues[':value' . $key] = [
-                        PDO::PARAM_STR => $value,
-                    ];
-                    if ($insertStr) {
-                        $insertStr .= ', ';
-                    }
-                    $insertStr .= '(:trapId, :value' . $key . ", {$i})";
-                    $i++;
-                }
-            }
-            if ($insertStr) {
-                $query = "INSERT INTO traps_preexec (trap_id, tpe_string, tpe_order) VALUES {$insertStr}";
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-                if (isset($queryValues)) {
-                    foreach ($queryValues as $bindId => $bindData) {
-                        foreach ($bindData as $bindType => $bindValue) {
-                            $statement->bindValue($bindId, $bindValue, $bindType);
-                        }
-                    }
-                }
-                $statement->execute();
-            }
-        }
-    }
-
-    /**
-     * Delete & insert service relations
-     *
-     * @param int $trapId
-     *
-     * @throws InvalidArgumentException
-     * @throws PDOException
-     */
-    protected function setServiceRelations(int $trapId)
-    {
-        if ($trapId > 0) {
-            $query = "
-                DELETE FROM traps_service_relation
-                    WHERE traps_id = :trapId
-                    AND NOT EXISTS (
-                        SELECT s.service_id
-                        FROM service s
-                        WHERE s.service_register = '0'
-                        AND s.service_id = traps_service_relation.service_id)
-                    AND NOT EXISTS (
-                        SELECT hsr.service_service_id
-                        FROM host_service_relation hsr
-                        WHERE hsr.hostgroup_hg_id IS NOT NULL
-                        AND hsr.service_service_id = traps_service_relation.service_id)";
-
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-            $statement->execute();
-
-            $services = CentreonUtils::mergeWithInitialValues($this->form, 'services');
-            $insertStr = '';
-            $first = true;
-            $already = [];
-            foreach ($services as $id) {
-                $t = preg_split("/\-/", $id);
-                if (! isset($already[$t[1]])) {
-                    if (! $first) {
-                        $insertStr .= ',';
-                    } else {
-                        $first = false;
-                    }
-                    $insertStr .= '(:trapId, ' . (int) $t[1] . ')';
-                    $already[$t[1]] = true;
-                }
-            }
-            if ($insertStr) {
-                $query = "INSERT INTO traps_service_relation (traps_id, service_id) VALUES {$insertStr}";
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-                $statement->execute();
-            }
-        }
-    }
-
-    /**
-     * Delete & insert service template relations
-     *
-     * @param int $trapId
-     *
-     * @throws PDOException
-     */
-    protected function setServiceTemplateRelations(int $trapId)
-    {
-        if ($trapId > 0) {
-            $query = "
-                DELETE FROM traps_service_relation
-                WHERE traps_id = :trapId
-                AND NOT EXISTS (SELECT s.service_id
-                    FROM service s
-                    WHERE s.service_register = '1'
-                    AND s.service_id = traps_service_relation.service_id)";
-
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-            $statement->execute();
-
-            $serviceTpl = (array) $this->form->getSubmitValue('service_templates');
-            $insertStr = '';
-            $first = true;
-            foreach ($serviceTpl as $tpl) {
-                if (! $first) {
-                    $insertStr .= ',';
-                } else {
-                    $first = false;
-                }
-                $insertStr .= "(:trapId, {$tpl})";
-            }
-            if ($insertStr) {
-                $query = "INSERT INTO traps_service_relation (traps_id, service_id) VALUES {$insertStr}";
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
-                $statement->execute();
-            }
-        }
-    }
-
-    /**
      * Insert Traps
      *
      * @param array $ret
@@ -1126,5 +900,231 @@ class CentreonTraps
         }
 
         return $items;
+    }
+
+    /**
+     * Set preexec commands
+     *
+     * @param int $trapId
+     *
+     * @throws PDOException
+     */
+    protected function setPreexec(int $trapId)
+    {
+        if ($trapId > 0) {
+            $query = 'DELETE FROM traps_preexec WHERE trap_id = :trapId';
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $insertStr = '';
+            if (isset($_REQUEST['preexec'])) {
+                $preexec = $_REQUEST['preexec'];
+                $i = 1;
+                $queryValues = [];
+                foreach ($preexec as $key => $value) {
+                    if (is_null($value) || $value == '' || filter_var($key, FILTER_VALIDATE_INT) === false) {
+                        continue;
+                    }
+                    $queryValues[':value' . $key] = [
+                        PDO::PARAM_STR => $value,
+                    ];
+                    if ($insertStr) {
+                        $insertStr .= ', ';
+                    }
+                    $insertStr .= '(:trapId, :value' . $key . ", {$i})";
+                    $i++;
+                }
+            }
+            if ($insertStr) {
+                $query = "INSERT INTO traps_preexec (trap_id, tpe_string, tpe_order) VALUES {$insertStr}";
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+                if (isset($queryValues)) {
+                    foreach ($queryValues as $bindId => $bindData) {
+                        foreach ($bindData as $bindType => $bindValue) {
+                            $statement->bindValue($bindId, $bindValue, $bindType);
+                        }
+                    }
+                }
+                $statement->execute();
+            }
+        }
+    }
+
+    /**
+     * Delete & insert service relations
+     *
+     * @param int $trapId
+     *
+     * @throws InvalidArgumentException
+     * @throws PDOException
+     */
+    protected function setServiceRelations(int $trapId)
+    {
+        if ($trapId > 0) {
+            $query = "
+                DELETE FROM traps_service_relation
+                    WHERE traps_id = :trapId
+                    AND NOT EXISTS (
+                        SELECT s.service_id
+                        FROM service s
+                        WHERE s.service_register = '0'
+                        AND s.service_id = traps_service_relation.service_id)
+                    AND NOT EXISTS (
+                        SELECT hsr.service_service_id
+                        FROM host_service_relation hsr
+                        WHERE hsr.hostgroup_hg_id IS NOT NULL
+                        AND hsr.service_service_id = traps_service_relation.service_id)";
+
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $services = CentreonUtils::mergeWithInitialValues($this->form, 'services');
+            $insertStr = '';
+            $first = true;
+            $already = [];
+            foreach ($services as $id) {
+                $t = preg_split("/\-/", $id);
+                if (! isset($already[$t[1]])) {
+                    if (! $first) {
+                        $insertStr .= ',';
+                    } else {
+                        $first = false;
+                    }
+                    $insertStr .= '(:trapId, ' . (int) $t[1] . ')';
+                    $already[$t[1]] = true;
+                }
+            }
+            if ($insertStr) {
+                $query = "INSERT INTO traps_service_relation (traps_id, service_id) VALUES {$insertStr}";
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+                $statement->execute();
+            }
+        }
+    }
+
+    /**
+     * Delete & insert service template relations
+     *
+     * @param int $trapId
+     *
+     * @throws PDOException
+     */
+    protected function setServiceTemplateRelations(int $trapId)
+    {
+        if ($trapId > 0) {
+            $query = "
+                DELETE FROM traps_service_relation
+                WHERE traps_id = :trapId
+                AND NOT EXISTS (SELECT s.service_id
+                    FROM service s
+                    WHERE s.service_register = '1'
+                    AND s.service_id = traps_service_relation.service_id)";
+
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $serviceTpl = (array) $this->form->getSubmitValue('service_templates');
+            $insertStr = '';
+            $first = true;
+            foreach ($serviceTpl as $tpl) {
+                if (! $first) {
+                    $insertStr .= ',';
+                } else {
+                    $first = false;
+                }
+                $insertStr .= "(:trapId, {$tpl})";
+            }
+            if ($insertStr) {
+                $query = "INSERT INTO traps_service_relation (traps_id, service_id) VALUES {$insertStr}";
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+                $statement->execute();
+            }
+        }
+    }
+
+    /**
+     *  _setMatchingOptions takes the $_POST array and analyses it,
+     *  then inserts data into the  traps_matching_properties
+     *
+     * @param int $trapId
+     * @throws PDOException
+     * @return void
+     */
+    private function setMatchingOptions(int $trapId): void
+    {
+        if ($trapId > 0) {
+            $query = 'DELETE FROM traps_matching_properties WHERE trap_id = :trapId';
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $insertStr = '';
+            if (isset($_REQUEST['rule'])) {
+                $rules = $_REQUEST['rule'];
+                $regexp = $_REQUEST['regexp'];
+                $status = $_REQUEST['rulestatus'];
+                $severity = $_REQUEST['ruleseverity'];
+                $i = 1;
+                $queryValues = [];
+                foreach ($rules as $key => $value) {
+                    if (is_null($value) || $value == '' || filter_var($key, FILTER_VALIDATE_INT) === false) {
+                        continue;
+                    }
+                    $value = HtmlAnalyzer::sanitizeAndRemoveTags($value);
+                    $regexp[$key]
+                        = HtmlAnalyzer::sanitizeAndRemoveTags($regexp[$key])
+                        ? $regexp[$key]
+                        : '';
+                    $status[$key] = filter_var($status[$key], FILTER_VALIDATE_INT) ? (int) $status[$key] : 0;
+                    $severity[$key] = filter_var($severity[$key], FILTER_VALIDATE_INT);
+
+                    if ($insertStr) {
+                        $insertStr .= ', ';
+                    }
+
+                    $queryValues[':value' . $key] = [
+                        PDO::PARAM_STR => $value,
+                    ];
+                    $queryValues[':regexp' . $key] = [
+                        PDO::PARAM_STR => $regexp[$key],
+                    ];
+                    $queryValues[':status' . $key] = [
+                        PDO::PARAM_INT => $status[$key],
+                    ];
+
+                    if ($severity[$key] !== false) {
+                        $bindSeverity = ':severity' . $key;
+                        $queryValues[':severity' . $key] = [
+                            PDO::PARAM_INT => $severity[$key],
+                        ];
+                    } else {
+                        $bindSeverity = 'NULL';
+                    }
+                    $insertStr .= '(:trapId,  :value' . $key . ', :regexp' . $key . ', :status' . $key . ', '
+                        . $bindSeverity . ', ' . $i . ')';
+                }
+
+            }
+            if ($insertStr) {
+                $query = "INSERT INTO traps_matching_properties
+                    (trap_id, tmo_string, tmo_regexp, tmo_status, severity_id, tmo_order) VALUES {$insertStr}";
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':trapId', $trapId, PDO::PARAM_INT);
+                if (isset($queryValues)) {
+                    foreach ($queryValues as $bindId => $bindData) {
+                        foreach ($bindData as $bindType => $bindValue) {
+                            $statement->bindValue($bindId, $bindValue, $bindType);
+                        }
+                    }
+                }
+                $statement->execute();
+            }
+        }
     }
 }

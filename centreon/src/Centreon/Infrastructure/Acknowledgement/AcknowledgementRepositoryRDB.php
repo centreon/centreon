@@ -304,6 +304,60 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findOneAcknowledgementForAdminUser(int $acknowledgementId): ?Acknowledgement
+    {
+        // Internal call for an admin user
+        return $this->findOneAcknowledgement($acknowledgementId, true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findOneAcknowledgementForNonAdminUser(int $acknowledgementId): ?Acknowledgement
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return null;
+        }
+
+        // Internal call for non admin user
+        return $this->findOneAcknowledgement($acknowledgementId, false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAcknowledgementsForAdminUser(): array
+    {
+        // Internal call for an admin user
+        return $this->findAcknowledgements(true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAcknowledgementsForNonAdminUser(): array
+    {
+        if ($this->hasNotEnoughRightsToContinue()) {
+            return [];
+        }
+
+        // Internal call for non admin user
+        return $this->findAcknowledgements(false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setContact(ContactInterface $contact): AcknowledgementRepositoryInterface
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
      * Generic function to find acknowledgement.
      *
      * @param int $type Type of acknowledgement
@@ -348,28 +402,6 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
             . 'WHERE ack.service_id ' . (($type === Acknowledgement::TYPE_HOST_ACKNOWLEDGEMENT) ? ' = 0' : ' != 0');
 
         return $this->processListingRequest($request);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findOneAcknowledgementForAdminUser(int $acknowledgementId): ?Acknowledgement
-    {
-        // Internal call for an admin user
-        return $this->findOneAcknowledgement($acknowledgementId, true);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findOneAcknowledgementForNonAdminUser(int $acknowledgementId): ?Acknowledgement
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return null;
-        }
-
-        // Internal call for non admin user
-        return $this->findOneAcknowledgement($acknowledgementId, false);
     }
 
     /**
@@ -418,28 +450,6 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         }
 
         return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAcknowledgementsForAdminUser(): array
-    {
-        // Internal call for an admin user
-        return $this->findAcknowledgements(true);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAcknowledgementsForNonAdminUser(): array
-    {
-        if ($this->hasNotEnoughRightsToContinue()) {
-            return [];
-        }
-
-        // Internal call for non admin user
-        return $this->findAcknowledgements(false);
     }
 
     /**
@@ -492,16 +502,6 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         return ($this->contact !== null)
             ? $this->contact->isAdmin()
             : false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setContact(ContactInterface $contact): AcknowledgementRepositoryInterface
-    {
-        $this->contact = $contact;
-
-        return $this;
     }
 
     /**

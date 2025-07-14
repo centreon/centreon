@@ -55,9 +55,6 @@ class Backend
     /** @var CentreonDBStatement */
     public $stmt_central_poller;
 
-    /** @var Backend|null */
-    private static $_instance = null;
-
     /** @var string */
     public $generate_path = '/var/cache/centreon/config';
 
@@ -74,6 +71,9 @@ class Backend
 
     /** @var CentreonDB|null */
     public $db_cs = null;
+
+    /** @var Backend|null */
+    private static $_instance = null;
 
     /** @var string|null */
     private $tmp_file = null;
@@ -117,28 +117,6 @@ class Backend
         }
 
         return self::$_instance;
-    }
-
-    /**
-     * @param $path
-     *
-     * @return bool
-     */
-    private function deleteDir($path)
-    {
-        if (is_dir($path) === true) {
-            $files = array_diff(scandir($path), ['.', '..']);
-            foreach ($files as $file) {
-                $this->deleteDir(realpath($path) . '/' . $file);
-            }
-
-            return rmdir($path);
-        }
-        if (is_file($path) === true) {
-            return unlink($path);
-        }
-
-        return false;
     }
 
     /**
@@ -312,5 +290,27 @@ class Backend
         }
 
         throw new Exception('Cannot get central poller id');
+    }
+
+    /**
+     * @param $path
+     *
+     * @return bool
+     */
+    private function deleteDir($path)
+    {
+        if (is_dir($path) === true) {
+            $files = array_diff(scandir($path), ['.', '..']);
+            foreach ($files as $file) {
+                $this->deleteDir(realpath($path) . '/' . $file);
+            }
+
+            return rmdir($path);
+        }
+        if (is_file($path) === true) {
+            return unlink($path);
+        }
+
+        return false;
     }
 }

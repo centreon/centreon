@@ -705,6 +705,185 @@ class CentreonLDAP
     }
 
     /**
+     * Set a relation between the LDAP's default contactgroup and the user
+     *
+     * @internal Method needed for the user's manual and auto import from the LDAP
+     * @since 18.10.4
+     *
+     * @param int|null $arId The Id of the chosen LDAP, from which we'll find the default contactgroup
+     * @param int|null $contactId The Id of the contact to be added
+     *
+     * @throws exception
+     * @return bool Return true to the parent if everything goes well. Needed for the method calling it
+     */
+    public function addUserToLdapDefaultCg(?int $arId = null, ?int $contactId = null): bool
+    {
+        $ldapCg = null;
+        try {
+            // Searching the default contactgroup chosen in the ldap configuration
+            $resLdap = $this->db->prepare(
+                'SELECT ari_value FROM auth_ressource_info '
+                . "WHERE ari_name LIKE 'ldap_default_cg' AND ar_id = :arId"
+            );
+            $resLdap->bindValue(':arId', $arId, PDO::PARAM_INT);
+            $resLdap->execute();
+            while ($result = $resLdap->fetch()) {
+                $ldapCg = $result['ari_value'];
+            }
+            unset($resLdap);
+            if (! $ldapCg) {
+                // No default contactgroup was set in the LDAP parameters
+                return true;
+            }
+
+            // Checking if the user isn't already linked to this contactgroup
+            $resCgExist = $this->db->prepare(
+                'SELECT COUNT(*) AS `exist` FROM contactgroup_contact_relation '
+                . 'WHERE contact_contact_id = :contactId '
+                . 'AND contactgroup_cg_id = :ldapCg'
+            );
+            $resCgExist->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+            $resCgExist->bindValue(':ldapCg', $ldapCg, PDO::PARAM_INT);
+            $resCgExist->execute();
+            $row = $resCgExist->fetch();
+            unset($resCgExist);
+            if ($row['exist'] != 0) {
+                // User is already linked to this contactgroup
+                return true;
+            }
+
+            // Inserting the user to the chosen default contactgroup
+            $resCg = $this->db->prepare(
+                'INSERT INTO contactgroup_contact_relation '
+                . '(contactgroup_cg_id, contact_contact_id) '
+                . 'VALUES (:ldapDefaultCg, :contactId)'
+            );
+            $resCg->bindValue(':ldapDefaultCg', $ldapCg, PDO::PARAM_INT);
+            $resCg->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+            $resCg->execute();
+            unset($resCg);
+        } catch (PDOException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Update user's LDAP last sync in the contact table
+     *
+     * @param array<string, mixed> $currentUser User's alias and Id are needed
+     * @throws Exception
+     * @return void
+     */
+    public function setUserCurrentSyncTime(array $currentUser): void
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE contact SET
+               `contact_ldap_last_sync` = :currentTime,
+               `contact_ldap_required_sync` = '0'
+            WHERE contact_id = :contactId"
+        );
+        try {
+            $stmt->bindValue(':currentTime', time(), PDO::PARAM_INT);
+            $stmt->bindValue(':contactId', $currentUser['contact_id'], PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $this->centreonLog->insertLog(
+                3,
+                "LDAP MANUAL SYNC : Failed to update ldap_last_sync's values for " . $currentUser['contact_alias']
+            );
+        }
+    }
+
+    /**
+     * If the option is disabled in the LDAP parameter's form, we don't sync the LDAP user's modifications on login
+     * unless it's required
+     * If it's enabled, we need to wait until the next synchronization
+     *
+     * @param int $arId Id of the current LDAP
+     * @param int $contactId Id the contact
+     * @return bool
+     * @internal Needed on user's login and when manually requesting an update of user's LDAP data
+     */
+    public function isSyncNeededAtLogin(int $arId, int $contactId): bool
+    {
+        try {
+            // checking if an override was manually set on this contact
+            $stmtManualRequest = $this->db->prepare(
+                'SELECT `contact_name`, `contact_ldap_required_sync`, `contact_ldap_last_sync`
+                FROM contact WHERE contact_id = :contactId'
+            );
+            $stmtManualRequest->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+            $stmtManualRequest->execute();
+            $contactData = $stmtManualRequest->fetch();
+            // check if a manual override was set for this user
+            if ($contactData !== false && $contactData['contact_ldap_required_sync'] === '1') {
+                $this->centreonLog->insertLog(
+                    3,
+                    'LDAP AUTH : LDAP synchronization was requested manually for ' . $contactData['contact_name']
+                );
+
+                return true;
+            }
+
+            // getting the synchronization options
+            $stmtSyncState = $this->db->prepare(
+                "SELECT ari_name, ari_value FROM auth_ressource_info
+                WHERE ari_name IN ('ldap_auto_sync', 'ldap_sync_interval')
+                AND ar_id = :arId"
+            );
+            $stmtSyncState->bindValue(':arId', $arId, PDO::PARAM_INT);
+            $stmtSyncState->execute();
+            $syncState = [];
+            while ($row = $stmtSyncState->fetch()) {
+                $syncState[$row['ari_name']] = $row['ari_value'];
+            }
+
+            if ($syncState['ldap_auto_sync'] || $contactData['contact_ldap_last_sync'] === 0) {
+                // getting the base date reference set in the LDAP parameters
+                $stmtLdapBaseSync = $this->db->prepare(
+                    'SELECT ar_sync_base_date AS `referenceDate` FROM auth_ressource
+                    WHERE ar_id = :arId'
+                );
+                $stmtLdapBaseSync->bindValue(':arId', $arId, PDO::PARAM_INT);
+                $stmtLdapBaseSync->execute();
+                $ldapBaseSync = $stmtLdapBaseSync->fetch();
+
+                // checking if the interval between two synchronizations is reached
+                $currentTime = time();
+
+                if (
+                    ($syncState['ldap_sync_interval'] * 3600 + $contactData['contact_ldap_last_sync']) <= $currentTime
+                    && $contactData['contact_ldap_last_sync'] < $ldapBaseSync['referenceDate']
+                ) {
+                    // synchronization is expected
+                    $this->centreonLog->insertLog(
+                        3,
+                        'LDAP AUTH : Updating user DN of ' . $contactData['contact_name']
+                    );
+
+                    return true;
+                }
+            }
+        } catch (PDOException $e) {
+            $this->centreonLog->insertLog(
+                3,
+                'Error while getting automatic synchronization value for LDAP Id : ' . $arId
+            );
+
+            // assuming it needs to be synchronized
+            return true;
+        }
+        $this->centreonLog->insertLog(
+            3,
+            'LDAP AUTH : Synchronization was skipped. For more details, check your LDAP parameters in Administration'
+        );
+
+        return false;
+    }
+
+    /**
      * Load the search information
      *
      * @param null $ldapHostId
@@ -919,185 +1098,6 @@ class CentreonLDAP
         if (preg_match('/(?i:(?<=cn=)).*?(?=,[A-Za-z]{0,2}=|$)/', $dn, $dnArray)) {
             return $dnArray !== [] ? $dnArray[0] : false;
         }
-
-        return false;
-    }
-
-    /**
-     * Set a relation between the LDAP's default contactgroup and the user
-     *
-     * @internal Method needed for the user's manual and auto import from the LDAP
-     * @since 18.10.4
-     *
-     * @param int|null $arId The Id of the chosen LDAP, from which we'll find the default contactgroup
-     * @param int|null $contactId The Id of the contact to be added
-     *
-     * @throws exception
-     * @return bool Return true to the parent if everything goes well. Needed for the method calling it
-     */
-    public function addUserToLdapDefaultCg(?int $arId = null, ?int $contactId = null): bool
-    {
-        $ldapCg = null;
-        try {
-            // Searching the default contactgroup chosen in the ldap configuration
-            $resLdap = $this->db->prepare(
-                'SELECT ari_value FROM auth_ressource_info '
-                . "WHERE ari_name LIKE 'ldap_default_cg' AND ar_id = :arId"
-            );
-            $resLdap->bindValue(':arId', $arId, PDO::PARAM_INT);
-            $resLdap->execute();
-            while ($result = $resLdap->fetch()) {
-                $ldapCg = $result['ari_value'];
-            }
-            unset($resLdap);
-            if (! $ldapCg) {
-                // No default contactgroup was set in the LDAP parameters
-                return true;
-            }
-
-            // Checking if the user isn't already linked to this contactgroup
-            $resCgExist = $this->db->prepare(
-                'SELECT COUNT(*) AS `exist` FROM contactgroup_contact_relation '
-                . 'WHERE contact_contact_id = :contactId '
-                . 'AND contactgroup_cg_id = :ldapCg'
-            );
-            $resCgExist->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-            $resCgExist->bindValue(':ldapCg', $ldapCg, PDO::PARAM_INT);
-            $resCgExist->execute();
-            $row = $resCgExist->fetch();
-            unset($resCgExist);
-            if ($row['exist'] != 0) {
-                // User is already linked to this contactgroup
-                return true;
-            }
-
-            // Inserting the user to the chosen default contactgroup
-            $resCg = $this->db->prepare(
-                'INSERT INTO contactgroup_contact_relation '
-                . '(contactgroup_cg_id, contact_contact_id) '
-                . 'VALUES (:ldapDefaultCg, :contactId)'
-            );
-            $resCg->bindValue(':ldapDefaultCg', $ldapCg, PDO::PARAM_INT);
-            $resCg->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-            $resCg->execute();
-            unset($resCg);
-        } catch (PDOException $e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Update user's LDAP last sync in the contact table
-     *
-     * @param array<string, mixed> $currentUser User's alias and Id are needed
-     * @throws Exception
-     * @return void
-     */
-    public function setUserCurrentSyncTime(array $currentUser): void
-    {
-        $stmt = $this->db->prepare(
-            "UPDATE contact SET
-               `contact_ldap_last_sync` = :currentTime,
-               `contact_ldap_required_sync` = '0'
-            WHERE contact_id = :contactId"
-        );
-        try {
-            $stmt->bindValue(':currentTime', time(), PDO::PARAM_INT);
-            $stmt->bindValue(':contactId', $currentUser['contact_id'], PDO::PARAM_INT);
-            $stmt->execute();
-        } catch (PDOException $e) {
-            $this->centreonLog->insertLog(
-                3,
-                "LDAP MANUAL SYNC : Failed to update ldap_last_sync's values for " . $currentUser['contact_alias']
-            );
-        }
-    }
-
-    /**
-     * If the option is disabled in the LDAP parameter's form, we don't sync the LDAP user's modifications on login
-     * unless it's required
-     * If it's enabled, we need to wait until the next synchronization
-     *
-     * @param int $arId Id of the current LDAP
-     * @param int $contactId Id the contact
-     * @return bool
-     * @internal Needed on user's login and when manually requesting an update of user's LDAP data
-     */
-    public function isSyncNeededAtLogin(int $arId, int $contactId): bool
-    {
-        try {
-            // checking if an override was manually set on this contact
-            $stmtManualRequest = $this->db->prepare(
-                'SELECT `contact_name`, `contact_ldap_required_sync`, `contact_ldap_last_sync`
-                FROM contact WHERE contact_id = :contactId'
-            );
-            $stmtManualRequest->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-            $stmtManualRequest->execute();
-            $contactData = $stmtManualRequest->fetch();
-            // check if a manual override was set for this user
-            if ($contactData !== false && $contactData['contact_ldap_required_sync'] === '1') {
-                $this->centreonLog->insertLog(
-                    3,
-                    'LDAP AUTH : LDAP synchronization was requested manually for ' . $contactData['contact_name']
-                );
-
-                return true;
-            }
-
-            // getting the synchronization options
-            $stmtSyncState = $this->db->prepare(
-                "SELECT ari_name, ari_value FROM auth_ressource_info
-                WHERE ari_name IN ('ldap_auto_sync', 'ldap_sync_interval')
-                AND ar_id = :arId"
-            );
-            $stmtSyncState->bindValue(':arId', $arId, PDO::PARAM_INT);
-            $stmtSyncState->execute();
-            $syncState = [];
-            while ($row = $stmtSyncState->fetch()) {
-                $syncState[$row['ari_name']] = $row['ari_value'];
-            }
-
-            if ($syncState['ldap_auto_sync'] || $contactData['contact_ldap_last_sync'] === 0) {
-                // getting the base date reference set in the LDAP parameters
-                $stmtLdapBaseSync = $this->db->prepare(
-                    'SELECT ar_sync_base_date AS `referenceDate` FROM auth_ressource
-                    WHERE ar_id = :arId'
-                );
-                $stmtLdapBaseSync->bindValue(':arId', $arId, PDO::PARAM_INT);
-                $stmtLdapBaseSync->execute();
-                $ldapBaseSync = $stmtLdapBaseSync->fetch();
-
-                // checking if the interval between two synchronizations is reached
-                $currentTime = time();
-
-                if (
-                    ($syncState['ldap_sync_interval'] * 3600 + $contactData['contact_ldap_last_sync']) <= $currentTime
-                    && $contactData['contact_ldap_last_sync'] < $ldapBaseSync['referenceDate']
-                ) {
-                    // synchronization is expected
-                    $this->centreonLog->insertLog(
-                        3,
-                        'LDAP AUTH : Updating user DN of ' . $contactData['contact_name']
-                    );
-
-                    return true;
-                }
-            }
-        } catch (PDOException $e) {
-            $this->centreonLog->insertLog(
-                3,
-                'Error while getting automatic synchronization value for LDAP Id : ' . $arId
-            );
-
-            // assuming it needs to be synchronized
-            return true;
-        }
-        $this->centreonLog->insertLog(
-            3,
-            'LDAP AUTH : Synchronization was skipped. For more details, check your LDAP parameters in Administration'
-        );
 
         return false;
     }

@@ -378,6 +378,28 @@ class CentreonLog
         return $this;
     }
 
+    // *********************************************** DEPRECATED *****************************************************//
+
+    /**
+     * @param int $id
+     * @param string $str
+     * @param int $print
+     * @param int $page
+     * @param int $option
+     * @return void
+     * @deprecated Instead used {@see CentreonLog::log()}
+     */
+    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
+    {
+        $message = "{$page}|{$option}|{$str}";
+
+        if ($print) {
+            echo $str;
+        }
+
+        $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
+    }
+
     /**
      * @param array $customContext
      * @param Throwable|null $exception
@@ -423,27 +445,5 @@ class CentreonLog
                 $e->getMessage()
             );
         }
-    }
-
-    // *********************************************** DEPRECATED *****************************************************//
-
-    /**
-     * @param int $id
-     * @param string $str
-     * @param int $print
-     * @param int $page
-     * @param int $option
-     * @return void
-     * @deprecated Instead used {@see CentreonLog::log()}
-     */
-    public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
-    {
-        $message = "{$page}|{$option}|{$str}";
-
-        if ($print) {
-            echo $str;
-        }
-
-        $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
 }

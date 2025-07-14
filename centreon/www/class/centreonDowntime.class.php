@@ -676,46 +676,6 @@ class CentreonDowntime
     }
 
     /**
-     * @param int[] $serviceTemplateIds
-     *
-     * @throws PDOException
-     * @return array
-     */
-    private function findServicesByServiceTemplateIds(array $serviceTemplateIds): array
-    {
-        [$bindValues, $subRequest] = $this->createMultipleBindQuery($serviceTemplateIds, ':id_');
-
-        $request = <<<SQL
-                SELECT
-                    h.host_name,
-                    h.host_id,
-                    s.service_id,
-                    s.service_description,
-                    s.service_template_model_stm_id
-                FROM host h
-                LEFT JOIN host_service_relation hsr
-                    ON h.host_id = hsr.host_host_id
-                INNER JOIN service s
-                    ON hsr.service_service_id = s.service_id
-                WHERE
-                    s.service_template_model_stm_id IN ({$subRequest})
-            SQL;
-
-        $statement = $this->db->prepare($request);
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $services = [];
-        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
-            $services[] = $record;
-        }
-
-        return $services;
-    }
-
-    /**
      * Get the list of all downtimes
      *
      * @throws PDOException
@@ -1109,39 +1069,6 @@ class CentreonDowntime
     }
 
     /**
-     * Activate or deactivate a downtime
-     *
-     * @param int|int[] $ids Downtime IDs
-     * @param bool $status 0 Downtime is deactivated, 1 Downtime is activated
-     *
-     * @throws PDOException
-     */
-    private function setActivate(int|array $ids, bool $status): void
-    {
-        if (! is_array($ids)) {
-            $ids = [$ids];
-        }
-        if ($ids === []) {
-            return;
-        }
-
-        [$bindValues, $subRequest] = $this->createMultipleBindQuery($ids, ':id_');
-        $statement = $this->db->prepare(
-            <<<SQL
-                UPDATE downtime
-                    SET dt_activate = :status
-                WHERE dt_id IN ({$subRequest})
-                SQL
-        );
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, PDO::PARAM_INT);
-        }
-        $activate = $status ? '1' : '0';
-        $statement->bindParam(':status', $activate);
-        $statement->execute();
-    }
-
-    /**
      * @param string $field
      * @return array
      */
@@ -1201,6 +1128,79 @@ class CentreonDowntime
         }
 
         return $parameters;
+    }
+
+    /**
+     * @param int[] $serviceTemplateIds
+     *
+     * @throws PDOException
+     * @return array
+     */
+    private function findServicesByServiceTemplateIds(array $serviceTemplateIds): array
+    {
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($serviceTemplateIds, ':id_');
+
+        $request = <<<SQL
+                SELECT
+                    h.host_name,
+                    h.host_id,
+                    s.service_id,
+                    s.service_description,
+                    s.service_template_model_stm_id
+                FROM host h
+                LEFT JOIN host_service_relation hsr
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN service s
+                    ON hsr.service_service_id = s.service_id
+                WHERE
+                    s.service_template_model_stm_id IN ({$subRequest})
+            SQL;
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $services = [];
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $services[] = $record;
+        }
+
+        return $services;
+    }
+
+    /**
+     * Activate or deactivate a downtime
+     *
+     * @param int|int[] $ids Downtime IDs
+     * @param bool $status 0 Downtime is deactivated, 1 Downtime is activated
+     *
+     * @throws PDOException
+     */
+    private function setActivate(int|array $ids, bool $status): void
+    {
+        if (! is_array($ids)) {
+            $ids = [$ids];
+        }
+        if ($ids === []) {
+            return;
+        }
+
+        [$bindValues, $subRequest] = $this->createMultipleBindQuery($ids, ':id_');
+        $statement = $this->db->prepare(
+            <<<SQL
+                UPDATE downtime
+                    SET dt_activate = :status
+                WHERE dt_id IN ({$subRequest})
+                SQL
+        );
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
+        }
+        $activate = $status ? '1' : '0';
+        $statement->bindParam(':status', $activate);
+        $statement->execute();
     }
 
     /**

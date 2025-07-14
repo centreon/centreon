@@ -41,9 +41,6 @@
  */
 class Timeperiod extends AbstractObject
 {
-    /** @var null */
-    private $timeperiods = null;
-
     /** @var string */
     protected $generate_filename = 'timeperiods.cfg';
 
@@ -76,6 +73,9 @@ class Timeperiod extends AbstractObject
     /** @var null[] */
     protected $stmt_extend = ['include' => null, 'exclude' => null];
 
+    /** @var null */
+    private $timeperiods = null;
+
     /**
      * @throws PDOException
      * @return void
@@ -86,6 +86,38 @@ class Timeperiod extends AbstractObject
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->execute();
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param $timeperiod_id
+     *
+     * @throws PDOException
+     * @return mixed|null
+     */
+    public function generateFromTimeperiodId($timeperiod_id)
+    {
+        if (is_null($timeperiod_id)) {
+            return null;
+        }
+        if (is_null($this->timeperiods)) {
+            $this->getTimeperiods();
+        }
+
+        if (! isset($this->timeperiods[$timeperiod_id])) {
+            return null;
+        }
+        if ($this->checkGenerate($timeperiod_id)) {
+            return $this->timeperiods[$timeperiod_id]['timeperiod_name'];
+        }
+
+        $this->timeperiods[$timeperiod_id]['name'] = $this->timeperiods[$timeperiod_id]['timeperiod_name'];
+        $this->getTimeperiodExceptionFromId($timeperiod_id);
+        $this->getTimeperiodExtendFromId($timeperiod_id, 'exclude', 'exclude');
+        $this->getTimeperiodExtendFromId($timeperiod_id, 'include', 'use');
+
+        $this->generateObjectInFile($this->timeperiods[$timeperiod_id], $timeperiod_id);
+
+        return $this->timeperiods[$timeperiod_id]['timeperiod_name'];
     }
 
     /**
@@ -138,37 +170,5 @@ class Timeperiod extends AbstractObject
         foreach ($this->timeperiods[$timeperiod_id][$label . '_cache'] as $period_id) {
             $this->timeperiods[$timeperiod_id][$label][] = $this->generateFromTimeperiodId($period_id);
         }
-    }
-
-    /**
-     * @param $timeperiod_id
-     *
-     * @throws PDOException
-     * @return mixed|null
-     */
-    public function generateFromTimeperiodId($timeperiod_id)
-    {
-        if (is_null($timeperiod_id)) {
-            return null;
-        }
-        if (is_null($this->timeperiods)) {
-            $this->getTimeperiods();
-        }
-
-        if (! isset($this->timeperiods[$timeperiod_id])) {
-            return null;
-        }
-        if ($this->checkGenerate($timeperiod_id)) {
-            return $this->timeperiods[$timeperiod_id]['timeperiod_name'];
-        }
-
-        $this->timeperiods[$timeperiod_id]['name'] = $this->timeperiods[$timeperiod_id]['timeperiod_name'];
-        $this->getTimeperiodExceptionFromId($timeperiod_id);
-        $this->getTimeperiodExtendFromId($timeperiod_id, 'exclude', 'exclude');
-        $this->getTimeperiodExtendFromId($timeperiod_id, 'include', 'use');
-
-        $this->generateObjectInFile($this->timeperiods[$timeperiod_id], $timeperiod_id);
-
-        return $this->timeperiods[$timeperiod_id]['timeperiod_name'];
     }
 }

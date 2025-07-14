@@ -45,6 +45,16 @@ class EntityCreator
     private static $contact;
 
     /**
+     * EntityCreator constructor.
+     *
+     * @param string $className
+     */
+    public function __construct(string $className)
+    {
+        $this->className = $className;
+    }
+
+    /**
      * Create a new object entity based on the given values.
      * Used to create a new object entity with the values found in the database.
      *
@@ -68,16 +78,6 @@ class EntityCreator
     public static function setContact(Contact $contact): void
     {
         self::$contact = $contact;
-    }
-
-    /**
-     * EntityCreator constructor.
-     *
-     * @param string $className
-     */
-    public function __construct(string $className)
-    {
-        $this->className = $className;
     }
 
     /**

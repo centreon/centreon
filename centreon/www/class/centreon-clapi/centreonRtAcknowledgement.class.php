@@ -115,66 +115,6 @@ class CentreonRtAcknowledgement extends CentreonObject
     }
 
     /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    private function parseParameters($parameters)
-    {
-        // Make safe the inputs
-        [$type, $resource, $comment, $sticky, $notify, $persistent] = explode(';', $parameters);
-
-        // Check if object type is supported
-        if (! in_array(strtoupper($type), $this->acknowledgementType)) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        // Check if sticky is 0 or 2
-        if (! preg_match('/^(0|1|2)$/', $sticky)) {
-            throw new CentreonClapiException('Bad sticky parameter (0 or 1/2)');
-        }
-
-        // Check if notify is 0 or 1
-        if (! preg_match('/^(0|1)$/', $notify)) {
-            throw new CentreonClapiException('Bad notify parameter (0 or 1)');
-        }
-
-        // Check if fixed is 0 or 1
-        if (! preg_match('/^(0|1)$/', $persistent)) {
-            throw new CentreonClapiException('Bad persistent parameter (0 or 1)');
-        }
-
-        // Make safe the comment
-        $comment = escapeshellarg($comment);
-
-        return ['type' => $type, 'resource' => $resource, 'comment' => $comment, 'sticky' => $sticky, 'notify' => $notify, 'persistent' => $persistent];
-    }
-
-    /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @return array
-     */
-    private function parseShowParameters($parameters)
-    {
-        $parameters = explode(';', $parameters);
-        if (count($parameters) === 1) {
-            $resource = '';
-        } elseif (count($parameters) === 2) {
-            $resource = $parameters[1];
-        } else {
-            throw new CentreonClapiException('Bad parameters');
-        }
-        $type = $parameters[0];
-
-        return [
-            'type' => $type,
-            'resource' => $resource,
-        ];
-    }
-
-    /**
      * show acknowledgement without option
      *
      * @param null $parameters
@@ -375,6 +315,116 @@ class CentreonRtAcknowledgement extends CentreonObject
     }
 
     /**
+     * @param mixed $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function cancel($parameters = null): void
+    {
+        if (empty($parameters) || is_null($parameters)) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $listAcknowledgement = explode('|', $parameters);
+        $unknownAcknowledgement = [];
+
+        foreach ($listAcknowledgement as $acknowledgement) {
+            [$hostName, $serviceName] = explode(',', $acknowledgement);
+
+            if ($serviceName) {
+                $serviceId = $this->serviceObject->getObjectId($hostName . ';' . $serviceName);
+                if (
+                    $this->rtValidator->isServiceNameValid($hostName, $serviceName)
+                    && $this->object->svcIsAcknowledged($serviceId)
+                ) {
+                    $this->externalCmdObj->deleteAcknowledgement(
+                        'SVC',
+                        [$hostName . ';' . $serviceName => 'on']
+                    );
+                } else {
+                    $unknownAcknowledgement[] = $acknowledgement;
+                }
+            } else {
+                $hostId = $this->hostObject->getHostID($hostName);
+                if ($this->object->hostIsAcknowledged($hostId)) {
+                    $this->externalCmdObj->deleteAcknowledgement(
+                        'HOST',
+                        [$hostName => 'on']
+                    );
+                } else {
+                    $unknownAcknowledgement[] = $acknowledgement;
+                }
+            }
+        }
+
+        if (count($unknownAcknowledgement)) {
+            throw new CentreonClapiException(
+                self::OBJECT_NOT_FOUND . ' OR not acknowledged : ' . implode('|', $unknownAcknowledgement)
+            );
+        }
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    private function parseParameters($parameters)
+    {
+        // Make safe the inputs
+        [$type, $resource, $comment, $sticky, $notify, $persistent] = explode(';', $parameters);
+
+        // Check if object type is supported
+        if (! in_array(strtoupper($type), $this->acknowledgementType)) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        // Check if sticky is 0 or 2
+        if (! preg_match('/^(0|1|2)$/', $sticky)) {
+            throw new CentreonClapiException('Bad sticky parameter (0 or 1/2)');
+        }
+
+        // Check if notify is 0 or 1
+        if (! preg_match('/^(0|1)$/', $notify)) {
+            throw new CentreonClapiException('Bad notify parameter (0 or 1)');
+        }
+
+        // Check if fixed is 0 or 1
+        if (! preg_match('/^(0|1)$/', $persistent)) {
+            throw new CentreonClapiException('Bad persistent parameter (0 or 1)');
+        }
+
+        // Make safe the comment
+        $comment = escapeshellarg($comment);
+
+        return ['type' => $type, 'resource' => $resource, 'comment' => $comment, 'sticky' => $sticky, 'notify' => $notify, 'persistent' => $persistent];
+    }
+
+    /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @return array
+     */
+    private function parseShowParameters($parameters)
+    {
+        $parameters = explode(';', $parameters);
+        if (count($parameters) === 1) {
+            $resource = '';
+        } elseif (count($parameters) === 2) {
+            $resource = $parameters[1];
+        } else {
+            throw new CentreonClapiException('Bad parameters');
+        }
+        $type = $parameters[0];
+
+        return [
+            'type' => $type,
+            'resource' => $resource,
+        ];
+    }
+
+    /**
      * @param $resource
      * @param $comment
      * @param $sticky
@@ -467,56 +517,6 @@ class CentreonRtAcknowledgement extends CentreonObject
         }
         if ($unknownService !== []) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ' SERVICE : ' . implode('|', $unknownService));
-        }
-    }
-
-    /**
-     * @param mixed $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function cancel($parameters = null): void
-    {
-        if (empty($parameters) || is_null($parameters)) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $listAcknowledgement = explode('|', $parameters);
-        $unknownAcknowledgement = [];
-
-        foreach ($listAcknowledgement as $acknowledgement) {
-            [$hostName, $serviceName] = explode(',', $acknowledgement);
-
-            if ($serviceName) {
-                $serviceId = $this->serviceObject->getObjectId($hostName . ';' . $serviceName);
-                if (
-                    $this->rtValidator->isServiceNameValid($hostName, $serviceName)
-                    && $this->object->svcIsAcknowledged($serviceId)
-                ) {
-                    $this->externalCmdObj->deleteAcknowledgement(
-                        'SVC',
-                        [$hostName . ';' . $serviceName => 'on']
-                    );
-                } else {
-                    $unknownAcknowledgement[] = $acknowledgement;
-                }
-            } else {
-                $hostId = $this->hostObject->getHostID($hostName);
-                if ($this->object->hostIsAcknowledged($hostId)) {
-                    $this->externalCmdObj->deleteAcknowledgement(
-                        'HOST',
-                        [$hostName => 'on']
-                    );
-                } else {
-                    $unknownAcknowledgement[] = $acknowledgement;
-                }
-            }
-        }
-
-        if (count($unknownAcknowledgement)) {
-            throw new CentreonClapiException(
-                self::OBJECT_NOT_FOUND . ' OR not acknowledged : ' . implode('|', $unknownAcknowledgement)
-            );
         }
     }
 }

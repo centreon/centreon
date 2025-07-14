@@ -92,80 +92,6 @@ class CentreonACLGroup extends CentreonObject
     }
 
     /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return void
-     */
-    public function initInsertParameters($parameters): void
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < $this->nbOfCompulsoryParams) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $addParams = [];
-        $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
-        $addParams['acl_group_alias'] = $params[self::ORDER_ALIAS];
-        $this->params = array_merge($this->params, $addParams);
-        $this->checkParameters();
-    }
-
-    /**
-     * @param $parameters
-     * @throws CentreonClapiException
-     * @return array
-     */
-    public function initUpdateParameters($parameters)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < self::NB_UPDATE_PARAMS) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            $params[1] = 'acl_group_' . $params[1];
-            $updateParams = [$params[1] => $params[2]];
-            $updateParams['objectId'] = $objectId;
-
-            return $updateParams;
-        }
-
-        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
-    }
-
-    /**
-     * @param null $parameters
-     * @param array $filters
-     *
-     * @throws Exception
-     */
-    public function show($parameters = null, $filters = []): void
-    {
-        $filters = [];
-        if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
-        }
-        $params = ['acl_group_id', 'acl_group_name', 'acl_group_alias', 'acl_group_activate'];
-        $paramString = str_replace('acl_group_', '', implode($this->delim, $params));
-        echo $paramString . "\n";
-        $elements = $this->object->getList(
-            $params,
-            -1,
-            0,
-            null,
-            null,
-            $filters
-        );
-        foreach ($elements as $tab) {
-            $str = '';
-            foreach ($tab as $key => $value) {
-                $str .= $value . $this->delim;
-            }
-            $str = trim($str, $this->delim) . "\n";
-            echo $str;
-        }
-    }
-
-    /**
      * Magic method
      *
      * @param string $name
@@ -274,6 +200,80 @@ class CentreonACLGroup extends CentreonObject
             }
         } else {
             throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return void
+     */
+    public function initInsertParameters($parameters): void
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < $this->nbOfCompulsoryParams) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $addParams = [];
+        $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
+        $addParams['acl_group_alias'] = $params[self::ORDER_ALIAS];
+        $this->params = array_merge($this->params, $addParams);
+        $this->checkParameters();
+    }
+
+    /**
+     * @param $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    public function initUpdateParameters($parameters)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < self::NB_UPDATE_PARAMS) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
+        if ($objectId != 0) {
+            $params[1] = 'acl_group_' . $params[1];
+            $updateParams = [$params[1] => $params[2]];
+            $updateParams['objectId'] = $objectId;
+
+            return $updateParams;
+        }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+    }
+
+    /**
+     * @param null $parameters
+     * @param array $filters
+     *
+     * @throws Exception
+     */
+    public function show($parameters = null, $filters = []): void
+    {
+        $filters = [];
+        if (isset($parameters)) {
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
+        }
+        $params = ['acl_group_id', 'acl_group_name', 'acl_group_alias', 'acl_group_activate'];
+        $paramString = str_replace('acl_group_', '', implode($this->delim, $params));
+        echo $paramString . "\n";
+        $elements = $this->object->getList(
+            $params,
+            -1,
+            0,
+            null,
+            null,
+            $filters
+        );
+        foreach ($elements as $tab) {
+            $str = '';
+            foreach ($tab as $key => $value) {
+                $str .= $value . $this->delim;
+            }
+            $str = trim($str, $this->delim) . "\n";
+            echo $str;
         }
     }
 
