@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,13 +34,15 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
+require_once 'Centreon/Object/Relation/Relation.php';
 
 class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon_Object_Relation
 {
-    protected $relationTable = "servicegroup_relation";
-    protected $firstKey = "servicegroup_sg_id";
-    protected $secondKey = "service_service_id";
+    protected $relationTable = 'servicegroup_relation';
+
+    protected $firstKey = 'servicegroup_sg_id';
+
+    protected $secondKey = 'service_service_id';
 
     /**
      * Used for inserting relation into database
@@ -50,7 +53,7 @@ class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon
     {
         $hgId = $key['hostId'];
         $serviceId = $key['serviceId'];
-        $sql = "INSERT INTO $this->relationTable ($this->firstKey, hostgroup_hg_id, $this->secondKey) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO {$this->relationTable} ({$this->firstKey}, hostgroup_hg_id, {$this->secondKey}) VALUES (?, ?, ?)";
         $this->db->query($sql, [$fkey, $hgId, $serviceId]);
     }
 
@@ -64,14 +67,14 @@ class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon
      */
     public function delete($fkey, $hgId = null, $serviceId = null): void
     {
-        if (isset($fkey) && isset($hgId) && isset($serviceId)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND hostgroup_hg_id = ? AND $this->secondKey = ?";
+        if (isset($fkey, $hgId, $serviceId)) {
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ? AND hostgroup_hg_id = ? AND {$this->secondKey} = ?";
             $args = [$fkey, $hgId, $serviceId];
-        } elseif (isset($hgId) && isset($serviceId)) {
-            $sql = "DELETE FROM $this->relationTable WHERE hostgroup_hg_id = ? AND $this->secondKey = ?";
+        } elseif (isset($hgId, $serviceId)) {
+            $sql = "DELETE FROM {$this->relationTable} WHERE hostgroup_hg_id = ? AND {$this->secondKey} = ?";
             $args = [$hgId, $serviceId];
         } else {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
             $args = [$fkey];
         }
         $this->db->query($sql, $args);
@@ -86,12 +89,13 @@ class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon
      */
     public function getServicegroupIdFromHostIdServiceId($hgId, $serviceId)
     {
-        $sql = "SELECT $this->firstKey FROM $this->relationTable WHERE hostgroup_hg_id = ? AND $this->secondKey = ?";
+        $sql = "SELECT {$this->firstKey} FROM {$this->relationTable} WHERE hostgroup_hg_id = ? AND {$this->secondKey} = ?";
         $result = $this->getResult($sql, [$hgId, $serviceId]);
         $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$this->firstKey];
         }
+
         return $tab;
     }
 
@@ -103,7 +107,7 @@ class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon
      */
     public function getHostGroupIdServiceIdFromServicegroupId($servicegroupId)
     {
-        $sql = "SELECT hostgroup_hg_id, $this->secondKey FROM $this->relationTable WHERE $this->firstKey = ?";
+        $sql = "SELECT hostgroup_hg_id, {$this->secondKey} FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
         $result = $this->getResult($sql, [$servicegroupId]);
         $tab = [];
         $i = 0;
@@ -112,6 +116,7 @@ class Centreon_Object_Relation_Service_Group_Host_Group_Service extends Centreon
             $tab[$i]['service_id'] = $rez[$this->secondKey];
             $i++;
         }
+
         return $tab;
     }
 

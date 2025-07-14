@@ -35,11 +35,9 @@
  *
  */
 
-/*
- * Generate random key for application key
- */
+// Generate random key for application key
 $uniqueKey = md5(uniqid(rand(), true));
-$query = "INSERT INTO `informations` (`key`,`value`) VALUES ('appKey', '$uniqueKey')";
+$query = "INSERT INTO `informations` (`key`,`value`) VALUES ('appKey', '{$uniqueKey}')";
 $pearDB->query($query);
 $query = "INSERT INTO `informations` (`key`,`value`) VALUES ('isRemote', 'no')";
 $pearDB->query($query);
@@ -67,9 +65,7 @@ if ($row
     );
 }
 
-/*
- * fix menu acl when child is checked but its parent is not checked
- */
+// fix menu acl when child is checked but its parent is not checked
 
 // get all acl menu configurations
 $aclTopologies = $pearDB->query('SELECT acl_topo_id FROM acl_topology');
@@ -78,35 +74,35 @@ while ($aclTopology = $aclTopologies->fetch()) {
 
     // get parents of topologies which are at least read only
     $statement = $pearDB->prepare(
-        'SELECT t.topology_page, t.topology_id, t.topology_parent ' .
-        'FROM acl_topology_relations atr, topology t ' .
-        'WHERE acl_topo_id = :topologyId ' .
-        'AND atr.topology_topology_id = t.topology_id ' .
-        'AND atr.access_right IN (1,2) ' // read/write and read only
+        'SELECT t.topology_page, t.topology_id, t.topology_parent '
+        . 'FROM acl_topology_relations atr, topology t '
+        . 'WHERE acl_topo_id = :topologyId '
+        . 'AND atr.topology_topology_id = t.topology_id '
+        . 'AND atr.access_right IN (1,2) ' // read/write and read only
     );
-    $statement->bindParam(':topologyId', $aclTopologyId, \PDO::PARAM_INT);
+    $statement->bindParam(':topologyId', $aclTopologyId, PDO::PARAM_INT);
     $statement->execute();
-    $topologies = $statement->fetchAll(\PDO::FETCH_UNIQUE | \PDO::FETCH_ASSOC);
+    $topologies = $statement->fetchAll(PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
 
     // get missing parent topology relations
     $aclToInsert = [];
     foreach ($topologies as $topologyPage => $topologyParameters) {
-        if (isset($topologyParameters['topology_parent']) &&
-            !isset($topologies[$topologyParameters['topology_parent']]) &&
-            !in_array($topologyParameters['topology_parent'], $aclToInsert)
+        if (isset($topologyParameters['topology_parent'])
+            && ! isset($topologies[$topologyParameters['topology_parent']])
+            && ! in_array($topologyParameters['topology_parent'], $aclToInsert)
         ) {
             if (strlen($topologyPage) === 5) { // level 3
                 $levelOne = substr($topologyPage, 0, 1); // get level 1 from beginning of topology_page
-                if (!isset($aclToInsert[$levelOne])) {
+                if (! isset($aclToInsert[$levelOne])) {
                     $aclToInsert[] = $levelOne;
                 }
                 $levelTwo = substr($topologyPage, 0, 3); // get level 2 from beginning of topology_page
-                if (!isset($aclToInsert[$levelTwo])) {
+                if (! isset($aclToInsert[$levelTwo])) {
                     $aclToInsert[] = $levelTwo;
                 }
             } elseif (strlen($topologyPage) === 3) { // level 2
                 $levelOne = substr($topologyPage, 0, 1); // get level 1 from beginning of topology_page
-                if (!isset($aclToInsert[$levelOne])) {
+                if (! isset($aclToInsert[$levelOne])) {
                     $aclToInsert[] = $levelOne;
                 }
             }
@@ -121,14 +117,14 @@ while ($aclTopology = $aclTopologies->fetch()) {
         }
         $bindedQueries = implode(', ', array_keys($bindedValues));
         $statement = $pearDB->prepare(
-            'INSERT INTO acl_topology_relations(acl_topo_id, topology_topology_id) ' .
-            'SELECT :acl_topology_id, t.topology_id ' .
-            'FROM topology t ' .
-            "WHERE t.topology_page IN ($bindedQueries)"
+            'INSERT INTO acl_topology_relations(acl_topo_id, topology_topology_id) '
+            . 'SELECT :acl_topology_id, t.topology_id '
+            . 'FROM topology t '
+            . "WHERE t.topology_page IN ({$bindedQueries})"
         );
-        $statement->bindValue(":acl_topology_id", (int) $aclTopologyId, \PDO::PARAM_INT);
+        $statement->bindValue(':acl_topology_id', (int) $aclTopologyId, PDO::PARAM_INT);
         foreach ($bindedValues as $bindedIndex => $bindedValue) {
-            $statement->bindValue($bindedIndex, $bindedValue, \PDO::PARAM_INT);
+            $statement->bindValue($bindedIndex, $bindedValue, PDO::PARAM_INT);
         }
         $statement->execute();
     }

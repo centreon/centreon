@@ -22,38 +22,30 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Check;
 
+use Centreon\Domain\Check\Interfaces\CheckServiceInterface;
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
 use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceService;
 use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use JMS\Serializer\Exception\ValidationFailedException;
-use Centreon\Domain\Check\Interfaces\CheckServiceInterface;
-use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 
 class CheckService extends AbstractCentreonService implements CheckServiceInterface
 {
-    /**
-     * @var EngineServiceInterface Used to send external commands to engine.
-     */
+    /** @var EngineServiceInterface used to send external commands to engine */
     private $engineService;
 
-    /**
-     * @var EntityValidator
-     */
+    /** @var EntityValidator */
     private $validator;
 
-    /**
-     * @var MonitoringRepositoryInterface
-     */
+    /** @var MonitoringRepositoryInterface */
     private $monitoringRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

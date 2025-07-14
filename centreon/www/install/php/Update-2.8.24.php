@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2018 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -34,16 +35,14 @@
  *
  */
 
-/*
- * Create tempory table to delete duplicate entries
- */
-$query = 'CREATE TABLE `centreon_acl_new` ( ' .
-    '`group_id` int(11) NOT NULL, ' .
-    '`host_id` int(11) NOT NULL, ' .
-    '`service_id` int(11) DEFAULT NULL, ' .
-    'UNIQUE KEY (`group_id`,`host_id`,`service_id`), ' .
-    'KEY `index1` (`host_id`,`service_id`,`group_id`) ' .
-    ') ENGINE=InnoDB DEFAULT CHARSET=utf8 ';
+// Create tempory table to delete duplicate entries
+$query = 'CREATE TABLE `centreon_acl_new` ( '
+    . '`group_id` int(11) NOT NULL, '
+    . '`host_id` int(11) NOT NULL, '
+    . '`service_id` int(11) DEFAULT NULL, '
+    . 'UNIQUE KEY (`group_id`,`host_id`,`service_id`), '
+    . 'KEY `index1` (`host_id`,`service_id`,`group_id`) '
+    . ') ENGINE=InnoDB DEFAULT CHARSET=utf8 ';
 $pearDBO->query($query);
 
 /**
@@ -55,10 +54,10 @@ while ($i < 120) {
     $i++;
     $result = $pearDB->query($query);
     while ($row = $result->fetchRow()) {
-        if ($row['running'] == "1") {
+        if ($row['running'] == '1') {
             sleep(1);
         } else {
-            break(2);
+            break 2;
         }
     }
 }
@@ -72,9 +71,9 @@ $pearDB->query($query);
 /**
  * Copy data from old table to new table with duplicate entries deletion
  */
-$query = 'INSERT INTO centreon_acl_new (group_id, host_id, service_id) ' .
-    'SELECT group_id, host_id, service_id FROM centreon_acl ' .
-    'GROUP BY group_id, host_id, service_id';
+$query = 'INSERT INTO centreon_acl_new (group_id, host_id, service_id) '
+    . 'SELECT group_id, host_id, service_id FROM centreon_acl '
+    . 'GROUP BY group_id, host_id, service_id';
 $pearDBO->query($query);
 
 /**

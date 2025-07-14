@@ -22,13 +22,11 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Contact;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the contacts.
@@ -39,9 +37,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
     use SqlMultipleBindTrait;
 
-    /**
-     * @var DatabaseConnection
-     */
+    /** @var DatabaseConnection */
     private $db;
 
     /**
@@ -186,7 +182,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         return $contact;
     }
 
-
     /**
      * @inheritDoc
      *
@@ -238,8 +233,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addTopologyRules(Contact $contact): void
     {
-        $topologySubquery =
-            $contact->isAdmin()
+        $topologySubquery
+            = $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
                 FROM `:db`.topology'
             : 'SELECT topology.topology_id, acltr.access_right
@@ -259,8 +254,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                     ON topology.topology_id = acltr.topology_topology_id
                 WHERE contact.contact_id = :contact_id';
 
-        $request =
-            'SELECT topology.topology_name, topology.topology_page,
+        $request
+            = 'SELECT topology.topology_name, topology.topology_page,
                     topology.topology_parent, access.access_right
             FROM `:db`.topology
             LEFT JOIN (' . $topologySubquery . ') AS access
@@ -281,7 +276,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         while ($row = $prepare->fetch(\PDO::FETCH_ASSOC)) {
             $topologies[$row['topology_page']] = [
                 'name' => $row['topology_name'],
-                'right' => (int) $row['access_right']
+                'right' => (int) $row['access_right'],
             ];
             if ($row['access_right'] !== null) {
                 $rightsCounter++;
@@ -351,8 +346,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addActionRules(Contact $contact): void
     {
-        $request =
-            'SELECT DISTINCT rules.acl_action_name
+        $request
+            = 'SELECT DISTINCT rules.acl_action_name
             FROM `:db`.contact contact
             LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                 ON cgcr.contact_contact_id = contact.contact_id
@@ -432,11 +427,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function createContact(array $contact): Contact
     {
-        $contactTimezoneName = !empty($contact['timezone_name'])
+        $contactTimezoneName = ! empty($contact['timezone_name'])
             ? $contact['timezone_name']
             : $this->getDefaultTimezone();
 
-        $contactLocale = !empty($contact['contact_lang'])
+        $contactLocale = ! empty($contact['contact_lang'])
             ? $this->parseLocaleFromContactLang($contact['contact_lang'])
             : null;
 
@@ -448,7 +443,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 (int) $contact['default_page'],
                 (bool) $contact['is_react']
             );
-            if (!empty($contact['topology_url_opt'])) {
+            if (! empty($contact['topology_url_opt'])) {
                 $page->setUrlOptions($contact['topology_url_opt']);
             }
         }
@@ -550,6 +545,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
+                // no break
             case 'create_edit_poller_cfg':
                 $contact->addRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG);
                 break;

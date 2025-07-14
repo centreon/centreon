@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -45,15 +46,15 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonConfigurationChange.class.php";
-require_once "centreonACL.class.php";
-require_once "Centreon/Object/Service/Group.php";
-require_once "Centreon/Object/Relation/Host/Service.php";
-require_once "Centreon/Object/Relation/Host/Group/Service/Service.php";
-require_once "Centreon/Object/Relation/Service/Group/Service.php";
-require_once "Centreon/Object/Relation/Service/Group/Host/Group/Service.php";
-require_once "Centreon/Object/Dependency/DependencyServicegroupParent.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonConfigurationChange.class.php';
+require_once 'centreonACL.class.php';
+require_once 'Centreon/Object/Service/Group.php';
+require_once 'Centreon/Object/Relation/Host/Service.php';
+require_once 'Centreon/Object/Relation/Host/Group/Service/Service.php';
+require_once 'Centreon/Object/Relation/Service/Group/Service.php';
+require_once 'Centreon/Object/Relation/Service/Group/Host/Group/Service.php';
+require_once 'Centreon/Object/Dependency/DependencyServicegroupParent.php';
 
 /**
  * Class
@@ -66,7 +67,7 @@ class CentreonServiceGroup extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
-    public const INVALID_GEO_COORDS = "Invalid geo coords";
+    public const INVALID_GEO_COORDS = 'Invalid geo coords';
 
     /** @var string[] */
     public static $aDepends = ['HOST', 'SERVICE'];
@@ -85,9 +86,9 @@ class CentreonServiceGroup extends CentreonObject
         $this->params = ['sg_activate' => '1'];
         $this->insertParams = ['sg_name', 'sg_alias'];
         $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
-        $this->action = "SG";
+        $this->action = 'SG';
         $this->nbOfCompulsoryParams = count($this->insertParams);
-        $this->activateField = "sg_activate";
+        $this->activateField = 'sg_activate';
     }
 
     /**
@@ -100,10 +101,10 @@ class CentreonServiceGroup extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
         $params = ['sg_id', 'sg_name', 'sg_alias'];
-        $paramString = str_replace("sg_", "", implode($this->delim, $params));
+        $paramString = str_replace('sg_', '', implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
             $params,
@@ -125,9 +126,9 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -160,49 +161,47 @@ class CentreonServiceGroup extends CentreonObject
         if (($objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) != 0) {
             $listParam = explode('|', $params[1]);
             $exportedFields = [];
-            $resultString = "";
+            $resultString = '';
             foreach ($listParam as $paramSearch) {
-                $paramString = !$paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
+                $paramString = ! $paramString ? $paramSearch : $paramString . $this->delim . $paramSearch;
                 $field = $paramSearch;
-                if (!in_array($field, $authorizeParam)) {
+                if (! in_array($field, $authorizeParam)) {
                     $unknownParam[] = $field;
                 } else {
                     switch ($paramSearch) {
-                        case "geo_coords":
+                        case 'geo_coords':
                             break;
                         default:
-                            if (!preg_match("/^sg_/", $paramSearch)) {
-                                $field = "sg_" . $paramSearch;
+                            if (! preg_match('/^sg_/', $paramSearch)) {
+                                $field = 'sg_' . $paramSearch;
                             }
                             break;
                     }
 
-
                     $ret = $this->object->getParameters($objectId, $field);
                     $ret = $ret[$field];
 
-                    if (!isset($exportedFields[$paramSearch])) {
+                    if (! isset($exportedFields[$paramSearch])) {
                         $resultString .= $this->csvEscape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
             }
         } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
         }
 
         if ($unknownParam !== []) {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . implode('|', $unknownParam));
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . implode('|', $unknownParam));
         }
         echo implode(';', array_unique(explode(';', $paramString))) . "\n";
         echo substr($resultString, 0, -1) . "\n";
     }
 
-
     /**
      * @param $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters)
     {
@@ -213,20 +212,21 @@ class CentreonServiceGroup extends CentreonObject
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
-            if (!preg_match("/^sg_/", $params[1]) && $params[1] != "geo_coords") {
-                $params[1] = "sg_" . $params[1];
-            } elseif ($params[1] === "geo_coords") {
-                if (!CentreonUtils::validateGeoCoords($params[2])) {
+            if (! preg_match('/^sg_/', $params[1]) && $params[1] != 'geo_coords') {
+                $params[1] = 'sg_' . $params[1];
+            } elseif ($params[1] === 'geo_coords') {
+                if (! CentreonUtils::validateGeoCoords($params[2])) {
                     throw new CentreonClapiException(self::INVALID_GEO_COORDS);
                 }
             }
 
             $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
+
             return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
         }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
     }
 
     /**
@@ -238,55 +238,55 @@ class CentreonServiceGroup extends CentreonObject
      */
     public function __call($name, $arg)
     {
-        /* Get the method name */
+        // Get the method name
         $name = strtolower($name);
-        /* Get the action and the object */
-        if (preg_match("/^(get|add|del|set)(service|hostgroupservice)\$/", $name, $matches)) {
-            /* Parse arguments */
-            if (!isset($arg[0])) {
+        // Get the action and the object
+        if (preg_match('/^(get|add|del|set)(service|hostgroupservice)$/', $name, $matches)) {
+            // Parse arguments
+            if (! isset($arg[0])) {
                 throw new CentreonClapiException(self::MISSINGPARAMETER);
             }
             $args = explode($this->delim, $arg[0]);
             $sgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-            if (!count($sgIds)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
+            if (! count($sgIds)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
             }
             $sgId = $sgIds[0];
 
-            if ($matches[2] == "service") {
+            if ($matches[2] == 'service') {
                 $relobj = new Centreon_Object_Relation_Service_Group_Service($this->dependencyInjector);
                 $obj = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
                 $existingRelationIds = $relobj->getHostIdServiceIdFromServicegroupId($sgId);
-                $hstring = "host_id";
+                $hstring = 'host_id';
             } else {
                 $relobj = new Centreon_Object_Relation_Service_Group_Host_Group_Service($this->dependencyInjector);
                 $obj = new Centreon_Object_Relation_Host_Group_Service($this->dependencyInjector);
                 $existingRelationIds = $relobj->getHostGroupIdServiceIdFromServicegroupId($sgId);
-                $hstring = "hostgroup_id";
+                $hstring = 'hostgroup_id';
             }
-            if ($matches[1] == "get") {
-                if ($matches[2] == "service") {
-                    echo "host id" . $this->delim
-                        . "host name" . $this->delim
-                        . "service id" . $this->delim
+            if ($matches[1] == 'get') {
+                if ($matches[2] == 'service') {
+                    echo 'host id' . $this->delim
+                        . 'host name' . $this->delim
+                        . 'service id' . $this->delim
                         . "service description\n";
-                } elseif ($matches[2] == "hostgroupservice") {
-                    echo "hostgroup id" . $this->delim
-                        . "hostgroup name" . $this->delim
-                        . "service id" . $this->delim
+                } elseif ($matches[2] == 'hostgroupservice') {
+                    echo 'hostgroup id' . $this->delim
+                        . 'hostgroup name' . $this->delim
+                        . 'service id' . $this->delim
                         . "service description\n";
                 }
                 foreach ($existingRelationIds as $val) {
-                    if ($matches[2] == "service") {
+                    if ($matches[2] == 'service') {
                         $elements = $obj->getMergedParameters(
                             ['host_name', 'host_id'],
                             ['service_description', 'service_id'],
                             -1,
                             0,
-                            "host_name,service_description",
-                            "ASC",
-                            ["service_id" => $val['service_id'], "host_id" => $val['host_id']],
-                            "AND"
+                            'host_name,service_description',
+                            'ASC',
+                            ['service_id' => $val['service_id'], 'host_id' => $val['host_id']],
+                            'AND'
                         );
                         if (isset($elements[0])) {
                             echo $elements[0]['host_id'] . $this->delim
@@ -300,10 +300,10 @@ class CentreonServiceGroup extends CentreonObject
                             ['service_description', 'service_id'],
                             -1,
                             0,
-                            "hg_name,service_description",
-                            "ASC",
-                            ["service_id" => $val['service_id'], "hg_id" => $val['hostgroup_id']],
-                            "AND"
+                            'hg_name,service_description',
+                            'ASC',
+                            ['service_id' => $val['service_id'], 'hg_id' => $val['hostgroup_id']],
+                            'AND'
                         );
                         if (isset($elements[0])) {
                             echo $elements[0]['hg_id'] . $this->delim
@@ -314,7 +314,7 @@ class CentreonServiceGroup extends CentreonObject
                     }
                 }
             } else {
-                if (!isset($args[1])) {
+                if (! isset($args[1])) {
                     throw new CentreonClapiException(self::MISSINGPARAMETER);
                 }
 
@@ -323,15 +323,15 @@ class CentreonServiceGroup extends CentreonObject
                 $previousPollerIds = $centreonConfig->findPollersForConfigChangeFlagFromHostIds($hostIds);
 
                 $relation = $args[1];
-                $relations = explode("|", $relation);
+                $relations = explode('|', $relation);
                 $relationTable = [];
                 $i = 0;
                 foreach ($relations as $rel) {
-                    $tmp = explode(",", $rel);
+                    $tmp = explode(',', $rel);
                     if (count($tmp) < 2) {
                         throw new CentreonClapiException(self::MISSINGPARAMETER);
                     }
-                    if ($matches[2] == "service") {
+                    if ($matches[2] == 'service') {
                         $elements = $obj->getMergedParameters(
                             ['host_id'],
                             ['service_id'],
@@ -339,15 +339,15 @@ class CentreonServiceGroup extends CentreonObject
                             0,
                             null,
                             null,
-                            ["host_name" => $tmp[0], "service_description" => $tmp[1]],
-                            "AND"
+                            ['host_name' => $tmp[0], 'service_description' => $tmp[1]],
+                            'AND'
                         );
-                        if (!count($elements)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $tmp[0] . "/" . $tmp[1]);
+                        if (! count($elements)) {
+                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $tmp[0] . '/' . $tmp[1]);
                         }
                         $relationTable[$i]['host_id'] = $elements[0]['host_id'];
                         $relationTable[$i]['service_id'] = $elements[0]['service_id'];
-                    } elseif ($matches[2] == "hostgroupservice") {
+                    } elseif ($matches[2] == 'hostgroupservice') {
                         $elements = $obj->getMergedParameters(
                             ['hg_id'],
                             ['service_id'],
@@ -355,31 +355,31 @@ class CentreonServiceGroup extends CentreonObject
                             0,
                             null,
                             null,
-                            ["hg_name" => $tmp[0], "service_description" => $tmp[1]],
-                            "AND"
+                            ['hg_name' => $tmp[0], 'service_description' => $tmp[1]],
+                            'AND'
                         );
-                        if (!count($elements)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $tmp[0] . "/" . $tmp[1]);
+                        if (! count($elements)) {
+                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $tmp[0] . '/' . $tmp[1]);
                         }
                         $relationTable[$i]['hostgroup_id'] = $elements[0]['hg_id'];
                         $relationTable[$i]['service_id'] = $elements[0]['service_id'];
                     }
                     $i++;
                 }
-                if ($matches[1] == "set") {
+                if ($matches[1] == 'set') {
                     foreach ($existingRelationIds as $key => $existrel) {
                         $relobj->delete($sgId, $existrel[$hstring], $existrel['service_id']);
                         unset($existingRelationIds[$key]);
                     }
                 }
                 foreach ($relationTable as $relation) {
-                    if ($matches[1] == "del") {
+                    if ($matches[1] == 'del') {
                         $relobj->delete($sgId, $relation[$hstring], $relation['service_id']);
-                    } elseif ($matches[1] == "add" || $matches[1] == "set") {
+                    } elseif ($matches[1] == 'add' || $matches[1] == 'set') {
                         $insert = true;
                         foreach ($existingRelationIds as $existrel) {
-                            if (($existrel[$hstring] == $relation[$hstring]) &&
-                                $existrel['service_id'] == $relation['service_id']) {
+                            if (($existrel[$hstring] == $relation[$hstring])
+                                && $existrel['service_id'] == $relation['service_id']) {
                                 $insert = false;
                                 break;
                             }
@@ -408,8 +408,8 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function add($parameters): void
     {
@@ -428,8 +428,8 @@ class CentreonServiceGroup extends CentreonObject
      * Must delete services as well
      *
      * @param string $objectName
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function del($objectName): void
     {
@@ -453,13 +453,13 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param $parameters
      *
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function setParam($parameters = []): void
     {
-        $params = method_exists($this, "initUpdateParameters") ? $this->initUpdateParameters($parameters) : $parameters;
-        if (!empty($params)) {
+        $params = method_exists($this, 'initUpdateParameters') ? $this->initUpdateParameters($parameters) : $parameters;
+        if (! empty($params)) {
             $servicegroupId = $params['objectId'];
 
             $centreonConfig = new CentreonConfigurationChange($this->dependencyInjector['configuration_db']);
@@ -479,8 +479,8 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param $objectName
      *
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function enable($objectName): void
     {
@@ -497,8 +497,8 @@ class CentreonServiceGroup extends CentreonObject
     /**
      * @param $objectName
      *
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function disable($objectName): void
     {
@@ -519,18 +519,18 @@ class CentreonServiceGroup extends CentreonObject
      *
      * @param null $filterName
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function export($filterName = null)
     {
-        if (!parent::export($filterName)) {
+        if (! parent::export($filterName)) {
             return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
         $filters = [];
-        if (!is_null($filterName)) {
+        if (! is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
 
@@ -557,16 +557,16 @@ class CentreonServiceGroup extends CentreonObject
                     ['service_description'],
                     -1,
                     0,
-                    "host_name,service_description",
-                    "ASC",
-                    ["service_id" => $val['service_id'], "host_id" => $val['host_id']],
-                    "AND"
+                    'host_name,service_description',
+                    'ASC',
+                    ['service_id' => $val['service_id'], 'host_id' => $val['host_id']],
+                    'AND'
                 );
                 foreach ($elements as $element) {
                     echo $this->action . $this->delim
-                        . "addservice" . $this->delim
+                        . 'addservice' . $this->delim
                         . $sgName . $this->delim
-                        . $element['host_name'] . "," . $element['service_description'] . "\n";
+                        . $element['host_name'] . ',' . $element['service_description'] . "\n";
                 }
             }
             $existingRelationIds = $relobjHgSvc->getHostGroupIdServiceIdFromServicegroupId($sgId);
@@ -578,14 +578,14 @@ class CentreonServiceGroup extends CentreonObject
                     0,
                     null,
                     null,
-                    ["hg_id" => $val['hostgroup_id'], "service_id" => $val['service_id']],
-                    "AND"
+                    ['hg_id' => $val['hostgroup_id'], 'service_id' => $val['service_id']],
+                    'AND'
                 );
                 foreach ($elements as $element) {
                     echo $this->action . $this->delim
-                        . "addhostgroupservice" . $this->delim
+                        . 'addhostgroupservice' . $this->delim
                         . $sgName . $this->delim
-                        . $element['hg_name'] . "," . $element['service_description'] . "\n";
+                        . $element['hg_name'] . ',' . $element['service_description'] . "\n";
                 }
             }
         }

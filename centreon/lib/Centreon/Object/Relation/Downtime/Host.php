@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,9 +34,9 @@
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
-require_once "Centreon/Object/Downtime/Downtime.php";
-require_once "Centreon/Object/Host/Host.php";
+require_once 'Centreon/Object/Relation/Relation.php';
+require_once 'Centreon/Object/Downtime/Downtime.php';
+require_once 'Centreon/Object/Host/Host.php';
 
 /**
  * Class
@@ -44,24 +45,27 @@ require_once "Centreon/Object/Host/Host.php";
  */
 class Centreon_Object_Relation_Downtime_Host extends Centreon_Object_Relation
 {
-
     /** @var Centreon_Object_Downtime */
     public $firstObject;
+
     /** @var Centreon_Object_Host */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "downtime_host_relation";
+    protected $relationTable = 'downtime_host_relation';
+
     /** @var string */
-    protected $firstKey = "dt_id";
+    protected $firstKey = 'dt_id';
+
     /** @var string */
-    protected $secondKey = "host_host_id";
+    protected $secondKey = 'host_host_id';
 
     /**
      * Centreon_Object_Relation_Downtime_Host constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Downtime($dependencyInjector);

@@ -32,4 +32,3 @@ interface UUIDGeneratorInterface
      */
     public function generateV4(): string;
 }
-

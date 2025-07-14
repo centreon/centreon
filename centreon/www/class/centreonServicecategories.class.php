@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -83,21 +83,21 @@ class CentreonServicecategories
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
         $items = [];
 
-        # get list of authorized service categories
-        if (!$centreon->user->access->admin) {
+        // get list of authorized service categories
+        if (! $centreon->user->access->admin) {
             $scAcl = $centreon->user->access->getServiceCategories();
         }
 
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $multiValues = explode(',', $v);
                 foreach ($multiValues as $item) {
@@ -106,7 +106,7 @@ class CentreonServicecategories
             }
         }
 
-        # get list of selected service categories
+        // get list of selected service categories
         $query = 'SELECT sc_id, sc_name FROM service_categories '
             . 'WHERE sc_id IN ('
             . (count($queryValues) ? implode(',', array_keys($queryValues)) : '""')
@@ -121,9 +121,9 @@ class CentreonServicecategories
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            # hide unauthorized service categories
+            // hide unauthorized service categories
             $hide = false;
-            if (!$centreon->user->access->admin && count($scAcl) && !in_array($row['sc_id'], array_keys($scAcl))) {
+            if (! $centreon->user->access->admin && count($scAcl) && ! in_array($row['sc_id'], array_keys($scAcl))) {
                 $hide = true;
             }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,17 +21,16 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use ConfigGenerateRemote\Command;
 use ConfigGenerateRemote\Contact;
 use ConfigGenerateRemote\ContactGroup;
 use ConfigGenerateRemote\MacroService;
 use ConfigGenerateRemote\Media;
-use ConfigGenerateRemote\TimePeriod;
-use ConfigGenerateRemote\ServiceTemplate;
-use ConfigGenerateRemote\Trap;
-use ConfigGenerateRemote\Relations\ContactServiceRelation;
 use ConfigGenerateRemote\Relations\ContactGroupServiceRelation;
+use ConfigGenerateRemote\Relations\ContactServiceRelation;
+use ConfigGenerateRemote\ServiceTemplate;
+use ConfigGenerateRemote\TimePeriod;
+use ConfigGenerateRemote\Trap;
 
 /**
  * Class
@@ -42,6 +42,7 @@ abstract class AbstractService extends AbstractObject
 {
     /** @var array */
     protected $serviceCache;
+
     /** @var string */
     protected $attributesSelect = '
         service_id,
@@ -74,16 +75,22 @@ abstract class AbstractService extends AbstractObject
         graph_id,
         service_acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributesWrite = ['service_id', 'service_template_model_stm_id', 'command_command_id', 'command_command_id_arg', 'timeperiod_tp_id', 'timeperiod_tp_id2', 'command_command_id2', 'command_command_id_arg2', 'service_description', 'service_alias', 'display_name', 'service_is_volatile', 'service_max_check_attempts', 'service_normal_check_interval', 'service_retry_check_interval', 'service_active_checks_enabled', 'service_passive_checks_enabled', 'service_event_handler_enabled', 'service_notification_interval', 'service_notification_options', 'service_notifications_enabled', 'service_register', 'service_acknowledgement_timeout'];
+
     /** @var array */
     protected $loopStpl = []; // To be reset
+
     /** @var null */
     protected $stmtMacro = null;
+
     /** @var null */
     protected $stmtStpl = null;
+
     /** @var null */
     protected $stmtContact = null;
+
     /** @var null */
     protected $stmtService = null;
 
@@ -103,15 +110,10 @@ abstract class AbstractService extends AbstractObject
             'esi_action_url' => $service['esi_action_url'],
             'esi_icon_image' => $service['esi_icon_image'],
             'esi_icon_image_alt' => $service['esi_icon_image_alt'],
-            'graph_id' => $service['graph_id']
+            'graph_id' => $service['graph_id'],
         ];
 
-        unset($service['esi_notes']);
-        unset($service['esi_notes_url']);
-        unset($service['esi_action_url']);
-        unset($service['esi_icon_image']);
-        unset($service['esi_icon_image_alt']);
-        unset($service['graph_id']);
+        unset($service['esi_notes'], $service['esi_notes_url'], $service['esi_action_url'], $service['esi_icon_image'], $service['esi_icon_image_alt'], $service['graph_id']);
 
         return $extendedInformation;
     }
@@ -132,7 +134,7 @@ abstract class AbstractService extends AbstractObject
      * Get service linked macros
      *
      * @param array $service
-     * @return integer
+     * @return int
      */
     protected function getMacros(array &$service): int
     {
@@ -142,6 +144,7 @@ abstract class AbstractService extends AbstractObject
 
         $service['macros'] = MacroService::getInstance($this->dependencyInjector)
             ->getServiceMacroByServiceId($service['service_id']);
+
         return 0;
     }
 
@@ -193,7 +196,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getContactGroups(array &$service): void
     {
-        $cg = Contactgroup::getInstance($this->dependencyInjector);
+        $cg = ContactGroup::getInstance($this->dependencyInjector);
         $service['contact_groups_cache'] = $cg->getCgForService($service['service_id']);
         foreach ($service['contact_groups_cache'] as $cgId) {
             $cg->generateFromCgId($cgId);
@@ -207,12 +210,13 @@ abstract class AbstractService extends AbstractObject
      *
      * @param array $service
      * @param string $commandIdLabel
-     * @return integer
+     * @return int
      */
     protected function getServiceCommand(array &$service, string $commandIdLabel): int
     {
         Command::getInstance($this->dependencyInjector)
             ->generateFromCommandId($service[$commandIdLabel]);
+
         return 0;
     }
 
@@ -236,7 +240,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getServicePeriods(array &$service)
     {
-        $period = Timeperiod::getInstance($this->dependencyInjector);
+        $period = TimePeriod::getInstance($this->dependencyInjector);
         $period->generateFromTimeperiodId($service['timeperiod_tp_id']);
         $period->generateFromTimeperiodId($service['timeperiod_tp_id2']);
     }
@@ -244,7 +248,7 @@ abstract class AbstractService extends AbstractObject
     /**
      * Get service attribute
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @param string $attr
      * @return string|null
      */

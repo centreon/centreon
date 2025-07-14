@@ -57,7 +57,7 @@ class FindConnectorsPresenter extends AbstractPresenter implements FindConnector
                     'command_line' => $connector->commandLine,
                     'description' => $this->emptyStringAsNull($connector->description),
                     'commands' => array_map(
-                        fn(array $command) => [
+                        fn (array $command) => [
                             'id' => $command['id'],
                             'type' => CommandTypeConverter::toInt($command['type']),
                             'name' => $command['name'],

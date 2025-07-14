@@ -37,25 +37,25 @@
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 
-ini_set("display_errors", "Off");
+ini_set('display_errors', 'Off');
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
-require_once realpath(__DIR__ . "/../../../../../bootstrap.php");
-require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
-require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/common-Func.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
+require_once realpath(__DIR__ . '/../../../../../bootstrap.php');
+require_once _CENTREON_PATH_ . 'www/include/configuration/configGenerate/DB-Func.php';
+require_once _CENTREON_PATH_ . 'www/include/configuration/configGenerate/common-Func.php';
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonContactgroup.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonACL.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 
 global $dependencyInjector;
 global $pearDB;
 
-$pearDB = $dependencyInjector["configuration_db"];
+$pearDB = $dependencyInjector['configuration_db'];
 
 $xml = new CentreonXML();
 $okMsg = "<b><font color='green'>OK</font></b>";
@@ -72,13 +72,13 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
     $contactService = $container->get(ContactServiceInterface::class);
     $contact = $contactService->findByAuthenticationToken($_SERVER['HTTP_X_AUTH_TOKEN']);
     if ($contact === null) {
-        $xml->startElement("response");
-        $xml->writeElement("status", $nokMsg);
-        $xml->writeElement("statuscode", 1);
-        $xml->writeElement("error", 'Contact not found');
+        $xml->startElement('response');
+        $xml->writeElement('status', $nokMsg);
+        $xml->writeElement('statuscode', 1);
+        $xml->writeElement('error', 'Contact not found');
         $xml->endElement();
 
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             header('Content-Type: application/xml');
             header('Cache-Control: no-cache');
             header('Expires: 0');
@@ -86,6 +86,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         }
 
         $xml->output();
+
         exit();
     }
     $centreon = new Centreon([
@@ -100,23 +101,25 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         'contact_location' => null,
         'reach_api' => $contact->hasAccessToApiConfiguration(),
         'reach_api_rt' => $contact->hasAccessToApiRealTime(),
-        'show_deprecated_pages' => false
+        'show_deprecated_pages' => false,
     ]);
 } else {
-    /* Check Session */
+    // Check Session
     CentreonSession::start(1);
-    if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-        print "Bad Session";
+    if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+        echo 'Bad Session';
+
         exit();
     }
     $centreon = $_SESSION['centreon'];
-    if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
-        print "You are not allowed to generate configuration";
+    if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+        echo 'You are not allowed to generate configuration';
+
         exit();
     }
 }
 
-if (!isset($_POST['poller']) || !isset($_POST['debug'])) {
+if (! isset($_POST['poller']) || ! isset($_POST['debug'])) {
     exit();
 }
 
@@ -124,11 +127,11 @@ if (!isset($_POST['poller']) || !isset($_POST['debug'])) {
 global $generatePhpErrors;
 $generatePhpErrors = [];
 
-$path = _CENTREON_PATH_ . "www/include/configuration/configGenerate/";
-$nagiosCFGPath = _CENTREON_CACHEDIR_ . "/config/engine/";
-$centreonBrokerPath = _CENTREON_CACHEDIR_ . "/config/broker/";
+$path = _CENTREON_PATH_ . 'www/include/configuration/configGenerate/';
+$nagiosCFGPath = _CENTREON_CACHEDIR_ . '/config/engine/';
+$centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
-chdir(_CENTREON_PATH_ . "www");
+chdir(_CENTREON_PATH_ . 'www');
 $username = 'unknown';
 if (isset($centreon->user->name)) {
     $username = $centreon->user->name;
@@ -136,8 +139,8 @@ if (isset($centreon->user->name)) {
 $config_generate = new Generate($dependencyInjector);
 
 $pollers = explode(',', $_POST['poller']);
-$debug = ($_POST['debug'] == "true") ? 1 : 0;
-$generate = ($_POST['generate'] == "true") ? 1 : 0;
+$debug = ($_POST['debug'] == 'true') ? 1 : 0;
+$generate = ($_POST['generate'] == 'true') ? 1 : 0;
 
 $ret = [];
 $ret['host'] = $pollers;
@@ -150,7 +153,7 @@ $ret['debug'] = $debug;
  */
 $log_error = function ($errno, $errstr, $errfile, $errline) {
     global $generatePhpErrors;
-    if (!(error_reporting() && $errno)) {
+    if (! (error_reporting() && $errno)) {
         return;
     }
 
@@ -166,13 +169,14 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
             $generatePhpErrors[] = ['warning', $errstr];
             break;
     }
+
     return true;
 };
 
 // Set new error handler
 set_error_handler($log_error);
 
-$xml->startElement("response");
+$xml->startElement('response');
 try {
     $tabs = [];
     if ($generate) {
@@ -203,12 +207,12 @@ try {
         $statusMsg = $nokMsg;
     }
 
-    $xml->writeElement("status", $statusMsg);
-    $xml->writeElement("statuscode", $statusCode);
+    $xml->writeElement('status', $statusMsg);
+    $xml->writeElement('statuscode', $statusCode);
 } catch (Exception $e) {
-    $xml->writeElement("status", $nokMsg);
-    $xml->writeElement("statuscode", 1);
-    $xml->writeElement("error", $e->getMessage());
+    $xml->writeElement('status', $nokMsg);
+    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('error', $e->getMessage());
 }
 
 // Restore default error handler
@@ -227,7 +231,7 @@ foreach ($generatePhpErrors as $error) {
 }
 $xml->endElement();
 
-if (!headers_sent()) {
+if (! headers_sent()) {
     header('Content-Type: application/xml');
     header('Cache-Control: no-cache');
     header('Expires: 0');

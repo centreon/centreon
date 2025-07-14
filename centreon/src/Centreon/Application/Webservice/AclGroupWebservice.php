@@ -22,10 +22,10 @@
 namespace Centreon\Application\Webservice;
 
 use Centreon\Application\DataRepresenter;
-use Centreon\ServiceProvider;
+use Centreon\Application\Serializer;
 use Centreon\Domain\Repository\AclGroupRepository;
 use Centreon\Infrastructure\Webservice;
-use Centreon\Application\Serializer;
+use Centreon\ServiceProvider;
 
 /**
  * @OA\Tag(name="centreon_acl_group", description="Web Service for ACL Groups")
@@ -36,7 +36,7 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     use Webservice\DependenciesTrait;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getName(): string
     {
@@ -44,7 +44,7 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      * @return array<int,string>
      */
     public static function dependencies(): array
@@ -137,14 +137,12 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
      *
      * Get a list of ACL groups
      *
-     * @return DataRepresenter\Response
      * @throws \RestBadRequestException
+     * @return DataRepresenter\Response
      */
     public function getList(): DataRepresenter\Response
     {
-        /*
-         * process request
-         */
+        // process request
         $request = $this->query();
 
         $limit = isset($request['limit']) ? (int) $request['limit'] : null;

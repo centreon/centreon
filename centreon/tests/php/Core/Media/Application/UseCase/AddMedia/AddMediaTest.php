@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Media\Application\UseCase\AddMedia;
 
@@ -54,7 +54,7 @@ beforeEach(function (): void {
 
     $this->imagePath = realpath(__DIR__ . '/../../../Infrastructure/API/AddMedia/logo.jpg');
 
-    $this->mediaGenerator = new class($this->imagePath) implements \Iterator {
+    $this->mediaGenerator = new class ($this->imagePath) implements \Iterator {
         private int $counter = 0;
 
         public function __construct(readonly private string $imagePath)

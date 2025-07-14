@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2019 Centreon
  *
@@ -17,14 +18,13 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Configuration\Configuration;
+use CentreonLegacy\ServiceProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Psr11\Container;
 use VirtualFileSystem\FileSystem;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Module;
-use CentreonLegacy\ServiceProvider;
-use CentreonLegacy\Core\Configuration\Configuration;
-use CentreonLegacy\Core\Module\Exception;
 
 /**
  * @group CentreonLegacy
@@ -33,25 +33,25 @@ use CentreonLegacy\Core\Module\Exception;
 class HealthcheckTest extends TestCase
 {
     /** @var FileSystem */
-    public $fs;
-    /** @var (Configuration&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+    public $fileSystem;
+
+    /** @var MockObject&ServiceContainer */
     public $container;
-    /** @var (Healthcheck&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
+
+    /** @var MockObject&Healthcheck */
     public $service;
-    /** @var */
-    protected $isModuleFs;
 
     public function setUp(): void
     {
         // mount VFS
-        $this->fs = new FileSystem();
+        $this->fileSystem = new FileSystem();
 
-        $this->fs->createDirectory('/tmp');
-        $this->fs->createDirectory('/tmp/checklist');
-        $this->fs->createFile('/tmp/checklist/requirements.php', '');
+        $this->fileSystem->createDirectory('/tmp');
+        $this->fileSystem->createDirectory('/tmp/checklist');
+        $this->fileSystem->createFile('/tmp/checklist/requirements.php', '');
 
-        $this->fs->createDirectory('/tmp1');
-        $this->fs->createDirectory('/tmp1/checklist');
+        $this->fileSystem->createDirectory('/tmp1');
+        $this->fileSystem->createDirectory('/tmp1/checklist');
 
         $this->container = new ServiceContainer();
         $this->container[ServiceProvider::CONFIGURATION] = $this
@@ -66,11 +66,11 @@ class HealthcheckTest extends TestCase
             ->method('getModulePath')
             ->will(
                 $this->returnCallback(function () {
-                    return $this->fs->path('/');
+                    return $this->fileSystem->path('/');
                 })
             );
 
-        $this->service = $this->getMockBuilder(Module\Healthcheck::class)
+        $this->service = $this->getMockBuilder(Healthcheck::class)
             ->setConstructorArgs([
                 new Container($this->container),
             ])
@@ -106,16 +106,22 @@ class HealthcheckTest extends TestCase
     ) {
         $this->service
             ->method('getRequirements')
-            ->will($this->returnCallback(function (
-                    $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
+            ->will($this->returnCallback(
+                function (
+                    $checklistDir,
+                    &$message,
+                    &$customAction,
+                    &$warning,
+                    &$critical,
+                    &$licenseExpiration
+                ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
                     $message = $messageV ?: [];
                     $customAction = $customActionV;
                     $warning = $warningV;
                     $critical = $criticalV;
                     $licenseExpiration = $licenseExpirationV;
                 }
-        ));
+            ));
     }
 
     public function testCheckWithDotModuleName(): void
@@ -156,7 +162,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
 
         $this->setRequirementMockMethodValue($valueMessages, null, false, true);
@@ -200,7 +206,8 @@ class HealthcheckTest extends TestCase
             [
                 'customAction' => $valueCustomAction['action'],
                 'customActionName' => $valueCustomAction['name'],
-            ], $this->service->getCustomAction()
+            ],
+            $this->service->getCustomAction()
         );
     }
 
@@ -223,7 +230,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
         $value = [
             'status' => 'critical',
@@ -247,7 +254,7 @@ class HealthcheckTest extends TestCase
             [
                 'ErrorMessage' => 'err',
                 'Solution' => 'none',
-            ]
+            ],
         ];
         $value = [
             'status' => 'warning',
@@ -278,12 +285,18 @@ class HealthcheckTest extends TestCase
 
         $this->service
             ->method('getRequirements')
-            ->will($this->returnCallback(function (
-                    $checklistDir, &$message, &$customAction, &$warning, &$critical, &$licenseExpiration
-                    ) use ($valueException): void {
+            ->will($this->returnCallback(
+                function (
+                    $checklistDir,
+                    &$message,
+                    &$customAction,
+                    &$warning,
+                    &$critical,
+                    &$licenseExpiration
+                ) use ($valueException): void {
                     throw new \Exception($valueException);
                 }
-        ));
+            ));
 
         $result = $this->service->checkPrepareResponse($module);
 
@@ -314,10 +327,9 @@ class HealthcheckTest extends TestCase
 
     public function testReset(): void
     {
-        $value = '';
-
-        $result = $this->service->reset();
-
-        $this->assertEquals($result, $value);
+        $this->service->reset();
+        $this->assertEquals(null, $this->service->getMessages());
+        $this->assertEquals(null, $this->service->getCustomAction());
+        $this->assertEquals(null, $this->service->getLicenseExpiration());
     }
 }

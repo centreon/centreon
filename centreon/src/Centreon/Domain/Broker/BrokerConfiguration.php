@@ -46,7 +46,7 @@ class BrokerConfiguration
     private $configurationValue;
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getId(): ?int
     {
@@ -54,12 +54,13 @@ class BrokerConfiguration
     }
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
      * @return self
      */
     public function setId(?int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -78,6 +79,7 @@ class BrokerConfiguration
     public function setConfigurationKey(?string $configurationKey): self
     {
         $this->configurationKey = $configurationKey;
+
         return $this;
     }
 
@@ -96,6 +98,7 @@ class BrokerConfiguration
     public function setConfigurationValue(?string $configurationValue): self
     {
         $this->configurationValue = $configurationValue;
+
         return $this;
     }
 }

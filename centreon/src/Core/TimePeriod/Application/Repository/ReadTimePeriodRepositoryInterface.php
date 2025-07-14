@@ -54,7 +54,7 @@ interface ReadTimePeriodRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return Timeperiod[]
+     * @return TimePeriod[]
      */
     public function findByIds(array $timePeriodIds): array;
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/webService.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/webService.class.php';
 
 /**
  * Class
@@ -44,41 +45,31 @@ require_once __DIR__ . "/webService.class.php";
  */
 class CentreonSubmitResults extends CentreonWebService
 {
-    /**
-     * @var string The path to the centcore pipe file
-     */
+    /** @var string The path to the centcore pipe file */
     protected $centcoreFile;
-    /**
-     * @var bool If the file pipe is open
-     */
+
+    /** @var bool If the file pipe is open */
     protected $pipeOpened = false;
-    /**
-     * @var mixed The file descriptor of the centcore pipe
-     */
+
+    /** @var mixed The file descriptor of the centcore pipe */
     protected $fh;
-    /**
-     * @var CentreonDB The database connection to centreon_storage (realtime database)
-     */
+
+    /** @var CentreonDB The database connection to centreon_storage (realtime database) */
     protected $pearDBC;
-    /**
-     * @var array The cache for relation between hosts and pollers
-     */
+
+    /** @var array The cache for relation between hosts and pollers */
     protected $pollerHosts = [];
-    /**
-     * @var array The cache for relation between hosts and services
-     */
+
+    /** @var array The cache for relation between hosts and services */
     protected $hostServices;
-    /**
-     * @var array The list of accepted status
-     */
+
+    /** @var array The list of accepted status */
     protected $acceptedStatus = ['host' => [0, 1, 2, 'up', 'down', 'unknown'], 'service' => [0, 1, 2, 3, 'ok', 'warning', 'critical', 'unknown']];
-    /**
-     * @var array The match between status string and number
-     */
+
+    /** @var array The match between status string and number */
     protected $convertStatus = ['host' => ['up' => 0, 'down' => 1, 'unknown' => 2], 'service' => ['ok' => 0, 'warning' => 1, 'critical' => 2, 'unknown' => 3]];
-    /**
-     * @var string The rejex for validate perfdata
-     */
+
+    /** @var string The rejex for validate perfdata */
     protected $perfDataRegex = "/(('([^'=]+)'|([^'= ]+))=[0-9\.-]+[a-zA-Z%\/]*(;[0-9\.-]*){0,4}[ ]?)+/";
 
     /**
@@ -99,17 +90,17 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Load the cache for pollers/hosts
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getPollers(): void
     {
-        if (!isset($this->pollerHosts) || count($this->pollerHosts) === 0) {
-            $query = 'SELECT h.host_id, h.host_name, ns.nagios_server_id AS poller_id ' .
-                'FROM host h, ns_host_relation ns ' .
-                'WHERE host_host_id = host_id ' .
-                'AND h.host_activate = "1" ' .
-                'AND h.host_register = "1"';
+        if (! isset($this->pollerHosts) || count($this->pollerHosts) === 0) {
+            $query = 'SELECT h.host_id, h.host_name, ns.nagios_server_id AS poller_id '
+                . 'FROM host h, ns_host_relation ns '
+                . 'WHERE host_host_id = host_id '
+                . 'AND h.host_activate = "1" '
+                . 'AND h.host_register = "1"';
             $dbResult = $this->pearDB->query($query);
             $this->pollerHosts = ['name' => [], 'id' => []];
             while ($row = $dbResult->fetchRow()) {
@@ -123,21 +114,21 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Load the cache for hosts/services
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getHostServiceInfo(): void
     {
-        if (!isset($this->hostServices)) {
-            $query = "SELECT name, description " .
-                "FROM hosts h, services s " .
-                "WHERE h.host_id = s.host_id " .
-                    "AND h.enabled = 1 " .
-                    "AND s.enabled = 1 ";
+        if (! isset($this->hostServices)) {
+            $query = 'SELECT name, description '
+                . 'FROM hosts h, services s '
+                . 'WHERE h.host_id = s.host_id '
+                    . 'AND h.enabled = 1 '
+                    . 'AND s.enabled = 1 ';
             $dbResult = $this->pearDBC->query($query);
             $this->hostServices = [];
             while ($row = $dbResult->fetchRow()) {
-                if (!isset($this->hostServices[$row['name']])) {
+                if (! isset($this->hostServices[$row['name']])) {
                     $this->hostServices[$row['name']] = [];
                 }
                 $this->hostServices[$row['name']][$row['description']] = 1;
@@ -149,8 +140,8 @@ class CentreonSubmitResults extends CentreonWebService
     /**
      * Open the centcore pipe file
      *
-     * @return void
      * @throws RestBadRequestException
+     * @return void
      */
     private function openPipe(): void
     {
@@ -188,6 +179,7 @@ class CentreonSubmitResults extends CentreonWebService
         if ($string != '') {
             fwrite($this->fh, $string . "\n");
         }
+
         return true;
     }
 
@@ -196,38 +188,40 @@ class CentreonSubmitResults extends CentreonWebService
      *
      * @param array $data
      *
-     * @return bool
      * @throws RestBadRequestException
+     * @return bool
      */
     private function sendResults($data)
     {
-        if (!isset($this->pollerHosts['name'][$data["host"]])) {
-            throw new RestBadRequestException("Can't find poller_id for host: " . $data["host"]);
+        if (! isset($this->pollerHosts['name'][$data['host']])) {
+            throw new RestBadRequestException("Can't find poller_id for host: " . $data['host']);
         }
 
         if (isset($data['service']) && $data['service'] !== '') {
-            /* Services update */
-            $command = $data["host"] . ";" . $data["service"] . ";" . $data["status"] . ";" .
-                $data["output"] . "|" . $data["perfdata"];
-            /* send data */
-            return $this->writeInPipe("EXTERNALCMD:" . $this->pollerHosts['name'][$data["host"]] .
-                ":[" . $data['updatetime'] . "] PROCESS_SERVICE_CHECK_RESULT;" . $command);
-        } else {
-            /* Host Update */
-            $command = $data["host"] . ";" . $data["status"] . ";" . $data["output"] . "|" . $data["perfdata"];
-            /* send data */
-            return $this->writeInPipe("EXTERNALCMD:" . $this->pollerHosts['name'][$data["host"]] .
-                ":[" . $data['updatetime'] . "] PROCESS_HOST_CHECK_RESULT;" . $command);
+            // Services update
+            $command = $data['host'] . ';' . $data['service'] . ';' . $data['status'] . ';'
+                . $data['output'] . '|' . $data['perfdata'];
+
+            // send data
+            return $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+                . ':[' . $data['updatetime'] . '] PROCESS_SERVICE_CHECK_RESULT;' . $command);
         }
+        // Host Update
+        $command = $data['host'] . ';' . $data['status'] . ';' . $data['output'] . '|' . $data['perfdata'];
+
+        // send data
+        return $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+            . ':[' . $data['updatetime'] . '] PROCESS_HOST_CHECK_RESULT;' . $command);
+
     }
 
     /**
      * Entry point for submit a passive check result
      *
-     * @return array[]
      * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestPartialContent
+     * @return array[]
      */
     public function postSubmit()
     {
@@ -243,64 +237,64 @@ class CentreonSubmitResults extends CentreonWebService
                 }
                 foreach ($this->arguments['results'] as $data) {
                     try {
-                        /* Validate the list of arguments */
-                        /* Required fields */
-                        if (!isset($data['host']) || $data['host'] === '' ||
-                            !isset($data['status']) || !isset($data['updatetime']) || !isset($data['output'])) {
+                        // Validate the list of arguments
+                        // Required fields
+                        if (! isset($data['host']) || $data['host'] === ''
+                            || ! isset($data['status']) || ! isset($data['updatetime']) || ! isset($data['output'])) {
                             throw new RestBadRequestException('Missing argument.');
                         }
 
-                        /* Validate is the host and service exists in poller */
-                        if (!isset($this->pollerHosts['name'][$data['host']])) {
+                        // Validate is the host and service exists in poller
+                        if (! isset($this->pollerHosts['name'][$data['host']])) {
                             throw new RestNotFoundException('The host is not present.');
                         }
-                        if (isset($data['service']) && $data['service'] !== '' &&
-                            !$this->hostServices[$data['host']][$data["service"]]) {
+                        if (isset($data['service']) && $data['service'] !== ''
+                            && ! $this->hostServices[$data['host']][$data['service']]) {
                             throw new RestNotFoundException('The service is not present.');
                         }
 
-                        /* Validate status format */
+                        // Validate status format
                         $status = strtolower($data['status']);
                         if (is_numeric($status)) {
-                            $status = (int)$status;
+                            $status = (int) $status;
                         }
                         if (isset($data['service']) && $data['service'] !== '') {
-                            if (!in_array($status, $this->acceptedStatus['service'], true)) {
+                            if (! in_array($status, $this->acceptedStatus['service'], true)) {
                                 throw new RestBadRequestException('Bad status word.');
                             }
-                            if (!is_numeric($status)) {
+                            if (! is_numeric($status)) {
                                 $status = $this->convertStatus['service'][$status];
                             }
                         } else {
-                            if (!in_array($status, $this->acceptedStatus['host'], true)) {
+                            if (! in_array($status, $this->acceptedStatus['host'], true)) {
                                 throw new RestBadRequestException('Bad status word.');
                             }
-                            if (!is_numeric($status)) {
+                            if (! is_numeric($status)) {
                                 $status = $this->convertStatus['host'][$status];
                             }
                         }
                         $data['status'] = $status;
 
-                        /* Validate timestamp format */
-                        if (!is_numeric($data['updatetime'])) {
+                        // Validate timestamp format
+                        if (! is_numeric($data['updatetime'])) {
                             throw new RestBadRequestException('The timestamp is not a integer.');
                         }
 
                         if (isset($data['perfdata'])) {
-                            if ($data['perfdata'] !== '' && !preg_match($this->perfDataRegex, $data['perfdata'])) {
+                            if ($data['perfdata'] !== '' && ! preg_match($this->perfDataRegex, $data['perfdata'])) {
                                 throw new RestBadRequestException('The format of performance data is not valid.');
                             }
                         } else {
                             $data['perfdata'] = '';
                         }
 
-                        /* Execute the command */
-                        if (!$this->sendResults($data)) {
+                        // Execute the command
+                        if (! $this->sendResults($data)) {
                             throw new RestInternalServerErrorException('Error during send command to CentCore.');
                         }
                         $results[] = [
                             'code' => 202,
-                            'message' => 'The status send to the engine'
+                            'message' => 'The status send to the engine',
                         ];
                     } catch (Exception $error) {
                         $hasError = true;
@@ -312,10 +306,11 @@ class CentreonSubmitResults extends CentreonWebService
             if ($hasError) {
                 throw new RestPartialContent(json_encode(['results' => $results]));
             }
+
             return ['results' => $results];
-        } else {
-            throw new RestBadRequestException('Bad arguments - Cannot find result list');
         }
+
+        throw new RestBadRequestException('Bad arguments - Cannot find result list');
     }
 
     /**
@@ -328,13 +323,9 @@ class CentreonSubmitResults extends CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->hasAccessRestApiRealtime())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 }

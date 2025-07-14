@@ -35,9 +35,7 @@ use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostTemplateFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
@@ -47,9 +45,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements HostConfigurationRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
@@ -102,7 +98,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         $statement->bindValue(':notifications_status', '2', \PDO::PARAM_STR);
         $statement->execute();
 
-        $hostId = (int)$this->db->lastInsertId();
+        $hostId = (int) $this->db->lastInsertId();
         $host->setId($hostId);
 
         if ($host->getMonitoringServer() !== null) {
@@ -143,7 +139,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                     sprintf(_('Monitoring server with id %d not found'), $monitoringServer->getId())
                 );
             }
-        } elseif (!empty($monitoringServer->getName())) {
+        } elseif (! empty($monitoringServer->getName())) {
             $request = $this->translateDbName(
                 'INSERT INTO `:db`.ns_host_relation
                 (nagios_server_id, host_host_id)
@@ -203,7 +199,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             if ($template->getId() !== null) {
                 // Associate the host and host template using template id
                 $this->addHostTemplateToHostById($hostId, $template->getId(), ((int) $order) + 1);
-            } elseif (!empty($template->getName())) {
+            } elseif (! empty($template->getName())) {
                 // Associate the host and host template using template name
                 $this->addHostTemplateToHostByName($hostId, $template->getName(), ((int) $order) + 1);
             }
@@ -255,9 +251,9 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             INNER JOIN `:db`.ns_host_relation host_server
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
-                ON nagios.id = host_server.nagios_server_id '  .
-            ($accessGroupRequest ?? '') .
-            'WHERE host.host_id = :host_id
+                ON nagios.id = host_server.nagios_server_id '
+            . ($accessGroupRequest ?? '')
+            . 'WHERE host.host_id = :host_id
             AND host.host_register = \'1\''
         );
         $statement = $this->db->prepare($request);
@@ -267,9 +263,9 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return $this->createHost($record);
         }
+
         return null;
     }
-
 
     /**
      * @inheritDoc
@@ -362,6 +358,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         if ($statement !== false && ($result = $statement->fetchColumn()) !== false) {
             return (int) $result;
         }
+
         return 0;
     }
 
@@ -377,6 +374,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         if (($result = $statement->fetchColumn()) !== false) {
             return ((int) $result) > 0;
         }
+
         return false;
     }
 
@@ -434,14 +432,14 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
 
             $hostTpl = null;
             $record = $statement->fetch(\PDO::FETCH_ASSOC);
-            if (!is_null($record['templates']) && is_null($hostTpl)) {
+            if (! is_null($record['templates']) && is_null($hostTpl)) {
                 $hostTpl = explode(',', $record['templates']);
             }
-            if (!is_null($record['command_line'])) {
-                return (string)$record['command_line'];
+            if (! is_null($record['command_line'])) {
+                return (string) $record['command_line'];
             }
 
-            if (!is_null($hostTpl)) {
+            if (! is_null($hostTpl)) {
                 $stack = array_merge($hostTpl, $stack);
             }
         }
@@ -611,6 +609,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $namesFound[] = $result['host_name'];
         }
+
         return $namesFound;
     }
 
@@ -703,7 +702,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     public function updateHost(Host $host): void
     {
         $isAlreadyInTransaction = $this->db->inTransaction();
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->db->beginTransaction();
         }
         try {
@@ -759,13 +758,14 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
 
             $this->updateHostSeverity($host);
 
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }
@@ -792,14 +792,14 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     private function updateMonitoringServerRelation(int $hostId, int $monitoringServerId): void
     {
-        $request = $this->translateDbName("DELETE FROM `:db`.ns_host_relation WHERE host_host_id = :host_id");
+        $request = $this->translateDbName('DELETE FROM `:db`.ns_host_relation WHERE host_host_id = :host_id');
         $statement = $this->db->prepare($request);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
 
         $request = $this->translateDbName(
-            "INSERT INTO `:db`.ns_host_relation
-            (nagios_server_id, host_host_id) VALUES (:monitoring_server_id, :host_id)"
+            'INSERT INTO `:db`.ns_host_relation
+            (nagios_server_id, host_host_id) VALUES (:monitoring_server_id, :host_id)'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':monitoring_server_id', $monitoringServerId, \PDO::PARAM_INT);
@@ -810,11 +810,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     /**
      * Link a template to a host by template id
      *
-     * @param integer $hostId
-     * @param integer $templateId
-     * @param integer $order
-     * @return void
+     * @param int $hostId
+     * @param int $templateId
+     * @param int $order
      * @throws \Exception
+     * @return void
      */
     private function addHostTemplateToHostById(int $hostId, int $templateId, int $order): void
     {
@@ -838,11 +838,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     /**
      * link a template to a host by template name
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $templateName
-     * @param integer $order
-     * @return void
+     * @param int $order
      * @throws \Exception
+     * @return void
      */
     private function addHostTemplateToHostByName(int $hostId, string $templateName, int $order): void
     {
@@ -898,6 +898,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 );
             }
         }
+
         return $hostTemplates;
     }
 
@@ -943,12 +944,12 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     private function updateHostSeverity(Host $host): void
     {
         $request = $this->translateDbName(
-            "DELETE `:db`.hostcategories_relation
+            'DELETE `:db`.hostcategories_relation
             FROM `:db`.hostcategories_relation
             JOIN `:db`.hostcategories
             ON hostcategories.hc_id = hostcategories_relation.hostcategories_hc_id
             WHERE hostcategories.level IS NOT NULL
-            AND hostcategories_relation.host_host_id = :host_id"
+            AND hostcategories_relation.host_host_id = :host_id'
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
@@ -959,8 +960,8 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
 
     /**
      * @param array<string,mixed> $hostData
-     * @return Host
      * @throws \Exception
+     * @return Host
      */
     private function createHost(array $hostData): Host
     {
@@ -1013,6 +1014,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return $this->createHost($record);
         }
+
         return null;
     }
 
@@ -1043,6 +1045,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 $record
             );
         }
+
         return null;
     }
 }

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriod;
 
-use Core\Application\Common\UseCase\{AbstractPresenter, CreatedResponse, PresenterInterface};
+use Core\Application\Common\UseCase\{AbstractPresenter, PresenterInterface};
 use Core\TimePeriod\Application\UseCase\FindTimePeriod\FindTimePeriodResponse;
 use Symfony\Component\HttpFoundation\Response;
 

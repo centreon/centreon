@@ -47,7 +47,8 @@ final class CountResourcesController extends AbstractController
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly RequestValidator $validator
-    ) {}
+    ) {
+    }
 
     /**
      * @param CountResources $useCase

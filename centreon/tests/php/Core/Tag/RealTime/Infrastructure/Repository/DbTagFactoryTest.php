@@ -30,7 +30,7 @@ it('DbTagFactory creation test', function (): void {
     $record = [
         'id' => 1,
         'name' => 'Name of the tag',
-        'type' => Tag::SERVICE_CATEGORY_TYPE_ID
+        'type' => Tag::SERVICE_CATEGORY_TYPE_ID,
     ];
 
     $category = DbTagFactory::createFromRecord($record);

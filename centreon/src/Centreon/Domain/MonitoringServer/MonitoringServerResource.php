@@ -29,29 +29,19 @@ namespace Centreon\Domain\MonitoringServer;
  */
 class MonitoringServerResource
 {
-    /**
-     * @var int Resource id
-     */
+    /** @var int Resource id */
     private $id;
 
-    /**
-     * @var string Resource name
-     */
+    /** @var string Resource name */
     private $name;
 
-    /**
-     * @var string Resource comment
-     */
+    /** @var string Resource comment */
     private $comment;
 
-    /**
-     * @var string Resource path
-     */
+    /** @var string Resource path */
     private $path;
 
-    /**
-     * @var bool Indicates whether this resource is activate or not
-     */
+    /** @var bool Indicates whether this resource is activate or not */
     private $isActivate;
 
     /**
@@ -69,6 +59,7 @@ class MonitoringServerResource
     public function setId(int $id): MonitoringServerResource
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -87,6 +78,7 @@ class MonitoringServerResource
     public function setName(string $name): MonitoringServerResource
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -105,6 +97,7 @@ class MonitoringServerResource
     public function setComment(string $comment): MonitoringServerResource
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -123,6 +116,7 @@ class MonitoringServerResource
     public function setPath(string $path): MonitoringServerResource
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -141,6 +135,7 @@ class MonitoringServerResource
     public function setIsActivate(bool $isActivate): MonitoringServerResource
     {
         $this->isActivate = $isActivate;
+
         return $this;
     }
 }

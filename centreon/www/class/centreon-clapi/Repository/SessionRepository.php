@@ -35,7 +35,9 @@ class SessionRepository
     /**
      * @param PDO $db
      */
-    public function __construct(private PDO $db) {}
+    public function __construct(private PDO $db)
+    {
+    }
 
     /**
      * Flag that acl has been updated

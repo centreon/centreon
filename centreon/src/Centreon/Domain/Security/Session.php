@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -23,34 +24,22 @@ namespace Centreon\Domain\Security;
 
 class Session
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $sessionId;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $userId;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $lastReload;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $ipAddress;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isValid;
 
     /**
@@ -68,6 +57,7 @@ class Session
     public function setId(int $id): Session
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -86,6 +76,7 @@ class Session
     public function setSessionId(string $sessionId): Session
     {
         $this->sessionId = $sessionId;
+
         return $this;
     }
 
@@ -104,6 +95,7 @@ class Session
     public function setUserId(int $userId): Session
     {
         $this->userId = $userId;
+
         return $this;
     }
 
@@ -122,6 +114,7 @@ class Session
     public function setLastReload(\DateTime $lastReload): Session
     {
         $this->lastReload = $lastReload;
+
         return $this;
     }
 
@@ -140,6 +133,7 @@ class Session
     public function setIpAddress(string $ipAddress): Session
     {
         $this->ipAddress = $ipAddress;
+
         return $this;
     }
 
@@ -158,6 +152,7 @@ class Session
     public function setIsValid(bool $isValid): Session
     {
         $this->isValid = $isValid;
+
         return $this;
     }
 }

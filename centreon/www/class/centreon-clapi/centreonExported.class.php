@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 namespace CentreonClapi;
@@ -45,14 +45,19 @@ class CentreonExported
 {
     /** @var array */
     private $exported = [];
+
     /** @var array */
     private $ariane = [];
+
     /** @var int */
     private $filter = 0;
+
     /** @var array|null */
     private $filter_type = null;
+
     /** @var array|null */
     private $filter_ariane = null;
+
     /** @var CentreonExported|null */
     private static $instance = null;
 
@@ -95,14 +100,14 @@ class CentreonExported
     {
         if (isset($options['filter-type'])) {
             $this->filter_type = $options['filter-type'];
-            if (!is_array($options['filter-type'])) {
+            if (! is_array($options['filter-type'])) {
                 $this->filter_type = [$options['filter-type']];
             }
         }
 
         if (isset($options['filter-ariane'])) {
             $this->filter_ariane = $options['filter-ariane'];
-            if (!is_array($options['filter-ariane'])) {
+            if (! is_array($options['filter-ariane'])) {
                 $this->filter_ariane = [$options['filter-ariane']];
             }
         }
@@ -119,7 +124,6 @@ class CentreonExported
         $this->exported[$object][$id] = 1;
     }
 
-
     /**
      * @param $object
      * @param $id
@@ -129,13 +133,14 @@ class CentreonExported
      */
     private function checkAriane($object, $id, $name)
     {
-        if (!is_null($this->filter_ariane)) {
+        if (! is_null($this->filter_ariane)) {
             $ariane = join('#', $this->ariane);
             foreach ($this->filter_ariane as $filter) {
                 if (preg_match('/' . $filter . '/', $ariane)) {
                     return 0;
                 }
             }
+
             return 1;
         }
 
@@ -151,12 +156,13 @@ class CentreonExported
      */
     private function checkFilter($object, $id, $name)
     {
-        if (!is_null($this->filter_type)) {
+        if (! is_null($this->filter_type)) {
             foreach ($this->filter_type as $filter) {
                 if (preg_match('/' . $filter . '/', $object)) {
                     return 0;
                 }
             }
+
             return 1;
         }
 
@@ -180,7 +186,7 @@ class CentreonExported
             return 1;
         }
 
-        # check if there is some filters
+        // check if there is some filters
         if ($this->checkFilter($object, $id, $name)) {
             return 1;
         }
@@ -188,10 +194,11 @@ class CentreonExported
             return 1;
         }
 
-        if (!isset($this->exported[$object]) || !is_array($this->exported[$object])) {
+        if (! isset($this->exported[$object]) || ! is_array($this->exported[$object])) {
             $this->exported[$object] = [];
         }
         $this->exported[$object][$id] = 1;
+
         return 0;
     }
 
