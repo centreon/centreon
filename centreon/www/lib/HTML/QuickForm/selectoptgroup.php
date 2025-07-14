@@ -90,6 +90,8 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
     /** @var array */
     public $realOptionsArray;
 
+    public $_memOptions = [];
+
     /**
      * @param string $elementName
      * @param string $elementLabel
@@ -294,8 +296,6 @@ class HTML_QuickForm_selectoptgroup extends HTML_QuickForm_select
 
         return $datas;
     }
-
-    public $_memOptions = [];
 
     /**
      * obsolete

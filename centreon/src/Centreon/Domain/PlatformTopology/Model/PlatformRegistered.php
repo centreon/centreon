@@ -170,31 +170,6 @@ class PlatformRegistered implements PlatformInterface
     }
 
     /**
-     * Validate address consistency
-     *
-     * @param string|null $address the address to be tested
-     * @return string|null
-     */
-    private function checkIpAddress(?string $address): ?string
-    {
-        if (
-            $address !== null
-            && ! filter_var($address, FILTER_VALIDATE_IP)
-            && ! filter_var($address, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-        ) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    _("The address '%s' of '%s' is not valid or not resolvable"),
-                    $address,
-                    $this->getName()
-                )
-            );
-        }
-
-        return $address;
-    }
-
-    /**
      * @inheritDoc
      */
     public function getAddress(): ?string
@@ -329,5 +304,30 @@ class PlatformRegistered implements PlatformInterface
         $this->isPending = $isPending;
 
         return $this;
+    }
+
+    /**
+     * Validate address consistency
+     *
+     * @param string|null $address the address to be tested
+     * @return string|null
+     */
+    private function checkIpAddress(?string $address): ?string
+    {
+        if (
+            $address !== null
+            && ! filter_var($address, FILTER_VALIDATE_IP)
+            && ! filter_var($address, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+        ) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    _("The address '%s' of '%s' is not valid or not resolvable"),
+                    $address,
+                    $this->getName()
+                )
+            );
+        }
+
+        return $address;
     }
 }

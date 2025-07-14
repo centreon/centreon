@@ -154,6 +154,40 @@ class EntityValidator
     }
 
     /**
+     * Formats errors to be more readable.
+     *
+     * @param ConstraintViolationListInterface $violations
+     * @param bool $showPropertiesInSnakeCase Set TRUE to convert the properties name into snake case
+     * @return string List of error messages
+     */
+    public static function formatErrors(
+        ConstraintViolationListInterface $violations,
+        bool $showPropertiesInSnakeCase = false
+    ): string {
+        $errorMessages = '';
+        /** @var array<ConstraintViolationInterface> $violations */
+        foreach ($violations as $violation) {
+            if (! empty($errorMessages)) {
+                $errorMessages .= "\n";
+            }
+            $propertyName = $violation->getPropertyPath();
+            if ($propertyName[0] == '[' && $propertyName[strlen($propertyName) - 1] == ']') {
+                $propertyName = str_replace('][', '.', $propertyName);
+                $propertyName = substr($propertyName, 1, -1);
+            }
+            $errorMessages .= sprintf(
+                'Error on \'%s\': %s',
+                (($showPropertiesInSnakeCase)
+                    ? self::convertCamelCaseToSnakeCase($propertyName)
+                    : $violation->getPropertyPath()),
+                $violation->getMessage()
+            );
+        }
+
+        return $errorMessages;
+    }
+
+    /**
      * Gets constraints found in the validation rules.
      *
      * @param string $entityName Entity name for which we want to get constraints
@@ -253,40 +287,6 @@ class EntityValidator
         }
 
         return null;
-    }
-
-    /**
-     * Formats errors to be more readable.
-     *
-     * @param ConstraintViolationListInterface $violations
-     * @param bool $showPropertiesInSnakeCase Set TRUE to convert the properties name into snake case
-     * @return string List of error messages
-     */
-    public static function formatErrors(
-        ConstraintViolationListInterface $violations,
-        bool $showPropertiesInSnakeCase = false
-    ): string {
-        $errorMessages = '';
-        /** @var array<ConstraintViolationInterface> $violations */
-        foreach ($violations as $violation) {
-            if (! empty($errorMessages)) {
-                $errorMessages .= "\n";
-            }
-            $propertyName = $violation->getPropertyPath();
-            if ($propertyName[0] == '[' && $propertyName[strlen($propertyName) - 1] == ']') {
-                $propertyName = str_replace('][', '.', $propertyName);
-                $propertyName = substr($propertyName, 1, -1);
-            }
-            $errorMessages .= sprintf(
-                'Error on \'%s\': %s',
-                (($showPropertiesInSnakeCase)
-                    ? self::convertCamelCaseToSnakeCase($propertyName)
-                    : $violation->getPropertyPath()),
-                $violation->getMessage()
-            );
-        }
-
-        return $errorMessages;
     }
 
     /**

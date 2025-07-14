@@ -87,6 +87,77 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     }
 
     /**
+     * @param $name
+     * @param $arg
+     * @throws CentreonClapiException
+     */
+    public function __call($name, $arg)
+    {
+        // Get the method name
+        $name = strtolower($name);
+        // Get the action and the object
+        if (preg_match('/^(get|set|add|del)member$/', $name, $matches)) {
+            $relobj = new Centreon_Object_Relation_Host_Category_Host($this->dependencyInjector);
+            $obj = new Centreon_Object_Host($this->dependencyInjector);
+
+            // Parse arguments
+            if (! isset($arg[0])) {
+                throw new CentreonClapiException(self::MISSINGPARAMETER);
+            }
+            $args = explode($this->delim, $arg[0]);
+            $hcIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
+            if (! count($hcIds)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
+            }
+            $categoryId = $hcIds[0];
+
+            if ($matches[1] == 'get') {
+                $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hcIds);
+                echo 'id' . $this->delim . 'name' . "\n";
+                foreach ($tab as $value) {
+                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
+                    echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
+                }
+            } else {
+                if (! isset($args[1])) {
+                    throw new CentreonClapiException(self::MISSINGPARAMETER);
+                }
+                $relation = $args[1];
+                $relations = explode('|', $relation);
+                $relationTable = [];
+                foreach ($relations as $rel) {
+                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
+                    if (! count($tab)) {
+                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
+                    }
+                    $relationTable[] = $tab[0];
+                }
+                if ($matches[1] == 'set') {
+                    $relobj->delete($categoryId);
+                }
+                $existingRelationIds = $relobj->getTargetIdFromSourceId(
+                    $relobj->getSecondKey(),
+                    $relobj->getFirstKey(),
+                    [$categoryId]
+                );
+                foreach ($relationTable as $relationId) {
+                    if ($matches[1] == 'del') {
+                        $relobj->delete($categoryId, $relationId);
+                    } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
+                        if (! in_array($relationId, $existingRelationIds)) {
+                            $relobj->insert($categoryId, $relationId);
+                        }
+                    }
+                }
+                $acl = new CentreonACL($this->dependencyInjector);
+                $acl->reload(true);
+            }
+        } else {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+    }
+
+    /**
      * @param null $parameters
      * @param array $filters
      *
@@ -181,77 +252,6 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     public function unsetseverity($parameters): void
     {
         parent::unsetseverity($parameters);
-    }
-
-    /**
-     * @param $name
-     * @param $arg
-     * @throws CentreonClapiException
-     */
-    public function __call($name, $arg)
-    {
-        // Get the method name
-        $name = strtolower($name);
-        // Get the action and the object
-        if (preg_match('/^(get|set|add|del)member$/', $name, $matches)) {
-            $relobj = new Centreon_Object_Relation_Host_Category_Host($this->dependencyInjector);
-            $obj = new Centreon_Object_Host($this->dependencyInjector);
-
-            // Parse arguments
-            if (! isset($arg[0])) {
-                throw new CentreonClapiException(self::MISSINGPARAMETER);
-            }
-            $args = explode($this->delim, $arg[0]);
-            $hcIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-            if (! count($hcIds)) {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
-            }
-            $categoryId = $hcIds[0];
-
-            if ($matches[1] == 'get') {
-                $tab = $relobj->getTargetIdFromSourceId($relobj->getSecondKey(), $relobj->getFirstKey(), $hcIds);
-                echo 'id' . $this->delim . 'name' . "\n";
-                foreach ($tab as $value) {
-                    $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
-                    echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
-                }
-            } else {
-                if (! isset($args[1])) {
-                    throw new CentreonClapiException(self::MISSINGPARAMETER);
-                }
-                $relation = $args[1];
-                $relations = explode('|', $relation);
-                $relationTable = [];
-                foreach ($relations as $rel) {
-                    $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
-                    if (! count($tab)) {
-                        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
-                    }
-                    $relationTable[] = $tab[0];
-                }
-                if ($matches[1] == 'set') {
-                    $relobj->delete($categoryId);
-                }
-                $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                    $relobj->getSecondKey(),
-                    $relobj->getFirstKey(),
-                    [$categoryId]
-                );
-                foreach ($relationTable as $relationId) {
-                    if ($matches[1] == 'del') {
-                        $relobj->delete($categoryId, $relationId);
-                    } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
-                        if (! in_array($relationId, $existingRelationIds)) {
-                            $relobj->insert($categoryId, $relationId);
-                        }
-                    }
-                }
-                $acl = new CentreonACL($this->dependencyInjector);
-                $acl->reload(true);
-            }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
-        }
     }
 
     /**

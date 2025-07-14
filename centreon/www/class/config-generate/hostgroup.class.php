@@ -47,9 +47,6 @@ class Hostgroup extends AbstractObject
     private const TAG_FILENAME = 'tags.cfg';
     private const TAG_OBJECT_NAME = 'tag';
 
-    /** @var array */
-    private $hg = [];
-
     /** @var string */
     protected $generate_filename = self::HOSTGROUP_FILENAME;
 
@@ -66,28 +63,8 @@ class Hostgroup extends AbstractObject
     /** @var null */
     protected $stmt_hg = null;
 
-    /**
-     * @param $hg_id
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getHostgroupFromId($hg_id): void
-    {
-        if (is_null($this->stmt_hg)) {
-            $this->stmt_hg = $this->backend_instance->db->prepare(
-                "SELECT  {$this->attributes_select}
-                FROM hostgroup
-                WHERE hg_id = :hg_id AND hg_activate = '1'"
-            );
-        }
-        $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
-        $this->stmt_hg->execute();
-        if ($hostGroup = $this->stmt_hg->fetch(PDO::FETCH_ASSOC)) {
-            $this->hg[$hg_id] = $hostGroup;
-            $this->hg[$hg_id]['members'] = [];
-        }
-    }
+    /** @var array */
+    private $hg = [];
 
     /**
      * @param $hg_id
@@ -118,6 +95,70 @@ class Hostgroup extends AbstractObject
     {
         $this->generateHostGroups();
         $this->generateTags();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHostgroups()
+    {
+        $result = [];
+        foreach ($this->hg as $id => &$value) {
+            if (is_null($value) || count($value['members']) == 0) {
+                continue;
+            }
+            $result[$id] = &$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        parent::reset();
+        foreach ($this->hg as &$value) {
+            if (! is_null($value)) {
+                $value['members'] = [];
+            }
+        }
+    }
+
+    /**
+     * @param $hg_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($hg_id, $attr)
+    {
+        return $this->hg[$hg_id][$attr] ?? null;
+    }
+
+    /**
+     * @param $hg_id
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function getHostgroupFromId($hg_id): void
+    {
+        if (is_null($this->stmt_hg)) {
+            $this->stmt_hg = $this->backend_instance->db->prepare(
+                "SELECT  {$this->attributes_select}
+                FROM hostgroup
+                WHERE hg_id = :hg_id AND hg_activate = '1'"
+            );
+        }
+        $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
+        $this->stmt_hg->execute();
+        if ($hostGroup = $this->stmt_hg->fetch(PDO::FETCH_ASSOC)) {
+            $this->hg[$hg_id] = $hostGroup;
+            $this->hg[$hg_id]['members'] = [];
+        }
     }
 
     /**
@@ -179,46 +220,5 @@ class Hostgroup extends AbstractObject
 
             $this->generateObjectInFile($tag, $id);
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getHostgroups()
-    {
-        $result = [];
-        foreach ($this->hg as $id => &$value) {
-            if (is_null($value) || count($value['members']) == 0) {
-                continue;
-            }
-            $result[$id] = &$value;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function reset(): void
-    {
-        parent::reset();
-        foreach ($this->hg as &$value) {
-            if (! is_null($value)) {
-                $value['members'] = [];
-            }
-        }
-    }
-
-    /**
-     * @param $hg_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($hg_id, $attr)
-    {
-        return $this->hg[$hg_id][$attr] ?? null;
     }
 }

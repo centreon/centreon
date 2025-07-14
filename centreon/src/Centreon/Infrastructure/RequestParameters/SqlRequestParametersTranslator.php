@@ -64,61 +64,6 @@ class SqlRequestParametersTranslator
     }
 
     /**
-     * Create the database query based on the search parameters.
-     *
-     * @param array<mixed, mixed> $search Array containing search parameters
-     * @param string|null $aggregateOperator Aggregate operator
-     * @throws RequestParametersTranslatorException
-     * @return string Return the processed database query
-     */
-    private function createDatabaseQuery(array $search, ?string $aggregateOperator = null): string
-    {
-        $databaseQuery = '';
-        $databaseSubQuery = '';
-        foreach ($search as $key => $searchRequests) {
-            if ($this->isAggregateOperator($key)) {
-                if (is_object($searchRequests) || is_array($searchRequests)) {
-                    if (is_object($searchRequests)) {
-                        $searchRequests = (array) $searchRequests;
-                    }
-                    // Recursive call until to read key/value data
-                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $key);
-                }
-            } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
-                // It's a list of object to process
-                $searchRequests = (array) $searchRequests;
-                if ($searchRequests !== []) {
-                    // Recursive call until to read key/value data
-                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
-                }
-            } elseif (! is_int($key)) {
-                // It's a pair on key/value to translate into a database query
-                if (is_object($searchRequests)) {
-                    $searchRequests = (array) $searchRequests;
-                }
-                $databaseSubQuery = $this->createQueryOnKeyValue($key, $searchRequests);
-            }
-            if (! empty($databaseQuery)) {
-                if (is_null($aggregateOperator)) {
-                    $aggregateOperator = RequestParameters::AGGREGATE_OPERATOR_AND;
-                }
-                if (! empty($databaseSubQuery)) {
-                    $databaseQuery .= ' '
-                        . $this->translateAggregateOperator($aggregateOperator)
-                        . ' '
-                        . $databaseSubQuery;
-                }
-            } else {
-                $databaseQuery .= $databaseSubQuery;
-            }
-        }
-
-        return count($search) > 1 && ! empty($databaseQuery)
-            ? '(' . $databaseQuery . ')'
-            : $databaseQuery;
-    }
-
-    /**
      * @return RequestParametersInterface
      */
     public function getRequestParameters(): RequestParametersInterface
@@ -207,6 +152,175 @@ class SqlRequestParametersTranslator
         if ($pagination = $this->translatePaginationToSql()) {
             $concatenator->defineLimit($pagination);
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getConcordanceArray(): array
+    {
+        return $this->concordanceArray;
+    }
+
+    /**
+     * @param array<string, string> $concordanceArray
+     */
+    public function setConcordanceArray(array $concordanceArray): void
+    {
+        $this->concordanceArray = $concordanceArray;
+    }
+
+    /**
+     * Add a search value
+     *
+     * @param string $key Key
+     * @param array<int, array<int, mixed>> $value Array [type_value => value]
+     */
+    public function addSearchValue(string $key, array $value): void
+    {
+        $this->searchValues[$key] = $value;
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public function getSearchValues(): array
+    {
+        return $this->searchValues;
+    }
+
+    /**
+     * @param array<string, array<int, mixed>> $searchValues
+     */
+    public function setSearchValues(array $searchValues): void
+    {
+        $this->searchValues = $searchValues;
+    }
+
+    /**
+     * Automatically bind values to a \PDOStatement.
+     *
+     * @param \PDOStatement $statement
+     */
+    public function bindSearchValues(\PDOStatement $statement): void
+    {
+        foreach ($this->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+    }
+
+    /**
+     * @param DatabaseConnection $db
+     *
+     * @return int|null
+     */
+    public function calculateNumberOfRows(DatabaseConnection $db): ?int
+    {
+        if (
+            false === ($result = $db->query('SELECT FOUND_ROWS()'))
+            || false === ($value = $result->fetchColumn())
+        ) {
+            return null;
+        }
+
+        $this->getRequestParameters()->setTotal($nbRows = (int) $value);
+
+        return $nbRows;
+    }
+
+    /**
+     * @param int $numberOfRows
+     */
+    public function setNumberOfRows(int $numberOfRows): void
+    {
+        $this->requestParameters->setTotal($numberOfRows);
+    }
+
+    /**
+     * Add a normalizer for a property name to be declared in the search parameters.
+     * <code>
+     * $sqlRequestTranslator = new SqlRequestParametersTranslator(new RequestParameters());
+     * $sqlRequestTranslator->addNormalizer(
+     *      'name',
+     *      new class() implements NormalizerInterface
+     *      {
+     *          public function normalize($valueToNormalize)
+     *          {
+     *              if ($valueToNormalize === "localhost") {
+     *                  return "127.0.0.1";
+     *              }
+     *              return $valueToNormalize;
+     *          }
+     *      }
+     * );
+     * </code>
+     * @param string $propertyName Property name for which the normalizer is applied
+     * @param NormalizerInterface $normalizer Normalizer to applied
+     * @throws \InvalidArgumentException
+     */
+    public function addNormalizer(string $propertyName, NormalizerInterface $normalizer): void
+    {
+        if (empty($propertyName)) {
+            throw new \InvalidArgumentException(_('The property name of the normalizer cannot be empty.'));
+        }
+        $this->normalizers[$propertyName] = $normalizer;
+    }
+
+    /**
+     * Create the database query based on the search parameters.
+     *
+     * @param array<mixed, mixed> $search Array containing search parameters
+     * @param string|null $aggregateOperator Aggregate operator
+     * @throws RequestParametersTranslatorException
+     * @return string Return the processed database query
+     */
+    private function createDatabaseQuery(array $search, ?string $aggregateOperator = null): string
+    {
+        $databaseQuery = '';
+        $databaseSubQuery = '';
+        foreach ($search as $key => $searchRequests) {
+            if ($this->isAggregateOperator($key)) {
+                if (is_object($searchRequests) || is_array($searchRequests)) {
+                    if (is_object($searchRequests)) {
+                        $searchRequests = (array) $searchRequests;
+                    }
+                    // Recursive call until to read key/value data
+                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $key);
+                }
+            } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
+                // It's a list of object to process
+                $searchRequests = (array) $searchRequests;
+                if ($searchRequests !== []) {
+                    // Recursive call until to read key/value data
+                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
+                }
+            } elseif (! is_int($key)) {
+                // It's a pair on key/value to translate into a database query
+                if (is_object($searchRequests)) {
+                    $searchRequests = (array) $searchRequests;
+                }
+                $databaseSubQuery = $this->createQueryOnKeyValue($key, $searchRequests);
+            }
+            if (! empty($databaseQuery)) {
+                if (is_null($aggregateOperator)) {
+                    $aggregateOperator = RequestParameters::AGGREGATE_OPERATOR_AND;
+                }
+                if (! empty($databaseSubQuery)) {
+                    $databaseQuery .= ' '
+                        . $this->translateAggregateOperator($aggregateOperator)
+                        . ' '
+                        . $databaseSubQuery;
+                }
+            } else {
+                $databaseQuery .= $databaseSubQuery;
+            }
+        }
+
+        return count($search) > 1 && ! empty($databaseQuery)
+            ? '(' . $databaseQuery . ')'
+            : $databaseQuery;
     }
 
     /**
@@ -385,120 +499,6 @@ class SqlRequestParametersTranslator
             RequestParameters::OPERATOR_NOT_IN => 'NOT IN',
             default => '=',
         };
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getConcordanceArray(): array
-    {
-        return $this->concordanceArray;
-    }
-
-    /**
-     * @param array<string, string> $concordanceArray
-     */
-    public function setConcordanceArray(array $concordanceArray): void
-    {
-        $this->concordanceArray = $concordanceArray;
-    }
-
-    /**
-     * Add a search value
-     *
-     * @param string $key Key
-     * @param array<int, array<int, mixed>> $value Array [type_value => value]
-     */
-    public function addSearchValue(string $key, array $value): void
-    {
-        $this->searchValues[$key] = $value;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public function getSearchValues(): array
-    {
-        return $this->searchValues;
-    }
-
-    /**
-     * @param array<string, array<int, mixed>> $searchValues
-     */
-    public function setSearchValues(array $searchValues): void
-    {
-        $this->searchValues = $searchValues;
-    }
-
-    /**
-     * Automatically bind values to a \PDOStatement.
-     *
-     * @param \PDOStatement $statement
-     */
-    public function bindSearchValues(\PDOStatement $statement): void
-    {
-        foreach ($this->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-    }
-
-    /**
-     * @param DatabaseConnection $db
-     *
-     * @return int|null
-     */
-    public function calculateNumberOfRows(DatabaseConnection $db): ?int
-    {
-        if (
-            false === ($result = $db->query('SELECT FOUND_ROWS()'))
-            || false === ($value = $result->fetchColumn())
-        ) {
-            return null;
-        }
-
-        $this->getRequestParameters()->setTotal($nbRows = (int) $value);
-
-        return $nbRows;
-    }
-
-    /**
-     * @param int $numberOfRows
-     */
-    public function setNumberOfRows(int $numberOfRows): void
-    {
-        $this->requestParameters->setTotal($numberOfRows);
-    }
-
-    /**
-     * Add a normalizer for a property name to be declared in the search parameters.
-     * <code>
-     * $sqlRequestTranslator = new SqlRequestParametersTranslator(new RequestParameters());
-     * $sqlRequestTranslator->addNormalizer(
-     *      'name',
-     *      new class() implements NormalizerInterface
-     *      {
-     *          public function normalize($valueToNormalize)
-     *          {
-     *              if ($valueToNormalize === "localhost") {
-     *                  return "127.0.0.1";
-     *              }
-     *              return $valueToNormalize;
-     *          }
-     *      }
-     * );
-     * </code>
-     * @param string $propertyName Property name for which the normalizer is applied
-     * @param NormalizerInterface $normalizer Normalizer to applied
-     * @throws \InvalidArgumentException
-     */
-    public function addNormalizer(string $propertyName, NormalizerInterface $normalizer): void
-    {
-        if (empty($propertyName)) {
-            throw new \InvalidArgumentException(_('The property name of the normalizer cannot be empty.'));
-        }
-        $this->normalizers[$propertyName] = $normalizer;
     }
 
     /**

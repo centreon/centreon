@@ -45,6 +45,8 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wiki.class.php';
  */
 class WikiApi
 {
+    public const PROXY_URL = './include/configuration/configKnowledge/proxy/proxy.php';
+
     /** @var never[] */
     public $cookies = [];
 
@@ -77,7 +79,6 @@ class WikiApi
 
     /** @var mixed */
     private $noSslCertificate;
-    public const PROXY_URL = './include/configuration/configKnowledge/proxy/proxy.php';
 
     /**
      * WikiApi constructor.
@@ -93,24 +94,6 @@ class WikiApi
         $this->noSslCertificate = $config['kb_wiki_certificate'];
         $this->curl = $this->getCurl();
         $this->version = $this->getWikiVersion();
-    }
-
-    /**
-     * @return CurlHandle|false
-     */
-    private function getCurl()
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_COOKIEFILE, '');
-        if ($this->noSslCertificate == 1) {
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        }
-
-        return $curl;
     }
 
     /**
@@ -487,6 +470,24 @@ class WikiApi
             $statement->bindValue(':serviceId', $serviceTemplateRow['service_id'], PDO::PARAM_INT);
             $statement->execute();
         }
+    }
+
+    /**
+     * @return CurlHandle|false
+     */
+    private function getCurl()
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_COOKIEFILE, '');
+        if ($this->noSslCertificate == 1) {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        }
+
+        return $curl;
     }
 
     /**

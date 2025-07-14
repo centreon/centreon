@@ -44,6 +44,13 @@ class UniqueEntity extends Constraint
 {
     public const NOT_UNIQUE_ERROR = '23bd9dbf-6b9b-41cd-a99e-4844bcf3077c';
 
+    /**
+     * @var array<string, string>
+     */
+    protected const ERROR_NAMES = [
+        self::NOT_UNIQUE_ERROR => 'NOT_UNIQUE_ERROR',
+    ];
+
     /** @var string */
     public string $validatorClass = UniqueEntityValidator::class;
 
@@ -70,13 +77,6 @@ class UniqueEntity extends Constraint
 
     /** @var bool */
     public $ignoreNull = true;
-
-    /**
-     * @var array<string, string>
-     */
-    protected const ERROR_NAMES = [
-        self::NOT_UNIQUE_ERROR => 'NOT_UNIQUE_ERROR',
-    ];
 
     /**
      * {@inheritDoc}

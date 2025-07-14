@@ -35,15 +35,6 @@ use Pimple\Container;
  */
 class TrapsMatching extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $trapMatchCache = [];
-
     /** @var string */
     protected $table = 'traps_matching_properties';
 
@@ -64,6 +55,15 @@ class TrapsMatching extends AbstractObject
         'severity_id',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $trapMatchCache = [];
+
     /**
      * TrapsMatching constructor
      *
@@ -73,43 +73,6 @@ class TrapsMatching extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache for trap matches
-     *
-     * @return void
-     */
-    private function cacheTrapMatch(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT *
-            FROM traps_matching_properties'
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            if (! isset($this->trapMatchCache[$value['trap_id']])) {
-                $this->trapMatchCache[$value['trap_id']] = [];
-            }
-            $this->trapMatchCache[$value['trap_id']][] = &$value;
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->cacheTrapMatch();
-        $this->doneCache = 1;
     }
 
     /**
@@ -171,5 +134,42 @@ class TrapsMatching extends AbstractObject
         $this->generateObject($trapId, $trapMatchCache[$trapId]);
 
         return $trapMatchCache;
+    }
+
+    /**
+     * Build cache for trap matches
+     *
+     * @return void
+     */
+    private function cacheTrapMatch(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT *
+            FROM traps_matching_properties'
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            if (! isset($this->trapMatchCache[$value['trap_id']])) {
+                $this->trapMatchCache[$value['trap_id']] = [];
+            }
+            $this->trapMatchCache[$value['trap_id']][] = &$value;
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->cacheTrapMatch();
+        $this->doneCache = 1;
     }
 }

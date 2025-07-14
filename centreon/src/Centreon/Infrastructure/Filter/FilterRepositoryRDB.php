@@ -85,26 +85,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     }
 
     /**
-     * @param Filter $filter
-     * @return array<string, mixed>
-     */
-    private function buildCriteriasFromFilter(Filter $filter): array
-    {
-        $criterias = $filter->getCriterias();
-
-        return array_map(
-            static fn (FilterCriteria $criteria): array => [
-                'name' => $criteria->getName(),
-                'type' => $criteria->getType(),
-                'object_type' => $criteria->getObjectType(),
-                'value' => $criteria->getValue(),
-                'search_data' => $criteria->getSearchData(),
-            ],
-            $criterias
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function updateFilter(Filter $filter): void
@@ -209,85 +189,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     }
 
     /**
-     * Retrieve all filters linked to a user id
-     *
-     * @param int $userId user id for which we want to find filters
-     * @param string $pageName page name
-     * @param string|null $searchRequest search request
-     * @param string|null $sortRequest sort request
-     * @param string|null $paginationRequest pagination request
-     * @throws \Exception
-     * @return Filter[]
-     */
-    private function findFiltersByUserId(
-        int $userId,
-        string $pageName,
-        ?string $searchRequest = null,
-        ?string $sortRequest = null,
-        ?string $paginationRequest = null
-    ): array {
-        $request = $this->translateDbName('
-            SELECT SQL_CALC_FOUND_ROWS id, name, user_id, page_name, criterias, `order`
-            FROM `:db`.user_filter
-        ');
-
-        // Search
-        $request .= ! is_null($searchRequest) ? $searchRequest . ' AND ' : ' WHERE ';
-        $request .= 'user_id = :user_id AND page_name = :page_name';
-        $this->sqlRequestTranslator->addSearchValue(':user_id', [\PDO::PARAM_INT => $userId]);
-        $this->sqlRequestTranslator->addSearchValue(':page_name', [\PDO::PARAM_STR => $pageName]);
-
-        // Sort
-        $request .= ! is_null($sortRequest) ? $sortRequest : ' ORDER BY `order` ASC';
-
-        // Pagination
-        $request .= ! is_null($paginationRequest) ? $paginationRequest : '';
-
-        $statement = $this->db->prepare($request);
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-
-        $statement->execute();
-
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        $filters = [];
-        while (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /**
-             * @var FilterCriteria[] $filterCriterias
-             */
-            $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
-                $filterCriterias[] = EntityCreator::createEntityByArray(
-                    FilterCriteria::class,
-                    $filterCriteria
-                );
-            }
-
-            $filter['criterias'] = $filterCriterias;
-
-            /**
-             * @var Filter $filterEntity
-             */
-            $filterEntity = EntityCreator::createEntityByArray(
-                Filter::class,
-                $filter
-            );
-
-            $filters[] = $filterEntity;
-        }
-
-        return $filters;
-    }
-
-    /**
      * {@inheritDoc}
      * @throws \Exception
      */
@@ -377,6 +278,105 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         }
 
         return null;
+    }
+
+    /**
+     * @param Filter $filter
+     * @return array<string, mixed>
+     */
+    private function buildCriteriasFromFilter(Filter $filter): array
+    {
+        $criterias = $filter->getCriterias();
+
+        return array_map(
+            static fn (FilterCriteria $criteria): array => [
+                'name' => $criteria->getName(),
+                'type' => $criteria->getType(),
+                'object_type' => $criteria->getObjectType(),
+                'value' => $criteria->getValue(),
+                'search_data' => $criteria->getSearchData(),
+            ],
+            $criterias
+        );
+    }
+
+    /**
+     * Retrieve all filters linked to a user id
+     *
+     * @param int $userId user id for which we want to find filters
+     * @param string $pageName page name
+     * @param string|null $searchRequest search request
+     * @param string|null $sortRequest sort request
+     * @param string|null $paginationRequest pagination request
+     * @throws \Exception
+     * @return Filter[]
+     */
+    private function findFiltersByUserId(
+        int $userId,
+        string $pageName,
+        ?string $searchRequest = null,
+        ?string $sortRequest = null,
+        ?string $paginationRequest = null
+    ): array {
+        $request = $this->translateDbName('
+            SELECT SQL_CALC_FOUND_ROWS id, name, user_id, page_name, criterias, `order`
+            FROM `:db`.user_filter
+        ');
+
+        // Search
+        $request .= ! is_null($searchRequest) ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= 'user_id = :user_id AND page_name = :page_name';
+        $this->sqlRequestTranslator->addSearchValue(':user_id', [\PDO::PARAM_INT => $userId]);
+        $this->sqlRequestTranslator->addSearchValue(':page_name', [\PDO::PARAM_STR => $pageName]);
+
+        // Sort
+        $request .= ! is_null($sortRequest) ? $sortRequest : ' ORDER BY `order` ASC';
+
+        // Pagination
+        $request .= ! is_null($paginationRequest) ? $paginationRequest : '';
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $filters = [];
+        while (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var FilterCriteria[] $filterCriterias
+             */
+            $filterCriterias = [];
+            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+                $filterCriterias[] = EntityCreator::createEntityByArray(
+                    FilterCriteria::class,
+                    $filterCriteria
+                );
+            }
+
+            $filter['criterias'] = $filterCriterias;
+
+            /**
+             * @var Filter $filterEntity
+             */
+            $filterEntity = EntityCreator::createEntityByArray(
+                Filter::class,
+                $filter
+            );
+
+            $filters[] = $filterEntity;
+        }
+
+        return $filters;
     }
 
     /**

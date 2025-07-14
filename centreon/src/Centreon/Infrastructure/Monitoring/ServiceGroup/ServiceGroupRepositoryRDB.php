@@ -213,6 +213,16 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function setContact(ContactInterface $contact): ServiceGroupRepositoryInterface
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
      * Check if the contact is admin
      *
      * @return bool
@@ -222,16 +232,6 @@ final class ServiceGroupRepositoryRDB extends AbstractRepositoryDRB implements S
         return ($this->contact !== null)
             ? $this->contact->isAdmin()
             : false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setContact(ContactInterface $contact): ServiceGroupRepositoryInterface
-    {
-        $this->contact = $contact;
-
-        return $this;
     }
 
     /**

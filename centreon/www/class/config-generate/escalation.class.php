@@ -51,42 +51,6 @@ class Escalation extends AbstractObject
     /** @var */
     public $sg_build;
 
-    /** @var int */
-    private $use_cache = 1;
-
-    /** @var int */
-    private $done_cache = 0;
-
-    /** @var int */
-    private $has_escalation = 1; // by default, we have.
-
-    /** @var array */
-    private $escalation_cache = [];
-
-    /** @var array */
-    private $escalation_linked_cg_cache = [];
-
-    /** @var array */
-    private $escalation_linked_host_cache = [];
-
-    /** @var array */
-    private $escalation_linked_hg_cache = [];
-
-    /** @var array */
-    private $escalation_linked_service_cache = [];
-
-    /** @var array */
-    private $escalation_linked_sg_cache = [];
-
-    /** @var array */
-    private $escalation_linked_meta_cache = [];
-
-    /** @var array */
-    private $hosts_build = [];
-
-    /** @var array */
-    private $services_build = [];
-
     /** @var string */
     protected $generate_filename = 'escalations.cfg';
 
@@ -146,6 +110,42 @@ class Escalation extends AbstractObject
     /** @var null */
     protected $stmt_meta = null;
 
+    /** @var int */
+    private $use_cache = 1;
+
+    /** @var int */
+    private $done_cache = 0;
+
+    /** @var int */
+    private $has_escalation = 1; // by default, we have.
+
+    /** @var array */
+    private $escalation_cache = [];
+
+    /** @var array */
+    private $escalation_linked_cg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_host_cache = [];
+
+    /** @var array */
+    private $escalation_linked_hg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_service_cache = [];
+
+    /** @var array */
+    private $escalation_linked_sg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_meta_cache = [];
+
+    /** @var array */
+    private $hosts_build = [];
+
+    /** @var array */
+    private $services_build = [];
+
     /**
      * Escalation constructor
      *
@@ -161,6 +161,119 @@ class Escalation extends AbstractObject
         $this->hg_instance = Hostgroup::getInstance($this->dependencyInjector);
         $this->sg_instance = Servicegroup::getInstance($this->dependencyInjector);
         $this->buildCache();
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    public function doHostService(): void
+    {
+        $services = $this->service_instance->getGeneratedServices();
+        foreach ($services as $host_id => &$values) {
+            $this->addHost($host_id);
+            foreach ($values as $service_id) {
+                $this->addService($host_id, $service_id);
+            }
+        }
+
+        $this->generateHosts();
+        $this->generateServices();
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    public function doHostgroup(): void
+    {
+        $hostgroups = $this->hg_instance->getHostgroups();
+        foreach ($hostgroups as $hg_id => &$value) {
+            $this->addHostgroup($hg_id, $value);
+        }
+
+        $this->generateHostgroups();
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    public function doServicegroup(): void
+    {
+        $servicegroups = $this->sg_instance->getServicegroups();
+        foreach ($servicegroups as $sg_id => &$value) {
+            $this->addServicegroup($sg_id);
+        }
+
+        $this->generateServicegroups();
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return int|void
+     */
+    public function doMetaService()
+    {
+        if (! MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
+            return 0;
+        }
+        $this->object_name = 'serviceescalation';
+        foreach (MetaService::getInstance($this->dependencyInjector)->getGeneratedServices() as $meta_id) {
+            $escalation = $this->getEscalationFromMetaId($meta_id);
+            foreach ($escalation as $escalation_id) {
+                $object = $this->getEscalationFromId($escalation_id);
+                $object['host_name'] = ['_Module_Meta'];
+                $object['service_description'] = ['meta_' . $meta_id];
+                $object['escalation_options'] = $object['escalation_options_service'];
+                // Dont care of the id (we set 0)
+                $this->generateSubObjects($object, $escalation_id);
+                $this->generateObjectInFile($object, 0);
+            }
+        }
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return int|void
+     */
+    public function generateObjects()
+    {
+        if ($this->has_escalation == 0) {
+            return 0;
+        }
+        $this->doHostgroup();
+        $this->doHostService();
+        $this->doServicegroup();
+        $this->doMetaService();
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->hosts_build = [];
+        $this->services_build = [];
+        $this->hg_build = [];
+        $this->sg_build = [];
+        parent::reset();
     }
 
     /**
@@ -611,118 +724,5 @@ class Escalation extends AbstractObject
             $this->generateSubObjects($object, $escalation_id);
             $this->generateObjectInFile($object, 0);
         }
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void
-     */
-    public function doHostService(): void
-    {
-        $services = $this->service_instance->getGeneratedServices();
-        foreach ($services as $host_id => &$values) {
-            $this->addHost($host_id);
-            foreach ($values as $service_id) {
-                $this->addService($host_id, $service_id);
-            }
-        }
-
-        $this->generateHosts();
-        $this->generateServices();
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void
-     */
-    public function doHostgroup(): void
-    {
-        $hostgroups = $this->hg_instance->getHostgroups();
-        foreach ($hostgroups as $hg_id => &$value) {
-            $this->addHostgroup($hg_id, $value);
-        }
-
-        $this->generateHostgroups();
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void
-     */
-    public function doServicegroup(): void
-    {
-        $servicegroups = $this->sg_instance->getServicegroups();
-        foreach ($servicegroups as $sg_id => &$value) {
-            $this->addServicegroup($sg_id);
-        }
-
-        $this->generateServicegroups();
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int|void
-     */
-    public function doMetaService()
-    {
-        if (! MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
-            return 0;
-        }
-        $this->object_name = 'serviceescalation';
-        foreach (MetaService::getInstance($this->dependencyInjector)->getGeneratedServices() as $meta_id) {
-            $escalation = $this->getEscalationFromMetaId($meta_id);
-            foreach ($escalation as $escalation_id) {
-                $object = $this->getEscalationFromId($escalation_id);
-                $object['host_name'] = ['_Module_Meta'];
-                $object['service_description'] = ['meta_' . $meta_id];
-                $object['escalation_options'] = $object['escalation_options_service'];
-                // Dont care of the id (we set 0)
-                $this->generateSubObjects($object, $escalation_id);
-                $this->generateObjectInFile($object, 0);
-            }
-        }
-    }
-
-    /**
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int|void
-     */
-    public function generateObjects()
-    {
-        if ($this->has_escalation == 0) {
-            return 0;
-        }
-        $this->doHostgroup();
-        $this->doHostService();
-        $this->doServicegroup();
-        $this->doMetaService();
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->hosts_build = [];
-        $this->services_build = [];
-        $this->hg_build = [];
-        $this->sg_build = [];
-        parent::reset();
     }
 }

@@ -69,11 +69,11 @@ abstract class CentreonObject
     public const SINGLE_VALUE = 0;
     public const MULTIPLE_VALUE = 1;
 
-    /** @var array */
-    protected static $instances;
-
     /** @var CentreonApi */
     public $api;
+
+    /** @var array */
+    protected static $instances;
 
     /** @var CentreonDB */
     protected $db;
@@ -191,33 +191,6 @@ abstract class CentreonObject
     }
 
     /**
-     * Checks if object exists
-     *
-     * @param string $name
-     * @param null $updateId
-     *
-     * @throws Exception
-     * @return bool
-     */
-    protected function objectExists($name, $updateId = null)
-    {
-        $ids = $this->object->getList(
-            $this->object->getPrimaryKey(),
-            -1,
-            0,
-            null,
-            null,
-            [$this->object->getUniqueLabelField() => $name],
-            'AND'
-        );
-        if (isset($updateId) && count($ids)) {
-            return ! ($ids[0][$this->object->getPrimaryKey()] == $updateId);
-        }
-
-        return (bool) (count($ids));
-    }
-
-    /**
      * Get Object Id
      *
      * @param string $name
@@ -274,22 +247,6 @@ abstract class CentreonObject
         }
 
         return $protocol . '://' . $_SERVER['HTTP_HOST'] . $port . $uri;
-    }
-
-    /**
-     * @throws CentreonClapiException
-     */
-    protected function checkParameters()
-    {
-        if (! isset($this->params[$this->object->getUniqueLabelField()])) {
-            throw new CentreonClapiException(self::MISSINGNAMEPARAMETER);
-        }
-        if ($this->objectExists($this->params[$this->object->getUniqueLabelField()]) === true) {
-            throw new CentreonClapiException(
-                self::OBJECTALREADYEXISTS . ' ('
-                . $this->params[$this->object->getUniqueLabelField()] . ')'
-            );
-        }
     }
 
     /**
@@ -424,30 +381,6 @@ abstract class CentreonObject
     }
 
     /**
-     * Set the activate field
-     *
-     * @param string $objectName
-     * @param int $value
-     * @throws CentreonClapiException
-     */
-    protected function activate($objectName, $value)
-    {
-        if (! isset($objectName) || ! $objectName) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-        if (isset($this->activateField)) {
-            $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
-            if (count($ids)) {
-                $this->object->update($ids[0], [$this->activateField => $value]);
-            } else {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $objectName);
-            }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
-        }
-    }
-
-    /**
      * Enable object
      *
      * @param string $objectName
@@ -471,37 +404,6 @@ abstract class CentreonObject
     public function disable($objectName): void
     {
         $this->activate($objectName, '0');
-    }
-
-    /**
-     * @param $filterName
-     *
-     * @return bool
-     */
-    protected function canBeExported($filterName = null)
-    {
-        $exported = CentreonExported::getInstance();
-
-        if (is_null($this->action)) {
-            return false;
-        }
-
-        if (is_null($filterName)) {
-            return true;
-        }
-
-        $filterId = $this->getObjectId($filterName);
-        $filterIds = is_array($filterId) ? $filterId : [$filterId];
-        foreach ($filterIds as $filterId) {
-            $exported->arianePush($this->action, $filterId, $filterName);
-            if ($exported->isExported($this->action, $filterId, $filterName)) {
-                $exported->arianePop();
-
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -666,6 +568,104 @@ abstract class CentreonObject
         }
 
         return self::$instances[$class];
+    }
+
+    /**
+     * Checks if object exists
+     *
+     * @param string $name
+     * @param null $updateId
+     *
+     * @throws Exception
+     * @return bool
+     */
+    protected function objectExists($name, $updateId = null)
+    {
+        $ids = $this->object->getList(
+            $this->object->getPrimaryKey(),
+            -1,
+            0,
+            null,
+            null,
+            [$this->object->getUniqueLabelField() => $name],
+            'AND'
+        );
+        if (isset($updateId) && count($ids)) {
+            return ! ($ids[0][$this->object->getPrimaryKey()] == $updateId);
+        }
+
+        return (bool) (count($ids));
+    }
+
+    /**
+     * @throws CentreonClapiException
+     */
+    protected function checkParameters()
+    {
+        if (! isset($this->params[$this->object->getUniqueLabelField()])) {
+            throw new CentreonClapiException(self::MISSINGNAMEPARAMETER);
+        }
+        if ($this->objectExists($this->params[$this->object->getUniqueLabelField()]) === true) {
+            throw new CentreonClapiException(
+                self::OBJECTALREADYEXISTS . ' ('
+                . $this->params[$this->object->getUniqueLabelField()] . ')'
+            );
+        }
+    }
+
+    /**
+     * Set the activate field
+     *
+     * @param string $objectName
+     * @param int $value
+     * @throws CentreonClapiException
+     */
+    protected function activate($objectName, $value)
+    {
+        if (! isset($objectName) || ! $objectName) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+        if (isset($this->activateField)) {
+            $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$objectName]);
+            if (count($ids)) {
+                $this->object->update($ids[0], [$this->activateField => $value]);
+            } else {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $objectName);
+            }
+        } else {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+    }
+
+    /**
+     * @param $filterName
+     *
+     * @return bool
+     */
+    protected function canBeExported($filterName = null)
+    {
+        $exported = CentreonExported::getInstance();
+
+        if (is_null($this->action)) {
+            return false;
+        }
+
+        if (is_null($filterName)) {
+            return true;
+        }
+
+        $filterId = $this->getObjectId($filterName);
+        $filterIds = is_array($filterId) ? $filterId : [$filterId];
+        foreach ($filterIds as $filterId) {
+            $exported->arianePush($this->action, $filterId, $filterName);
+            if ($exported->isExported($this->action, $filterId, $filterName)) {
+                $exported->arianePop();
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

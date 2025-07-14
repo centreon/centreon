@@ -82,14 +82,6 @@ class UpdatePartiallyPlatformInformation
     }
 
     /**
-     * @param DtoValidatorInterface $dtoValidator
-     */
-    private function addValidator(DtoValidatorInterface $dtoValidator): void
-    {
-        $this->validators[] = $dtoValidator;
-    }
-
-    /**
      * Execute the use case for which this class was designed.
      *
      * @param array<string,mixed> $request
@@ -145,6 +137,14 @@ class UpdatePartiallyPlatformInformation
         }
 
         $this->writeRepository->updatePlatformInformation($platformInformationToUpdate);
+    }
+
+    /**
+     * @param DtoValidatorInterface $dtoValidator
+     */
+    private function addValidator(DtoValidatorInterface $dtoValidator): void
+    {
+        $this->validators[] = $dtoValidator;
     }
 
     /**

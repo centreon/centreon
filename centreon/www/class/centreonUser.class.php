@@ -96,26 +96,11 @@ class CentreonUser
     /** @var CentreonUserLog */
     public $log;
 
-    /** @var string|null */
-    protected $token;
-
     /** @var int|mixed */
     public $default_page;
 
-    /** @var bool */
-    private $showDeprecatedPages;
-
-    /** @var int */
-    private $currentPage;
-
     /** @var string|null */
     public $theme;
-
-    /** @var bool */
-    protected $restApi;
-
-    /** @var bool */
-    protected $restApiRt;
 
     // User LCA
     // Array with elements ID for loop test
@@ -128,6 +113,21 @@ class CentreonUser
 
     /** @var string */
     public $authType;
+
+    /** @var string|null */
+    protected $token;
+
+    /** @var bool */
+    protected $restApi;
+
+    /** @var bool */
+    protected $restApiRt;
+
+    /** @var bool */
+    private $showDeprecatedPages;
+
+    /** @var int */
+    private $currentPage;
 
     private bool $showDeprecatedCustomViews;
 

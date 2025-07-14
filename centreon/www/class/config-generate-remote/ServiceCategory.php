@@ -35,21 +35,6 @@ use Pimple\Container;
  */
 class ServiceCategory extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $serviceSeverityCache = [];
-
-    /** @var array */
-    private $serviceSeverityByNameCache = [];
-
-    /** @var array */
-    private $serviceLinkedCache = [];
-
     /** @var string */
     protected $table = 'service_categories';
 
@@ -71,6 +56,21 @@ class ServiceCategory extends AbstractObject
         'icon_id',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $serviceSeverityCache = [];
+
+    /** @var array */
+    private $serviceSeverityByNameCache = [];
+
+    /** @var array */
+    private $serviceLinkedCache = [];
+
     /**
      * ServiceCategory constructor
      *
@@ -80,70 +80,6 @@ class ServiceCategory extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of service severity
-     *
-     * @return void
-     */
-    private function cacheServiceSeverity(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT sc_name, sc_id, level, icon_id
-            FROM service_categories
-            WHERE level IS NOT NULL AND sc_activate = '1'"
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->serviceSeverityByNameCache[$value['sc_name']] = &$value;
-            $this->serviceSeverityCache[$value['sc_id']] = &$value;
-        }
-    }
-
-    /**
-     * Build cache of relations between service and severity
-     *
-     * @return void
-     */
-    private function cacheServiceSeverityLinked(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT service_categories.sc_id, service_service_id '
-            . 'FROM service_categories, service_categories_relation '
-            . 'WHERE level IS NOT NULL '
-            . 'AND sc_activate = "1" '
-            . 'AND service_categories_relation.sc_id = service_categories.sc_id'
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->serviceLinkedCache[$value['service_service_id']])) {
-                if ($this->serviceSeverityCache[$value['sc_id']]['level']
-                    < $this->serviceSeverityCache[$this->serviceLinkedCache[$value['service_service_id']]]
-                ) {
-                    $this->serviceLinkedCache[$value['service_service_id']] = $value['sc_id'];
-                }
-            } else {
-                $this->serviceLinkedCache[$value['service_service_id']] = $value['sc_id'];
-            }
-        }
-    }
-
-    /**
-     * Build cache
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->cacheServiceSeverity();
-        $this->cacheServiceSeverityLinked();
-        $this->doneCache = 1;
     }
 
     /**
@@ -283,5 +219,69 @@ class ServiceCategory extends AbstractObject
         $this->serviceSeverityCache[$hcName] = &$severity;
 
         return $severity['sc_id'];
+    }
+
+    /**
+     * Build cache of service severity
+     *
+     * @return void
+     */
+    private function cacheServiceSeverity(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT sc_name, sc_id, level, icon_id
+            FROM service_categories
+            WHERE level IS NOT NULL AND sc_activate = '1'"
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->serviceSeverityByNameCache[$value['sc_name']] = &$value;
+            $this->serviceSeverityCache[$value['sc_id']] = &$value;
+        }
+    }
+
+    /**
+     * Build cache of relations between service and severity
+     *
+     * @return void
+     */
+    private function cacheServiceSeverityLinked(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT service_categories.sc_id, service_service_id '
+            . 'FROM service_categories, service_categories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND sc_activate = "1" '
+            . 'AND service_categories_relation.sc_id = service_categories.sc_id'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->serviceLinkedCache[$value['service_service_id']])) {
+                if ($this->serviceSeverityCache[$value['sc_id']]['level']
+                    < $this->serviceSeverityCache[$this->serviceLinkedCache[$value['service_service_id']]]
+                ) {
+                    $this->serviceLinkedCache[$value['service_service_id']] = $value['sc_id'];
+                }
+            } else {
+                $this->serviceLinkedCache[$value['service_service_id']] = $value['sc_id'];
+            }
+        }
+    }
+
+    /**
+     * Build cache
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->cacheServiceSeverity();
+        $this->cacheServiceSeverityLinked();
+        $this->doneCache = 1;
     }
 }

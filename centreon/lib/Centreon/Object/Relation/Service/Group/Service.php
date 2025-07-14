@@ -45,6 +45,18 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
     protected $secondKey = 'service_service_id';
 
     /**
+     * This call will directly throw an exception
+     *
+     * @param string $name
+     * @param array $arg
+     * @throws Exception
+     */
+    public function __call($name, $arg = [])
+    {
+        throw new Exception('Unknown method');
+    }
+
+    /**
      * Used for inserting relation into database
      * @param int $fkey
      * @param null $key
@@ -118,17 +130,5 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
         }
 
         return $tab;
-    }
-
-    /**
-     * This call will directly throw an exception
-     *
-     * @param string $name
-     * @param array $arg
-     * @throws Exception
-     */
-    public function __call($name, $arg = [])
-    {
-        throw new Exception('Unknown method');
     }
 }

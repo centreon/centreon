@@ -97,38 +97,97 @@ class CentreonResourceCfg extends CentreonObject
     }
 
     /**
-     * Checks if macro is unique on a given poller
+     * Magic method
      *
-     * @param $macro
-     * @param int $pollerId
-     *
+     * @param string $name
+     * @param array $arg
      * @throws CentreonClapiException
-     * @throws PDOException
-     * @return bool
+     * @return void
      */
-    protected function isUnique($macro, $pollerId)
+    public function __call($name, $arg)
     {
-        if (is_numeric($macro)) {
-            $stmt = $this->db->query('SELECT resource_name FROM cfg_resource WHERE resource_id = ?', [$macro]);
-            $res = $stmt->fetchAll();
-            if (count($res)) {
-                $macroName = $res[0]['resource_name'];
-            } else {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
+        // Get the method name
+        $name = strtolower($name);
+        // Get the action and the object
+        if (preg_match('/^(get|set|add|del)([a-zA-Z_]+)/', $name, $matches)) {
+            switch ($matches[2]) {
+                case 'instance':
+                    $class = 'Centreon_Object_Instance';
+                    $relclass = 'Centreon_Object_Relation_Instance_Resource';
+                    break;
+                default:
+                    throw new CentreonClapiException(self::UNKNOWN_METHOD);
+                    break;
             }
-            unset($res, $stmt);
 
+            if (class_exists($relclass) && class_exists($class)) {
+                // Parse arguments
+                if (! isset($arg[0])) {
+                    throw new CentreonClapiException(self::MISSINGPARAMETER);
+                }
+                $args = explode($this->delim, $arg[0]);
+
+                $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
+                if (isset($object[0][$this->object->getPrimaryKey()])) {
+                    $objectId = $object[0][$this->object->getPrimaryKey()];
+                } else {
+                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
+                }
+
+                $relobj = new $relclass($this->dependencyInjector);
+                $obj = new $class($this->dependencyInjector);
+                if ($matches[1] == 'get') {
+                    $tab = $relobj->getTargetIdFromSourceId(
+                        $relobj->getFirstKey(),
+                        $relobj->getSecondKey(),
+                        $objectId
+                    );
+                    echo 'id' . $this->delim . 'name' . "\n";
+                    foreach ($tab as $value) {
+                        $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
+                        echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
+                    }
+                } else {
+                    if (! isset($args[1])) {
+                        throw new CentreonClapiException(self::MISSINGPARAMETER);
+                    }
+                    $relations = explode('|', $args[1]);
+                    $relationTable = [];
+                    foreach ($relations as $rel) {
+                        $sRel = $rel;
+                        if (is_string($rel)) {
+                            $rel = htmlentities($rel, ENT_QUOTES, 'UTF-8');
+                        }
+                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
+                        if (! count($tab)) {
+                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $sRel);
+                        }
+                        $relationTable[] = $tab[0];
+                    }
+                    if ($matches[1] == 'set') {
+                        $relobj->delete(null, $objectId);
+                    }
+                    $existingRelationIds = $relobj->getTargetIdFromSourceId(
+                        $relobj->getFirstKey(),
+                        $relobj->getSecondKey(),
+                        $objectId
+                    );
+                    foreach ($relationTable as $relationId) {
+                        if ($matches[1] == 'del') {
+                            $relobj->delete($relationId, $objectId);
+                        } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
+                            if (! in_array($relationId, $existingRelationIds)) {
+                                $relobj->insert($relationId, $objectId);
+                            }
+                        }
+                    }
+                }
+            } else {
+                throw new CentreonClapiException(self::UNKNOWN_METHOD);
+            }
         } else {
-            $macroName = $macro;
+            throw new CentreonClapiException(self::UNKNOWN_METHOD);
         }
-        $stmt = $this->db->query('SELECT r.resource_id
-                                  FROM cfg_resource r, cfg_resource_instance_relations rir
-                                  WHERE r.resource_id = rir.resource_id
-                                  AND rir.instance_id = ?
-                                  AND r.resource_name = ?', [$pollerId, $macroName]);
-        $res = $stmt->fetchAll();
-
-        return ! (count($res));
     }
 
     /**
@@ -327,21 +386,6 @@ class CentreonResourceCfg extends CentreonObject
     }
 
     /**
-     * Set Instance relations
-     *
-     * @param int $resourceId
-     * @param array $instances
-     * @return void
-     */
-    protected function setRelations($resourceId, $instances)
-    {
-        $this->relObj->delete_resource_id($resourceId);
-        foreach ($instances as $instanceId) {
-            $this->relObj->insert($instanceId, $resourceId);
-        }
-    }
-
-    /**
      * @param null $filterName
      *
      * @throws Exception
@@ -408,96 +452,52 @@ class CentreonResourceCfg extends CentreonObject
     }
 
     /**
-     * Magic method
+     * Checks if macro is unique on a given poller
      *
-     * @param string $name
-     * @param array $arg
+     * @param $macro
+     * @param int $pollerId
+     *
      * @throws CentreonClapiException
+     * @throws PDOException
+     * @return bool
+     */
+    protected function isUnique($macro, $pollerId)
+    {
+        if (is_numeric($macro)) {
+            $stmt = $this->db->query('SELECT resource_name FROM cfg_resource WHERE resource_id = ?', [$macro]);
+            $res = $stmt->fetchAll();
+            if (count($res)) {
+                $macroName = $res[0]['resource_name'];
+            } else {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
+            }
+            unset($res, $stmt);
+
+        } else {
+            $macroName = $macro;
+        }
+        $stmt = $this->db->query('SELECT r.resource_id
+                                  FROM cfg_resource r, cfg_resource_instance_relations rir
+                                  WHERE r.resource_id = rir.resource_id
+                                  AND rir.instance_id = ?
+                                  AND r.resource_name = ?', [$pollerId, $macroName]);
+        $res = $stmt->fetchAll();
+
+        return ! (count($res));
+    }
+
+    /**
+     * Set Instance relations
+     *
+     * @param int $resourceId
+     * @param array $instances
      * @return void
      */
-    public function __call($name, $arg)
+    protected function setRelations($resourceId, $instances)
     {
-        // Get the method name
-        $name = strtolower($name);
-        // Get the action and the object
-        if (preg_match('/^(get|set|add|del)([a-zA-Z_]+)/', $name, $matches)) {
-            switch ($matches[2]) {
-                case 'instance':
-                    $class = 'Centreon_Object_Instance';
-                    $relclass = 'Centreon_Object_Relation_Instance_Resource';
-                    break;
-                default:
-                    throw new CentreonClapiException(self::UNKNOWN_METHOD);
-                    break;
-            }
-
-            if (class_exists($relclass) && class_exists($class)) {
-                // Parse arguments
-                if (! isset($arg[0])) {
-                    throw new CentreonClapiException(self::MISSINGPARAMETER);
-                }
-                $args = explode($this->delim, $arg[0]);
-
-                $object = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$args[0]]);
-                if (isset($object[0][$this->object->getPrimaryKey()])) {
-                    $objectId = $object[0][$this->object->getPrimaryKey()];
-                } else {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
-                }
-
-                $relobj = new $relclass($this->dependencyInjector);
-                $obj = new $class($this->dependencyInjector);
-                if ($matches[1] == 'get') {
-                    $tab = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $objectId
-                    );
-                    echo 'id' . $this->delim . 'name' . "\n";
-                    foreach ($tab as $value) {
-                        $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
-                        echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
-                    }
-                } else {
-                    if (! isset($args[1])) {
-                        throw new CentreonClapiException(self::MISSINGPARAMETER);
-                    }
-                    $relations = explode('|', $args[1]);
-                    $relationTable = [];
-                    foreach ($relations as $rel) {
-                        $sRel = $rel;
-                        if (is_string($rel)) {
-                            $rel = htmlentities($rel, ENT_QUOTES, 'UTF-8');
-                        }
-                        $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
-                        if (! count($tab)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $sRel);
-                        }
-                        $relationTable[] = $tab[0];
-                    }
-                    if ($matches[1] == 'set') {
-                        $relobj->delete(null, $objectId);
-                    }
-                    $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $objectId
-                    );
-                    foreach ($relationTable as $relationId) {
-                        if ($matches[1] == 'del') {
-                            $relobj->delete($relationId, $objectId);
-                        } elseif ($matches[1] == 'set' || $matches[1] == 'add') {
-                            if (! in_array($relationId, $existingRelationIds)) {
-                                $relobj->insert($relationId, $objectId);
-                            }
-                        }
-                    }
-                }
-            } else {
-                throw new CentreonClapiException(self::UNKNOWN_METHOD);
-            }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        $this->relObj->delete_resource_id($resourceId);
+        foreach ($instances as $instanceId) {
+            $this->relObj->insert($instanceId, $resourceId);
         }
     }
 }

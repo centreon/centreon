@@ -22,6 +22,14 @@
 class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
 {
     /**
+     * @return string
+     */
+    public function toHtml()
+    {
+        return '<div class="md-radio md-radio-inline">' . parent::toHtml() . '</div>';
+    }
+
+    /**
      * Tries to find the element value from the values array
      * This is a modified version of the original _findValue()
      * Which has changes for loading the default values
@@ -58,13 +66,5 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
         }
 
         return null;
-    }
-
-    /**
-     * @return string
-     */
-    public function toHtml()
-    {
-        return '<div class="md-radio md-radio-inline">' . parent::toHtml() . '</div>';
     }
 }

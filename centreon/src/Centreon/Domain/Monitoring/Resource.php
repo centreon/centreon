@@ -39,6 +39,12 @@ class Resource
     public const TYPE_HOST = 'host';
     public const TYPE_META = 'metaservice';
 
+    /** @var string|null */
+    protected $commandLine;
+
+    /** @var int|null */
+    protected $criticality;
+
     /** @var int|null */
     private $resourceId;
 
@@ -66,9 +72,6 @@ class Resource
     /** @var Icon|null */
     private $icon;
 
-    /** @var string|null */
-    protected $commandLine;
-
     /** @var string */
     private $monitoringServerName;
 
@@ -83,9 +86,6 @@ class Resource
 
     /** @var float|null */
     private ?float $percentStateChange = null;
-
-    /** @var int|null */
-    protected $criticality;
 
     /** @var bool */
     private $inDowntime = false;

@@ -314,31 +314,6 @@ class CentreonContact
     }
 
     /**
-     * Get excluded users from password expiration policy
-     *
-     * @throws PDOException
-     * @return string[]
-     */
-    private function getPasswordExpirationExcludedUsers(): array
-    {
-        $statement = $this->db->query(
-            "SELECT c.`contact_alias`
-            FROM `password_expiration_excluded_users` peeu
-            INNER JOIN `provider_configuration` pc ON pc.`id` = peeu.`provider_configuration_id`
-            AND pc.`name` = 'local'
-            INNER JOIN `contact` c ON c.`contact_id` = peeu.`user_id`
-            AND c.`contact_register` = 1"
-        );
-
-        $excludedUsers = [];
-        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-            $excludedUsers[] = $row['contact_alias'];
-        }
-
-        return $excludedUsers;
-    }
-
-    /**
      * Check if a password respects configured policy
      *
      * @param string $password
@@ -359,66 +334,6 @@ class CentreonContact
                 $password,
                 $contactId,
             );
-        }
-    }
-
-    /**
-     * Check if a password respects configured policy about characters (length, special characters, ...)
-     *
-     * @param array<string,mixed> $passwordPolicy
-     * @param string $password
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function respectPasswordCharactersOrFail(array $passwordPolicy, string $password): void
-    {
-        $doesRespectPassword = true;
-
-        $errorMessage = sprintf(
-            _('Your password must be %d characters long'),
-            (int) $passwordPolicy['password_length']
-        );
-        if (strlen($password) < (int) $passwordPolicy['password_length']) {
-            $doesRespectPassword = false;
-        }
-
-        $characterRules = [
-            'has_uppercase_characters' => [
-                'pattern' => '/[A-Z]/',
-                'error_message' =>  _('uppercase characters'),
-            ],
-            'has_lowercase_characters' => [
-                'pattern' => '/[a-z]/',
-                'error_message' =>  _('lowercase characters'),
-            ],
-            'has_numbers' => [
-                'pattern' => '/[0-9]/',
-                'error_message' =>  _('numbers'),
-            ],
-            'has_special_characters' => [
-                'pattern' => '/[' . SecurityPolicy::SPECIAL_CHARACTERS_LIST . ']/',
-                'error_message' => sprintf(_("special characters among '%s'"), SecurityPolicy::SPECIAL_CHARACTERS_LIST),
-            ],
-        ];
-        $characterPolicyErrorMessages = [];
-
-        foreach ($characterRules as $characterRule => $characterRuleParameters) {
-            if ((bool) $passwordPolicy[$characterRule] === true) {
-                $characterPolicyErrorMessages[] = $characterRuleParameters['error_message'];
-                if (! preg_match($characterRuleParameters['pattern'], $password)) {
-                    $doesRespectPassword = false;
-                }
-            }
-        }
-
-        if ($doesRespectPassword === false) {
-            if ($characterPolicyErrorMessages !== []) {
-                $errorMessage .= ' ' . _('and must contain') . ' : '
-                    . implode(', ', $characterPolicyErrorMessages) . '.';
-            }
-
-            throw new Exception($errorMessage);
         }
     }
 
@@ -448,51 +363,6 @@ class CentreonContact
         }
 
         return $creationDate;
-    }
-
-    /**
-     * Check if a user password respects configured policy when updated (delay, reuse)
-     *
-     * @param array<string,mixed> $passwordPolicy
-     * @param string $password
-     * @param int $contactId
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function respectPasswordChangePolicyOrFail(array $passwordPolicy, string $password, int $contactId): void
-    {
-        $passwordCreationDate = $this->findLastPasswordCreationDate($contactId);
-
-        if ($passwordCreationDate !== null) {
-            $delayBeforeNewPassword = (int) $passwordPolicy['delay_before_new_password'];
-            $isPasswordCanBeChanged = $passwordCreationDate->getTimestamp() + $delayBeforeNewPassword < time();
-            if (! $isPasswordCanBeChanged) {
-                throw new Exception(
-                    _("You can't change your password because the delay before changing password is not over.")
-                );
-            }
-        }
-
-        if ((bool) $passwordPolicy['can_reuse_passwords'] === false) {
-            $statement = $this->db->prepare(
-                'SELECT id, password FROM `contact_password` WHERE `contact_id` = :contactId'
-            );
-            $statement->bindParam(':contactId', $contactId, PDO::PARAM_INT);
-            $statement->execute();
-
-            $passwordHistory = $statement->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($passwordHistory as $contactPassword) {
-                if (password_verify($password, $contactPassword['password'])) {
-                    throw new Exception(
-                        _(
-                            'Your password has already been used. '
-                            . 'Please choose a different password from the previous three.'
-                        )
-                    );
-                }
-            }
-        }
     }
 
     /**
@@ -557,6 +427,136 @@ class CentreonContact
         $this->addPasswordByContactId($contactId, $hashedPassword);
 
         $this->deleteOldPasswords($contactId);
+    }
+
+    /**
+     * Get excluded users from password expiration policy
+     *
+     * @throws PDOException
+     * @return string[]
+     */
+    private function getPasswordExpirationExcludedUsers(): array
+    {
+        $statement = $this->db->query(
+            "SELECT c.`contact_alias`
+            FROM `password_expiration_excluded_users` peeu
+            INNER JOIN `provider_configuration` pc ON pc.`id` = peeu.`provider_configuration_id`
+            AND pc.`name` = 'local'
+            INNER JOIN `contact` c ON c.`contact_id` = peeu.`user_id`
+            AND c.`contact_register` = 1"
+        );
+
+        $excludedUsers = [];
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $excludedUsers[] = $row['contact_alias'];
+        }
+
+        return $excludedUsers;
+    }
+
+    /**
+     * Check if a password respects configured policy about characters (length, special characters, ...)
+     *
+     * @param array<string,mixed> $passwordPolicy
+     * @param string $password
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function respectPasswordCharactersOrFail(array $passwordPolicy, string $password): void
+    {
+        $doesRespectPassword = true;
+
+        $errorMessage = sprintf(
+            _('Your password must be %d characters long'),
+            (int) $passwordPolicy['password_length']
+        );
+        if (strlen($password) < (int) $passwordPolicy['password_length']) {
+            $doesRespectPassword = false;
+        }
+
+        $characterRules = [
+            'has_uppercase_characters' => [
+                'pattern' => '/[A-Z]/',
+                'error_message' =>  _('uppercase characters'),
+            ],
+            'has_lowercase_characters' => [
+                'pattern' => '/[a-z]/',
+                'error_message' =>  _('lowercase characters'),
+            ],
+            'has_numbers' => [
+                'pattern' => '/[0-9]/',
+                'error_message' =>  _('numbers'),
+            ],
+            'has_special_characters' => [
+                'pattern' => '/[' . SecurityPolicy::SPECIAL_CHARACTERS_LIST . ']/',
+                'error_message' => sprintf(_("special characters among '%s'"), SecurityPolicy::SPECIAL_CHARACTERS_LIST),
+            ],
+        ];
+        $characterPolicyErrorMessages = [];
+
+        foreach ($characterRules as $characterRule => $characterRuleParameters) {
+            if ((bool) $passwordPolicy[$characterRule] === true) {
+                $characterPolicyErrorMessages[] = $characterRuleParameters['error_message'];
+                if (! preg_match($characterRuleParameters['pattern'], $password)) {
+                    $doesRespectPassword = false;
+                }
+            }
+        }
+
+        if ($doesRespectPassword === false) {
+            if ($characterPolicyErrorMessages !== []) {
+                $errorMessage .= ' ' . _('and must contain') . ' : '
+                    . implode(', ', $characterPolicyErrorMessages) . '.';
+            }
+
+            throw new Exception($errorMessage);
+        }
+    }
+
+    /**
+     * Check if a user password respects configured policy when updated (delay, reuse)
+     *
+     * @param array<string,mixed> $passwordPolicy
+     * @param string $password
+     * @param int $contactId
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function respectPasswordChangePolicyOrFail(array $passwordPolicy, string $password, int $contactId): void
+    {
+        $passwordCreationDate = $this->findLastPasswordCreationDate($contactId);
+
+        if ($passwordCreationDate !== null) {
+            $delayBeforeNewPassword = (int) $passwordPolicy['delay_before_new_password'];
+            $isPasswordCanBeChanged = $passwordCreationDate->getTimestamp() + $delayBeforeNewPassword < time();
+            if (! $isPasswordCanBeChanged) {
+                throw new Exception(
+                    _("You can't change your password because the delay before changing password is not over.")
+                );
+            }
+        }
+
+        if ((bool) $passwordPolicy['can_reuse_passwords'] === false) {
+            $statement = $this->db->prepare(
+                'SELECT id, password FROM `contact_password` WHERE `contact_id` = :contactId'
+            );
+            $statement->bindParam(':contactId', $contactId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $passwordHistory = $statement->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($passwordHistory as $contactPassword) {
+                if (password_verify($password, $contactPassword['password'])) {
+                    throw new Exception(
+                        _(
+                            'Your password has already been used. '
+                            . 'Please choose a different password from the previous three.'
+                        )
+                    );
+                }
+            }
+        }
     }
 
     /**

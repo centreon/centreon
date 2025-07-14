@@ -97,6 +97,15 @@ class QueryGenerator
     }
 
     /**
+     * @param string $up
+     * @return void
+     */
+    public function setUp(string $up): void
+    {
+        $this->up = $up;
+    }
+
+    /**
      * @param int|null $is_admin
      * @return void
      */
@@ -148,15 +157,6 @@ class QueryGenerator
     public function setEnd(int $end): void
     {
         $this->end = $end;
-    }
-
-    /**
-     * @param string $up
-     * @return void
-     */
-    public function setUp(string $up): void
-    {
-        $this->up = $up;
     }
 
     /**

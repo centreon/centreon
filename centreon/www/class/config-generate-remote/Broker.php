@@ -83,6 +83,20 @@ class Broker extends AbstractObject
     protected $stmtBroker = null;
 
     /**
+     * Generate engine configuration from poller
+     *
+     * @param array $poller
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function generateFromPoller(array $poller): void
+    {
+        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
+        $this->generate($poller['id']);
+    }
+
+    /**
      * Generate broker configuration from poller id
      *
      * @param int $pollerId
@@ -109,19 +123,5 @@ class Broker extends AbstractObject
                 $row['config_id']
             );
         }
-    }
-
-    /**
-     * Generate engine configuration from poller
-     *
-     * @param array $poller
-     *
-     * @throws Exception
-     * @return void
-     */
-    public function generateFromPoller(array $poller): void
-    {
-        Resource::getInstance($this->dependencyInjector)->generateFromPollerId($poller['id']);
-        $this->generate($poller['id']);
     }
 }

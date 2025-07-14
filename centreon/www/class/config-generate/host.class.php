@@ -79,6 +79,270 @@ class Host extends AbstractHost
     protected $generatedHosts = [];
 
     /**
+     * @param $host_id
+     *
+     * @return mixed
+     */
+    public function getSeverityForService($host_id)
+    {
+        return $this->hosts[$host_id]['severity_id_for_services'];
+    }
+
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return void
+     */
+    public function addHost($host_id, $attr = []): void
+    {
+        $this->hosts[$host_id] = $attr;
+    }
+
+    /**
+     * @param $host
+     * @param $generateConfigurationFile
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function processingFromHost(&$host, $generateConfigurationFile = true): void
+    {
+        $this->getImages($host);
+        $this->getMacros($host);
+        $host['macros']['_HOST_ID'] = $host['host_id'];
+
+        $this->getHostTimezone($host);
+        $this->getHostTemplates($host, $generateConfigurationFile);
+        $this->getHostCommands($host);
+        $this->getHostPeriods($host);
+        $this->getContactGroups($host);
+        $this->getContacts($host);
+        $this->getHostGroups($host);
+
+        // Set HostCategories
+        $hostCategory = HostCategory::getInstance($this->dependencyInjector);
+        $this->insertHostInHostCategoryMembers($hostCategory, $host);
+        $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
+
+        $this->getParents($host);
+        $this->getSeverity($host['host_id']);
+
+        $this->manageNotificationInheritance($host, $generateConfigurationFile);
+
+    }
+
+    /**
+     * @param $host
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromHostId(&$host): void
+    {
+        $this->processingFromHost($host);
+
+        $this->getServices($host);
+        $this->getServicesByHg($host);
+
+        $this->generateObjectInFile($host, $host['host_id']);
+        $this->addGeneratedHost($host['host_id']);
+    }
+
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromPollerId($poller_id, $localhost = 0): void
+    {
+        if (is_null($this->hosts)) {
+            $this->getHosts($poller_id);
+        }
+
+        Service::getInstance($this->dependencyInjector)->set_poller($poller_id);
+
+        foreach ($this->hosts as $host_id => &$host) {
+            $this->hosts_by_name[$host['host_name']] = $host_id;
+            $host['host_id'] = $host_id;
+            $this->generateFromHostId($host);
+        }
+
+        if ($localhost == 1) {
+            MetaService::getInstance($this->dependencyInjector)->generateObjects();
+        }
+
+        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
+        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
+        Escalation::getInstance($this->dependencyInjector)->generateObjects();
+        Dependency::getInstance($this->dependencyInjector)->generateObjects();
+        Severity::getInstance($this->dependencyInjector)->generateObjects();
+        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
+        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
+    }
+
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     */
+    public function getHostIdByHostName($host_name)
+    {
+        return $this->hosts_by_name[$host_name] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratedParentship()
+    {
+        return $this->generated_parentship;
+    }
+
+    /**
+     * @param $hostId
+     *
+     * @return void
+     */
+    public function addGeneratedHost($hostId): void
+    {
+        $this->generatedHosts[] = $hostId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratedHosts()
+    {
+        return $this->generatedHosts;
+    }
+
+    /**
+     * @param int $hostId
+     * @return array
+     */
+    public function getCgAndContacts(int $hostId): array
+    {
+        // we pass null because it can be a meta_host with host_register = '2'
+        $host = $this->getHostById($hostId, null);
+
+        $this->getContacts($host);
+        $this->getContactGroups($host);
+        $this->getHostTemplates($host, false);
+
+        $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
+
+        $stack = $host['htpl'];
+        $loop = [];
+        while (($hostTplId = array_shift($stack))) {
+            if (isset($loop[$hostTplId])) {
+                continue;
+            }
+            $loop[$hostTplId] = 1;
+
+            $hostTplInstance->addCacheHostTpl($hostTplId);
+            if (! is_null($hostTplInstance->hosts[$hostTplId])) {
+                $hostTplInstance->getHostTemplates($hostTplInstance->hosts[$hostTplId], false);
+                $hostTplInstance->getContactGroups($hostTplInstance->hosts[$hostTplId]);
+                $hostTplInstance->getContacts($hostTplInstance->hosts[$hostTplId]);
+                $stack = array_merge($hostTplInstance->hosts[$hostTplId]['htpl'], $stack);
+            }
+        }
+
+        return $this->manageNotificationInheritance($host, false);
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->hosts_by_name = [];
+        $this->hosts = null;
+        $this->generated_parentship = [];
+        $this->generatedHosts = [];
+        parent::reset();
+    }
+
+    /**
+     * @param $host_id_arg
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function getSeverity($host_id_arg)
+    {
+        $host_id = null;
+        $loop = [];
+
+        $severity_instance = Severity::getInstance($this->dependencyInjector);
+        $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
+        $this->hosts[$host_id_arg]['severity'] = $severity_instance->getHostSeverityById($severity_id);
+        if (! is_null($this->hosts[$host_id_arg]['severity'])) {
+            $macros = [
+                '_CRITICALITY_LEVEL' => $this->hosts[$host_id_arg]['severity']['level'],
+                '_CRITICALITY_ID' => $this->hosts[$host_id_arg]['severity']['hc_id'],
+                'severity' => $this->hosts[$host_id_arg]['severity']['hc_id'],
+            ];
+
+            $this->hosts[$host_id_arg]['macros'] = array_merge(
+                $this->hosts[$host_id_arg]['macros'] ?? [],
+                $macros
+            );
+        }
+
+        $hosts_tpl = &HostTemplate::getInstance($this->dependencyInjector)->hosts;
+        $stack = $this->hosts[$host_id_arg]['htpl'];
+        while ((is_null($severity_id) && (! is_null($stack) && ($host_id = array_shift($stack))))) {
+            if (isset($loop[$host_id])) {
+                continue;
+            }
+            $loop[$host_id] = 1;
+            if (isset($hosts_tpl[$host_id]['severity_id'])) {
+                $severity_id = $hosts_tpl[$host_id]['severity_id'];
+                break;
+            }
+            if (isset($hosts_tpl[$host_id]['severity_id_from_below'])) {
+                $severity_id = $hosts_tpl[$host_id]['severity_id_from_below'];
+                break;
+            }
+
+            $stack2 = $hosts_tpl[$host_id]['htpl'];
+            while ((is_null($severity_id) && (! is_null($stack2) && ($host_id2 = array_shift($stack2))))) {
+                if (isset($loop[$host_id2])) {
+                    continue;
+                }
+                $loop[$host_id2] = 1;
+
+                if (isset($hosts_tpl[$host_id2]['severity_id'])) {
+                    $severity_id = $hosts_tpl[$host_id2]['severity_id'];
+                    break;
+                }
+                $stack2 = array_merge($hosts_tpl[$host_id2]['htpl'] ?? [], $stack2);
+            }
+
+            if ($severity_id) {
+                $hosts_tpl[$host_id]['severity_id_from_below'] = $severity_id;
+            }
+        }
+
+        // For applied on services without severity
+        $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
+    }
+
+    /**
      * @param $host
      *
      * @throws PDOException
@@ -445,93 +709,6 @@ class Host extends AbstractHost
     }
 
     /**
-     * @param $host_id
-     *
-     * @return mixed
-     */
-    public function getSeverityForService($host_id)
-    {
-        return $this->hosts[$host_id]['severity_id_for_services'];
-    }
-
-    /**
-     * @param $host_id_arg
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function getSeverity($host_id_arg)
-    {
-        $host_id = null;
-        $loop = [];
-
-        $severity_instance = Severity::getInstance($this->dependencyInjector);
-        $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
-        $this->hosts[$host_id_arg]['severity'] = $severity_instance->getHostSeverityById($severity_id);
-        if (! is_null($this->hosts[$host_id_arg]['severity'])) {
-            $macros = [
-                '_CRITICALITY_LEVEL' => $this->hosts[$host_id_arg]['severity']['level'],
-                '_CRITICALITY_ID' => $this->hosts[$host_id_arg]['severity']['hc_id'],
-                'severity' => $this->hosts[$host_id_arg]['severity']['hc_id'],
-            ];
-
-            $this->hosts[$host_id_arg]['macros'] = array_merge(
-                $this->hosts[$host_id_arg]['macros'] ?? [],
-                $macros
-            );
-        }
-
-        $hosts_tpl = &HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $stack = $this->hosts[$host_id_arg]['htpl'];
-        while ((is_null($severity_id) && (! is_null($stack) && ($host_id = array_shift($stack))))) {
-            if (isset($loop[$host_id])) {
-                continue;
-            }
-            $loop[$host_id] = 1;
-            if (isset($hosts_tpl[$host_id]['severity_id'])) {
-                $severity_id = $hosts_tpl[$host_id]['severity_id'];
-                break;
-            }
-            if (isset($hosts_tpl[$host_id]['severity_id_from_below'])) {
-                $severity_id = $hosts_tpl[$host_id]['severity_id_from_below'];
-                break;
-            }
-
-            $stack2 = $hosts_tpl[$host_id]['htpl'];
-            while ((is_null($severity_id) && (! is_null($stack2) && ($host_id2 = array_shift($stack2))))) {
-                if (isset($loop[$host_id2])) {
-                    continue;
-                }
-                $loop[$host_id2] = 1;
-
-                if (isset($hosts_tpl[$host_id2]['severity_id'])) {
-                    $severity_id = $hosts_tpl[$host_id2]['severity_id'];
-                    break;
-                }
-                $stack2 = array_merge($hosts_tpl[$host_id2]['htpl'] ?? [], $stack2);
-            }
-
-            if ($severity_id) {
-                $hosts_tpl[$host_id]['severity_id_from_below'] = $severity_id;
-            }
-        }
-
-        // For applied on services without severity
-        $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
-    }
-
-    /**
-     * @param $host_id
-     * @param $attr
-     *
-     * @return void
-     */
-    public function addHost($host_id, $attr = []): void
-    {
-        $this->hosts[$host_id] = $attr;
-    }
-
-    /**
      * @param $poller_id
      *
      * @throws PDOException
@@ -550,182 +727,5 @@ class Host extends AbstractHost
         $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
         $stmt->execute();
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * @param $host
-     * @param $generateConfigurationFile
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function processingFromHost(&$host, $generateConfigurationFile = true): void
-    {
-        $this->getImages($host);
-        $this->getMacros($host);
-        $host['macros']['_HOST_ID'] = $host['host_id'];
-
-        $this->getHostTimezone($host);
-        $this->getHostTemplates($host, $generateConfigurationFile);
-        $this->getHostCommands($host);
-        $this->getHostPeriods($host);
-        $this->getContactGroups($host);
-        $this->getContacts($host);
-        $this->getHostGroups($host);
-
-        // Set HostCategories
-        $hostCategory = HostCategory::getInstance($this->dependencyInjector);
-        $this->insertHostInHostCategoryMembers($hostCategory, $host);
-        $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
-
-        $this->getParents($host);
-        $this->getSeverity($host['host_id']);
-
-        $this->manageNotificationInheritance($host, $generateConfigurationFile);
-
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function generateFromHostId(&$host): void
-    {
-        $this->processingFromHost($host);
-
-        $this->getServices($host);
-        $this->getServicesByHg($host);
-
-        $this->generateObjectInFile($host, $host['host_id']);
-        $this->addGeneratedHost($host['host_id']);
-    }
-
-    /**
-     * @param $poller_id
-     * @param $localhost
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function generateFromPollerId($poller_id, $localhost = 0): void
-    {
-        if (is_null($this->hosts)) {
-            $this->getHosts($poller_id);
-        }
-
-        Service::getInstance($this->dependencyInjector)->set_poller($poller_id);
-
-        foreach ($this->hosts as $host_id => &$host) {
-            $this->hosts_by_name[$host['host_name']] = $host_id;
-            $host['host_id'] = $host_id;
-            $this->generateFromHostId($host);
-        }
-
-        if ($localhost == 1) {
-            MetaService::getInstance($this->dependencyInjector)->generateObjects();
-        }
-
-        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
-        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
-        Escalation::getInstance($this->dependencyInjector)->generateObjects();
-        Dependency::getInstance($this->dependencyInjector)->generateObjects();
-        Severity::getInstance($this->dependencyInjector)->generateObjects();
-        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
-        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
-    }
-
-    /**
-     * @param $host_name
-     *
-     * @return mixed|null
-     */
-    public function getHostIdByHostName($host_name)
-    {
-        return $this->hosts_by_name[$host_name] ?? null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratedParentship()
-    {
-        return $this->generated_parentship;
-    }
-
-    /**
-     * @param $hostId
-     *
-     * @return void
-     */
-    public function addGeneratedHost($hostId): void
-    {
-        $this->generatedHosts[] = $hostId;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratedHosts()
-    {
-        return $this->generatedHosts;
-    }
-
-    /**
-     * @param int $hostId
-     * @return array
-     */
-    public function getCgAndContacts(int $hostId): array
-    {
-        // we pass null because it can be a meta_host with host_register = '2'
-        $host = $this->getHostById($hostId, null);
-
-        $this->getContacts($host);
-        $this->getContactGroups($host);
-        $this->getHostTemplates($host, false);
-
-        $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
-
-        $stack = $host['htpl'];
-        $loop = [];
-        while (($hostTplId = array_shift($stack))) {
-            if (isset($loop[$hostTplId])) {
-                continue;
-            }
-            $loop[$hostTplId] = 1;
-
-            $hostTplInstance->addCacheHostTpl($hostTplId);
-            if (! is_null($hostTplInstance->hosts[$hostTplId])) {
-                $hostTplInstance->getHostTemplates($hostTplInstance->hosts[$hostTplId], false);
-                $hostTplInstance->getContactGroups($hostTplInstance->hosts[$hostTplId]);
-                $hostTplInstance->getContacts($hostTplInstance->hosts[$hostTplId]);
-                $stack = array_merge($hostTplInstance->hosts[$hostTplId]['htpl'], $stack);
-            }
-        }
-
-        return $this->manageNotificationInheritance($host, false);
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->hosts_by_name = [];
-        $this->hosts = null;
-        $this->generated_parentship = [];
-        $this->generatedHosts = [];
-        parent::reset();
     }
 }

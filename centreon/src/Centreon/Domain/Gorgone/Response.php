@@ -58,6 +58,14 @@ class Response implements ResponseInterface
     /** @var ResponseRepositoryInterface */
     private $responseRepository;
 
+    public function __construct(
+        ResponseRepositoryInterface $responseRepository,
+        CommandInterface $command
+    ) {
+        $this->command = $command;
+        $this->responseRepository = $responseRepository;
+    }
+
     /**
      * @param ResponseRepositoryInterface $responseRepository
      */
@@ -79,14 +87,6 @@ class Response implements ResponseInterface
     public static function create(CommandInterface $command): ResponseInterface
     {
         return new Response(self::$staticResponseRepository, $command);
-    }
-
-    public function __construct(
-        ResponseRepositoryInterface $responseRepository,
-        CommandInterface $command
-    ) {
-        $this->command = $command;
-        $this->responseRepository = $responseRepository;
     }
 
     /**

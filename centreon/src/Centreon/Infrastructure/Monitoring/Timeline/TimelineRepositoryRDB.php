@@ -101,6 +101,16 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function setContact(ContactInterface $contact): TimelineRepositoryInterface
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
      * find timeline events
      *
      * @param int $hostId
@@ -539,16 +549,6 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
         return ($this->contact !== null)
             ? $this->contact->isAdmin()
             : false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setContact(ContactInterface $contact): TimelineRepositoryInterface
-    {
-        $this->contact = $contact;
-
-        return $this;
     }
 
     /**

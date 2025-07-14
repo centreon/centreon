@@ -88,6 +88,120 @@ class CentreonSubmitResults extends CentreonWebService
     }
 
     /**
+     * Entry point for submit a passive check result
+     *
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestPartialContent
+     * @return array[]
+     */
+    public function postSubmit()
+    {
+        $this->getHostServiceInfo();
+
+        $results = [];
+        $hasError = false;
+
+        if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
+            if ($this->arguments['results'] !== []) {
+                if ($this->pipeOpened === false) {
+                    $this->openPipe();
+                }
+                foreach ($this->arguments['results'] as $data) {
+                    try {
+                        // Validate the list of arguments
+                        // Required fields
+                        if (! isset($data['host']) || $data['host'] === ''
+                            || ! isset($data['status']) || ! isset($data['updatetime']) || ! isset($data['output'])) {
+                            throw new RestBadRequestException('Missing argument.');
+                        }
+
+                        // Validate is the host and service exists in poller
+                        if (! isset($this->pollerHosts['name'][$data['host']])) {
+                            throw new RestNotFoundException('The host is not present.');
+                        }
+                        if (isset($data['service']) && $data['service'] !== ''
+                            && ! $this->hostServices[$data['host']][$data['service']]) {
+                            throw new RestNotFoundException('The service is not present.');
+                        }
+
+                        // Validate status format
+                        $status = strtolower($data['status']);
+                        if (is_numeric($status)) {
+                            $status = (int) $status;
+                        }
+                        if (isset($data['service']) && $data['service'] !== '') {
+                            if (! in_array($status, $this->acceptedStatus['service'], true)) {
+                                throw new RestBadRequestException('Bad status word.');
+                            }
+                            if (! is_numeric($status)) {
+                                $status = $this->convertStatus['service'][$status];
+                            }
+                        } else {
+                            if (! in_array($status, $this->acceptedStatus['host'], true)) {
+                                throw new RestBadRequestException('Bad status word.');
+                            }
+                            if (! is_numeric($status)) {
+                                $status = $this->convertStatus['host'][$status];
+                            }
+                        }
+                        $data['status'] = $status;
+
+                        // Validate timestamp format
+                        if (! is_numeric($data['updatetime'])) {
+                            throw new RestBadRequestException('The timestamp is not a integer.');
+                        }
+
+                        if (isset($data['perfdata'])) {
+                            if ($data['perfdata'] !== '' && ! preg_match($this->perfDataRegex, $data['perfdata'])) {
+                                throw new RestBadRequestException('The format of performance data is not valid.');
+                            }
+                        } else {
+                            $data['perfdata'] = '';
+                        }
+
+                        // Execute the command
+                        if (! $this->sendResults($data)) {
+                            throw new RestInternalServerErrorException('Error during send command to CentCore.');
+                        }
+                        $results[] = [
+                            'code' => 202,
+                            'message' => 'The status send to the engine',
+                        ];
+                    } catch (Exception $error) {
+                        $hasError = true;
+                        $results[] = ['code' => $error->getCode(), 'message' => $error->getMessage()];
+                    }
+                }
+                $this->closePipe();
+            }
+            if ($hasError) {
+                throw new RestPartialContent(json_encode(['results' => $results]));
+            }
+
+            return ['results' => $results];
+        }
+
+        throw new RestBadRequestException('Bad arguments - Cannot find result list');
+    }
+
+    /**
+     * Authorize to access to the action
+     *
+     * @param string $action The action name
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, $isInternal)
+            || ($user && $user->hasAccessRestApiRealtime())
+        );
+    }
+
+    /**
      * Load the cache for pollers/hosts
      *
      * @throws PDOException
@@ -213,119 +327,5 @@ class CentreonSubmitResults extends CentreonWebService
         return $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
             . ':[' . $data['updatetime'] . '] PROCESS_HOST_CHECK_RESULT;' . $command);
 
-    }
-
-    /**
-     * Entry point for submit a passive check result
-     *
-     * @throws PDOException
-     * @throws RestBadRequestException
-     * @throws RestPartialContent
-     * @return array[]
-     */
-    public function postSubmit()
-    {
-        $this->getHostServiceInfo();
-
-        $results = [];
-        $hasError = false;
-
-        if (isset($this->arguments['results']) && is_array($this->arguments['results'])) {
-            if ($this->arguments['results'] !== []) {
-                if ($this->pipeOpened === false) {
-                    $this->openPipe();
-                }
-                foreach ($this->arguments['results'] as $data) {
-                    try {
-                        // Validate the list of arguments
-                        // Required fields
-                        if (! isset($data['host']) || $data['host'] === ''
-                            || ! isset($data['status']) || ! isset($data['updatetime']) || ! isset($data['output'])) {
-                            throw new RestBadRequestException('Missing argument.');
-                        }
-
-                        // Validate is the host and service exists in poller
-                        if (! isset($this->pollerHosts['name'][$data['host']])) {
-                            throw new RestNotFoundException('The host is not present.');
-                        }
-                        if (isset($data['service']) && $data['service'] !== ''
-                            && ! $this->hostServices[$data['host']][$data['service']]) {
-                            throw new RestNotFoundException('The service is not present.');
-                        }
-
-                        // Validate status format
-                        $status = strtolower($data['status']);
-                        if (is_numeric($status)) {
-                            $status = (int) $status;
-                        }
-                        if (isset($data['service']) && $data['service'] !== '') {
-                            if (! in_array($status, $this->acceptedStatus['service'], true)) {
-                                throw new RestBadRequestException('Bad status word.');
-                            }
-                            if (! is_numeric($status)) {
-                                $status = $this->convertStatus['service'][$status];
-                            }
-                        } else {
-                            if (! in_array($status, $this->acceptedStatus['host'], true)) {
-                                throw new RestBadRequestException('Bad status word.');
-                            }
-                            if (! is_numeric($status)) {
-                                $status = $this->convertStatus['host'][$status];
-                            }
-                        }
-                        $data['status'] = $status;
-
-                        // Validate timestamp format
-                        if (! is_numeric($data['updatetime'])) {
-                            throw new RestBadRequestException('The timestamp is not a integer.');
-                        }
-
-                        if (isset($data['perfdata'])) {
-                            if ($data['perfdata'] !== '' && ! preg_match($this->perfDataRegex, $data['perfdata'])) {
-                                throw new RestBadRequestException('The format of performance data is not valid.');
-                            }
-                        } else {
-                            $data['perfdata'] = '';
-                        }
-
-                        // Execute the command
-                        if (! $this->sendResults($data)) {
-                            throw new RestInternalServerErrorException('Error during send command to CentCore.');
-                        }
-                        $results[] = [
-                            'code' => 202,
-                            'message' => 'The status send to the engine',
-                        ];
-                    } catch (Exception $error) {
-                        $hasError = true;
-                        $results[] = ['code' => $error->getCode(), 'message' => $error->getMessage()];
-                    }
-                }
-                $this->closePipe();
-            }
-            if ($hasError) {
-                throw new RestPartialContent(json_encode(['results' => $results]));
-            }
-
-            return ['results' => $results];
-        }
-
-        throw new RestBadRequestException('Bad arguments - Cannot find result list');
-    }
-
-    /**
-     * Authorize to access to the action
-     *
-     * @param string $action The action name
-     * @param CentreonUser $user The current user
-     * @param bool $isInternal If the api is call in internal
-     * @return bool If the user has access to the action
-     */
-    public function authorize($action, $user, $isInternal = false)
-    {
-        return (bool) (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->hasAccessRestApiRealtime())
-        );
     }
 }

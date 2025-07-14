@@ -52,47 +52,6 @@ class CommentController extends AbstractController
     }
 
     /**
-     * This function will verify that the contact is authorized to add a comment
-     * on the selected resources
-     *
-     * @param Contact $contact
-     * @param array<string,mixed> $resources
-     * @return bool
-     */
-    private function hasCommentRightsForResources(Contact $contact, array $resources): bool
-    {
-        if ($contact->isAdmin()) {
-            return true;
-        }
-        /**
-         * Retrieving the current rights of the user for adding comments
-         */
-        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT);
-        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT);
-
-        /**
-         * If the user has no rights at all, do not go further
-         */
-        if (! $hasHostRights && ! $hasServiceRights) {
-            return false;
-        }
-
-        foreach ($resources as $resource) {
-            if (
-                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
-                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
-                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
-            ) {
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Entry point to add comments to multiple resources
      *
      * @param Request $request
@@ -305,5 +264,46 @@ class CommentController extends AbstractController
         $this->commentService->addServiceComment($comment, $service);
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * This function will verify that the contact is authorized to add a comment
+     * on the selected resources
+     *
+     * @param Contact $contact
+     * @param array<string,mixed> $resources
+     * @return bool
+     */
+    private function hasCommentRightsForResources(Contact $contact, array $resources): bool
+    {
+        if ($contact->isAdmin()) {
+            return true;
+        }
+        /**
+         * Retrieving the current rights of the user for adding comments
+         */
+        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT);
+        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT);
+
+        /**
+         * If the user has no rights at all, do not go further
+         */
+        if (! $hasHostRights && ! $hasServiceRights) {
+            return false;
+        }
+
+        foreach ($resources as $resource) {
+            if (
+                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
+                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
+                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
+            ) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

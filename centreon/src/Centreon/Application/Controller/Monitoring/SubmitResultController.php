@@ -35,16 +35,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SubmitResultController extends AbstractController
 {
+    private const SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResultResources.json';
+    private const SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResult.json';
+
     /**
      * submitResult
      *
      * @var SubmitResultServiceInterface
      */
     private $submitResultService;
-    private const SUBMIT_RESULT_RESOURCES_PAYLOAD_VALIDATION_FILE
-        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResultResources.json';
-    private const SUBMIT_SINGLE_RESULT_PAYLOAD_VALIDATION_FILE
-        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/SubmitResult/SubmitResult.json';
 
     /**
      * @param SubmitResultServiceInterface $submitResultService
@@ -52,41 +53,6 @@ class SubmitResultController extends AbstractController
     public function __construct(SubmitResultServiceInterface $submitResultService)
     {
         $this->submitResultService = $submitResultService;
-    }
-
-    /**
-     * Check if all resources provided can be submitted a result
-     * by the current user.
-     *
-     * @param Contact $contact
-     * @param array<string,mixed> $resources
-     * @return bool
-     */
-    private function hasSubmitResultRightsForResources(Contact $contact, array $resources): bool
-    {
-        if ($contact->isAdmin()) {
-            return true;
-        }
-
-        /**
-         * Retrieving the current submit result rights of the user.
-         */
-        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_SUBMIT_RESULT);
-        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_SUBMIT_RESULT);
-
-        foreach ($resources as $resource) {
-            if (
-                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
-                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
-                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
-            ) {
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -225,5 +191,40 @@ class SubmitResultController extends AbstractController
         }
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Check if all resources provided can be submitted a result
+     * by the current user.
+     *
+     * @param Contact $contact
+     * @param array<string,mixed> $resources
+     * @return bool
+     */
+    private function hasSubmitResultRightsForResources(Contact $contact, array $resources): bool
+    {
+        if ($contact->isAdmin()) {
+            return true;
+        }
+
+        /**
+         * Retrieving the current submit result rights of the user.
+         */
+        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_SUBMIT_RESULT);
+        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_SUBMIT_RESULT);
+
+        foreach ($resources as $resource) {
+            if (
+                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
+                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
+                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
+            ) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

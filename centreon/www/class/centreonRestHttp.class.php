@@ -57,24 +57,6 @@ class CentreonRestHttp
     }
 
     /**
-     * @param $output
-     * @param $url
-     * @param $type
-     *
-     * @return void
-     */
-    private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
-    {
-        if (is_null($this->logObj)) {
-            return;
-        }
-
-        $logOutput = '[' . $type . '] ' . $url . ' : ' . $output;
-
-        $this->logObj->insertLog(4, $logOutput);
-    }
-
-    /**
      * Call the http rest endpoint
      *
      * @param string $url The endpoint url
@@ -224,6 +206,24 @@ class CentreonRestHttp
                 $this->proxy .= ':' . $port;
             }
         }
+    }
+
+    /**
+     * @param $output
+     * @param $url
+     * @param $type
+     *
+     * @return void
+     */
+    private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
+    {
+        if (is_null($this->logObj)) {
+            return;
+        }
+
+        $logOutput = '[' . $type . '] ' . $url . ' : ' . $output;
+
+        $this->logObj->insertLog(4, $logOutput);
     }
 
     /**

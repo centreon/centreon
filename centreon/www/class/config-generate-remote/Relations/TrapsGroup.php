@@ -40,18 +40,6 @@ class TrapsGroup extends AbstractObject
     /** @var */
     public $serviceLinkedCache;
 
-    /** @var int */
-    private $useCache = 1;
-
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $trapGroupCache = [];
-
-    /** @var array */
-    private $trapLinkedCache = [];
-
     /** @var string */
     protected $table = 'traps_group';
 
@@ -67,6 +55,18 @@ class TrapsGroup extends AbstractObject
         'traps_group_name',
     ];
 
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $trapGroupCache = [];
+
+    /** @var array */
+    private $trapLinkedCache = [];
+
     /**
      * TrapsGroup constructor
      *
@@ -76,62 +76,6 @@ class TrapsGroup extends AbstractObject
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
-    }
-
-    /**
-     * Build cache of trap groups
-     *
-     * @return void
-     */
-    private function cacheTrapGroup(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT *
-            FROM traps_group'
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->trapgroupCache[$value['traps_group_id']] = &$value;
-        }
-    }
-
-    /**
-     * Build cache of relations between traps and trap groups
-     *
-     * @return void
-     */
-    private function cacheTrapLinked(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            'SELECT traps_group_id, traps_id
-            FROM traps_group_relation'
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (! isset($this->serviceLinkedCache[$value['traps_id']])) {
-                $this->trapLinkedCache[$value['traps_id']] = [];
-            }
-            $this->trapLinkedCache[$value['traps_id']][] = $value['traps_group_id'];
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->cacheTrapGroup();
-        $this->cacheTrapLinked();
-        $this->doneCache = 1;
     }
 
     /**
@@ -197,5 +141,61 @@ class TrapsGroup extends AbstractObject
         $this->generateObject($trapId, $trapLinkedCache, $trapGroupCache);
 
         return $trapLinkedCache;
+    }
+
+    /**
+     * Build cache of trap groups
+     *
+     * @return void
+     */
+    private function cacheTrapGroup(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT *
+            FROM traps_group'
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->trapgroupCache[$value['traps_group_id']] = &$value;
+        }
+    }
+
+    /**
+     * Build cache of relations between traps and trap groups
+     *
+     * @return void
+     */
+    private function cacheTrapLinked(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT traps_group_id, traps_id
+            FROM traps_group_relation'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (! isset($this->serviceLinkedCache[$value['traps_id']])) {
+                $this->trapLinkedCache[$value['traps_id']] = [];
+            }
+            $this->trapLinkedCache[$value['traps_id']][] = $value['traps_group_id'];
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->cacheTrapGroup();
+        $this->cacheTrapLinked();
+        $this->doneCache = 1;
     }
 }

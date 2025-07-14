@@ -88,42 +88,6 @@ class HealthcheckTest extends TestCase
         $this->container = null;
     }
 
-    /**
-     * Set up method getRequirements
-     *
-     * @param array $messageV
-     * @param array $customActionV
-     * @param bool $warningV
-     * @param bool $criticalV
-     * @param int $licenseExpirationV
-     */
-    protected function setRequirementMockMethodValue(
-        $messageV = null,
-        $customActionV = null,
-        $warningV = false,
-        $criticalV = false,
-        $licenseExpirationV = null
-    ) {
-        $this->service
-            ->method('getRequirements')
-            ->will($this->returnCallback(
-                function (
-                    $checklistDir,
-                    &$message,
-                    &$customAction,
-                    &$warning,
-                    &$critical,
-                    &$licenseExpiration
-                ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
-                    $message = $messageV ?: [];
-                    $customAction = $customActionV;
-                    $warning = $warningV;
-                    $critical = $criticalV;
-                    $licenseExpiration = $licenseExpirationV;
-                }
-            ));
-    }
-
     public function testCheckWithDotModuleName(): void
     {
         try {
@@ -331,5 +295,41 @@ class HealthcheckTest extends TestCase
         $this->assertEquals(null, $this->service->getMessages());
         $this->assertEquals(null, $this->service->getCustomAction());
         $this->assertEquals(null, $this->service->getLicenseExpiration());
+    }
+
+    /**
+     * Set up method getRequirements
+     *
+     * @param array $messageV
+     * @param array $customActionV
+     * @param bool $warningV
+     * @param bool $criticalV
+     * @param int $licenseExpirationV
+     */
+    protected function setRequirementMockMethodValue(
+        $messageV = null,
+        $customActionV = null,
+        $warningV = false,
+        $criticalV = false,
+        $licenseExpirationV = null
+    ) {
+        $this->service
+            ->method('getRequirements')
+            ->will($this->returnCallback(
+                function (
+                    $checklistDir,
+                    &$message,
+                    &$customAction,
+                    &$warning,
+                    &$critical,
+                    &$licenseExpiration
+                ) use ($messageV, $customActionV, $warningV, $criticalV, $licenseExpirationV): void {
+                    $message = $messageV ?: [];
+                    $customAction = $customActionV;
+                    $warning = $warningV;
+                    $critical = $criticalV;
+                    $licenseExpiration = $licenseExpirationV;
+                }
+            ));
     }
 }

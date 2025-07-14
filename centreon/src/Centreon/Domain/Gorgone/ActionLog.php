@@ -55,6 +55,15 @@ class ActionLog
     private $data;
 
     /**
+     * @param string $token
+     * @see ActionLog::$token
+     */
+    public function __construct(string $token)
+    {
+        $this->token = $token;
+    }
+
+    /**
      * Factory to create a action log based on the Gorgone response.
      *
      * @param array<string, string> $details Details used to create an action log
@@ -73,15 +82,6 @@ class ActionLog
             ->setCreationTime((new \DateTime())->setTimestamp((int) ($details['ctime'] ?? 0)))
             ->setEventTime((new \DateTime())->setTimestamp((int) ($details['etime'] ?? 0)))
             ->setData($details['data'] ?? '{}');
-    }
-
-    /**
-     * @param string $token
-     * @see ActionLog::$token
-     */
-    public function __construct(string $token)
-    {
-        $this->token = $token;
     }
 
     /**

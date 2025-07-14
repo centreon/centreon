@@ -3506,10 +3506,6 @@ msgstr "Conectarse"
 msgid "Connection Successful"
 msgstr ""
 
-#: centreon/www/class/centreonDB.class.php
-msgid "Connection failed, please contact your administrator"
-msgstr "Error de inicio de sesión, póngase en contacto con su administrador"
-
 #: centreon/www/install/front_translate.php
 msgid "Connection initiated by poller"
 msgstr ""
@@ -21848,6 +21844,10 @@ msgstr "Usuarios conectados"
 #: unknown
 msgid "Connection Error to NDO DataBase ! \n"
 msgstr "¡Error al conectar con la base de datos NDO! \n"
+
+#: unknown
+msgid "Connection failed, please contact your administrator"
+msgstr "Error de inicio de sesión, póngase en contacto con su administrador"
 
 #: unknown
 msgid ""

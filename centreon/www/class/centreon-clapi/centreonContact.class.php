@@ -157,26 +157,6 @@ class CentreonContact extends CentreonObject
     }
 
     /**
-     * Checks if language exists
-     *
-     * @param string $locale
-     * @return bool
-     */
-    protected function checkLang($locale)
-    {
-        if (! $locale || $locale == '') {
-            return true;
-        }
-        if (strtolower($locale) === 'en_us.utf-8' || strtolower($locale) === 'browser') {
-            return true;
-        }
-        $centreonDir = realpath(__DIR__ . '/../../../');
-        $dir = $centreonDir . "/www/locale/{$locale}";
-
-        return (bool) (is_dir($dir));
-    }
-
-    /**
      * Delete action
      *
      * @param $objectName
@@ -249,121 +229,6 @@ class CentreonContact extends CentreonObject
 
         $this->params = array_merge($this->params, $this->addParams);
         $this->checkParameters();
-    }
-
-    /**
-     * Initialize Unique Field
-     *
-     * @param array<int,mixed> $params
-     */
-    protected function initUniqueField(array $params): void
-    {
-        $this->addParams[$this->object->getUniqueLabelField()] = str_replace(
-            ' ',
-            '_',
-            $params[static::ORDER_UNIQUENAME]
-        );
-    }
-
-    /**
-     * Initialize user information
-     *
-     * @param array<int,mixed> $params
-     *
-     * @throws PDOException
-     */
-    protected function initUserInformation(array $params): void
-    {
-        $this->addParams['contact_name'] = $this->checkIllegalChar($params[static::ORDER_NAME]);
-        $this->addParams['contact_email'] = $params[static::ORDER_MAIL];
-    }
-
-    /**
-     * Initialize password
-     *
-     * @param array<int,mixed> $params
-     *
-     * @throws CentreonClapiException
-     */
-    protected function initPassword(array $params): void
-    {
-        if (password_needs_rehash($params[static::ORDER_PASS], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
-            $contact = new \CentreonContact($this->db);
-            try {
-                $contact->respectPasswordPolicyOrFail($params[static::ORDER_PASS], null);
-            } catch (Throwable $e) {
-                throw new CentreonClapiException($e->getMessage(), $e->getCode(), $e);
-            }
-            $this->addParams['contact_passwd'] = password_hash(
-                $params[static::ORDER_PASS],
-                CentreonAuth::PASSWORD_HASH_ALGORITHM
-            );
-        } else {
-            $this->addParams['contact_passwd'] = $params[static::ORDER_PASS];
-        }
-    }
-
-    /**
-     * Initialize user access
-     *
-     * @param array<int,mixed> $params
-     */
-    protected function initUserAccess(array $params): void
-    {
-        $this->addParams['contact_admin'] = $params[static::ORDER_ADMIN];
-        if ($this->addParams['contact_admin'] == '') {
-            $this->addParams['contact_admin'] = '0';
-        }
-        $this->addParams['contact_oreon'] = $params[static::ORDER_ACCESS];
-        if ($this->addParams['contact_oreon'] == '') {
-            $this->addParams['contact_oreon'] = '1';
-        }
-    }
-
-    /**
-     * Initialize user language
-     *
-     * @param array<int,mixed> $params
-     *
-     * @throws CentreonClapiException
-     */
-    protected function initLang(array $params): void
-    {
-        if (
-            empty($params[static::ORDER_LANG])
-            || strtolower($params[static::ORDER_LANG]) === 'browser'
-            || strtoupper(substr($params[static::ORDER_LANG], -6)) === '.UTF-8'
-        ) {
-            $completeLanguage = $params[static::ORDER_LANG];
-        } else {
-            $completeLanguage = $params[static::ORDER_LANG] . '.UTF-8';
-        }
-        if ($this->checkLang($completeLanguage) == false) {
-            throw new CentreonClapiException(static::UNKNOWN_LOCALE);
-        }
-        $this->addParams['contact_lang'] = $completeLanguage;
-    }
-
-    /**
-     * Initialize authentication type
-     *
-     * @param array<int, mixed> $params
-     */
-    protected function initAuthenticationType(array $params): void
-    {
-        $this->addParams['contact_auth_type'] = $params[static::ORDER_AUTHTYPE];
-    }
-
-    /**
-     * Initialize default page
-     *
-     * @param array<int,mixed> $params
-     */
-    protected function initDefaultPage(array $params): void
-    {
-        if (isset($params[static::ORDER_DEFAULT_PAGE])) {
-            $this->addParams['default_page'] = $params[static::ORDER_DEFAULT_PAGE];
-        }
     }
 
     /**
@@ -487,83 +352,6 @@ class CentreonContact extends CentreonObject
     }
 
     /**
-     * Set Notification Commands
-     *
-     * @param string $type
-     * @param int $contactId
-     * @param string $commands
-     * @throws CentreonClapiException
-     */
-    protected function setNotificationCmd($type, $contactId, $commands)
-    {
-        $cmds = explode('|', $commands);
-        $cmdIds = [];
-        $cmdObject = new Centreon_Object_Command($this->dependencyInjector);
-        foreach ($cmds as $commandName) {
-            $tmp = $cmdObject->getIdByParameter($cmdObject->getUniqueLabelField(), $commandName);
-            if (count($tmp)) {
-                $cmdIds[] = $tmp[0];
-            } else {
-                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $commandName);
-            }
-        }
-        if ($type == self::HOST_NOTIF_CMD) {
-            $relObj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
-        } else {
-            $relObj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
-        }
-        $relObj->delete($contactId);
-        foreach ($cmdIds as $cmdId) {
-            $relObj->insert($contactId, $cmdId);
-        }
-    }
-
-    /**
-     * Export notification commands
-     *
-     * @param string $objType
-     * @param int $contactId
-     * @param string $contactName
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function exportNotifCommands($objType, $contactId, $contactName): void
-    {
-        $commandObj = new Centreon_Object_Command($this->dependencyInjector);
-        if ($objType == self::HOST_NOTIF_CMD) {
-            $obj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
-        } else {
-            $obj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
-        }
-
-        $cmds = $obj->getMergedParameters(
-            [],
-            [$commandObj->getUniqueLabelField()],
-            -1,
-            0,
-            null,
-            null,
-            [$this->object->getPrimaryKey() => $contactId],
-            'AND'
-        );
-        $str = '';
-        foreach ($cmds as $element) {
-            if ($str != '') {
-                $str .= '|';
-            }
-            $str .= $element[$commandObj->getUniqueLabelField()];
-        }
-        if ($str) {
-            echo $this->action . $this->delim
-                . 'setparam' . $this->delim
-                . $contactName . $this->delim
-                . $objType . $this->delim
-                . $str . "\n";
-        }
-    }
-
-    /**
      * Export data
      *
      * @param null $filterName
@@ -640,6 +428,218 @@ class CentreonContact extends CentreonObject
             $objId = $element[$this->object->getPrimaryKey()];
             $this->exportNotifCommands(self::HOST_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
             $this->exportNotifCommands(self::SVC_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
+        }
+    }
+
+    /**
+     * Checks if language exists
+     *
+     * @param string $locale
+     * @return bool
+     */
+    protected function checkLang($locale)
+    {
+        if (! $locale || $locale == '') {
+            return true;
+        }
+        if (strtolower($locale) === 'en_us.utf-8' || strtolower($locale) === 'browser') {
+            return true;
+        }
+        $centreonDir = realpath(__DIR__ . '/../../../');
+        $dir = $centreonDir . "/www/locale/{$locale}";
+
+        return (bool) (is_dir($dir));
+    }
+
+    /**
+     * Initialize Unique Field
+     *
+     * @param array<int,mixed> $params
+     */
+    protected function initUniqueField(array $params): void
+    {
+        $this->addParams[$this->object->getUniqueLabelField()] = str_replace(
+            ' ',
+            '_',
+            $params[static::ORDER_UNIQUENAME]
+        );
+    }
+
+    /**
+     * Initialize user information
+     *
+     * @param array<int,mixed> $params
+     *
+     * @throws PDOException
+     */
+    protected function initUserInformation(array $params): void
+    {
+        $this->addParams['contact_name'] = $this->checkIllegalChar($params[static::ORDER_NAME]);
+        $this->addParams['contact_email'] = $params[static::ORDER_MAIL];
+    }
+
+    /**
+     * Initialize password
+     *
+     * @param array<int,mixed> $params
+     *
+     * @throws CentreonClapiException
+     */
+    protected function initPassword(array $params): void
+    {
+        if (password_needs_rehash($params[static::ORDER_PASS], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+            $contact = new \CentreonContact($this->db);
+            try {
+                $contact->respectPasswordPolicyOrFail($params[static::ORDER_PASS], null);
+            } catch (Throwable $e) {
+                throw new CentreonClapiException($e->getMessage(), $e->getCode(), $e);
+            }
+            $this->addParams['contact_passwd'] = password_hash(
+                $params[static::ORDER_PASS],
+                CentreonAuth::PASSWORD_HASH_ALGORITHM
+            );
+        } else {
+            $this->addParams['contact_passwd'] = $params[static::ORDER_PASS];
+        }
+    }
+
+    /**
+     * Initialize user access
+     *
+     * @param array<int,mixed> $params
+     */
+    protected function initUserAccess(array $params): void
+    {
+        $this->addParams['contact_admin'] = $params[static::ORDER_ADMIN];
+        if ($this->addParams['contact_admin'] == '') {
+            $this->addParams['contact_admin'] = '0';
+        }
+        $this->addParams['contact_oreon'] = $params[static::ORDER_ACCESS];
+        if ($this->addParams['contact_oreon'] == '') {
+            $this->addParams['contact_oreon'] = '1';
+        }
+    }
+
+    /**
+     * Initialize user language
+     *
+     * @param array<int,mixed> $params
+     *
+     * @throws CentreonClapiException
+     */
+    protected function initLang(array $params): void
+    {
+        if (
+            empty($params[static::ORDER_LANG])
+            || strtolower($params[static::ORDER_LANG]) === 'browser'
+            || strtoupper(substr($params[static::ORDER_LANG], -6)) === '.UTF-8'
+        ) {
+            $completeLanguage = $params[static::ORDER_LANG];
+        } else {
+            $completeLanguage = $params[static::ORDER_LANG] . '.UTF-8';
+        }
+        if ($this->checkLang($completeLanguage) == false) {
+            throw new CentreonClapiException(static::UNKNOWN_LOCALE);
+        }
+        $this->addParams['contact_lang'] = $completeLanguage;
+    }
+
+    /**
+     * Initialize authentication type
+     *
+     * @param array<int, mixed> $params
+     */
+    protected function initAuthenticationType(array $params): void
+    {
+        $this->addParams['contact_auth_type'] = $params[static::ORDER_AUTHTYPE];
+    }
+
+    /**
+     * Initialize default page
+     *
+     * @param array<int,mixed> $params
+     */
+    protected function initDefaultPage(array $params): void
+    {
+        if (isset($params[static::ORDER_DEFAULT_PAGE])) {
+            $this->addParams['default_page'] = $params[static::ORDER_DEFAULT_PAGE];
+        }
+    }
+
+    /**
+     * Set Notification Commands
+     *
+     * @param string $type
+     * @param int $contactId
+     * @param string $commands
+     * @throws CentreonClapiException
+     */
+    protected function setNotificationCmd($type, $contactId, $commands)
+    {
+        $cmds = explode('|', $commands);
+        $cmdIds = [];
+        $cmdObject = new Centreon_Object_Command($this->dependencyInjector);
+        foreach ($cmds as $commandName) {
+            $tmp = $cmdObject->getIdByParameter($cmdObject->getUniqueLabelField(), $commandName);
+            if (count($tmp)) {
+                $cmdIds[] = $tmp[0];
+            } else {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $commandName);
+            }
+        }
+        if ($type == self::HOST_NOTIF_CMD) {
+            $relObj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
+        } else {
+            $relObj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
+        }
+        $relObj->delete($contactId);
+        foreach ($cmdIds as $cmdId) {
+            $relObj->insert($contactId, $cmdId);
+        }
+    }
+
+    /**
+     * Export notification commands
+     *
+     * @param string $objType
+     * @param int $contactId
+     * @param string $contactName
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function exportNotifCommands($objType, $contactId, $contactName): void
+    {
+        $commandObj = new Centreon_Object_Command($this->dependencyInjector);
+        if ($objType == self::HOST_NOTIF_CMD) {
+            $obj = new Centreon_Object_Relation_Contact_Command_Host($this->dependencyInjector);
+        } else {
+            $obj = new Centreon_Object_Relation_Contact_Command_Service($this->dependencyInjector);
+        }
+
+        $cmds = $obj->getMergedParameters(
+            [],
+            [$commandObj->getUniqueLabelField()],
+            -1,
+            0,
+            null,
+            null,
+            [$this->object->getPrimaryKey() => $contactId],
+            'AND'
+        );
+        $str = '';
+        foreach ($cmds as $element) {
+            if ($str != '') {
+                $str .= '|';
+            }
+            $str .= $element[$commandObj->getUniqueLabelField()];
+        }
+        if ($str) {
+            echo $this->action . $this->delim
+                . 'setparam' . $this->delim
+                . $contactName . $this->delim
+                . $objType . $this->delim
+                . $str . "\n";
         }
     }
 }

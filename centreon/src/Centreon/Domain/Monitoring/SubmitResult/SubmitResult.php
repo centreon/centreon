@@ -35,6 +35,9 @@ class SubmitResult
     /** @var int Resource ID */
     public $resourceId;
 
+    /** @var int submitted status */
+    public $status;
+
     /** @var int|null Parent Resource ID */
     private $parentResourceId;
 
@@ -43,9 +46,6 @@ class SubmitResult
 
     /** @var string|null submitted performance data */
     private $performanceData;
-
-    /** @var int submitted status */
-    public $status;
 
     public function __construct(int $resourceId, int $status)
     {

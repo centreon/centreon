@@ -54,9 +54,6 @@ class CentreonDB extends PDO implements ConnectionInterface
     /** @var int */
     private const RETRY = 3;
 
-    /** @var array<string,CentreonDB> */
-    private static $instance = [];
-
     /** @var int */
     protected $retry;
 
@@ -79,6 +76,9 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /** @var int */
     protected $lineRead;
+
+    /** @var array<string,CentreonDB> */
+    private static $instance = [];
 
     /** @var int */
     private $queryNumber;
@@ -907,45 +907,6 @@ class CentreonDB extends PDO implements ConnectionInterface
         }
     }
 
-    // --------------------------------------- OTHER METHODS -----------------------------------------
-
-    /**
-     * Display error page
-     *
-     * @param mixed $msg
-     */
-    protected function displayConnectionErrorPage($msg = null): void
-    {
-        if (! $msg) {
-            $msg = _('Connection failed, please contact your administrator');
-        }
-        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-              <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-                <head>
-                <style type="text/css">
-                       div.Error{background-color:#fa6f6c;border:1px #AEAEAE solid;width: 500px;}
-                       div.Error{border-radius:4px;}
-                       div.Error{padding: 15px;}
-                       a, div.Error{font-family:"Bitstream Vera Sans", arial, Tahoma, "Sans serif",serif;font-weight: bold;}
-                </style>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                <title>Centreon</title>
-              </head>
-                <body>
-                  <center>
-                  <div style="padding-top:150px;padding-bottom:50px;">
-                        <img src="./img/centreon.png" alt="Centreon"/><br/>
-                  </div>
-                  <div class="Error">' . $msg . '</div>
-                  <div style="padding: 50px;"><a href="#" onclick="location.reload();">Refresh Here</a></div>
-                  </center>
-                </body>
-              </html>';
-
-        exit;
-    }
-
     /**
      * return database Properties
      *
@@ -1149,98 +1110,6 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
 
             return '';
-        }
-    }
-
-    // --------------------------------------- PRIVATE METHODS -----------------------------------------
-
-    /**
-     * To execute all queries starting with SELECT.
-     *
-     * Only for SELECT queries.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return PDOStatement
-     */
-    private function executeSelectQuery(
-        string $query,
-        ?QueryParameters $queryParameters = null
-    ): PDOStatement {
-        try {
-            $this->validateSelectQuery($query);
-
-            // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
-
-            $pdoStatement = $this->prepare($query);
-
-            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
-                /** @var QueryParameter $queryParameter */
-                foreach ($queryParameters->getIterator() as $queryParameter) {
-                    $pdoStatement->bindValue(
-                        $queryParameter->getName(),
-                        $queryParameter->getValue(),
-                        ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                                $queryParameter->getType()
-                            ) : PDO::PARAM_STR
-                    );
-                }
-            }
-
-            $pdoStatement->execute();
-
-            return $pdoStatement;
-        } catch (Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Error while executing the select query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::selectQueryFailed(
-                previous: $exception,
-                query: $query,
-                queryParameters: $queryParameters
-            );
-        } finally {
-            // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
-                CentreonDBStatement::class,
-                [$this->logger],
-            ]);
-        }
-    }
-
-    /**
-     * Write SQL errors messages
-     *
-     * @param string $message
-     * @param array<string,mixed> $customContext
-     * @param string $query
-     * @param Throwable|null $previous
-     */
-    protected function writeDbLog(
-        string $message,
-        array $customContext = [],
-        string $query = '',
-        ?Throwable $previous = null
-    ): void {
-        // prepare context of the database exception
-        $context = [
-            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
-            'database_connector' => self::class,
-            'query' => $query,
-        ];
-
-        if (! is_null($previous)) {
-            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
-        } else {
-            $this->logger->critical(CentreonLog::TYPE_SQL, $message, $context);
         }
     }
 
@@ -2000,5 +1869,136 @@ class CentreonDB extends PDO implements ConnectionInterface
     public static function checkInjection($sString): int
     {
         return 0;
+    }
+
+    // --------------------------------------- OTHER METHODS -----------------------------------------
+
+    /**
+     * Display error page
+     *
+     * @param mixed $msg
+     */
+    protected function displayConnectionErrorPage($msg = null): void
+    {
+        if (! $msg) {
+            $msg = _('Connection failed, please contact your administrator');
+        }
+        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+              <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+                <head>
+                <style type="text/css">
+                       div.Error{background-color:#fa6f6c;border:1px #AEAEAE solid;width: 500px;}
+                       div.Error{border-radius:4px;}
+                       div.Error{padding: 15px;}
+                       a, div.Error{font-family:"Bitstream Vera Sans", arial, Tahoma, "Sans serif",serif;font-weight: bold;}
+                </style>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <title>Centreon</title>
+              </head>
+                <body>
+                  <center>
+                  <div style="padding-top:150px;padding-bottom:50px;">
+                        <img src="./img/centreon.png" alt="Centreon"/><br/>
+                  </div>
+                  <div class="Error">' . $msg . '</div>
+                  <div style="padding: 50px;"><a href="#" onclick="location.reload();">Refresh Here</a></div>
+                  </center>
+                </body>
+              </html>';
+
+        exit;
+    }
+
+    /**
+     * Write SQL errors messages
+     *
+     * @param string $message
+     * @param array<string,mixed> $customContext
+     * @param string $query
+     * @param Throwable|null $previous
+     */
+    protected function writeDbLog(
+        string $message,
+        array $customContext = [],
+        string $query = '',
+        ?Throwable $previous = null
+    ): void {
+        // prepare context of the database exception
+        $context = [
+            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
+            'database_connector' => self::class,
+            'query' => $query,
+        ];
+
+        if (! is_null($previous)) {
+            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
+        } else {
+            $this->logger->critical(CentreonLog::TYPE_SQL, $message, $context);
+        }
+    }
+
+    // --------------------------------------- PRIVATE METHODS -----------------------------------------
+
+    /**
+     * To execute all queries starting with SELECT.
+     *
+     * Only for SELECT queries.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return PDOStatement
+     */
+    private function executeSelectQuery(
+        string $query,
+        ?QueryParameters $queryParameters = null
+    ): PDOStatement {
+        try {
+            $this->validateSelectQuery($query);
+
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
+
+            $pdoStatement = $this->prepare($query);
+
+            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                /** @var QueryParameter $queryParameter */
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    $pdoStatement->bindValue(
+                        $queryParameter->getName(),
+                        $queryParameter->getValue(),
+                        ($queryParameter->getType() !== null)
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
+                                $queryParameter->getType()
+                            ) : PDO::PARAM_STR
+                    );
+                }
+            }
+
+            $pdoStatement->execute();
+
+            return $pdoStatement;
+        } catch (Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Error while executing the select query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
+            throw ConnectionException::selectQueryFailed(
+                previous: $exception,
+                query: $query,
+                queryParameters: $queryParameters
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
     }
 }

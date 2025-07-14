@@ -40,6 +40,11 @@ final class Kernel extends BaseKernel
         return '/var/log/centreon/symfony.new';
     }
 
+    public function getProjectDir(): string
+    {
+        return \dirname(__DIR__, 5);
+    }
+
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $configDir = $this->getConfigDir();
@@ -48,11 +53,6 @@ final class Kernel extends BaseKernel
         $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
         $container->import($configDir . '/{services}/*.php');
         $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
-    }
-
-    public function getProjectDir(): string
-    {
-        return \dirname(__DIR__, 5);
     }
 
     private function getConfigDir(): string

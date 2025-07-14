@@ -60,108 +60,6 @@ class MetricController extends AbstractController
     }
 
     /**
-     * find a service from host id and service id
-     *
-     * @throws EntityNotFoundException if the host or service is not found
-     * @return Service if the service is found
-     */
-    private function findService(int $hostId, int $serviceId): Service
-    {
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-        $this->monitoringService->filterByContact($contact);
-
-        $host = $this->monitoringService->findOneHost($hostId);
-        if (is_null($host)) {
-            throw new EntityNotFoundException(
-                sprintf(_('Host %d not found'), $hostId)
-            );
-        }
-
-        $service = $this->monitoringService->findOneService($hostId, $serviceId);
-        if (is_null($service)) {
-            throw new EntityNotFoundException(
-                sprintf(_('Service %d not found'), $serviceId)
-            );
-        }
-        $service->setHost($host);
-
-        return $service;
-    }
-
-    /**
-     * convert timestamp to DateTime
-     *
-     * @param int $timestamp
-     * @param \DateTimeZone $timezone
-     * @return \DateTime
-     */
-    private function formatTimestampToDateTime(int $timestamp, \DateTimeZone $timezone): \DateTime
-    {
-        return (new \DateTime())
-            ->setTimestamp($timestamp)
-            ->setTimezone($timezone);
-    }
-
-    /**
-     * Normalize dates (from timestamp to DateTime using timezone)
-     *
-     * @param array<string,mixed> $metrics
-     * @return array<string,mixed> The normalized metrics
-     */
-    private function normalizePerformanceMetricsDates(array $metrics): array
-    {
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-        $timezone = $contact->getTimezone();
-
-        $metrics['global']['start'] = $this->formatTimestampToDateTime((int) $metrics['global']['start'], $timezone);
-
-        $metrics['global']['end'] = $this->formatTimestampToDateTime((int) $metrics['global']['end'], $timezone);
-
-        // Normalize ticks
-        foreach ($metrics['times'] as $index => $timestamp) {
-            $metrics['times'][$index] = $this->formatTimestampToDateTime((int) $timestamp, $timezone);
-        }
-
-        return $metrics;
-    }
-
-    /**
-     * Validate and extract start/end dates from request parameters
-     *
-     * @param RequestParametersInterface $requestParameters
-     * @throws NotFoundHttpException
-     * @throws \LogicException
-     * @return array<\DateTime>
-     * @example [new \Datetime('yesterday'), new \Datetime('today')]
-     */
-    private function extractDatesFromRequestParameters(RequestParametersInterface $requestParameters): array
-    {
-        $start = $requestParameters->getExtraParameter('start') ?: '1 day ago';
-        $end = $requestParameters->getExtraParameter('end') ?: 'now';
-
-        foreach (['start' => $start, 'end' => $end] as $param => $value) {
-            if (false === strtotime($value)) {
-                throw new NotFoundHttpException(sprintf('Invalid date given for parameter "%s".', $param));
-            }
-        }
-
-        $start = new \DateTime($start);
-        $end = new \DateTime($end);
-
-        if ($start >= $end) {
-            throw new \RangeException('End date must be greater than start date.');
-        }
-
-        return [$start, $end];
-    }
-
-    /**
      * Entry point to get service metrics
      *
      * @param int $hostId
@@ -361,5 +259,107 @@ class MetricController extends AbstractController
             ->findStatusByService($service, $start, $end);
 
         return $this->view($status);
+    }
+
+    /**
+     * find a service from host id and service id
+     *
+     * @throws EntityNotFoundException if the host or service is not found
+     * @return Service if the service is found
+     */
+    private function findService(int $hostId, int $serviceId): Service
+    {
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+        $this->monitoringService->filterByContact($contact);
+
+        $host = $this->monitoringService->findOneHost($hostId);
+        if (is_null($host)) {
+            throw new EntityNotFoundException(
+                sprintf(_('Host %d not found'), $hostId)
+            );
+        }
+
+        $service = $this->monitoringService->findOneService($hostId, $serviceId);
+        if (is_null($service)) {
+            throw new EntityNotFoundException(
+                sprintf(_('Service %d not found'), $serviceId)
+            );
+        }
+        $service->setHost($host);
+
+        return $service;
+    }
+
+    /**
+     * convert timestamp to DateTime
+     *
+     * @param int $timestamp
+     * @param \DateTimeZone $timezone
+     * @return \DateTime
+     */
+    private function formatTimestampToDateTime(int $timestamp, \DateTimeZone $timezone): \DateTime
+    {
+        return (new \DateTime())
+            ->setTimestamp($timestamp)
+            ->setTimezone($timezone);
+    }
+
+    /**
+     * Normalize dates (from timestamp to DateTime using timezone)
+     *
+     * @param array<string,mixed> $metrics
+     * @return array<string,mixed> The normalized metrics
+     */
+    private function normalizePerformanceMetricsDates(array $metrics): array
+    {
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+        $timezone = $contact->getTimezone();
+
+        $metrics['global']['start'] = $this->formatTimestampToDateTime((int) $metrics['global']['start'], $timezone);
+
+        $metrics['global']['end'] = $this->formatTimestampToDateTime((int) $metrics['global']['end'], $timezone);
+
+        // Normalize ticks
+        foreach ($metrics['times'] as $index => $timestamp) {
+            $metrics['times'][$index] = $this->formatTimestampToDateTime((int) $timestamp, $timezone);
+        }
+
+        return $metrics;
+    }
+
+    /**
+     * Validate and extract start/end dates from request parameters
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @throws NotFoundHttpException
+     * @throws \LogicException
+     * @return array<\DateTime>
+     * @example [new \Datetime('yesterday'), new \Datetime('today')]
+     */
+    private function extractDatesFromRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        $start = $requestParameters->getExtraParameter('start') ?: '1 day ago';
+        $end = $requestParameters->getExtraParameter('end') ?: 'now';
+
+        foreach (['start' => $start, 'end' => $end] as $param => $value) {
+            if (false === strtotime($value)) {
+                throw new NotFoundHttpException(sprintf('Invalid date given for parameter "%s".', $param));
+            }
+        }
+
+        $start = new \DateTime($start);
+        $end = new \DateTime($end);
+
+        if ($start >= $end) {
+            throw new \RangeException('End date must be greater than start date.');
+        }
+
+        return [$start, $end];
     }
 }

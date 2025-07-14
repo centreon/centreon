@@ -97,46 +97,6 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
     }
 
     /**
-     * Get service id from host id
-     *
-     * @param int $hostId
-     *
-     * @throws PDOException
-     * @return array
-     */
-    protected function getServiceIds($hostId)
-    {
-        $aclString = $this->acl->queryBuilder(
-            'AND',
-            's.service_id',
-            $this->acl->getServicesString('ID', $this->monitoringDb)
-        );
-        $sql = 'SELECT service_id, service_description, display_name
-        		FROM service s, host_service_relation hsr
-        		WHERE hsr.host_host_id = ' . $this->db->escape($hostId) . '
-        		AND hsr.service_service_id = s.service_id ';
-        $sql .= $aclString;
-        $sql .= ' UNION ';
-        $sql .= ' SELECT service_id, service_description, display_name
-        		FROM service s, host_service_relation hsr, hostgroup_relation hgr
-        		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
-        		AND hgr.host_host_id = ' . $this->db->escape($hostId) . '
-        		AND hsr.service_service_id = s.service_id ';
-        $sql .= $aclString;
-        $sql .= ' ORDER BY service_description ';
-        $res = $this->db->query($sql);
-        $tab = [];
-        while ($row = $res->fetchRow()) {
-            // For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description']))
-                ? $row['display_name'] : $row['service_description'];
-            $tab[$hostId . '-' . $row['service_id']] = $serviceDescription;
-        }
-
-        return $tab;
-    }
-
-    /**
      * @param $paramId
      *
      * @throws PDOException
@@ -194,5 +154,45 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
             $this->quickform->setDefaults(['param_trigger_' . $params['parameter_id'] => $hostId]);
             $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $userPref]);
         }
+    }
+
+    /**
+     * Get service id from host id
+     *
+     * @param int $hostId
+     *
+     * @throws PDOException
+     * @return array
+     */
+    protected function getServiceIds($hostId)
+    {
+        $aclString = $this->acl->queryBuilder(
+            'AND',
+            's.service_id',
+            $this->acl->getServicesString('ID', $this->monitoringDb)
+        );
+        $sql = 'SELECT service_id, service_description, display_name
+        		FROM service s, host_service_relation hsr
+        		WHERE hsr.host_host_id = ' . $this->db->escape($hostId) . '
+        		AND hsr.service_service_id = s.service_id ';
+        $sql .= $aclString;
+        $sql .= ' UNION ';
+        $sql .= ' SELECT service_id, service_description, display_name
+        		FROM service s, host_service_relation hsr, hostgroup_relation hgr
+        		WHERE hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
+        		AND hgr.host_host_id = ' . $this->db->escape($hostId) . '
+        		AND hsr.service_service_id = s.service_id ';
+        $sql .= $aclString;
+        $sql .= ' ORDER BY service_description ';
+        $res = $this->db->query($sql);
+        $tab = [];
+        while ($row = $res->fetchRow()) {
+            // For meta services, use display_name column instead of service_description
+            $serviceDescription = (preg_match('/meta_/', $row['service_description']))
+                ? $row['display_name'] : $row['service_description'];
+            $tab[$hostId . '-' . $row['service_id']] = $serviceDescription;
+        }
+
+        return $tab;
     }
 }

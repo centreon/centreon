@@ -46,9 +46,6 @@ class Resource extends AbstractObject
 {
     use VaultTrait;
 
-    /** @var null */
-    private $connectors = null;
-
     /** @var string */
     protected $generate_filename = 'resource.cfg';
 
@@ -60,6 +57,9 @@ class Resource extends AbstractObject
 
     /** @var string[] */
     protected $attributes_hash = ['resources'];
+
+    /** @var null */
+    private $connectors = null;
 
     /**
      * Macro constructor

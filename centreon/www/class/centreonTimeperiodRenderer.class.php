@@ -195,6 +195,85 @@ class CentreonTimeperiodRenderer
     }
 
     /**
+     * Get Time Period Name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->tpname;
+    }
+
+    /**
+     * Get Time Period Alias
+     *
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->tpalias;
+    }
+
+    /**
+     * Get Timeline
+     *
+     * @return array
+     */
+    public function getTimeline()
+    {
+        return $this->timeline;
+    }
+
+    /**
+     * Get Exception List
+     *
+     * @return array
+     */
+    public function getExceptionList()
+    {
+        return $this->exceptionList;
+    }
+
+    /**
+     * @param string $field
+     *
+     * @return array
+     */
+    public static function getDefaultValuesParameters($field)
+    {
+        $parameters = [];
+        $parameters['currentObject']['table'] = 'timeperiod';
+        $parameters['currentObject']['id'] = 'tp_id';
+        $parameters['currentObject']['name'] = 'tp_name';
+        $parameters['currentObject']['comparator'] = 'tp_id';
+
+        switch ($field) {
+            case 'tp_include':
+                $parameters['type'] = 'relation';
+                $parameters['externalObject']['table'] = 'timeperiod';
+                $parameters['externalObject']['id'] = 'tp_id';
+                $parameters['externalObject']['name'] = 'tp_name';
+                $parameters['externalObject']['comparator'] = 'tp_id';
+                $parameters['relationObject']['table'] = 'timeperiod_include_relations';
+                $parameters['relationObject']['field'] = 'timeperiod_include_id';
+                $parameters['relationObject']['comparator'] = 'timeperiod_id';
+                break;
+            case 'tp_exclude':
+                $parameters['type'] = 'relation';
+                $parameters['externalObject']['table'] = 'timeperiod';
+                $parameters['externalObject']['id'] = 'tp_id';
+                $parameters['externalObject']['name'] = 'tp_name';
+                $parameters['externalObject']['comparator'] = 'tp_id';
+                $parameters['relationObject']['table'] = 'timeperiod_exclude_relations';
+                $parameters['relationObject']['field'] = 'timeperiod_exclude_id';
+                $parameters['relationObject']['comparator'] = 'timeperiod_id';
+                break;
+        }
+
+        return $parameters;
+    }
+
+    /**
      * Compare
      *
      * @param array $a
@@ -326,84 +405,5 @@ class CentreonTimeperiodRenderer
     protected function getException($id, $name, $day, $range)
     {
         return ['fromTpId' => $id, 'fromTpName' => $name, 'day' => $day, 'range' => $range];
-    }
-
-    /**
-     * Get Time Period Name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->tpname;
-    }
-
-    /**
-     * Get Time Period Alias
-     *
-     * @return string
-     */
-    public function getAlias()
-    {
-        return $this->tpalias;
-    }
-
-    /**
-     * Get Timeline
-     *
-     * @return array
-     */
-    public function getTimeline()
-    {
-        return $this->timeline;
-    }
-
-    /**
-     * Get Exception List
-     *
-     * @return array
-     */
-    public function getExceptionList()
-    {
-        return $this->exceptionList;
-    }
-
-    /**
-     * @param string $field
-     *
-     * @return array
-     */
-    public static function getDefaultValuesParameters($field)
-    {
-        $parameters = [];
-        $parameters['currentObject']['table'] = 'timeperiod';
-        $parameters['currentObject']['id'] = 'tp_id';
-        $parameters['currentObject']['name'] = 'tp_name';
-        $parameters['currentObject']['comparator'] = 'tp_id';
-
-        switch ($field) {
-            case 'tp_include':
-                $parameters['type'] = 'relation';
-                $parameters['externalObject']['table'] = 'timeperiod';
-                $parameters['externalObject']['id'] = 'tp_id';
-                $parameters['externalObject']['name'] = 'tp_name';
-                $parameters['externalObject']['comparator'] = 'tp_id';
-                $parameters['relationObject']['table'] = 'timeperiod_include_relations';
-                $parameters['relationObject']['field'] = 'timeperiod_include_id';
-                $parameters['relationObject']['comparator'] = 'timeperiod_id';
-                break;
-            case 'tp_exclude':
-                $parameters['type'] = 'relation';
-                $parameters['externalObject']['table'] = 'timeperiod';
-                $parameters['externalObject']['id'] = 'tp_id';
-                $parameters['externalObject']['name'] = 'tp_name';
-                $parameters['externalObject']['comparator'] = 'tp_id';
-                $parameters['relationObject']['table'] = 'timeperiod_exclude_relations';
-                $parameters['relationObject']['field'] = 'timeperiod_exclude_id';
-                $parameters['relationObject']['comparator'] = 'timeperiod_id';
-                break;
-        }
-
-        return $parameters;
     }
 }
