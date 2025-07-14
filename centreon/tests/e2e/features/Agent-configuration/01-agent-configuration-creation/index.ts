@@ -301,7 +301,7 @@ Then('the form fields are empty', () => {
 });
 
 When('the user clicks on Save in the cancellation pop-up', () => {
-  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.getByTestId({ testId:'confirm', tag: 'button' }).click();
   cy.wait('@addAgents');
 });
 
