@@ -123,16 +123,17 @@ Cypress.Commands.add('addCMAToken', () => {
   cy.contains('button', 'Generate token').click();
   cy.wait('@addToken');
 
-  cy.contains('The token name "CMA-Token-001" already exists').then(
-    (element) => {
-      if (element?.length > 0) {
-        cy.logout();
-      } else {
-        cy.contains('button', 'Done').click();
-        cy.logout();
-      }
+  cy.get('body').then((body) => {
+    if (
+      body.find(':contains("The token name \'CMA-Token-001\' already exists")')
+        .length > 0
+    ) {
+      return;
     }
-  );
+
+    cy.contains('button', 'Done').click();
+    cy.logout();
+  });
 });
 
 interface Telegraf {
