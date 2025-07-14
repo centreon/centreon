@@ -158,7 +158,6 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByTestId({ testId: 'Select existing CMA token' }).eq(0).click();
-  cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
   // Click to add the second host
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(1).click();
@@ -175,7 +174,6 @@ When('the user fills in the centreon agent parameters', () => {
     .eq(2)
     .type('my-certificate-name-003.crt');
   cy.getByTestId({ testId: 'Select existing CMA token' }).eq(1).click();
-  cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
 });
 
