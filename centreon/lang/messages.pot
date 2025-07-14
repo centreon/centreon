@@ -3350,10 +3350,6 @@ msgstr ""
 msgid "Connection Successful"
 msgstr ""
 
-#: centreon/www/class/centreonDB.class.php
-msgid "Connection failed, please contact your administrator"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Connection initiated by poller"
 msgstr ""

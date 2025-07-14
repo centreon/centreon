@@ -3247,10 +3247,6 @@ msgstr ""
 msgid "Connection Successful"
 msgstr "Verbindung erfolgreich"
 
-#: centreon/www/class/centreonDB.class.php
-msgid "Connection failed, please contact your administrator"
-msgstr "Verbindung fehlgeschlagen, bitte kontaktieren Sie Ihren Administrator"
-
 #: centreon/www/install/front_translate.php
 msgid "Connection initiated by poller"
 msgstr ""
@@ -19804,6 +19800,11 @@ msgstr "Konfigurationsaktionen"
 #: unknown
 msgid "Connected users"
 msgstr "Verbundene Benutzer"
+
+#: unknown
+msgid "Connection failed, please contact your administrator"
+msgstr ""
+"Verbindung fehlgeschlagen, bitte kontaktieren Sie Ihren Administrator"
 
 #: unknown
 msgid "Contact Templates"
