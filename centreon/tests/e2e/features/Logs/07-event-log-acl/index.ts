@@ -358,10 +358,14 @@ Then(
       .click();
     cy.getIframeBody().find("button.btc.bt_success").contains("Ok").click();
 
+    cy.getIframeBody()
+      .find('input.bt_success[name="graph"][value="Apply period"]')
+      .click();
+
     // check event logs
     cy.getIframeBody()
       .find("a")
-      .contains(services.serviceCritical.name, { timeout: 10000 })
+      .contains(services.serviceCritical.name)
       .should("exist");
   },
 );
