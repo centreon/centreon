@@ -245,7 +245,11 @@ export default () => {
 
       cy.get(`[data-testid="add-resource"]`).click();
 
-      cy.findAllByTestId(labelName).eq(1).clear().type('name');
+      const nameInput = cy.findAllByTestId(labelName).eq(1).clear()
+
+      cy.findByTestId("tab-General information").click();
+
+      nameInput.type('name');
 
       cy.get(`button[data-testid="submit"`).should('be.disabled');
 
