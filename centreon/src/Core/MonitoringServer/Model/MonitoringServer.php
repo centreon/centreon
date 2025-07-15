@@ -66,23 +66,9 @@ class MonitoringServer
         return $this->engineStartCommand;
     }
 
-    public function setEngineStartCommand(?string $engineStartCommand): self
-    {
-        $this->engineStartCommand = $engineStartCommand;
-
-        return $this;
-    }
-
     public function getEngineStopCommand(): ?string
     {
         return $this->engineStopCommand;
-    }
-
-    public function setEngineStopCommand(?string $engineStopCommand): self
-    {
-        $this->engineStopCommand = $engineStopCommand;
-
-        return $this;
     }
 
     public function getEngineRestartCommand(): ?string
@@ -90,35 +76,14 @@ class MonitoringServer
         return $this->engineRestartCommand;
     }
 
-    public function setEngineRestartCommand(?string $engineRestartCommand): self
-    {
-        $this->engineRestartCommand = $engineRestartCommand;
-
-        return $this;
-    }
-
     public function getEngineReloadCommand(): ?string
     {
         return $this->engineReloadCommand;
     }
 
-    public function setEngineReloadCommand(?string $engineReloadCommand): self
-    {
-        $this->engineReloadCommand = $engineReloadCommand;
-
-        return $this;
-    }
-
     public function getBrokerReloadCommand(): ?string
     {
         return $this->brokerReloadCommand;
-    }
-
-    public function setBrokerReloadCommand(?string $brokerReloadCommand): self
-    {
-        $this->brokerReloadCommand = $brokerReloadCommand;
-
-        return $this;
     }
 
     public function update(

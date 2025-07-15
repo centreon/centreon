@@ -354,6 +354,9 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         return $monitoringServers;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function get(int $monitoringServerId): MonitoringServer
     {
         $statement = $this->db->prepare($this->translateDbName(<<<SQL
