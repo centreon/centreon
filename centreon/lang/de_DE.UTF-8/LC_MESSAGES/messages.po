@@ -20673,3 +20673,6 @@ msgstr "s"
 #: unknown
 msgid "unknown"
 msgstr "unbekannt"
+
+msgid "URL provided for website does not match a valid URL pattern"
+msgstr ""

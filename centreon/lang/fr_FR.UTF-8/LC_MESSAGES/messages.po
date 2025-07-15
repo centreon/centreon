@@ -24007,3 +24007,6 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+msgid "URL provided for website does not match a valid URL pattern"
+msgstr "L'URL fournie pour le champs website ne correspond pas à une URL valide"
