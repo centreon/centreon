@@ -451,10 +451,9 @@ jobs:
             // in a nightly context, whatever the event_name is, the release context does not matter
             if ( '${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' ) {
               releaseScope = 'onprem'
-            }
-            // handle if triggering event is a pull_request
-            // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
-            else if ( "${{ github.event_name }}" === "pull_request" ) {
+            } else if ( "${{ github.event_name }}" === "pull_request" ) {
+              // handle if triggering event is a pull_request
+              // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               console.log(`finalTargetBranch is: ${finalTargetBranch}`)
