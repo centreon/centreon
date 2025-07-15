@@ -24,17 +24,15 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Symfony\Component\HttpFoundation\Response;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration\{
     FindOpenIdConfigurationPresenterInterface as PresenterInterface,
     FindOpenIdConfigurationResponse
 };
+use Symfony\Component\HttpFoundation\Response;
 
 class FindOpenIdConfigurationPresenterStub extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @var FindOpenIdConfigurationResponse
-     */
+    /** @var FindOpenIdConfigurationResponse */
     public $response;
 
     /**

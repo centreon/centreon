@@ -78,21 +78,21 @@ abstract class Centreon_Object
     }
 
     /**
-     * Get result from sql query
+     * Generic method that allows to retrieve object ids
+     * from another object parameter
      *
-     * @param string $sqlQuery
-     * @param array $sqlParams
-     * @param string $fetchMethod
-     *
+     * @param string $name
+     * @param array $args
+     * @throws Exception
      * @return array
-     * @throws PDOException
      */
-    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
+    public function __call($name, $args)
     {
-        $res = $this->db->query($sqlQuery, $sqlParams);
-        $result = $res->{$fetchMethod}();
+        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
+            return $this->getIdByParameter($matches[1], $args);
+        }
 
-        return $result;
+        throw new Exception('Unknown method');
     }
 
     /**
@@ -100,34 +100,36 @@ abstract class Centreon_Object
      *
      * @param array $params
      *
-     * @return false|string|null
      * @throws PDOException
+     * @return false|string|null
      */
     public function insert($params = [])
     {
-        $sql = "INSERT INTO $this->table ";
-        $sqlFields = "";
-        $sqlValues = "";
+        $sql = "INSERT INTO {$this->table} ";
+        $sqlFields = '';
+        $sqlValues = '';
         $sqlParams = [];
         foreach ($params as $key => $value) {
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlFields != "") {
-                $sqlFields .= ",";
+            if ($sqlFields != '') {
+                $sqlFields .= ',';
             }
-            if ($sqlValues != "") {
-                $sqlValues .= ",";
+            if ($sqlValues != '') {
+                $sqlValues .= ',';
             }
             $sqlFields .= $key;
-            $sqlValues .= "?";
+            $sqlValues .= '?';
             $sqlParams[] = trim($value);
         }
         if ($sqlFields && $sqlValues) {
-            $sql .= "(" . $sqlFields . ") VALUES (" . $sqlValues . ")";
+            $sql .= '(' . $sqlFields . ') VALUES (' . $sqlValues . ')';
             $this->db->query($sql, $sqlParams);
+
             return $this->db->lastInsertId();
         }
+
         return null;
     }
 
@@ -140,7 +142,7 @@ abstract class Centreon_Object
      */
     public function delete($objectId): void
     {
-        $sql = "DELETE FROM  $this->table WHERE $this->primaryKey = ?";
+        $sql = "DELETE FROM  {$this->table} WHERE {$this->primaryKey} = ?";
         $this->db->query($sql, [$objectId]);
     }
 
@@ -150,19 +152,19 @@ abstract class Centreon_Object
      * @param int $objectId
      * @param array $params
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function update($objectId, $params = []): void
     {
-        $sql = "UPDATE $this->table SET ";
-        $sqlUpdate = "";
+        $sql = "UPDATE {$this->table} SET ";
+        $sqlUpdate = '';
         $sqlParams = [];
         $not_null_attributes = [];
 
-        if (array_search("", $params)) {
-            $sql_attr = "SHOW FIELDS FROM $this->table";
-            $res = $this->getResult($sql_attr, [], "fetchAll");
+        if (array_search('', $params)) {
+            $sql_attr = "SHOW FIELDS FROM {$this->table}";
+            $res = $this->getResult($sql_attr, [], 'fetchAll');
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
                     $not_null_attributes[$tab['Field']] = true;
@@ -174,22 +176,22 @@ abstract class Centreon_Object
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlUpdate != "") {
-                $sqlUpdate .= ",";
+            if ($sqlUpdate != '') {
+                $sqlUpdate .= ',';
             }
-            $sqlUpdate .= $key . " = ? ";
-            if ($value === "" && !isset($not_null_attributes[$key])) {
+            $sqlUpdate .= $key . ' = ? ';
+            if ($value === '' && ! isset($not_null_attributes[$key])) {
                 $value = null;
             }
-            if (!is_null($value)) {
-                $value = str_replace("<br/>", "\n", $value);
+            if (! is_null($value)) {
+                $value = str_replace('<br/>', "\n", $value);
             }
             $sqlParams[] = $value;
         }
 
         if ($sqlUpdate) {
             $sqlParams[] = $objectId;
-            $sql .= $sqlUpdate . " WHERE $this->primaryKey = ?";
+            $sql .= $sqlUpdate . " WHERE {$this->primaryKey} = ?";
             $this->db->query($sql, $sqlParams);
         }
     }
@@ -205,7 +207,7 @@ abstract class Centreon_Object
      */
     public function duplicate($sourceObjectId, $duplicateEntries = 1): void
     {
-        $sourceParams = $this->getParameters($sourceObjectId, "*");
+        $sourceParams = $this->getParameters($sourceObjectId, '*');
         if (isset($sourceParams[$this->primaryKey])) {
             unset($sourceParams[$this->primaryKey]);
         }
@@ -214,11 +216,11 @@ abstract class Centreon_Object
         }
         $originalName = $sourceParams[$this->uniqueLabelField];
         for ($i = 1; $i <= $duplicateEntries; $i++) {
-            if (isset($sourceParams[$this->uniqueLabelField]) && isset($originalName)) {
-                $sourceParams[$this->uniqueLabelField] = $originalName . "_" . $i;
+            if (isset($sourceParams[$this->uniqueLabelField], $originalName)) {
+                $sourceParams[$this->uniqueLabelField] = $originalName . '_' . $i;
             }
             $ids = $this->getIdByParameter($this->uniqueLabelField, [$sourceParams[$this->uniqueLabelField]]);
-            if (!count($ids)) {
+            if (! count($ids)) {
                 $this->insert($sourceParams);
             }
         }
@@ -230,14 +232,15 @@ abstract class Centreon_Object
      * @param int $objectId
      * @param mixed $parameterNames
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getParameters($objectId, $parameterNames)
     {
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, [$objectId], "fetch");
+        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = ?";
+
+        return $this->getResult($sql, [$objectId], 'fetch');
     }
 
     /**
@@ -252,30 +255,30 @@ abstract class Centreon_Object
      * @param string $sort
      * @param array $filters
      * @param string $filterType
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getList(
-        $parameterNames = "*",
+        $parameterNames = '*',
         $count = -1,
         $offset = 0,
         $order = null,
-        $sort = "ASC",
+        $sort = 'ASC',
         $filters = [],
-        $filterType = "OR"
+        $filterType = 'OR'
     ) {
-        if ($filterType != "OR" && $filterType != "AND") {
+        if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table ";
+        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $sql = "SELECT {$params} FROM {$this->table} ";
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
                 if ($filterTab === []) {
-                    $sql .= " WHERE $key ";
+                    $sql .= " WHERE {$key} ";
                 } else {
-                    $sql .= " $filterType $key ";
+                    $sql .= " {$filterType} {$key} ";
                 }
                 if (is_array($rawvalue)) {
                     $sql .= ' IN (' . str_repeat('?,', count($rawvalue) - 1) . '?) ';
@@ -283,20 +286,21 @@ abstract class Centreon_Object
                 } else {
                     $sql .= ' LIKE ? ';
                     $value = trim($rawvalue);
-                    $value = str_replace("\\", "\\\\", $value);
-                    $value = str_replace("_", "\_", $value);
-                    $value = str_replace(" ", "\ ", $value);
+                    $value = str_replace('\\', '\\\\', $value);
+                    $value = str_replace('_', "\_", $value);
+                    $value = str_replace(' ', "\ ", $value);
                     $filterTab[] = $value;
                 }
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        return $this->getResult($sql, $filterTab, "fetchAll");
+
+        return $this->getResult($sql, $filterTab, 'fetchAll');
     }
 
     /**
@@ -306,50 +310,34 @@ abstract class Centreon_Object
      * @param string $paramName
      * @param array $paramValues
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
-        $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
-        $condition = "";
-        if (!is_array($paramValues)) {
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
+        $condition = '';
+        if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
-            if ($condition != "") {
-                $condition .= " OR ";
+            if ($condition != '') {
+                $condition .= ' OR ';
             }
-            $condition .= $paramName . " = ? ";
+            $condition .= $paramName . ' = ? ';
         }
         if ($condition) {
             $sql .= $condition;
-            $rows = $this->getResult($sql, $paramValues, "fetchAll");
+            $rows = $this->getResult($sql, $paramValues, 'fetchAll');
             $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
+
             return $tab;
         }
-        return [];
-    }
 
-    /**
-     * Generic method that allows to retrieve object ids
-     * from another object parameter
-     *
-     * @param string $name
-     * @param array $args
-     * @return array
-     * @throws Exception
-     */
-    public function __call($name, $args)
-    {
-        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
-            return $this->getIdByParameter($matches[1], $args);
-        } else {
-            throw new Exception('Unknown method');
-        }
+        return [];
     }
 
     /**
@@ -380,5 +368,22 @@ abstract class Centreon_Object
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * Get result from sql query
+     *
+     * @param string $sqlQuery
+     * @param array $sqlParams
+     * @param string $fetchMethod
+     *
+     * @throws PDOException
+     * @return array
+     */
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    {
+        $res = $this->db->query($sqlQuery, $sqlParams);
+
+        return $res->{$fetchMethod}();
     }
 }

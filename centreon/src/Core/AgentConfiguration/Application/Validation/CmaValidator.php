@@ -43,8 +43,7 @@ class CmaValidator implements TypeValidatorInterface
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadTokenRepositoryInterface $tokenRepository,
         private readonly ContactInterface $user,
-    )
-    {
+    ) {
     }
 
     /**
@@ -154,7 +153,7 @@ class CmaValidator implements TypeValidatorInterface
             $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
             if (
                 $tokenObj === null
-                || ! $tokenObj instanceOf JwtToken
+                || ! $tokenObj instanceof JwtToken
                 || $tokenObj->isRevoked()
                 || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
             ) {

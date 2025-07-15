@@ -33,11 +33,11 @@ use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRule;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRuleResponse;
-use Core\Notification\Domain\Model\Contact as NotificationContact;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
 use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {

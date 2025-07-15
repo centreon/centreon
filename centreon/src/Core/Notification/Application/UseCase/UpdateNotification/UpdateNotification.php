@@ -232,7 +232,8 @@ final class UpdateNotification
         );
         if ($contactGroups !== []) {
             $contactGroupsIds = array_map(
-                fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $contactGroups
+                fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                $contactGroups
             );
             $this->writeNotificationRepository->deleteContactGroupsByNotificationAndContactGroupIds(
                 $notificationId,

@@ -36,8 +36,8 @@ interface GorgoneServiceInterface
      * response which allow to get all action logs.
      *
      * @param CommandInterface $command Command to send
-     * @return ResponseInterface Returns a response containing the command sent.
      * @throws GorgoneException
+     * @return ResponseInterface returns a response containing the command sent
      */
     public function send(CommandInterface $command): ResponseInterface;
 

@@ -76,7 +76,7 @@ class UserController extends AbstractController
      * Get authorization for a specific role of the current user
      *
      * @param string $role
-     * @return boolean
+     * @return bool
      */
     private function getAuthorizationForRole(string $role): bool
     {

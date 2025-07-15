@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -52,7 +52,7 @@ class CentreonResources
     {
         $this->db = $pearDB;
     }
-    
+
     /**
      * @param int $field
      *
@@ -75,31 +75,31 @@ class CentreonResources
                 $parameters['relationObject']['comparator'] = 'resource_id';
                 break;
         }
-        
+
         return $parameters;
     }
-    
+
     /**
      * @param CentreonDB $db
      * @param string $name
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public static function getResourceByName($db, $name)
     {
-        $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '$name'";
+        $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '{$name}'";
         $resultQueryResources = $db->query($queryResources);
-        
+
         $finalResource = [];
         while ($resultResources = $resultQueryResources->fetchRow()) {
             $finalResource = $resultResources;
         }
-        
+
         if (count($finalResource) === 0) {
-            throw new Exception("No central broker found", 500);
+            throw new Exception('No central broker found', 500);
         }
-        
+
         return $finalResource;
     }
 }

@@ -195,7 +195,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                     $value = implode(
                         ',',
                         array_map(
-                            fn(Template $tpl) => $tpl->getId(),
+                            fn (Template $tpl) => $tpl->getId(),
                             $value
                         )
                     );

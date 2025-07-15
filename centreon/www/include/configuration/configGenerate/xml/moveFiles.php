@@ -34,30 +34,29 @@
  *
  */
 
-ini_set("display_errors", "Off");
+ini_set('display_errors', 'Off');
 
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
-require_once realpath(__DIR__ . "/../../../../../bootstrap.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
+require_once realpath(__DIR__ . '/../../../../../bootstrap.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
-require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
-require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonXML.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonACL.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonConfigCentreonBroker.php";
+require_once _CENTREON_PATH_ . 'www/include/configuration/configGenerate/DB-Func.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonXML.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonUser.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonConfigCentreonBroker.php';
 
-
-if (!defined('STATUS_OK')) {
+if (! defined('STATUS_OK')) {
     define('STATUS_OK', 0);
 }
-if (!defined('STATUS_NOK')) {
+if (! defined('STATUS_NOK')) {
     define('STATUS_NOK', 1);
 }
 
@@ -78,13 +77,13 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
     $contactService = $container->get(ContactServiceInterface::class);
     $contact = $contactService->findByAuthenticationToken($_SERVER['HTTP_X_AUTH_TOKEN']);
     if ($contact === null) {
-        $xml->startElement("response");
-        $xml->writeElement("status", $nokMsg);
-        $xml->writeElement("statuscode", STATUS_NOK);
-        $xml->writeElement("error", 'Contact not found');
+        $xml->startElement('response');
+        $xml->writeElement('status', $nokMsg);
+        $xml->writeElement('statuscode', STATUS_NOK);
+        $xml->writeElement('error', 'Contact not found');
         $xml->endElement();
 
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             header('Content-Type: application/xml');
             header('Cache-Control: no-cache');
             header('Expires: 0');
@@ -92,6 +91,7 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         }
 
         $xml->output();
+
         exit();
     }
     $centreon = new Centreon([
@@ -106,22 +106,22 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         'contact_location' => null,
         'reach_api' => $contact->hasAccessToApiConfiguration(),
         'reach_api_rt' => $contact->hasAccessToApiRealTime(),
-        'show_deprecated_pages' => false
+        'show_deprecated_pages' => false,
     ]);
 } else {
-    /* Check Session */
+    // Check Session
     CentreonSession::start(1);
-    if (!CentreonSession::checkSession(session_id(), $pearDB)) {
-        print "Bad Session";
+    if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+        echo 'Bad Session';
+
         exit();
     }
     $centreon = $_SESSION['centreon'];
 }
 
-if (!isset($_POST['poller']) || ! $centreon->user->access->checkAction('generate_cfg')) {
+if (! isset($_POST['poller']) || ! $centreon->user->access->checkAction('generate_cfg')) {
     exit;
 }
-
 
 /**
  * List of error from php
@@ -165,12 +165,12 @@ $statementRemotes = $pearDB->prepare(
     AND pt.type = "remote"'
 );
 foreach ($pollerParams as $key => $value) {
-    $statementRemotes->bindValue($key, $value, \PDO::PARAM_INT);
+    $statementRemotes->bindValue($key, $value, PDO::PARAM_INT);
 }
 $statementRemotes->execute();
 $remotesResults = $statementRemotes->fetchAll(PDO::FETCH_ASSOC);
 
-if (!empty($remotesResults)) {
+if (! empty($remotesResults)) {
     foreach ($remotesResults as $remote) {
         $linkedStatement = $pearDB->prepare(
             'SELECT id
@@ -181,16 +181,16 @@ if (!empty($remotesResults)) {
             FROM rs_poller_relation
             WHERE remote_server_id = :remote_id'
         );
-        $linkedStatement->bindValue(':remote_id', $remote['id'], \PDO::PARAM_INT);
+        $linkedStatement->bindValue(':remote_id', $remote['id'], PDO::PARAM_INT);
         $linkedStatement->execute();
         $linkedResults = $linkedStatement->fetchAll(PDO::FETCH_ASSOC);
 
         $exportParams = [
             'server' => $remote['id'],
-            'pollers' => []
+            'pollers' => [],
         ];
 
-        $exportParams['pollers'] = !empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
+        $exportParams['pollers'] = ! empty($linkedResults) ? array_column($linkedResults, 'id') : [$remote['id']];
 
         $dependencyInjector['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $exportParams]);
     }
@@ -203,7 +203,7 @@ if (!empty($remotesResults)) {
  */
 $log_error = function ($errno, $errstr, $errfile, $errline) {
     global $generatePhpErrors;
-    if (!(error_reporting() && $errno)) {
+    if (! (error_reporting() && $errno)) {
         return;
     }
 
@@ -219,6 +219,7 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
             $generatePhpErrors[] = ['warning', $errstr];
             break;
     }
+
     return true;
 };
 
@@ -226,34 +227,32 @@ try {
     $ret = [];
     $ret['host'] = $pollers;
 
-    chdir(_CENTREON_PATH_ . "www");
-    $nagiosCFGPath = _CENTREON_CACHEDIR_ . "/config/engine/";
-    $centreonBrokerPath = _CENTREON_CACHEDIR_ . "/config/broker/";
-    $vmWareConfigPath = _CENTREON_CACHEDIR_ . "/config/vmware/";
+    chdir(_CENTREON_PATH_ . 'www');
+    $nagiosCFGPath = _CENTREON_CACHEDIR_ . '/config/engine/';
+    $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
+    $vmWareConfigPath = _CENTREON_CACHEDIR_ . '/config/vmware/';
 
-    /*  Set new error handler */
+    // Set new error handler
     set_error_handler($log_error);
 
-    # Centcore pipe path
-    $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
+    // Centcore pipe path
+    $centcore_pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
 
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
     foreach ($tabs as $tab) {
-        if (isset($ret["host"]) && ($ret["host"] == 0 || in_array($tab['id'], $ret["host"]))) {
-            $tab_server[$tab["id"]] = ["id" => $tab["id"], "name" => $tab["name"], "localhost" => $tab["localhost"]];
+        if (isset($ret['host']) && ($ret['host'] == 0 || in_array($tab['id'], $ret['host']))) {
+            $tab_server[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
         }
     }
 
     foreach ($tab_server as $host) {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
-            $listBrokerFile = glob($centreonBrokerPath . $host['id'] . "/*.{xml,json,cfg,sql}", GLOB_BRACE);
-            $listVmWareFile = glob($vmWareConfigPath . $host['id'] . "/*.json", GLOB_BRACE);
+            $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
+            $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
             if (isset($host['localhost']) && $host['localhost'] == 1) {
-                /*
-                 * Check if monitoring engine's configuration directory existss
-                 */
+                // Check if monitoring engine's configuration directory existss
                 $dbResult = $pearDB->query("
                     SELECT cfg_dir FROM cfg_nagios, nagios_server
                     WHERE nagios_server.id = cfg_nagios.nagios_server_id
@@ -263,25 +262,23 @@ try {
 
                 $nagiosCfg = $dbResult->fetch();
 
-                if (!is_dir($nagiosCfg["cfg_dir"])) {
+                if (! is_dir($nagiosCfg['cfg_dir'])) {
                     throw new Exception(
                         sprintf(
                             _(
                                 "Could not find configuration directory '%s' for monitoring engine '%s'.
                                  Please check it's path or create it"
                             ),
-                            $nagiosCfg["cfg_dir"],
+                            $nagiosCfg['cfg_dir'],
                             $host['name']
                         )
                     );
                 }
-                /*
-                 * Copy monitoring engine's configuration files
-                 */
+                // Copy monitoring engine's configuration files
                 foreach (glob($nagiosCFGPath . $host['id'] . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
-                    $targetFilePath = rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename);
-                    $succeded = @copy($filename,$targetFilePath);
-                    if (!$succeded) {
+                    $targetFilePath = rtrim($nagiosCfg['cfg_dir'], '/') . '/' . basename($filename);
+                    $succeded = @copy($filename, $targetFilePath);
+                    if (! $succeded) {
                         throw new Exception(
                             sprintf(
                                 _(
@@ -292,18 +289,17 @@ try {
                                 $host['name']
                             )
                         );
-                    } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                    }
+                    if (posix_getuid() === fileowner($targetFilePath)) {
                         @chmod($targetFilePath, 0664);
                     }
                 }
-                /*
-                 * Centreon Broker configuration
-                 */
+                // Centreon Broker configuration
                 if (count($listBrokerFile) > 0) {
                     $centreonBrokerDirCfg = getCentreonBrokerDirCfg($host['id']);
-                    if (!is_null($centreonBrokerDirCfg)) {
-                        if (!is_dir($centreonBrokerDirCfg)) {
-                            if (!mkdir($centreonBrokerDirCfg, 0755)) {
+                    if (! is_null($centreonBrokerDirCfg)) {
+                        if (! is_dir($centreonBrokerDirCfg)) {
+                            if (! mkdir($centreonBrokerDirCfg, 0755)) {
                                 throw new Exception(
                                     sprintf(
                                         _(
@@ -317,9 +313,9 @@ try {
                             }
                         }
                         foreach ($listBrokerFile as $fileCfg) {
-                            $targetFilePath = rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg);
+                            $targetFilePath = rtrim($centreonBrokerDirCfg, '/') . '/' . basename($fileCfg);
                             $succeded = @copy($fileCfg, $targetFilePath);
-                            if (!$succeded) {
+                            if (! $succeded) {
                                 throw new Exception(
                                     sprintf(
                                         _(
@@ -330,7 +326,8 @@ try {
                                         $host['name']
                                     )
                                 );
-                            } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                            }
+                            if (posix_getuid() === fileowner($targetFilePath)) {
                                 @chmod($targetFilePath, 0664);
                             }
                         }
@@ -343,9 +340,9 @@ try {
                     throw new Exception(
                         sprintf(
                             <<<'MSG'
-                            There are more than one VMWare configuration file for monitoring engine '%s'.
-                            Please check it's path or create it
-                            MSG,
+                                There are more than one VMWare configuration file for monitoring engine '%s'.
+                                Please check it's path or create it
+                                MSG,
                             $host['name']
                         )
                     );
@@ -366,10 +363,10 @@ try {
                     $return
                 );
                 if ($return) {
-                    throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
+                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
-                if (!isset($msg_restart[$host["id"]])) {
-                    $msg_restart[$host["id"]] = "";
+                if (! isset($msg_restart[$host['id']])) {
+                    $msg_restart[$host['id']] = '';
                 }
                 if (count($listBrokerFile) > 0) {
                     passthru(
@@ -377,29 +374,27 @@ try {
                         $return
                     );
                     if ($return) {
-                        throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
+                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                     }
                 }
-                $msg_restart[$host["id"]] .= _("<br><b>Centreon : </b>All configuration will be send to " .
-                    $host['name'] . " by centcore in several minutes.");
+                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
+                    . $host['name'] . ' by centcore in several minutes.');
             }
         }
     }
-    $xml->startElement("response");
-    $xml->writeElement("status", $okMsg);
-    $xml->writeElement("statuscode", STATUS_OK);
+    $xml->startElement('response');
+    $xml->writeElement('status', $okMsg);
+    $xml->writeElement('statuscode', STATUS_OK);
 } catch (Exception $e) {
-    $xml->startElement("response");
-    $xml->writeElement("status", $nokMsg);
-    $xml->writeElement("statuscode", STATUS_NOK);
-    $xml->writeElement("error", $e->getMessage());
+    $xml->startElement('response');
+    $xml->writeElement('status', $nokMsg);
+    $xml->writeElement('statuscode', STATUS_NOK);
+    $xml->writeElement('error', $e->getMessage());
 }
-/* Restore default error handler */
+// Restore default error handler
 restore_error_handler();
 
-/*
- * Add error form php
- */
+// Add error form php
 $xml->startElement('errorsPhp');
 foreach ($generatePhpErrors as $error) {
     if ($error[0] == 'error') {
@@ -412,7 +407,7 @@ foreach ($generatePhpErrors as $error) {
 $xml->endElement();
 $xml->endElement();
 
-if (!headers_sent()) {
+if (! headers_sent()) {
     header('Content-Type: application/xml');
     header('Cache-Control: no-cache');
     header('Expires: 0');

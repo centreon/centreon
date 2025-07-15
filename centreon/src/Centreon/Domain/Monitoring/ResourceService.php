@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
 
-use Centreon\Domain\Service\AbstractCentreonService;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Service\AbstractCentreonService;
 
 /**
  * Service manage the resources in real-time monitoring : hosts and services.

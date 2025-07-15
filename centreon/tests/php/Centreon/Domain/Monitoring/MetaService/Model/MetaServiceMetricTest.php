@@ -89,8 +89,8 @@ class MetaServiceMetricTest extends TestCase
     }
 
     /**
-     * @return MetaServiceMetric
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceMetric
      */
     public static function createMetaServiceMetricEntity(): MetaServiceMetric
     {
@@ -101,14 +101,15 @@ class MetaServiceMetricTest extends TestCase
     }
 
     /**
-     * @return Resource
      * @throws \Assert\AssertionFailedException
+     * @return resource
      */
     public static function createResourceEntity(): Resource
     {
         $parentResource = (new Resource())
             ->setId(1)
             ->setName('Centreon-Central');
+
         return (new Resource())
             ->setId(1)
             ->setName('Ping')

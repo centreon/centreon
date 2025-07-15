@@ -24,10 +24,10 @@ namespace Centreon\Infrastructure\HostConfiguration\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryWriteRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostCategory;
-use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostCategoryFactoryRdb;
@@ -43,9 +43,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
     HostCategoryReadRepositoryInterface,
     HostCategoryWriteRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     /**
@@ -79,7 +77,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         $statement->bindValue(':icon_id', null, \PDO::PARAM_INT);
         $statement->bindValue(':is_activated', $category->isActivated() ? '1' : '0', \PDO::PARAM_STR);
         $statement->execute();
-        $category->setId((int)$this->db->lastInsertId());
+        $category->setId((int) $this->db->lastInsertId());
     }
 
     /**
@@ -101,12 +99,63 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
     }
 
     /**
+     * @inheritDoc
+     * @throws AssertionFailedException
+     */
+    public function findByNames(array $categoriesName): array
+    {
+        $hostCategories = [];
+        if (($categoriesName === [])) {
+            return $hostCategories;
+        }
+        $statement = $this->db->prepare(
+            $this->translateDbName('
+                SELECT * FROM `:db`.hostcategories
+                WHERE `hc_name` IN (?' . str_repeat(',?', count($categoriesName) - 1) . ')
+            ')
+        );
+        $statement->execute($categoriesName);
+
+        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $hostCategories[] = HostCategoryFactoryRdb::create($result);
+        }
+
+        return $hostCategories;
+    }
+
+    /**
+     * Find HostCategories by host id
+     *
+     * @param Host $host
+     * @return HostCategory[]
+     */
+    public function findAllByHost(Host $host): array
+    {
+        $request = $this->translateDbName(
+            'SELECT * FROM `:db`.hostcategories hc
+            JOIN `:db`.hostcategories_relation hc_rel ON hc.hc_id = hc_rel.hostcategories_hc_id
+            WHERE hc_rel.host_host_id = :host_id
+            AND hc.level IS NULL'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostCategories = [];
+        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $hostCategories[] = HostCategoryFactoryRdb::create($record);
+        }
+
+        return $hostCategories;
+    }
+
+    /**
      * Find a category by id and contact id.
      *
      * @param int $categoryId Id of the host category to be found
      * @param int|null $contactId Contact id related to host categories
-     * @return HostCategory|null
      * @throws AssertionFailedException
+     * @return HostCategory|null
      */
     private function findByIdRequest(int $categoryId, ?int $contactId): ?HostCategory
     {
@@ -147,55 +196,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostCategoryFactoryRdb::create($result);
         }
+
         return null;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws AssertionFailedException
-     */
-    public function findByNames(array $categoriesName): array
-    {
-        $hostCategories = [];
-        if (($categoriesName === [])) {
-            return $hostCategories;
-        }
-        $statement = $this->db->prepare(
-            $this->translateDbName('
-                SELECT * FROM `:db`.hostcategories
-                WHERE `hc_name` IN (?' . str_repeat(',?', count($categoriesName) - 1) . ')
-            ')
-        );
-        $statement->execute($categoriesName);
-
-        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $hostCategories[] = HostCategoryFactoryRdb::create($result);
-        }
-        return $hostCategories;
-    }
-
-    /**
-     * Find HostCategories by host id
-     *
-     * @param Host $host
-     * @return HostCategory[]
-     */
-    public function findAllByHost(Host $host): array
-    {
-        $request = $this->translateDbName(
-            'SELECT * FROM `:db`.hostcategories hc
-            JOIN `:db`.hostcategories_relation hc_rel ON hc.hc_id = hc_rel.hostcategories_hc_id
-            WHERE hc_rel.host_host_id = :host_id
-            AND hc.level IS NULL'
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
-        $statement->execute();
-
-        $hostCategories = [];
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $hostCategories[] = HostCategoryFactoryRdb::create($record);
-        }
-        return $hostCategories;
     }
 }

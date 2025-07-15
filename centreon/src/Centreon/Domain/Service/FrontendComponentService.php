@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -32,16 +33,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Domain\Service;
 
-use Psr\Container\ContainerInterface;
 use CentreonLegacy\ServiceProvider;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class to manage external frontend components provided by modules and widgets
  */
 class FrontendComponentService
 {
+    /**
+     * FrontendComponentService constructor
+     *
+     * @param ContainerInterface $services
+     */
+    public function __construct(private ContainerInterface $services)
+    {
+    }
+
     /**
      * List of class dependencies
      *
@@ -55,12 +66,69 @@ class FrontendComponentService
     }
 
     /**
-     * FrontendComponentService constructor
+     * Get frontend external hooks
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @return array The list of hooks (js and css)
      */
-    public function __construct(private ContainerInterface $services)
+    public function getHooks(): array
     {
+        $installedModules = $this->getInstalledModules();
+
+        // search in each installed modules if there are hooks
+        $hooks = [];
+        foreach (array_keys($installedModules) as $installedModule) {
+            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/hooks';
+            $chunks = $this->getChunksByModuleName($installedModule);
+            $files = [];
+            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
+            foreach ($files as $path => $hookFiles) {
+                if (preg_match('/\/static\/hooks(\/.+)$/', $path, $hookMatches)) {
+                    // parse hook name by removing beginning of the path
+                    $hookName = $hookMatches[1];
+
+                    $hookParameters = $this->getBundleStructure($path, $hookFiles, $chunks);
+
+                    if (! $hookParameters['js']['bundle'] !== null) {
+                        $hooks[$hookName] = $hookParameters;
+                    }
+                }
+            }
+        }
+
+        return $hooks;
+    }
+
+    /**
+     * Get frontend external pages
+     *
+     * @return array The list of pages (routes, js and css)
+     */
+    public function getPages(): array
+    {
+        $installedModules = $this->getInstalledModules();
+
+        // search in each installed modules if there are pages
+        $pages = [];
+        foreach (array_keys($installedModules) as $installedModule) {
+            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/pages';
+            $chunks = $this->getChunksByModuleName($installedModule);
+            $files = [];
+            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
+            foreach ($files as $path => $pageFiles) {
+                if (preg_match('/\/static\/pages(\/.+)$/', $path, $pageMatches)) {
+                    $pageParameters = $this->getBundleStructure($path, $pageFiles, $chunks);
+
+                    if ($pageParameters['js']['bundle'] !== null) {
+                        // parse page name by removing beginning of the path
+                        $pageName = str_replace('/_', '/:', $pageMatches[1]);
+
+                        $pages[$pageName] = $pageParameters;
+                    }
+                }
+            }
+        }
+
+        return $pages;
     }
 
     /**
@@ -84,10 +152,10 @@ class FrontendComponentService
 
         foreach ($files as $key => $value) {
             $path = $dir . DIRECTORY_SEPARATOR . $value;
-            if (!is_dir($path) && preg_match($regex, $path)) {
+            if (! is_dir($path) && preg_match($regex, $path)) {
                 // group files by directory
                 $results[dirname($path)][] = basename($path);
-            } elseif ($recursive && $value != "." && $value != "..") {
+            } elseif ($recursive && $value != '.' && $value != '..') {
                 $this->getDirContents($path, $results, $regex);
             }
         }
@@ -115,7 +183,7 @@ class FrontendComponentService
     private function getChunksByModuleName(string $moduleName): array
     {
         $chunks = [];
-        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName. '/static';
+        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName . '/static';
 
         $files = [];
         $this->getDirContents($modulePath, $files, '/\.js$/', false);
@@ -165,71 +233,5 @@ class FrontendComponentService
         }
 
         return $structure;
-    }
-
-    /**
-     * Get frontend external hooks
-     *
-     * @return array The list of hooks (js and css)
-     */
-    public function getHooks(): array
-    {
-        $installedModules = $this->getInstalledModules();
-
-        // search in each installed modules if there are hooks
-        $hooks = [];
-        foreach (array_keys($installedModules) as $installedModule) {
-            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/hooks';
-            $chunks = $this->getChunksByModuleName($installedModule);
-            $files = [];
-            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
-            foreach ($files as $path => $hookFiles) {
-                if (preg_match('/\/static\/hooks(\/.+)$/', $path, $hookMatches)) {
-                    // parse hook name by removing beginning of the path
-                    $hookName = $hookMatches[1];
-
-                    $hookParameters = $this->getBundleStructure($path, $hookFiles, $chunks);
-
-                    if (!$hookParameters['js']['bundle'] !== null) {
-                        $hooks[$hookName] = $hookParameters;
-                    }
-                }
-            }
-        }
-
-        return $hooks;
-    }
-
-    /**
-     * Get frontend external pages
-     *
-     * @return array The list of pages (routes, js and css)
-     */
-    public function getPages(): array
-    {
-        $installedModules = $this->getInstalledModules();
-
-        // search in each installed modules if there are pages
-        $pages = [];
-        foreach (array_keys($installedModules) as $installedModule) {
-            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/pages';
-            $chunks = $this->getChunksByModuleName($installedModule);
-            $files = [];
-            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
-            foreach ($files as $path => $pageFiles) {
-                if (preg_match('/\/static\/pages(\/.+)$/', $path, $pageMatches)) {
-                    $pageParameters = $this->getBundleStructure($path, $pageFiles, $chunks);
-
-                    if ($pageParameters['js']['bundle'] !== null) {
-                        // parse page name by removing beginning of the path
-                        $pageName = str_replace('/_', '/:', $pageMatches[1]);
-
-                        $pages[$pageName] = $pageParameters;
-                    }
-                }
-            }
-        }
-
-        return $pages;
     }
 }

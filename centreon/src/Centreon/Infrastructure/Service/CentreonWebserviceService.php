@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -37,11 +38,11 @@
 namespace Centreon\Infrastructure\Service;
 
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
-use CentreonRemote\Application\Webservice\CentreonWebServiceAbstract;
-use ReflectionClass;
-use Psr\Container\ContainerInterface;
-use CentreonWebService;
 use Centreon\Infrastructure\Service\Traits\ServiceContainerTrait;
+use CentreonRemote\Application\Webservice\CentreonWebServiceAbstract;
+use CentreonWebService;
+use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
 class CentreonWebserviceService implements ContainerInterface
 {
@@ -51,8 +52,8 @@ class CentreonWebserviceService implements ContainerInterface
      * Add webservice from DI
      *
      * @param string $object
+     * @throws NotFoundException
      * @return self
-     * @throws \Centreon\Infrastructure\Service\Exception\NotFoundException
      */
     public function add(string $object): self
     {
@@ -60,8 +61,8 @@ class CentreonWebserviceService implements ContainerInterface
         $abstractClass = CentreonWebServiceAbstract::class;
         $ref = new ReflectionClass($object);
         $hasInterfaces = (
-            $ref->isSubclassOf($centreonClass) ||
-            $ref->isSubclassOf($abstractClass)
+            $ref->isSubclassOf($centreonClass)
+            || $ref->isSubclassOf($abstractClass)
         );
 
         if ($hasInterfaces === false) {

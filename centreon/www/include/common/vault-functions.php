@@ -163,7 +163,7 @@ function duplicateHostSecretsInVault(
             $vaultPath = $snmpCommunity;
         }
 
-    // Get UUID from macro password if they match the vault path regex
+        // Get UUID from macro password if they match the vault path regex
     } elseif ($macroPasswords !== []) {
         foreach ($macroPasswords as $macroInfo) {
             if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
@@ -187,13 +187,13 @@ function duplicateHostSecretsInVault(
         $vaultPaths = $writeVaultRepository->upsert(null, $hostSecretsFromVault);
 
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)){
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)) {
             updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $newHostId);
         }
 
         // Store vault path for macros
         if ($macroPasswords !== []) {
-            foreach ($macroPasswords as  $macroId => $macroInfo) {
+            foreach ($macroPasswords as $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswords);
@@ -321,9 +321,9 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds): array
                     $matches
                 )
                 || preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $result['host_macro_value'],
-                $matches
+                    '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                    $result['host_macro_value'],
+                    $matches
                 )
             )
             && isset($matches[2])
@@ -458,7 +458,6 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
         foreach ($result as $columnValue) {
             if (str_starts_with($columnValue, VaultConfiguration::VAULT_PATH_PATTERN)) {
                 return $columnValue;
-
             }
         }
     }
@@ -514,7 +513,7 @@ function updateHostSecretsInVaultFromMC(
 
     if ($updateHostPayload !== []) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateHostPayload);
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
@@ -612,12 +611,12 @@ function updateHostSecretsInVault(
             $updateHostPayload['to_insert'],
             $updateHostPayload['to_delete']
         );
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)){
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)) {
             updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $hostId);
         }
 
@@ -744,7 +743,7 @@ function duplicateServiceSecretsInVault(
 
         // Store vault path for macros
         if ($macroPasswords !== []) {
-            foreach ($macroPasswords as  $macroId => $macroInfo) {
+            foreach ($macroPasswords as $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswords);
@@ -903,7 +902,7 @@ function updateServiceSecretsInVaultFromMC(
     );
     if (! empty($updateServicePayload)) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateServicePayload);
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
@@ -993,8 +992,9 @@ function updateServiceSecretsInVault(
         $vaultPaths = $writeVaultRepository->upsert(
             $uuid,
             $updateServicePayload['to_insert'],
-            $updateServicePayload['to_delete']);
-        foreach ($macros as  $macroId => $macroInfo) {
+            $updateServicePayload['to_delete']
+        );
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
         // Store vault path for macros
@@ -1089,7 +1089,8 @@ function insertServiceSecretsInVault(
  *
  * @return string|null
  */
-function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string {
+function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string
+{
     $statement = $pearDB->prepare(
         <<<'SQL'
                 SELECT resource_line FROM cfg_resource
@@ -1157,7 +1158,6 @@ function upsertPollerMacroSecretInVault(
  * @param string $key
  *
  * @throws Throwable
- *
  */
 function deletePollerMacroSecretInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
@@ -1220,7 +1220,6 @@ function upsertKnowledgeBasePasswordInVault(
     $vaultPaths = $writeVaultRepository->upsert($uuid, [VaultConfiguration::KNOWLEDGE_BASE_KEY => $password]);
 
     return $vaultPaths[VaultConfiguration::KNOWLEDGE_BASE_KEY];
-
 }
 
 /**
@@ -1237,9 +1236,9 @@ function findKnowledgeBasePasswordFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     string $kbPasswordPath,
 ): string {
-     $data = $readVaultRepository->findFromPath($kbPasswordPath);
+    $data = $readVaultRepository->findFromPath($kbPasswordPath);
 
-     return $data[VaultConfiguration::KNOWLEDGE_BASE_KEY];
+    return $data[VaultConfiguration::KNOWLEDGE_BASE_KEY];
 }
 
 /**
@@ -1247,9 +1246,8 @@ function findKnowledgeBasePasswordFromVault(
  *
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  *
- * @return array<string, string>
- *
  * @throws Throwable
+ * @return array<string, string>
  */
 function migrateDatabaseCredentialsToVault(
     WriteVaultRepositoryInterface $writeVaultRepository
@@ -1303,6 +1301,7 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  * Update the different config files with the vault path.
  *
  * @param array<string,string> $vaultPath
+ * @param mixed $vaultPaths
  *
  * @throws Exception
  */
@@ -1317,7 +1316,6 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateDatabaseYamlFile($vaultPaths);
     }
 }
-
 
 /**
  * Migrate Gorgone API credentials to Vault and return the vault path.
@@ -1342,9 +1340,8 @@ function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVa
 /**
  * Retrieve Gorgone API credentials from the configuration file.
  *
- * @return string
- *
  * @throws Exception
+ * @return string
  */
 function retrieveGorgoneApiCredentialsFromConfigFile(): string
 {
@@ -1362,7 +1359,6 @@ function retrieveGorgoneApiCredentialsFromConfigFile(): string
     return $content['gorgone']['tpapi'][0]['password']
         ?? throw new Exception('Unable to retrieve Gorgone API password');
 }
-
 
 /**
  * Update the Gorgone API configuration file with the Vault path.
@@ -1434,7 +1430,7 @@ function updateCentreonConfPmFile(array $vaultPaths): void
 
     $newContentPm = preg_replace(
         '/"db_user"\s*=>\s*(.*)/',
-        '"db_user" => "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'",',
+        '"db_user" => "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '",',
         $content
     );
     $newContentPm = preg_replace(
@@ -1444,7 +1440,7 @@ function updateCentreonConfPmFile(array $vaultPaths): void
     );
     $newContentPm = preg_replace(
         '/\$mysql_user\s*=\s*(.*)/',
-        '$mysql_user = "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'";',
+        '$mysql_user = "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '";',
         $newContentPm
     );
     $newContentPm = preg_replace(
@@ -1537,8 +1533,8 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
     $statement->execute();
     $uuids = [];
     while ($result = $statement->fetchColumn()) {
-        $uuids[] =
-            preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
+        $uuids[]
+            = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
                 ? $matches[2]
                 : null;
     }
@@ -1563,13 +1559,13 @@ function findBrokerConfigValueFromVault(
     Logger $logger,
     string $key,
     string $vaultPath,
-): string
-{
+): string {
     try {
         $content = $readVaultRepository->findFromPath($vaultPath);
         if (! array_key_exists($key, $content)) {
             return $vaultPath;
         }
+
         return $content[$key];
     } catch (Exception $ex) {
         $logger->error('Unable to get secrets for Broker Configuration');

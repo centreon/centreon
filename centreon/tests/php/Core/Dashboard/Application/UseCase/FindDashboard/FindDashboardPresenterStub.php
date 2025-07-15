@@ -26,7 +26,6 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindDashboard;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 
 class FindDashboardPresenterStub implements FindDashboardPresenterInterface
 {

@@ -16,13 +16,12 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2 : ';
 
 /**
@@ -31,10 +30,8 @@ $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2 : ';
 try {
     $pearDB->beginTransaction();
 
-    /*
-     * Move keycloak configuration to OpenId Connect one
-     */
-    $errorMessage = "Unable to move Keycloak configuration to OpenId Connect";
+    // Move keycloak configuration to OpenId Connect one
+    $errorMessage = 'Unable to move Keycloak configuration to OpenId Connect';
     $result = $pearDB->query(
         "SELECT * FROM options WHERE options.key IN ('keycloak_enable', 'keycloak_mode', 'keycloak_url',
         'keycloak_redirect_url', 'keycloak_realm', 'keycloak_client_id', 'keycloak_client_secret',
@@ -47,9 +44,9 @@ try {
     }
 
     $keycloakBaseUrl = null;
-    if (!empty($keycloak['keycloak_url']) && !empty($keycloak['keycloak_realm'])) {
-        $keycloakUrl = $keycloak['keycloak_url'] . "/realms/" .
-            $keycloak['keycloak_realm'] . "/protocol/openid-connect";
+    if (! empty($keycloak['keycloak_url']) && ! empty($keycloak['keycloak_realm'])) {
+        $keycloakUrl = $keycloak['keycloak_url'] . '/realms/'
+            . $keycloak['keycloak_realm'] . '/protocol/openid-connect';
     }
     $openIdConnect = [
         'openid_connect_enable' => $keycloak['keycloak_enable'] ?? null,
@@ -57,21 +54,21 @@ try {
         'openid_connect_base_url' => $keycloakBaseUrl,
         'openid_connect_authorization_endpoint' => isset($keycloak['keycloak_url']) ? '/auth' : null,
         'openid_connect_token_endpoint' => isset($keycloak['keycloak_url']) ? '/token' : null,
-        'openid_connect_introspection_endpoint' => isset($keycloak['keycloak_url'])  ? '/introspect' : null,
+        'openid_connect_introspection_endpoint' => isset($keycloak['keycloak_url']) ? '/introspect' : null,
         'openid_connect_redirect_url' => $keycloak['keycloak_redirect_url'] ?? null,
         'openid_connect_client_id' => $keycloak['keycloak_client_id'] ?? null,
         'openid_connect_client_secret' => $keycloak['keycloak_client_secret'] ?? null,
         'openid_connect_trusted_clients' => $keycloak['keycloak_trusted_clients'] ?? null,
-        'openid_connect_blacklist_clients' => $keycloak['keycloak_blacklist_clients'] ?? null
+        'openid_connect_blacklist_clients' => $keycloak['keycloak_blacklist_clients'] ?? null,
     ];
 
     $statement = $pearDB->prepare(
-        "INSERT INTO options (`key`, `value`) VALUES (:key, :value)"
+        'INSERT INTO options (`key`, `value`) VALUES (:key, :value)'
     );
     foreach ($openIdConnect as $key => $value) {
-        if (!is_null($value)) {
-            $statement->bindValue(':key', $key, \PDO::PARAM_STR);
-            $statement->bindValue(':value', $value, \PDO::PARAM_STR);
+        if (! is_null($value)) {
+            $statement->bindValue(':key', $key, PDO::PARAM_STR);
+            $statement->bindValue(':value', $value, PDO::PARAM_STR);
             $statement->execute();
         }
     }
@@ -83,15 +80,16 @@ try {
     );
 
     $pearDB->commit();
-    $errorMessage = "";
-} catch (\Exception $e) {
+    $errorMessage = '';
+} catch (Exception $e) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

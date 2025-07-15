@@ -71,7 +71,8 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateService
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
     private const VERTICAL_INHERITANCE_MODE = 1;
 
     /** @var AccessGroup[] */
@@ -185,7 +186,7 @@ final class PartialUpdateService
             }
             if (null !== $previousMonitoringServer) {
                 // Host change implies a possible monitoring server change, notify previous monitoring server of configuration changes.
-                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer->getId());
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer->getId());
             }
 
             $this->dataStorageEngine->commitTransaction();
@@ -212,136 +213,136 @@ final class PartialUpdateService
             ? (int) $inheritanceMode[0]->getValue()
             : null;
 
-        if (! $dto->hostId instanceOf NoValue) {
+        if (! $dto->hostId instanceof NoValue) {
             $this->validation->assertIsValidHost($dto->hostId);
             $service->setHostId($dto->hostId);
         }
 
         // Must be called AFTER host validation
-        if (! $dto->name instanceOf NoValue) {
+        if (! $dto->name instanceof NoValue) {
             $this->validation->assertIsValidName($dto->name, $service);
             $service->setName($dto->name);
         }
 
-        if (! $dto->template instanceOf NoValue) {
+        if (! $dto->template instanceof NoValue) {
             $this->validation->assertIsValidTemplate($dto->template);
             $service->setServiceTemplateParentId($dto->template);
         }
 
-        if (! $dto->activeChecks instanceOf NoValue) {
+        if (! $dto->activeChecks instanceof NoValue) {
             $service->setActiveChecks(YesNoDefaultConverter::fromInt($dto->activeChecks));
         }
-        if (! $dto->passiveCheck instanceOf NoValue) {
+        if (! $dto->passiveCheck instanceof NoValue) {
             $service->setPassiveCheck(YesNoDefaultConverter::fromInt($dto->passiveCheck));
         }
-        if (! $dto->volatility instanceOf NoValue) {
+        if (! $dto->volatility instanceof NoValue) {
             $service->setVolatility(YesNoDefaultConverter::fromInt($dto->volatility));
         }
-        if (! $dto->checkFreshness instanceOf NoValue) {
+        if (! $dto->checkFreshness instanceof NoValue) {
             $service->setCheckFreshness(YesNoDefaultConverter::fromInt($dto->checkFreshness));
         }
-        if (! $dto->eventHandlerEnabled instanceOf NoValue) {
+        if (! $dto->eventHandlerEnabled instanceof NoValue) {
             $service->setEventHandlerEnabled(YesNoDefaultConverter::fromInt($dto->eventHandlerEnabled));
         }
-        if (! $dto->flapDetectionEnabled instanceOf NoValue) {
+        if (! $dto->flapDetectionEnabled instanceof NoValue) {
             $service->setFlapDetectionEnabled(YesNoDefaultConverter::fromInt($dto->flapDetectionEnabled));
         }
-        if (! $dto->notificationsEnabled instanceOf NoValue) {
+        if (! $dto->notificationsEnabled instanceof NoValue) {
             $service->setNotificationsEnabled(YesNoDefaultConverter::fromInt($dto->notificationsEnabled));
         }
 
-        if (! $dto->comment instanceOf NoValue) {
+        if (! $dto->comment instanceof NoValue) {
             $service->setComment($dto->comment);
         }
-        if (! $dto->note instanceOf NoValue) {
+        if (! $dto->note instanceof NoValue) {
             $service->setNote($dto->note);
         }
-        if (! $dto->noteUrl instanceOf NoValue) {
+        if (! $dto->noteUrl instanceof NoValue) {
             $service->setNoteUrl($dto->noteUrl);
         }
-        if (! $dto->actionUrl instanceOf NoValue) {
+        if (! $dto->actionUrl instanceof NoValue) {
             $service->setActionUrl($dto->actionUrl);
         }
-        if (! $dto->iconAlternativeText instanceOf NoValue) {
+        if (! $dto->iconAlternativeText instanceof NoValue) {
             $service->setIconAlternativeText($dto->iconAlternativeText);
         }
 
-        if (! $dto->maxCheckAttempts instanceOf NoValue) {
+        if (! $dto->maxCheckAttempts instanceof NoValue) {
             $service->setMaxCheckAttempts($dto->maxCheckAttempts);
         }
-        if (! $dto->normalCheckInterval instanceOf NoValue) {
+        if (! $dto->normalCheckInterval instanceof NoValue) {
             $service->setNormalCheckInterval($dto->normalCheckInterval);
         }
-        if (! $dto->retryCheckInterval instanceOf NoValue) {
+        if (! $dto->retryCheckInterval instanceof NoValue) {
             $service->setRetryCheckInterval($dto->retryCheckInterval);
         }
-        if (! $dto->freshnessThreshold instanceOf NoValue) {
+        if (! $dto->freshnessThreshold instanceof NoValue) {
             $service->setFreshnessThreshold($dto->freshnessThreshold);
         }
-        if (! $dto->lowFlapThreshold instanceOf NoValue) {
+        if (! $dto->lowFlapThreshold instanceof NoValue) {
             $service->setLowFlapThreshold($dto->lowFlapThreshold);
         }
-        if (! $dto->highFlapThreshold instanceOf NoValue) {
+        if (! $dto->highFlapThreshold instanceof NoValue) {
             $service->setHighFlapThreshold($dto->highFlapThreshold);
         }
-        if (! $dto->notificationInterval instanceOf NoValue) {
+        if (! $dto->notificationInterval instanceof NoValue) {
             $service->setNotificationInterval($dto->notificationInterval);
         }
-        if (! $dto->recoveryNotificationDelay instanceOf NoValue) {
+        if (! $dto->recoveryNotificationDelay instanceof NoValue) {
             $service->setRecoveryNotificationDelay($dto->recoveryNotificationDelay);
         }
-        if (! $dto->firstNotificationDelay instanceOf NoValue) {
+        if (! $dto->firstNotificationDelay instanceof NoValue) {
             $service->setFirstNotificationDelay($dto->firstNotificationDelay);
         }
-        if (! $dto->acknowledgementTimeout instanceOf NoValue) {
+        if (! $dto->acknowledgementTimeout instanceof NoValue) {
             $service->setAcknowledgementTimeout($dto->acknowledgementTimeout);
         }
 
         // Must be called AFTER template validation
-        if (! $dto->commandId instanceOf NoValue) {
+        if (! $dto->commandId instanceof NoValue) {
             if ($this->isCloudPlatform === false) {
                 // No assertion on the check command for Saas platform as it will be inherited from the service template.
                 $this->validation->assertIsValidCommand($dto->commandId, $service->getServiceTemplateParentId());
             }
             $service->setCommandId($dto->commandId);
         }
-        if (! $dto->graphTemplateId instanceOf NoValue) {
+        if (! $dto->graphTemplateId instanceof NoValue) {
             $this->validation->assertIsValidGraphTemplate($dto->graphTemplateId);
             $service->setGraphTemplateId($dto->graphTemplateId);
         }
-        if (! $dto->eventHandlerId instanceOf NoValue) {
+        if (! $dto->eventHandlerId instanceof NoValue) {
             $this->validation->assertIsValidEventHandler($dto->eventHandlerId);
             $service->setEventHandlerId($dto->eventHandlerId);
         }
-        if (! $dto->notificationTimePeriodId instanceOf NoValue) {
+        if (! $dto->notificationTimePeriodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->notificationTimePeriodId, 'notification_timeperiod_id');
             $service->setNotificationTimePeriodId($dto->notificationTimePeriodId);
         }
-        if (! $dto->checkTimePeriodId instanceOf NoValue) {
+        if (! $dto->checkTimePeriodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->checkTimePeriodId, 'check_timeperiod_id');
             $service->setCheckTimePeriodId($dto->checkTimePeriodId);
         }
-        if (! $dto->iconId instanceOf NoValue) {
+        if (! $dto->iconId instanceof NoValue) {
             $this->validation->assertIsValidIcon($dto->iconId);
             $service->setIconId($dto->iconId);
         }
-        if (! $dto->severityId instanceOf NoValue) {
+        if (! $dto->severityId instanceof NoValue) {
             $this->validation->assertIsValidSeverity($dto->severityId);
             $service->setSeverityId($dto->severityId);
         }
 
-        if (! $dto->isActivated instanceOf NoValue) {
+        if (! $dto->isActivated instanceof NoValue) {
             $service->setActivated($dto->isActivated);
         }
 
-        if (! $dto->geoCoords instanceOf NoValue) {
+        if (! $dto->geoCoords instanceof NoValue) {
             $service->setGeoCoords(
                 $dto->geoCoords === '' || $dto->geoCoords === null
                     ? null
                     : GeoCoords::fromString($dto->geoCoords)
             );
         }
-        if (! $dto->notificationTypes instanceOf NoValue) {
+        if (! $dto->notificationTypes instanceof NoValue) {
             $service->setNotificationTypes(
                 $dto->notificationTypes === null
                     ? []
@@ -349,19 +350,19 @@ final class PartialUpdateService
             );
         }
 
-        if (! $dto->commandArguments instanceOf NoValue) {
+        if (! $dto->commandArguments instanceof NoValue) {
             $service->setCommandArguments($dto->commandArguments);
         }
-        if (! $dto->eventHandlerArguments instanceOf NoValue) {
+        if (! $dto->eventHandlerArguments instanceof NoValue) {
             $service->setEventHandlerArguments($dto->eventHandlerArguments);
         }
 
-        if (! $dto->isContactAdditiveInheritance instanceOf NoValue) {
+        if (! $dto->isContactAdditiveInheritance instanceof NoValue) {
             $service->setContactAdditiveInheritance(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->isContactAdditiveInheritance : false
             );
         }
-        if (! $dto->isContactGroupAdditiveInheritance instanceOf NoValue) {
+        if (! $dto->isContactGroupAdditiveInheritance instanceof NoValue) {
             $service->setContactGroupAdditiveInheritance(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->isContactGroupAdditiveInheritance : false
             );
@@ -383,7 +384,7 @@ final class PartialUpdateService
             ['service_id' => $service->getId(), 'categories' => $dto->categories]
         );
 
-        if ($dto->categories instanceOf NoValue) {
+        if ($dto->categories instanceof NoValue) {
             $this->info('Categories not provided, nothing to update');
 
             return;
@@ -402,7 +403,7 @@ final class PartialUpdateService
         }
 
         $originalCategoryIds = array_map(
-            static fn(ServiceCategory $category): int => $category->getId(),
+            static fn (ServiceCategory $category): int => $category->getId(),
             $originalCategories
         );
 
@@ -427,7 +428,7 @@ final class PartialUpdateService
             ['service_id' => $service->getId(), 'groups' => $dto->groups]
         );
 
-        if ($dto->groups instanceOf NoValue) {
+        if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
             return;
@@ -637,7 +638,7 @@ final class PartialUpdateService
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

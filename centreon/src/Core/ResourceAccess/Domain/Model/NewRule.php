@@ -145,4 +145,3 @@ class NewRule
         return $this->applyToAllContactGroups;
     }
 }
-

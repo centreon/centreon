@@ -24,9 +24,9 @@ namespace Centreon\Domain\MetaServiceConfiguration;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
-use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
-use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
 use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationServiceInterface;
+use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
 
 /**
  * This class is designed to manage the host categories.
@@ -35,14 +35,10 @@ use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfiguration
  */
 class MetaServiceConfigurationService implements MetaServiceConfigurationServiceInterface
 {
-    /**
-     * @var MetaServiceConfigurationReadRepositoryInterface
-     */
+    /** @var MetaServiceConfigurationReadRepositoryInterface */
     private $readRepository;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**

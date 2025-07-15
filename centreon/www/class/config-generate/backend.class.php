@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -36,7 +37,7 @@
 use Pimple\Container;
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../../config/centreon.config.php');
 if ($configFile !== false) {
     require_once $configFile;
 }
@@ -53,32 +54,42 @@ class Backend
 {
     /** @var CentreonDBStatement */
     public $stmt_central_poller;
-    /** @var Backend|null */
-    private static $_instance = null;
+
     /** @var string */
     public $generate_path = '/var/cache/centreon/config';
+
     /** @var string */
     public $engine_sub = 'engine';
+
     /** @var string */
     public $broker_sub = 'broker';
+
     public $vmware_sub = 'vmware';
 
-    /** @var CentreonDB|null  */
+    /** @var CentreonDB|null */
     public $db = null;
+
     /** @var CentreonDB|null */
     public $db_cs = null;
 
+    /** @var Backend|null */
+    private static $_instance = null;
+
     /** @var string|null */
     private $tmp_file = null;
+
     /** @var string|null */
     private $tmp_dir = null;
+
     /** @var string|null */
     private $full_path = null;
+
     /** @var string */
     private $whoaim = 'unknown';
 
     /** @var string|null */
     private $poller_id = null;
+
     /** @var string|null */
     private $central_poller_id = null;
 
@@ -109,31 +120,10 @@ class Backend
     }
 
     /**
-     * @param $path
-     *
-     * @return bool
-     */
-    private function deleteDir($path)
-    {
-        if (is_dir($path) === true) {
-            $files = array_diff(scandir($path), ['.', '..']);
-            foreach ($files as $file) {
-                $this->deleteDir(realpath($path) . '/' . $file);
-            }
-
-            return rmdir($path);
-        } elseif (is_file($path) === true) {
-            return unlink($path);
-        }
-
-        return false;
-    }
-
-    /**
      * @param $paths
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function createDirectories($paths)
     {
@@ -144,13 +134,13 @@ class Backend
             $dir_append .= '/';
 
             if (file_exists($dir)) {
-                if (!is_dir($dir)) {
+                if (! is_dir($dir)) {
                     throw new Exception("Generation path '" . $dir . "' is not a directory.");
                 }
                 if (posix_getuid() === fileowner($dir)) {
                     chmod($dir, 0770);
                 }
-            } elseif (!mkdir($dir, 0770, true)) {
+            } elseif (! mkdir($dir, 0770, true)) {
                 throw new Exception("Cannot create directory '" . $dir . "'");
             }
         }
@@ -170,12 +160,12 @@ class Backend
      * @param $poller_id
      * @param $engine
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function initPath($poller_id, $engine = 1): void
     {
-        switch($engine) {
+        switch ($engine) {
             case 1:
                 $this->createDirectories([$this->generate_path, $this->engine_sub]);
                 $this->full_path = $this->generate_path . '/' . $this->engine_sub;
@@ -189,13 +179,13 @@ class Backend
                 $this->full_path = $this->generate_path . '/' . $this->vmware_sub;
                 break;
             default:
-                throw new Exception("Invalid engine type");
+                throw new Exception('Invalid engine type');
         }
-        if (is_dir($this->full_path . '/' . $poller_id) && !is_writable($this->full_path . '/' . $poller_id)) {
+        if (is_dir($this->full_path . '/' . $poller_id) && ! is_writable($this->full_path . '/' . $poller_id)) {
             throw new Exception("Not writeable directory '" . $this->full_path . '/' . $poller_id . "'");
         }
 
-        if (!is_writable($this->full_path)) {
+        if (! is_writable($this->full_path)) {
             throw new Exception("Not writeable directory '" . $this->full_path . "'");
         }
         $this->tmp_file = basename(tempnam($this->full_path, TMP_DIR_PREFIX));
@@ -279,12 +269,12 @@ class Backend
     }
 
     /**
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function getCentralPollerId()
     {
-        if (!is_null($this->central_poller_id)) {
+        if (! is_null($this->central_poller_id)) {
             return $this->central_poller_id;
         }
         $this->stmt_central_poller = $this->db->prepare("SELECT id
@@ -295,9 +285,32 @@ class Backend
         if ($this->stmt_central_poller->rowCount()) {
             $row = $this->stmt_central_poller->fetch(PDO::FETCH_ASSOC);
             $this->central_poller_id = $row['id'];
+
             return $this->central_poller_id;
-        } else {
-            throw new Exception("Cannot get central poller id");
         }
+
+        throw new Exception('Cannot get central poller id');
+    }
+
+    /**
+     * @param $path
+     *
+     * @return bool
+     */
+    private function deleteDir($path)
+    {
+        if (is_dir($path) === true) {
+            $files = array_diff(scandir($path), ['.', '..']);
+            foreach ($files as $file) {
+                $this->deleteDir(realpath($path) . '/' . $file);
+            }
+
+            return rmdir($path);
+        }
+        if (is_file($path) === true) {
+            return unlink($path);
+        }
+
+        return false;
     }
 }

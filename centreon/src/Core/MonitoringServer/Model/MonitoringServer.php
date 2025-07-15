@@ -46,7 +46,7 @@ class MonitoringServer
         private ?string $engineRestartCommand = null,
         private ?string $engineReloadCommand = null,
         private ?string $brokerReloadCommand = null
-    ){
+    ) {
         $this->name = trim($name);
         Assertion::notEmpty($this->name);
     }

@@ -31,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once __DIR__ . "/../List.class.php";
+require_once __DIR__ . '/../List.class.php';
 
 /**
  * Class
@@ -43,7 +42,6 @@ require_once __DIR__ . "/../List.class.php";
  */
 class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
 {
-
     /** @var int */
     public $userId;
 
@@ -64,8 +62,8 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
     /**
      * @param $paramId
      *
-     * @return mixed|null[]
      * @throws PDOException
+     * @return mixed|null[]
      */
     public function getListValues($paramId)
     {
@@ -100,7 +98,7 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
             $statement = $this->db->prepare($request);
 
             if (! $isContactAdmin) {
-                $statement->bindValue(':userId', $this->userId, \PDO::PARAM_INT);
+                $statement->bindValue(':userId', $this->userId, PDO::PARAM_INT);
             }
             $statement->execute();
             $entriesCount = $this->db->query('SELECT FOUND_ROWS()');
@@ -114,7 +112,7 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
                     );
                 }
 
-                while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+                while (($record = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
                     $tab[$record['id']] = $record['name'];
                 }
             }

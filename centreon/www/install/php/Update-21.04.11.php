@@ -19,11 +19,10 @@
  *
  */
 
-
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 21.04.11: ';
 
 /**
@@ -32,13 +31,14 @@ $versionOfTheUpgrade = 'UPGRADE - 21.04.11: ';
 try {
     $errorMessage  = 'Unable to delete logger entry in cb_tag';
     $statement = $pearDB->query("DELETE FROM cb_tag WHERE tagname = 'logger'");
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

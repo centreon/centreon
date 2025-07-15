@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -35,7 +36,7 @@
 
 $help = [];
 
-$help["connector_name"] = dgettext("help", "Name which will be used for identifying the connector.");
-$help["connector_description"] = dgettext("help", "A short description of the connector.");
-$help["command_line"] = dgettext("help", 'The connector binary that centreon-engine will launch.');
-$help["connector_status"] = dgettext("help", "Whether or not the connector is enabled.");
+$help['connector_name'] = dgettext('help', 'Name which will be used for identifying the connector.');
+$help['connector_description'] = dgettext('help', 'A short description of the connector.');
+$help['command_line'] = dgettext('help', 'The connector binary that centreon-engine will launch.');
+$help['connector_status'] = dgettext('help', 'Whether or not the connector is enabled.');

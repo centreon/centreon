@@ -27,7 +27,8 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-interface ReadMonitoringServerRepositoryInterface {
+interface ReadMonitoringServerRepositoryInterface
+{
     /**
      * Determine if a monitoring server exists by its ID.
      *

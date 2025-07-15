@@ -61,7 +61,7 @@ class PlatformTopologyRepositoryException extends RepositoryException implements
      */
     public static function apiClientException(string $details): self
     {
-        return new self(_("API calling the Central returned a Client exception") . ' : ' . $details);
+        return new self(_('API calling the Central returned a Client exception') . ' : ' . $details);
     }
 
     /**
@@ -71,7 +71,7 @@ class PlatformTopologyRepositoryException extends RepositoryException implements
      */
     public static function apiRedirectionException(string $details): self
     {
-        return new self(_("API calling the Central returned a Redirection exception") . ' : ' . $details);
+        return new self(_('API calling the Central returned a Redirection exception') . ' : ' . $details);
     }
 
     /**

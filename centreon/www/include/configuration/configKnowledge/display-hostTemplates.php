@@ -37,60 +37,58 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$modules_path = $centreon_path . "www/include/configuration/configKnowledge/";
+$modules_path = $centreon_path . 'www/include/configuration/configKnowledge/';
 require_once $modules_path . 'functions.php';
 require_once $centreon_path . '/bootstrap.php';
 $pearDB = $dependencyInjector['configuration_db'];
 
-if (!isset($limit) || (int) $limit < 0) {
-    $limit = $centreon->optGen["maxViewConfiguration"];
+if (! isset($limit) || (int) $limit < 0) {
+    $limit = $centreon->optGen['maxViewConfiguration'];
 }
 
-$orderBy = "host_name";
-$order = "ASC";
+$orderBy = 'host_name';
+$order = 'ASC';
 
 // Use whitelist as we can't bind ORDER BY sort parameter
-if (!empty($_POST['order']) && in_array($_POST['order'], ["ASC", "DESC"])) {
+if (! empty($_POST['order']) && in_array($_POST['order'], ['ASC', 'DESC'])) {
     $order = $_POST['order'];
 }
 
-require_once "./include/common/autoNumLimit.php";
+require_once './include/common/autoNumLimit.php';
 
-/*
- * Add paths
- */
+// Add paths
 set_include_path(get_include_path() . PATH_SEPARATOR . $modules_path);
 
-require_once $centreon_path . "/www/class/centreon-knowledge/procedures.class.php";
+require_once $centreon_path . '/www/class/centreon-knowledge/procedures.class.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($modules_path);
 
 try {
-    $postHostTemplate = !empty($_POST['searchHostTemplate'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHostTemplate'])
+    $postHostTemplate = ! empty($_POST['searchHostTemplate'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHostTemplate'])
         : '';
-    $searchHasNoProcedure = !empty($_POST['searchHasNoProcedure'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHasNoProcedure'])
+    $searchHasNoProcedure = ! empty($_POST['searchHasNoProcedure'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHasNoProcedure'])
         : '';
-    $templatesHasNoProcedure = !empty($_POST['searchTemplatesWithNoProcedure'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchTemplatesWithNoProcedure'])
+    $templatesHasNoProcedure = ! empty($_POST['searchTemplatesWithNoProcedure'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchTemplatesWithNoProcedure'])
         : '';
 
     $conf = getWikiConfig($pearDB);
     $WikiURL = $conf['kb_wiki_url'];
 
-    $currentPage = "hostTemplates";
+    $currentPage = 'hostTemplates';
     require_once $modules_path . 'search.php';
 
     // Init Status Template
     $status = [
-        0 => "<font color='orange'> " . _("No wiki page defined") . " </font>",
-        1 => "<font color='green'> " . _("Wiki page defined") . " </font>"
+        0 => "<font color='orange'> " . _('No wiki page defined') . ' </font>',
+        1 => "<font color='green'> " . _('Wiki page defined') . ' </font>',
     ];
 
     $proc = new procedures($pearDB);
@@ -103,44 +101,42 @@ try {
             AND host.host_register = '0'
             AND host.host_locked = '0' ";
 
-    if (!empty($postHostTemplate)) {
-        $query .= "AND host.host_name LIKE :postHostTemplate ";
+    if (! empty($postHostTemplate)) {
+        $query .= 'AND host.host_name LIKE :postHostTemplate ';
     }
-    $query .= "ORDER BY " . $orderBy . " " . $order . " LIMIT :offset, :limit";
+    $query .= 'ORDER BY ' . $orderBy . ' ' . $order . ' LIMIT :offset, :limit';
 
     $statement = $pearDB->prepare($query);
-    if (!empty($postHostTemplate)) {
+    if (! empty($postHostTemplate)) {
         $statement->bindValue(':postHostTemplate', '%' . $postHostTemplate . '%', PDO::PARAM_STR);
     }
     $statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
     $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
     $statement->execute();
 
-    $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+    $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
     $selection = [];
     while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-        if ($data["host_register"] == 0) {
-            $selection[$data["host_name"]] = $data["host_id"];
+        if ($data['host_register'] == 0) {
+            $selection[$data['host_name']] = $data['host_id'];
         }
     }
     $statement->closeCursor();
     unset($data);
 
-    /*
-     * Create Diff
-     */
+    // Create Diff
 
-    $tpl->assign("host_name", _("Hosts Templates"));
+    $tpl->assign('host_name', _('Hosts Templates'));
 
     $diff = [];
     $templateHostArray = [];
     foreach ($selection as $key => $value) {
-        $tplStr = "";
+        $tplStr = '';
         $tplArr = $proc->getMyHostMultipleTemplateModels($value);
         $diff[$key] = $proc->hostTemplateHasProcedure($key, $tplArr) == true ? 1 : 0;
 
-        if (!empty($templatesHasNoProcedure)) {
+        if (! empty($templatesHasNoProcedure)) {
             if (
                 $diff[$key] == 1
                 || $proc->hostTemplateHasProcedure($key, $tplArr, PROCEDURE_INHERITANCE_MODE) == true
@@ -149,7 +145,7 @@ try {
                 unset($diff[$key]);
                 continue;
             }
-        } elseif (!empty($searchHasNoProcedure)) {
+        } elseif (! empty($searchHasNoProcedure)) {
             if ($diff[$key] == 1) {
                 $rows--;
                 unset($diff[$key]);
@@ -160,12 +156,12 @@ try {
             $firstTpl = 1;
             foreach ($tplArr as $key1 => $value1) {
                 if ($firstTpl) {
-                    $tplStr .= " <a href='" . $WikiURL .
-                        "/index.php?title=Host-Template_:_" . $value1 . "' target = '_blank' > " . $value1 . "</a > ";
+                    $tplStr .= " <a href='" . $WikiURL
+                        . '/index.php?title=Host-Template_:_' . $value1 . "' target = '_blank' > " . $value1 . '</a > ';
                     $firstTpl = 0;
                 } else {
-                    $tplStr .= "&nbsp;|&nbsp;<a href = '" . $WikiURL .
-                        "/index.php?title=Host-Template_:_" . $value1 . "' target = '_blank' > " . $value1 . "</a > ";
+                    $tplStr .= "&nbsp;|&nbsp;<a href = '" . $WikiURL
+                        . '/index.php?title=Host-Template_:_' . $value1 . "' target = '_blank' > " . $value1 . '</a > ';
                 }
             }
         }
@@ -173,30 +169,28 @@ try {
         unset($tplStr);
     }
 
-    include "./include/common/checkPagination.php";
+    include './include/common/checkPagination.php';
 
     if (isset($templateHostArray)) {
-        $tpl->assign("templateHostArray", $templateHostArray);
+        $tpl->assign('templateHostArray', $templateHostArray);
     }
 
     $WikiVersion = getWikiVersion($WikiURL . '/api.php');
-    $tpl->assign("WikiVersion", $WikiVersion);
-    $tpl->assign("WikiURL", $WikiURL);
-    $tpl->assign("content", $diff);
-    $tpl->assign("status", $status);
-    $tpl->assign("selection", 2);
+    $tpl->assign('WikiVersion', $WikiVersion);
+    $tpl->assign('WikiURL', $WikiURL);
+    $tpl->assign('content', $diff);
+    $tpl->assign('status', $status);
+    $tpl->assign('selection', 2);
 
-    /*
-     * Send template in order to open
-     */
+    // Send template in order to open
 
     // translations
-    $tpl->assign("status_trans", _("Status"));
-    $tpl->assign("actions_trans", _("Actions"));
-    $tpl->assign("template_trans", _("Template"));
+    $tpl->assign('status_trans', _('Status'));
+    $tpl->assign('actions_trans', _('Actions'));
+    $tpl->assign('template_trans', _('Template'));
 
     // Template
-    $tpl->registerObject("lineTemplate", getLineTemplate('list_one', 'list_two'));
+    $tpl->registerObject('lineTemplate', getLineTemplate('list_one', 'list_two'));
     $tpl->assign('limit', $limit);
 
     $tpl->assign('order', $order);
@@ -205,8 +199,8 @@ try {
 
     // Apply a template definition
 
-    $tpl->display($modules_path . "templates/display.ihtml");
-} catch (\Exception $e) {
+    $tpl->display($modules_path . 'templates/display.ihtml');
+} catch (Exception $e) {
     $tpl->assign('errorMsg', $e->getMessage());
-    $tpl->display($modules_path . "templates/NoWiki.tpl");
+    $tpl->display($modules_path . 'templates/NoWiki.tpl');
 }

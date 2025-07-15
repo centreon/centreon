@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -54,7 +54,6 @@ class CentreonGraphCurve
     }
 
     /**
-     *
      * @param int $field
      * @return array
      */
@@ -80,6 +79,7 @@ class CentreonGraphCurve
                 $parameters['type'] = 'simple';
                 break;
         }
+
         return $parameters;
     }
 
@@ -87,26 +87,26 @@ class CentreonGraphCurve
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':compo' . $v . ',';
-                $queryValues['compo' . $v] = (int)$v;
+                $queryValues['compo' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
-            $selectedGraphCurves = "WHERE compo_id IN (" . $listValues . ") ";
+            $selectedGraphCurves = 'WHERE compo_id IN (' . $listValues . ') ';
         } else {
             $selectedGraphCurves = '""';
         }
 
-        $queryGraphCurve = "SELECT DISTINCT compo_id as id, name FROM giv_components_template " .
-            $selectedGraphCurves . " ORDER BY name";
+        $queryGraphCurve = 'SELECT DISTINCT compo_id as id, name FROM giv_components_template '
+            . $selectedGraphCurves . ' ORDER BY name';
 
         $stmt = $this->db->prepare($queryGraphCurve);
 

@@ -33,17 +33,17 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
 
-$arg = $type == "Service" ? "id=" . $serviceId . "&host_id=" . $hostId : "id=" . $id;
+$arg = $type == 'Service' ? 'id=' . $serviceId . '&host_id=' . $hostId : 'id=' . $id;
 
-$arg .= "&color[UP]=#" . $colors["up"] . "&color[UNDETERMINED]=#" . $colors["undetermined"] .
-        "&color[DOWN]=#" . $colors["down"] . "&color[UNREACHABLE]=#" . $colors["unreachable"] .
-        "&color[OK]=#" . $colors["ok"] . "&color[WARNING]=#" . $colors["warning"] .
-        "&color[CRITICAL]=#" . $colors["critical"] . "&color[UNKNOWN]=#" . $colors["unknown"] .
-        "&startDate=" . $startDate . "&endDate=" . $endDate;
-$arg = str_replace("#", "%23", $arg);
-$url = "./include/reporting/dashboard/xmlInformations/GetXml" . $type . ".php?" . $arg;
+$arg .= '&color[UP]=#' . $colors['up'] . '&color[UNDETERMINED]=#' . $colors['undetermined']
+        . '&color[DOWN]=#' . $colors['down'] . '&color[UNREACHABLE]=#' . $colors['unreachable']
+        . '&color[OK]=#' . $colors['ok'] . '&color[WARNING]=#' . $colors['warning']
+        . '&color[CRITICAL]=#' . $colors['critical'] . '&color[UNKNOWN]=#' . $colors['unknown']
+        . '&startDate=' . $startDate . '&endDate=' . $endDate;
+$arg = str_replace('#', '%23', $arg);
+$url = './include/reporting/dashboard/xmlInformations/GetXml' . $type . '.php?' . $arg;
 
 ?>
 <script type="text/javascript">
@@ -74,6 +74,6 @@ function initTimeline() {
 
     tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
 
-    Timeline.loadXML('<?php echo $url ?>', function(xml, url) { eventSource.loadXML(xml, url); });
+    Timeline.loadXML('<?php echo $url; ?>', function(xml, url) { eventSource.loadXML(xml, url); });
 }
 </script>

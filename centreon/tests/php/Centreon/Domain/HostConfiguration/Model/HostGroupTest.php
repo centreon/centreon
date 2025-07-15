@@ -23,9 +23,9 @@ declare(strict_types=1);
 namespace Tests\Centreon\Domain\HostConfiguration\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Media\Model\Image;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
+use Centreon\Domain\Media\Model\Image;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This class is designed to test all setters of the HostGroup entity, especially those with exceptions.
@@ -107,8 +107,8 @@ class HostGroupTest extends TestCase
     }
 
     /**
-     * @return HostGroup
      * @throws \Assert\AssertionFailedException
+     * @return HostGroup
      */
     public static function createEntity(): HostGroup
     {

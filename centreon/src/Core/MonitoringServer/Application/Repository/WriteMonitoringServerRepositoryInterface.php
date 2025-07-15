@@ -25,7 +25,8 @@ namespace Core\MonitoringServer\Application\Repository;
 
 use Core\MonitoringServer\Model\MonitoringServer;
 
-interface WriteMonitoringServerRepositoryInterface {
+interface WriteMonitoringServerRepositoryInterface
+{
     /**
      * Define the monitoring server as changed since its last configuration export.
      *
