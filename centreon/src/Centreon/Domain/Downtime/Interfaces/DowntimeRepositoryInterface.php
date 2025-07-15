@@ -38,16 +38,16 @@ interface DowntimeRepositoryInterface
     /**
      * Find downtime of all hosts **taking into account** the ACLs of user.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findHostDowntimesForNonAdminUser(): array;
 
     /**
      * Find downtime of all hosts **without taking into account** the ACLs of user.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findHostDowntimesForAdminUser(): array;
 
@@ -55,8 +55,8 @@ interface DowntimeRepositoryInterface
      * Find one downtime linked to a host **without taking into account** the ACLs of user.
      *
      * @param int $downtimeId Downtime id
-     * @return Downtime|null Return NULL if the downtime has not been found
      * @throws \Exception
+     * @return Downtime|null Return NULL if the downtime has not been found
      */
     public function findOneDowntimeForAdminUser(int $downtimeId): ?Downtime;
 
@@ -64,24 +64,24 @@ interface DowntimeRepositoryInterface
      * Find one downtime linked to a host **taking into account** the ACLs of user.
      *
      * @param int $downtimeId Downtime id
-     * @return Downtime|null Return NULL if the downtime has not been found
      * @throws \Exception
+     * @return Downtime|null Return NULL if the downtime has not been found
      */
     public function findOneDowntimeForNonAdminUser(int $downtimeId): ?Downtime;
 
     /**
      * Find all downtimes **without taking into account** the ACLs of user.
      *
-     * @return Downtime[] Return the downtimes found
      * @throws \Exception
+     * @return Downtime[] Return the downtimes found
      */
     public function findDowntimesForAdminUser(): array;
 
     /**
      * Find all downtimes **taking into account** the ACLs of user.
      *
-     * @return Downtime[] Return the downtimes found
      * @throws \Exception
+     * @return Downtime[] Return the downtimes found
      */
     public function findDowntimesForNonAdminUser(): array;
 
@@ -90,8 +90,8 @@ interface DowntimeRepositoryInterface
      *
      * @param int $hostId Host id for which we want to find downtimes
      * @param bool $withServices Display downtimes of host-related services also
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByHostForAdminUser(int $hostId, bool $withServices): array;
 
@@ -100,24 +100,24 @@ interface DowntimeRepositoryInterface
      *
      * @param int $hostId Host id for which we want to find downtimes
      * @param bool $withServices Display downtimes of host-related services also
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByHostForNonAdminUser(int $hostId, bool $withServices): array;
 
     /**
      * Find all downtimes of all services **taking into account** the ACLs of user.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findServicesDowntimesForNonAdminUser(): array;
 
     /**
      * Find all downtimes of all services **without taking into account** the ACLs of user.
      *
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findServicesDowntimesForAdminUser(): array;
 
@@ -126,8 +126,8 @@ interface DowntimeRepositoryInterface
      *
      * @param int $hostId Host id linked to this service
      * @param int $serviceId Service id for which we want to find downtimes
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByServiceForNonAdminUser(int $hostId, int $serviceId): array;
 
@@ -136,8 +136,8 @@ interface DowntimeRepositoryInterface
      *
      * @param int $hostId Host id linked to this service
      * @param int $serviceId Service id for which we want to find downtimes
-     * @return Downtime[]
      * @throws \Exception
+     * @return Downtime[]
      */
     public function findDowntimesByServiceForAdminUser(int $hostId, int $serviceId): array;
 }

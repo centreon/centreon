@@ -74,11 +74,11 @@ class AuthenticateApi
         );
         $response->setApiAuthentication($contact, $token);
         $this->debug(
-            "[AUTHENTICATE API] Authentication success",
+            '[AUTHENTICATE API] Authentication success',
             [
-                "provider_name" => LocalProvider::NAME,
-                "contact_id" => $contact->getId(),
-                "contact_alias" => $contact->getAlias()
+                'provider_name' => LocalProvider::NAME,
+                'contact_id' => $contact->getId(),
+                'contact_alias' => $contact->getAlias(),
             ]
         );
     }
@@ -86,8 +86,8 @@ class AuthenticateApi
     /**
      * Find the local provider or throw an Exception.
      *
-     * @return ProviderAuthenticationInterface
      * @throws ProviderException
+     * @return ProviderAuthenticationInterface
      */
     private function findLocalProviderOrFail(): ProviderAuthenticationInterface
     {
@@ -116,8 +116,8 @@ class AuthenticateApi
      * Retrieve user from provider or throw an Exception.
      *
      * @param ProviderAuthenticationInterface $localProvider
-     * @return ContactInterface
      * @throws AuthenticationException
+     * @return ContactInterface
      */
     private function getUserFromProviderOrFail(ProviderAuthenticationInterface $localProvider): ContactInterface
     {
@@ -135,6 +135,7 @@ class AuthenticateApi
                 '[AUTHENTICATE API] No contact could be found from provider',
                 ['provider_name' => LocalProvider::NAME]
             );
+
             throw AuthenticationException::userNotFound();
         }
 
@@ -147,8 +148,8 @@ class AuthenticateApi
      * @param ContactInterface $contact
      * @param NewProviderToken $providerToken
      * @param NewProviderToken|null $providerRefreshToken
-     * @return void
      * @throws AuthenticationException
+     * @return void
      */
     private function createAPIAuthenticationTokens(
         string $token,

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
@@ -43,8 +43,7 @@ class SimpleEntity
         private readonly int $id,
         private readonly ?TrimmedString $name,
         string $objectName,
-    )
-    {
+    ) {
         Assertion::positiveInt($id, "{$objectName}::id");
         if ($name !== null) {
             Assertion::notEmptyString($name->value, "{$objectName}::name");

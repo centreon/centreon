@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -31,12 +32,12 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
  */
 class HostGroup extends AbstractObject
 {
-    /** @var array */
-    private $hg = [];
     /** @var string */
     protected $table = 'hostgroup';
+
     /** @var string */
     protected $generateFilename = 'hostgroups.infile';
+
     /** @var string */
     protected $attributesSelect = '
         hg_id,
@@ -45,6 +46,7 @@ class HostGroup extends AbstractObject
         hg_icon_image,
         geo_coords,
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'hg_id',
@@ -53,33 +55,12 @@ class HostGroup extends AbstractObject
         'hg_icon_image',
         'geo_coords',
     ];
+
     /** @var null */
     protected $stmtHg = null;
 
-    /**
-     * Get host group from id
-     *
-     * @param int $hgId
-     * @return void
-     */
-    private function getHostgroupFromId(int $hgId)
-    {
-        if (is_null($this->stmtHg)) {
-            $this->stmtHg = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect
-                FROM hostgroup
-                WHERE hg_id = :hg_id AND hg_activate = '1'"
-            );
-        }
-        $this->stmtHg->bindParam(':hg_id', $hgId, PDO::PARAM_INT);
-        $this->stmtHg->execute();
-        $results = $this->stmtHg->fetchAll(PDO::FETCH_ASSOC);
-        $this->hg[$hgId] = array_pop($results);
-        if (is_null($this->hg[$hgId])) {
-            return null;
-        }
-        $this->hg[$hgId]['members'] = [];
-    }
+    /** @var array */
+    private $hg = [];
 
     /**
      * Add host in host group
@@ -88,12 +69,12 @@ class HostGroup extends AbstractObject
      * @param int $hostId
      * @param string $hostName
      *
-     * @return int
      * @throws \Exception
+     * @return int
      */
     public function addHostInHg(int $hgId, int $hostId, string $hostName)
     {
-        if (!isset($this->hg[$hgId])) {
+        if (! isset($this->hg[$hgId])) {
             $this->getHostgroupFromId($hgId);
             $this->generateObjectInFile($this->hg[$hgId], $hgId);
             Media::getInstance($this->dependencyInjector)->getMediaPathFromId($this->hg[$hgId]['hg_icon_image']);
@@ -104,14 +85,15 @@ class HostGroup extends AbstractObject
         }
 
         $this->hg[$hgId]['members'][$hostId] = $hostName;
+
         return 0;
     }
 
     /**
      * Generate objects
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     public function generateObjects(): void
     {
@@ -139,6 +121,7 @@ class HostGroup extends AbstractObject
             }
             $result[$id] = &$value;
         }
+
         return $result;
     }
 
@@ -147,8 +130,8 @@ class HostGroup extends AbstractObject
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws \Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {
@@ -166,5 +149,30 @@ class HostGroup extends AbstractObject
     public function getString(int $hgId, string $attr)
     {
         return $this->hg[$hgId][$attr] ?? null;
+    }
+
+    /**
+     * Get host group from id
+     *
+     * @param int $hgId
+     * @return void
+     */
+    private function getHostgroupFromId(int $hgId)
+    {
+        if (is_null($this->stmtHg)) {
+            $this->stmtHg = $this->backendInstance->db->prepare(
+                "SELECT {$this->attributesSelect}
+                FROM hostgroup
+                WHERE hg_id = :hg_id AND hg_activate = '1'"
+            );
+        }
+        $this->stmtHg->bindParam(':hg_id', $hgId, PDO::PARAM_INT);
+        $this->stmtHg->execute();
+        $results = $this->stmtHg->fetchAll(PDO::FETCH_ASSOC);
+        $this->hg[$hgId] = array_pop($results);
+        if (is_null($this->hg[$hgId])) {
+            return null;
+        }
+        $this->hg[$hgId]['members'] = [];
     }
 }

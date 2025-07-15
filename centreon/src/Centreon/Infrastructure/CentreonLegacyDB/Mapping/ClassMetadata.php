@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -91,18 +92,18 @@ class ClassMetadata
     /**
      * Add information about the property
      *
-     * @param string $property      name of the property in the Entity class
-     * @param string $columnName    name of the column in DB
-     * @param int $dataType         type of data use PDO::PARAM_*
+     * @param string $property name of the property in the Entity class
+     * @param string $columnName name of the column in DB
+     * @param int $dataType type of data use PDO::PARAM_*
      * @param callable $dataFormatter
-     * @param bool $primaryKey      is it PK
+     * @param bool $primaryKey is it PK
      * @return self
      */
     public function add(
         string $property,
         string $columnName,
         int $dataType = PDO::PARAM_STR,
-        callable $dataFormatter = null,
+        ?callable $dataFormatter = null,
         $primaryKey = false
     ): self {
         $this->columns[$property] = [

@@ -45,11 +45,11 @@ final class HostCategory extends AbstractObject
 {
     private const TAG_TYPE = 'hostcategory';
 
-    /** @var array<int,mixed> */
-    private array $hostCategories = [];
-
     /** @var string */
     protected string $object_name = 'tag';
+
+    /** @var array<int,mixed> */
+    private array $hostCategories = [];
 
     /**
      * @param Container $dependencyInjector
@@ -63,31 +63,6 @@ final class HostCategory extends AbstractObject
             'tag_name',
             'type',
         ];
-    }
-
-    /**
-     * @param int $hostCategoryId
-     *
-     * @return self
-     * @throws PDOException
-     */
-    private function addHostCategoryToList(int $hostCategoryId): self
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT hc_id as id, hc_name as tag_name
-            FROM hostcategories
-            WHERE hc_id = :hc_id
-            AND level IS NULL
-            AND hc_activate = '1'"
-        );
-        $stmt->bindParam(':hc_id', $hostCategoryId, PDO::PARAM_INT);
-        $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->hostCategories[$hostCategoryId] = $row;
-            $this->hostCategories[$hostCategoryId]['members'] = [];
-        }
-
-        return $this;
     }
 
     /**
@@ -134,7 +109,7 @@ final class HostCategory extends AbstractObject
     {
         parent::reset();
         foreach ($this->hostCategories as &$value) {
-            if (!is_null($value)) {
+            if (! is_null($value)) {
                 $value['members'] = [];
             }
         }
@@ -154,5 +129,30 @@ final class HostCategory extends AbstractObject
         }
 
         return $hostCategoryIds;
+    }
+
+    /**
+     * @param int $hostCategoryId
+     *
+     * @throws PDOException
+     * @return self
+     */
+    private function addHostCategoryToList(int $hostCategoryId): self
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT hc_id as id, hc_name as tag_name
+            FROM hostcategories
+            WHERE hc_id = :hc_id
+            AND level IS NULL
+            AND hc_activate = '1'"
+        );
+        $stmt->bindParam(':hc_id', $hostCategoryId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->hostCategories[$hostCategoryId] = $row;
+            $this->hostCategories[$hostCategoryId]['members'] = [];
+        }
+
+        return $this;
     }
 }

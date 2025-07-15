@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\HostCategory\Domain\Model;
 
@@ -44,8 +44,9 @@ class HostCategoryNamesById
      *
      * @return null|string
      */
-    public function getName(int $hostCategoryId): ?string {
-        return isset($this->names[$hostCategoryId]) ? $this->names[$hostCategoryId]->value: null;
+    public function getName(int $hostCategoryId): ?string
+    {
+        return isset($this->names[$hostCategoryId]) ? $this->names[$hostCategoryId]->value : null;
     }
 
     /**
@@ -56,4 +57,3 @@ class HostCategoryNamesById
         return $this->names;
     }
 }
-

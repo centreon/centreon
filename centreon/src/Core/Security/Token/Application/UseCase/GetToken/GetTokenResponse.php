@@ -31,8 +31,7 @@ final class GetTokenResponse implements StandardResponseInterface
     public function __construct(
         public Token $token,
         public string $tokenString,
-    )
-    {
+    ) {
     }
 
     /**

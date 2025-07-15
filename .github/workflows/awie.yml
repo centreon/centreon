@@ -85,7 +85,11 @@ jobs:
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.stability != 'testing'
         with:
+          base: ${{ github.head_ref || github.ref_name }}
           filters: |
             has_backend_changes:
               - 'centreon-awie/*.php'
@@ -102,8 +106,8 @@ jobs:
         with:
           is_nightly: 'false'
           has_frontend_changes: 'false'
-          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
-          has_test_changes: ${{ steps.filter.outputs.has_test_changes }}
+          has_backend_changes: ${{ steps.filter.outputs.has_backend_changes || true }}
+          has_test_changes: ${{ steps.filter.outputs.has_test_changes || true }}
 
   backend-lint:
     runs-on: ubuntu-24.04

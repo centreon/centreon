@@ -235,7 +235,7 @@ jobs:
           runner: ubuntu-24.04
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -452,8 +452,13 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-suggest
         working-directory: centreon
         shell: bash
 
@@ -461,29 +466,127 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Check Symfony configuration
-        run: composer symfony:check:ci
+      - name: ⚙️ Check Symfony configuration
+        run: composer symfony:check
         working-directory: centreon
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+      - name: 🛠️ Rector checks
         working-directory: centreon
+        run: |
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
 
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
+          {
+            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-        working-directory: centreon
+          {
+            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-        working-directory: centreon
+          {
+            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
+          } &
+          pids+=($!)
 
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
+
+          {
+            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+
+          {
+            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          {
+            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
+
+      - name: 📐 Deptrac checks
+        working-directory: centreon
+        run: |
+          echo "Run of these Deptrac tests: dep:new" && set -e
+
+          {
+            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
+          } &
+          pids+=($!)
+
+          if ! wait -n; then
+            kill "${pids[@]}" 2>/dev/null || true
+            exit 1
+          fi
+
+          wait
 
   package:
     needs:

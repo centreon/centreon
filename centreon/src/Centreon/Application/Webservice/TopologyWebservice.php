@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -37,11 +38,11 @@
 namespace Centreon\Application\Webservice;
 
 use App\Kernel;
-use Centreon\Infrastructure\Webservice;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Application\DataRepresenter\Topology\NavigationList;
-use Centreon\Domain\Repository\TopologyRepository;
 use Centreon\Domain\Entity\Topology;
+use Centreon\Domain\Repository\TopologyRepository;
+use Centreon\Infrastructure\Webservice;
 use Centreon\ServiceProvider;
 use Core\Common\Infrastructure\FeatureFlags;
 use OpenApi\Annotations as OA;
@@ -136,7 +137,7 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
      */
     public function getGetTopologyByPage(): array
     {
-        if (!isset($_GET['topology_page']) || !$_GET['topology_page']) {
+        if (! isset($_GET['topology_page']) || ! $_GET['topology_page']) {
             throw new \RestBadRequestException('You need to send \'topology_page\' in the request.');
         }
 
@@ -145,7 +146,7 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
         $statement->execute([':id' => $topologyID]);
         $result = $statement->fetch();
 
-        if (!$result) {
+        if (! $result) {
             throw new \RestBadRequestException('No topology found.');
         }
 
@@ -234,10 +235,9 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
     {
         $userTopologyAccess = $user->access->getTopology();
 
-        return (
+        return
             isset($userTopologyAccess[self::POLLER_PAGE])
-            && (int) $userTopologyAccess[self::POLLER_PAGE] === \CentreonACL::ACL_ACCESS_READ_WRITE
-        );
+            && (int) $userTopologyAccess[self::POLLER_PAGE] === \CentreonACL::ACL_ACCESS_READ_WRITE;
     }
 
     /**
@@ -246,10 +246,10 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
     private function createPollerWizardTopology(): Topology
     {
         $topology = new Topology();
-        $topology->setTopologyUrl("/poller-wizard/1");
+        $topology->setTopologyUrl('/poller-wizard/1');
         $topology->setTopologyPage('60959');
         $topology->setTopologyParent(self::POLLER_PAGE);
-        $topology->setTopologyName("Poller Wizard Page");
+        $topology->setTopologyName('Poller Wizard Page');
         $topology->setTopologyShow('0');
         $topology->setIsReact('1');
 

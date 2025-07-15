@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2017 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -38,29 +39,29 @@ if (isset($pearDB)) {
     );
     if ($res->numRows() <= 0) {
         $pearDB->query(
-            "ALTER TABLE `traps_group_relation` " .
-            "DROP FOREIGN KEY `traps_group_relation_ibfk_2`"
+            'ALTER TABLE `traps_group_relation` '
+            . 'DROP FOREIGN KEY `traps_group_relation_ibfk_2`'
         );
 
         $pearDB->query(
-            "ALTER TABLE `traps_group` " .
-            "  CHANGE COLUMN `traps_group_id` " .
-            "  `traps_group_id` INT NOT NULL AUTO_INCREMENT"
+            'ALTER TABLE `traps_group` '
+            . '  CHANGE COLUMN `traps_group_id` '
+            . '  `traps_group_id` INT NOT NULL AUTO_INCREMENT'
         );
 
         $pearDB->query(
-            "ALTER TABLE `traps_group` ADD PRIMARY KEY (`traps_group_id`)"
+            'ALTER TABLE `traps_group` ADD PRIMARY KEY (`traps_group_id`)'
         );
 
         $pearDB->query(
-            "ALTER TABLE `traps_group` " .
-            "  DROP KEY `traps_group_id`"
+            'ALTER TABLE `traps_group` '
+            . '  DROP KEY `traps_group_id`'
         );
 
         $pearDB->query(
-            "ALTER TABLE `traps_group_relation` " .
-            "ADD CONSTRAINT `traps_group_relation_ibfk_2` " .
-            "FOREIGN KEY (`traps_group_id`) REFERENCES `traps_group` (`traps_group_id`) ON DELETE CASCADE"
+            'ALTER TABLE `traps_group_relation` '
+            . 'ADD CONSTRAINT `traps_group_relation_ibfk_2` '
+            . 'FOREIGN KEY (`traps_group_id`) REFERENCES `traps_group` (`traps_group_id`) ON DELETE CASCADE'
         );
     }
 }

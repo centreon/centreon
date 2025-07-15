@@ -34,49 +34,45 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$cG = $_GET["cg_id"] ?? null;
-$cP = $_POST["cg_id"] ?? null;
+$cG = $_GET['cg_id'] ?? null;
+$cP = $_POST['cg_id'] ?? null;
 $cg_id = $cG ?: $cP;
 
-$cG = $_GET["select"] ?? null;
-$cP = $_POST["select"] ?? null;
+$cG = $_GET['select'] ?? null;
+$cP = $_POST['select'] ?? null;
 $select = $cG ?: $cP;
 
-$cG = $_GET["dupNbr"] ?? null;
-$cP = $_POST["dupNbr"] ?? null;
+$cG = $_GET['dupNbr'] ?? null;
+$cP = $_POST['dupNbr'] ?? null;
 $dupNbr = $cG ?: $cP;
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/configuration/configObject/contactgroup/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/contactgroup/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
 $acl = $centreon->user->access;
 $allowedContacts = $acl->getContactAclConf(['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'order' => 'contact_name']);
 $allowedAclGroups = $acl->getAccessGroups();
-$contactstring = "";
+$contactstring = '';
 if (count($allowedContacts)) {
     $first = true;
     foreach ($allowedContacts as $key => $val) {
         if ($first) {
             $first = false;
         } else {
-            $contactstring .= ",";
+            $contactstring .= ',';
         }
         $contactstring .= "'" . $key . "'";
     }
@@ -85,28 +81,20 @@ if (count($allowedContacts)) {
 }
 
 switch ($o) {
-    case "a":
-        /*
-         * Add a contactgroup
-         */
-        require_once($path . "formContactGroup.php");
+    case 'a':
+        // Add a contactgroup
+        require_once $path . 'formContactGroup.php';
         break;
-    case "w":
-        /*
-         * Watch a contactgroup
-         */
-        require_once($path . "formContactGroup.php");
+    case 'w':
+        // Watch a contactgroup
+        require_once $path . 'formContactGroup.php';
         break;
-    case "c":
-        /*
-         * Modify a contactgroup
-         */
-        require_once($path . "formContactGroup.php");
+    case 'c':
+        // Modify a contactgroup
+        require_once $path . 'formContactGroup.php';
         break;
-    case "s":
-        /*
-         * Activate a contactgroup
-         */
+    case 's':
+        // Activate a contactgroup
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -114,12 +102,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContactGroup.php");
+        require_once $path . 'listContactGroup.php';
         break;
-    case "u":
-        /*
-         * Desactivate a contactgroup
-         */
+    case 'u':
+        // Desactivate a contactgroup
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -127,12 +113,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContactGroup.php");
+        require_once $path . 'listContactGroup.php';
         break;
-    case "m":
-        /*
-         * Duplicate n contact group
-         */
+    case 'm':
+        // Duplicate n contact group
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -140,12 +124,10 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContactGroup.php");
+        require_once $path . 'listContactGroup.php';
         break;
-    case "d":
-        /*
-         * Delete a contact group
-         */
+    case 'd':
+        // Delete a contact group
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -153,12 +135,12 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listContactGroup.php");
+        require_once $path . 'listContactGroup.php';
         break;
-    case "dn":
+    case 'dn':
         require_once $path . 'displayNotification.php';
         break;
     default:
-        require_once($path . "listContactGroup.php");
+        require_once $path . 'listContactGroup.php';
         break;
 }

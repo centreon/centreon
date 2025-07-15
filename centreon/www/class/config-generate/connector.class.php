@@ -36,26 +36,19 @@
 
 class Connector extends AbstractObject
 {
-    private $connectors = null;
     protected $generate_filename = 'connectors.cfg';
+
     protected string $object_name = 'connector';
+
     protected $attributes_select = '
         id,
         name as connector_name,
         command_line as connector_line
     ';
+
     protected $attributes_write = ['connector_name', 'connector_line'];
 
-    private function getConnectors(): void
-    {
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-              $this->attributes_select
-            FROM connector 
-                WHERE enabled = '1'
-            ");
-        $stmt->execute();
-        $this->connectors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    private $connectors = null;
 
     public function generateObjects($connector_path)
     {
@@ -68,5 +61,16 @@ class Connector extends AbstractObject
             $connector['connector_line'] = $connector_path . '/' . $connector['connector_line'];
             $this->generateObjectInFile($connector, $connector['id']);
         }
+    }
+
+    private function getConnectors(): void
+    {
+        $stmt = $this->backend_instance->db->prepare("SELECT 
+              {$this->attributes_select}
+            FROM connector 
+                WHERE enabled = '1'
+            ");
+        $stmt->execute();
+        $this->connectors = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Command\Application\UseCase\MigrateAllCommands;
 
@@ -65,12 +65,11 @@ final class MigrateAllCommands
      */
     private function migrateCommands(\Iterator&\Countable $commands, MigrateAllCommandsResponse $response): void
     {
-        $response->results = new class(
+        $response->results = new class (
             $commands,
             $this->writeCommandRepository,
             $this->logger,
-        ) implements \Iterator, \Countable
-        {
+        ) implements \Iterator, \Countable {
             /**
              * @param \Iterator<int,Command>&\Countable $commands
              * @param WriteCommandRepositoryInterface $writeCommandRepository
@@ -195,11 +194,11 @@ final class MigrateAllCommands
                             && ! in_array($cleanedName, $commandHostMacros, true)
                         )
                      || (
-                            $macro->getType() === CommandMacroType::Service
+                         $macro->getType() === CommandMacroType::Service
                             && ! in_array($cleanedName, $commandServiceMacros, true)
-                        )
+                     )
                     ) {
-                        $this->logger->debug( sprintf(
+                        $this->logger->debug(sprintf(
                             "Removing command macro description '%s'",
                             $cleanedName
                         ));
@@ -230,7 +229,7 @@ final class MigrateAllCommands
                 $arguments = $command->getArguments();
                 foreach ($arguments as $index => $argument) {
                     if (! in_array($argument->getName(), $commandArguments, true)) {
-                        $this->logger->debug( sprintf(
+                        $this->logger->debug(sprintf(
                             "Removing command argument description '%s'",
                             $argument->getName()
                         ));

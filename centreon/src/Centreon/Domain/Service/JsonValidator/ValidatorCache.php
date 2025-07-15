@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -26,13 +27,10 @@ use Symfony\Component\Config\ConfigCache;
 
 class ValidatorCache implements ValidatorCacheInterface
 {
-    /**
-     * @var ConfigCache
-     */
+    /** @var ConfigCache */
     private $cache;
-    /**
-     * @var string Name of the cache file used to store data
-     */
+
+    /** @var string Name of the cache file used to store data */
     private $cacheFile;
 
     /**

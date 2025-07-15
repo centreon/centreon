@@ -41,14 +41,14 @@
  */
 class CentreonCommand
 {
-    /** @var CentreonDB */
-    protected $db;
-
     /** @var string[] */
     public $aTypeMacro = ['1' => 'HOST', '2' => 'SERVICE'];
 
     /** @var array[] */
     public $aTypeCommand = ['host' => ['key' => '$_HOST', 'preg' => '/\$_HOST([\w_-]+)\$/'], 'service' => ['key' => '$_SERVICE', 'preg' => '/\$_SERVICE([\w_-]+)\$/']];
+
+    /** @var CentreonDB */
+    protected $db;
 
     /**
      * CentreonCommand constructor
@@ -61,34 +61,10 @@ class CentreonCommand
     }
 
     /**
-     * @param $commandType
-     * @return array
-     * @throws Exception
-     */
-    protected function getCommandList($commandType)
-    {
-        $query = 'SELECT command_id, command_name ' .
-            'FROM command ' .
-            'WHERE command_type = :type ' .
-            'ORDER BY command_name';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':type', $commandType, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
-        }
-        $arr = [];
-        while ($row = $stmt->fetch()) {
-            $arr[$row['command_id']] = $row['command_name'];
-        }
-        return $arr;
-    }
-
-    /**
      * Get list of check commands
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getCheckCommands()
     {
@@ -98,8 +74,8 @@ class CentreonCommand
     /**
      * Get list of notification commands
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getNotificationCommands()
     {
@@ -109,8 +85,8 @@ class CentreonCommand
     /**
      * Get list of misc commands
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getMiscCommands()
     {
@@ -120,8 +96,8 @@ class CentreonCommand
     /**
      * Returns array of locked commands
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getLockedCommands()
     {
@@ -133,6 +109,7 @@ class CentreonCommand
                 $arr[$row['command_id']] = true;
             }
         }
+
         return $arr;
     }
 
@@ -140,29 +117,29 @@ class CentreonCommand
      * @param $iIdCommand
      * @param $sType
      * @param int $iWithFormatData
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1)
     {
-        $macroToFilter = ["SNMPVERSION", "SNMPCOMMUNITY"];
-        if (empty($iIdCommand) || !array_key_exists($sType, $this->aTypeCommand)) {
+        $macroToFilter = ['SNMPVERSION', 'SNMPCOMMUNITY'];
+        if (empty($iIdCommand) || ! array_key_exists($sType, $this->aTypeCommand)) {
             return [];
         }
         $aDescription = $this->getMacroDescription($iIdCommand);
-        $query = 'SELECT command_id, command_name, command_line ' .
-            'FROM command ' .
-            'WHERE command_type = 2 ' .
-            'AND command_id = :id ' .
-            'AND command_line like :command ' .
-            'ORDER BY command_name';
+        $query = 'SELECT command_id, command_name, command_line '
+            . 'FROM command '
+            . 'WHERE command_type = 2 '
+            . 'AND command_id = :id '
+            . 'AND command_line like :command '
+            . 'ORDER BY command_name';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $iIdCommand, PDO::PARAM_INT);
         $commandLine = '%' . $this->aTypeCommand[$sType]['key'] . '%';
         $stmt->bindParam(':command', $commandLine, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         $arr = [];
@@ -172,11 +149,11 @@ class CentreonCommand
                 preg_match_all($this->aTypeCommand[$sType]['preg'], $row['command_line'], $matches, PREG_SET_ORDER);
 
                 foreach ($matches as $match) {
-                    if (!in_array($match[1], $macroToFilter)) {
+                    if (! in_array($match[1], $macroToFilter)) {
                         $sName = $match[1];
-                        $sDesc = $aDescription[$sName]['description'] ?? "";
+                        $sDesc = $aDescription[$sName]['description'] ?? '';
                         $arr[$i]['macroInput_#index#'] = $sName;
-                        $arr[$i]['macroValue_#index#'] = "";
+                        $arr[$i]['macroValue_#index#'] = '';
                         $arr[$i]['macroPassword_#index#'] = null;
                         $arr[$i]['macroDescription_#index#'] = $sDesc;
                         $arr[$i]['macroDescription'] = $sDesc;
@@ -190,13 +167,14 @@ class CentreonCommand
                 $arr[$row['command_id']] = $row['command_name'];
             }
         }
+
         return $arr;
     }
 
     /**
      * @param $iIdCmd
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getMacroDescription($iIdCmd)
     {
@@ -205,8 +183,8 @@ class CentreonCommand
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':command', $iIdCmd, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
         while ($row = $stmt->fetch()) {
             $arr['id'] = $row['command_macro_id'];
@@ -217,6 +195,7 @@ class CentreonCommand
             $aReturn[$row['command_macro_name']] = $arr;
         }
         $stmt->closeCursor();
+
         return $aReturn;
     }
 
@@ -224,8 +203,8 @@ class CentreonCommand
      * @param $iCommandId
      * @param $aMacro
      * @param $sType
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getMacrosCommand($iCommandId, $aMacro, $sType)
     {
@@ -235,17 +214,17 @@ class CentreonCommand
             $queryValues = [];
             $explodedValues = '';
 
-            $query = 'SELECT * FROM `on_demand_macro_command` ' .
-                'WHERE command_command_id = ? ' .
-                'AND command_macro_type = ? ' .
-                'AND command_macro_name IN (';
+            $query = 'SELECT * FROM `on_demand_macro_command` '
+                . 'WHERE command_command_id = ? '
+                . 'AND command_macro_type = ? '
+                . 'AND command_macro_name IN (';
 
-            $queryValues[] = (int)$iCommandId;
-            $queryValues[] = (string)$sType;
-            if (!empty($aMacro)) {
+            $queryValues[] = (int) $iCommandId;
+            $queryValues[] = (string) $sType;
+            if (! empty($aMacro)) {
                 foreach ($aMacro as $k => $v) {
                     $explodedValues .= '?,';
-                    $queryValues[] = (string)$v;
+                    $queryValues[] = (string) $v;
                 }
                 $explodedValues = rtrim($explodedValues, ',');
             } else {
@@ -254,8 +233,8 @@ class CentreonCommand
             $query .= $explodedValues . ')';
             $stmt = $this->db->prepare($query);
             $dbResult = $stmt->execute($queryValues);
-            if (!$dbResult) {
-                throw new \Exception("An error occured");
+            if (! $dbResult) {
+                throw new Exception('An error occured');
             }
 
             while ($row = $stmt->fetch()) {
@@ -267,6 +246,7 @@ class CentreonCommand
             }
             $stmt->closeCursor();
         }
+
         return $aReturn;
     }
 
@@ -275,8 +255,8 @@ class CentreonCommand
      * @param $sStr
      * @param $sType
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function matchObject($iCommandId, $sStr, $sType)
     {
@@ -300,16 +280,17 @@ class CentreonCommand
                 $aNames = array_column($macrosDesc, 'name');
 
                 foreach ($macros as $detail) {
-                    if (!in_array($detail, $aNames) && !empty($detail)) {
-                        $arr['id'] = "";
+                    if (! in_array($detail, $aNames) && ! empty($detail)) {
+                        $arr['id'] = '';
                         $arr['name'] = $detail;
-                        $arr['description'] = "";
+                        $arr['description'] = '';
                         $arr['type'] = $sType;
                         $macrosDesc[] = $arr;
                     }
                 }
             }
         }
+
         return $macrosDesc;
     }
 
@@ -317,28 +298,28 @@ class CentreonCommand
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':command' . $v . ',';
-                $queryValues['command' . $v] = (int)$v;
+                $queryValues['command' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected connectors
-        $query = 'SELECT command_id, command_name FROM command ' .
-            'WHERE command_id IN (' . $listValues . ') ' .
-            'ORDER BY command_name ';
+        // get list of selected connectors
+        $query = 'SELECT command_id, command_name FROM command '
+            . 'WHERE command_id IN (' . $listValues . ') '
+            . 'ORDER BY command_name ';
         $stmt = $this->db->prepare($query);
 
         if ($queryValues !== []) {
@@ -351,14 +332,15 @@ class CentreonCommand
         while ($row = $stmt->fetch()) {
             $items[] = ['id' => $row['command_id'], 'text' => $row['command_name']];
         }
+
         return $items;
     }
 
     /**
      * @param $id
      * @param array $parameters
-     * @return array|mixed
      * @throws Exception
+     * @return array|mixed
      */
     public function getParameters($id, $parameters = [])
     {
@@ -370,31 +352,32 @@ class CentreonCommand
         }
         if (count($parameters) > 0) {
             foreach ($parameters as $k => $v) {
-                $explodedValues .= "`$v`,";
+                $explodedValues .= "`{$v}`,";
             }
             $explodedValues = rtrim($explodedValues, ',');
         } else {
-            $explodedValues = "*";
+            $explodedValues = '*';
         }
 
         $query = 'SELECT ' . $explodedValues . ' FROM command WHERE command_id = ?';
-        $queryValues[] = (int)$id;
+        $queryValues[] = (int) $id;
         $stmt = $this->db->prepare($query);
         $dbResult = $stmt->execute($queryValues);
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         if ($stmt->rowCount()) {
             $arr = $stmt->fetch();
         }
+
         return $arr;
     }
 
     /**
      * @param $name
-     * @return array|mixed
      * @throws Exception
+     * @return array|mixed
      */
     public function getCommandByName($name)
     {
@@ -403,20 +386,21 @@ class CentreonCommand
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':commandName', $name, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
         if ($stmt->rowCount()) {
             $arr = $stmt->fetch();
         }
+
         return $arr;
     }
 
     /**
      * @param $name
-     * @return int|null
      * @throws Exception
+     * @return int|null
      */
     public function getCommandIdByName($name)
     {
@@ -424,14 +408,15 @@ class CentreonCommand
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':commandName', $name, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+        if (! $dbResult) {
+            throw new Exception('An error occured');
         }
 
-        if (!$stmt->rowCount()) {
+        if (! $stmt->rowCount()) {
             return null;
         }
         $row = $stmt->fetch();
+
         return $row['command_id'];
     }
 
@@ -443,27 +428,27 @@ class CentreonCommand
     public function insert($parameters, $locked = false): void
     {
         $queryValues = [];
-        $sQuery = 'INSERT INTO command ' .
-            '(command_name, command_line, command_type, command_locked) ' .
-            'VALUES (';
+        $sQuery = 'INSERT INTO command '
+            . '(command_name, command_line, command_type, command_locked) '
+            . 'VALUES (';
 
-        if (isset($parameters['command_name']) && $parameters['command_name'] != "") {
+        if (isset($parameters['command_name']) && $parameters['command_name'] != '') {
             $sQuery .= '?, ';
-            $queryValues[] = (string)$parameters['command_name'];
+            $queryValues[] = (string) $parameters['command_name'];
         } else {
             $sQuery .= '"", ';
         }
-        if (isset($parameters['command_line']) && $parameters['command_line'] != "") {
+        if (isset($parameters['command_line']) && $parameters['command_line'] != '') {
             $sQuery .= '?, ';
-            $queryValues[] = (string)$parameters['command_line'];
+            $queryValues[] = (string) $parameters['command_line'];
         } else {
             $sQuery .= '"", ';
         }
-        if (isset($parameters['command_type']) && $parameters['command_type'] != "") {
+        if (isset($parameters['command_type']) && $parameters['command_type'] != '') {
             $sQuery .= '?, ';
-            $queryValues[] = (int)$parameters['command_type'];
+            $queryValues[] = (int) $parameters['command_type'];
         } else {
-            $sQuery .= "2, ";
+            $sQuery .= '2, ';
         }
 
         if ($locked === true) {
@@ -472,11 +457,11 @@ class CentreonCommand
             $sQuery .= '0';
         }
 
-        $sQuery .= ")";
+        $sQuery .= ')';
         $stmt = $this->db->prepare($sQuery);
         $dbResult = $stmt->execute($queryValues);
-        if (!$dbResult) {
-            throw new \Exception('Error while insert command ' . $parameters['command_name']);
+        if (! $dbResult) {
+            throw new Exception('Error while insert command ' . $parameters['command_name']);
         }
     }
 
@@ -493,8 +478,8 @@ class CentreonCommand
         $stmt->bindParam(':cType', $command['command_type'], PDO::PARAM_INT);
         $stmt->bindParam(':id', $commandId, PDO::PARAM_INT);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception('Error while update command ' . $command['command_name']);
+        if (! $dbResult) {
+            throw new Exception('Error while update command ' . $command['command_name']);
         }
     }
 
@@ -508,68 +493,95 @@ class CentreonCommand
         $stmt = $this->db->prepare($sQuery);
         $stmt->bindParam(':commandName', $commandName, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception('Error while delete command ' . $commandName);
+        if (! $dbResult) {
+            throw new Exception('Error while delete command ' . $commandName);
         }
     }
 
     /**
      * @param $commandName
      * @param bool $checkTemplates
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedServicesByName($commandName, $checkTemplates = true)
     {
         $register = $checkTemplates ? 0 : 1;
 
         $linkedCommands = [];
-        $query = 'SELECT DISTINCT s.service_description ' .
-            'FROM service s, command c ' .
-            'WHERE s.command_command_id = c.command_id ' .
-            'AND s.service_register = :register ' .
-            'AND c.command_name = :commandName ';
+        $query = 'SELECT DISTINCT s.service_description '
+            . 'FROM service s, command c '
+            . 'WHERE s.command_command_id = c.command_id '
+            . 'AND s.service_register = :register '
+            . 'AND c.command_name = :commandName ';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':register', $register, PDO::PARAM_STR);
         $stmt->bindParam(':commandName', $commandName, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception('Error while getting linked services of ' . $commandName);
+        if (! $dbResult) {
+            throw new Exception('Error while getting linked services of ' . $commandName);
         }
 
         while ($row = $stmt->fetch()) {
             $linkedCommands[] = $row['service_description'];
         }
+
         return $linkedCommands;
     }
 
     /**
      * @param $commandName
      * @param bool $checkTemplates
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedHostsByName($commandName, $checkTemplates = true)
     {
         $register = $checkTemplates ? 0 : 1;
 
         $linkedCommands = [];
-        $query = 'SELECT DISTINCT h.host_name ' .
-            'FROM host h, command c ' .
-            'WHERE h.command_command_id = c.command_id ' .
-            'AND h.host_register = :register ' .
-            'AND c.command_name = :commandName ';
+        $query = 'SELECT DISTINCT h.host_name '
+            . 'FROM host h, command c '
+            . 'WHERE h.command_command_id = c.command_id '
+            . 'AND h.host_register = :register '
+            . 'AND c.command_name = :commandName ';
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':register', $register, PDO::PARAM_STR);
         $stmt->bindParam(':commandName', $commandName, PDO::PARAM_STR);
         $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception('Error while getting linked hosts of ' . $commandName);
+        if (! $dbResult) {
+            throw new Exception('Error while getting linked hosts of ' . $commandName);
         }
 
         while ($row = $stmt->fetch()) {
             $linkedCommands[] = $row['host_name'];
         }
+
         return $linkedCommands;
+    }
+
+    /**
+     * @param $commandType
+     * @throws Exception
+     * @return array
+     */
+    protected function getCommandList($commandType)
+    {
+        $query = 'SELECT command_id, command_name '
+            . 'FROM command '
+            . 'WHERE command_type = :type '
+            . 'ORDER BY command_name';
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':type', $commandType, PDO::PARAM_INT);
+        $dbResult = $stmt->execute();
+        if (! $dbResult) {
+            throw new Exception('An error occured');
+        }
+        $arr = [];
+        while ($row = $stmt->fetch()) {
+            $arr[$row['command_id']] = $row['command_name'];
+        }
+
+        return $arr;
     }
 }

@@ -35,12 +35,12 @@ class MetaServiceConfigurationFactoryRdb
      * Create a MetaServiceConfiguration entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public static function create(array $data): MetaServiceConfiguration
     {
-        $metaServiceConfiguration = (new MetaServiceConfiguration(
+        return (new MetaServiceConfiguration(
             $data['meta_name'],
             $data['calculation_type'],
             (int) $data['meta_select_mode']
@@ -53,6 +53,5 @@ class MetaServiceConfigurationFactoryRdb
             ->setMetric($data['metric'])
             ->setWarning($data['warning'])
             ->setCritical($data['critical']);
-        return $metaServiceConfiguration;
     }
 }

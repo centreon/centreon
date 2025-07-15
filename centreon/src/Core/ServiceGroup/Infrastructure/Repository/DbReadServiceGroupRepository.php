@@ -55,12 +55,12 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements ReadServiceGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait,
-        HostRepositoryTrait,
-        HostGroupRepositoryTrait,
-        ServiceCategoryRepositoryTrait,
-        HostCategoryRepositoryTrait,
-        ServiceGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
+    use HostRepositoryTrait;
+    use HostGroupRepositoryTrait;
+    use ServiceCategoryRepositoryTrait;
+    use HostCategoryRepositoryTrait;
+    use ServiceGroupRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db

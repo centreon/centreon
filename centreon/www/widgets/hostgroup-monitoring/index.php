@@ -34,14 +34,14 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 $centreon = $_SESSION['centreon'];
@@ -60,17 +60,18 @@ try {
         $autoRefresh = 30;
     }
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
+
     exit;
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/hostgroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $template->assign('widgetId', $widgetId);

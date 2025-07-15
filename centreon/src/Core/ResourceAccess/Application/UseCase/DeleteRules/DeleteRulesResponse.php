@@ -28,4 +28,3 @@ final class DeleteRulesResponse
     /** @var DeleteRulesStatusResponse[] */
     public array $responseStatuses = [];
 }
-

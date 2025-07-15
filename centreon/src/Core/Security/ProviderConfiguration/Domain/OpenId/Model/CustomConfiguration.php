@@ -707,7 +707,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

@@ -79,7 +79,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readHostSeverityRepository
         ->expects($this->once())
         ->method('exists')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->hostSeverity->getId(), $this->presenter);
 
@@ -194,7 +194,7 @@ it('should present a FindHostSeverityResponse when a non-admin user has read-onl
         ->toBe($this->responseArray['icon_id'])
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
-    });
+});
 
 it('should present a FindHostSeverityResponse when a non-admin user has read/write rights', function (): void {
     $this->user
@@ -239,7 +239,6 @@ it('should present a FindHostSeverityResponse when a non-admin user has read/wri
         ->and($response->comment)
         ->toBe($this->responseArray['comment']);
 });
-
 
 it('should present a FindHostSeverityResponse with admin user', function (): void {
     $this->user
