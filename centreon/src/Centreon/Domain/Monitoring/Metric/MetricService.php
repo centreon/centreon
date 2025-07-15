@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\Metric;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Service\AbstractCentreonService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
  * Monitoring class used to manage the real time services and hosts
@@ -37,19 +37,13 @@ use Centreon\Domain\Service\AbstractCentreonService;
  */
 class MetricService extends AbstractCentreonService implements MetricServiceInterface
 {
-    /**
-     * @var MonitoringRepositoryInterface
-     */
+    /** @var MonitoringRepositoryInterface */
     private $monitoringRepository;
 
-    /**
-     * @var MetricRepositoryInterface
-     */
+    /** @var MetricRepositoryInterface */
     private $metricRepository;
 
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
 
     /**

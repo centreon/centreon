@@ -27,7 +27,7 @@ use Utility\Difference\TupleDifference;
 
 it(
     'should compute getAdded()',
-    fn($before, $after, $expected) => expect((new TupleDifference($before, $after))->getAdded())
+    fn ($before, $after, $expected) => expect((new TupleDifference($before, $after))->getAdded())
         ->toBe($expected)
 )
     ->with(
@@ -43,7 +43,7 @@ it(
 
 it(
     'should compute getRemoved()',
-    fn($before, $after, $expected) => expect((new TupleDifference($before, $after))->getRemoved())
+    fn ($before, $after, $expected) => expect((new TupleDifference($before, $after))->getRemoved())
         ->toBe($expected)
 )
     ->with(
@@ -59,7 +59,7 @@ it(
 
 it(
     'should compute getCommon()',
-    fn($before, $after, $expected) => expect((new TupleDifference($before, $after))->getCommon())
+    fn ($before, $after, $expected) => expect((new TupleDifference($before, $after))->getCommon())
         ->toBe($expected)
 )
     ->with(

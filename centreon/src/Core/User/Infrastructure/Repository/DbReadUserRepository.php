@@ -130,7 +130,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
         [$binValues, $subRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');

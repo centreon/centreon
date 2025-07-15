@@ -1,31 +1,22 @@
 <?php
+
 namespace Centreon\Domain\Entity;
 
 class CfgResource
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $resourceId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $resourceName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $resourceLine;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $resourceComment;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $resourceActivate;
 
     public function setResourceId(int $resourceId): void

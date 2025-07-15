@@ -214,9 +214,7 @@ it('should raise an exception when the service category IDs do not exist, as an 
     ServiceException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
-it('should raise an exception when the service category IDs do not exist, as a non-administrator', function ():
-void {
-
+it('should raise an exception when the service category IDs do not exist, as a non-administrator', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')

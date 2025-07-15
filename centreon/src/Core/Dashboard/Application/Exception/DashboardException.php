@@ -219,7 +219,7 @@ class DashboardException extends \Exception
      */
     public static function theContactsDoesNotHaveDashboardAccessRights(array $contactIds): self
     {
-        return new self (
+        return new self(
             sprintf(_('The contacts [%s] do not have any dashboard Access rights'), implode(', ', $contactIds))
         );
     }
@@ -231,7 +231,7 @@ class DashboardException extends \Exception
      */
     public static function theContactGroupsDoesNotHaveDashboardAccessRights(array $contactGroupIds): self
     {
-        return new self (
+        return new self(
             sprintf(
                 _('The contact groups [%s] do not have any dashboard Access rights'),
                 implode(', ', $contactGroupIds)

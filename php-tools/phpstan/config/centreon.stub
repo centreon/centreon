@@ -1,0 +1,5 @@
+<?php
+
+define('_CENTREON_PATH_', '../centreon');
+define('_CENTREON_CACHEDIR_', '/var/cache/centreon');
+define('_CENTREON_LOG_', '/var/log/centreon');

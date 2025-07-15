@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +19,7 @@
  *
  */
 
-it("test factory used for HtmlSanitizer", function (): void {
+it('test factory used for HtmlSanitizer', function (): void {
     $string = 'I am a <div><span>king</span></div>';
     $htmlSanitizer = HtmlSanitizer::createFromString($string);
     expect($htmlSanitizer)->toBeInstanceOf(HtmlSanitizer::class)
@@ -26,15 +27,15 @@ it("test factory used for HtmlSanitizer", function (): void {
         ->and($htmlSanitizer->getString())->toEqual($string);
 });
 
-it("test sanitize of a string with html by HtmlSanitizer", function (): void {
+it('test sanitize of a string with html by HtmlSanitizer', function (): void {
     $string = 'I am a <div><span>king</span></div>';
-    $stringTest = "I am a &lt;div&gt;&lt;span&gt;king&lt;/span&gt;&lt;/div&gt;";
+    $stringTest = 'I am a &lt;div&gt;&lt;span&gt;king&lt;/span&gt;&lt;/div&gt;';
     $htmlSanitizer = HtmlSanitizer::createFromString($string)->sanitize();
     expect($htmlSanitizer->getString())->toBeString()
         ->and($htmlSanitizer->getString())->toEqual($stringTest);
 });
 
-it("test remove html tags of a string with html by HtmlSanitizer", function (): void {
+it('test remove html tags of a string with html by HtmlSanitizer', function (): void {
     $string = 'I am a <div><span>king</span></div>';
     $stringTest = 'I am a king';
     $htmlSanitizer = HtmlSanitizer::createFromString($string)->removeTags();
@@ -42,7 +43,7 @@ it("test remove html tags of a string with html by HtmlSanitizer", function (): 
         ->and($htmlSanitizer->getString())->toEqual($stringTest);
 });
 
-it("test remove html tags of a string with html without remove allowed tags by HtmlSanitizer", function (): void {
+it('test remove html tags of a string with html without remove allowed tags by HtmlSanitizer', function (): void {
     $string = 'I am a <div><span>king</span></div>';
     $stringTest = 'I am a <span>king</span>';
     $htmlSanitizer = HtmlSanitizer::createFromString($string)->removeTags(['span']);
@@ -50,7 +51,7 @@ it("test remove html tags of a string with html without remove allowed tags by H
         ->and($htmlSanitizer->getString())->toEqual($stringTest);
 });
 
-it("test remove html tags of a string with html without remove several allowed tags by HtmlSanitizer", function (): void {
+it('test remove html tags of a string with html without remove several allowed tags by HtmlSanitizer', function (): void {
     $string = 'I am a <div><span><i>king</i></span></div>';
     $stringTest = 'I am a <span><i>king</i></span>';
     $htmlSanitizer = HtmlSanitizer::createFromString($string)->removeTags(['span', 'i']);

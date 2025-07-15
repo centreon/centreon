@@ -51,8 +51,7 @@ class Connector
         private string $description = '',
         private array $commandIds = [],
         private bool $isActivated = true,
-    )
-    {
+    ) {
         Assertion::positiveInt($id, 'Connector::id');
 
         $this->name = trim($name);

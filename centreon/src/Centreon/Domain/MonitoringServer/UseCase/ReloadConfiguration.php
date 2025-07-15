@@ -24,12 +24,12 @@ namespace Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -90,12 +90,13 @@ class ReloadConfiguration
             }
             $this->info('Reload configuration for monitoring server #' . $monitoringServerId);
             $this->configurationRepository->reloadConfiguration($monitoringServerId);
-        } catch(AccessDeniedException $ex) {
+        } catch (AccessDeniedException $ex) {
             throw new AccessDeniedException($ex->getMessage());
-        } catch (EntityNotFoundException | TimeoutException $ex) {
+        } catch (EntityNotFoundException|TimeoutException $ex) {
             if ($ex instanceof TimeoutException) {
                 throw ConfigurationMonitoringServerException::timeout($monitoringServerId, $ex->getMessage());
             }
+
             throw $ex;
         } catch (\Exception $ex) {
             throw ConfigurationMonitoringServerException::errorOnReload(

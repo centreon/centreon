@@ -24,24 +24,16 @@ namespace Centreon\Domain\HostConfiguration;
 
 class ExtendedHost
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notes;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notesUrl;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $actionUrl;
 
     /**
@@ -59,6 +51,7 @@ class ExtendedHost
     public function setId(int $id): ExtendedHost
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -77,6 +70,7 @@ class ExtendedHost
     public function setNotes(?string $notes): ExtendedHost
     {
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -95,6 +89,7 @@ class ExtendedHost
     public function setNotesUrl(?string $notesUrl): ExtendedHost
     {
         $this->notesUrl = $notesUrl;
+
         return $this;
     }
 
@@ -113,6 +108,7 @@ class ExtendedHost
     public function setActionUrl(?string $actionUrl): ExtendedHost
     {
         $this->actionUrl = $actionUrl;
+
         return $this;
     }
 }

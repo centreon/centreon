@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Used for interacting with host categories
@@ -42,7 +43,9 @@ require_once "Centreon/Object/Object.php";
  */
 class Centreon_Object_Host_Category extends Centreon_Object
 {
-    protected $table = "hostcategories";
-    protected $primaryKey = "hc_id";
-    protected $uniqueLabelField = "hc_name";
+    protected $table = 'hostcategories';
+
+    protected $primaryKey = 'hc_id';
+
+    protected $uniqueLabelField = 'hc_name';
 }

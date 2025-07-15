@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model;
 
-enum Type: string {
+enum Type: string
+{
     case TELEGRAF = 'telegraf';
     case CMA = 'centreon-agent';
 }

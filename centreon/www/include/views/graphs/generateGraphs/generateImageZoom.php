@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,71 +34,56 @@
  *
  */
 
-/*
- * Include config file
- */
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
+// Include config file
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 
-require_once "$centreon_path/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_."/www/class/centreonGraph.class.php";
+require_once "{$centreon_path}/www/class/centreonDB.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonGraph.class.php';
 
-/*
- * Create XML Request Objects
- */
+// Create XML Request Objects
 session_start();
 session_write_close();
 
 $sid = session_id();
 $pearDB = new CentreonDB();
 
-
- /* Check security session */
-if (!CentreonSession::checkSession($sid, $pearDB)) {
+// Check security session
+if (! CentreonSession::checkSession($sid, $pearDB)) {
     CentreonGraph::displayError();
 }
 
-require_once _CENTREON_PATH_."www/include/common/common-Func.php";
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 $contactId = CentreonSession::getUser($sid, $pearDB);
-$obj = new CentreonGraph($contactId, $_GET["index"], 0, 1);
+$obj = new CentreonGraph($contactId, $_GET['index'], 0, 1);
 
-/*
- * Set arguments from GET
- */
-$obj->setRRDOption("start", $obj->checkArgument("start", $_GET, time() - (60*60*48)));
-$obj->setRRDOption("end", $obj->checkArgument("end", $_GET, time()));
+// Set arguments from GET
+$obj->setRRDOption('start', $obj->checkArgument('start', $_GET, time() - (60 * 60 * 48)));
+$obj->setRRDOption('end', $obj->checkArgument('end', $_GET, time()));
 
-//$obj->GMT->getMyGMTFromSession($obj->session_id, $pearDB);
+// $obj->GMT->getMyGMTFromSession($obj->session_id, $pearDB);
 
-/*
- * Template Management
- */
-if (isset($_GET["template_id"])) {
-    $obj->setTemplate($_GET["template_id"]);
+// Template Management
+if (isset($_GET['template_id'])) {
+    $obj->setTemplate($_GET['template_id']);
 } else {
     $obj->setTemplate();
 }
 
 $obj->init();
-if (isset($_GET["flagperiod"])) {
-    $obj->setCommandLineTimeLimit($_GET["flagperiod"]);
+if (isset($_GET['flagperiod'])) {
+    $obj->setCommandLineTimeLimit($_GET['flagperiod']);
 }
 
-/*
- * Init Curve list
- */
-if (isset($_GET["metric"])) {
-    $obj->setMetricList($_GET["metric"]);
+// Init Curve list
+if (isset($_GET['metric'])) {
+    $obj->setMetricList($_GET['metric']);
 }
 $obj->initCurveList();
 
-/*
- * Comment time
- */
-$obj->setOption("comment_time");
+// Comment time
+$obj->setOption('comment_time');
 
-/*
- * Create Legende
- */
+// Create Legende
 $obj->createLegend();
 
 /**
@@ -109,7 +95,5 @@ $obj->setColor('SHADEA', '#EFEFEF');
 $obj->setColor('SHADEB', '#EFEFEF');
 $obj->setColor('ARROW', '#FF0000');
 
-/*
- * Display Images Binary Data
- */
+// Display Images Binary Data
 $obj->displayImageFlow();

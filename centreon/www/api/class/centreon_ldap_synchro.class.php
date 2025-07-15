@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonLog.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
 /**
  * Class
@@ -67,8 +67,8 @@ class CentreonLdapSynchro extends CentreonWebService
      *
      * Method POST
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function postRequestLdapSynchro(): bool
     {
@@ -79,15 +79,16 @@ class CentreonLdapSynchro extends CentreonWebService
             FILTER_VALIDATE_INT
         );
 
-        if (!$this->isLdapEnabled()) {
+        if (! $this->isLdapEnabled()) {
             return $result;
         }
 
         if ($contactId === false) {
             $this->centreonLog->insertLog(
-                3, //ldap.log
-                "LDAP MANUAL SYNC : Error - Chosen contact id is not consistent."
+                3, // ldap.log
+                'LDAP MANUAL SYNC : Error - Chosen contact id is not consistent.'
             );
+
             return $result;
         }
 
@@ -112,14 +113,14 @@ class CentreonLdapSynchro extends CentreonWebService
 
             // checking if the contact is currently connected to Centreon
             $activeSession = $this->pearDB->prepare(
-                "SELECT session_id FROM `session` WHERE user_id = :contactId"
+                'SELECT session_id FROM `session` WHERE user_id = :contactId'
             );
             $activeSession->bindValue(':contactId', $contact['contact_id'], PDO::PARAM_INT);
             $activeSession->execute();
 
-            //disconnecting every session using this contact data
+            // disconnecting every session using this contact data
             $logoutContact = $this->pearDB->prepare(
-                "DELETE FROM session WHERE session_id = :userSessionId"
+                'DELETE FROM session WHERE session_id = :userSessionId'
             );
             while ($rowSession = $activeSession->fetch()) {
                 $logoutContact->bindValue(':userSessionId', $rowSession['session_id'], PDO::PARAM_STR);
@@ -128,24 +129,25 @@ class CentreonLdapSynchro extends CentreonWebService
             $this->pearDB->commit();
             $this->centreonLog->insertLog(
                 3,
-                "LDAP MANUAL SYNC : Successfully planned LDAP synchronization for " . $contact['contact_name']
+                'LDAP MANUAL SYNC : Successfully planned LDAP synchronization for ' . $contact['contact_name']
             );
             $result = true;
         } catch (PDOException $e) {
             $this->centreonLog->insertLog(
-                2, //sql-error.log
-                "LDAP MANUAL SYNC : Error - unable to read or update the contact data in the DB."
+                2, // sql-error.log
+                'LDAP MANUAL SYNC : Error - unable to read or update the contact data in the DB.'
             );
             $this->pearDB->rollBack();
         }
+
         return $result;
     }
 
     /**
      * Checking if LDAP is enabled
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     private function isLdapEnabled()
     {
@@ -157,10 +159,12 @@ class CentreonLdapSynchro extends CentreonWebService
         if ($row['value'] !== '1') {
             $this->centreonLog->insertLog(
                 3,
-                "LDAP MANUAL SYNC : Error - No enabled LDAP configuration found."
+                'LDAP MANUAL SYNC : Error - No enabled LDAP configuration found.'
             );
+
             return false;
         }
+
         return true;
     }
 }

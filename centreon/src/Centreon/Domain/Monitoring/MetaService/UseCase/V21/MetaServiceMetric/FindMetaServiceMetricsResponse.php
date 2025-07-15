@@ -31,9 +31,7 @@ use Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric;
  */
 class FindMetaServiceMetricsResponse
 {
-    /**
-     * @var array<int, array<string, mixed>>
-     */
+    /** @var array<int, array<string, mixed>> */
     private $metaServiceMetrics = [];
 
     /**
@@ -47,7 +45,7 @@ class FindMetaServiceMetricsResponse
                 'name' => $metaServiceMetric->getName(),
                 'unit' => $metaServiceMetric->getUnit(),
                 'value' => $metaServiceMetric->getValue(),
-                'resource' => $metaServiceMetric->getResource()
+                'resource' => $metaServiceMetric->getResource(),
             ];
         }
     }

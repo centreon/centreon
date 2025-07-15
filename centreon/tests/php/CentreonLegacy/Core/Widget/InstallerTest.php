@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016 Centreon
  *
@@ -17,16 +18,19 @@
 
 namespace CentreonLegacy\Core\Widget;
 
-use Pimple\Psr11\Container;
-use \Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $information;
+
     private $utils;
 
     public function setUp(): void
@@ -37,7 +41,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $configuration = ['title' => 'My Widget', 'author' => 'Centreon', 'email' => 'contact@centreon.com', 'website' => 'http://www.centreon.com', 'description' => 'Widget for displaying host monitoring information', 'version' => '1.0.0', 'keywords' => 'centreon, widget, host, monitoring', 'screenshot' => '', 'thumbnail' => './widgets/host-monitoring/resources/centreon-logo.png', 'url' => './widgets/host-monitoring/index.php', 'directory' => 'my-widget', 'preferences' => ['preference' => [['@attributes' => ['label' => 'Host Name', 'name' => 'host_name_search', 'defaultValue' => '', 'type' => 'compare', 'header' => 'Filters']], ['@attributes' => ['label' => 'Results', 'name' => 'entries', 'defaultValue' => '10', 'type' => 'range', 'min' => '10', 'max' => '100', 'step' => '10']], ['@attributes' => ['label' => 'Order By', 'name' => 'order_by', 'defaultValue' => '', 'type' => 'sort'], 'option' => [['@attributes' => ['value' => 'h.name', 'label' => 'Host Name']], ['@attributes' => ['value' => 'criticality', 'label' => 'Severity']]]]]], 'autoRefresh' => 0];
 
-        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Widget\Information::class)
+        $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getConfiguration', 'getTypes', 'isInstalled', 'getIdByName', 'getParameterIdByName'])
             ->getMock();
@@ -77,34 +81,34 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
     public function testInstall(): void
     {
-        $query = 'INSERT INTO widget_models ' .
-            '(title, description, url, version, is_internal, directory, author, ' .
-            'email, website, keywords, thumbnail, autoRefresh) ' .
-            'VALUES (:title, :description, :url, :version, :is_internal, :directory, :author, ' .
-            ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
+        $query = 'INSERT INTO widget_models '
+            . '(title, description, url, version, is_internal, directory, author, '
+            . 'email, website, keywords, thumbnail, autoRefresh) '
+            . 'VALUES (:title, :description, :url, :version, :is_internal, :directory, :author, '
+            . ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters ' .
-            '(widget_model_id, field_type_id, parameter_name, parameter_code_name, ' .
-            'default_value, parameter_order, require_permission, header_title) ' .
-            'VALUES ' .
-            '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, ' .
-            ':default_value, :parameter_order, :require_permission, :header_title) ';
+        $query = 'INSERT INTO widget_parameters '
+            . '(widget_model_id, field_type_id, parameter_name, parameter_code_name, '
+            . 'default_value, parameter_order, require_permission, header_title) '
+            . 'VALUES '
+            . '(:widget_model_id, :field_type_id, :parameter_name, :parameter_code_name, '
+            . ':default_value, :parameter_order, :require_permission, :header_title) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters_multiple_options ' .
-            '(parameter_id, option_name, option_value) VALUES ' .
-            '(:parameter_id, :option_name, :option_value) ';
+        $query = 'INSERT INTO widget_parameters_multiple_options '
+            . '(parameter_id, option_name, option_value) VALUES '
+            . '(:parameter_id, :option_name, :option_value) ';
         $this->db->addResultSet(
             $query,
             []
         );
-        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) ' .
-            'VALUES (:parameter_id, :min_range, :max_range, :step) ';
+        $query = 'INSERT INTO widget_parameters_range (parameter_id, min_range, max_range, step) '
+            . 'VALUES (:parameter_id, :min_range, :max_range, :step) ';
         $this->db->addResultSet(
             $query,
             []

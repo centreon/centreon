@@ -1,5 +1,6 @@
 #!@PHP_BIN@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -31,12 +32,10 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
+define('_DELAY_', '600'); // Default 10 minutes
 
-define('_DELAY_', '600'); /* Default 10 minutes */
-
-require_once realpath(__DIR__ . "/../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.Broker.class.php';
 
@@ -50,17 +49,17 @@ $ext_cmd_add['svc'] = ['[%u] SCHEDULE_SVC_DOWNTIME;%s;%s;%u;%u;%u;0;%u;Downtime 
 
 $ext_cmd_del['svc'] = ['[%u] DEL_SVC_DOWNTIME;%u'];
 
-/* Connector to centreon DB */
+// Connector to centreon DB
 $pearDB = new CentreonDB();
 $downtimeObj = new CentreonDowntimeBroker($pearDB, _CENTREON_VARLIB_);
 
-/* Get approaching downtimes */
+// Get approaching downtimes
 $downtimes = $downtimeObj->getApproachingDowntimes(_DELAY_);
 
 foreach ($downtimes as $downtime) {
     $isScheduled = $downtimeObj->isScheduled($downtime);
 
-    if (!$isScheduled && $downtime['dt_activate'] == '1') {
+    if (! $isScheduled && $downtime['dt_activate'] == '1') {
         $downtimeObj->insertCache($downtime);
         if ($downtime['service_id'] != '') {
             foreach ($ext_cmd_add['svc'] as $cmd) {
@@ -115,8 +114,8 @@ foreach ($downtimes as $downtime) {
     }
 }
 
-# Send the external commands
+// Send the external commands
 $downtimeObj->sendCommands();
 
-# Purge downtime cache
+// Purge downtime cache
 $downtimeObj->purgeCache();

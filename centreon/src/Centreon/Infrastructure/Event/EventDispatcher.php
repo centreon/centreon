@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -57,23 +58,17 @@ class EventDispatcher
 
     /**
      * @var array List a values returned by callable function defined in the
-     * event handler. Their values are partitioned by context name.
+     *            event handler. Their values are partitioned by context name.
      */
     private $executionContext = [];
 
-    /**
-     * @var mixed[]
-     */
+    /** @var mixed[] */
     private $eventHandlers;
 
-    /**
-     * @var array Sorted list of methods that will be called in the event handler.
-     */
+    /** @var array sorted list of methods that will be called in the event handler */
     private $eventMethods = ['preProcessing', 'processing', 'postProcessing'];
 
-    /**
-     * @var DispatcherLoaderInterface
-     */
+    /** @var DispatcherLoaderInterface */
     private $dispatcherLoader;
 
     /**
@@ -85,8 +80,8 @@ class EventDispatcher
     }
 
     /**
-     * @param DispatcherLoaderInterface $dispatcherLoader Loader that will be
-     * used to include PHP files in which we add event handlers.
+     * @param DispatcherLoaderInterface $dispatcherLoader loader that will be
+     *                                                    used to include PHP files in which we add event handlers
      */
     public function setDispatcherLoader(DispatcherLoaderInterface $dispatcherLoader): void
     {
@@ -117,12 +112,12 @@ class EventDispatcher
     /**
      * Notify all event handlers for a specific context and type of event.
      *
-     * @param string $context Name of the context in which we will call all the
-     * registered event handlers.
+     * @param string $context name of the context in which we will call all the
+     *                        registered event handlers
      * @param int $eventType Event type. Only event handlers registered for this event will be called.
-     * We can add several types of events using the binary operator '|'
+     *                       We can add several types of events using the binary operator '|'
      * @param array $arguments Array of arguments that will be passed to callable
-     * functions defined in event handlers
+     *                         functions defined in event handlers
      */
     public function notify(string $context, int $eventType, $arguments = []): void
     {
@@ -144,15 +139,15 @@ class EventDispatcher
                  */
                 foreach ($sortedCallables[$eventMethod] as $priority => $callables) {
                     foreach ($callables as $callable) {
-                        $currentExecutionContext =
-                            $this->executionContext[$context][$eventType] ?? [];
+                        $currentExecutionContext
+                            = $this->executionContext[$context][$eventType] ?? [];
                         $result = call_user_func_array(
                             $callable,
                             [$arguments, $currentExecutionContext, $eventType]
                         );
                         if (isset($result)) {
-                            $this->executionContext[$context][$eventType] =
-                                array_merge(
+                            $this->executionContext[$context][$eventType]
+                                = array_merge(
                                     $this->executionContext[$context][$eventType] ?? [],
                                     $result
                                 );
@@ -167,10 +162,10 @@ class EventDispatcher
      * Retrieve all callable functions sorted by method and priority for a
      * specific context and event type.
      *
-     * @param string $context Name of the context.
-     * @param int $eventType Event type.
+     * @param string $context name of the context
+     * @param int $eventType event type
      * @return array List of partitioned event handlers by processing method
-     * ('preProcessing', 'processing', 'postProcessing') and processing priority
+     *               ('preProcessing', 'processing', 'postProcessing') and processing priority
      */
     private function getSortedCallables(string $context, int $eventType): array
     {
@@ -195,6 +190,7 @@ class EventDispatcher
                 }
             }
         }
+
         return $sortedCallables;
     }
 }

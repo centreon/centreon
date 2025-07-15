@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -12,10 +13,10 @@ class TrapServiceRelationRepository extends ServiceEntityRepository
      * @param array $templateChainList
      * @return array
      */
-    public function export(array $pollerIds, array $templateChainList = null): array
+    public function export(array $pollerIds, ?array $templateChainList = null): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
@@ -24,11 +25,11 @@ class TrapServiceRelationRepository extends ServiceEntityRepository
         $sqlFilterList = $list ? " OR t.service_id IN ({$list})" : '';
         $sqlFilter = TrapRepository::exportFilterSql($pollerIds);
         $sql = <<<SQL
-SELECT
-    t.*
-FROM traps_service_relation AS t
-WHERE t.service_id IN ({$sqlFilter}){$sqlFilterList}
-SQL;
+            SELECT
+                t.*
+            FROM traps_service_relation AS t
+            WHERE t.service_id IN ({$sqlFilter}){$sqlFilterList}
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 

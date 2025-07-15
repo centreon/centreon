@@ -26,9 +26,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
 class AbstractCentreonService
 {
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     protected $contact;
 
     /**
@@ -37,15 +35,16 @@ class AbstractCentreonService
      * to fetch data.
      *
      * @param mixed $contact Contact to use as a ACL filter
-     * @return self
      * @throws \Exception
+     * @return self
      */
     public function filterByContact($contact)
     {
-        if (!\is_object($contact) || !($contact instanceof ContactInterface)) {
+        if (! \is_object($contact) || ! ($contact instanceof ContactInterface)) {
             throw new \Exception('Contact expected');
         }
         $this->contact = $contact;
+
         return $this;
     }
 }

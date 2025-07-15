@@ -27,31 +27,26 @@ use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
 use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Centreon\Domain\Service\AbstractCentreonService;
 use Centreon\Domain\ServiceConfiguration\Exception\ServiceConfigurationServiceException;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationServiceInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class ServiceConfigurationService extends AbstractCentreonService implements ServiceConfigurationServiceInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var ServiceConfigurationRepositoryInterface
-     */
+    /** @var ServiceConfigurationRepositoryInterface */
     private $serviceRepository;
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
+
+    /** @var ReadAccessGroupRepositoryInterface */
     private $accessGroupRepository;
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
+
+    /** @var EngineConfigurationServiceInterface */
     private $engineConfigurationService;
-    /**
-     * @var HostConfigurationServiceInterface
-     */
+
+    /** @var HostConfigurationServiceInterface */
     private $hostConfigurationService;
 
     /**
@@ -118,18 +113,18 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
          *
          * **We only retrieve templates that are enabled.**
          *
-         * @param Host $host Host for which we will find all host template.
+         * @param Host $host host for which we will find all host template
          * @return int[]
          */
-        $extractHostTemplateIdsFromHost =
-            function (Host $host) use (&$extractHostTemplateIdsFromHost): array {
+        $extractHostTemplateIdsFromHost
+            = function (Host $host) use (&$extractHostTemplateIdsFromHost): array {
                 $hostTemplateIds = [];
                 foreach ($host->getTemplates() as $hostTemplate) {
                     if ($hostTemplate->isActivated() === false) {
                         continue;
                     }
                     $hostTemplateIds[] = $hostTemplate->getId();
-                    if (!empty($hostTemplate->getTemplates())) {
+                    if (! empty($hostTemplate->getTemplates())) {
                         // The recursive call here allow you to keep the priority orders of the host templates
                         $hostTemplateIds = array_merge(
                             $hostTemplateIds,
@@ -137,6 +132,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
                         );
                     }
                 }
+
                 return $hostTemplateIds;
             };
 
@@ -180,6 +176,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
                     }
                 }
             }
+
             return $serviceTemplates;
         };
 
@@ -195,13 +192,13 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
             $serviceTemplates = $extractServiceTemplatesByHostTemplate($hostTemplateId);
 
             foreach ($serviceTemplates as $serviceTemplate) {
-                if (!$serviceTemplate->isActivated()) {
+                if (! $serviceTemplate->isActivated()) {
                     continue;
                 }
 
                 if (
                     $serviceTemplate->getAlias() !== null
-                    && !in_array($serviceTemplate->getAlias(), $serviceAliasAlreadyUsed)
+                    && ! in_array($serviceTemplate->getAlias(), $serviceAliasAlreadyUsed)
                 ) {
                     $serviceDescription = $engineConfiguration->removeIllegalCharacters($serviceTemplate->getAlias());
 
@@ -229,6 +226,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
             $this->serviceRepository->addServicesToHost($host, $servicesToBeCreated);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage());
+
             throw new ServiceConfigurationException(
                 sprintf(
                     _('Error when adding services to the host %d'),
@@ -355,6 +353,7 @@ class ServiceConfigurationService extends AbstractCentreonService implements Ser
                     $ex->getMessage()
                 )
             );
+
             throw ServiceConfigurationServiceException::errorOnRemovingServicesFromHost($host->getId());
         }
     }

@@ -19,10 +19,10 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.1.post : ';
 
 /**
@@ -40,7 +40,7 @@ try {
         WHERE (`key` = 'isRemote' AND `value` = 'no') OR (`key` = 'isCentral' AND `value` = 'no')
     ");
     $row = $result->fetch();
-    if (2 === (int)$row['count']) {
+    if (2 === (int) $row['count']) {
         $errorMessage = "Unable to modify isCentral flag value in 'informations' table.";
         $stmt = $pearDB->query("UPDATE `informations` SET `value` = 'yes' WHERE `key` = 'isCentral'");
     }
@@ -73,14 +73,14 @@ try {
     ");
 
     // migrate resource status menu acl
-    $errorMessage = "Unable to update acl of resource status page.";
+    $errorMessage = 'Unable to update acl of resource status page.';
 
     $resourceStatusQuery = $pearDB->query(
-        "SELECT topology_id, topology_page FROM topology WHERE topology_page IN (2, 200)"
+        'SELECT topology_id, topology_page FROM topology WHERE topology_page IN (2, 200)'
     );
 
     $topologyAclStatement = $pearDB->prepare(
-        "SELECT DISTINCT(tr1.acl_topo_id)
+        'SELECT DISTINCT(tr1.acl_topo_id)
         FROM acl_topology_relations tr1
         WHERE tr1.acl_topo_id NOT IN (
             SELECT tr2.acl_topo_id
@@ -93,10 +93,10 @@ try {
             FROM acl_topology_relations tr3, topology t3
             WHERE tr3.topology_topology_id = t3.topology_id
             AND t3.topology_page IN (20201, 20202)
-        )"
+        )'
     );
 
-    $topologyInsertStatement = $pearDB->prepare("
+    $topologyInsertStatement = $pearDB->prepare('
         INSERT INTO `acl_topology_relations` (
             `topology_topology_id`,
             `acl_topo_id`,
@@ -106,21 +106,21 @@ try {
             :acl_topology_id,
             1
         )
-    ");
+    ');
 
     while ($resourceStatusPage = $resourceStatusQuery->fetch()) {
-        $topologyAclStatement->bindValue(':topology_page', (int) $resourceStatusPage['topology_page'], \PDO::PARAM_INT);
+        $topologyAclStatement->bindValue(':topology_page', (int) $resourceStatusPage['topology_page'], PDO::PARAM_INT);
         $topologyAclStatement->execute();
 
         while ($row = $topologyAclStatement->fetch()) {
-            $topologyInsertStatement->bindValue(':topology_id', (int) $resourceStatusPage['topology_id'], \PDO::PARAM_INT);
-            $topologyInsertStatement->bindValue(':acl_topology_id', (int) $row['acl_topo_id'], \PDO::PARAM_INT);
+            $topologyInsertStatement->bindValue(':topology_id', (int) $resourceStatusPage['topology_id'], PDO::PARAM_INT);
+            $topologyInsertStatement->bindValue(':acl_topology_id', (int) $row['acl_topo_id'], PDO::PARAM_INT);
             $topologyInsertStatement->execute();
         }
     }
 
     $monitoringTopologyStatement = $pearDB->query(
-        "SELECT DISTINCT(tr1.acl_topo_id)
+        'SELECT DISTINCT(tr1.acl_topo_id)
         FROM acl_topology_relations tr1
         WHERE tr1.acl_topo_id NOT IN (
             SELECT tr2.acl_topo_id
@@ -133,32 +133,33 @@ try {
             FROM acl_topology_relations tr3, topology t3
             WHERE tr3.topology_topology_id = t3.topology_id
             AND t3.topology_page = 200
-        )"
+        )'
     );
 
     $monitoringPageQuery = $pearDB->query(
-        "SELECT topology_id FROM topology WHERE topology_page = 2"
+        'SELECT topology_id FROM topology WHERE topology_page = 2'
     );
     $monitoringPage = $monitoringPageQuery->fetch();
 
     while ($topology = $monitoringTopologyStatement->fetch()) {
         if ($monitoringPage !== false) {
-            $topologyInsertStatement->bindValue(':topology_id', (int) $monitoringPage['topology_id'], \PDO::PARAM_INT);
-            $topologyInsertStatement->bindValue(':acl_topology_id', (int) $topology['acl_topo_id'], \PDO::PARAM_INT);
+            $topologyInsertStatement->bindValue(':topology_id', (int) $monitoringPage['topology_id'], PDO::PARAM_INT);
+            $topologyInsertStatement->bindValue(':acl_topology_id', (int) $topology['acl_topo_id'], PDO::PARAM_INT);
             $topologyInsertStatement->execute();
         }
     }
 
     $pearDB->commit();
-    $errorMessage = "";
-} catch (\Exception $e) {
+    $errorMessage = '';
+} catch (Exception $e) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

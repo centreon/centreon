@@ -28,4 +28,3 @@ final class DeleteRulesRequest
     /** @var int[] */
     public array $ids = [];
 }
-

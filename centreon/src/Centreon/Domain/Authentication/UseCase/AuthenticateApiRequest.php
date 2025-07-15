@@ -24,14 +24,10 @@ namespace Centreon\Domain\Authentication\UseCase;
 
 class AuthenticateApiRequest
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $login;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $password;
 
     /**
