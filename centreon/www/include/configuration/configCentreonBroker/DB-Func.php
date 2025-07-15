@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -37,13 +38,12 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
- *
  * Test broker file config existance
  * @param $name
  */
@@ -59,15 +59,13 @@ function testExistence($name = null)
 
     $dbResult = $pearDB->query("SELECT config_name, config_id
                                 FROM `cfg_centreonbroker`
-                                WHERE `config_name` = '" . htmlentities($name, ENT_QUOTES, "UTF-8") . "'");
+                                WHERE `config_name` = '" . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'");
     $ndomod = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $ndomod["config_id"] == $id) {
-        return true;
-    } elseif ($dbResult->rowCount() >= 1 && $ndomod["config_id"] != $id) {
-        return false;
-    } else {
+    if ($dbResult->rowCount() >= 1 && $ndomod['config_id'] == $id) {
         return true;
     }
+
+    return ! ($dbResult->rowCount() >= 1 && $ndomod['config_id'] != $id);
 }
 
 /**
@@ -79,13 +77,13 @@ function enableCentreonBrokerInDB($id)
 {
     global $pearDB;
 
-    if (!$id) {
+    if (! $id) {
         return;
     }
 
     $query = "UPDATE cfg_centreonbroker SET config_activate = '1' WHERE config_id = :config_id";
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':config_id', (int) $id, \PDO::PARAM_INT);
+    $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -98,13 +96,13 @@ function disablCentreonBrokerInDB($id)
 {
     global $pearDB;
 
-    if (!$id) {
+    if (! $id) {
         return;
     }
 
     $query = "UPDATE cfg_centreonbroker SET config_activate = '0' WHERE config_id = :config_id";
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':config_id', (int) $id, \PDO::PARAM_INT);
+    $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -112,6 +110,7 @@ function disablCentreonBrokerInDB($id)
  * Delete Centreon Broker configurations
  *
  * @param array $id The Centreon Broker configuration in database
+ * @param mixed $ids
  */
 function deleteCentreonBrokerInDB($ids = [])
 {
@@ -130,16 +129,16 @@ function deleteCentreonBrokerInDB($ids = [])
     $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
-    /** @var \Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
-    $writeVaultRepository = $kernel->getContainer()->get(\Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
-    $writeVaultRepository->setCustomPath(\Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
+    /** @var Core\Common\Application\Repository\WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(Core\Common\Application\Repository\WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(Core\Common\Infrastructure\Repository\AbstractVaultRepository::BROKER_VAULT_PATH);
     if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
         deleteBrokerConfigsFromVault($writeVaultRepository, $brokerIds);
     }
 
-    $statement = $pearDB->prepare("DELETE FROM cfg_centreonbroker WHERE config_id = :config_id");
+    $statement = $pearDB->prepare('DELETE FROM cfg_centreonbroker WHERE config_id = :config_id');
     foreach ($brokerIds as $id) {
-        $statement->bindValue(':config_id', $id, \PDO::PARAM_INT);
+        $statement->bindValue(':config_id', $id, PDO::PARAM_INT);
         $statement->execute();
     }
 }
@@ -153,70 +152,69 @@ function deleteCentreonBrokerInDB($ids = [])
 function getCentreonBrokerInformation($id)
 {
     global $pearDB;
-    $query =
-        "SELECT config_name, config_filename, ns_nagios_server, stats_activate,
+    $query
+        = 'SELECT config_name, config_filename, ns_nagios_server, stats_activate,
             config_write_timestamp, config_write_thread_id, config_activate, event_queue_max_size,
             event_queues_total_size, cache_directory, command_file, daemon, pool_size, log_directory, log_filename,
             log_max_size, bbdo_version
         FROM cfg_centreonbroker
-        WHERE config_id = " . $id;
+        WHERE config_id = ' . $id;
     try {
         $res = $pearDB->query($query);
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         $brokerConf = [
-            "name" => '',
-            "filename" => '',
-            "log_directory" => '/var/log/centreon-broker/',
-            "write_timestamp" => '1',
-            "write_thread_id" => '1',
-            "activate_watchdog" => '1',
-            "activate" => '1',
-            "event_queue_max_size" => '',
-            "pool_size" => null,
+            'name' => '',
+            'filename' => '',
+            'log_directory' => '/var/log/centreon-broker/',
+            'write_timestamp' => '1',
+            'write_thread_id' => '1',
+            'activate_watchdog' => '1',
+            'activate' => '1',
+            'event_queue_max_size' => '',
+            'pool_size' => null,
         ];
     }
     $row = $res->fetch();
-    if (!isset($brokerConf)) {
+    if (! isset($brokerConf)) {
         $brokerConf = [
-            "id" => $id,
-            "name" => $row['config_name'],
-            "filename" => $row['config_filename'],
-            "ns_nagios_server" => $row['ns_nagios_server'],
-            "activate" => $row['config_activate'],
-            "activate_watchdog" => $row['daemon'],
-            "stats_activate" => $row['stats_activate'],
-            "write_timestamp" => $row['config_write_timestamp'],
-            "write_thread_id" => $row['config_write_thread_id'],
-            "event_queue_max_size" => $row['event_queue_max_size'],
-            "event_queues_total_size" => $row['event_queues_total_size'],
-            "cache_directory" => $row['cache_directory'],
-            "command_file" => $row['command_file'],
-            "daemon" => $row['daemon'],
-            "pool_size" => $row['pool_size'],
-            "log_directory" => $row['log_directory'],
-            "log_filename" => $row['log_filename'],
-            "log_max_size" => $row['log_max_size'],
-            "bbdo_version" => $row['bbdo_version'],
+            'id' => $id,
+            'name' => $row['config_name'],
+            'filename' => $row['config_filename'],
+            'ns_nagios_server' => $row['ns_nagios_server'],
+            'activate' => $row['config_activate'],
+            'activate_watchdog' => $row['daemon'],
+            'stats_activate' => $row['stats_activate'],
+            'write_timestamp' => $row['config_write_timestamp'],
+            'write_thread_id' => $row['config_write_thread_id'],
+            'event_queue_max_size' => $row['event_queue_max_size'],
+            'event_queues_total_size' => $row['event_queues_total_size'],
+            'cache_directory' => $row['cache_directory'],
+            'command_file' => $row['command_file'],
+            'daemon' => $row['daemon'],
+            'pool_size' => $row['pool_size'],
+            'log_directory' => $row['log_directory'],
+            'log_filename' => $row['log_filename'],
+            'log_max_size' => $row['log_max_size'],
+            'bbdo_version' => $row['bbdo_version'],
         ];
     }
-    /*
-     * Log
-     */
+    // Log
     $brokerLogConf = [];
-    $query = "SELECT log.`name`, relation.`id_level`
+    $query = 'SELECT log.`name`, relation.`id_level`
             FROM `cb_log` log
             LEFT JOIN `cfg_centreonbroker_log` relation
                 ON relation.`id_log`  = log.`id`
-            WHERE relation.`id_centreonbroker` = " . $id;
+            WHERE relation.`id_centreonbroker` = ' . $id;
     try {
         $res = $pearDB->query($query);
-    } catch (\PDOException $e) {
+    } catch (PDOException $e) {
         return $brokerConf;
     }
     while ($row = $res->fetch()) {
         $brokerLogConf['log_' . $row['name']] = $row['id_level'];
     }
     $result = array_merge($brokerConf, $brokerLogConf);
+
     return $result;
 }
 
@@ -225,6 +223,7 @@ function getCentreonBrokerInformation($id)
  *
  * @param array $ids List of id CentreonBroker configuration
  * @param array $nbr List of number a duplication
+ * @param mixed $nbrDup
  */
 function multipleCentreonBrokerInDB($ids, $nbrDup)
 {
@@ -234,7 +233,7 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
 
         $row = getCfgBrokerData((int) $id);
 
-        # Prepare values
+        // Prepare values
         $values = [];
         $values['activate_watchdog']['activate_watchdog'] = '0';
         $values['activate']['activate'] = '0';
@@ -249,21 +248,22 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         foreach ($brokerCfgInfoData as $rowOpt) {
             if ($rowOpt['config_key'] == 'filters') {
                 continue;
-            } elseif ($rowOpt['config_key'] == 'category') {
+            }
+            if ($rowOpt['config_key'] == 'category') {
                 $configKey = 'filters__' . $rowOpt['config_group_id'] . '__category';
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey][] =
-                    $rowOpt['config_value'];
+                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey][]
+                    = $rowOpt['config_value'];
             } elseif ($rowOpt['fieldIndex'] !== null) {
                 $configKey = $rowOpt['config_key'] . '_' . $rowOpt['fieldIndex'];
                 $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey] = $rowOpt['config_value'];
             } else {
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$rowOpt['config_key']] =
-                    $rowOpt['config_value'];
+                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$rowOpt['config_key']]
+                    = $rowOpt['config_value'];
             }
 
         }
 
-        # Convert values radio button
+        // Convert values radio button
         foreach ($values as $group => $groups) {
             if (is_array($groups)) {
                 foreach ($groups as $gid => $infos) {
@@ -285,20 +285,20 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
             }
         }
 
-        # Copy the configuration
+        // Copy the configuration
         $j = 1;
-        $query = "SELECT COUNT(*) as nb FROM cfg_centreonbroker WHERE config_name = :config_name";
+        $query = 'SELECT COUNT(*) as nb FROM cfg_centreonbroker WHERE config_name = :config_name';
         $statement = $pearDB->prepare($query);
         for ($i = 1; $i <= $nbrDup[$id]; $i++) {
             $nameNOk = true;
 
-            # Find the name
+            // Find the name
             while ($nameNOk) {
                 $newname = $row['config_name'] . '_' . $j;
                 $newfilename = $j . '_' . $row['config_filename'];
-                $statement->bindValue(':config_name', $newname, \PDO::PARAM_STR);
+                $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
                 $statement->execute();
-                $rowNb = $statement->fetch(\PDO::FETCH_ASSOC);
+                $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
                 if ($rowNb['nb'] == 0) {
                     $nameNOk = false;
                 }
@@ -322,13 +322,14 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
  */
 function isPositiveNumeric($size): bool
 {
-    if (!is_numeric($size)) {
+    if (! is_numeric($size)) {
         return false;
     }
     $isPositive = false;
-    if ((int)$size === (int)abs($size)) {
+    if ((int) $size === (int) abs($size)) {
         $isPositive = true;
     }
+
     return $isPositive;
 }
 
@@ -342,19 +343,20 @@ function getCfgBrokerData(int $configId): array
 {
     global $pearDB;
 
-    $query = "SELECT config_name, config_filename, config_activate, ns_nagios_server,
-            event_queue_max_size, cache_directory, daemon "
-             . "FROM cfg_centreonbroker "
-             . "WHERE config_id = :config_id ";
+    $query = 'SELECT config_name, config_filename, config_activate, ns_nagios_server,
+            event_queue_max_size, cache_directory, daemon '
+             . 'FROM cfg_centreonbroker '
+             . 'WHERE config_id = :config_id ';
     try {
         $statement = $pearDB->prepare($query);
-        $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+        $statement->bindValue(':config_id', $configId, PDO::PARAM_INT);
         $statement->execute();
-        $cfgBrokerData = $statement->fetch(\PDO::FETCH_ASSOC);
+        $cfgBrokerData = $statement->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $exception) {
-        throw new \Exception("Cannot fetch Broker config data");
+        throw new Exception('Cannot fetch Broker config data');
     }
     $statement->closeCursor();
+
     return $cfgBrokerData;
 }
 
@@ -368,20 +370,21 @@ function getCfgBrokerInfoData(int $configId): array
 {
     global $pearDB;
 
-    $query = <<<SQL
+    $query = <<<'SQL'
         SELECT config_key, config_value, config_group, config_group_id, fieldIndex
         FROM cfg_centreonbroker_info
         WHERE config_id = :config_id
         SQL;
     try {
         $statement = $pearDB->prepare($query);
-        $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+        $statement->bindValue(':config_id', $configId, PDO::PARAM_INT);
         $statement->execute();
-        $cfgBrokerInfoData = $statement->fetchAll(\PDO::FETCH_ASSOC);
-    } catch (\PDOException $exception) {
-        throw new \Exception("Cannot fetch Broker info config data");
+        $cfgBrokerInfoData = $statement->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $exception) {
+        throw new Exception('Cannot fetch Broker info config data');
     }
     $statement->closeCursor();
+
     return $cfgBrokerInfoData;
 }
 
@@ -393,7 +396,6 @@ function getCfgBrokerInfoData(int $configId): array
  *  output:array<string,array>,
  *  input:array<string,array>
  * } $values
- *
  */
 function retrieveOriginalPasswordValuesFromVault(array &$values): void
 {

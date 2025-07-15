@@ -220,6 +220,7 @@ class Broker extends AbstractObjectJSON
     /**
      * @param $poller_id
      * @param $localhost
+     * @param mixed $pollerId
      *
      * @throws PDOException
      * @throws RuntimeException
@@ -229,11 +230,12 @@ class Broker extends AbstractObjectJSON
     {
         $this->getExternalValues();
 
-        $statement = $this->backend_instance->db->prepare(<<<SQL
-            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
-            SQL
+        $statement = $this->backend_instance->db->prepare(
+            <<<'SQL'
+                SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+                SQL
         );
-        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
 
         $shouldBeEncrypted = (bool) $statement->fetchColumn();
@@ -477,15 +479,15 @@ class Broker extends AbstractObjectJSON
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
                         : 'raw::' . $output['db_password'];
                 }
-                if (!isset($output['lua_parameter']) || !is_array($output['lua_parameter'])) {
+                if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
                     continue;
                 }
 
                 foreach ($output['lua_parameter'] as &$luaParameter) {
                     if (
-                        isset($luaParameter['type'], $luaParameter['value']) &&
-                        $luaParameter['type'] === 'password' &&
-                        is_string($luaParameter['value'])
+                        isset($luaParameter['type'], $luaParameter['value'])
+                        && $luaParameter['type'] === 'password'
+                        && is_string($luaParameter['value'])
                     ) {
                         $luaParameter['value'] = $shouldBeEncrypted
                         ? 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value'])

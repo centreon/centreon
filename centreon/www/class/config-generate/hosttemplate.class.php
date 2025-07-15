@@ -143,11 +143,11 @@ class HostTemplate extends AbstractHost
      * @param $host_id
      * @param $hostTemplateMacros
      *
-     * @return mixed|null
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return mixed|null
      * @return mixed|null
      */
     public function generateFromHostId($host_id, $hostTemplateMacros = [])

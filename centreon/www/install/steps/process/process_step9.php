@@ -45,7 +45,7 @@ use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Filesystem\Filesystem;
 
-$step = new \CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
+$step = new CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
 
 $parameters = filter_input_array(INPUT_POST);

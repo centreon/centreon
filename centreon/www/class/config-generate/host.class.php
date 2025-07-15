@@ -63,13 +63,17 @@ class Host extends AbstractHost
 
     /** @var string */
     protected string $object_name = 'host';
-    /** @var null|\PDOStatement */
+
+    /** @var null|PDOStatement */
     protected $stmt_hg = null;
-    /** @var null|\PDOStatement */
+
+    /** @var null|PDOStatement */
     protected $stmt_parent = null;
-    /** @var null|\PDOStatement */
+
+    /** @var null|PDOStatement */
     protected $stmt_service = null;
-    /** @var null|\PDOStatement */
+
+    /** @var null|PDOStatement */
     protected $stmt_service_sg = null;
 
     /** @var array */
@@ -135,6 +139,7 @@ class Host extends AbstractHost
 
     /**
      * @param $host
+     * @param mixed $serviceTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
@@ -371,14 +376,14 @@ class Host extends AbstractHost
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getHostGroups(&$host): void
     {
         $host['group_tags'] ??= [];
 
-        if (!isset($host['hg'])) {
+        if (! isset($host['hg'])) {
             if (is_null($this->stmt_hg)) {
                 $this->stmt_hg = $this->backend_instance->db->prepare(
                     "SELECT hostgroup_hg_id
@@ -401,17 +406,17 @@ class Host extends AbstractHost
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getParents(&$host): void
     {
         if (is_null($this->stmt_parent)) {
-            $this->stmt_parent = $this->backend_instance->db->prepare("SELECT
+            $this->stmt_parent = $this->backend_instance->db->prepare('SELECT
                     host_parent_hp_id
                 FROM host_hostparent_relation
                 WHERE host_host_id = :host_id
-                ");
+                ');
         }
         $this->stmt_parent->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
         $this->stmt_parent->execute();
@@ -429,17 +434,17 @@ class Host extends AbstractHost
      * @param $host
      * @param Macro[] $serviceMacros
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function getServices(&$host, array $serviceMacros, array $serviceTemplateMacros): void
     {
         if (is_null($this->stmt_service)) {
-            $this->stmt_service = $this->backend_instance->db->prepare("SELECT
+            $this->stmt_service = $this->backend_instance->db->prepare('SELECT
                     service_service_id
                 FROM host_service_relation
                 WHERE host_host_id = :host_id AND service_service_id IS NOT NULL
-                ");
+                ');
         }
         $this->stmt_service->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
         $this->stmt_service->execute();
@@ -460,8 +465,8 @@ class Host extends AbstractHost
     /**
      * @param $host
      *
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     private function getServicesByHg(&$host)
     {
@@ -469,9 +474,9 @@ class Host extends AbstractHost
             return 1;
         }
         if (is_null($this->stmt_service_sg)) {
-            $query = "SELECT service_service_id FROM host_service_relation " .
-                "JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = " .
-                "host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id";
+            $query = 'SELECT service_service_id FROM host_service_relation '
+                . 'JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = '
+                . 'host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id';
             $this->stmt_service_sg = $this->backend_instance->db->prepare($query);
         }
         $this->stmt_service_sg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
@@ -496,18 +501,18 @@ class Host extends AbstractHost
         foreach ($host['htpl'] as $hostIdTopLevel) {
             $stack = [$hostIdTopLevel];
             $loop = [];
-            if (!isset($hostsTpl[$hostIdTopLevel]['contacts_computed_cache'])) {
+            if (! isset($hostsTpl[$hostIdTopLevel]['contacts_computed_cache'])) {
                 $contacts = [];
                 $cg = [];
                 while (($hostId = array_shift($stack))) {
-                    if (isset($loop[$hostId]) || !isset($hostsTpl[$hostId])) {
+                    if (isset($loop[$hostId]) || ! isset($hostsTpl[$hostId])) {
                         continue;
                     }
                     $loop[$hostId] = 1;
                     // if notifications_enabled is disabled. We don't go in branch
                     if (
-                        !is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int)$hostsTpl[$hostId]['notifications_enabled'] === 0
+                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
+                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
                     ) {
                         continue;
                     }
@@ -538,6 +543,7 @@ class Host extends AbstractHost
 
         $results['cg'] = array_unique(array_merge($results['cg'], $host['contact_groups_cache']), SORT_NUMERIC);
         $results['contact'] = array_unique(array_merge($results['contact'], $host['contacts_cache']), SORT_NUMERIC);
+
         return $results;
     }
 
@@ -556,7 +562,7 @@ class Host extends AbstractHost
         foreach ($host['htpl'] as $hostIdTopLevel) {
             $stack = [$hostIdTopLevel];
             $loop = [];
-            if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
+            if (! isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
                 $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = [];
 
                 while (($hostId = array_shift($stack))) {
@@ -566,15 +572,15 @@ class Host extends AbstractHost
                     $loop[$hostId] = 1;
 
                     if (
-                        !is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int)$hostsTpl[$hostId]['notifications_enabled'] === 0
+                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
+                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
                     ) {
                         continue;
                     }
 
                     if (count($hostsTpl[$hostId][$attribute . '_cache']) > 0) {
-                        $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] =
-                            $hostsTpl[$hostId][$attribute . '_cache'];
+                        $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache']
+                            = $hostsTpl[$hostId][$attribute . '_cache'];
                         break;
                     }
 
@@ -586,6 +592,7 @@ class Host extends AbstractHost
                 return $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'];
             }
         }
+
         return [];
     }
 
@@ -609,12 +616,12 @@ class Host extends AbstractHost
         $hostIdCache = null;
         foreach ($host['htpl'] as $hostIdTopLevel) {
             $computedCache = [];
-            if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
+            if (! isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
                 $stack = [[$hostIdTopLevel, 1]];
                 $loop = [];
                 $currentLevelCatch = null;
                 while (([$hostId, $level] = array_shift($stack))) {
-                    if (!is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
+                    if (! is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
                         break;
                     }
                     if (isset($loop[$hostId])) {
@@ -623,8 +630,8 @@ class Host extends AbstractHost
                     $loop[$hostId] = 1;
 
                     if (
-                        !is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int)$hostsTpl[$hostId]['notifications_enabled'] === 0
+                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
+                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
                     ) {
                         continue;
                     }
@@ -654,12 +661,13 @@ class Host extends AbstractHost
             }
         }
 
-        if (!is_null($hostIdCache)) {
+        if (! is_null($hostIdCache)) {
             $results = array_unique(
                 array_merge($results, $hostsTpl[$hostIdCache][$attribute . '_computed_cache']),
                 SORT_NUMERIC
             );
         }
+
         return $results;
     }
 
@@ -674,7 +682,7 @@ class Host extends AbstractHost
         $cgResultAppend = '';
         foreach ($cg as $cgId) {
             $tmp = $cgInstance->generateFromCgId($cgId);
-            if (!is_null($tmp)) {
+            if (! is_null($tmp)) {
                 $cgResult .= $cgResultAppend . $tmp;
                 $cgResultAppend = ',';
             }
@@ -695,7 +703,7 @@ class Host extends AbstractHost
         $contactResultAppend = '';
         foreach ($contacts as $contactId) {
             $tmp = $contactInstance->generateFromContactId($contactId);
-            if (!is_null($tmp)) {
+            if (! is_null($tmp)) {
                 $contactResult .= $contactResultAppend . $tmp;
                 $contactResultAppend = ',';
             }
@@ -714,7 +722,7 @@ class Host extends AbstractHost
     {
         $results = ['cg' => [], 'contact' => []];
 
-        if (!is_null($host['notifications_enabled']) && (int)$host['notifications_enabled'] === 0) {
+        if (! is_null($host['notifications_enabled']) && (int) $host['notifications_enabled'] === 0) {
             return $results;
         }
 

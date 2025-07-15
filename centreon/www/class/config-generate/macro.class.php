@@ -103,7 +103,7 @@ class Macro extends AbstractObject
      */
     public function getServiceMacroByServiceId($service_id, ?int $hostId = null)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->macro_service_cache[$service_id])) {
             if ($hostId !== null) {
                 $isEncryptionReady = $this->pollersEncryptionReadyStatusByHosts[$hostId] === true;
@@ -133,7 +133,7 @@ class Macro extends AbstractObject
      */
     public function getHostMacroByHostId($hostId)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->macroHostCache[$hostId])) {
             return $this->macroHostCache[$hostId];
         }
@@ -142,15 +142,15 @@ class Macro extends AbstractObject
         }
     }
 
-
     private function setPollersEncryptionReadyStatusByHosts()
     {
-        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(<<<SQL
-            SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
-                INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
-            SQL
+        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(
+            <<<'SQL'
+                SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
+                    INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
+                SQL
         );
-        foreach($result as $hostId => $value) {
+        foreach ($result as $hostId => $value) {
             $this->pollersEncryptionReadyStatusByHosts[$hostId] = (bool) $value['is_encryption_ready'];
         }
     }
@@ -287,8 +287,8 @@ class Macro extends AbstractObject
     }
 
     /**
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      * @return int|void
      */
     private function buildCache()

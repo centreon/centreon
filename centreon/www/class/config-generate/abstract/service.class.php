@@ -169,6 +169,7 @@ abstract class AbstractService extends AbstractObject
 
         $service['macros'] = Macro::getInstance($this->dependencyInjector)
             ->getServiceMacroByServiceId($service['service_id'], $hostId);
+
         return 0;
     }
 
@@ -177,23 +178,23 @@ abstract class AbstractService extends AbstractObject
      *
      * @param array<string, mixed> $service
      * @param MacroDomain[] $serviceMacros
-     *
      */
     protected function formatMacros(array &$service, array $serviceMacros)
     {
-            $service['macros'] = [];
-            foreach ($serviceMacros as $serviceMacro) {
-                if ($serviceMacro->getOwnerId() === $service['service_id']) {
-                    $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->shouldBeEncrypted()
-                        ? 'encrypt::' . $this->engineContextEncryption->crypt($serviceMacro->getValue())
-                        : 'raw::' . $serviceMacro->getValue();
-                }
+        $service['macros'] = [];
+        foreach ($serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getOwnerId() === $service['service_id']) {
+                $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->shouldBeEncrypted()
+                    ? 'encrypt::' . $this->engineContextEncryption->crypt($serviceMacro->getValue())
+                    : 'raw::' . $serviceMacro->getValue();
             }
-            $service['macros']['_SERVICE_ID'] = $service['service_id'];
+        }
+        $service['macros']['_SERVICE_ID'] = $service['service_id'];
     }
 
     /**
      * @param $service
+     * @param mixed $serviceTemplateMacros
      *
      * @throws PDOException
      * @return void

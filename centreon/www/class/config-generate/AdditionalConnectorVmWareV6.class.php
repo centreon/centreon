@@ -103,11 +103,12 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     {
         $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
-        $statement = $this->backend->db->prepare(<<<SQL
-            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
-            SQL
+        $statement = $this->backend->db->prepare(
+            <<<'SQL'
+                SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+                SQL
         );
-        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
 
         $shouldBeEncrypted = (bool) $statement->fetchColumn();
@@ -152,7 +153,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                             : 'raw::' . $vSphereServer->getUsername(),
                         'password' => $shouldBeEncrypted
                             ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
-                            : 'raw::' . $vSphereServer->getPassword()
+                            : 'raw::' . $vSphereServer->getPassword(),
                     ],
                     $vmWareConfig->getVSphereServers()
                 ),

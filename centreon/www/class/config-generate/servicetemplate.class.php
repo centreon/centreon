@@ -145,6 +145,7 @@ class ServiceTemplate extends AbstractService
 
     /**
      * @param $service_id
+     * @param mixed $serviceTemplateMacros
      *
      * @throws PDOException
      * @return mixed|null

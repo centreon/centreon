@@ -51,6 +51,8 @@ abstract class AbstractObject
 {
     protected const VAULT_PATH_REGEX = '/^secret::[^:]*::/';
 
+    public EncryptionInterface $engineContextEncryption;
+
     /** @var string */
     protected string $object_name;
 
@@ -101,7 +103,37 @@ abstract class AbstractObject
 
     protected Kernel $kernel;
 
-    public EncryptionInterface $engineContextEncryption;
+    /**
+     * AbstractObject constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    protected function __construct(Container $dependencyInjector)
+    {
+        $this->kernel = Kernel::createForWeb();
+        $this->dependencyInjector = $dependencyInjector;
+        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        if ($engineContext === false) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
+            );
+        }
+        try {
+            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
+        } catch (JsonException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
+                exception: $ex
+            );
+
+            throw $ex;
+        }
+    }
 
     /**
      * Get Centreon Vault Configuration Status
@@ -144,38 +176,6 @@ abstract class AbstractObject
         }
 
         return $instances[$calledClass];
-    }
-
-    /**
-     * AbstractObject constructor
-     *
-     * @param Container $dependencyInjector
-     */
-    protected function __construct(Container $dependencyInjector)
-    {
-        $this->kernel = Kernel::createForWeb();
-        $this->dependencyInjector = $dependencyInjector;
-        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
-        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
-        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
-        if ($engineContext === false) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
-            );
-        }
-        try {
-            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
-            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
-        } catch (\JsonException $ex) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
-                exception: $ex
-            );
-
-            throw $ex;
-        }
     }
 
     /**

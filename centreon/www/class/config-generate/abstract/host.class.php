@@ -195,12 +195,13 @@ abstract class AbstractHost extends AbstractObject
             );
         }
     }
+
     /**
      * @param int $hostId
      * @param int|null $hostType
      *
-     * @return mixed
      * @throws PDOException
+     * @return mixed
      */
     protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST)
     {
@@ -210,33 +211,34 @@ abstract class AbstractHost extends AbstractObject
               ON extended_host_information.host_host_id = host.host_id
             WHERE host.host_id = :host_id
               AND host.host_activate = '1'";
-        if (!is_null($hostType)) {
+        if (! is_null($hostType)) {
             $query .= ' AND host.host_register = :host_register';
         }
         $stmt = $this->backend_instance->db->prepare($query);
         $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-        if (!is_null($hostType)) {
+        if (! is_null($hostType)) {
             // host_register is an enum
             $stmt->bindParam(':host_register', $hostType, PDO::PARAM_STR);
         }
         $stmt->execute();
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
      * @param $host
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getImages(&$host)
     {
         $media = Media::getInstance($this->dependencyInjector);
-        if (!isset($host['icon_image'])) {
+        if (! isset($host['icon_image'])) {
             $host['icon_image'] = $media->getMediaPathFromId($host['icon_image_id']);
             $host['icon_id'] = $host['icon_image_id'];
         }
-        if (!isset($host['statusmap_image'])) {
+        if (! isset($host['statusmap_image'])) {
             $host['statusmap_image'] = $media->getMediaPathFromId($host['statusmap_image_id']);
         }
     }
@@ -244,11 +246,11 @@ abstract class AbstractHost extends AbstractObject
     /**
      * @param $host
      *
-     * @return int
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int
      */
     protected function getMacros(&$host)
     {
@@ -261,6 +263,7 @@ abstract class AbstractHost extends AbstractObject
         if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
             $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
         }
+
         return 0;
     }
 
@@ -276,21 +279,21 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getHostTemplates(array &$host, bool $generate = true, array $hostTemplateMacros = []): void
     {
-        if (!isset($host['htpl'])) {
+        if (! isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
-                $this->stmt_htpl = $this->backend_instance->db->prepare("
+                $this->stmt_htpl = $this->backend_instance->db->prepare('
                 SELECT host_tpl_id
                 FROM host_template_relation
                 WHERE host_host_id = :host_id
                 ORDER BY `order` ASC
-                ");
+                ');
             }
             $this->stmt_htpl->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
             $this->stmt_htpl->execute();
             $host['htpl'] = $this->stmt_htpl->fetchAll(PDO::FETCH_COLUMN);
         }
 
-        if (!$generate) {
+        if (! $generate) {
             return;
         }
 
@@ -306,38 +309,37 @@ abstract class AbstractHost extends AbstractObject
      *
      * @param array<string, mixed> $host
      * @param Macro[] $hostMacros
-     *
      */
     protected function formatMacros(array &$host, array $hostMacros)
     {
-            $host['macros'] = [];
-            foreach ($hostMacros as $hostMacro) {
-                if ($hostMacro->getOwnerId() === $host['host_id']) {
-                    $host['macros']['_' . $hostMacro->getName()] = $hostMacro->shouldBeEncrypted()
-                        ? 'encrypt::' . $this->engineContextEncryption->crypt($hostMacro->getValue())
-                        : 'raw::' . $hostMacro->getValue();
-                }
+        $host['macros'] = [];
+        foreach ($hostMacros as $hostMacro) {
+            if ($hostMacro->getOwnerId() === $host['host_id']) {
+                $host['macros']['_' . $hostMacro->getName()] = $hostMacro->shouldBeEncrypted()
+                    ? 'encrypt::' . $this->engineContextEncryption->crypt($hostMacro->getValue())
+                    : 'raw::' . $hostMacro->getValue();
             }
-            if (isset($host['host_snmp_community'])) {
-                $shouldEncrypt = $this->backend_instance->db->fetchAssociative(<<<SQL
+        }
+        if (isset($host['host_snmp_community'])) {
+            $shouldEncrypt = $this->backend_instance->db->fetchAssociative(
+                <<<'SQL'
                     SELECT 1 FROM nagios_server ns
                         INNER JOIN ns_host_relation nsr
                         ON ns.id = nsr.nagios_server_id
                         WHERE nsr.host_host_id = :hostId
                         AND ns.is_encryption_ready = '1'
                     SQL,
-                    QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
-                );
-                $host['macros']['_SNMPCOMMUNITY'] = $shouldEncrypt !== false
-                    ? 'encrypt::' . $this->engineContextEncryption->crypt($host['host_snmp_community'])
-                    : 'raw::' . $host['host_snmp_community'];
-            }
-            if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
-                $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
-            }
-            $host['macros']['_HOST_ID'] = $host['host_id'];
+                QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
+            );
+            $host['macros']['_SNMPCOMMUNITY'] = $shouldEncrypt !== false
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($host['host_snmp_community'])
+                : 'raw::' . $host['host_snmp_community'];
+        }
+        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
+            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
+        }
+        $host['macros']['_HOST_ID'] = $host['host_id'];
     }
-
 
     /**
      * @param array $host (passing by Reference)
@@ -346,7 +348,7 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContacts(array &$host): void
     {
-        if (!isset($host['contacts_cache'])) {
+        if (! isset($host['contacts_cache'])) {
             if (is_null($this->stmt_contact)) {
                 $this->stmt_contact = $this->backend_instance->db->prepare("
                 SELECT chr.contact_id
@@ -369,7 +371,7 @@ abstract class AbstractHost extends AbstractObject
      */
     protected function getContactGroups(array &$host): void
     {
-        if (!isset($host['contact_groups_cache'])) {
+        if (! isset($host['contact_groups_cache'])) {
             if (is_null($this->stmt_cg)) {
                 $this->stmt_cg = $this->backend_instance->db->prepare("
                 SELECT contactgroup_cg_id
@@ -384,7 +386,6 @@ abstract class AbstractHost extends AbstractObject
             $host['contact_groups_cache'] = $this->stmt_cg->fetchAll(PDO::FETCH_COLUMN);
         }
     }
-
 
     /**
      * @param $host_id

@@ -353,11 +353,11 @@ function duplicateServer(array $server, array $nbrDup): void
             'SELECT * FROM `nagios_server` WHERE id = ' . (int) $serverId . ' LIMIT 1'
         );
         $rowServer = $result->fetch();
-        $rowServer["id"] = null;
-        $rowServer["ns_activate"] = '0';
-        $rowServer["is_default"] = '0';
-        $rowServer["localhost"] = '0';
-        $rowServer["is_encryption_ready"] = '0';
+        $rowServer['id'] = null;
+        $rowServer['ns_activate'] = '0';
+        $rowServer['is_default'] = '0';
+        $rowServer['localhost'] = '0';
+        $rowServer['is_encryption_ready'] = '0';
         $result->closeCursor();
 
         if (! isset($rowServer['name'])) {
@@ -515,14 +515,14 @@ function insertServer(array $data): int
 {
     global $pearDB, $centreon;
     $retValue = [];
-    $rq = "INSERT INTO `nagios_server` (`name` , `localhost`, `ns_ip_address`, `ssh_port`, " .
-        "`gorgone_communication_type`, `gorgone_port`, `nagios_bin`, `nagiostats_bin`, " .
-        "`engine_start_command`, `engine_stop_command`, `engine_restart_command`, `engine_reload_command`, " .
-        "`init_script_centreontrapd`, `snmp_trapd_path_conf`, " .
-        "`nagios_perfdata` , `broker_reload_command`, " .
-        "`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, " .
-        "`is_default`, `is_encryption_ready`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ";
-    $rq .= "VALUES (";
+    $rq = 'INSERT INTO `nagios_server` (`name` , `localhost`, `ns_ip_address`, `ssh_port`, '
+        . '`gorgone_communication_type`, `gorgone_port`, `nagios_bin`, `nagiostats_bin`, '
+        . '`engine_start_command`, `engine_stop_command`, `engine_restart_command`, `engine_reload_command`, '
+        . '`init_script_centreontrapd`, `snmp_trapd_path_conf`, '
+        . '`nagios_perfdata` , `broker_reload_command`, '
+        . '`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, '
+        . '`is_default`, `is_encryption_ready`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ';
+    $rq .= 'VALUES (';
 
     if (isset($data['name']) && $data['name'] != null) {
         $rq .= ':name, ';
@@ -651,12 +651,12 @@ function insertServer(array $data): int
     } else {
         $rq .= 'NULL, ';
     }
-    if (isset($data["is_encryption_ready"]) && $data["is_encryption_ready"] !== '0') {
+    if (isset($data['is_encryption_ready']) && $data['is_encryption_ready'] !== '0') {
         $rq .= "'1', ";
     } else {
-        $rq .="'0', ";
+        $rq .= "'0', ";
     }
-    if (isset($data["ns_activate"]["ns_activate"]) && $data["ns_activate"]["ns_activate"] != 2) {
+    if (isset($data['ns_activate']['ns_activate']) && $data['ns_activate']['ns_activate'] != 2) {
         $rq .= ':ns_activate, ';
         $retValue[':ns_activate'] = $data['ns_activate']['ns_activate'];
     } else {
@@ -978,14 +978,14 @@ function updateServer(int $id, array $data): void
     } else {
         $rq .= '0, ';
     }
-    $rq .= "`is_encryption_ready` = ";
-    if (isset($data["is_encryption_ready"]) && $data["is_encryption_ready"] === '1') {
+    $rq .= '`is_encryption_ready` = ';
+    if (isset($data['is_encryption_ready']) && $data['is_encryption_ready'] === '1') {
         $rq .= "'1', ";
     } else {
         $rq .= "'0', ";
     }
-    $rq .= "`centreonbroker_logs_path` = ";
-    if (isset($data["centreonbroker_logs_path"]) && $data["centreonbroker_logs_path"] != null) {
+    $rq .= '`centreonbroker_logs_path` = ';
+    if (isset($data['centreonbroker_logs_path']) && $data['centreonbroker_logs_path'] != null) {
         $rq .= ':centreonbroker_logs_path, ';
         $retValue[':centreonbroker_logs_path']
             = htmlentities(trim($data['centreonbroker_logs_path']), ENT_QUOTES, 'UTF-8');

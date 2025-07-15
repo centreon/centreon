@@ -36,7 +36,7 @@ $kernel = Kernel::createForWeb();
 $encryption = $kernel->getContainer()->get(EncryptionInterface::class);
 $engineContext = [
     'app_secret' => $_ENV['APP_SECRET'],
-    'salt' => $encryption->generateRandomString()
+    'salt' => $encryption->generateRandomString(),
 ];
 
 if (! file_exists($engineContextPath)) {
@@ -49,7 +49,7 @@ if (file_get_contents($engineContextPath) === '') {
     (new Filesystem())->dumpFile($engineContextPath, json_encode($engineContext));
 }
 
-
 $return['result'] = 0;
 echo json_encode($return);
+
 exit;

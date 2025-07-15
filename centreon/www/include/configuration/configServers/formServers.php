@@ -204,9 +204,9 @@ if (strcmp($serverType, 'poller') == 0) {
 
 $form->addElement('checkbox', 'is_encryption_ready', _('Is Encryption Ready ?'));
 
-$form->addElement('text', 'nagios_bin', _("Monitoring Engine Binary"), $attrsText2);
-$form->addElement('text', 'nagiostats_bin', _("Monitoring Engine Statistics Binary"), $attrsText2);
-$form->addElement('text', 'nagios_perfdata', _("Perfdata file"), $attrsText2);
+$form->addElement('text', 'nagios_bin', _('Monitoring Engine Binary'), $attrsText2);
+$form->addElement('text', 'nagiostats_bin', _('Monitoring Engine Statistics Binary'), $attrsText2);
+$form->addElement('text', 'nagios_perfdata', _('Perfdata file'), $attrsText2);
 
 $tab = [];
 if ($serverType !== 'central') {
@@ -286,30 +286,30 @@ if (isset($_GET['o']) && $_GET['o'] == SERVER_ADD) {
     ];
     $form->setDefaults(
         [
-            "name" => '',
-            "localhost" => '0',
-            "ns_ip_address" => "127.0.0.1",
-            "description" => "",
-            "nagios_bin" => $monitoring_engines["nagios_bin"],
-            "nagiostats_bin" => $monitoring_engines["nagiostats_bin"],
-            "engine_start_command" => $monitoring_engines["engine_start_command"],
-            "engine_stop_command" => $monitoring_engines["engine_stop_command"],
-            "engine_restart_command" => $monitoring_engines["engine_restart_command"],
-            "engine_reload_command" => $monitoring_engines["engine_reload_command"],
-            "ns_activate" => '1',
-            "is_default" => '0',
-            "is_encryption_ready" => '0',
-            "ssh_port" => 22,
-            "gorgone_communication_type" => ZMQ,
-            "gorgone_port" => 5556,
-            "nagios_perfdata" => $monitoring_engines["nagios_perfdata"],
-            "broker_reload_command" => "service cbd reload",
-            "centreonbroker_cfg_path" => "/etc/centreon-broker",
-            "centreonbroker_module_path" => "/usr/share/centreon/lib/centreon-broker",
-            "centreonbroker_logs_path" => "/var/log/centreon-broker",
-            "init_script_centreontrapd" => "centreontrapd",
-            "snmp_trapd_path_conf" => "/etc/snmp/centreon_traps/",
-            "remote_server_use_as_proxy" => '1'
+            'name' => '',
+            'localhost' => '0',
+            'ns_ip_address' => '127.0.0.1',
+            'description' => '',
+            'nagios_bin' => $monitoring_engines['nagios_bin'],
+            'nagiostats_bin' => $monitoring_engines['nagiostats_bin'],
+            'engine_start_command' => $monitoring_engines['engine_start_command'],
+            'engine_stop_command' => $monitoring_engines['engine_stop_command'],
+            'engine_restart_command' => $monitoring_engines['engine_restart_command'],
+            'engine_reload_command' => $monitoring_engines['engine_reload_command'],
+            'ns_activate' => '1',
+            'is_default' => '0',
+            'is_encryption_ready' => '0',
+            'ssh_port' => 22,
+            'gorgone_communication_type' => ZMQ,
+            'gorgone_port' => 5556,
+            'nagios_perfdata' => $monitoring_engines['nagios_perfdata'],
+            'broker_reload_command' => 'service cbd reload',
+            'centreonbroker_cfg_path' => '/etc/centreon-broker',
+            'centreonbroker_module_path' => '/usr/share/centreon/lib/centreon-broker',
+            'centreonbroker_logs_path' => '/var/log/centreon-broker',
+            'init_script_centreontrapd' => 'centreontrapd',
+            'snmp_trapd_path_conf' => '/etc/snmp/centreon_traps/',
+            'remote_server_use_as_proxy' => '1',
         ]
     );
 } elseif (isset($cfg_server)) {

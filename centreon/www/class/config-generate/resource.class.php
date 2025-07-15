@@ -51,7 +51,8 @@ class Resource extends AbstractObject
 
     /** @var string */
     protected string $object_name;
-    /** @var null|\PDOStatement */
+
+    /** @var null|PDOStatement */
     protected $stmt = null;
 
     /** @var string[] */
@@ -81,6 +82,7 @@ class Resource extends AbstractObject
 
     /**
      * @param $poller_id
+     * @param mixed $pollerId
      *
      * @throws PDOException
      * @return int|void
@@ -92,17 +94,18 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $this->stmt = $this->backend_instance->db->prepare(<<<SQL
-                SELECT cr.resource_name, cr.resource_line, cr.is_password, ns.is_encryption_ready
-                FROM cfg_resource_instance_relations cfgri
-                INNER JOIN cfg_resource cr
-                    ON cr.resource_id = cfgri.resource_id
-                INNER JOIN nagios_server ns
-                    ON ns.id = cfgri.instance_id
-                WHERE cfgri.instance_id = :poller_id
-                    AND cfgri.resource_id = cr.resource_id
-                    AND cr.resource_activate = '1';
-                SQL
+            $this->stmt = $this->backend_instance->db->prepare(
+                <<<'SQL'
+                    SELECT cr.resource_name, cr.resource_line, cr.is_password, ns.is_encryption_ready
+                    FROM cfg_resource_instance_relations cfgri
+                    INNER JOIN cfg_resource cr
+                        ON cr.resource_id = cfgri.resource_id
+                    INNER JOIN nagios_server ns
+                        ON ns.id = cfgri.instance_id
+                    WHERE cfgri.instance_id = :poller_id
+                        AND cfgri.resource_id = cr.resource_id
+                        AND cr.resource_activate = '1';
+                    SQL
             );
         }
         $this->stmt->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
@@ -132,11 +135,12 @@ class Resource extends AbstractObject
                 }
             }
         }
-        $statement = $this->backend_instance->db->prepare(<<<SQL
-            SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
-            SQL
+        $statement = $this->backend_instance->db->prepare(
+            <<<'SQL'
+                SELECT is_encryption_ready FROM nagios_server WHERE nagios_server.id = :pollerId
+                SQL
         );
-        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
 
         $shouldBeEncrypted = (bool) $statement->fetchColumn();
