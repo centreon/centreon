@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -118,4 +119,24 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return MonitoringServer|null
      */
     public function findCentralByIds(array $ids): ?MonitoringServer;
+
+    /**
+     * Find all the Monitoring Servers.
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Get a monitoring server.
+     *
+     * @param int $monitoringServerId
+     *
+     * @return MonitoringServer
+     *
+     * @throws RepositoryException when no Monitoring server are found.
+     */
+    public function get(int $monitoringServerId): MonitoringServer;
 }

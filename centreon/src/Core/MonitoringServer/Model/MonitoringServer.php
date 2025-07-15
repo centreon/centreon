@@ -23,18 +23,32 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Model;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use Assert\Assertion;
 
 class MonitoringServer
 {
     public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
+    public const DEFAULT_ENGINE_START_COMMAND = 'systemctl start centengine';
+    public const DEFAULT_ENGINE_STOP_COMMAND = 'systemctl stop centengine';
+    public const DEFAULT_ENGINE_RESTART_COMMAND = 'systemctl restart centengine';
+    public const DEFAULT_ENGINE_RELOAD_COMMAND = 'systemctl reload centengine';
+    public const DEFAULT_BROKER_RELOAD_COMMAND = 'systemctl reload cbd';
+    public const VALID_COMMAND_START_REGEX = '/^(?:service\s+[a-zA-Z0-9_-]+\s+start|systemctl\s+start\s+[a-zA-Z0-9_-]+)$/';
+    public const VALID_COMMAND_STOP_REGEX = '/^(?:service\s+[a-zA-Z0-9_-]+\s+stop|systemctl\s+stop\s+[a-zA-Z0-9_-]+)$/';
+    public const VALID_COMMAND_RESTART_REGEX = '/^(?:service\s+[a-zA-Z0-9_-]+\s+restart|systemctl\s+restart\s+[a-zA-Z0-9_-]+)$/';
+    public const VALID_COMMAND_RELOAD_REGEX = '/^(?:service\s+[a-zA-Z0-9_-]+\s+reload|systemctl\s+reload\s+[a-zA-Z0-9_-]+)$/';
 
     public function __construct(
         private readonly int $id,
         private string $name,
+        private ?string $engineStartCommand = null,
+        private ?string $engineStopCommand = null,
+        private ?string $engineRestartCommand = null,
+        private ?string $engineReloadCommand = null,
+        private ?string $brokerReloadCommand = null
     ){
         $this->name = trim($name);
-        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
+        Assertion::notEmpty($this->name);
     }
 
     public function getId(): int
@@ -45,5 +59,81 @@ class MonitoringServer
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getEngineStartCommand(): ?string
+    {
+        return $this->engineStartCommand;
+    }
+
+    public function setEngineStartCommand(?string $engineStartCommand): self
+    {
+        $this->engineStartCommand = $engineStartCommand;
+
+        return $this;
+    }
+
+    public function getEngineStopCommand(): ?string
+    {
+        return $this->engineStopCommand;
+    }
+
+    public function setEngineStopCommand(?string $engineStopCommand): self
+    {
+        $this->engineStopCommand = $engineStopCommand;
+
+        return $this;
+    }
+
+    public function getEngineRestartCommand(): ?string
+    {
+        return $this->engineRestartCommand;
+    }
+
+    public function setEngineRestartCommand(?string $engineRestartCommand): self
+    {
+        $this->engineRestartCommand = $engineRestartCommand;
+
+        return $this;
+    }
+
+    public function getEngineReloadCommand(): ?string
+    {
+        return $this->engineReloadCommand;
+    }
+
+    public function setEngineReloadCommand(?string $engineReloadCommand): self
+    {
+        $this->engineReloadCommand = $engineReloadCommand;
+
+        return $this;
+    }
+
+    public function getBrokerReloadCommand(): ?string
+    {
+        return $this->brokerReloadCommand;
+    }
+
+    public function setBrokerReloadCommand(?string $brokerReloadCommand): self
+    {
+        $this->brokerReloadCommand = $brokerReloadCommand;
+
+        return $this;
+    }
+
+    public function update(
+        string $name,
+        string $engineStartCommand,
+        string $engineStopCommand,
+        string $engineReloadCommand,
+        string $engineRestartCommand,
+        string $brokerReloadCommand
+    ) {
+        Assertion::notEmpty($name);
+        Assertion::regex($engineStartCommand, self::VALID_COMMAND_START_REGEX);
+        Assertion::regex($engineStopCommand, self::VALID_COMMAND_STOP_REGEX);
+        Assertion::regex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        Assertion::regex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
+        Assertion::regex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
     }
 }
