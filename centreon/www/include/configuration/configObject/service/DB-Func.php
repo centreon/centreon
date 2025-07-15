@@ -49,6 +49,8 @@ use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -88,6 +90,35 @@ function setHostChangeFlag($db, $hostId = null, $hostgroupId = null)
     $statement->execute();
 
     return null;
+}
+
+/**
+ * This is a quickform rule for checking if circular inheritance is used
+ *
+ * @return bool
+ */
+function checkCircularInheritance(int $templateId)
+{
+    global $form;
+
+    $data = $form->getSubmitValues();
+    if ((int) $data['service_id'] === $templateId) {
+        return false;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $repository = $kernel->getContainer()->get(ReadServiceTemplateRepositoryInterface::class);
+    $inheritanceArray = $repository->findParents($templateId);
+    $parentsIds = array_map(
+        static fn(ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+        $inheritanceArray
+    );
+
+    if (in_array((int) $data['service_id'], $parentsIds, true)) {
+        return false;
+    }
+
+    return true;
 }
 
 /**

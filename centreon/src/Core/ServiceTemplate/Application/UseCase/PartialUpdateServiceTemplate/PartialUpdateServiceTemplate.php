@@ -95,6 +95,7 @@ final class PartialUpdateServiceTemplate
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
+    // TODO: attribute routing
     public function __invoke(
         PartialUpdateServiceTemplateRequest $request,
         PresenterInterface $presenter
@@ -512,7 +513,10 @@ final class PartialUpdateServiceTemplate
         }
 
         if (! $request->serviceTemplateParentId instanceof NoValue) {
-            $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+            $this->validation->assertIsValidServiceTemplate(
+                $serviceTemplate->getId(),
+                $request->serviceTemplateParentId
+            );
             $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
         }
 
