@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,8 +34,7 @@
  *
  */
 
-
-require_once __DIR__ . "/webService.class.php";
+require_once __DIR__ . '/webService.class.php';
 
 /**
  * Class

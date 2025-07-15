@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\{
     FindProviderConfigurationsPresenterInterface
 };
+use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations;
 
 final class FindProviderConfigurationsController extends AbstractController
 {

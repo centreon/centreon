@@ -275,8 +275,8 @@ class ShareDashboardValidator
     private function validateContactsHaveDashboardACLs(array $dashboardContactRoles, array $contactIds): void
     {
         $dashboardContactRoleIds = array_map(
-            static fn (DashboardContactRole $dashboardContactRole) => $dashboardContactRole->getContactId()
-            , $dashboardContactRoles
+            static fn (DashboardContactRole $dashboardContactRole) => $dashboardContactRole->getContactId(),
+            $dashboardContactRoles
         );
         $contactIdsDifference = new BasicDifference($contactIds, $dashboardContactRoleIds);
         if ([] !== $contactIdsDifference->getRemoved()) {
@@ -295,8 +295,8 @@ class ShareDashboardValidator
         array $contactGroupIds
     ): void {
         $dashboardContactGroupRoleIds = array_map(
-            static fn (DashboardContactGroupRole $dashboardContactRole) => $dashboardContactRole->getContactGroupId()
-            , $dashboardContactGroupRoles
+            static fn (DashboardContactGroupRole $dashboardContactRole) => $dashboardContactRole->getContactGroupId(),
+            $dashboardContactGroupRoles
         );
         $contactGroupIdsDifference = new BasicDifference($contactGroupIds, $dashboardContactGroupRoleIds);
         if ([] !== $contactGroupIdsDifference->getRemoved()) {

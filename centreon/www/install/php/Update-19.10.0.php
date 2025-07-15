@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +19,7 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 /**
@@ -37,9 +38,9 @@ try {
             WHERE `key` = "session_expire"'
         );
     }
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $centreonLog->insertLog(
         2,
-        "UPGRADE : 19.10.0 Unable to modify session expiration value"
+        'UPGRADE : 19.10.0 Unable to modify session expiration value'
     );
 }

@@ -123,7 +123,7 @@ final class AgentConfigurationVoter extends Voter
         $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
 
         $pollerIds = array_map(
-            static fn(Poller $poller): int => $poller->id,
+            static fn (Poller $poller): int => $poller->id,
             $pollers
         );
         $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups(

@@ -34,27 +34,25 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 require_once __DIR__ . '/../../../class/centreon.class.php';
-require_once "./include/common/common-Func.php";
+require_once './include/common/common-Func.php';
 
 require_once './class/centreonFeature.class.php';
 require_once __DIR__ . '/../../../class/centreonContact.class.php';
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/Administration/myAccount/";
+// Path to the configuration dir
+$path = './include/Administration/myAccount/';
 
 // PHP Functions
-require_once $path . "DB-Func.php";
+require_once $path . 'DB-Func.php';
 
-if (!isset($centreonFeature)) {
+if (! isset($centreonFeature)) {
     $centreonFeature = new CentreonFeature($pearDB);
 }
 
@@ -64,26 +62,24 @@ if (!isset($centreonFeature)) {
 $passwordSecurityPolicy = (new CentreonContact($pearDB))->getPasswordSecurityPolicy();
 $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
 
-/*
- * Database retrieve information for the User
- */
+// Database retrieve information for the User
 $cct = [];
-if ($o == "c") {
-    $query = "SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
+if ($o == 'c') {
+    $query = 'SELECT contact_id, contact_name, contact_alias, contact_lang, contact_email, contact_pager,
         contact_autologin_key, default_page, show_deprecated_pages, contact_auth_type, show_deprecated_custom_views
-        FROM contact WHERE contact_id = :id";
+        FROM contact WHERE contact_id = :id';
     $DBRESULT = $pearDB->prepare($query);
-    $DBRESULT->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
+    $DBRESULT->bindValue(':id', $centreon->user->get_id(), PDO::PARAM_INT);
     $DBRESULT->execute();
 
     // Set base value
-    $cct = array_map("myDecode", $DBRESULT->fetch());
+    $cct = array_map('myDecode', $DBRESULT->fetch());
     $res = $pearDB->prepare(
-        "SELECT cp_key, cp_value
+        'SELECT cp_key, cp_value
         FROM contact_param
-        WHERE cp_contact_id = :id"
+        WHERE cp_contact_id = :id'
     );
-    $res->bindValue(':id', $centreon->user->get_id(), \PDO::PARAM_INT);
+    $res->bindValue(':id', $centreon->user->get_id(), PDO::PARAM_INT);
     $res->execute();
 
     while ($row = $res->fetch()) {
@@ -101,40 +97,40 @@ if ($o == "c") {
  */
 $langs = [];
 $langs = getLangs();
-$attrsText = ["size" => "35"];
+$attrsText = ['size' => '35'];
 $cct['contact_auth_type'] = $centreon->user->authType;
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-$form->addElement('header', 'title', _("Change my settings"));
-$form->addElement('header', 'information', _("General Information"));
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+$form->addElement('header', 'title', _('Change my settings'));
+$form->addElement('header', 'information', _('General Information'));
 if ($cct['contact_auth_type'] === 'local') {
-    $form->addElement('text', 'contact_name', _("Name"), $attrsText);
-    $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
-    $form->addElement('text', 'contact_email', _("Email"), $attrsText);
+    $form->addElement('text', 'contact_name', _('Name'), $attrsText);
+    $form->addElement('text', 'contact_alias', _('Alias / Login'), $attrsText);
+    $form->addElement('text', 'contact_email', _('Email'), $attrsText);
 } else {
-    $form->addElement('text', 'contact_name', _("Name"), $attrsText)->freeze();
-    $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText)->freeze();
-    $form->addElement('text', 'contact_email', _("Email"), $attrsText)->freeze();
+    $form->addElement('text', 'contact_name', _('Name'), $attrsText)->freeze();
+    $form->addElement('text', 'contact_alias', _('Alias / Login'), $attrsText)->freeze();
+    $form->addElement('text', 'contact_email', _('Email'), $attrsText)->freeze();
 }
-$form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
+$form->addElement('text', 'contact_pager', _('Pager'), $attrsText);
 if ($cct['contact_auth_type'] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
-        "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
+        'SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1'
     );
-    $statement->bindValue(':contactId', $centreon->user->get_id(), \PDO::PARAM_INT);
+    $statement->bindValue(':contactId', $centreon->user->get_id(), PDO::PARAM_INT);
     $statement->execute();
     $result = $statement->fetchColumn();
     if ($result) {
         $passwordCreationDate = (int) $result;
-        $passwordExpirationDate =
-            $passwordCreationDate + $passwordSecurityPolicy['password_expiration']['expiration_delay'];
+        $passwordExpirationDate
+            = $passwordCreationDate + $passwordSecurityPolicy['password_expiration']['expiration_delay'];
         $isPasswordExpired = time() > $passwordExpirationDate;
-        if (!in_array($centreon->user->get_alias(), $passwordSecurityPolicy['password_expiration']['excluded_users'])) {
+        if (! in_array($centreon->user->get_alias(), $passwordSecurityPolicy['password_expiration']['excluded_users'])) {
             if ($isPasswordExpired) {
-                $expirationMessage = _("Your password has expired. Please change it.");
+                $expirationMessage = _('Your password has expired. Please change it.');
             } else {
                 $expirationMessage = sprintf(
-                    _("Your password will expire in %s days."),
+                    _('Your password will expire in %s days.'),
                     ceil(($passwordExpirationDate - time()) / 86400)
                 );
             }
@@ -143,54 +139,53 @@ if ($cct['contact_auth_type'] === 'local') {
     $form->addElement(
         'password',
         'contact_passwd',
-        _("Password"),
-        ["size" => "30", "autocomplete" => "new-password", "id" => "passwd1", "onkeypress" => "resetPwdType(this);"]
+        _('Password'),
+        ['size' => '30', 'autocomplete' => 'new-password', 'id' => 'passwd1', 'onkeypress' => 'resetPwdType(this);']
     );
     $form->addElement(
         'password',
         'contact_passwd2',
-        _("Confirm Password"),
-        ["size" => "30", "autocomplete" => "new-password", "id" => "passwd2", "onkeypress" => "resetPwdType(this);"]
+        _('Confirm Password'),
+        ['size' => '30', 'autocomplete' => 'new-password', 'id' => 'passwd2', 'onkeypress' => 'resetPwdType(this);']
     );
     $form->addElement(
         'button',
         'contact_gen_passwd',
-        _("Generate"),
-        ['onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');", 'class' => 'btc bt_info']
+        _('Generate'),
+        ['onclick' => "generatePassword('passwd', '{$encodedPasswordPolicy}');", 'class' => 'btc bt_info']
     );
 }
-$form->addElement('text', 'contact_autologin_key', _("Autologin Key"), ["size" => "30", "id" => "aKey"]);
+$form->addElement('text', 'contact_autologin_key', _('Autologin Key'), ['size' => '30', 'id' => 'aKey']);
 $form->addElement(
     'button',
     'contact_gen_akey',
-    _("Generate"),
-    ['onclick' => "generatePassword('aKey', '$encodedPasswordPolicy');",
-    'class' => 'btc bt_info',
-    "id" => "generateAutologinKeyButton",
-    "data-testid" => _("Generate")]
+    _('Generate'),
+    ['onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+        'class' => 'btc bt_info',
+        'id' => 'generateAutologinKeyButton',
+        'data-testid' => _('Generate')]
 );
-$form->addElement('select', 'contact_lang', _("Language"), $langs);
-if (!isCloudPlatform()) {
-    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated monitoring pages"), null, $attrsText);
+$form->addElement('select', 'contact_lang', _('Language'), $langs);
+if (! isCloudPlatform()) {
+    $form->addElement('checkbox', 'show_deprecated_pages', _('Use deprecated monitoring pages'), null, $attrsText);
 }
-$form->addElement('checkbox', 'show_deprecated_custom_views', _("Use deprecated custom views"), null, $attrsText);
+$form->addElement('checkbox', 'show_deprecated_custom_views', _('Use deprecated custom views'), null, $attrsText);
 
-
-/* ------------------------ Topoogy ---------------------------- */
+// ------------------------ Topoogy ----------------------------
 $pages = [];
 $aclUser = $centreon->user->lcaTStr;
-if (!empty($aclUser)) {
+if (! empty($aclUser)) {
     $acls = array_flip(explode(',', $aclUser));
     /**
-    * Transform [1, 2, 101, 202, 10101, 20201] to :
-    *
-    * 1
-    *   101
-    *     10101
-    * 2
-    *   202
-    *     20201
-    */
+     * Transform [1, 2, 101, 202, 10101, 20201] to :
+     *
+     * 1
+     *   101
+     *     10101
+     * 2
+     *   202
+     *     20201
+     */
     $createTopologyTree = function (array $topologies): array {
         ksort($topologies, \SORT_ASC);
         $parentsLvl = [];
@@ -199,29 +194,29 @@ if (!empty($aclUser)) {
         foreach (array_keys($topologies) as $page) {
             if (strlen($page) == 1) {
                 // MENU level 1
-                if (!array_key_exists($page, $parentsLvl)) {
+                if (! array_key_exists($page, $parentsLvl)) {
                     $parentsLvl[$page] = [];
                 }
             } elseif (strlen($page) == 3) {
                 // MENU level 2
                 $parentLvl1 = substr($page, 0, 1);
-                if (!array_key_exists($parentLvl1, $parentsLvl)) {
+                if (! array_key_exists($parentLvl1, $parentsLvl)) {
                     $parentsLvl[$parentLvl1] = [];
                 }
-                if (!array_key_exists($page, $parentsLvl[$parentLvl1])) {
+                if (! array_key_exists($page, $parentsLvl[$parentLvl1])) {
                     $parentsLvl[$parentLvl1][$page] = [];
                 }
             } elseif (strlen($page) == 5) {
                 // MENU level 3
                 $parentLvl1 = substr($page, 0, 1);
                 $parentLvl2 = substr($page, 0, 3);
-                if (!array_key_exists($parentLvl1, $parentsLvl)) {
+                if (! array_key_exists($parentLvl1, $parentsLvl)) {
                     $parentsLvl[$parentLvl1] = [];
                 }
-                if (!array_key_exists($parentLvl2, $parentsLvl[$parentLvl1])) {
+                if (! array_key_exists($parentLvl2, $parentsLvl[$parentLvl1])) {
                     $parentsLvl[$parentLvl1][$parentLvl2] = [];
                 }
-                if (!in_array($page, $parentsLvl[$parentLvl1][$parentLvl2])) {
+                if (! in_array($page, $parentsLvl[$parentLvl1][$parentLvl2])) {
                     $parentsLvl[$parentLvl1][$parentLvl2][] = $page;
                 }
             }
@@ -241,6 +236,7 @@ if (!empty($aclUser)) {
                 break;
             }
         }
+
         return $isCanBeShow;
     };
 
@@ -250,17 +246,17 @@ if (!empty($aclUser)) {
      * Retrieve the name of all topologies available for this user
      */
     $aclResults = $pearDB->query(
-        "SELECT topology_page, topology_name, topology_show "
-        . "FROM topology "
-        . "WHERE topology_page IN ($aclUser)"
+        'SELECT topology_page, topology_name, topology_show '
+        . 'FROM topology '
+        . "WHERE topology_page IN ({$aclUser})"
     );
 
     $translatedPages = [];
 
-    while ($acl = $aclResults->fetch(\PDO::FETCH_ASSOC)) {
+    while ($acl = $aclResults->fetch(PDO::FETCH_ASSOC)) {
         $translatedPages[$acl['topology_page']] = [
             'i18n' => _($acl['topology_name']),
-            'show' => ((int)$acl['topology_show'] === 1)
+            'show' => ((int) $acl['topology_show'] === 1),
         ];
     }
 
@@ -306,18 +302,18 @@ if (!empty($aclUser)) {
             // select parent from level 2 if level 3 is missing
             $pageId = $parentLvl3 ?: $parentLvl2;
 
-            if (!$isThirdLevelMenu && $translatedPages[$pageId]['show']) {
+            if (! $isThirdLevelMenu && $translatedPages[$pageId]['show']) {
                 /**
                  * We show only first and second level
                  */
-                $pages[$pageId] =
-                    $parentNameLvl1 . ' > ' . $parentNameLvl2;
+                $pages[$pageId]
+                    = $parentNameLvl1 . ' > ' . $parentNameLvl2;
             }
         }
     }
 }
 
-$form->addElement('select', 'default_page', _("Default page"), $pages);
+$form->addElement('select', 'default_page', _('Default page'), $pages);
 
 $form->addElement('checkbox', 'monitoring_host_notification_0', _('Show Up status'));
 $form->addElement('checkbox', 'monitoring_host_notification_1', _('Show Down status'));
@@ -327,7 +323,7 @@ $form->addElement('checkbox', 'monitoring_svc_notification_1', _('Show Warning s
 $form->addElement('checkbox', 'monitoring_svc_notification_2', _('Show Critical status'));
 $form->addElement('checkbox', 'monitoring_svc_notification_3', _('Show Unknown status'));
 
-/* Add feature information */
+// Add feature information
 $features = $centreonFeature->getFeatures();
 $defaultFeatures = [];
 foreach ($features as $feature) {
@@ -338,35 +334,35 @@ foreach ($features as $feature) {
     $defaultFeatures['features'][$feature['name']][$feature['version']] = '0';
 }
 
-$sound_files = scandir(_CENTREON_PATH_ . "www/sounds/");
+$sound_files = scandir(_CENTREON_PATH_ . 'www/sounds/');
 $sounds = [null => null];
 foreach ($sound_files as $f) {
-    if ($f == "." || $f == "..") {
+    if ($f == '.' || $f == '..') {
         continue;
     }
     $info = pathinfo($f);
-    $fname = basename($f, "." . $info['extension']);
+    $fname = basename($f, '.' . $info['extension']);
     $sounds[$fname] = $fname;
 }
-$form->addElement('select', 'monitoring_sound_host_notification_0', _("Sound for Up status"), $sounds);
-$form->addElement('select', 'monitoring_sound_host_notification_1', _("Sound for Down status"), $sounds);
-$form->addElement('select', 'monitoring_sound_host_notification_2', _("Sound for Unreachable status"), $sounds);
-$form->addElement('select', 'monitoring_sound_svc_notification_0', _("Sound for OK status"), $sounds);
-$form->addElement('select', 'monitoring_sound_svc_notification_1', _("Sound for Warning status"), $sounds);
-$form->addElement('select', 'monitoring_sound_svc_notification_2', _("Sound for Critical status"), $sounds);
-$form->addElement('select', 'monitoring_sound_svc_notification_3', _("Sound for Unknown status"), $sounds);
+$form->addElement('select', 'monitoring_sound_host_notification_0', _('Sound for Up status'), $sounds);
+$form->addElement('select', 'monitoring_sound_host_notification_1', _('Sound for Down status'), $sounds);
+$form->addElement('select', 'monitoring_sound_host_notification_2', _('Sound for Unreachable status'), $sounds);
+$form->addElement('select', 'monitoring_sound_svc_notification_0', _('Sound for OK status'), $sounds);
+$form->addElement('select', 'monitoring_sound_svc_notification_1', _('Sound for Warning status'), $sounds);
+$form->addElement('select', 'monitoring_sound_svc_notification_2', _('Sound for Critical status'), $sounds);
+$form->addElement('select', 'monitoring_sound_svc_notification_3', _('Sound for Unknown status'), $sounds);
 
 $availableRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list';
-$defaultRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone' .
-    '&action=defaultValues&target=contact&field=contact_location&id=' . $centreon->user->get_id();
+$defaultRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timezone'
+    . '&action=defaultValues&target=contact&field=contact_location&id=' . $centreon->user->get_id();
 $attrTimezones = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $availableRoute,
     'defaultDatasetRoute' => $defaultRoute,
     'multiple' => false,
-    'linkedObject' => 'centreonGMT'
+    'linkedObject' => 'centreonGMT',
 ];
-$form->addElement('select2', 'contact_location', _("Timezone / Location"), [], $attrTimezones);
+$form->addElement('select2', 'contact_location', _('Timezone / Location'), [], $attrTimezones);
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -375,22 +371,23 @@ function myReplace()
 {
     global $form;
     $ret = $form->getSubmitValues();
-    return (str_replace(" ", "_", $ret["contact_name"]));
+
+    return str_replace(' ', '_', $ret['contact_name']);
 }
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('contact_name', 'myReplace');
-$form->addRule('contact_name', _("Compulsory name"), 'required');
-$form->addRule('contact_alias', _("Compulsory alias"), 'required');
-$form->addRule('contact_email', _("Valid Email"), 'required');
+$form->addRule('contact_name', _('Compulsory name'), 'required');
+$form->addRule('contact_alias', _('Compulsory alias'), 'required');
+$form->addRule('contact_email', _('Valid Email'), 'required');
 if ($cct['contact_auth_type'] === 'local') {
-    $form->addRule(['contact_passwd', 'contact_passwd2'], _("Passwords do not match"), 'compare');
+    $form->addRule(['contact_passwd', 'contact_passwd2'], _('Passwords do not match'), 'compare');
 }
 $form->registerRule('exist', 'callback', 'testExistence');
-$form->addRule('contact_name', _("Name already in use"), 'exist');
+$form->addRule('contact_name', _('Name already in use'), 'exist');
 $form->registerRule('existAlias', 'callback', 'testAliasExistence');
-$form->addRule('contact_alias', _("Name already in use"), 'existAlias');
-$form->setRequiredNote("<font style='color: red;'>*</font>" . _("Required fields"));
+$form->addRule('contact_alias', _('Name already in use'), 'existAlias');
+$form->setRequiredNote("<font style='color: red;'>*</font>" . _('Required fields'));
 $form->addFormRule('checkAutologinValue');
 
 // Smarty template initialization
@@ -403,11 +400,11 @@ $cct['contact_name'] = CentreonUtils::escapeSecure($cct['contact_name'], Centreo
 $cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
 
 // Modify a contact information
-if ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+if ($o == 'c') {
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($cct);
-    /* Add saved value for feature testing */
+    // Add saved value for feature testing
     $userFeatures = $centreonFeature->userFeaturesValue($centreon->user->get_id());
     $defaultUserFeatures = [];
     foreach ($userFeatures as $feature) {
@@ -432,47 +429,49 @@ if ($form->validate()) {
 
     $centreonFeature->saveUserFeaturesValue($centreon->user->get_id(), $features);
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
     );
     $form->freeze();
 
-    $showDeprecatedPages = $form->getSubmitValue("show_deprecated_pages") ? '1' : '0';
-    $showDeprecatedCustomViews = $form->getSubmitValue("show_deprecated_custom_views") ?: '0';
+    $showDeprecatedPages = $form->getSubmitValue('show_deprecated_pages') ? '1' : '0';
+    $showDeprecatedCustomViews = $form->getSubmitValue('show_deprecated_custom_views') ?: '0';
     if (
-        $form->getSubmitValue("contact_lang") !== $cct['contact_lang']
+        $form->getSubmitValue('contact_lang') !== $cct['contact_lang']
             || $showDeprecatedPages !== $cct['show_deprecated_pages']
             || $showDeprecatedCustomViews !== $cct['show_deprecated_custom_views']
     ) {
         $contactStatement = $pearDB->prepare(
             'SELECT * FROM contact WHERE contact_id = :contact_id'
         );
-        $contactStatement->bindValue(':contact_id', $centreon->user->get_id(), \PDO::PARAM_INT);
+        $contactStatement->bindValue(':contact_id', $centreon->user->get_id(), PDO::PARAM_INT);
         $contactStatement->execute();
         if ($contact = $contactStatement->fetch()) {
-            $_SESSION['centreon'] = new \Centreon($contact);
+            $_SESSION['centreon'] = new Centreon($contact);
         }
         $_SESSION[$sessionKeyFreeze] = true;
         echo '<script>parent.location.href = "main.php?p=' . $p . '&o=c";</script>';
+
         exit;
-    } elseif (array_key_exists($sessionKeyFreeze, $_SESSION)) {
+    }
+    if (array_key_exists($sessionKeyFreeze, $_SESSION)) {
         unset($_SESSION[$sessionKeyFreeze]);
     }
 } elseif (array_key_exists($sessionKeyFreeze, $_SESSION) && $_SESSION[$sessionKeyFreeze] === true) {
     unset($_SESSION[$sessionKeyFreeze]);
     $o = null;
     $form->addElement(
-        "button",
-        "change",
-        _("Modify"),
-        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
+        'button',
+        'change',
+        _('Modify'),
+        ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=c'", 'class' => 'btc bt_info']
     );
     $form->freeze();
 }
 
-//Apply a template definition
+// Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
@@ -487,17 +486,15 @@ $tpl->assign('featuresFlipping', (count($features) > 0));
 $tpl->assign('contactIsAdmin', $centreon->user->get_admin());
 $tpl->assign('isRemote', $isRemote);
 
-/*
- * prepare help texts
- */
-$helptext = "";
-include_once("help.php");
+// prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
-$tpl->display("formMyAccount.ihtml");
+$tpl->display('formMyAccount.ihtml');
 
 ?>
 <script type='text/javascript' src='./include/common/javascript/keygen.js'></script>

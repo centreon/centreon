@@ -39,9 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class GorgoneController extends AbstractFOSRestController
 {
-    /**
-     * @var GorgoneServiceInterface
-     */
+    /** @var GorgoneServiceInterface */
     private $gorgoneService;
 
     /**
@@ -61,13 +59,13 @@ class GorgoneController extends AbstractFOSRestController
      *
      * @param string $commandName Name of the Gorgone command
      * @param Request $request
-     * @return View
      * @throws \Exception
+     * @return View
      */
     public function sendCommand(int $pollerId, string $commandName, Request $request): View
     {
         $requestBody = json_decode((string) $request->getContent(), false);
-        if (!empty($requestBody)) {
+        if (! empty($requestBody)) {
             $validationFile = $this->findValidationFileByCommandName($commandName);
             if ($validationFile !== null) {
                 $validator = new Validator();
@@ -77,11 +75,12 @@ class GorgoneController extends AbstractFOSRestController
                     Constraint::CHECK_MODE_VALIDATE_SCHEMA
                 );
 
-                if (!$validator->isValid()) {
+                if (! $validator->isValid()) {
                     $message = '';
                     foreach ($validator->getErrors() as $error) {
                         $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
                     }
+
                     throw new GorgoneException($message);
                 }
             }
@@ -90,22 +89,22 @@ class GorgoneController extends AbstractFOSRestController
         $command = $this->createFromName(
             $commandName,
             $pollerId,
-            !empty($request->getContent()) ? (string) $request->getContent() : null
+            ! empty($request->getContent()) ? (string) $request->getContent() : null
         );
         $gorgoneResponse = $this->gorgoneService->send($command);
 
         return $this->view([
             'token' => $gorgoneResponse->getCommand() !== null
                 ? $gorgoneResponse->getCommand()->getToken()
-                : null
+                : null,
         ]);
     }
 
     /**
      * Entry point to get the response to a specific command
      *
-     * @param int    $pollerId Id of the poller for which the command is intended
-     * @param string $token    Token of the command attributed by the Gorgone server
+     * @param int $pollerId Id of the poller for which the command is intended
+     * @param string $token Token of the command attributed by the Gorgone server
      *
      * @return View
      */
@@ -121,7 +120,7 @@ class GorgoneController extends AbstractFOSRestController
         return $this->view(array_merge($responseTemplate, [
             'message' => $gorgoneResponse->getMessage(),
             'token' => $gorgoneResponse->getToken(),
-            'data' => $gorgoneResponse->getActionLogs()
+            'data' => $gorgoneResponse->getActionLogs(),
         ]));
     }
 
@@ -149,8 +148,8 @@ class GorgoneController extends AbstractFOSRestController
      * Will be implemented with the future commands of Gorgone server.
      *
      * @param string $commandName Command name
-     * @return string|null Return the path of the validation file or null if not found
      * @throws GorgoneException
+     * @return string|null Return the path of the validation file or null if not found
      */
     private function findValidationFileByCommandName(string $commandName): ?string
     {

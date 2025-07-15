@@ -47,20 +47,20 @@ class AclGroupRepository
      *
      * @param int $actionId
      *
-     * @return int[]
      * @throws PDOException
+     * @return int[]
      */
     public function getAclGroupIdsByActionId(int $actionId): array
     {
         $aclGroupIds = [];
         $statement = $this->db->prepare(
-            "SELECT DISTINCT acl_group_id FROM acl_group_actions_relations
-                WHERE acl_action_id = :aclActionId"
+            'SELECT DISTINCT acl_group_id FROM acl_group_actions_relations
+                WHERE acl_action_id = :aclActionId'
         );
-        $statement->bindValue(":aclActionId", $actionId, PDO::PARAM_INT);
+        $statement->bindValue(':aclActionId', $actionId, PDO::PARAM_INT);
         $statement->execute();
         while ($result = $statement->fetch()) {
-            $aclGroupIds[] = (int) $result["acl_group_id"];
+            $aclGroupIds[] = (int) $result['acl_group_id'];
         }
 
         return $aclGroupIds;
@@ -71,9 +71,9 @@ class AclGroupRepository
      *
      * @param array $aclGroupIds
      *
-     * @return int[]
      * @throws InvalidArgumentException
      * @throws PDOException
+     * @return int[]
      */
     public function getUsersIdsByAclGroupIds(array $aclGroupIds): array
     {
@@ -85,16 +85,16 @@ class AclGroupRepository
         foreach ($aclGroupIds as $index => $aclGroupId) {
             $sanitizedAclGroupId = filter_var($aclGroupId, FILTER_VALIDATE_INT);
             if ($sanitizedAclGroupId === false) {
-                throw new InvalidArgumentException("Invalid ID");
+                throw new InvalidArgumentException('Invalid ID');
             }
-            $queryValues[":acl_group_id_" . $index] = $sanitizedAclGroupId;
+            $queryValues[':acl_group_id_' . $index] = $sanitizedAclGroupId;
         }
 
-        $aclGroupIdQueryString = "(" . implode(", ", array_keys($queryValues)) . ")";
+        $aclGroupIdQueryString = '(' . implode(', ', array_keys($queryValues)) . ')';
         $statement = $this->db->prepare(
             "SELECT DISTINCT `contact_contact_id` FROM `acl_group_contacts_relations`
                 WHERE `acl_group_id`
-                IN $aclGroupIdQueryString"
+                IN {$aclGroupIdQueryString}"
         );
         foreach ($queryValues as $bindParameter => $bindValue) {
             $statement->bindValue($bindParameter, $bindValue, PDO::PARAM_INT);
@@ -102,7 +102,7 @@ class AclGroupRepository
         $statement->execute();
         $userIds = [];
         while ($result = $statement->fetch()) {
-            $userIds[] = (int) $result["contact_contact_id"];
+            $userIds[] = (int) $result['contact_contact_id'];
         }
 
         return $userIds;

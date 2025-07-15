@@ -39,7 +39,7 @@ class HypermediaCreator
             ? iterator_to_array($hypermediaProviders)
             : $hypermediaProviders;
 
-            $this->hypermediaProviders = $hypermediaProviders;
+        $this->hypermediaProviders = $hypermediaProviders;
     }
 
     public function setCustomUser(ContactInterface $user): void

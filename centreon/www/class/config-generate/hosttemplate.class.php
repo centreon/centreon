@@ -48,10 +48,13 @@ class HostTemplate extends AbstractHost
 {
     /** @var array|null */
     public $hosts = null;
+
     /** @var string */
     protected $generate_filename = 'hostTemplates.cfg';
+
     /** @var string */
     protected string $object_name = 'host';
+
     /** @var string */
     protected $attributes_select = '
         host_id,
@@ -103,8 +106,10 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords as 3d_coords,
         host_acknowledgement_timeout as acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributes_write = ['name', 'alias', 'display_name', 'timezone', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'statusmap_image', '2d_coords', '3d_coords', 'acknowledgement_timeout'];
+
     /** @var string[] */
     protected $attributes_array = [
         'use',
@@ -132,22 +137,6 @@ class HostTemplate extends AbstractHost
         if (isset($row['host_id'])) {
             $this->hosts[$row['host_id']] = $row;
         }
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function getHosts(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT {$this->attributes_select}
-            FROM host
-            LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
-            WHERE host.host_register = '0' AND host.host_activate = '1'"
-        );
-        $stmt->execute();
-        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
     /**
@@ -187,6 +176,7 @@ class HostTemplate extends AbstractHost
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return mixed|null
      */
     public function generateFromHostId($host_id, $hostTemplateMacros = [])
     {
@@ -194,14 +184,14 @@ class HostTemplate extends AbstractHost
             $this->getHosts();
         }
 
-        if (!isset($this->hosts[$host_id])) {
+        if (! isset($this->hosts[$host_id])) {
             return null;
         }
         if ($this->checkGenerate($host_id)) {
             return $this->hosts[$host_id]['name'];
         }
 
-        # Avoid infinite loop!
+        // Avoid infinite loop!
         if (isset($this->loop_htpl[$host_id])) {
             return $this->hosts[$host_id]['name'];
         }
@@ -224,16 +214,61 @@ class HostTemplate extends AbstractHost
         $this->getSeverity($host_id);
         $this->formatMacros($this->hosts[$host_id], $hostTemplateMacros);
         $this->generateObjectInFile($this->hosts[$host_id], $host_id);
+
         return $this->hosts[$host_id]['name'];
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset(): void
     {
         $this->loop_htpl = [];
         parent::reset();
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getHosts(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT {$this->attributes_select}
+            FROM host
+            LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
+            WHERE host.host_register = '0' AND host.host_activate = '1'"
+        );
+        $stmt->execute();
+        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param $host_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function getSeverity($host_id)
+    {
+        if (isset($this->hosts[$host_id]['severity_id'])) {
+            return 0;
+        }
+
+        $this->hosts[$host_id]['severity_id']
+            = Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
+        $severity
+            = Severity::getInstance($this->dependencyInjector)
+                ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
+        if (! is_null($severity)) {
+            $macros = [
+                '_CRITICALITY_LEVEL' => $severity['level'],
+                '_CRITICALITY_ID' => $severity['hc_id'],
+                'severity' =>  $severity['hc_id'],
+            ];
+
+            $this->hosts[$host_id]['macros'] = array_merge($this->hosts[$host_id]['macros'] ?? [], $macros);
+        }
     }
 }

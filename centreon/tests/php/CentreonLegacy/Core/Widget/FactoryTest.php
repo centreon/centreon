@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2016 Centreon
  *
@@ -14,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 namespace CentreonLegacy\Core\Widget;
 
-use Pimple\Container;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
-use CentreonLegacy\Core\Widget;
 use CentreonLegacy\ServiceProvider;
+use Pimple\Container;
 
 /**
  * Class
@@ -29,7 +30,6 @@ use CentreonLegacy\ServiceProvider;
  */
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
-
     /** @var ServiceContainer */
     public $container;
 
@@ -38,13 +38,13 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container = new ServiceContainer();
 
         $this->container[ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION] = $this
-            ->getMockBuilder(Widget\Information::class)
+            ->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->container[ServiceProvider::CENTREON_LEGACY_WIDGET_INSTALLER] = function (Container $container) {
             return function ($widgetDirectory) {
-                return $this->getMockBuilder(Widget\Installer::class)
+                return $this->getMockBuilder(Installer::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -52,7 +52,7 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
         $this->container[ServiceProvider::CENTREON_LEGACY_WIDGET_UPGRADER] = function (Container $container) {
             return function ($widgetDirectory) {
-                return $this->getMockBuilder(Widget\Upgrader::class)
+                return $this->getMockBuilder(Upgrader::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -60,7 +60,7 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
         $this->container[ServiceProvider::CENTREON_LEGACY_WIDGET_REMOVER] = function (Container $container) {
             return function ($widgetDirectory) {
-                return $this->getMockBuilder(Widget\Remover::class)
+                return $this->getMockBuilder(Remover::class)
                     ->disableOriginalConstructor()
                     ->getMock();
             };
@@ -75,25 +75,25 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
 
     public function testNewInformation(): void
     {
-        $factory = new Widget\Factory($this->container);
-        $this->assertInstanceOf(Widget\Information::class, $factory->newInformation());
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Information::class, $factory->newInformation());
     }
 
     public function testNewInstaller(): void
     {
-        $factory = new Widget\Factory($this->container);
-        $this->assertInstanceOf(Widget\Installer::class, $factory->newInstaller('MyWidget'));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Installer::class, $factory->newInstaller('MyWidget'));
     }
-    
+
     public function testNewUpgrader(): void
     {
-        $factory = new Widget\Factory($this->container);
-        $this->assertInstanceOf(Widget\Upgrader::class, $factory->newUpgrader('MyWidget'));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Upgrader::class, $factory->newUpgrader('MyWidget'));
     }
-    
+
     public function testNewRemover(): void
     {
-        $factory = new Widget\Factory($this->container);
-        $this->assertInstanceOf(Widget\Remover::class, $factory->newRemover('MyWidget'));
+        $factory = new Factory($this->container);
+        $this->assertInstanceOf(Remover::class, $factory->newRemover('MyWidget'));
     }
 }

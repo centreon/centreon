@@ -27,29 +27,19 @@ class Page
 {
     public const LEGACY_PAGE_BASE_URI = '/main.php?p=';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $url;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $urlOptions;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $pageNumber;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isReact;
 
     public function __construct(int $id, string $url, int $pageNumber, bool $isReact = false)
@@ -91,6 +81,7 @@ class Page
     public function setUrlOptions(?string $urlOptions): self
     {
         $this->urlOptions = $urlOptions;
+
         return $this;
     }
 
@@ -103,7 +94,7 @@ class Page
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isReact(): bool
     {

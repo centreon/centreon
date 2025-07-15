@@ -38,7 +38,8 @@ class AuthenticationTokens
         private string $sessionToken,
         private NewProviderToken|ProviderToken $providerToken,
         private NewProviderToken|ProviderToken|null $providerRefreshToken,
-    ) {}
+    ) {
+    }
 
     /**
      * @return string

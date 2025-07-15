@@ -31,8 +31,8 @@ interface ActionLogRepositoryInterface
      * Add action log.
      *
      * @param ActionLog $actionLog Action log to be added
-     * @return int Return id of the last added action
      * @throws \Exception
+     * @return int Return id of the last added action
      */
     public function addAction(ActionLog $actionLog): int;
 

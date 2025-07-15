@@ -64,6 +64,7 @@ class ContactService implements ContactServiceInterface
     public function exists(ContactInterface $contact): bool
     {
         $contact = $this->contactRepository->findById($contact->getId());
+
         return $contact !== null;
     }
 

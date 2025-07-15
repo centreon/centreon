@@ -46,16 +46,19 @@ class Resource extends AbstractObject
 {
     use VaultTrait;
 
-    /** @var null */
-    private $connectors = null;
     /** @var string */
     protected $generate_filename = 'resource.cfg';
+
     /** @var string */
     protected string $object_name;
     /** @var null|\PDOStatement */
     protected $stmt = null;
+
     /** @var string[] */
     protected $attributes_hash = ['resources'];
+
+    /** @var null */
+    private $connectors = null;
 
     /**
      * Macro constructor
@@ -79,8 +82,8 @@ class Resource extends AbstractObject
     /**
      * @param $poller_id
      *
-     * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     public function generateFromPollerId($pollerId)
     {

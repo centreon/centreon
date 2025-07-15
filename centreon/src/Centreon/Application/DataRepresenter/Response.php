@@ -44,14 +44,10 @@ use JsonSerializable;
  */
 class Response implements JsonSerializable
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $status;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     private $result;
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2017 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-require_once "Centreon/Object/ObjectRt.php";
+require_once 'Centreon/Object/ObjectRt.php';
 
 /**
  * Class
@@ -43,13 +44,16 @@ require_once "Centreon/Object/ObjectRt.php";
 class Centreon_Object_RtDowntime extends Centreon_ObjectRt
 {
     /** @var string */
-    protected $table = "downtimes";
+    protected $table = 'downtimes';
+
     /** @var string */
-    protected $name = "downtime_name";
+    protected $name = 'downtime_name';
+
     /** @var string */
-    protected $primaryKey = "downtime_id";
+    protected $primaryKey = 'downtime_id';
+
     /** @var string */
-    protected $uniqueLabelField = "comment_data";
+    protected $uniqueLabelField = 'comment_data';
 
     /**
      * @param array $hostList
@@ -59,19 +63,19 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     {
         $hostFilter = '';
 
-        if (!empty($hostList)) {
+        if (! empty($hostList)) {
             $hostFilter = "AND h.name IN ('" . implode("','", $hostList) . "') ";
         }
 
-        $query = "SELECT downtime_id, name, author, actual_start_time , actual_end_time, " .
-            "start_time, end_time, comment_data, duration, fixed " .
-            "FROM downtimes d, hosts h " .
-            "WHERE d.host_id = h.host_id " .
-            "AND d.cancelled = 0 " .
-            "AND type = 2 " .
-            "AND end_time > UNIX_TIMESTAMP(NOW()) " .
-            $hostFilter .
-            "ORDER BY actual_start_time, name";
+        $query = 'SELECT downtime_id, name, author, actual_start_time , actual_end_time, '
+            . 'start_time, end_time, comment_data, duration, fixed '
+            . 'FROM downtimes d, hosts h '
+            . 'WHERE d.host_id = h.host_id '
+            . 'AND d.cancelled = 0 '
+            . 'AND type = 2 '
+            . 'AND end_time > UNIX_TIMESTAMP(NOW()) '
+            . $hostFilter
+            . 'ORDER BY actual_start_time, name';
 
         return $this->getResult($query);
     }
@@ -84,7 +88,7 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     {
         $serviceFilter = '';
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
@@ -96,17 +100,17 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
             $serviceFilter .= implode(' AND ', $filterTab) . ') ';
         }
 
-        $query = "SELECT d.downtime_id, h.name, s.description, author, actual_start_time, actual_end_time, " .
-            "start_time, end_time, comment_data, duration, fixed " .
-            "FROM downtimes d, hosts h, services s " .
-            "WHERE d.service_id = s.service_id " .
-            "AND d.host_id = s.host_id " .
-            "AND s.host_id = h.host_id " .
-            "AND d.cancelled = 0 " .
-            "AND d.type = 1 " .
-            "AND end_time > UNIX_TIMESTAMP(NOW()) " .
-            $serviceFilter .
-            "ORDER BY actual_start_time, h.name, s.description";
+        $query = 'SELECT d.downtime_id, h.name, s.description, author, actual_start_time, actual_end_time, '
+            . 'start_time, end_time, comment_data, duration, fixed '
+            . 'FROM downtimes d, hosts h, services s '
+            . 'WHERE d.service_id = s.service_id '
+            . 'AND d.host_id = s.host_id '
+            . 'AND s.host_id = h.host_id '
+            . 'AND d.cancelled = 0 '
+            . 'AND d.type = 1 '
+            . 'AND end_time > UNIX_TIMESTAMP(NOW()) '
+            . $serviceFilter
+            . 'ORDER BY actual_start_time, h.name, s.description';
 
         return $this->getResult($query);
     }
@@ -117,8 +121,9 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      */
     public function getCurrentDowntime($id)
     {
-        $query = "SELECT * FROM downtimes WHERE ISNULL(actual_end_time) " .
-            " AND end_time > " . time() . " AND downtime_id = " . $id;
+        $query = 'SELECT * FROM downtimes WHERE ISNULL(actual_end_time) '
+            . ' AND end_time > ' . time() . ' AND downtime_id = ' . $id;
+
         return $this->getResult($query, [], 'fetch');
     }
 }

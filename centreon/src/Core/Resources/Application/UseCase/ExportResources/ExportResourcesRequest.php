@@ -33,7 +33,8 @@ use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
  * @class ExportResourcesRequest
  * @package Core\Resources\Application\UseCase\ExportResources
  */
-final readonly class ExportResourcesRequest {
+final readonly class ExportResourcesRequest
+{
     /**
      * ExportResourcesRequest constructor
      *
@@ -53,8 +54,7 @@ final readonly class ExportResourcesRequest {
         public StringCollection $columns,
         public int $contactId,
         public bool $isAdmin
-    )
-    {
+    ) {
         $this->validateRequest();
     }
 

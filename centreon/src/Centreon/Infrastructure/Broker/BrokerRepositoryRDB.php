@@ -24,14 +24,12 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Broker;
 
 use Centreon\Domain\Broker\BrokerConfiguration;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Broker\Interfaces\BrokerRepositoryInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 
 class BrokerRepositoryRDB implements BrokerRepositoryInterface
 {
-    /**
-     * @var DatabaseConnection
-     */
+    /** @var DatabaseConnection */
     private $db;
 
     /**
@@ -46,13 +44,13 @@ class BrokerRepositoryRDB implements BrokerRepositoryInterface
     /**
      * Get Broker Configurations based on the configuration Key
      *
-     * @param integer $monitoringServerId
+     * @param int $monitoringServerId
      * @param string $configKey
      * @return BrokerConfiguration[]
      */
     public function findByMonitoringServerAndParameterName(int $monitoringServerId, string $configKey): array
     {
-        $statement = $this->db->prepare("
+        $statement = $this->db->prepare('
             SELECT config_value, cfgbi.config_id AS id
                 FROM cfg_centreonbroker_info cfgbi
                 INNER JOIN cfg_centreonbroker AS cfgb
@@ -61,7 +59,7 @@ class BrokerRepositoryRDB implements BrokerRepositoryInterface
                     ON cfgb.ns_nagios_server = ns.id
                     AND ns.id = :monitoringServerId
                 WHERE config_key = :configKey
-        ");
+        ');
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
         $statement->bindValue(':configKey', $configKey, \PDO::PARAM_STR);
         $statement->execute();

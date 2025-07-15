@@ -49,6 +49,7 @@ abstract class AbstractObjectJSON
 {
     /** @var Backend|null */
     protected $backend_instance = null;
+
     /** @var string|null */
     protected $generate_filename = null;
 
@@ -69,12 +70,23 @@ abstract class AbstractObjectJSON
     protected EncryptionInterface $engineContextEncryption;
 
     /**
+     * AbstractObjectJSON constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    protected function __construct(Container $dependencyInjector)
+    {
+        $this->dependencyInjector = $dependencyInjector;
+        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+    }
+
+    /**
      * Get Centreon Vault Configuration Status
      *
-     * @return void
      * @throws LogicException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     public function getVaultConfigurationStatus(): void
     {
@@ -105,7 +117,7 @@ abstract class AbstractObjectJSON
          */
         $calledClass = static::class;
 
-        if (!isset($instances[$calledClass])) {
+        if (! isset($instances[$calledClass])) {
             $instances[$calledClass] = new $calledClass($dependencyInjector);
         }
 
@@ -154,19 +166,19 @@ abstract class AbstractObjectJSON
     /**
      * @param $dir
      *
-     * @return void
      * @throws RuntimeException
+     * @return void
      */
     protected function writeFile($dir)
     {
         $full_file = $dir . '/' . $this->generate_filename;
         if ($handle = fopen($full_file, 'w')) {
-            if (!fwrite($handle, $this->content)) {
+            if (! fwrite($handle, $this->content)) {
                 throw new RuntimeException('Cannot write to file "' . $full_file . '"');
             }
             fclose($handle);
         } else {
-            throw new Exception("Cannot open file " . $full_file);
+            throw new Exception('Cannot open file ' . $full_file);
         }
     }
 
@@ -180,6 +192,6 @@ abstract class AbstractObjectJSON
     {
         $data = $brokerType ? ['centreonBroker' => $object] : $object;
 
-        $this->content = json_encode($data, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+        $this->content = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     }
 }

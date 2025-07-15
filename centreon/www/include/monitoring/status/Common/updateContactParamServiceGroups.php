@@ -34,16 +34,16 @@
  *
  */
 
-if (!isset($_GET['uid']) || !isset($_GET['servicegroups'])) {
+if (! isset($_GET['uid']) || ! isset($_GET['servicegroups'])) {
     exit(0);
 }
 
 // sanitize parameter
 $serviceGroup = filter_var($_GET['servicegroups'], FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonSession.class.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 
 $pearDB = new CentreonDB();
 

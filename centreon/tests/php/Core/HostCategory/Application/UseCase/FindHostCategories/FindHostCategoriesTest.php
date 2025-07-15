@@ -40,7 +40,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Exception;
 
 beforeEach(function (): void {
-    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
@@ -77,7 +78,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->hostCategoryRepository
         ->expects($this->once())
         ->method('findAll')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->presenter);
 
@@ -185,7 +186,6 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
         ->and($this->presenter->getPresentedData()->hostCategories[0])
         ->toBe($this->responseArray);
 });
-
 
 it('should present a FindHostCategoriesResponse with admin user', function (): void {
     $this->user

@@ -25,8 +25,8 @@ namespace Tests\Core\Notification\Application\UseCase\DeleteNotifications;
 
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\{ForbiddenResponse, MultiStatusResponse};
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\{DeleteNotifications, DeleteNotificationsRequest};
 
@@ -68,19 +68,19 @@ it('should present a Multi-Status Response when a bulk delete action is executed
             [
                 'href' => 'centreon/api/latest/configuration/notifications/1',
                 'status' => 204,
-                'message' => null
+                'message' => null,
             ],
             [
                 'href' => 'centreon/api/latest/configuration/notifications/2',
                 'status' => 404,
-                'message' => 'Notification not found'
+                'message' => 'Notification not found',
             ],
             [
                 'href' => 'centreon/api/latest/configuration/notifications/3',
                 'status' => 500,
-                'message' => "Error while deleting a notification configuration"
-            ]
-        ]
+                'message' => 'Error while deleting a notification configuration',
+            ],
+        ],
     ];
 
     expect($this->presenter->response)

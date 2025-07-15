@@ -50,10 +50,22 @@ class Macro extends AbstractObject
 
     /** @var */
     public $stmt_host;
+
+    /** @var null */
+    protected $generate_filename = null;
+
+    /** @var string */
+    protected string $object_name;
+
+    /** @var null */
+    protected $stmt_service = null;
+
     /** @var int */
     private $use_cache = 1;
+
     /** @var int */
     private $done_cache = 0;
+
     /** @var array */
     private $macro_service_cache = [];
 
@@ -103,18 +115,50 @@ class Macro extends AbstractObject
     }
 
     /**
-     * @return void
+     * @param $service_id
+     *
+     * @return array|mixed|null
+     */
+    public function getServiceMacroByServiceId($service_id)
+    {
+        // Get from the cache
+        if (isset($this->macro_service_cache[$service_id])) {
+            return $this->macro_service_cache[$service_id];
+        }
+        if ($this->done_cache == 1) {
+            return null;
+        }
+    }
+
+    /**
+     * @param $hostId
+     *
+     * @return array|mixed|null
+     */
+    public function getHostMacroByHostId($hostId)
+    {
+        // Get from the cache
+        if (isset($this->macroHostCache[$hostId])) {
+            return $this->macroHostCache[$hostId];
+        }
+        if ($this->done_cache == 1) {
+            return null;
+        }
+    }
+
+    /**
      * @throws PDOException
+     * @return void
      */
     private function cacheMacroService(): void
     {
-        $stmt = $this->backend_instance->db->prepare("SELECT
+        $stmt = $this->backend_instance->db->prepare('SELECT
               svc_svc_id, svc_macro_name, svc_macro_value, is_password
             FROM on_demand_macro_service
-        ");
+        ');
         $stmt->execute();
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            if (!isset($this->macro_service_cache[$macro['svc_svc_id']])) {
+            if (! isset($this->macro_service_cache[$macro['svc_svc_id']])) {
                 $this->macro_service_cache[$macro['svc_svc_id']] = [];
             }
 
@@ -145,7 +189,7 @@ class Macro extends AbstractObject
     private function cacheMacroHost(): void
     {
         $stmt = $this->backend_instance->db->executeQuery(
-            <<<SQL
+            <<<'SQL'
                 SELECT
                 host_host_id, host_macro_name, host_macro_value, is_password
                 FROM on_demand_macro_host;
@@ -153,7 +197,7 @@ class Macro extends AbstractObject
         );
 
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            if (!isset($this->macroHostCache[$macro['host_host_id']])) {
+            if (! isset($this->macroHostCache[$macro['host_host_id']])) {
                 $this->macroHostCache[$macro['host_host_id']] = [];
             }
 
@@ -176,7 +220,7 @@ class Macro extends AbstractObject
         }
 
         $stmt = $this->backend_instance->db->executeQuery(
-            <<<SQL
+            <<<'SQL'
                 SELECT
                 host_id, host_snmp_community
                 FROM host
@@ -213,7 +257,7 @@ class Macro extends AbstractObject
 
     /**
      * @param array{int, array{string, string}} $macros Macros on format [ResourceId => [MacroName, MacroValue]]
-     * @return array{int, string} vault path indexed by service id.
+     * @return array{int, string} vault path indexed by service id
      */
     private function getVaultPathByResources(array $macros): array
     {
@@ -284,6 +328,7 @@ class Macro extends AbstractObject
     /**
      * @return int|void
      * @throws PDOException
+     * @return int|void
      */
     private function buildCache()
     {

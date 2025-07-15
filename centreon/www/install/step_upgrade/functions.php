@@ -43,7 +43,7 @@ function aff_header($str, $str2, $nb)
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta http-equiv="Content-Style-Type" content="text/css">
-        <title><?php print $str; ?></title>
+        <title><?php echo $str; ?></title>
         <link rel="shortcut icon" href="../img/favicon.ico">
         <link rel="stylesheet" href="./install.css" type="text/css">
         <SCRIPT language='javascript'>
@@ -73,7 +73,7 @@ function aff_header($str, $str2, $nb)
     <body rightmargin="0" topmargin="0" leftmargin="0">
     <table cellspacing="0" cellpadding="0" border="0" align="center" class="shell">
     <tr height="83" style=" background-image: url('../img/bg_banner.gif');">
-        <th width="400" height="83"><?php print $nb . ". " . $str2; ?></th>
+        <th width="400" height="83"><?php echo $nb . '. ' . $str2; ?></th>
         <th width="200" height="83" style="text-align: right; padding: 0px;">
             <a href="http://www.centreon.com" target="_blank"><img src="../img/centreon.png" alt="Oreon" border="0"
                                                                    style="padding-top:10px;padding-right:10px;"></a>
@@ -83,7 +83,7 @@ function aff_header($str, $str2, $nb)
     <td colspan="2" width="600"
     style="background-position : right; background-color: #DDDDDD; background-repeat : no-repeat;">
     <form action="upgrade.php" method="post" name="theForm" id="theForm">
-    <input type="hidden" name="step" value="<?php print $nb; ?>">
+    <input type="hidden" name="step" value="<?php echo $nb; ?>">
     <?php
 }
 

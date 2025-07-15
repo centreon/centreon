@@ -52,7 +52,7 @@ class MetaServiceMetricException extends \Exception
     }
 
     /**
-     * @param integer $metaId
+     * @param int $metaId
      * @return self
      */
     public static function unknownMetaMetricSelectionMode(int $metaId): self

@@ -36,7 +36,9 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
+    use SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;

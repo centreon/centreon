@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -32,6 +33,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Application\Webservice;
 
 use Centreon\Infrastructure\Webservice;
@@ -42,9 +44,7 @@ use Pimple\Psr11\ServiceLocator;
 
 class CentreonFrontendComponent extends Webservice\WebServiceAbstract implements WebserviceAutorizePublicInterface
 {
-    /**
-     * @var \Psr\Container\ContainerInterface
-     */
+    /** @var \Psr\Container\ContainerInterface */
     protected $services;
 
     /**
@@ -116,7 +116,7 @@ class CentreonFrontendComponent extends Webservice\WebServiceAbstract implements
     /**
      * Extract services that are in use only
      *
-     * @param \Pimple\Container $di
+     * @param Container $di
      */
     public function setDi(Container $di): void
     {

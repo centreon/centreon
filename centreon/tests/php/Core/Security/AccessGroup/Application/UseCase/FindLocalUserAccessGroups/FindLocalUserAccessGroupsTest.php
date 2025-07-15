@@ -23,16 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups;
 
-use Core\Application\Common\UseCase\ErrorResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroups;
 use Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\FindLocalUserAccessGroupsResponse;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Tests\Core\Security\AccessGroup\Application\UseCase\FindLocalUserAccessGroups\{
-    FindLocalUserAccessGroupsPresenterStub
-};
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -118,7 +115,7 @@ it('should present a FindLocalUserAccessGroupsResponse when no error occured', f
             'name' => 'access_group',
             'alias' => 'access_group_alias',
             'has_changed' => false,
-            'is_activated' => true
+            'is_activated' => true,
         ]
     );
 });
