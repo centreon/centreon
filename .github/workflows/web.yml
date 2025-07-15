@@ -529,47 +529,39 @@ jobs:
         run: |
           echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
 
-          {
-            composer stan:legacy:www -- --no-progress && echo "✅ PHPStan Legacy (www): Success" || { echo "❌ PHPStan Legacy (www): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          declare -a pids
+          declare -A pid_to_name
 
-          {
-            composer stan:legacy:src -- --no-progress && echo "✅ PHPStan Legacy (src): Success" || { echo "❌ PHPStan Legacy (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_check() {
+          local name="$1"
+          shift
+          (
+          "$@"
+          ) &
+          pid=$!
+          pids+=($pid)
+          pid_to_name[$pid]="$name"
+          }
 
-          {
-            composer stan:legacy:test -- --no-progress && echo "✅ PHPStan Legacy (test): Success" || { echo "❌ PHPStan Legacy (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
+          run_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
+          run_check "stan:legacy:src" composer stan:legacy:src -- --no-progress
+          run_check "stan:legacy:test" composer stan:legacy:test -- --no-progress
+          run_check "stan:core:src" composer stan:core:src -- --no-progress
+          run_check "stan:core:test" composer stan:core:test -- --no-progress
+          run_check "stan:new:src" composer stan:new:src -- --no-progress
+          run_check "stan:new:test" composer stan:new:test -- --no-progress
 
-          {
-            composer stan:core:src -- --no-progress && echo "✅ PHPStan Core (src): Success" || { echo "❌ PHPStan Core (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:core:test -- --no-progress && echo "✅ PHPStan Core (test): Success" || { echo "❌ PHPStan Core (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:src -- --no-progress && echo "✅ PHPStan New (src): Success" || { echo "❌ PHPStan New (src): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer stan:new:test -- --no-progress && echo "✅ PHPStan New (test): Success" || { echo "❌ PHPStan New (test): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
+          result=0
+          for pid in "${pids[@]}"; do
+          if ! wait "$pid"; then
+          echo "❌ PHPStan ${pid_to_name[$pid]}: Failed"
+          result=1
+          else
+          echo "✅ PHPStan ${pid_to_name[$pid]}: Success"
           fi
+          done
 
-          wait
+          exit $result
 
       - name: 📐 Deptrac checks
         working-directory: centreon
