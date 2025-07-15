@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,7 +34,7 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,15 +44,11 @@ require_once './class/centreon-partition/config.class.php';
 require_once './class/centreon-partition/mysqlTable.class.php';
 require_once './class/centreon-partition/options.class.php';
 
-/*
- * Get Properties
- */
+// Get Properties
 $dataCentreon = $pearDB->getProperties();
 $dataCentstorage = $pearDBO->getProperties();
 
-/*
- * Get partitioning informations
- */
+// Get partitioning informations
 $partEngine = new PartEngine();
 
 $tables = ['data_bin', 'logs', 'log_archive_host', 'log_archive_service'];
@@ -63,11 +60,11 @@ foreach ($tables as $table) {
 }
 
 // Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate("./include/options/db/");
+$tpl = SmartyBC::createSmartyTemplate('./include/options/db/');
 
 $tpl->assign('conf_centreon', $conf_centreon);
 $tpl->assign('dataCentreon', $dataCentreon);
 $tpl->assign('dataCentstorage', $dataCentstorage);
 $tpl->assign('partitioning', $partitioningInfos);
 
-$tpl->display("viewDBInfos.ihtml");
+$tpl->display('viewDBInfos.ihtml');

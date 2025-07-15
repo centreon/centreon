@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Command\Application\UseCase\MigrateAllCommands;
 
@@ -41,7 +41,7 @@ beforeEach(function (): void {
     $this->presenter = new MigrateAllCommandsPresenterStub();
 });
 
-it('should present a MigrateAllCommandsResponse', function (): void{
+it('should present a MigrateAllCommandsResponse', function (): void {
     $commandA = new Command(1, 'command-name A', 'command line A');
     $commandB = new Command(2, 'command-name B', 'command line B');
     $this->readCommandRepository

@@ -34,7 +34,7 @@
  *
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -48,11 +48,11 @@ session_start();
 
 try {
     if (
-        !isset($_SESSION['centreon']) ||
-        !isset($_POST['cmdType']) ||
-        !isset($_POST['selection']) ||
-        !isset($_POST['author']) ||
-        !isset($_POST['cmd'])
+        ! isset($_SESSION['centreon'])
+        || ! isset($_POST['cmdType'])
+        || ! isset($_POST['selection'])
+        || ! isset($_POST['author'])
+        || ! isset($_POST['cmd'])
     ) {
         throw new Exception('Missing data');
     }
@@ -89,11 +89,11 @@ try {
         if (isset($_POST['notify'])) {
             $notify = 1;
         }
-        $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;$sticky;$notify;$persistent;$author;$comment";
-        $commandSvc = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;$sticky;$notify;$persistent;$author;$comment";
+        $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;{$sticky};{$notify};{$persistent};{$author};{$comment}";
+        $commandSvc = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;{$sticky};{$notify};{$persistent};{$author};{$comment}";
         if (isset($_POST['forcecheck'])) {
-            $forceCmd = "SCHEDULE_FORCED_HOST_CHECK;%s;" . time();
-            $forceCmdSvc = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;" . time();
+            $forceCmd = 'SCHEDULE_FORCED_HOST_CHECK;%s;' . time();
+            $forceCmdSvc = 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;' . time();
         }
     } elseif ($type === 'downtime') {
         $fixed = 0;
@@ -111,19 +111,19 @@ try {
             $duration += ($_POST['minuteduration'] * 60);
         }
 
-        if (!isset($_POST['start_time']) || !isset($_POST['end_time'])) {
+        if (! isset($_POST['start_time']) || ! isset($_POST['end_time'])) {
             throw new Exception('Missing downtime start/end');
         }
         [$tmpHstart, $tmpMstart] = array_map('trim', explode(':', $_POST['start_time']));
         [$tmpHend, $tmpMend] = array_map('trim', explode(':', $_POST['end_time']));
         $dateStart = $_POST['alternativeDateStart'];
-        $start = $dateStart . " " . $tmpHstart . ":" . $tmpMstart;
+        $start = $dateStart . ' ' . $tmpHstart . ':' . $tmpMstart;
         $start = CentreonUtils::getDateTimeTimestamp($start);
         $dateEnd = $_POST['alternativeDateEnd'];
-        $end = $dateEnd . " " . $tmpHend . ":" . $tmpMend;
+        $end = $dateEnd . ' ' . $tmpHend . ':' . $tmpMend;
         $end = CentreonUtils::getDateTimeTimestamp($end);
-        $command = "SCHEDULE_HOST_DOWNTIME;%s;$start;$end;$fixed;0;$duration;$author;$comment";
-        $commandSvc = "SCHEDULE_SVC_DOWNTIME;%s;%s;$start;$end;$fixed;0;$duration;$author;$comment";
+        $command = "SCHEDULE_HOST_DOWNTIME;%s;{$start};{$end};{$fixed};0;{$duration};{$author};{$comment}";
+        $commandSvc = "SCHEDULE_SVC_DOWNTIME;%s;%s;{$start};{$end};{$fixed};0;{$duration};{$author};{$comment}";
     } else {
         throw new Exception('Unknown command');
     }
@@ -133,7 +133,7 @@ try {
             $externalCommandMethod = 'setProcessCommand';
         }
         foreach ($selections as $selection) {
-            $tmp = explode(";", $selection);
+            $tmp = explode(';', $selection);
             if (count($tmp) != 2) {
                 throw new Exception('Incorrect id format');
             }
@@ -144,22 +144,22 @@ try {
                 $svcDesc = $svcObj->getServiceDesc($svcId);
                 $pollerId = $hostObj->getHostPollerId($hostId);
                 if ($cmd === 70 || $cmd === 74) {
-                    $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                    $externalCmd->{$externalCommandMethod}(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                     if (isset($forceCmdSvc)) {
-                        $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                        $externalCmd->{$externalCommandMethod}(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                     }
                 } else {
-                    $externalCmd->$externalCommandMethod(sprintf($command, $hostname), $pollerId);
+                    $externalCmd->{$externalCommandMethod}(sprintf($command, $hostname), $pollerId);
                 }
                 if (isset($forceCmd)) {
-                    $externalCmd->$externalCommandMethod(sprintf($forceCmd, $hostname), $pollerId);
+                    $externalCmd->{$externalCommandMethod}(sprintf($forceCmd, $hostname), $pollerId);
                 }
                 if (isset($_POST['processServices'])) {
                     $services = $svcObj->getServiceId(null, $hostname);
                     foreach ($services as $svcDesc => $svcId) {
-                        $externalCmd->$externalCommandMethod(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
+                        $externalCmd->{$externalCommandMethod}(sprintf($commandSvc, $hostname, $svcDesc), $pollerId);
                         if (isset($forceCmdSvc)) {
-                            $externalCmd->$externalCommandMethod(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
+                            $externalCmd->{$externalCommandMethod}(sprintf($forceCmdSvc, $hostname, $svcDesc), $pollerId);
                         }
                     }
                 }

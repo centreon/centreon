@@ -1,4 +1,5 @@
 <?php
+
 namespace Centreon\Infrastructure\Provider;
 
 use Pimple\ServiceProviderInterface;
@@ -8,7 +9,7 @@ interface AutoloadServiceProviderInterface extends ServiceProviderInterface
     /**
      * Set priority to load service provider
      *
-     * @return integer
+     * @return int
      */
     public static function order(): int;
 }

@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.09.0: ';
 $errorMessage = '';
 
@@ -33,26 +33,26 @@ $createAcc = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to create table additional_connector_configuration';
     $pearDB->executeQuery(
         <<<'SQL'
-                CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
-                    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                    `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
-                    `name` varchar(255) NOT NULL,
-                    `description` text,
-                    `parameters` JSON NOT NULL,
-                    `created_by` int(11) DEFAULT NULL,
-                    `updated_by` int(11) DEFAULT NULL,
-                    `created_at` int(11) NOT NULL,
-                    `updated_at` int(11) NOT NULL,
-                    PRIMARY KEY (`id`),
-                    UNIQUE KEY `name_unique` (`name`),
-                    CONSTRAINT `acc_contact_created_by`
-                        FOREIGN KEY (`created_by`)
-                        REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
-                    CONSTRAINT `acc_contact_updated_by`
-                        FOREIGN KEY (`updated_by`)
-                        REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-                SQL
+            CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
+                `name` varchar(255) NOT NULL,
+                `description` text,
+                `parameters` JSON NOT NULL,
+                `created_by` int(11) DEFAULT NULL,
+                `updated_by` int(11) DEFAULT NULL,
+                `created_at` int(11) NOT NULL,
+                `updated_at` int(11) NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `name_unique` (`name`),
+                CONSTRAINT `acc_contact_created_by`
+                    FOREIGN KEY (`created_by`)
+                    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+                CONSTRAINT `acc_contact_updated_by`
+                    FOREIGN KEY (`updated_by`)
+                    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
     );
 
     $errorMessage = 'Unable to create table acc_poller_relation';
@@ -81,7 +81,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
             SQL
     );
 
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`)
@@ -101,7 +101,7 @@ $insertClockWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     );
 
     $errorMessage = 'Unable to insert data into table dashboard_widgets';
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `dashboard_widgets` (`name`)
@@ -114,7 +114,7 @@ $insertClockWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
 // BROKER LOGS
 $addCentreonBrokerForeignKeyOnBrokerLogTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $constraintStatement = $pearDB->prepareQuery(
-        <<<SQL
+        <<<'SQL'
             SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
             WHERE CONSTRAINT_NAME='cfg_centreonbroker_log_ibfk_01'
             AND TABLE_SCHEMA = :db_name
@@ -128,25 +128,25 @@ $addCentreonBrokerForeignKeyOnBrokerLogTable = function (CentreonDB $pearDB) use
         // Clean no more existings broker configuration in log table
         $errorMessage = 'Unable to delete no more existing Broker Configuration';
         $pearDB->executeQuery(
-            <<<SQL
-            DELETE FROM `cfg_centreonbroker_log`
-            WHERE `id_centreonbroker` NOT IN (
-                SELECT `config_id`
-                FROM `cfg_centreonbroker`
-            )
-            SQL
+            <<<'SQL'
+                DELETE FROM `cfg_centreonbroker_log`
+                WHERE `id_centreonbroker` NOT IN (
+                    SELECT `config_id`
+                    FROM `cfg_centreonbroker`
+                )
+                SQL
         );
 
         // Add Foreign Key.
         $errorMessage = 'Unable to add foreign key on cfg_centreonbroker_log table';
         $pearDB->executeQuery(
             <<<'SQL'
-            ALTER TABLE `cfg_centreonbroker_log`
-            ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01`
-            FOREIGN KEY (`id_centreonbroker`)
-            REFERENCES `cfg_centreonbroker` (`config_id`)
-            ON DELETE CASCADE
-            SQL
+                ALTER TABLE `cfg_centreonbroker_log`
+                ADD CONSTRAINT `cfg_centreonbroker_log_ibfk_01`
+                FOREIGN KEY (`id_centreonbroker`)
+                REFERENCES `cfg_centreonbroker` (`config_id`)
+                ON DELETE CASCADE
+                SQL
         );
     }
 };
@@ -223,7 +223,7 @@ try {
     $removeDashboardFeatureFlagFromTopology($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
 
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
@@ -237,5 +237,5 @@ try {
             . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

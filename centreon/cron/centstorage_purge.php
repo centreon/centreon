@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,17 +34,19 @@
  *
  */
 
-require_once(realpath(__DIR__ . "/../www/class/centreonPurgeEngine.class.php"));
+require_once realpath(__DIR__ . '/../www/class/centreonPurgeEngine.class.php');
 
-echo "[" . date(DATE_RFC822) . "] PURGE STARTED\n";
+echo '[' . date(DATE_RFC822) . "] PURGE STARTED\n";
 
 try {
     $engine = new CentreonPurgeEngine();
     $engine->purge();
-} catch (\Exception $e) {
-    echo "[" . date(DATE_RFC822) . "] " . $e->getMessage();
+} catch (Exception $e) {
+    echo '[' . date(DATE_RFC822) . '] ' . $e->getMessage();
+
     exit(1);
 }
 
-echo "[" . date(DATE_RFC822) . "] PURGE COMPLETED\n";
+echo '[' . date(DATE_RFC822) . "] PURGE COMPLETED\n";
+
 exit(0);

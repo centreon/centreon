@@ -111,8 +111,8 @@ class CentreonLDAP extends CentreonObject
      *
      * @param string $name
      *
-     * @return mixed returns null if no ldap id is found
      * @throws PDOException
+     * @return mixed returns null if no ldap id is found
      */
     public function getLdapId($name)
     {
@@ -139,8 +139,8 @@ class CentreonLDAP extends CentreonObject
     /**
      * @param $id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getLdapServers($id)
     {
@@ -462,8 +462,8 @@ class CentreonLDAP extends CentreonObject
     /**
      * @param mixed|null $filterName
      *
-     * @return int|void
      * @throws Exception
+     * @return int|void
      */
     public function export($filterName = null)
     {
@@ -562,8 +562,8 @@ class CentreonLDAP extends CentreonObject
      * @param string $name
      * @param int $arId
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     protected function isUnique($name = '', $arId = 0)
     {

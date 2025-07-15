@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,9 +34,9 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
-require_once __DIR__ . "/webService.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php';
+require_once __DIR__ . '/webService.class.php';
 
 /**
  * Class
@@ -59,6 +60,7 @@ class CentreonWiki extends CentreonWebService
     {
         $wikiApi = new WikiApi();
         $result = $wikiApi->deletePage($this->arguments['title']);
+
         return ['result' => $result];
     }
 
@@ -72,13 +74,9 @@ class CentreonWiki extends CentreonWebService
      */
     public function authorize($action, $user, $isInternal = false)
     {
-        if (
+        return (bool) (
             parent::authorize($action, $user, $isInternal)
             || ($user && $user->hasAccessRestApiConfiguration())
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 }

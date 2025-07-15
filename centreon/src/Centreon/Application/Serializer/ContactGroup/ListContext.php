@@ -37,7 +37,7 @@ use Centreon\Domain\Entity\ContactGroup;
 class ListContext implements SerializerContextInterface
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function context(): array
     {

@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\MonitoringServer\API\Model;
 
-use Centreon\Infrastructure\MonitoringServer\API\Model\RealTimeMonitoringServer;
 use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTimeMonitoringServersResponse;
 
 /**
@@ -51,6 +50,7 @@ class RealTimeMonitoringServerFactory
 
             $realTimeMonitoringServers[] = $newRealTimeMonitoringServer;
         }
+
         return $realTimeMonitoringServers;
     }
 }

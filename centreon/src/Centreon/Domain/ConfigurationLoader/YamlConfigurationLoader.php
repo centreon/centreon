@@ -34,9 +34,7 @@ class YamlConfigurationLoader
 {
     private const INCLUDE_TOKEN = 'include';
 
-    /**
-     * @var string Root configuration file
-     */
+    /** @var string Root configuration file */
     private $configurationFile;
 
     /**
@@ -68,8 +66,8 @@ class YamlConfigurationLoader
     /**
      * Iterate each key and value to detect the request to load another configuration file.
      *
-     * @param array  $configuration     Configuration data to analyse
-     * @param string $currentDirectory  Directory of the currently analyzed configuration file
+     * @param array $configuration Configuration data to analyse
+     * @param string $currentDirectory Directory of the currently analyzed configuration file
      * @param string $historyLoadedFile History of analyzed configuration files
      *
      * @return array Returns the configuration data including other configuration data from the include files
@@ -89,7 +87,7 @@ class YamlConfigurationLoader
                 }
                 $dataToIterate = $this->loadFile($fileToLoad);
 
-                if (!$this->isLoopDetected($fileToLoad, $historyLoadedFile)) {
+                if (! $this->isLoopDetected($fileToLoad, $historyLoadedFile)) {
                     $configuration[$key] = $this->iterateConfiguration(
                         $dataToIterate,
                         realpath(dirname($fileToLoad)),
@@ -97,6 +95,7 @@ class YamlConfigurationLoader
                     );
                 } else {
                     $loadedFile = explode('::', $historyLoadedFile);
+
                     throw new \Exception('Loop detected in file ' . array_pop($loadedFile));
                 }
             }
@@ -108,7 +107,7 @@ class YamlConfigurationLoader
     /**
      * Indicates if a loop is detected.
      *
-     * @param string $fileToLoad        File to load
+     * @param string $fileToLoad File to load
      * @param string $historyLoadedFile File load History
      *
      * @return bool Returns TRUE if a loop is detected
@@ -130,10 +129,10 @@ class YamlConfigurationLoader
      */
     private function loadFile(string $yamlFile): array
     {
-        if (!file_exists($yamlFile)) {
+        if (! file_exists($yamlFile)) {
             throw new \Exception('The configuration file \'' . $yamlFile . '\' does not exists');
         }
 
-        return (array)Yaml::parseFile($yamlFile, Yaml::PARSE_CUSTOM_TAGS);
+        return (array) Yaml::parseFile($yamlFile, Yaml::PARSE_CUSTOM_TAGS);
     }
 }

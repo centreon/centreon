@@ -49,8 +49,7 @@ abstract class NewToken
         private readonly TrimmedString $creatorName,
         private readonly ?\DateTimeInterface $expirationDate,
         private readonly TokenTypeEnum $type,
-    )
-    {
+    ) {
         $this->creationDate = new \DateTimeImmutable();
         if ($this->expirationDate !== null) {
             Assertion::minDate($this->expirationDate, $this->creationDate, "{$this->shortName}::expirationDate");

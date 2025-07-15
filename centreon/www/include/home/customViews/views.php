@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -30,10 +31,9 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
@@ -45,17 +45,17 @@ session_start();
 session_write_close();
 
 try {
-    if (!isset($_SESSION['centreon'])) {
+    if (! isset($_SESSION['centreon'])) {
         throw new Exception('No session found');
     }
     $centreon = $_SESSION['centreon'];
     $db = new CentreonDB();
     $locale = $centreon->user->get_lang();
-    putenv("LANG=$locale");
+    putenv("LANG={$locale}");
     setlocale(LC_ALL, $locale);
-    bindtextdomain("messages", _CENTREON_PATH_ . "www/locale/");
-    bind_textdomain_codeset("messages", "UTF-8");
-    textdomain("messages");
+    bindtextdomain('messages', _CENTREON_PATH_ . 'www/locale/');
+    bind_textdomain_codeset('messages', 'UTF-8');
+    textdomain('messages');
 
     if (CentreonSession::checkSession(session_id(), $db) === false) {
         throw new Exception('Invalid session');
@@ -64,48 +64,48 @@ try {
     $widgetObj = new CentreonWidget($centreon, $db);
 
     // Smarty template initialization
-    $path = _CENTREON_PATH_ . "www/include/home/customViews/layouts/";
+    $path = _CENTREON_PATH_ . 'www/include/home/customViews/layouts/';
     $template = SmartyBC::createSmartyTemplate($path, './');
 
     $viewId = $viewObj->getCurrentView();
     $permission = $viewObj->checkPermission($viewId) ? 1 : 0;
     $ownership = $viewObj->checkOwnership($viewId) ? 1 : 0;
     $widgets = [];
-    $columnClass = "column_0";
+    $columnClass = 'column_0';
     $widgetNumber = 0;
     if ($viewId) {
         $columnClass = $viewObj->getLayout($viewId);
         $widgets = $widgetObj->getWidgetsFromViewId($viewId);
         foreach ($widgets as $widgetId => $val) {
             if (isset($widgets[$widgetId]['widget_order']) && $widgets[$widgetId]['widget_order']) {
-                $tmp = explode("_", $widgets[$widgetId]['widget_order']);
+                $tmp = explode('_', $widgets[$widgetId]['widget_order']);
                 $widgets[$widgetId]['column'] = $tmp[0];
             } else {
                 $widgets[$widgetId]['column'] = 0;
             }
-            if (!$permission && $widgets[$widgetId]['title'] === "") {
-                $widgets[$widgetId]['title'] = "&nbsp;";
+            if (! $permission && $widgets[$widgetId]['title'] === '') {
+                $widgets[$widgetId]['title'] = '&nbsp;';
             }
             $widgetNumber++;
         }
-        $template->assign("columnClass", $columnClass);
-        $template->assign("jsonWidgets", json_encode($widgets));
-        $template->assign("widgets", $widgets);
+        $template->assign('columnClass', $columnClass);
+        $template->assign('jsonWidgets', json_encode($widgets));
+        $template->assign('widgets', $widgets);
     }
-    $template->assign("permission", $permission);
-    $template->assign("widgetNumber", $widgetNumber);
-    $template->assign("ownership", $ownership);
-    $template->assign("userId", $centreon->user->user_id);
-    $template->assign("view_id", $viewId);
+    $template->assign('permission', $permission);
+    $template->assign('widgetNumber', $widgetNumber);
+    $template->assign('ownership', $ownership);
+    $template->assign('userId', $centreon->user->user_id);
+    $template->assign('view_id', $viewId);
     $template->assign(
-        "error_msg",
-        _("No widget configured in this view. Please add a new widget with the \"Add widget\" button.")
+        'error_msg',
+        _('No widget configured in this view. Please add a new widget with the "Add widget" button.')
     );
     $template->assign(
         'helpIcon',
-        returnSvg("www/img/icons/question_2.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
+        returnSvg('www/img/icons/question_2.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18)
     );
-    $template->display($columnClass . ".ihtml");
+    $template->display($columnClass . '.ihtml');
 } catch (CentreonWidgetException|CentreonCustomViewException|Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
 }

@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Metric\Application\UseCase\FindMetricsByService;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServiceResponse;
 use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServicePresenterInterface;
+use Core\Metric\Application\UseCase\FindMetricsByService\FindMetricsByServiceResponse;
 
 class FindMetricsByServicePresenterStub implements FindMetricsByServicePresenterInterface
 {

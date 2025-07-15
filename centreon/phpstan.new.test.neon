@@ -1,0 +1,10 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+
+parameters:
+
+    level: max
+
+    paths:
+        #- tests/php/Adaptation // TODO adaptation tests are not ready yet, to fix later to move it here (core:test)
+        - tests/php/App

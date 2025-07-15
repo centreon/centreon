@@ -517,7 +517,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }, []);
 
         if (! empty($subRequestForTags)) {
-            $subRequests = array_map(fn($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
+            $subRequests = array_map(fn ($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
             $request .= ' INNER JOIN (';
             $request .= implode(' INTERSECT ', $subRequests);
             $request .= ') AS t ON t.resource_id = r.resource_id';
@@ -558,7 +558,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL_WRAP;
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

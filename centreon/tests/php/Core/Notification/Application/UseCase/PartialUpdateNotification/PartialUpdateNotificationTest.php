@@ -36,8 +36,8 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
     PartialUpdateNotification,
     PartialUpdateNotificationRequest
 };
-use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\TimePeriod;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);

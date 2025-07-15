@@ -46,8 +46,10 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
         $request = $this->translateDbName('SELECT `value` FROM `:db`.informations WHERE `key` = "version"');
         if (($statement = $this->db->query($request)) !== false) {
             $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
             return (string) $result['value'];
         }
+
         return null;
     }
 
@@ -63,6 +65,7 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
                 $versions[(string) $result['name']] = (string) $result['version'];
             }
         }
+
         return $versions;
     }
 

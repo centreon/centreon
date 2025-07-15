@@ -53,13 +53,13 @@ use Security\Interfaces\EncryptionInterface;
  */
 class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccRepositoryInterface
 {
-    use RepositoryTrait, MonitoringServerRepositoryTrait;
+    use RepositoryTrait;
+    use MonitoringServerRepositoryTrait;
 
     public function __construct(
         private readonly EncryptionInterface $encryption,
         DatabaseConnection $db
-    )
-    {
+    ) {
         $this->db = $db;
     }
 
@@ -269,7 +269,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 

@@ -48,7 +48,8 @@ class CentreonStatsModules
 {
     /** @var CentreonDB */
     private $db;
-    /** @var LoggerInterface $logger */
+
+    /** @var LoggerInterface */
     private $logger;
 
     /**
@@ -63,15 +64,41 @@ class CentreonStatsModules
     }
 
     /**
+     * Get statistics from module
+     *
+     * @throws PDOException
+     * @return array The statistics of each module
+     */
+    public function getModulesStatistics()
+    {
+        $data = [];
+        $moduleObjects = $this->getModuleObjects(
+            $this->getInstalledModules()
+        );
+        if (is_array($moduleObjects)) {
+            foreach ($moduleObjects as $moduleObject) {
+                try {
+                    $oModuleObject = new $moduleObject();
+                    $data[] = $oModuleObject->getStats();
+                } catch (Throwable $e) {
+                    $this->logger->error($e->getMessage(), ['context' => $e]);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Get list of installed modules
      *
-     * @return array Return the names of installed modules [['name' => string], ...]
      * @throws PDOException
+     * @return array Return the names of installed modules [['name' => string], ...]
      */
     private function getInstalledModules()
     {
         $installedModules = [];
-        $stmt = $this->db->prepare("SELECT name FROM modules_informations");
+        $stmt = $this->db->prepare('SELECT name FROM modules_informations');
         $stmt->execute();
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $installedModules[] = $value['name'];
@@ -84,7 +111,7 @@ class CentreonStatsModules
      * Get statistics module objects
      *
      * @param array $installedModules Names of installed modules for which you want
-     * to retrieve statistics module [['name' => string], ...]
+     *                                to retrieve statistics module [['name' => string], ...]
      *
      * @return array Return a list of statistics module found
      * @see    CentreonStatsModules::getInstalledModules()
@@ -110,30 +137,5 @@ class CentreonStatsModules
         }
 
         return $moduleObjects;
-    }
-
-    /**
-     * Get statistics from module
-     *
-     * @return array The statistics of each module
-     * @throws PDOException
-     */
-    public function getModulesStatistics()
-    {
-        $data = [];
-        $moduleObjects = $this->getModuleObjects(
-            $this->getInstalledModules()
-        );
-        if (is_array($moduleObjects)) {
-            foreach ($moduleObjects as $moduleObject) {
-                try {
-                    $oModuleObject = new $moduleObject();
-                    $data[] = $oModuleObject->getStats();
-                } catch (Throwable $e) {
-                    $this->logger->error($e->getMessage(), ['context' => $e]);
-                }
-            }
-        }
-        return $data;
     }
 }

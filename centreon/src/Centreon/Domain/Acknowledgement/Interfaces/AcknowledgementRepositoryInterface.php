@@ -24,8 +24,8 @@ namespace Centreon\Domain\Acknowledgement\Interfaces;
 
 use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface AcknowledgementRepositoryInterface
 {
@@ -42,8 +42,8 @@ interface AcknowledgementRepositoryInterface
      *
      * @param int $hostId Host id linked to the service
      * @param int $serviceId Service id for which we want the latest acknowledgement
-     * @return Acknowledgement|null
      * @throws \Exception
+     * @return Acknowledgement|null
      */
     public function findLatestServiceAcknowledgement(int $hostId, int $serviceId): ?Acknowledgement;
 
@@ -51,8 +51,8 @@ interface AcknowledgementRepositoryInterface
      * Find the latest host acknowledgement.
      *
      * @param int $hostId Host id for which we want to find the lastest acknowledgement
-     * @return Acknowledgement|null
      * @throws \Exception
+     * @return Acknowledgement|null
      */
     public function findLatestHostAcknowledgement(int $hostId): ?Acknowledgement;
 
@@ -60,8 +60,8 @@ interface AcknowledgementRepositoryInterface
      * Find one acknowledgement **without taking into account** the ACLs of user.
      *
      * @param int $acknowledgementId Acknowledgement id
-     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      * @throws \Exception
+     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      */
     public function findOneAcknowledgementForAdminUser(int $acknowledgementId): ?Acknowledgement;
 
@@ -69,42 +69,42 @@ interface AcknowledgementRepositoryInterface
      * Find one acknowledgement **taking into account** the ACLs of user.
      *
      * @param int $acknowledgementId Acknowledgement id
-     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      * @throws \Exception
+     * @return Acknowledgement|null Return NULL if the acknowledgement has not been found
      */
     public function findOneAcknowledgementForNonAdminUser(int $acknowledgementId): ?Acknowledgement;
 
     /**
      * Find all acknowledgements **without taking into account** the ACLs of user.
      *
-     * @return Acknowledgement[] Return the acknowledgements found
      * @throws \Exception
+     * @return Acknowledgement[] Return the acknowledgements found
      */
     public function findAcknowledgementsForAdminUser(): array;
 
     /**
      * Find all acknowledgements **taking into account** the ACLs of user.
      *
-     * @return Acknowledgement[] Return the acknowledgements found
      * @throws \Exception
+     * @return Acknowledgement[] Return the acknowledgements found
      */
     public function findAcknowledgementsForNonAdminUser(): array;
 
     /**
      * Find acknowledgements of all hosts.
      *
-     * @return Acknowledgement[]
      * @throws \Exception
      * @throws RequestParametersTranslatorException
+     * @return Acknowledgement[]
      */
     public function findHostsAcknowledgements();
 
     /**
      * Find acknowledgements of all services.
      *
-     * @return Acknowledgement[]
      * @throws \Exception
      * @throws RequestParametersTranslatorException
+     * @return Acknowledgement[]
      */
     public function findServicesAcknowledgements();
 
@@ -112,8 +112,8 @@ interface AcknowledgementRepositoryInterface
      * Find host acknowledgements.
      *
      * @param int $hostId Host id for which we want to find the acknowledgements
-     * @return Acknowledgement[]
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgementsByHost(int $hostId): array;
 
@@ -122,8 +122,8 @@ interface AcknowledgementRepositoryInterface
      *
      * @param int $hostId Host id linked to the service
      * @param int $serviceId Service id for which we want the acknowledgements
-     * @return Acknowledgement[]
      * @throws \Exception
+     * @return Acknowledgement[]
      */
     public function findAcknowledgementsByService(int $hostId, int $serviceId): array;
 

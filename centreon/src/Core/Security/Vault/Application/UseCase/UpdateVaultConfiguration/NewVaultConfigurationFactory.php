@@ -34,7 +34,8 @@ class NewVaultConfigurationFactory
     /**
      * @param EncryptionInterface $encryption
      */
-    public function __construct(private readonly EncryptionInterface $encryption) {
+    public function __construct(private readonly EncryptionInterface $encryption)
+    {
     }
 
     /**

@@ -325,4 +325,3 @@ it(
             ->and($contacts[1]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
     }
 );
-

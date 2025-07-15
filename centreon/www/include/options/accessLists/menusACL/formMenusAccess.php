@@ -41,8 +41,7 @@
 /** @var int|false $aclTopologyId */
 /** @var array<int|false> $duplicateNbr */
 /** @var array<int|false> $selectIds */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -57,8 +56,8 @@ if ($o === ACL_ADD || $o === ACL_MODIFY) {
             $topologyId = (int) $topologyId;
             $accessRight = (int) $accessRight;
             // Only 1 or 2 are allowed
-            $hasAccessNotAllowed =
-                $accessRight != CentreonACL::ACL_ACCESS_READ_WRITE
+            $hasAccessNotAllowed
+                = $accessRight != CentreonACL::ACL_ACCESS_READ_WRITE
                 && $accessRight != CentreonACL::ACL_ACCESS_READ_ONLY;
 
             if ($hasAccessNotAllowed) {
@@ -68,9 +67,7 @@ if ($o === ACL_ADD || $o === ACL_MODIFY) {
     }
 }
 
-/*
- * Database retrieve information for LCA
- */
+// Database retrieve information for LCA
 
 /** @var array{
  *     acl_topo_id?: int,
@@ -145,19 +142,15 @@ foreach ($statementAclGroups as $group) {
 }
 unset($statementAclGroups);
 
-/*
- * Var information to format the element
- */
+// Var information to format the element
 
 $attrsText = ['size' => '30'];
 $attrsAdvSelect = ['style' => 'width: 300px; height: 180px;'];
 $attrsTextarea = ['rows' => '5', 'cols' => '80'];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
-    '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
+    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-/*
- * Form begin
- */
+// Form begin
 
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o === ACL_ADD) {
@@ -168,9 +161,7 @@ if ($o === ACL_ADD) {
     $form->addElement('header', 'title', _('View an ACL'));
 }
 
-/*
- * LCA basic information
- */
+// LCA basic information
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('text', 'acl_topo_name', _('ACL Definition'), $attrsText);
 $form->addElement('text', 'acl_topo_alias', _('Alias'), $attrsText);
@@ -182,7 +173,7 @@ $ams1 = $form->addElement(
     [
         _('Linked Groups'),
         _('Available'),
-        _('Selected')
+        _('Selected'),
     ],
     $groups,
     $attrsAdvSelect,
@@ -199,15 +190,11 @@ $tab[] = $form->createElement('radio', 'acl_topo_activate', null, _('Disabled'),
 $form->addGroup($tab, 'acl_topo_activate', _('Status'), '&nbsp;');
 $form->setDefaults(['acl_topo_activate' => '1']);
 
-/*
- * Further informations
- */
+// Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
 $form->addElement('textarea', 'acl_comments', _('Comments'), $attrsTextarea);
 
-/*
- * Create buffer group list for Foorth level.
- */
+// Create buffer group list for Foorth level.
 /** @var array<int, array<int, string>> $groupMenus */
 $groupMenus = [];
 $statementTopology = $pearDB->query(
@@ -224,9 +211,7 @@ foreach ($statementTopology as $group) {
 }
 unset($statementTopology);
 
-/*
- * Topology concerned
- */
+// Topology concerned
 $form->addElement('header', 'pages', _('Accessible Pages'));
 $statementTopo1 = $pearDB->query(
     <<<'SQL'
@@ -271,7 +256,7 @@ foreach ($statementTopo1 as $topo1) {
             ORDER BY topology_order
             SQL
     );
-    $statementTopo2->bindValue(':topology_parent', (int) $topo1['topology_page'], \PDO::PARAM_INT);
+    $statementTopo2->bindValue(':topology_parent', (int) $topo1['topology_page'], PDO::PARAM_INT);
     $statementTopo2->execute();
     foreach ($statementTopo2 as $topo2) {
         if (! is_enabled_feature_flag($topo2['topology_feature_flag'] ?? null)) {
@@ -303,7 +288,7 @@ foreach ($statementTopo1 as $topo1) {
                 ORDER BY topology_group, topology_order
                 SQL
         );
-        $statementTopo3->bindValue(':topology_parent', (int) $topo2['topology_page'], \PDO::PARAM_INT);
+        $statementTopo3->bindValue(':topology_parent', (int) $topo2['topology_page'], PDO::PARAM_INT);
         $statementTopo3->execute();
 
         foreach ($statementTopo3 as $topo3) {
@@ -343,7 +328,7 @@ foreach ($statementTopo1 as $topo1) {
                     ORDER BY topology_order
                     SQL
             );
-            $statementTopo4->bindValue(':topology_parent', (int) $topo3['topology_page'], \PDO::PARAM_INT);
+            $statementTopo4->bindValue(':topology_parent', (int) $topo3['topology_page'], PDO::PARAM_INT);
             $statementTopo4->execute();
 
             foreach ($statementTopo4 as $topo4) {
@@ -357,8 +342,8 @@ foreach ($statementTopo1 as $topo1) {
                 $d++;
             }
             unset($statementTopo4);
-            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childNumber'] =
-                count($acl_topos2[$a]['childs'][$b]['childs'][$c]['childs']);
+            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childNumber']
+                = count($acl_topos2[$a]['childs'][$b]['childs'][$c]['childs']);
             $c++;
         }
         unset($statementTopo3);
@@ -377,9 +362,7 @@ $form->addElement('hidden', 'acl_topo_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Form Rules
- */
+// Form Rules
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('acl_topo_name', _('Required'), 'required');
 $form->registerRule('exist', 'callback', 'hasTopologyNameNeverUsed');
@@ -391,21 +374,19 @@ $form->setRequiredNote(_('Required field'));
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/*
- * Just watch a LCA information
- */
+// Just watch a LCA information
 if ($o === ACL_WATCH) {
     $form->addElement('button', 'change', _('Modify'), [
         'onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&acl_id=' . $aclTopologyId . "'",
-        'class' => 'btc bt_success'
+        'class' => 'btc bt_success',
     ]);
     $form->setDefaults($acl);
     $form->freeze();
-} elseif ($o === ACL_MODIFY) { # Modify a LCA information
+} elseif ($o === ACL_MODIFY) { // Modify a LCA information
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
     $form->setDefaults($acl);
-} elseif ($o === ACL_ADD) {  # Add a LCA information
+} elseif ($o === ACL_ADD) {  // Add a LCA information
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
 }

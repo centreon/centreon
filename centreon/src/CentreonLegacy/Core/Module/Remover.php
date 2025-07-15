@@ -89,7 +89,7 @@ class Remover extends Module
         $removed = false;
 
         $phpFile = $this->getModulePath($this->moduleName)
-	    . '/php/uninstall' . ($isPreUninstall ? '.pre' : '') . '.php';
+        . '/php/uninstall' . ($isPreUninstall ? '.pre' : '') . '.php';
         if ($this->services->get('filesystem')->exists($phpFile)) {
             $this->utils->executePhpFile($phpFile);
             $removed = true;

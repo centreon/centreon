@@ -1,29 +1,25 @@
 <?php
+
 namespace Centreon\Infrastructure\Service;
 
-use Psr\Container\ContainerInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Psr\Container\ContainerInterface;
 
 /**
  * Compatibility with Doctrine
  */
 class CentreonDBManagerService
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultManager = 'configuration_db';
 
-    /**
-     * @var array<string,mixed>
-     */
+    /** @var array<string,mixed> */
     private $manager;
 
     /**
      * Construct
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -35,15 +31,13 @@ class CentreonDBManagerService
 
     public function getAdapter(string $alias): CentreonDBAdapter
     {
-        $manager = $this->manager[$alias] ?? null;
-
-        return $manager;
+        return $this->manager[$alias] ?? null;
     }
 
     /**
      * Get default adapter with DB connection
      *
-     * @return \Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter
+     * @return CentreonDBAdapter
      */
     public function getDefaultAdapter(): CentreonDBAdapter
     {
@@ -55,9 +49,7 @@ class CentreonDBManagerService
      */
     public function getRepository($repository): mixed
     {
-        $manager = $this->manager[$this->defaultManager]
+        return $this->manager[$this->defaultManager]
             ->getRepository($repository);
-
-        return $manager;
     }
 }

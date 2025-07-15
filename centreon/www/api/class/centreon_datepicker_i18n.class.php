@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2005-2018 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -30,7 +31,6 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 /**
@@ -49,19 +49,19 @@ class CentreonDatepickerI18n extends CentreonWebService
     public function getDatepickerLibrary()
     {
         $data = $this->arguments['data'];
-        $path = __DIR__ . "/../../include/common/javascript/datepicker/";
+        $path = __DIR__ . '/../../include/common/javascript/datepicker/';
 
         // check if the fullLocale library exist
-        $datepickerFileToFound = "datepicker-" . substr($data, 0, 5) . ".js";
+        $datepickerFileToFound = 'datepicker-' . substr($data, 0, 5) . '.js';
         $valid =  file_exists($path . $datepickerFileToFound);
 
         // if not found, then check if the shortLocale library exist
         if ($valid !== true) {
-            $datepickerFileToFound = "datepicker-" . substr($data, 0, 2) . ".js";
+            $datepickerFileToFound = 'datepicker-' . substr($data, 0, 2) . '.js';
             $valid = file_exists($path . $datepickerFileToFound);
         }
 
-        //sending result
+        // sending result
         return ($valid === true) ? $datepickerFileToFound : null;
     }
 }

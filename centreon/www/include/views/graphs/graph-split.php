@@ -34,30 +34,28 @@
 *
 */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/views/graphs/";
+// Path to the configuration dir
+$path = './include/views/graphs/';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-$chartId = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
+$chartId = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
 
 if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
-    $hostId = (int)$matches[1];
-    $serviceId = (int)$matches[2];
+    $hostId = (int) $matches[1];
+    $serviceId = (int) $matches[2];
 } else {
-    throw new \InvalidArgumentException('chartId must be a combination of integers');
+    throw new InvalidArgumentException('chartId must be a combination of integers');
 }
 
 $metrics = [];
 
-/* Get list metrics */
+// Get list metrics
 $query = 'SELECT m.metric_id, m.metric_name, i.host_name, i.service_description
     FROM metrics m
     INNER JOIN index_data i
@@ -65,11 +63,11 @@ $query = 'SELECT m.metric_id, m.metric_name, i.host_name, i.service_description
     AND i.host_id = :hostId';
 
 $stmt = $pearDBO->prepare($query);
-$stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
-$stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+$stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
+$stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
 $stmt->execute();
 
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $metrics[] = ['id' => $chartId . '_' . $row['metric_id'], 'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']];
 }
 
@@ -85,9 +83,7 @@ if ($period_end === false) {
     $period_end = 'undefined';
 }
 
-/*
- * Form begin
- */
+// Form begin
 $form = new HTML_QuickFormCustom('FormPeriod', 'get', '?p=' . $p);
 
 $periods = [
@@ -108,14 +104,14 @@ $periods = [
     '2M' => _('Last 2 months'),
     '4M' => _('Last 4 months'),
     '6M' => _('Last 6 months'),
-    '1y' => _('Last year')
+    '1y' => _('Last year'),
 ];
 $sel = $form->addElement(
     'select',
     'period',
     _('Graph Period'),
     $periods,
-    [ 'onchange' => 'changeInterval()' ]
+    ['onchange' => 'changeInterval()']
 );
 $form->addElement(
     'text',
@@ -125,7 +121,7 @@ $form->addElement(
         'id' => 'StartDate',
         'class' => 'datepicker-iso',
         'size' => 10,
-        'onchange' => 'changePeriod()'
+        'onchange' => 'changePeriod()',
     ]
 );
 $form->addElement(
@@ -136,7 +132,7 @@ $form->addElement(
         'id' => 'StartTime',
         'class' => 'timepicker',
         'size' => 5,
-        'onchange' => 'changePeriod()'
+        'onchange' => 'changePeriod()',
     ]
 );
 $form->addElement(
@@ -147,7 +143,7 @@ $form->addElement(
         'id' => 'EndDate',
         'class' => 'datepicker-iso',
         'size' => 10,
-        'onchange' => 'changePeriod()'
+        'onchange' => 'changePeriod()',
     ]
 );
 $form->addElement(
@@ -158,18 +154,18 @@ $form->addElement(
         'id' => 'EndTime',
         'class' => 'timepicker',
         'size' => 5,
-        'onchange' => 'changePeriod()'
+        'onchange' => 'changePeriod()',
     ]
 );
 
-/* adding hidden fields to get the result of datepicker in an unlocalized format */
+// adding hidden fields to get the result of datepicker in an unlocalized format
 $form->addElement(
     'hidden',
     'alternativeDateStartDate',
     '',
     [
         'size' => 10,
-        'class' => 'alternativeDate'
+        'class' => 'alternativeDate',
     ]
 );
 $form->addElement(
@@ -178,13 +174,13 @@ $form->addElement(
     '',
     [
         'size' => 10,
-        'class' => 'alternativeDate'
+        'class' => 'alternativeDate',
     ]
 );
 
 if (
-    $period_start != 'undefined' &&
-    $period_end != 'undefined'
+    $period_start != 'undefined'
+    && $period_end != 'undefined'
 ) {
     $startDay = date('Y-m-d', $period_start);
     $startTime = date('H:i', $period_start);
@@ -195,13 +191,13 @@ if (
             'alternativeDateStartDate' => $startDay,
             'StartTime' => $startTime,
             'alternativeDateEndDate' => $endDay,
-            'EndTime' => $endTime
+            'EndTime' => $endTime,
         ]
     );
 } else {
     $form->setDefaults(
         [
-            'period' => '3h'
+            'period' => '3h',
         ]
     );
 }
@@ -211,7 +207,7 @@ $form->accept($renderer);
 
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('metrics', $metrics);
-$tpl->assign("timerDisabled", returnSvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14));
-$tpl->assign("timerEnabled", returnSvg("www/img/icons/timer.svg", "var(--icons-fill-color)", 14, 14));
+$tpl->assign('timerDisabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-disabled-fill-color)', 14, 14));
+$tpl->assign('timerEnabled', returnSvg('www/img/icons/timer.svg', 'var(--icons-fill-color)', 14, 14));
 
 $tpl->display('graph-split.html');

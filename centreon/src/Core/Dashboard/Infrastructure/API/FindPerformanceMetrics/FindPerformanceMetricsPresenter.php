@@ -51,18 +51,16 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
             $this->setResponseStatus($response);
 
             return;
-        }
-
+        } 
+        
         $this->present([
-            'result' => array_map(function (ResourceMetricDto $resourceMetric) {
-                return [
-                    'id' => $resourceMetric->serviceId,
-                    'name' => $resourceMetric->resourceName,
-                    'parent_name' => $resourceMetric->parentName,
-                    'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
-                    'metrics' => $resourceMetric->metrics,
-                ];
-            }, $response->resourceMetrics),
+            'result' => array_map(fn (ResourceMetricDto $resourceMetric) => [
+                'id' => $resourceMetric->serviceId,
+                'name' => $resourceMetric->resourceName,
+                'parent_name' => $resourceMetric->parentName,
+                'uuid' => 'h' . $resourceMetric->parentId . '-s' . $resourceMetric->serviceId,
+                'metrics' => $resourceMetric->metrics,
+            ], $response->resourceMetrics),
             'meta' => $this->requestParameters->toArray(),
         ]);
     }
