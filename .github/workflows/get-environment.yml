@@ -415,6 +415,26 @@ jobs:
           fi
         shell: bash
 
+      - name: Detect nightly status
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: get_nightly_status
+        env:
+          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
+        with:
+          script: |
+            const getNightlyInput = () => {
+              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
+              console.log(nightly_manual_trigger);
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
+                return 'false';
+              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
+                return 'true';
+              }
+              return 'false';
+            };
+
+            core.setOutput('is_nightly', getNightlyInput());
+
       - name: "Detect cloud version"
         id: detect_cloud_version
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -428,9 +448,13 @@ jobs:
 
             let releaseScope = "unknown";
 
+            // in a nightly context, whatever the event_name is, the release context does not matter
+            if ( '${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' ) {
+              releaseScope = 'onprem'
+            }
             // handle if triggering event is a pull_request
             // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
-            if ( "${{ github.event_name }}" === "pull_request" ) {
+            else if ( "${{ github.event_name }}" === "pull_request" ) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               console.log(`finalTargetBranch is: ${finalTargetBranch}`)
@@ -580,26 +604,6 @@ jobs:
             }
             core.setOutput('linked_dev_branch', linkedDevBranch);
             core.setOutput('linked_stable_branch', linkedStableBranch);
-
-      - name: Detect nightly status
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        id: get_nightly_status
-        env:
-          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
-        with:
-          script: |
-            const getNightlyInput = () => {
-              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
-              console.log(nightly_manual_trigger);
-              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
-                return 'false';
-              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
-                return 'true';
-              }
-              return 'false';
-            };
-
-            core.setOutput('is_nightly', getNightlyInput());
 
       - name: Detect operating systems and databases to test
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
