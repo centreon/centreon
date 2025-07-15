@@ -6960,7 +6960,7 @@ msgstr ""
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
-msgid "Filename '%s' (%s) is invalid"
+msgid "File path or format '%s' (%s) is invalid"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
