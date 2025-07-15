@@ -34,148 +34,92 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'monitoringserver_main';
 
-    /**
-     * @var int|null Unique id of server
-     */
+    /** @var int|null Unique id of server */
     private $id;
 
-    /**
-     * @var string|null Name of server
-     */
+    /** @var string|null Name of server */
     private $name;
 
-    /**
-     * @var bool Indicates whether it's the localhost server
-     */
+    /** @var bool Indicates whether it's the localhost server */
     private $isLocalhost = false;
 
-    /**
-     * @var bool Indicates whether it's the default server
-     */
+    /** @var bool Indicates whether it's the default server */
     private $isDefault = false;
 
-    /**
-     * @var \DateTime|null Date of the last Engine restart request
-     */
+    /** @var \DateTime|null Date of the last Engine restart request */
     private $lastRestart;
 
-    /**
-     * @var string|null IP address of server
-     */
+    /** @var string|null IP address of server */
     private $address;
 
-    /**
-     * @var bool Indicates whether the server configuration is activated
-     */
+    /** @var bool Indicates whether the server configuration is activated */
     private $isActivate = true;
 
-    /**
-     * @var string|null System start command for Engine
-     */
+    /** @var string|null System start command for Engine */
     private $engineStartCommand;
 
-    /**
-     * @var string|null System stop command for Engine
-     */
+    /** @var string|null System stop command for Engine */
     private $engineStopCommand;
 
-    /**
-     * @var string|null System restart command for Engine
-     */
+    /** @var string|null System restart command for Engine */
     private $engineRestartCommand;
 
-    /**
-     * @var string|null System reload command for Engine
-     */
+    /** @var string|null System reload command for Engine */
     private $engineReloadCommand;
 
-    /**
-     * @var string|null Full path of the Engine binary
-     */
+    /** @var string|null Full path of the Engine binary */
     private $nagiosBin;
 
-    /**
-     * @var string|null Full path of the Engine statistics binary
-     */
+    /** @var string|null Full path of the Engine statistics binary */
     private $nagiostatsBin;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $nagiosPerfdata;
 
-    /**
-     * @var string|null System reload command for Broker
-     */
+    /** @var string|null System reload command for Broker */
     private $brokerReloadCommand;
 
-    /**
-     * @var string|null Full path of the Broker configuration
-     */
+    /** @var string|null Full path of the Broker configuration */
     private $centreonbrokerCfgPath;
 
-    /**
-     * @var string|null Full path of the Broker module's libraries
-     */
+    /** @var string|null Full path of the Broker module's libraries */
     private $centreonbrokerModulePath;
 
-    /**
-     * @var string|null Full path of the Engine connectors
-     */
+    /** @var string|null Full path of the Engine connectors */
     private $centreonconnectorPath;
 
-    /**
-     * @var int SSH port SSH port of this server
-     */
+    /** @var int SSH port SSH port of this server */
     private $sshPort;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $sshPrivateKey;
 
-    /**
-     * @var string|null System name of Centreontrapd daemon
-     */
+    /** @var string|null System name of Centreontrapd daemon */
     private $initScriptCentreontrapd;
 
-    /**
-     * @var string|null Full path of the Centreontrapd daemon configuration
-     */
+    /** @var string|null Full path of the Centreontrapd daemon configuration */
     private $snmpTrapdPathConf;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $engineName;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $engineVersion;
 
-    /**
-     * @var string|null Full path of the Broker logs
-     */
+    /** @var string|null Full path of the Broker logs */
     private $centreonbrokerLogsPath;
 
-    /**
-     * @var int|null Unique ID of the master Remote Server linked to the server
-     */
+    /** @var int|null Unique ID of the master Remote Server linked to the server */
     private $remoteId;
 
-    /**
-     * @var bool Indicates whether Remote Servers are used as SSH proxies
-     */
+    /** @var bool Indicates whether Remote Servers are used as SSH proxies */
     private $remoteServerUseAsProxy = true;
 
-    /**
-     * @var bool Indicates whether the monitoring configuration has changed since last restart
-     */
+    /** @var bool Indicates whether the monitoring configuration has changed since last restart */
     private $isUpdated = false;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -201,6 +145,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setId(?int $id): MonitoringServer
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -219,6 +164,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setName(?string $name): MonitoringServer
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -237,6 +183,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setLocalhost(bool $isLocalhost): MonitoringServer
     {
         $this->isLocalhost = $isLocalhost;
+
         return $this;
     }
 
@@ -255,6 +202,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setIsDefault(bool $isDefault): MonitoringServer
     {
         $this->isDefault = $isDefault;
+
         return $this;
     }
 
@@ -273,6 +221,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setLastRestart(?\DateTime $lastRestart): MonitoringServer
     {
         $this->lastRestart = $lastRestart;
+
         return $this;
     }
 
@@ -291,6 +240,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setAddress(?string $address): MonitoringServer
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -309,6 +259,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setActivate(bool $isActivate): MonitoringServer
     {
         $this->isActivate = $isActivate;
+
         return $this;
     }
 
@@ -327,6 +278,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineStartCommand(?string $engineStartCommand): MonitoringServer
     {
         $this->engineStartCommand = $engineStartCommand;
+
         return $this;
     }
 
@@ -345,6 +297,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineStopCommand(?string $engineStopCommand): MonitoringServer
     {
         $this->engineStopCommand = $engineStopCommand;
+
         return $this;
     }
 
@@ -363,6 +316,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineRestartCommand(?string $engineRestartCommand): MonitoringServer
     {
         $this->engineRestartCommand = $engineRestartCommand;
+
         return $this;
     }
 
@@ -381,6 +335,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineReloadCommand(?string $engineReloadCommand): MonitoringServer
     {
         $this->engineReloadCommand = $engineReloadCommand;
+
         return $this;
     }
 
@@ -399,6 +354,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setNagiosBin(?string $nagiosBin): MonitoringServer
     {
         $this->nagiosBin = $nagiosBin;
+
         return $this;
     }
 
@@ -417,6 +373,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setNagiostatsBin(?string $nagiostatsBin): MonitoringServer
     {
         $this->nagiostatsBin = $nagiostatsBin;
+
         return $this;
     }
 
@@ -435,6 +392,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setNagiosPerfdata(?string $nagiosPerfdata): MonitoringServer
     {
         $this->nagiosPerfdata = $nagiosPerfdata;
+
         return $this;
     }
 
@@ -453,6 +411,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setBrokerReloadCommand(?string $brokerReloadCommand): MonitoringServer
     {
         $this->brokerReloadCommand = $brokerReloadCommand;
+
         return $this;
     }
 
@@ -471,6 +430,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setCentreonbrokerCfgPath(?string $centreonbrokerCfgPath): MonitoringServer
     {
         $this->centreonbrokerCfgPath = $centreonbrokerCfgPath;
+
         return $this;
     }
 
@@ -489,6 +449,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setCentreonbrokerModulePath(?string $centreonbrokerModulePath): MonitoringServer
     {
         $this->centreonbrokerModulePath = $centreonbrokerModulePath;
+
         return $this;
     }
 
@@ -507,6 +468,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setCentreonconnectorPath(?string $centreonconnectorPath): MonitoringServer
     {
         $this->centreonconnectorPath = $centreonconnectorPath;
+
         return $this;
     }
 
@@ -525,6 +487,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setSshPort(int $sshPort): MonitoringServer
     {
         $this->sshPort = $sshPort;
+
         return $this;
     }
 
@@ -543,6 +506,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setSshPrivateKey(?string $sshPrivateKey): MonitoringServer
     {
         $this->sshPrivateKey = $sshPrivateKey;
+
         return $this;
     }
 
@@ -561,6 +525,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setInitScriptCentreontrapd(?string $initScriptCentreontrapd): MonitoringServer
     {
         $this->initScriptCentreontrapd = $initScriptCentreontrapd;
+
         return $this;
     }
 
@@ -579,6 +544,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setSnmpTrapdPathConf(?string $snmpTrapdPathConf): MonitoringServer
     {
         $this->snmpTrapdPathConf = $snmpTrapdPathConf;
+
         return $this;
     }
 
@@ -597,6 +563,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineName(?string $engineName): MonitoringServer
     {
         $this->engineName = $engineName;
+
         return $this;
     }
 
@@ -615,6 +582,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setEngineVersion(?string $engineVersion): MonitoringServer
     {
         $this->engineVersion = $engineVersion;
+
         return $this;
     }
 
@@ -633,6 +601,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setCentreonbrokerLogsPath(?string $centreonbrokerLogsPath): MonitoringServer
     {
         $this->centreonbrokerLogsPath = $centreonbrokerLogsPath;
+
         return $this;
     }
 
@@ -651,6 +620,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setRemoteId(?int $remoteId): MonitoringServer
     {
         $this->remoteId = $remoteId;
+
         return $this;
     }
 
@@ -669,6 +639,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setRemoteServerUseAsProxy(bool $remoteServerUseAsProxy): MonitoringServer
     {
         $this->remoteServerUseAsProxy = $remoteServerUseAsProxy;
+
         return $this;
     }
 
@@ -687,6 +658,7 @@ class MonitoringServer implements EntityDescriptorMetadataInterface
     public function setUpdated(bool $isUpdated): MonitoringServer
     {
         $this->isUpdated = $isUpdated;
+
         return $this;
     }
 }

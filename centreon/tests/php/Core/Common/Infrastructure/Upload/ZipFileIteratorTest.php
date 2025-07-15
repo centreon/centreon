@@ -19,24 +19,24 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Upload;
 
 use Core\Common\Infrastructure\Upload\ZipFileIterator;
 use Symfony\Component\HttpFoundation\File\File;
 
-it('should iterate on each files of ZIP archive', function(): void {
+it('should iterate on each files of ZIP archive', function (): void {
     $fileIterator = new ZipFileIterator(new File(__DIR__ . DIRECTORY_SEPARATOR . 'archive.zip'));
     foreach ($fileIterator as $filename => $contentFile) {
         echo null; // To ensure that we can iterate several times
     }
     $files = [];
-    foreach($fileIterator as $filename => $contentFile) {
+    foreach ($fileIterator as $filename => $contentFile) {
         /** @var list<array{filename: string, md5: string}> $files */
         $files[] = [
             'filename' => $filename,
-            'md5' => md5($contentFile)
+            'md5' => md5($contentFile),
         ];
     }
     expect($fileIterator)->toHaveCount(2)

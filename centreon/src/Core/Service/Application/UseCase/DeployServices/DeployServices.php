@@ -55,7 +55,8 @@ final class DeployServices
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
         private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository
-    ) {}
+    ) {
+    }
 
     /**
      * @param DeployServicesPresenterInterface $presenter

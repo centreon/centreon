@@ -35,23 +35,17 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public const SERIALIZER_GROUP_MAIN = 'hg_main';
     public const SERIALIZER_GROUP_WITH_HOST = 'hg_with_host';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var Host[]
-     */
+    /** @var Host[] */
     private $hosts = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadEntityDescriptorMetadata(): array
     {
@@ -75,6 +69,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setId(int $id): HostGroup
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -93,6 +88,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setName(?string $name): HostGroup
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -103,6 +99,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function addHost(Host $host): HostGroup
     {
         $this->hosts[] = $host;
+
         return $this;
     }
 
@@ -127,6 +124,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
                 return true;
             }
         }
+
         return false;
     }
 
@@ -137,6 +135,7 @@ class HostGroup implements EntityDescriptorMetadataInterface
     public function setHosts(array $hosts): HostGroup
     {
         $this->hosts = $hosts;
+
         return $this;
     }
 }

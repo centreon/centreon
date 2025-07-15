@@ -49,31 +49,39 @@ class Servicegroup extends AbstractObject
     private const TAG_FILENAME = 'tags.cfg';
     private const TAG_OBJECT_NAME = 'tag';
 
-    /** @var int */
-    private $use_cache = 1;
-    /** @var int */
-    private $done_cache = 0;
-
-    /** @var array */
-    private $sg = [];
-    /** @var array */
-    private $sg_relation_cache = [];
     /** @var string */
     protected $generate_filename = self::SERVICEGROUP_FILENAME;
+
     /** @var string */
     protected string $object_name = self::SERVICEGROUP_OBJECT_NAME;
+
     /** @var string */
     protected $attributes_select = '
         sg_id,
         sg_name as servicegroup_name,
         sg_alias as alias
     ';
+
     /** @var null */
     protected $stmt_sg = null;
+
     /** @var null */
     protected $stmt_service_sg = null;
+
     /** @var null */
     protected $stmt_stpl_sg = null;
+
+    /** @var int */
+    private $use_cache = 1;
+
+    /** @var int */
+    private $done_cache = 0;
+
+    /** @var array */
+    private $sg = [];
+
+    /** @var array */
+    private $sg_relation_cache = [];
 
     /**
      * Servicegroup constructor
@@ -90,15 +98,162 @@ class Servicegroup extends AbstractObject
 
     /**
      * @param $sg_id
+     * @param $service_id
+     * @param $service_description
+     * @param $host_id
+     * @param $host_name
      *
-     * @return void
      * @throws PDOException
+     * @return int
+     */
+    public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name)
+    {
+        if (! isset($this->sg[$sg_id])) {
+            $this->getServicegroupFromId($sg_id);
+        }
+        if (is_null($this->sg[$sg_id]) || isset($this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id])) {
+            return 1;
+        }
+
+        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
+
+        return 0;
+    }
+
+    /**
+     * @param $service_id
+     *
+     * @throws PDOException
+     * @return array|mixed
+     */
+    public function getServiceGroupsForStpl($service_id)
+    {
+        // Get from the cache
+        if (isset($this->sg_relation_cache[$service_id])) {
+            return $this->sg_relation_cache[$service_id];
+        }
+        if ($this->done_cache == 1) {
+            return [];
+        }
+
+        if (is_null($this->stmt_stpl_sg)) {
+            // Meaning, linked with the host or hostgroup (for the null expression)
+            $this->stmt_stpl_sg = $this->backend_instance->db->prepare(
+                "SELECT servicegroup_sg_id, host_host_id, service_service_id
+                FROM servicegroup_relation sgr, servicegroup sg
+                WHERE service_service_id = :service_id
+                AND sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
+            );
+        }
+        $this->stmt_stpl_sg->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+        $this->stmt_stpl_sg->execute();
+        $this->sg_relation_cache[$service_id] = array_merge(
+            $this->stmt_stpl_sg->fetchAll(PDO::FETCH_ASSOC),
+            $this->sg_relation_cache[$service_id]
+        );
+
+        return $this->sg_relation_cache[$service_id];
+    }
+
+    /**
+     * @param $host_id
+     * @param $service_id
+     *
+     * @throws PDOException
+     * @return array|mixed
+     */
+    public function getServiceGroupsForService($host_id, $service_id)
+    {
+        // Get from the cache
+        if (isset($this->sg_relation_cache[$service_id])) {
+            return $this->sg_relation_cache[$service_id];
+        }
+        if ($this->done_cache == 1) {
+            return [];
+        }
+
+        if (is_null($this->stmt_service_sg)) {
+            // Meaning, linked with the host or hostgroup (for the null expression)
+            $this->stmt_service_sg = $this->backend_instance->db->prepare(
+                "SELECT servicegroup_sg_id, host_host_id, service_service_id
+                FROM servicegroup_relation sgr, servicegroup sg
+                WHERE service_service_id = :service_id AND (host_host_id = :host_id OR host_host_id IS NULL)
+                AND sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
+            );
+        }
+        $this->stmt_service_sg->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+        $this->stmt_service_sg->bindParam(':host_id', $host_id, PDO::PARAM_INT);
+        $this->stmt_service_sg->execute();
+        $this->sg_relation_cache[$service_id] = array_merge(
+            $this->stmt_service_sg->fetchAll(PDO::FETCH_ASSOC),
+            $this->sg_relation_cache[$service_id]
+        );
+
+        return $this->sg_relation_cache[$service_id];
+    }
+
+    /**
+     * Generate service groups / tags and write in file
+     */
+    public function generateObjects(): void
+    {
+        $this->generateServiceGroups();
+        $this->generateTags();
+    }
+
+    /**
+     * @return array
+     */
+    public function getServicegroups()
+    {
+        $result = [];
+        foreach ($this->sg as $id => &$value) {
+            if (is_null($value) || count($value['members_cache']) == 0) {
+                continue;
+            }
+            $result[$id] = &$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        parent::reset();
+        foreach ($this->sg as &$value) {
+            if (! is_null($value)) {
+                $value['members_cache'] = [];
+                $value['members'] = [];
+            }
+        }
+    }
+
+    /**
+     * @param $sg_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($sg_id, $attr)
+    {
+        return $this->sg[$sg_id][$attr] ?? null;
+    }
+
+    /**
+     * @param $sg_id
+     *
+     * @throws PDOException
+     * @return void
      */
     private function getServicegroupFromId($sg_id): void
     {
         if (is_null($this->stmt_sg)) {
             $this->stmt_sg = $this->backend_instance->db->prepare("SELECT
-                $this->attributes_select
+                {$this->attributes_select}
             FROM servicegroup
             WHERE sg_id = :sg_id AND sg_activate = '1'
             ");
@@ -115,31 +270,8 @@ class Servicegroup extends AbstractObject
     }
 
     /**
-     * @param $sg_id
-     * @param $service_id
-     * @param $service_description
-     * @param $host_id
-     * @param $host_name
-     *
-     * @return int
      * @throws PDOException
-     */
-    public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name)
-    {
-        if (!isset($this->sg[$sg_id])) {
-            $this->getServicegroupFromId($sg_id);
-        }
-        if (is_null($this->sg[$sg_id]) || isset($this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id])) {
-            return 1;
-        }
-
-        $this->sg[$sg_id]['members_cache'][$host_id . '_' . $service_id] = [$host_name, $service_description];
-        return 0;
-    }
-
-    /**
      * @return int|void
-     * @throws PDOException
      */
     private function buildCache()
     {
@@ -162,85 +294,6 @@ class Servicegroup extends AbstractObject
         }
 
         $this->done_cache = 1;
-    }
-
-    /**
-     * @param $service_id
-     *
-     * @return array|mixed
-     * @throws PDOException
-     */
-    public function getServiceGroupsForStpl($service_id)
-    {
-        # Get from the cache
-        if (isset($this->sg_relation_cache[$service_id])) {
-            return $this->sg_relation_cache[$service_id];
-        }
-        if ($this->done_cache == 1) {
-            return [];
-        }
-
-        if (is_null($this->stmt_stpl_sg)) {
-            # Meaning, linked with the host or hostgroup (for the null expression)
-            $this->stmt_stpl_sg = $this->backend_instance->db->prepare(
-                "SELECT servicegroup_sg_id, host_host_id, service_service_id
-                FROM servicegroup_relation sgr, servicegroup sg
-                WHERE service_service_id = :service_id
-                AND sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
-            );
-        }
-        $this->stmt_stpl_sg->bindParam(':service_id', $service_id, PDO::PARAM_INT);
-        $this->stmt_stpl_sg->execute();
-        $this->sg_relation_cache[$service_id] = array_merge(
-            $this->stmt_stpl_sg->fetchAll(PDO::FETCH_ASSOC),
-            $this->sg_relation_cache[$service_id]
-        );
-        return $this->sg_relation_cache[$service_id];
-    }
-
-    /**
-     * @param $host_id
-     * @param $service_id
-     *
-     * @return array|mixed
-     * @throws PDOException
-     */
-    public function getServiceGroupsForService($host_id, $service_id)
-    {
-        # Get from the cache
-        if (isset($this->sg_relation_cache[$service_id])) {
-            return $this->sg_relation_cache[$service_id];
-        }
-        if ($this->done_cache == 1) {
-            return [];
-        }
-
-        if (is_null($this->stmt_service_sg)) {
-            # Meaning, linked with the host or hostgroup (for the null expression)
-            $this->stmt_service_sg = $this->backend_instance->db->prepare(
-                "SELECT servicegroup_sg_id, host_host_id, service_service_id
-                FROM servicegroup_relation sgr, servicegroup sg
-                WHERE service_service_id = :service_id AND (host_host_id = :host_id OR host_host_id IS NULL)
-                AND sgr.servicegroup_sg_id = sg.sg_id AND sg.sg_activate = '1'"
-            );
-        }
-        $this->stmt_service_sg->bindParam(':service_id', $service_id, PDO::PARAM_INT);
-        $this->stmt_service_sg->bindParam(':host_id', $host_id, PDO::PARAM_INT);
-        $this->stmt_service_sg->execute();
-        $this->sg_relation_cache[$service_id] = array_merge(
-            $this->stmt_service_sg->fetchAll(PDO::FETCH_ASSOC),
-            $this->sg_relation_cache[$service_id]
-        );
-        return $this->sg_relation_cache[$service_id];
-    }
-
-    /**
-     * Generate service groups / tags and write in file
-     */
-    public function generateObjects(): void
-    {
-        $this->generateServiceGroups();
-        $this->generateTags();
     }
 
     /**
@@ -306,46 +359,5 @@ class Servicegroup extends AbstractObject
 
             $this->generateObjectInFile($tag, $id);
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getServicegroups()
-    {
-        $result = [];
-        foreach ($this->sg as $id => &$value) {
-            if (is_null($value) || count($value['members_cache']) == 0) {
-                continue;
-            }
-            $result[$id] = &$value;
-        }
-        return $result;
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    public function reset(): void
-    {
-        parent::reset();
-        foreach ($this->sg as &$value) {
-            if (!is_null($value)) {
-                $value['members_cache'] = [];
-                $value['members'] = [];
-            }
-        }
-    }
-
-    /**
-     * @param $sg_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($sg_id, $attr)
-    {
-        return $this->sg[$sg_id][$attr] ?? null;
     }
 }

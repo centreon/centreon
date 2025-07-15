@@ -36,22 +36,19 @@ beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
         1,
         'dashboard-name',
-
         null,
         null,
         new \DateTimeImmutable(),
         new \DateTimeImmutable(),
         new Refresh(RefreshType::Global, null)
     );
-    $this->createContactShare = function (DashboardSharingRole $role) {
-        return new DashboardContactShare(
-            $this->testedDashboard,
-            2,
-            'name',
-            'email',
-            $role
-        );
-    };
+    $this->createContactShare = fn (DashboardSharingRole $role) => new DashboardContactShare(
+        $this->testedDashboard,
+        2,
+        'name',
+        'email',
+        $role
+    );
     $this->createContactGroupShares = function (DashboardSharingRole ...$roles) {
         $shares = [];
         foreach ($roles as $index => $role) {
@@ -89,7 +86,7 @@ it(
         ?string $contactRole,
         array $contactGroupRoles
     ): void {
-        $toEnum = static fn(?string $string): ?DashboardSharingRole => $string
+        $toEnum = static fn (?string $string): ?DashboardSharingRole => $string
             ? DashboardSharingRoleConverter::fromString($string)
             : null;
 

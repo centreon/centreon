@@ -151,18 +151,18 @@ final class FindServices
                 ]
                 : null;
             $dto->hosts = array_map(
-                fn(int $hostId): array => ['id' => $hostId, 'name' => $hostNames?->getName($hostId) ?? ''],
+                fn (int $hostId): array => ['id' => $hostId, 'name' => $hostNames?->getName($hostId) ?? ''],
                 $service->getHostIds()
             );
             $dto->categories = $service->getCategoryIds() !== []
                 ? array_map(
-                    fn(int $categoryId): array => ['id' => $categoryId, 'name' => $categoryNames?->getName($categoryId) ?? ''],
+                    fn (int $categoryId): array => ['id' => $categoryId, 'name' => $categoryNames?->getName($categoryId) ?? ''],
                     $service->getCategoryIds()
                 )
                 : [];
             $dto->groups = $service->getGroups() !== []
                 ? array_map(
-                    fn(ServiceGroupRelation $sgRel): array => [
+                    fn (ServiceGroupRelation $sgRel): array => [
                         'id' => $sgRel->getServiceGroupId(),
                         'name' => $groupNames?->getName($sgRel->getServiceGroupId()) ?? '',
                         'hostId' => $sgRel->getHostId() ?? 0,

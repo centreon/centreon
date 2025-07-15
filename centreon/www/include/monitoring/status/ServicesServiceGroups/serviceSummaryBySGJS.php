@@ -33,29 +33,29 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!isset($oreon->optGen["AjaxFirstTimeReloadStatistic"]) || $oreon->optGen["AjaxFirstTimeReloadStatistic"] == 0) {
+if (! isset($oreon->optGen['AjaxFirstTimeReloadStatistic']) || $oreon->optGen['AjaxFirstTimeReloadStatistic'] == 0) {
     $tFS = 10;
 } else {
-    $tFS = $oreon->optGen["AjaxFirstTimeReloadStatistic"] * 1000;
+    $tFS = $oreon->optGen['AjaxFirstTimeReloadStatistic'] * 1000;
 }
-if (!isset($oreon->optGen["AjaxFirstTimeReloadMonitoring"]) || $oreon->optGen["AjaxFirstTimeReloadMonitoring"] == 0) {
+if (! isset($oreon->optGen['AjaxFirstTimeReloadMonitoring']) || $oreon->optGen['AjaxFirstTimeReloadMonitoring'] == 0) {
     $tFM = 10;
 } else {
-    $tFM = $oreon->optGen["AjaxFirstTimeReloadMonitoring"] * 1000;
+    $tFM = $oreon->optGen['AjaxFirstTimeReloadMonitoring'] * 1000;
 }
 $sid = session_id();
 $time = time();
 
 $obis = $o;
-if (isset($_GET["problem"])) {
+if (isset($_GET['problem'])) {
     $obis .= '_pb';
 }
-if (isset($_GET["acknowledge"])) {
-    $obis .= '_ack_' . $_GET["acknowledge"];
+if (isset($_GET['acknowledge'])) {
+    $obis .= '_ack_' . $_GET['acknowledge'];
 }
 
 ?>
@@ -65,7 +65,7 @@ if (isset($_GET["acknowledge"])) {
     var _addrXML = "./include/monitoring/status/ServicesServiceGroups/xml/serviceSummaryBySGXML.php";
     var _addrXSL = "./include/monitoring/status/ServicesServiceGroups/xsl/serviceSummaryBySG.xsl";
 
-    <?php include_once "./include/monitoring/status/Common/commonJS.php"; ?>
+    <?php include_once './include/monitoring/status/Common/commonJS.php'; ?>
 
     // Service Groups view hasn't got HG filters
     _hostgroup_enable = 0;
@@ -76,7 +76,7 @@ if (isset($_GET["acknowledge"])) {
 
         if (document.getElementById('host_name')) {
             var h = document.getElementById('host_name');
-            h.innerHTML = '<?php echo addslashes(_("Servicegroups / Hosts"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Servicegroups / Hosts')); ?>';
             h.indice = 'host_name';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -84,7 +84,7 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('services');
-            h.innerHTML = '<?php echo addslashes(_("Services informations"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Services informations')); ?>';
             h.indice = 'services';
 
             var h = document.getElementById(_sort_type);
@@ -168,7 +168,7 @@ if (isset($_GET["acknowledge"])) {
         proc.setXml(_addrXML + "?" + '&host_search=' + _host_search + '&sg_search=' + _sg_search + '&num=' + _num +
             '&limit=' + _limit + '&sort_type=' + _sort_type + '&order=' + _order +
             '&date_time_format_status=' + _date_time_format_status + '&o=' + _o +
-            '&p=' + _p + '&time=<?php print time(); ?>'
+            '&p=' + _p + '&time=<?php echo time(); ?>'
         );
         proc.setXslt(_addrXSL);
         if (handleVisibilityChange()) {

@@ -45,7 +45,8 @@ final readonly class CountResources
     public function __construct(
         private ReadResourceRepositoryInterface $readResourceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository
-    ) {}
+    ) {
+    }
 
     /**
      * @param CountResourcesRequest $request

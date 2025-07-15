@@ -148,7 +148,7 @@ class NewCommand
             argumentExample: new TrimmedString($command->getArgumentExample()),
             arguments: $command->getArguments(),
             macros: array_map(
-                fn(CommandMacro $macro) => NewCommandMacro::createFromMacro($macro),
+                fn (CommandMacro $macro) => NewCommandMacro::createFromMacro($macro),
                 $command->getMacros()
             ),
             connectorId: $command->getConnector()?->getId(),

@@ -67,7 +67,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             return new Utils\Utils($locator);
         };
 
-        $pimple[static::SYMFONY_FINDER] = function (Container $container) : Finder {
+        $pimple[static::SYMFONY_FINDER] = function (Container $container): Finder {
             return new Finder();
         };
 

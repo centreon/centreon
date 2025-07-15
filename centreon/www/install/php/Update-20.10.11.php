@@ -19,10 +19,10 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.10.11: ';
 
 $pearDB = new CentreonDB('centreon', 3, false);
@@ -34,21 +34,22 @@ try {
     $pearDB->beginTransaction();
 
     $errorMessage = 'Impossible to alter the table contact';
-    if (!$pearDB->isColumnExist('contact', 'contact_platform_data_sending')) {
+    if (! $pearDB->isColumnExist('contact', 'contact_platform_data_sending')) {
         $pearDB->query(
             "ALTER TABLE `contact` ADD COLUMN `contact_platform_data_sending` ENUM('0', '1', '2')"
         );
     }
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

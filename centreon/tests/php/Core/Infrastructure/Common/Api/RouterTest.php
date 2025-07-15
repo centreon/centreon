@@ -21,19 +21,19 @@
 
 use Core\Infrastructure\Common\Api\Router;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->router = new Router(
         $this->createMock(Symfony\Component\Routing\RouterInterface::class),
         $this->createMock(Symfony\Component\Routing\Matcher\RequestMatcherInterface::class)
     );
 });
 
-it('should return a legacy path without options', function () {
+it('should return a legacy path without options', function (): void {
     $legacyHref = $this->router->generateLegacyHref(60202);
     expect($legacyHref)->toBe('/main.php?p=60202');
 });
 
-it('should return a legacy path with options', function () {
+it('should return a legacy path with options', function (): void {
     $legacyHref = $this->router->generateLegacyHref(60202, ['foo' => 'bar']);
     expect($legacyHref)->toBe('/main.php?p=60202&foo=bar');
 });

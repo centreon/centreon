@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\HostGroup\Domain\Model;
 
@@ -44,8 +44,9 @@ class HostGroupNamesById
      *
      * @return null|string
      */
-    public function getName(int $hostGroupId): ?string {
-        return isset($this->names[$hostGroupId]) ? $this->names[$hostGroupId]->value: null;
+    public function getName(int $hostGroupId): ?string
+    {
+        return isset($this->names[$hostGroupId]) ? $this->names[$hostGroupId]->value : null;
     }
 
     /**
@@ -56,4 +57,3 @@ class HostGroupNamesById
         return $this->names;
     }
 }
-

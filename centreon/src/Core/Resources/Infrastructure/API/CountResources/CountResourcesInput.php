@@ -56,5 +56,6 @@ final readonly class CountResourcesInput
             ]
         )]
         public mixed $limit,
-    ) {}
+    ) {
+    }
 }

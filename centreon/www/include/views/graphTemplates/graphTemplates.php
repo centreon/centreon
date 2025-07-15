@@ -34,28 +34,26 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 $duplicationNumbers = [];
 $selectedGraphTemplates = [];
 
-/*
- * id of the graph template
- */
+// id of the graph template
 $graph_id = filter_var(
     $_GET['graph_id'] ?? $_POST['graph_id'] ?? false,
     FILTER_VALIDATE_INT
 );
 
- /*
-  * Corresponding to the lines selected in the listing
-  * $_POST['select'] = [
-  *     'graphIdSelected' => 'duplicationFactor'
-  * ]
-  */
-if (!empty($_POST['select'])) {
+/*
+ * Corresponding to the lines selected in the listing
+ * $_POST['select'] = [
+ *     'graphIdSelected' => 'duplicationFactor'
+ * ]
+ */
+if (! empty($_POST['select'])) {
     foreach ($_POST['select'] as $gIdSelected => $dupFactor) {
         if (filter_var($dupFactor, FILTER_VALIDATE_INT) !== false) {
             $selectedGraphTemplates[$gIdSelected] = (int) $dupFactor;
@@ -69,7 +67,7 @@ if (!empty($_POST['select'])) {
  *     'graphId' => 'duplicationFactor'
  * ]
  */
-if (!empty($_POST['dupNbr'])) {
+if (! empty($_POST['dupNbr'])) {
     foreach ($_POST['dupNbr'] as $gId => $dupFactor) {
         if (filter_var($dupFactor, FILTER_VALIDATE_INT) !== false) {
             $duplicationNumbers[$gId] = (int) $dupFactor;
@@ -77,31 +75,27 @@ if (!empty($_POST['dupNbr'])) {
     }
 }
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/views/graphTemplates/";
+// Path to the configuration dir
+$path = './include/views/graphTemplates/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 switch ($o) {
-    case "a":
+    case 'a':
         // Add a graph template
-        require_once $path . "formGraphTemplate.php";
+        require_once $path . 'formGraphTemplate.php';
         break;
-    case "w":
+    case 'w':
         // watch aGraph template
-        require_once $path . "formGraphTemplate.php";
+        require_once $path . 'formGraphTemplate.php';
         break;
-    case "c":
+    case 'c':
         // Modify a graph template
-        require_once $path . "formGraphTemplate.php";
+        require_once $path . 'formGraphTemplate.php';
         break;
-    case "m":
+    case 'm':
         // duplicate n time selected graph template(s)
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -110,9 +104,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once $path . "listGraphTemplates.php";
+        require_once $path . 'listGraphTemplates.php';
         break;
-    case "d":
+    case 'd':
         // delete selected graph template(s)
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -121,9 +115,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once $path . "listGraphTemplates.php";
+        require_once $path . 'listGraphTemplates.php';
         break;
     default:
-        require_once $path . "listGraphTemplates.php";
+        require_once $path . 'listGraphTemplates.php';
         break;
 }

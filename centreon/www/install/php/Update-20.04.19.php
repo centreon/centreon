@@ -18,10 +18,10 @@
  * For more information : contact@centreon.com
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.04.19:';
 
 $pearDB = new CentreonDB('centreon', 3, false);
@@ -32,12 +32,12 @@ $pearDB = new CentreonDB('centreon', 3, false);
 try {
     $pearDB->beginTransaction();
 
-    //Purge all session.
+    // Purge all session.
     $errorMessage = 'Impossible to purge the table session';
-    $pearDB->query("DELETE FROM `session`");
+    $pearDB->query('DELETE FROM `session`');
 
     $errorMessage = 'Impossible to purge the table ws_token';
-    $pearDB->query("DELETE FROM `ws_token`");
+    $pearDB->query('DELETE FROM `ws_token`');
 
     $constraintStatement = $pearDB->query(
         "SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME='session_ibfk_1'"
@@ -45,20 +45,21 @@ try {
     if (($constraint = $constraintStatement->fetch()) && (int) $constraint['count'] === 0) {
         $errorMessage = 'Impossible to add Delete Cascade constraint on the table session';
         $pearDB->query(
-            "ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) " .
-            "REFERENCES `contact` (`contact_id`) ON DELETE CASCADE"
+            'ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) '
+            . 'REFERENCES `contact` (`contact_id`) ON DELETE CASCADE'
         );
     }
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

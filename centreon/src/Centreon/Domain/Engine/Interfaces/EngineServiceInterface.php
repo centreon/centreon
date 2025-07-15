@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Engine\Interfaces;
 
+use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Check\Check;
-use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 use Centreon\Domain\Downtime\Downtime;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Acknowledgement\Acknowledgement;
-use JMS\Serializer\Exception\ValidationFailedException;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
+use JMS\Serializer\Exception\ValidationFailedException;
 
 interface EngineServiceInterface extends ContactFilterInterface
 {
@@ -138,7 +138,7 @@ interface EngineServiceInterface extends ContactFilterInterface
      */
     public function scheduleServiceCheck(Check $check, Service $service): void;
 
-     /**
+    /**
      * Submit a result to a host.
      *
      * @param SubmitResult $result Result to submit

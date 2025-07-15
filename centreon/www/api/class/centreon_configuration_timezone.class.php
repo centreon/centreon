@@ -34,8 +34,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -53,44 +53,45 @@ class CentreonConfigurationTimezone extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
         $queryValues = [];
 
         // Check for select2 'q' argument
-        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string) $this->arguments['q'] . '%' : '%%';
 
-        $queryTimezone = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT timezone_id, timezone_name FROM timezone ' .
-            'WHERE timezone_name LIKE :name ' .
-            'ORDER BY timezone_name ';
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
+        $queryTimezone = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT timezone_id, timezone_name FROM timezone '
+            . 'WHERE timezone_name LIKE :name '
+            . 'ORDER BY timezone_name ';
+        if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
             if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
+                ! is_numeric($this->arguments['page'])
+                || ! is_numeric($this->arguments['page_limit'])
                 || $this->arguments['page_limit'] < 1
             ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
+                throw new RestBadRequestException('Error, limit must be an integer greater than zero');
             }
             $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
             $queryTimezone .= 'LIMIT :offset,:limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+            $queryValues['offset'] = (int) $offset;
+            $queryValues['limit'] = (int) $this->arguments['page_limit'];
         }
         $stmt = $this->pearDB->prepare($queryTimezone);
         $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $stmt->execute();
         $timezoneList = [];
         while ($data = $stmt->fetch()) {
             $timezoneList[] = ['id' => $data['timezone_id'], 'text' => $data['timezone_name']];
         }
+
         return ['items' => $timezoneList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

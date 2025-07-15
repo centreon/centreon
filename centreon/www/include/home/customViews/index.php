@@ -30,26 +30,23 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
 
 use Symfony\Component\HttpFoundation\Request;
 
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
-require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonContactgroup.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 try {
     $db = new CentreonDB();
     $viewObj = new CentreonCustomView($centreon, $db);
 
-    /*
-     * Smarty
-     */
-    $path = "./include/home/customViews/";
+    // Smarty
+    $path = './include/home/customViews/';
 
     // Smarty template initialization
-    $template = SmartyBC::createSmartyTemplate($path, "./");
+    $template = SmartyBC::createSmartyTemplate($path, './');
 
     // Assign permissions and other variables to the template
     $aclEdit = $centreon->user->access->page('10301', true);
@@ -76,7 +73,7 @@ try {
     $aclSetDefault = $centreon->user->access->page('10308', true);
     $template->assign('aclSetDefault', $aclSetDefault);
 
-    $template->assign('editMode', _("Show/Hide edit mode"));
+    $template->assign('editMode', _('Show/Hide edit mode'));
 
     $viewId = $viewObj->getCurrentView();
     $views = $viewObj->getCustomViews();
@@ -95,8 +92,8 @@ try {
     foreach ($views as $key => $val) {
         $indexTab[$key] = $i;
         $i++;
-        $views[$key]['icon'] = !$viewObj->checkPermission($key) ? "locked" : "unlocked";
-        $views[$key]['default'] = "";
+        $views[$key]['icon'] = ! $viewObj->checkPermission($key) ? 'locked' : 'unlocked';
+        $views[$key]['default'] = '';
         if ($viewObj->getDefaultViewId() == $key) {
             $views[$key]['default'] = '<span class="ui-icon ui-icon-star" style="float:left;"></span>';
         }
@@ -107,41 +104,41 @@ try {
     $formAddView = new HTML_QuickFormCustom(
         'formAddView',
         'post',
-        "?p=103",
+        '?p=103',
         '_selft',
         ['onSubmit' => 'submitAddView(); return false;']
     );
 
     // List of shared views
     $arrayView = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => './api/internal.php?object=centreon_home_customview&action=listSharedViews', 'multiple' => false];
-    $formAddView->addElement('select2', 'viewLoad', _("Views"), [], $arrayView);
+    $formAddView->addElement('select2', 'viewLoad', _('Views'), [], $arrayView);
 
     // New view name
-    $attrsText = ["size" => "30"];
-    $formAddView->addElement('text', 'name', _("Name"), $attrsText);
+    $attrsText = ['size' => '30'];
+    $formAddView->addElement('text', 'name', _('Name'), $attrsText);
 
     $createLoad = [];
-    $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _("Create new view "), 'create');
-    $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _("Load from existing view"), 'load');
-    $formAddView->addGroup($createLoad, 'create_load', _("create or load"), '&nbsp;');
+    $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _('Create new view '), 'create');
+    $createLoad[] = $formAddView->createElement('radio', 'create_load', null, _('Load from existing view'), 'load');
+    $formAddView->addGroup($createLoad, 'create_load', _('create or load'), '&nbsp;');
     $formAddView->setDefaults(['create_load[create_load]' => 'create']);
 
     /**
      * Layout
      */
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("1 Column"), 'column_1');
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("2 Columns"), 'column_2');
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("3 Columns"), 'column_3');
-    $formAddView->addGroup($layouts, 'layout', _("Layout"), '&nbsp;');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('1 Column'), 'column_1');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('2 Columns'), 'column_2');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('3 Columns'), 'column_3');
+    $formAddView->addGroup($layouts, 'layout', _('Layout'), '&nbsp;');
     $formAddView->setDefaults(['layout[layout]' => 'column_1']);
 
-    $formAddView->addElement('checkbox', 'public', '', _("Public"));
+    $formAddView->addElement('checkbox', 'public', '', _('Public'));
 
     /**
      * Submit button
      */
-    $formAddView->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
-    $formAddView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $formAddView->addElement('submit', 'submit', _('Submit'), ['class' => 'btc bt_success']);
+    $formAddView->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $formAddView->addElement('hidden', 'action');
     $formAddView->setDefaults(['action' => 'add']);
 
@@ -160,7 +157,7 @@ try {
     $formEditView = new HTML_QuickFormCustom(
         'formEditView',
         'post',
-        "?p=103",
+        '?p=103',
         '',
         ['onSubmit' => 'submitEditView(); return false;']
     );
@@ -168,24 +165,24 @@ try {
     /**
      * Name
      */
-    $formEditView->addElement('text', 'name', _("Name"), $attrsText);
+    $formEditView->addElement('text', 'name', _('Name'), $attrsText);
 
     /**
      * Layout
      */
     $layouts = [];
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("1 Column"), 'column_1');
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("2 Columns"), 'column_2');
-    $layouts[] = $formAddView->createElement('radio', 'layout', null, _("3 Columns"), 'column_3');
-    $formEditView->addGroup($layouts, 'layout', _("Layout"), '&nbsp;');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('1 Column'), 'column_1');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('2 Columns'), 'column_2');
+    $layouts[] = $formAddView->createElement('radio', 'layout', null, _('3 Columns'), 'column_3');
+    $formEditView->addGroup($layouts, 'layout', _('Layout'), '&nbsp;');
     $formEditView->setDefaults(['layout[layout]' => 'column_1']);
 
-    $formEditView->addElement('checkbox', 'public', '', _("Public"));
+    $formEditView->addElement('checkbox', 'public', '', _('Public'));
     /**
      * Submit button
      */
-    $formEditView->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
-    $formEditView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $formEditView->addElement('submit', 'submit', _('Submit'), ['class' => 'btc bt_success']);
+    $formEditView->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $formEditView->addElement('hidden', 'action');
     $formEditView->addElement('hidden', 'custom_view_id');
     $formEditView->setDefaults(['action' => 'edit']);
@@ -205,7 +202,7 @@ try {
     $formShareView = new HTML_QuickFormCustom(
         'formShareView',
         'post',
-        "?p=103",
+        '?p=103',
         '',
         ['onSubmit' => 'submitShareView(); return false;']
     );
@@ -217,14 +214,14 @@ try {
     $formShareView->addElement(
         'select2',
         'unlocked_user_id',
-        _("Unlocked users"),
+        _('Unlocked users'),
         [],
         $attrContacts
     );
     $formShareView->addElement(
         'select2',
         'locked_user_id',
-        _("Locked users"),
+        _('Locked users'),
         [],
         $attrContacts
     );
@@ -236,28 +233,26 @@ try {
     $formShareView->addElement(
         'select2',
         'unlocked_usergroup_id',
-        _("Unlocked user groups"),
+        _('Unlocked user groups'),
         [],
         $attrContactgroups
     );
     $formShareView->addElement(
         'select2',
         'locked_usergroup_id',
-        _("Locked user groups"),
+        _('Locked user groups'),
         [],
         $attrContactgroups
     );
 
-    /*
-     * Widgets
-     */
+    // Widgets
     $attrWidgets = ['datasourceOrigin' => 'ajax', 'multiple' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_administration_widget&action=listInstalled', 'allowClear' => false];
 
     /**
      * Submit button
      */
-    $formShareView->addElement('submit', 'submit', _("Share"), ["class" => "btc bt_info"]);
-    $formShareView->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $formShareView->addElement('submit', 'submit', _('Share'), ['class' => 'btc bt_info']);
+    $formShareView->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $formShareView->addElement('hidden', 'action');
     $formShareView->setDefaults(['action' => 'share']);
     $formShareView->addElement('hidden', 'custom_view_id');
@@ -274,7 +269,7 @@ try {
     $formAddWidget = new HTML_QuickFormCustom(
         'formAddWidget',
         'post',
-        "?p=103",
+        '?p=103',
         '',
         ['onSubmit' => 'submitAddWidget(); return false;']
     );
@@ -282,14 +277,14 @@ try {
     /**
      * Name
      */
-    $formAddWidget->addElement('text', 'widget_title', _("Title"), $attrsText);
-    $formAddWidget->addElement('select2', 'widget_model_id', _("Widget"), [], $attrWidgets);
+    $formAddWidget->addElement('text', 'widget_title', _('Title'), $attrsText);
+    $formAddWidget->addElement('select2', 'widget_model_id', _('Widget'), [], $attrWidgets);
 
     /**
      * Submit button
      */
-    $formAddWidget->addElement('submit', 'submit', _("Submit"), ["class" => "btc bt_success"]);
-    $formAddWidget->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $formAddWidget->addElement('submit', 'submit', _('Submit'), ['class' => 'btc bt_success']);
+    $formAddWidget->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $formAddWidget->addElement('hidden', 'action');
     $formAddWidget->addElement('hidden', 'custom_view_id');
     $formAddWidget->setDefaults(['action' => 'addWidget']);
@@ -306,8 +301,8 @@ try {
     $template->assign(
         'editModeIcon',
         returnSvg(
-            "www/img/icons/edit_mode.svg",
-            "var(--icons-fill-color)",
+            'www/img/icons/edit_mode.svg',
+            'var(--icons-fill-color)',
             20,
             20
         )
@@ -315,44 +310,44 @@ try {
     $template->assign(
         'noEditModeIcon',
         returnSvg(
-            "www/img/icons/no_edit_mode.svg",
-            "var(--icons-fill-color)",
+            'www/img/icons/no_edit_mode.svg',
+            'var(--icons-fill-color)',
             20,
             20
         )
     );
     $template->assign(
         'addIcon',
-        returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 14, 16)
+        returnSvg('www/img/icons/add.svg', 'var(--button-icons-fill-color)', 14, 16)
     );
     $template->assign(
         'deleteIcon',
-        returnSvg("www/img/icons/trash.svg", "var(--button-icons-fill-color)", 14, 16)
+        returnSvg('www/img/icons/trash.svg', 'var(--button-icons-fill-color)', 14, 16)
     );
     $template->assign(
         'editIcon',
-        returnSvg("www/img/icons/edit.svg", "var(--button-icons-fill-color)", 14, 14)
+        returnSvg('www/img/icons/edit.svg', 'var(--button-icons-fill-color)', 14, 14)
     );
     $template->assign(
         'returnIcon',
-        returnSvg("www/img/icons/return.svg", "var(--button-icons-fill-color)", 14, 14)
+        returnSvg('www/img/icons/return.svg', 'var(--button-icons-fill-color)', 14, 14)
     );
     $template->assign(
         'folderIcon',
-        returnSvg("www/img/icons/folder.svg", "var(--button-icons-fill-color)", 14, 14)
+        returnSvg('www/img/icons/folder.svg', 'var(--button-icons-fill-color)', 14, 14)
     );
     $template->assign(
         'playIcon',
-        returnSvg("www/img/icons/play.svg", "var(--button-icons-fill-color)", 14, 14)
+        returnSvg('www/img/icons/play.svg', 'var(--button-icons-fill-color)', 14, 14)
     );
     $template->assign(
         'helpIcon',
-        returnSvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
+        returnSvg('www/img/icons/question.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18)
     );
 
-    $template->display("index.ihtml");
+    $template->display('index.ihtml');
 } catch (CentreonCustomViewException $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
 }
 
 // Initialize $modeEdit based on session variable
@@ -364,18 +359,18 @@ if (isset($_SESSION['customview_edit_mode'])) {
 $deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
 $resourcesStatusLabel = _('Dashboards');
 $basePath = (Request::createFromGlobals())->getBasePath();
-$redirectionUrl = $basePath . "/home/dashboards/library";
+$redirectionUrl = $basePath . '/home/dashboards/library';
 ?>
 
 
 <script type="text/javascript">
     var defaultShow = <?php echo $modeEdit; ?>;
     var deleteWdgtMessage =
-        "<?php echo _("Deleting this widget might impact users with whom you are sharing this view. " .
-            "Are you sure you want to do it?");?>";
+        "<?php echo _('Deleting this widget might impact users with whom you are sharing this view. '
+            . 'Are you sure you want to do it?'); ?>";
     var deleteViewMessage =
-        "<?php echo _("Deleting this view might impact other users. Are you sure you want to do it?");?>";
-    var setDefaultMessage = "<?php echo _("Set this view as your default view?");?>";
+        "<?php echo _('Deleting this view might impact other users. Are you sure you want to do it?'); ?>";
+    var setDefaultMessage = "<?php echo _('Set this view as your default view?'); ?>";
     var wrenchSpan = '<span class="ui-icon ui-icon-wrench"></span>';
     var trashSpan = '<span class="ui-icon ui-icon-trash"></span>';
 

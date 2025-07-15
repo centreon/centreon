@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016-2019 Centreon
  *
@@ -17,17 +18,20 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use Pimple\Psr11\Container;
 use Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $information;
+
     private $utils;
 
     public function setUp(): void
@@ -37,7 +41,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $this->db = new CentreonDB();
 
         $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
-        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
+        $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getConfiguration'])
             ->getMock();
@@ -68,11 +72,11 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
             ->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
-        $query = 'INSERT INTO modules_informations ' .
-            '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , ' .
-            '`svc_tools`, `host_tools`)' .
-            'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , ' .
-            ':svc_tools , :host_tools )';
+        $query = 'INSERT INTO modules_informations '
+            . '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , '
+            . '`svc_tools`, `host_tools`)'
+            . 'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , '
+            . ':svc_tools , :host_tools )';
         $this->db->addResultSet(
             $query,
             []

@@ -49,7 +49,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
      *
      * @return string
      */
-    public static function getName() : string
+    public static function getName(): string
     {
         return (new \ReflectionClass(self::class))->getShortName();
     }
@@ -98,7 +98,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
         $url .= "/{$centreonPath}/api/external.php?object=centreon_task_service&action=AddImportTaskWithParent";
 
         try {
-            $curl = new \CentreonRestHttp;
+            $curl = new \CentreonRestHttp();
             $res = $curl->call(
                 $url,
                 'POST',

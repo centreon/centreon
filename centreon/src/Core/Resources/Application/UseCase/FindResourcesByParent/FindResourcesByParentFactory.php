@@ -73,7 +73,7 @@ final class FindResourcesByParentFactory
     {
         return array_filter(
             $children,
-            static fn(ResourceResponseDto $child) => $child->parent?->id === $parentId
+            static fn (ResourceResponseDto $child) => $child->parent?->id === $parentId
         );
     }
 
@@ -89,7 +89,7 @@ final class FindResourcesByParentFactory
     {
         $childrenInStatus = array_filter(
             $children,
-            static fn(ResourceResponseDto $resource) => $resource->status?->code === $statusCode
+            static fn (ResourceResponseDto $resource) => $resource->status?->code === $statusCode
         );
 
         return count($childrenInStatus);

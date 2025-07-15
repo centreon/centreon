@@ -25,7 +25,8 @@ namespace Core\Escalation\Application\Repository;
 
 use Core\Escalation\Domain\Model\Escalation;
 
-interface ReadEscalationRepositoryInterface {
+interface ReadEscalationRepositoryInterface
+{
     /**
      * Find multiple escalations.
      *

@@ -18,7 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.10.3 : ';
@@ -32,7 +32,7 @@ try {
           AND TABLE_NAME = \'on_demand_macro_host\'
           AND COLUMN_NAME = \'is_password\''
     );
-    if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+    if (($result = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         $defaultValue = $result['COLUMN_DEFAULT'];
         if ($defaultValue !== 0) {
             // An update is required
@@ -49,7 +49,7 @@ try {
           AND TABLE_NAME = \'on_demand_macro_service\'
           AND COLUMN_NAME = \'is_password\''
     );
-    if (($defaultValue = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+    if (($defaultValue = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
         $defaultValue = $result['COLUMN_DEFAULT'];
         if ($defaultValue !== 0) {
             // An update is required
@@ -59,34 +59,36 @@ try {
             $pearDB->query('UPDATE on_demand_macro_service SET is_password = 0 WHERE is_password IS NULL');
         }
     }
-} catch (\Throwable $ex) {
+} catch (Throwable $ex) {
     (new CentreonLog())->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . $ex->getCode() .
-        " - Error : " . $ex->getMessage() .
-        " - Trace : " . $ex->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . $ex->getCode()
+        . ' - Error : ' . $ex->getMessage()
+        . ' - Trace : ' . $ex->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
 }
 
 // Contact language with transaction
 try {
     $pearDB->beginTransaction();
-    $errorMessage = "Unable to Update user language";
+    $errorMessage = 'Unable to Update user language';
     $pearDB->query(
         "UPDATE contact SET contact_lang = CONCAT(contact_lang, '.UTF-8')
         WHERE contact_lang NOT LIKE '%UTF-8' AND contact_lang <> 'browser' AND contact_lang <> ''"
     );
     $pearDB->commit();
-} catch (\Throwable $ex) {
+} catch (Throwable $ex) {
     $pearDB->rollBack();
     (new CentreonLog())->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . $ex->getCode() .
-        " - Error : " . $ex->getMessage() .
-        " - Trace : " . $ex->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . $ex->getCode()
+        . ' - Error : ' . $ex->getMessage()
+        . ' - Trace : ' . $ex->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
 }

@@ -33,7 +33,7 @@ use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaPresenterInterface;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-readonly final class DashboardUpdatedSubscriber implements EventSubscriberInterface
+final readonly class DashboardUpdatedSubscriber implements EventSubscriberInterface
 {
     /**
      * @param UpdateMedia $thumbnailUpdater

@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\Configuration;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Domain\Configuration\Model\MetaService;
+use PHPUnit\Framework\TestCase;
 
 class MetaServiceTest extends TestCase
 {
@@ -50,7 +50,7 @@ class MetaServiceTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 MetaService::MAX_NAME_LENGTH,
                 'MetaService::name'
             )->getMessage()

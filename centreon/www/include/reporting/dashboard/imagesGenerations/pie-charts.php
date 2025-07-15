@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2016 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,35 +34,35 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
-require_once _CENTREON_PATH_."www/class/centreonSession.class.php";
-require_once _CENTREON_PATH_."www/class/centreon.class.php";
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon'])) {
-    die();
+if (! isset($_SESSION['centreon'])) {
+    exit();
 }
-$oreon = $_SESSION["centreon"];
+$oreon = $_SESSION['centreon'];
 
 // -----------------------------------------------------
-$value = $_GET["value"];
+$value = $_GET['value'];
 foreach ($value as $key => $val) {
     if ($val) {
-        if (!isset($oreon->optGen["color_".strtolower($key)])) {
-            //$color[] = $oreon->optGen["color_undetermined"];
+        if (! isset($oreon->optGen['color_' . strtolower($key)])) {
+            // $color[] = $oreon->optGen["color_undetermined"];
             $color[] = '#F0F0F0';
-            $val = str_replace(",", ".", $val);
+            $val = str_replace(',', '.', $val);
             $data[] = $val;
-            $legend[] = "";
+            $legend[] = '';
         } else {
-            $color[] = $oreon->optGen["color_".strtolower($key)];
-            $val = str_replace(",", ".", $val);
+            $color[] = $oreon->optGen['color_' . strtolower($key)];
+            $val = str_replace(',', '.', $val);
             $data[] = $val;
-            $legend[] = "";
+            $legend[] = '';
         }
     }
 }
-include_once(_CENTREON_PATH_ . '/www/lib/ofc-library/open-flash-chart.php');
+include_once _CENTREON_PATH_ . '/www/lib/ofc-library/open-flash-chart.php';
 
 $g = new graph();
 $g->bg_colour = '#F3F6F6';
@@ -84,14 +85,14 @@ $g->pie_slice_colours($color);
 
 $g->set_tool_tip('#val#%');
 
-if (isset($_GET["service_name"]) && isset($_GET["host_name"])) {
+if (isset($_GET['service_name'], $_GET['host_name'])) {
     $g->title(
-        mb_convert_encoding($_GET["service_name"], 'UTF-8', 'ISO-8859-1') . " on " . mb_convert_encoding($_GET["host_name"], 'UTF-8', 'ISO-8859-1'),
+        mb_convert_encoding($_GET['service_name'], 'UTF-8', 'ISO-8859-1') . ' on ' . mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'),
         '{font-size:15px; color: #424242}'
     );
-} elseif (isset($_GET["host_name"])) {
-    $g->title(mb_convert_encoding($_GET["host_name"], 'UTF-8', 'ISO-8859-1'), '{font-size:18px; color: #424242}');
+} elseif (isset($_GET['host_name'])) {
+    $g->title(mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'), '{font-size:18px; color: #424242}');
 }
-header("Cache-Control: cache, must-revalidate");
-header("Pragma: public");
+header('Cache-Control: cache, must-revalidate');
+header('Pragma: public');
 echo $g->render();

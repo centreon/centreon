@@ -230,8 +230,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -848,8 +848,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : \PDO::PARAM_STR
                     );
                 }
             }

@@ -65,7 +65,7 @@ class ServerWizardIdentity
         $centreonUrl .= '/api/external.php?object=centreon_modules_webservice&action=getBamModuleInfo';
 
         try {
-            $curl = new Curl;
+            $curl = new Curl();
 
             if ($noCheckCertificate) {
                 $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
