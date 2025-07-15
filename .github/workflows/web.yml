@@ -474,26 +474,27 @@ jobs:
         working-directory: centreon
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-
+          
           declare -a pids
           declare -A pid_to_name
-
-          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
-
+          declare -A pid_to_cmd
+          
+          run_parallel_check() { ( "${@:2}" ) & pids+=($!); pid_to_name[$!]="$1"; pid_to_cmd[$!]="${*:2}"; }
+          
           run_parallel_check "rector:legacy" composer rector:legacy -- --no-progress-bar
           run_parallel_check "rector:core" composer rector:core -- --no-progress-bar
           run_parallel_check "rector:new" composer rector:new -- --no-progress-bar
-
+          
           result=0
           for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
-              echo "❌ Rector ${pid_to_name[$pid]}: Failed"
+              echo "❌ Rector ${pid_to_name[$pid]}: Failed (commande: ${pid_to_cmd[$pid]})"
               result=1
             else
-              echo "✅ Rector ${pid_to_name[$pid]}: Success"
+              echo "✅ Rector ${pid_to_name[$pid]}: Success (commande: ${pid_to_cmd[$pid]})"
             fi
           done
-
+          
           exit $result
 
       - name: 🧹 PHP-CS-Fixer checks
@@ -503,8 +504,9 @@ jobs:
 
           declare -a pids
           declare -A pid_to_name
-
-          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
+          declare -A pid_to_cmd
+          
+          run_parallel_check() { ( "${@:2}" ) & pids+=($!); pid_to_name[$!]="$1"; pid_to_cmd[$!]="${*:2}"; }
 
           run_parallel_check "cs:legacy" composer cs:legacy -- --format=txt --show-progress=none
           run_parallel_check "cs:core" composer cs:core -- --format=txt --show-progress=none
@@ -513,10 +515,10 @@ jobs:
           result=0
           for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
-              echo "❌ PHP-CS-Fixer ${pid_to_name[$pid]}: Failed"
+              echo "❌ PHP-CS-Fixer ${pid_to_name[$pid]}: Failed (commande: ${pid_to_cmd[$pid]})"
               result=1
             else
-              echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success"
+              echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success (commande: ${pid_to_cmd[$pid]})"
             fi
           done
 
@@ -529,8 +531,9 @@ jobs:
 
           declare -a pids
           declare -A pid_to_name
-
-          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
+          declare -A pid_to_cmd
+          
+          run_parallel_check() { ( "${@:2}" ) & pids+=($!); pid_to_name[$!]="$1"; pid_to_cmd[$!]="${*:2}"; }
 
           run_parallel_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
           run_parallel_check "stan:legacy:src" composer stan:legacy:src -- --no-progress
@@ -543,10 +546,10 @@ jobs:
           result=0
           for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
-              echo "❌ PHPStan ${pid_to_name[$pid]}: Failed"
+              echo "❌ PHPStan ${pid_to_name[$pid]}: Failed (commande: ${pid_to_cmd[$pid]})"
               result=1
             else
-              echo "✅ PHPStan ${pid_to_name[$pid]}: Success"
+              echo "✅ PHPStan ${pid_to_name[$pid]}: Success (commande: ${pid_to_cmd[$pid]})"
             fi
           done
 
