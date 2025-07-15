@@ -50,6 +50,7 @@ if (file_get_contents($engineContextPath) === '') {
 }
 
 $return['result'] = 0;
+$return['msg'] = "OK";
 echo json_encode($return);
 
 exit;

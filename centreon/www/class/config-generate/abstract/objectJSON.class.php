@@ -88,11 +88,11 @@ abstract class AbstractObjectJSON
                     message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
                 );
 
-                throw new RuntimeException('engine-context.json file does not exist');
+                throw new \RuntimeException("engine-context.json file does not exist");
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
-        } catch (JsonException|RuntimeException $ex) {
+        } catch (\JsonException|\RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
