@@ -474,55 +474,71 @@ jobs:
         working-directory: centreon
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-
-          {
-            composer rector:legacy -- --no-progress-bar && echo "✅ Rector Legacy: Success" || { echo "❌ Rector Legacy: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer rector:core -- --no-progress-bar && echo "✅ Rector Core: Success" || { echo "❌ Rector Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer rector:new -- --no-progress-bar && echo "✅ Rector New: Success" || { echo "❌ Rector New: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
+          
+          declare -a pids
+          declare -A pid_to_name
+          
+          run_check() {
+            local name="$1"
+            shift
+            (
+            "$@"
+            ) &
+            pid=$!
+            pids+=($pid)
+            pid_to_name[$pid]="$name"
+          }
+          
+          run_check "rector:legacy" composer rector:legacy -- --no-progress-bar
+          run_check "rector:core" composer rector:core -- --no-progress-bar
+          run_check "rector:new" composer rector:new -- --no-progress-bar
+          
+          result=0
+          for pid in "${pids[@]}"; do
+          if ! wait "$pid"; then
+          echo "❌ Rector ${pid_to_name[$pid]}: Failed"
+          result=1
+          else
+          echo "✅ Rector ${pid_to_name[$pid]}: Success"
           fi
-
-          wait
+          done
+          
+          exit $result
 
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
-
-          {
-            composer cs:legacy -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Legacy (www, src, tests): Success" || { echo "❌ PHP-CS-Fixer Legacy (www, src, tests): Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer cs:core -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer Core: Success" || { echo "❌ PHP-CS-Fixer Core: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          {
-            composer cs:new -- --format=txt --show-progress=none && echo "✅ PHP-CS-Fixer New: Success" || { echo "❌ PHP-CS-Fixer New: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
+          
+          declare -a pids
+          declare -A pid_to_name
+          
+          run_check() {
+            local name="$1"
+            shift
+            (
+            "$@"
+            ) &
+            pid=$!
+            pids+=($pid)
+            pid_to_name[$pid]="$name"
+          }
+          
+          run_check "cs:legacy" composer cs:legacy -- --format=txt --show-progress=none
+          run_check "cs:core" composer cs:core -- --format=txt --show-progress=none
+          run_check "cs:new" composer cs:new -- --format=txt --show-progress=none
+          
+          result=0
+          for pid in "${pids[@]}"; do
+          if ! wait "$pid"; then
+          echo "❌ PHP-CS-Fixer ${pid_to_name[$pid]}: Failed"
+          result=1
+          else
+          echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success"
           fi
-
-          wait
+          done
+          
+          exit $result
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
@@ -533,14 +549,14 @@ jobs:
           declare -A pid_to_name
 
           run_check() {
-          local name="$1"
-          shift
-          (
-          "$@"
-          ) &
-          pid=$!
-          pids+=($pid)
-          pid_to_name[$pid]="$name"
+            local name="$1"
+            shift
+            (
+            "$@"
+            ) &
+            pid=$!
+            pids+=($pid)
+            pid_to_name[$pid]="$name"
           }
 
           run_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
@@ -563,22 +579,10 @@ jobs:
 
           exit $result
 
-      - name: 📐 Deptrac checks
+      - name: 📐 Deptrac checks for the new section (dep:new)
         working-directory: centreon
-        run: |
-          echo "Run of these Deptrac tests: dep:new" && set -e
+        run: composer dep:new -- --no-progress --formatter=github-actions
 
-          {
-            composer dep:new -- --no-progress --formatter=github-actions && echo "✅ Deptrac New: Success" || { echo "❌ Deptrac New: Failed"; exit 1; }
-          } &
-          pids+=($!)
-
-          if ! wait -n; then
-            kill "${pids[@]}" 2>/dev/null || true
-            exit 1
-          fi
-
-          wait
 
   package:
     needs:
