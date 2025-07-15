@@ -36,7 +36,7 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -308,7 +308,7 @@ abstract class AbstractHost extends AbstractObject
      * Format Macros for export.
      *
      * @param array<string, mixed> $host
-     * @param Macro[] $hostMacros
+     * @param MacroDomain[] $hostMacros
      */
     protected function formatMacros(array &$host, array $hostMacros)
     {

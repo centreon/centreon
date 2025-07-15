@@ -115,16 +115,18 @@ abstract class AbstractObject
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
         $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
         $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
-        if ($engineContext === false) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
-            );
-        }
         try {
+            if ($engineContext === false || empty($engineContext)) {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
+                );
+
+                throw new \RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
+            }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
             $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
-        } catch (JsonException $ex) {
+        } catch (JsonException|\RuntimeException $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
