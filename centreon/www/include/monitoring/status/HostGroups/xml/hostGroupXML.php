@@ -34,19 +34,18 @@
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../../bootstrap.php");
-include_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
-include_once _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
-include_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
+require_once realpath(__DIR__ . '/../../../../../../bootstrap.php');
+include_once _CENTREON_PATH_ . 'www/class/centreonUtils.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonXMLBGRequest.class.php';
+include_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 
-/*
- * Create XML Request Objects
- */
+// Create XML Request Objects
 CentreonSession::start();
 $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
 
-if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
-    print "Bad Session ID";
+if (! isset($obj->session_id) || ! CentreonSession::checkSession($obj->session_id, $obj->DB)) {
+    echo 'Bad Session ID';
+
     exit();
 }
 
@@ -61,33 +60,33 @@ $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 // Set Default Poller
 $obj->getDefaultFilters();
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
-    \Centreon\Application\Controller\MonitoringResourceController::class
+    Centreon\Application\Controller\MonitoringResourceController::class
 );
 
 // Alias / Name conversion table
 $convertTable = [];
 $convertID = [];
-$dbResult = $obj->DBC->query("SELECT 1 AS REALTIME, hostgroup_id, name FROM hostgroups");
+$dbResult = $obj->DBC->query('SELECT 1 AS REALTIME, hostgroup_id, name FROM hostgroups');
 while ($hg = $dbResult->fetch()) {
-    $convertTable[$hg["name"]] = $hg["name"];
-    $convertID[$hg["name"]] = $hg["hostgroup_id"];
+    $convertTable[$hg['name']] = $hg['name'];
+    $convertID[$hg['name']] = $hg['hostgroup_id'];
 }
 $dbResult->closeCursor();
 
 // Check Arguments From GET tab
-$o = isset($_GET['o']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
+$o = isset($_GET['o']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['o']) : 'h';
 $p = filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT, ['options' => ['default' => 2]]);
 $num = filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT, ['options' => ['default' => 20]]);
-//if instance value is not set, displaying all active pollers linked resources
+// if instance value is not set, displaying all active pollers linked resources
 $instance = filter_var($obj->defaultPoller ?? -1, FILTER_VALIDATE_INT);
 
-$search = isset($_GET['search']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
-$order = isset($_GET['order']) && $_GET['order'] === "DESC" ? "DESC" : "ASC";
+$search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']) : '';
+$order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
-//saving bound values
+// saving bound values
 $queryValues = [];
 
 $groupStr = $obj->access->getAccessGroupsString();
@@ -96,46 +95,44 @@ $groupStr = $obj->access->getAccessGroupsString();
 $obj->setInstanceHistory($instance);
 
 // Search string
-$searchStr = " ";
-if ($search != "") {
-    $searchStr = " AND hg.name LIKE :search ";
+$searchStr = ' ';
+if ($search != '') {
+    $searchStr = ' AND hg.name LIKE :search ';
     $queryValues['search'] = [
-        \PDO::PARAM_STR => '%' . $search . '%'
+        PDO::PARAM_STR => '%' . $search . '%',
     ];
 }
 
-/*
- * Host state
- */
+// Host state
 if ($obj->is_admin) {
-    $rq1 = "SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(h.host_id) AS nb
+    $rq1 = 'SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(h.host_id) AS nb
         FROM hosts_hostgroups hhg, hosts h, hostgroups hg
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
-        AND h.enabled = 1 ";
+        AND h.enabled = 1 ';
     if (isset($instance) && $instance > 0) {
-        $rq1 .= "AND h.instance_id = :instance";
+        $rq1 .= 'AND h.instance_id = :instance';
         $queryValues['instance'] = [
-            \PDO::PARAM_INT => $instance
+            PDO::PARAM_INT => $instance,
         ];
     }
-    $rq1 .= $searchStr . "GROUP BY hg.name " . $order . ", h.state";
+    $rq1 .= $searchStr . 'GROUP BY hg.name ' . $order . ', h.state';
 } else {
-    $rq1 = "SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
+    $rq1 = 'SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
-        AND h.enabled = 1 ";
+        AND h.enabled = 1 ';
     if (isset($instance) && $instance > 0) {
-        $rq1 .= "AND h.instance_id = :instance";
+        $rq1 .= 'AND h.instance_id = :instance';
         $queryValues['instance'] = [
-            \PDO::PARAM_INT => $instance
+            PDO::PARAM_INT => $instance,
         ];
     }
-    $rq1 .= $searchStr . $obj->access->queryBuilder("AND", "hg.name", $obj->access->getHostGroupsString("NAME")) .
-        "AND h.host_id = acl.host_id
-        AND acl.group_id in (" . $groupStr . ")
-        GROUP BY hg.name " . $order . ", h.state";
+    $rq1 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
+        . 'AND h.host_id = acl.host_id
+        AND acl.group_id in (' . $groupStr . ')
+        GROUP BY hg.name ' . $order . ', h.state';
 }
 $dbResult = $obj->DBC->prepare($rq1);
 foreach ($queryValues as $bindId => $bindData) {
@@ -146,46 +143,44 @@ foreach ($queryValues as $bindId => $bindData) {
 $dbResult->execute();
 
 while ($data = $dbResult->fetch()) {
-    if (!isset($stats[$data["alias"]])) {
-        $stats[$data["alias"]] = ["h" => [0 => 0, 1 => 0, 2 => 0, 3 => 0], "s" => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
+    if (! isset($stats[$data['alias']])) {
+        $stats[$data['alias']] = ['h' => [0 => 0, 1 => 0, 2 => 0, 3 => 0], 's' => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
     }
-    $stats[$data["alias"]]["h"][$data["state"]] = $data["nb"];
+    $stats[$data['alias']]['h'][$data['state']] = $data['nb'];
 }
 $dbResult->closeCursor();
 
-/*
- * Get Services request
- */
+// Get Services request
 if ($obj->is_admin) {
-    $rq2 = "SELECT 1 AS REALTIME, hg.name AS alias, s.state, COUNT( s.service_id ) AS nb,
+    $rq2 = 'SELECT 1 AS REALTIME, hg.name AS alias, s.state, COUNT( s.service_id ) AS nb,
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
         FROM hosts_hostgroups hhg, hosts h, hostgroups hg, services s
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
         AND h.enabled = 1
         AND h.host_id = s.host_id
-        AND s.enabled = 1 ";
+        AND s.enabled = 1 ';
     if (isset($instance) && $instance > 0) {
-        $rq2 .= "AND h.instance_id = :instance";
+        $rq2 .= 'AND h.instance_id = :instance';
     }
-    $rq2 .= $searchStr . "GROUP BY hg.name, s.state ORDER BY tri ASC";
+    $rq2 .= $searchStr . 'GROUP BY hg.name, s.state ORDER BY tri ASC';
 } else {
-    $rq2 = "SELECT 1 AS REALTIME, hg.name as alias, s.state, COUNT( s.service_id ) AS nb,
+    $rq2 = 'SELECT 1 AS REALTIME, hg.name as alias, s.state, COUNT( s.service_id ) AS nb,
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg, services s
         WHERE hg.hostgroup_id = hhg.hostgroup_id
         AND hhg.host_id = h.host_id
         AND h.enabled = 1
         AND h.host_id = s.host_id
-        AND s.enabled = 1 ";
+        AND s.enabled = 1 ';
     if (isset($instance) && $instance > 0) {
-        $rq2 .= "AND h.instance_id = :instance";
+        $rq2 .= 'AND h.instance_id = :instance';
     }
-    $rq2 .= $searchStr . $obj->access->queryBuilder("AND", "hg.name", $obj->access->getHostGroupsString("NAME")) .
-        "AND h.host_id = acl.host_id
+    $rq2 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
+        . 'AND h.host_id = acl.host_id
         AND s.service_id = acl.service_id
-        AND acl.group_id IN (" . $groupStr . ")
-        GROUP BY hg.name, s.state ORDER BY tri ASC";
+        AND acl.group_id IN (' . $groupStr . ')
+        GROUP BY hg.name, s.state ORDER BY tri ASC';
 }
 
 $dbResult = $obj->DBC->prepare($rq2);
@@ -197,26 +192,24 @@ foreach ($queryValues as $bindId => $bindData) {
 $dbResult->execute();
 
 while ($data = $dbResult->fetch()) {
-    if (!isset($stats[$data["alias"]])) {
-        $stats[$data["alias"]] = ["h" => [0 => 0, 1 => 0, 2 => 0, 3 => 0], "s" => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
+    if (! isset($stats[$data['alias']])) {
+        $stats[$data['alias']] = ['h' => [0 => 0, 1 => 0, 2 => 0, 3 => 0], 's' => [0 => 0, 1 => 0, 2 => 0, 3 => 0, 3 => 0, 4 => 0]];
     }
-    if ($stats[$data["alias"]]) {
-        $stats[$data["alias"]]["s"][$data["state"]] = $data["nb"];
+    if ($stats[$data['alias']]) {
+        $stats[$data['alias']]['s'][$data['state']] = $data['nb'];
     }
 }
 
-/*
- * Get Pagination Rows
- */
+// Get Pagination Rows
 $stats ??= [];
 $numRows = count($stats);
 
-$obj->XML->startElement("reponse");
-$obj->XML->startElement("i");
-$obj->XML->writeElement("numrows", $numRows);
-$obj->XML->writeElement("num", $num);
-$obj->XML->writeElement("limit", $limit);
-$obj->XML->writeElement("p", $p);
+$obj->XML->startElement('reponse');
+$obj->XML->startElement('i');
+$obj->XML->writeElement('numrows', $numRows);
+$obj->XML->writeElement('num', $num);
+$obj->XML->writeElement('limit', $limit);
+$obj->XML->writeElement('p', $p);
 $obj->XML->endElement();
 
 $buildParameter = function ($id, string $name) {
@@ -256,92 +249,92 @@ if (isset($stats)) {
     foreach ($stats as $name => $stat) {
         if (
             ($i < (($num + 1) * $limit) && $i >= (($num) * $limit))
-            && ((isset($converTable[$name]) && isset($acl[$convertTable[$name]])) || (!isset($acl)))
-            && $name != "meta_hostgroup"
+            && ((isset($converTable[$name], $acl[$convertTable[$name]])) || (! isset($acl)))
+            && $name != 'meta_hostgroup'
         ) {
             $class = $obj->getNextLineClass();
-            if (isset($stat["h"]) && count($stat["h"])) {
+            if (isset($stat['h']) && count($stat['h'])) {
                 $hostgroup = $buildParameter(
                     (int) $convertID[$convertTable[$name]],
                     $convertTable[$name]
                 );
-                $obj->XML->startElement("l");
-                $obj->XML->writeAttribute("class", $class);
-                $obj->XML->writeElement("o", $ct++);
+                $obj->XML->startElement('l');
+                $obj->XML->writeAttribute('class', $class);
+                $obj->XML->writeElement('o', $ct++);
                 $obj->XML->writeElement(
-                    "hn",
-                    CentreonUtils::escapeSecure($convertTable[$name] . " (" . $name . ")"),
+                    'hn',
+                    CentreonUtils::escapeSecure($convertTable[$name] . ' (' . $name . ')'),
                     false
                 );
-                $obj->XML->writeElement("hu", $stat["h"][0]);
-                $obj->XML->writeElement("huc", $obj->colorHost[0]);
-                $obj->XML->writeElement("hd", $stat["h"][1]);
-                $obj->XML->writeElement("hdc", $obj->colorHost[1]);
-                $obj->XML->writeElement("hur", $stat["h"][2]);
-                $obj->XML->writeElement("hurc", $obj->colorHost[2]);
-                $obj->XML->writeElement("sc", $stat["s"][2]);
-                $obj->XML->writeElement("scc", $obj->colorService[2]);
-                $obj->XML->writeElement("sw", $stat["s"][1]);
-                $obj->XML->writeElement("swc", $obj->colorService[1]);
-                $obj->XML->writeElement("su", $stat["s"][3]);
-                $obj->XML->writeElement("suc", $obj->colorService[3]);
-                $obj->XML->writeElement("sk", $stat["s"][0]);
-                $obj->XML->writeElement("skc", $obj->colorService[0]);
-                $obj->XML->writeElement("sp", $stat["s"][4]);
-                $obj->XML->writeElement("spc", $obj->colorService[4]);
-                $hostgroupDeprecatedUri = CentreonUtils::escapeSecure("main.php?p=20201&o=svc&hg=" . $hostgroup['id']);
+                $obj->XML->writeElement('hu', $stat['h'][0]);
+                $obj->XML->writeElement('huc', $obj->colorHost[0]);
+                $obj->XML->writeElement('hd', $stat['h'][1]);
+                $obj->XML->writeElement('hdc', $obj->colorHost[1]);
+                $obj->XML->writeElement('hur', $stat['h'][2]);
+                $obj->XML->writeElement('hurc', $obj->colorHost[2]);
+                $obj->XML->writeElement('sc', $stat['s'][2]);
+                $obj->XML->writeElement('scc', $obj->colorService[2]);
+                $obj->XML->writeElement('sw', $stat['s'][1]);
+                $obj->XML->writeElement('swc', $obj->colorService[1]);
+                $obj->XML->writeElement('su', $stat['s'][3]);
+                $obj->XML->writeElement('suc', $obj->colorService[3]);
+                $obj->XML->writeElement('sk', $stat['s'][0]);
+                $obj->XML->writeElement('skc', $obj->colorService[0]);
+                $obj->XML->writeElement('sp', $stat['s'][4]);
+                $obj->XML->writeElement('spc', $obj->colorService[4]);
+                $hostgroupDeprecatedUri = CentreonUtils::escapeSecure('main.php?p=20201&o=svc&hg=' . $hostgroup['id']);
                 $obj->XML->writeElement(
                     'hg_listing_uri',
                     $useDeprecatedPages ? $hostgroupDeprecatedUri : $buildHostgroupUri([$hostgroup], [], [])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_h_up",
+                    'hg_listing_h_up',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=h_up'
                         : $buildHostgroupUri([$hostgroup], [$hostType], [$upStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_h_down",
+                    'hg_listing_h_down',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=h_down'
                         : $buildHostgroupUri([$hostgroup], [$hostType], [$downStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_h_unreachable",
+                    'hg_listing_h_unreachable',
                     $buildHostgroupUri([$hostgroup], [$hostType], [$unreachableStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_h_pending",
+                    'hg_listing_h_pending',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=h_pending'
                         : $buildHostgroupUri([$hostgroup], [$hostType], [$pendingStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_s_ok",
+                    'hg_listing_s_ok',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=svc&amp;statusFilter=ok'
                         : $buildHostgroupUri([$hostgroup], [$serviceType], [$okStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_s_warning",
+                    'hg_listing_s_warning',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=svc&amp;statusFilter=warning'
                         : $buildHostgroupUri([$hostgroup], [$serviceType], [$warningStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_s_critical",
+                    'hg_listing_s_critical',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=svc&amp;statusFilter=critical'
                         : $buildHostgroupUri([$hostgroup], [$serviceType], [$criticalStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_s_unknown",
+                    'hg_listing_s_unknown',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=svc&amp;statusFilter=unknown'
                         : $buildHostgroupUri([$hostgroup], [$serviceType], [$unknownStatus])
                 );
                 $obj->XML->writeElement(
-                    "hg_listing_s_pending",
+                    'hg_listing_s_pending',
                     $useDeprecatedPages
                         ? $hostgroupDeprecatedUri . '&amp;o=svc&amp;statusFilter=pending'
                         : $buildHostgroupUri([$hostgroup], [$serviceType], [$pendingStatus])
@@ -353,8 +346,8 @@ if (isset($stats)) {
     }
 }
 
-if (!$ct) {
-    $obj->XML->writeElement("infos", "none");
+if (! $ct) {
+    $obj->XML->writeElement('infos', 'none');
 }
 $obj->XML->endElement();
 

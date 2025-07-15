@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Comment\Interfaces;
 
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
+use Centreon\Domain\Monitoring\Comment\Comment;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 
 interface CommentServiceInterface extends ContactFilterInterface
 {
     /**
      * Function allowing contact to add a comment to a service
      *
-     * @param  Comment $comment Comment to add to the service
+     * @param Comment $comment Comment to add to the service
      * @param Service $service Service that will receive the comment
      */
     public function addServiceComment(Comment $comment, Service $service): void;
@@ -40,7 +40,7 @@ interface CommentServiceInterface extends ContactFilterInterface
     /**
      * Function allowing contact to add a comment to a service
      *
-     * @param  Comment $comment Comment to add to the service
+     * @param Comment $comment Comment to add to the service
      * @param Service $metaService Meta service that will receive the comment
      */
     public function addMetaServiceComment(Comment $comment, Service $metaService): void;
@@ -48,7 +48,7 @@ interface CommentServiceInterface extends ContactFilterInterface
     /**
      * Function allowing contact to add a comment to a host
      *
-     * @param  Comment $comment Comment to add to the host
+     * @param Comment $comment Comment to add to the host
      * @param Host $host Host that will receive the comment
      * @return void
      */

@@ -49,4 +49,3 @@ class FindRealTimeServiceStatusesCountPresenter extends AbstractPresenter implem
         }
     }
 }
-

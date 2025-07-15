@@ -34,25 +34,19 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit;
 }
 
-/*
- * Required files
- */
+// Required files
 require_once './include/reporting/dashboard/initReport.php';
 
-/*
- *  Getting service to report
- */
+// Getting service to report
 $hostId = filter_var($_GET['host_id'] ?? $_POST['host_id'] ?? false, FILTER_VALIDATE_INT);
 $serviceId = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
 
-/*
- * FORMS
- */
-$form = new HTML_QuickFormCustom('formItem', 'post', "?p=" . $p);
+// FORMS
+$form = new HTML_QuickFormCustom('formItem', 'post', '?p=' . $p);
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
@@ -60,17 +54,17 @@ $host_name = getMyHostName($hostId);
 $items = $centreon->user->access->getHostServices($pearDBO, $hostId);
 $itemsForUrl = [];
 foreach ($items as $key => $value) {
-    $itemsForUrl[str_replace(":", "%3A", $key)] = str_replace(":", "%3A", $value);
+    $itemsForUrl[str_replace(':', '%3A', $key)] = str_replace(':', '%3A', $value);
 }
 $service_name = $itemsForUrl[$serviceId];
 
 $select = $formPeriod->addElement(
     'select',
     'itemElement',
-    _("Service"),
+    _('Service'),
     $items,
     [
-        "onChange" => "this.form.submit();"
+        'onChange' => 'this.form.submit();',
     ]
 );
 $select->setSelected((string) $serviceId);
@@ -91,9 +85,7 @@ $form->addElement(
 );
 $form->addElement('hidden', 'p', $p);
 
-/*
- * Set service id with period selection form
- */
+// Set service id with period selection form
 if ($serviceId !== false && $hostId !== false) {
     $formPeriod->addElement(
         'hidden',
@@ -112,77 +104,69 @@ if ($serviceId !== false && $hostId !== false) {
     );
     $form->setDefaults(['itemElement' => $serviceId]);
 
-    /*
-     * Getting periods values
-     */
-    $dates = getPeriodToReport("alternate");
+    // Getting periods values
+    $dates = getPeriodToReport('alternate');
     $startDate = $dates[0];
     $endDate = $dates[1];
 
-    /*
-     * Getting hostgroup and his hosts stats
-     */
+    // Getting hostgroup and his hosts stats
     $servicesStats = getServicesLogs(
         [[
             'hostId' => $hostId,
-            'serviceId' => $serviceId
+            'serviceId' => $serviceId,
         ]],
         $startDate,
         $endDate,
         $reportingTimePeriod
     );
 
-    if (!empty($servicesStats)) {
+    if (! empty($servicesStats)) {
         $serviceStats = $servicesStats[$hostId][$serviceId];
     } else {
         $serviceStats = [
-            "OK_TF" => null,
-            "OK_MP" => null,
-            "OK_TP" => null,
-            "OK_A" => null,
-            "WARNING_TP" => null,
-            "WARNING_A" => null,
-            "WARNING_MP" => null,
-            "WARNING_TF" => null,
-            "CRITICAL_TP" => null,
-            "CRITICAL_A" => null,
-            "CRITICAL_MP" => null,
-            "CRITICAL_TF" => null,
-            "UNKNOWN_TP" => null,
-            "UNKNOWN_A" => null,
-            "UNKNOWN_MP" => null,
-            "UNKNOWN_TF" => null,
-            "UNDETERMINED_TP" => 100,
-            "UNDETERMINED_A" => null,
-            "UNDETERMINED_TF" => null,
-            "MAINTENANCE_TP" => null,
-            "MAINTENANCE_TF" => null,
-            "TOTAL_ALERTS" => null,
-            "TOTAL_TIME_F" => null,
+            'OK_TF' => null,
+            'OK_MP' => null,
+            'OK_TP' => null,
+            'OK_A' => null,
+            'WARNING_TP' => null,
+            'WARNING_A' => null,
+            'WARNING_MP' => null,
+            'WARNING_TF' => null,
+            'CRITICAL_TP' => null,
+            'CRITICAL_A' => null,
+            'CRITICAL_MP' => null,
+            'CRITICAL_TF' => null,
+            'UNKNOWN_TP' => null,
+            'UNKNOWN_A' => null,
+            'UNKNOWN_MP' => null,
+            'UNKNOWN_TF' => null,
+            'UNDETERMINED_TP' => 100,
+            'UNDETERMINED_A' => null,
+            'UNDETERMINED_TF' => null,
+            'MAINTENANCE_TP' => null,
+            'MAINTENANCE_TF' => null,
+            'TOTAL_ALERTS' => null,
+            'TOTAL_TIME_F' => null,
         ];
     }
 
-    /*
-     * Chart datas
-     */
-    $tpl->assign('service_ok', $serviceStats["OK_TP"]);
-    $tpl->assign('service_warning', $serviceStats["WARNING_TP"]);
-    $tpl->assign('service_critical', $serviceStats["CRITICAL_TP"]);
-    $tpl->assign('service_unknown', $serviceStats["UNKNOWN_TP"]);
-    $tpl->assign('service_undetermined', $serviceStats["UNDETERMINED_TP"]);
-    $tpl->assign('service_maintenance', $serviceStats["MAINTENANCE_TP"]);
+    // Chart datas
+    $tpl->assign('service_ok', $serviceStats['OK_TP']);
+    $tpl->assign('service_warning', $serviceStats['WARNING_TP']);
+    $tpl->assign('service_critical', $serviceStats['CRITICAL_TP']);
+    $tpl->assign('service_unknown', $serviceStats['UNKNOWN_TP']);
+    $tpl->assign('service_undetermined', $serviceStats['UNDETERMINED_TP']);
+    $tpl->assign('service_maintenance', $serviceStats['MAINTENANCE_TP']);
 
-    /*
-     * Exporting variables for ihtml
-     */
+    // Exporting variables for ihtml
     $tpl->assign('host_name', $host_name);
     $tpl->assign('name', $itemsForUrl[$serviceId]);
-    $tpl->assign('totalAlert', $serviceStats["TOTAL_ALERTS"]);
-    $tpl->assign('totalTime', $serviceStats["TOTAL_TIME_F"]);
+    $tpl->assign('totalAlert', $serviceStats['TOTAL_ALERTS']);
+    $tpl->assign('totalTime', $serviceStats['TOTAL_TIME_F']);
     $tpl->assign('summary', $serviceStats);
-    $tpl->assign('from', _("From"));
+    $tpl->assign('from', _('From'));
     $tpl->assign('date_start', $startDate);
-    $tpl->assign('to', _("to"));
+    $tpl->assign('to', _('to'));
     $tpl->assign('date_end', $endDate);
     $formPeriod->setDefaults(['period' => $period]);
     $tpl->assign('id', $serviceId);
@@ -192,34 +176,28 @@ if ($serviceId !== false && $hostId !== false) {
      * CSV Export
      */
     $tpl->assign(
-        "link_csv_url",
-        "./include/reporting/dashboard/csvExport/csv_ServiceLogs.php?host="
-        . $hostId . "&service=" . $serviceId . "&start=" . $startDate . "&end=" . $endDate
+        'link_csv_url',
+        './include/reporting/dashboard/csvExport/csv_ServiceLogs.php?host='
+        . $hostId . '&service=' . $serviceId . '&start=' . $startDate . '&end=' . $endDate
     );
-    $tpl->assign("link_csv_name", _("Export in CSV format"));
+    $tpl->assign('link_csv_name', _('Export in CSV format'));
 
-    /*
-     * status colors
-     */
-    $color = substr($colors["up"], 1)
-        . ':' . substr($colors["down"], 1)
-        . ':' . substr($colors["unreachable"], 1)
-        . ':' . substr($colors["undetermined"], 1)
-        . ':' . substr($colors["maintenance"], 1);
+    // status colors
+    $color = substr($colors['up'], 1)
+        . ':' . substr($colors['down'], 1)
+        . ':' . substr($colors['unreachable'], 1)
+        . ':' . substr($colors['undetermined'], 1)
+        . ':' . substr($colors['maintenance'], 1);
 
-    /*
-     * Ajax timeline
-     */
+    // Ajax timeline
     $type = 'Service';
-    include("./include/reporting/dashboard/ajaxReporting_js.php");
+    include './include/reporting/dashboard/ajaxReporting_js.php';
 } else {
     ?><script type="text/javascript"> function initTimeline() {;} </script> <?php
 }
-$tpl->assign('resumeTitle', _("Service state"));
+$tpl->assign('resumeTitle', _('Service state'));
 
-/*
- * Rendering forms
- */
+// Rendering forms
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $formPeriod->accept($renderer);
 $tpl->assign('formPeriod', $renderer->toArray());
@@ -229,8 +207,8 @@ $form->accept($renderer);
 $tpl->assign('formItem', $renderer->toArray());
 
 if (
-    !$formPeriod->isSubmitted()
+    ! $formPeriod->isSubmitted()
     || ($formPeriod->isSubmitted() && $formPeriod->validate())
 ) {
-    $tpl->display("template/viewServicesLog.ihtml");
+    $tpl->display('template/viewServicesLog.ihtml');
 }

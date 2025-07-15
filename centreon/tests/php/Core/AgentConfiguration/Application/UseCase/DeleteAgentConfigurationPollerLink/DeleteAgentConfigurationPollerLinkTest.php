@@ -147,8 +147,8 @@ it('should present an ErrorResponse when the poller is the only one linked to th
             AgentConfigurationException::onlyOnePoller(
                 $this->pollerId,
                 $this->testedAcId
-                )->getMessage()
-            );
+            )->getMessage()
+        );
 });
 
 it('should present a NoContentResponse on success', function (): void {

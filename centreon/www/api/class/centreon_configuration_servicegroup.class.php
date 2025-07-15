@@ -57,9 +57,9 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -112,27 +112,27 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
         }
 
         $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                sg.sg_id,
-                sg.sg_name,
-                sg.sg_activate
-            FROM servicegroup sg
-            WHERE sg_name LIKE :serviceGroupName $aclServicegroups
-            ORDER BY sg.sg_name
-            $range
-        SQL;
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    sg.sg_id,
+                    sg.sg_name,
+                    sg.sg_activate
+                FROM servicegroup sg
+                WHERE sg_name LIKE :serviceGroupName {$aclServicegroups}
+                ORDER BY sg.sg_name
+                {$range}
+            SQL;
 
         $statement = $this->pearDB->prepare($request);
 
-        $statement->bindValue(':serviceGroupName', $queryValues['serviceGroupName'], \PDO::PARAM_STR);
+        $statement->bindValue(':serviceGroupName', $queryValues['serviceGroupName'], PDO::PARAM_STR);
 
         if (isset($queryValues['offset'])) {
-            $statement->bindParam(':offset', $queryValues['offset'], \PDO::PARAM_INT);
-            $statement->bindParam(':limit', $queryValues['limit'], \PDO::PARAM_INT);
+            $statement->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $statement->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $statement->execute();
         $serviceGroups = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             $serviceGroups[] = [
                 'id' => htmlentities($record['sg_id']),
                 'text' => $record['sg_name'],
@@ -147,9 +147,9 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getServiceList()
     {
@@ -186,10 +186,10 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
                 $filters[] = ' sg.sg_id IN (' . $acl->getServiceGroupsString() . ') ';
             }
 
-           $filters[] = ' s.service_id IN (' . $acl->getServicesString($this->pearDBMonitoring) . ') ';
+            $filters[] = ' s.service_id IN (' . $acl->getServicesString($this->pearDBMonitoring) . ') ';
         }
 
-        $request = <<<SQL_WRAP
+        $request = <<<'SQL_WRAP'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     s.service_id,
                     s.service_description,
@@ -242,13 +242,13 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
         $statement = $this->pearDB->prepare($request);
 
         foreach ($queryValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
         }
 
         $statement->execute();
 
         $serviceList = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             $serviceList[] = [
                 'id' => $record['host_id'] . '_' . $record['service_id'],
                 'text' => $record['host_name'] . ' - ' . $record['service_description'],

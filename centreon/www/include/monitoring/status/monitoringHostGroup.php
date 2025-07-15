@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,33 +34,33 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 require_once './class/centreonDuration.class.php';
-include_once("./include/monitoring/common-Func.php");
-include_once("./include/monitoring/external_cmd/cmd.php");
+include_once './include/monitoring/common-Func.php';
+include_once './include/monitoring/external_cmd/cmd.php';
 
 $continue = true;
 
-$path_hg = "./include/monitoring/status/HostGroups/";
+$path_hg = './include/monitoring/status/HostGroups/';
 
-$pathDetails = "./include/monitoring/objectDetails/";
+$pathDetails = './include/monitoring/objectDetails/';
 
-include_once("./class/centreonDB.class.php");
+include_once './class/centreonDB.class.php';
 
 switch ($o) {
-    case "hg":
-        require_once($path_hg."hostGroup.php");
+    case 'hg':
+        require_once $path_hg . 'hostGroup.php';
         break;
-    case "hgpb":
-        require_once($path_hg."hostGroup.php");
+    case 'hgpb':
+        require_once $path_hg . 'hostGroup.php';
         break;
-    case "hgd":
-        require_once($pathDetails."hostgroupDetails.php");
+    case 'hgd':
+        require_once $pathDetails . 'hostgroupDetails.php';
         break;
     default:
-        require_once($path_hg."hostGroup.php");
+        require_once $path_hg . 'hostGroup.php';
         break;
 }

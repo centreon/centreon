@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,28 +34,28 @@
  *
  */
 
-$o = "svcd";
+$o = 'svcd';
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-require_once(_CENTREON_PATH_ . "www/class/centreonHost.class.php");
-require_once(_CENTREON_PATH_ . "www/class/centreonService.class.php");
-include_once(_CENTREON_PATH_ . "www/class/centreonMeta.class.php");
-require_once(_CENTREON_PATH_ . "www/class/centreonDB.class.php");
+require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
+include_once _CENTREON_PATH_ . 'www/class/centreonMeta.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 
-$host_name = $_GET["host_name"] ?? null;
-$service_description = $_GET["service_description"] ?? null;
-$cmd = $_GET["cmd"] ?? null;
-$is_meta = isset($_GET["is_meta"]) && $_GET["is_meta"] == 'true' ? $_GET["is_meta"] : 'false';
+$host_name = $_GET['host_name'] ?? null;
+$service_description = $_GET['service_description'] ?? null;
+$cmd = $_GET['cmd'] ?? null;
+$is_meta = isset($_GET['is_meta']) && $_GET['is_meta'] == 'true' ? $_GET['is_meta'] : 'false';
 
 $hObj = new CentreonHost($pearDB);
 $serviceObj = new CentreonService($pearDB);
 $metaObj = new CentreonMeta($pearDB);
-$path = "./include/monitoring/submitPassivResults/";
+$path = './include/monitoring/submitPassivResults/';
 
-$pearDBndo = new CentreonDB("centstorage");
+$pearDBndo = new CentreonDB('centstorage');
 
 $host_id = $hObj->getHostId($host_name);
 $hostDisplayName = $host_name;
@@ -71,8 +72,7 @@ if ($is_meta == 'true') {
     $serviceDisplayName = $serviceParameters['display_name'];
 }
 
-
-if (!$is_admin && $host_id) {
+if (! $is_admin && $host_id) {
     $flag_acl = 0;
     if ($is_meta == 'true') {
         $aclMetaServices = $centreon->user->access->getMetaServices();
@@ -89,14 +89,14 @@ if (!$is_admin && $host_id) {
 }
 
 if (($is_admin || $flag_acl) && $host_id) {
-    $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=".$p);
-    $form->addElement('header', 'title', _("Command Options"));
+    $form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
+    $form->addElement('header', 'title', _('Command Options'));
 
-    $return_code = ["0" => "OK", "1" => "WARNING", "3" => "UNKNOWN", "2" => "CRITICAL"];
+    $return_code = ['0' => 'OK', '1' => 'WARNING', '3' => 'UNKNOWN', '2' => 'CRITICAL'];
 
-    $form->addElement('select', 'return_code', _("Check result"), $return_code);
-    $form->addElement('text', 'output', _("Check output"), ["size"=>"100"]);
-    $form->addElement('text', 'dataPerform', _("Performance data"), ["size"=>"100"]);
+    $form->addElement('select', 'return_code', _('Check result'), $return_code);
+    $form->addElement('text', 'output', _('Check output'), ['size' => '100']);
+    $form->addElement('text', 'dataPerform', _('Performance data'), ['size' => '100']);
 
     $form->addElement('hidden', 'host_name', $host_name);
     $form->addElement('hidden', 'service_description', $service_description);
@@ -104,13 +104,13 @@ if (($is_admin || $flag_acl) && $host_id) {
     $form->addElement('hidden', 'cmd', $cmd);
     $form->addElement('hidden', 'p', $p);
 
-    $form->addElement('submit', 'submit', _("Save"), ["class" => "btc bt_success"]);
-    $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    $form->addElement('submit', 'submit', _('Save'), ['class' => 'btc bt_success']);
+    $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($path);
 
-    #Apply a template definition
+    // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
@@ -119,5 +119,5 @@ if (($is_admin || $flag_acl) && $host_id) {
     $tpl->assign('host_name', $hostDisplayName);
     $tpl->assign('service_description', $serviceDisplayName);
     $tpl->assign('form', $renderer->toArray());
-    $tpl->display("servicePassiveCheck.ihtml");
+    $tpl->display('servicePassiveCheck.ihtml');
 }

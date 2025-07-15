@@ -25,9 +25,9 @@ namespace Centreon\Domain\Gorgone;
 use Centreon\Domain\Gorgone\Command\EmptyCommand;
 use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 use Centreon\Domain\Gorgone\Interfaces\CommandRepositoryInterface;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseRepositoryInterface;
-use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Infrastructure\Gorgone\CommandRepositoryException;
 
 /**
@@ -37,9 +37,7 @@ use Centreon\Infrastructure\Gorgone\CommandRepositoryException;
  */
 class GorgoneService implements GorgoneServiceInterface
 {
-    /**
-     * @var CommandRepositoryInterface
-     */
+    /** @var CommandRepositoryInterface */
     private $commandRepository;
 
     /**
@@ -67,6 +65,7 @@ class GorgoneService implements GorgoneServiceInterface
             throw new GorgoneException(_('Error when connecting to the Gorgone server'), 0, $ex);
         }
         $command->setToken($responseToken);
+
         return Response::create($command);
     }
 
@@ -77,6 +76,7 @@ class GorgoneService implements GorgoneServiceInterface
     {
         $emptyCommand = new EmptyCommand($monitoringInstanceId);
         $emptyCommand->setToken($token);
+
         return Response::create($emptyCommand);
     }
 }

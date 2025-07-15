@@ -35,8 +35,8 @@ interface ResponseRepositoryInterface
      * The command must have been sent because we will use the command token to retrieve the message.
      *
      * @param CommandInterface $command Command sent to the Gorgone server
-     * @return string Response message in JSON format
      * @throws \Exception
+     * @return string Response message in JSON format
      */
     public function getResponse(CommandInterface $command): string;
 }

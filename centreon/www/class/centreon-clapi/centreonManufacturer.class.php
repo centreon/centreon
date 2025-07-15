@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005-2015 CENTREON
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -40,9 +41,9 @@ use Exception;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonUtils.class.php";
-require_once "Centreon/Object/Manufacturer/Manufacturer.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonUtils.class.php';
+require_once 'Centreon/Object/Manufacturer/Manufacturer.php';
 
 /**
  * Class
@@ -54,7 +55,7 @@ class CentreonManufacturer extends CentreonObject
 {
     public const ORDER_UNIQUENAME = 0;
     public const ORDER_ALIAS = 1;
-    public const FILE_NOT_FOUND = "Could not find file";
+    public const FILE_NOT_FOUND = 'Could not find file';
 
     /**
      * CentreonManufacturer constructor
@@ -69,14 +70,14 @@ class CentreonManufacturer extends CentreonObject
         $this->object = new Centreon_Object_Manufacturer($dependencyInjector);
         $this->params = [];
         $this->insertParams = ['name', 'alias'];
-        $this->action = "VENDOR";
+        $this->action = 'VENDOR';
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
 
     /**
      * @param $parameters
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     public function initInsertParameters($parameters): void
     {
@@ -101,16 +102,16 @@ class CentreonManufacturer extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
-        $params = ["id", "name", "alias"];
+        $params = ['id', 'name', 'alias'];
         parent::show($params, $filters);
     }
 
     /**
      * @param null $parameters
-     * @return array
      * @throws CentreonClapiException
+     * @return array
      */
     public function initUpdateParameters($parameters = null)
     {
@@ -120,6 +121,7 @@ class CentreonManufacturer extends CentreonObject
         }
         $updateParams = [$params[1] => $params[2]];
         $updateParams['objectId'] = $this->getId($params[0]);
+
         return $updateParams;
     }
 
@@ -137,17 +139,17 @@ class CentreonManufacturer extends CentreonObject
         }
         $vendorId = $this->getId($params[0]);
         $mibFile = $params[1];
-        $tmpMibFile = "/tmp/" . basename($mibFile);
-        if (!is_file($mibFile)) {
-            throw new CentreonClapiException(self::FILE_NOT_FOUND . ": " . $mibFile);
+        $tmpMibFile = '/tmp/' . basename($mibFile);
+        if (! is_file($mibFile)) {
+            throw new CentreonClapiException(self::FILE_NOT_FOUND . ': ' . $mibFile);
         }
         copy($mibFile, $tmpMibFile);
-        $centreonDir = realpath(__DIR__ . "/../../../");
-        passthru("export MIBS=ALL && $centreonDir/bin/snmpttconvertmib --in=$tmpMibFile --out=$tmpMibFile.conf");
-        passthru("$centreonDir/bin/centFillTrapDB -f $tmpMibFile.conf -m $vendorId");
+        $centreonDir = realpath(__DIR__ . '/../../../');
+        passthru("export MIBS=ALL && {$centreonDir}/bin/snmpttconvertmib --in={$tmpMibFile} --out={$tmpMibFile}.conf");
+        passthru("{$centreonDir}/bin/centFillTrapDB -f {$tmpMibFile}.conf -m {$vendorId}");
         unlink($tmpMibFile);
-        if (file_exists($tmpMibFile . ".conf")) {
-            unlink($tmpMibFile . ".conf");
+        if (file_exists($tmpMibFile . '.conf')) {
+            unlink($tmpMibFile . '.conf');
         }
     }
 
@@ -160,6 +162,7 @@ class CentreonManufacturer extends CentreonObject
     public function getName($id)
     {
         $name = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
+
         return $name[$this->object->getUniqueLabelField()];
     }
 
@@ -167,15 +170,16 @@ class CentreonManufacturer extends CentreonObject
      * Get id from name
      *
      * @param $name
-     * @return mixed
      * @throws CentreonClapiException
+     * @return mixed
      */
     public function getId($name)
     {
         $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
-        if (!count($ids)) {
-            throw new CentreonClapiException("Unknown instance");
+        if (! count($ids)) {
+            throw new CentreonClapiException('Unknown instance');
         }
+
         return $ids[0];
     }
 }

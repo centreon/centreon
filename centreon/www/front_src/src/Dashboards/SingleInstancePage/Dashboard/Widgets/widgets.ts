@@ -75,8 +75,8 @@ const internalWidgets: Array<
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 12,
-    panelMinHeight: 3,
+    panelMinWidth: 6,
+    panelMinHeight: 4,
     panelDefaultHeight: 4,
     panelDefaultWidth: 12
   },

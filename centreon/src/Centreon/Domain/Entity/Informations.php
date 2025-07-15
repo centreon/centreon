@@ -4,14 +4,10 @@ namespace Centreon\Domain\Entity;
 
 class Informations
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $key;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     /**

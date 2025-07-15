@@ -42,9 +42,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class ValidatorErrorList implements JsonSerializable
 {
-    /**
-     * @var ConstraintViolationList
-     */
+    /** @var ConstraintViolationList */
     private $errors;
 
     /**

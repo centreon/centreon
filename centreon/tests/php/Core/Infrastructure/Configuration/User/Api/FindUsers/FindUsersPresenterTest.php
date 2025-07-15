@@ -22,25 +22,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Api\FindUsers;
 
-use PHPUnit\Framework\TestCase;
-use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersPresenter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsersResponse;
 use Core\Domain\Configuration\User\Model\User;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersPresenter;
+use PHPUnit\Framework\TestCase;
 
 class FindUsersPresenterTest extends TestCase
 {
-    /**
-     * @var RequestParametersInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RequestParametersInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $requestParameters;
 
-    /**
-     * @var PresenterFormatterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var PresenterFormatterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenterFormatter;
-
 
     public function setUp(): void
     {

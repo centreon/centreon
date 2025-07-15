@@ -50,76 +50,77 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     public function add(NewServiceTemplate $newServiceTemplate): int
     {
-        $request = $this->translateDbName(<<<'SQL'
-            INSERT INTO `:db`.service
-            (
-                cg_additive_inheritance,
-                contact_additive_inheritance,
-                command_command_id,
-                command_command_id_arg,
-                command_command_id2,
-                command_command_id_arg2,
-                service_acknowledgement_timeout,
-                service_activate,
-                service_locked,
-                service_event_handler_enabled,
-                service_active_checks_enabled,
-                service_flap_detection_enabled,
-                service_check_freshness,
-                service_notifications_enabled,
-                service_passive_checks_enabled,
-                service_is_volatile,
-                service_low_flap_threshold,
-                service_high_flap_threshold,
-                service_max_check_attempts,
-                service_description,
-                service_comment,
-                service_alias,
-                service_freshness_threshold,
-                service_normal_check_interval,
-                service_notification_interval,
-                service_notification_options,
-                service_recovery_notification_delay,
-                service_retry_check_interval,
-                service_template_model_stm_id,
-                service_first_notification_delay,
-                timeperiod_tp_id,
-                timeperiod_tp_id2
-            ) VALUES (
-                :contact_group_additive_inheritance,
-                :contact_additive_inheritance,
-                :command_id,
-                :command_arguments,
-                :event_handler_id,
-                :event_handler_arguments,
-                :acknowledgement_timeout,
-                :is_activated,
-                :is_locked,
-                :event_handler_enabled,
-                :active_checks_enabled,
-                :flap_detection_enabled,
-                :check_freshness,
-                :notifications_enabled,
-                :passive_checks_enabled,
-                :volatility,
-                :low_flap_threshold,
-                :high_flap_threshold,
-                :max_check_attempts,
-                :description,
-                :comment,
-                :alias,
-                :freshness_threshold,
-                :normal_check_interval,
-                :notification_interval,
-                :notification_options,
-                :recovery_notification_delay,
-                :retry_check_interval,
-                :service_template_id,
-                :first_notification_delay,
-                :check_time_period_id,
-                :notification_time_period_id
-            )
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.service
+                (
+                    cg_additive_inheritance,
+                    contact_additive_inheritance,
+                    command_command_id,
+                    command_command_id_arg,
+                    command_command_id2,
+                    command_command_id_arg2,
+                    service_acknowledgement_timeout,
+                    service_activate,
+                    service_locked,
+                    service_event_handler_enabled,
+                    service_active_checks_enabled,
+                    service_flap_detection_enabled,
+                    service_check_freshness,
+                    service_notifications_enabled,
+                    service_passive_checks_enabled,
+                    service_is_volatile,
+                    service_low_flap_threshold,
+                    service_high_flap_threshold,
+                    service_max_check_attempts,
+                    service_description,
+                    service_comment,
+                    service_alias,
+                    service_freshness_threshold,
+                    service_normal_check_interval,
+                    service_notification_interval,
+                    service_notification_options,
+                    service_recovery_notification_delay,
+                    service_retry_check_interval,
+                    service_template_model_stm_id,
+                    service_first_notification_delay,
+                    timeperiod_tp_id,
+                    timeperiod_tp_id2
+                ) VALUES (
+                    :contact_group_additive_inheritance,
+                    :contact_additive_inheritance,
+                    :command_id,
+                    :command_arguments,
+                    :event_handler_id,
+                    :event_handler_arguments,
+                    :acknowledgement_timeout,
+                    :is_activated,
+                    :is_locked,
+                    :event_handler_enabled,
+                    :active_checks_enabled,
+                    :flap_detection_enabled,
+                    :check_freshness,
+                    :notifications_enabled,
+                    :passive_checks_enabled,
+                    :volatility,
+                    :low_flap_threshold,
+                    :high_flap_threshold,
+                    :max_check_attempts,
+                    :description,
+                    :comment,
+                    :alias,
+                    :freshness_threshold,
+                    :normal_check_interval,
+                    :notification_interval,
+                    :notification_options,
+                    :recovery_notification_delay,
+                    :retry_check_interval,
+                    :service_template_id,
+                    :first_notification_delay,
+                    :check_time_period_id,
+                    :notification_time_period_id
+                )
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(
@@ -310,11 +311,12 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
             return;
         }
 
-        $request = $this->translateDbName(<<<'SQL'
-            INSERT INTO `:db`.host_service_relation
-                (host_host_id, service_service_id)
-                VALUES (:host_id, :service_template_id)
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.host_service_relation
+                    (host_host_id, service_service_id)
+                    VALUES (:host_id, :service_template_id)
+                SQL
         );
 
         $alreadyInTransaction = $this->db->inTransaction();
@@ -359,11 +361,12 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
                 $this->db->beginTransaction();
             }
 
-            $request = $this->translateDbName(<<<'SQL'
-                DELETE FROM `:db`.host_service_relation
-                    WHERE service_service_id = :service_template_id
-                    AND host_host_id IS NOT NULL
-                SQL
+            $request = $this->translateDbName(
+                <<<'SQL'
+                    DELETE FROM `:db`.host_service_relation
+                        WHERE service_service_id = :service_template_id
+                        AND host_host_id IS NOT NULL
+                    SQL
             );
             $statement = $this->db->prepare($request);
             $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -388,42 +391,43 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     public function update(ServiceTemplate $serviceTemplate): void
     {
-        $statement = $this->db->prepare($this->translateDbName(<<<'SQL'
-            UPDATE `:db`.service
-            SET `cg_additive_inheritance` = :contact_group_additive_inheritance,
-                `contact_additive_inheritance` = :contact_additive_inheritance,
-                `command_command_id` = :command_id,
-                `command_command_id_arg` = :command_arguments,
-                `command_command_id2` = :event_handler_id,
-                `command_command_id_arg2` = :event_handler_arguments,
-                `service_acknowledgement_timeout` = :acknowledgement_timeout,
-                `service_activate` = :is_activated,
-                `service_locked` = :is_locked,
-                `service_event_handler_enabled` = :event_handler_enabled,
-                `service_active_checks_enabled` = :active_checks_enabled,
-                `service_flap_detection_enabled` = :flap_detection_enabled,
-                `service_check_freshness` = :check_freshness,
-                `service_notifications_enabled` = :notifications_enabled,
-                `service_passive_checks_enabled` = :passive_checks_enabled,
-                `service_is_volatile` = :volatility,
-                `service_low_flap_threshold` = :low_flap_threshold,
-                `service_high_flap_threshold` = :high_flap_threshold,
-                `service_max_check_attempts` = :max_check_attempts,
-                `service_description` = :description,
-                `service_comment` = :comment,
-                `service_alias` = :alias,
-                `service_freshness_threshold` = :freshness_threshold,
-                `service_normal_check_interval` = :normal_check_interval,
-                `service_notification_interval` = :notification_interval,
-                `service_notification_options` = :notification_options,
-                `service_recovery_notification_delay` = :recovery_notification_delay,
-                `service_retry_check_interval` = :retry_check_interval,
-                `service_template_model_stm_id` = :service_template_id,
-                `service_first_notification_delay` = :first_notification_delay,
-                `timeperiod_tp_id` = :check_time_period_id,
-                `timeperiod_tp_id2` = :notification_time_period_id
-            WHERE `service_id` = :service_id
-            SQL
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.service
+                SET `cg_additive_inheritance` = :contact_group_additive_inheritance,
+                    `contact_additive_inheritance` = :contact_additive_inheritance,
+                    `command_command_id` = :command_id,
+                    `command_command_id_arg` = :command_arguments,
+                    `command_command_id2` = :event_handler_id,
+                    `command_command_id_arg2` = :event_handler_arguments,
+                    `service_acknowledgement_timeout` = :acknowledgement_timeout,
+                    `service_activate` = :is_activated,
+                    `service_locked` = :is_locked,
+                    `service_event_handler_enabled` = :event_handler_enabled,
+                    `service_active_checks_enabled` = :active_checks_enabled,
+                    `service_flap_detection_enabled` = :flap_detection_enabled,
+                    `service_check_freshness` = :check_freshness,
+                    `service_notifications_enabled` = :notifications_enabled,
+                    `service_passive_checks_enabled` = :passive_checks_enabled,
+                    `service_is_volatile` = :volatility,
+                    `service_low_flap_threshold` = :low_flap_threshold,
+                    `service_high_flap_threshold` = :high_flap_threshold,
+                    `service_max_check_attempts` = :max_check_attempts,
+                    `service_description` = :description,
+                    `service_comment` = :comment,
+                    `service_alias` = :alias,
+                    `service_freshness_threshold` = :freshness_threshold,
+                    `service_normal_check_interval` = :normal_check_interval,
+                    `service_notification_interval` = :notification_interval,
+                    `service_notification_options` = :notification_options,
+                    `service_recovery_notification_delay` = :recovery_notification_delay,
+                    `service_retry_check_interval` = :retry_check_interval,
+                    `service_template_model_stm_id` = :service_template_id,
+                    `service_first_notification_delay` = :first_notification_delay,
+                    `timeperiod_tp_id` = :check_time_period_id,
+                    `timeperiod_tp_id2` = :notification_time_period_id
+                WHERE `service_id` = :service_id
+                SQL
         ));
 
         $statement->bindValue(
@@ -555,26 +559,27 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     private function addExtensionServiceTemplate(int $serviceTemplateId, NewServiceTemplate $serviceTemplate): void
     {
-        $request = $this->translateDbName(<<<'SQL'
-            INSERT INTO `:db`.extended_service_information
-            (
-                service_service_id,
-                esi_action_url,
-                esi_icon_image,
-                esi_icon_image_alt,
-                esi_notes,
-                esi_notes_url,
-                graph_id
-            ) VALUES (
-                :service_template_id,
-                :action_url,
-                :icon_id,
-                :icon_alternative_text,
-                :notes,
-                :notes_url,
-                :graph_template_id
-            )
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.extended_service_information
+                (
+                    service_service_id,
+                    esi_action_url,
+                    esi_icon_image,
+                    esi_icon_image_alt,
+                    esi_notes,
+                    esi_notes_url,
+                    graph_id
+                ) VALUES (
+                    :service_template_id,
+                    :action_url,
+                    :icon_id,
+                    :icon_alternative_text,
+                    :notes,
+                    :notes_url,
+                    :graph_template_id
+                )
+                SQL
         );
         $statement = $this->db->prepare($request);
 
@@ -596,16 +601,17 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     private function updateExtensionServiceTemplate(ServiceTemplate $serviceTemplate): void
     {
-        $request = $this->translateDbName(<<<'SQL'
-            UPDATE `:db`.extended_service_information
-            SET `esi_action_url` = :action_url,
-                `esi_icon_image` = :icon_id,
-                `esi_icon_image_alt` = :icon_alternative_text,
-                `esi_notes` = :notes,
-                `esi_notes_url` = :notes_url,
-                `graph_id` = :graph_template_id
-            WHERE service_service_id = :service_id
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.extended_service_information
+                SET `esi_action_url` = :action_url,
+                    `esi_icon_image` = :icon_id,
+                    `esi_icon_image_alt` = :icon_alternative_text,
+                    `esi_notes` = :notes,
+                    `esi_notes_url` = :notes_url,
+                    `graph_id` = :graph_template_id
+                WHERE service_service_id = :service_id
+                SQL
         );
         $statement = $this->db->prepare($request);
 
@@ -631,17 +637,18 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
         if ($severityId === null) {
             return;
         }
-        $request = $this->translateDbName(<<<'SQL'
-            INSERT INTO `:db`.service_categories_relation
-            (
-                service_service_id,
-                sc_id
-            ) VALUES
-            (
-                :service_template_id,
-                :severity_id
-            )
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.service_categories_relation
+                (
+                    service_service_id,
+                    sc_id
+                ) VALUES
+                (
+                    :service_template_id,
+                    :severity_id
+                )
+                SQL
         );
         $statement = $this->db->prepare($request);
 
@@ -669,14 +676,15 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     private function deleteSeverityLink(int $serviceTemplateId): void
     {
-        $request = $this->translateDbName(<<<'SQL'
-            DELETE scr
-            FROM `:db`.service_categories_relation scr
-            INNER JOIN `:db`.service_categories sc
-                   ON sc.sc_id = scr.sc_id
-                   AND sc.level IS NOT NULL
-            WHERE service_service_id = :service_template_id
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE scr
+                FROM `:db`.service_categories_relation scr
+                INNER JOIN `:db`.service_categories sc
+                       ON sc.sc_id = scr.sc_id
+                       AND sc.level IS NOT NULL
+                WHERE service_service_id = :service_template_id
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -693,17 +701,18 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
      */
     private function linkHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void
     {
-        $request = $this->translateDbName(<<<'SQL'
-            INSERT INTO `:db`.host_service_relation
-            (
-                host_host_id,
-                service_service_id
-            ) VALUES
-            (
-                :host_template_id,
-                :service_template_id
-            )
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.host_service_relation
+                (
+                    host_host_id,
+                    service_service_id
+                ) VALUES
+                (
+                    :host_template_id,
+                    :service_template_id
+                )
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindParam(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);

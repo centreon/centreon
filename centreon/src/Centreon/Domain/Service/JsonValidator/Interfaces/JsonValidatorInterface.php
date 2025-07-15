@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -30,8 +31,8 @@ interface JsonValidatorInterface
      *
      * @param string $json String representing the JSON to validate
      * @param string $modelName Model name to apply to validate the JSON
-     * @return ConstraintViolationListInterface
      * @throws \Exception
+     * @return ConstraintViolationListInterface
      */
     public function validate(string $json, string $modelName): ConstraintViolationListInterface;
 

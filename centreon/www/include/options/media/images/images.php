@@ -37,7 +37,7 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 const IMAGE_ADD = 'a';
@@ -49,62 +49,58 @@ const IMAGE_DELETE = 'd';
 const IMAGE_SYNC_DIR = 'sd';
 
 $imageId = filter_var(
-    $_GET["img_id"] ?? $_POST["img_id"] ?? null,
+    $_GET['img_id'] ?? $_POST['img_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 
 $directoryId = filter_var(
-    $_GET["dir_id"] ?? $_POST["dir_id"] ?? null,
+    $_GET['dir_id'] ?? $_POST['dir_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 
-/*
- * Path to the cities dir
- */
-$path = "./include/options/media/images/";
+// Path to the cities dir
+$path = './include/options/media/images/';
 
-/*
- * PHP functions
- */
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 switch ($o) {
     case IMAGE_MODIFY:
     case IMAGE_ADD:
-        require_once($path . "formImg.php");
+        require_once $path . 'formImg.php';
         break;
     case IMAGE_WATCH:
         if (is_int($imageId)) {
-            require_once($path . "formImg.php");
+            require_once $path . 'formImg.php';
         }
         break;
     case IMAGE_MOVE:
     case IMAGE_MODIFY_DIRECTORY:
-        require_once($path . "formDirectory.php");
+        require_once $path . 'formDirectory.php';
         break;
     case IMAGE_DELETE:
         // If one data are not correctly typed in array, it will be set to false
         $selectIds = filter_var_array(
-            $_GET["select"] ?? $_POST["select"] ?? [],
+            $_GET['select'] ?? $_POST['select'] ?? [],
             FILTER_VALIDATE_INT
         );
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!in_array(false, $selectIds)) {
+            if (! in_array(false, $selectIds)) {
                 deleteMultImg($selectIds);
                 deleteMultDirectory($selectIds);
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listImg.php");
+        require_once $path . 'listImg.php';
         break;
     case IMAGE_SYNC_DIR:
-        require_once($path . "syncDir.php");
+        require_once $path . 'syncDir.php';
         break;
     default:
-        require_once($path . "listImg.php");
+        require_once $path . 'listImg.php';
         break;
 }

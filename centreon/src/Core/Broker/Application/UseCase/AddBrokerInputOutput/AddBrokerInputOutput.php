@@ -47,7 +47,8 @@ use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
  */
 final class AddBrokerInputOutput
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly WriteBrokerInputOutputRepositoryInterface $writeOutputRepository,

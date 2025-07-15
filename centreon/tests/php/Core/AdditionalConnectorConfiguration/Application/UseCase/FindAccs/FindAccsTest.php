@@ -107,10 +107,10 @@ it('should present a FindAccsResponse on success', function (): void {
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-   $this->readAccRepository
-       ->expects($this->once())
-       ->method('findByRequestParameters')
-       ->willReturn([$this->acc]);
+    $this->readAccRepository
+        ->expects($this->once())
+        ->method('findByRequestParameters')
+        ->willReturn([$this->acc]);
     $this->readContactRepository
         ->expects($this->once())
         ->method('findNamesByIds')

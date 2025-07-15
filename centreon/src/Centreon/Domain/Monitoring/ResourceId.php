@@ -32,14 +32,10 @@ class ResourceId
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'resource_id_main';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $parentId;
 
     /**

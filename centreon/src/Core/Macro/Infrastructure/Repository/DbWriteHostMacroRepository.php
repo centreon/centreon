@@ -32,7 +32,8 @@ use Core\Macro\Domain\Model\Macro;
 
 class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteHostMacroRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -124,4 +125,3 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
         $statement->execute();
     }
 }
-

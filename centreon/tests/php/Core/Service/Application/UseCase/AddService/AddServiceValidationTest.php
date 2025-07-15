@@ -231,7 +231,7 @@ it('throws an exception when group ID does not exist with admin user', function 
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertIsValidServiceGroups([1, 2],3);
+    $this->validation->assertIsValidServiceGroups([1, 2], 3);
 })->throws(
     ServiceException::class,
     ServiceException::idsDoNotExist('service_groups', [1, 2])->getMessage()

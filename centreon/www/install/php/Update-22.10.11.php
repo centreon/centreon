@@ -21,11 +21,11 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.10.11: ';
 $errorMessage = '';
 
-$alterMetricsTable = function(CentreonDB $pearDBO): void {
+$alterMetricsTable = function (CentreonDB $pearDBO): void {
     $pearDBO->query(
         <<<'SQL'
             ALTER TABLE `metrics`
@@ -37,7 +37,7 @@ $alterMetricsTable = function(CentreonDB $pearDBO): void {
 try {
     $errorMessage = 'Impossible to alter metrics table';
     $alterMetricsTable($pearDBO);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
@@ -46,5 +46,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

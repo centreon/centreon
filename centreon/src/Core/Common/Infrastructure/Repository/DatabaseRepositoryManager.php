@@ -41,7 +41,9 @@ final readonly class DatabaseRepositoryManager implements RepositoryManagerInter
      *
      * @param ConnectionInterface $connection
      */
-    public function __construct(private ConnectionInterface $connection) {}
+    public function __construct(private ConnectionInterface $connection)
+    {
+    }
 
     /**
      * @inheritDoc

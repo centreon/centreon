@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\Repository\Model;
 
+use Centreon\Domain\HostConfiguration\Exception\HostTemplateFactoryException;
 use Centreon\Domain\HostConfiguration\Model\HostTemplate;
 use Centreon\Domain\Media\Model\Image;
-use Centreon\Domain\HostConfiguration\Exception\HostTemplateFactoryException;
 
 /**
  * This class is designed to provide a way to create the HostTemplate entity from the database.
@@ -37,9 +37,9 @@ class HostTemplateFactoryRdb
      * Create a HostTemplate entity from database data.
      *
      * @param array<string, mixed> $data
+     * @throws HostTemplateFactoryException|\Assert\AssertionFailedException
      * @return HostTemplate
      * @throw \InvalidArgumentException
-     * @throws HostTemplateFactoryException|\Assert\AssertionFailedException
      */
     public static function create(array $data): HostTemplate
     {
@@ -90,9 +90,10 @@ class HostTemplateFactoryRdb
             ->setSnmpVersion($data['host_snmp_version'])
             ->setComment($data['host_comment']);
 
-        if (!empty($data['parents'])) {
+        if (! empty($data['parents'])) {
             $hostTemplate->setParentIds(explode(',', $data['parents']));
         }
+
         return $hostTemplate;
     }
 
@@ -116,8 +117,8 @@ class HostTemplateFactoryRdb
      * HostTemplate::NOTIFICATION_OPTION_NONE                => n
      *
      * @param string|null $options
-     * @return int
      * @throws HostTemplateFactoryException
+     * @return int
      */
     private static function convertNotificationOptions(?string $options): int
     {
@@ -131,7 +132,7 @@ class HostTemplateFactoryRdb
         }
         $optionToDefine = 0;
         $optionsTags = explode(',', $options);
-        $optionsNotAllowed = array_diff($optionsTags, ['d','u','r','f','s','n']);
+        $optionsNotAllowed = array_diff($optionsTags, ['d', 'u', 'r', 'f', 's', 'n']);
         if ($optionsNotAllowed !== []) {
             throw HostTemplateFactoryException::notificationOptionsNotAllowed(implode(',', $optionsNotAllowed));
         }
@@ -154,6 +155,7 @@ class HostTemplateFactoryRdb
                 $optionToDefine |= HostTemplate::NOTIFICATION_OPTION_DOWNTIME_SCHEDULED;
             }
         }
+
         return $optionToDefine;
     }
 
@@ -165,8 +167,8 @@ class HostTemplateFactoryRdb
      * HostTemplate::STALKING_OPTION_UNREACHABLE  => u
      *
      * @param string|null $options
-     * @return int
      * @throws HostTemplateFactoryException
+     * @return int
      */
     private static function convertStalkingOptions(?string $options): int
     {
@@ -175,7 +177,7 @@ class HostTemplateFactoryRdb
         }
         $optionToDefine = 0;
         $optionsTags = explode(',', $options);
-        $optionsNotAllowed = array_diff($optionsTags, ['o','d','u']);
+        $optionsNotAllowed = array_diff($optionsTags, ['o', 'd', 'u']);
         if ($optionsNotAllowed !== []) {
             throw HostTemplateFactoryException::stalkingOptionsNotAllowed(implode(',', $optionsNotAllowed));
         }
@@ -188,6 +190,7 @@ class HostTemplateFactoryRdb
         if (in_array('u', $optionsTags)) {
             $optionToDefine |= HostTemplate::STALKING_OPTION_UNREACHABLE;
         }
+
         return $optionToDefine;
     }
 }

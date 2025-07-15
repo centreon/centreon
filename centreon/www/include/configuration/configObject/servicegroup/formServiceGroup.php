@@ -171,7 +171,6 @@ if (
     $form->addRule('resource_access_rules', _('Mandatory field for ACL purpose.'), 'required');
 }
 
-
 $form->addElement('hidden', 'sg_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);

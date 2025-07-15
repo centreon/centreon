@@ -34,62 +34,58 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
 $contactId = filter_var(
-    $_GET["contact_id"] ?? $_POST["contact_id"] ?? 0,
+    $_GET['contact_id'] ?? $_POST['contact_id'] ?? 0,
     FILTER_VALIDATE_INT
 );
-$select = $_GET["select"] ?? $_POST["select"] ?? [];
+$select = $_GET['select'] ?? $_POST['select'] ?? [];
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
-/*
- * Path to the configuration dir
- */
-$path = "./include/monitoring/comments/";
+// Path to the configuration dir
+$path = './include/monitoring/comments/';
 
-/*
- * PHP functions
- */
-require_once "./include/common/common-Func.php";
-require_once "./include/monitoring/comments/common-Func.php";
-require_once "./include/monitoring/external_cmd/functions.php";
+// PHP functions
+require_once './include/common/common-Func.php';
+require_once './include/monitoring/comments/common-Func.php';
+require_once './include/monitoring/external_cmd/functions.php';
 
 switch ($o) {
-    case "ah":
-        require_once($path . "AddHostComment.php");
+    case 'ah':
+        require_once $path . 'AddHostComment.php';
         break;
-    case "vh":
-        require_once($path . "listComment.php");
+    case 'vh':
+        require_once $path . 'listComment.php';
         break;
-    case "a":
-        require_once($path . "AddComment.php");
+    case 'a':
+        require_once $path . 'AddComment.php';
         break;
-    case "as":
-        require_once($path . "AddSvcComment.php");
+    case 'as':
+        require_once $path . 'AddSvcComment.php';
         break;
-    case "ds":
+    case 'ds':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            if (!empty($select)) {
+            if (! empty($select)) {
                 foreach ($select as $key => $value) {
                     $res = explode(';', urldecode($key));
-                    DeleteComment($res[0], [$res[1] . ';' . (int)$res[2] => 'on']);
+                    DeleteComment($res[0], [$res[1] . ';' . (int) $res[2] => 'on']);
                 }
             }
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listComment.php");
+        require_once $path . 'listComment.php';
         break;
-    case "vs":
-        require_once($path . "listComment.php");
+    case 'vs':
+        require_once $path . 'listComment.php';
         break;
     default:
-        require_once($path . "listComment.php");
+        require_once $path . 'listComment.php';
         break;
 }

@@ -36,18 +36,13 @@ use Centreon\Domain\HostConfiguration\Model\HostCategory;
  */
 class HostCategoryService implements HostCategoryServiceInterface
 {
-    /**
-     * @var HostCategoryReadRepositoryInterface
-     */
+    /** @var HostCategoryReadRepositoryInterface */
     private $readRepository;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
-    /**
-     * @var HostCategoryWriteRepositoryInterface
-     */
+
+    /** @var HostCategoryWriteRepositoryInterface */
     private $writeRepository;
 
     /**

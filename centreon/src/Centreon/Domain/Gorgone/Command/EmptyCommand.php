@@ -34,7 +34,7 @@ use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
  */
 class EmptyCommand extends AbstractCommand implements CommandInterface
 {
-    private const NAME = "basic";
+    private const NAME = 'basic';
 
     /**
      * @inheritDoc

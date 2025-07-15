@@ -39,8 +39,8 @@ interface OptionServiceInterface
      * </code>
      *
      * @param string[] $optionsToFind Keys of the options to find
-     * @return Option[] Options list corresponding to the options requested
      * @throws \Exception
+     * @return Option[] Options list corresponding to the options requested
      */
     public function findSelectedOptions(array $optionsToFind): array;
 
@@ -48,8 +48,8 @@ interface OptionServiceInterface
      * Find all options.
      *
      * @param bool $useCache Indicates whether we should use the cache system or not (TRUE by default)
-     * @return Option[] Returns all available options
      * @throws \Exception
+     * @return Option[] Returns all available options
      */
     public function findAllOptions(bool $useCache): array;
 }

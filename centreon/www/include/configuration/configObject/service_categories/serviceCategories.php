@@ -34,16 +34,16 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-#Path to the configuration dir
-$path = "./include/configuration/configObject/service_categories/";
+// Path to the configuration dir
+$path = './include/configuration/configObject/service_categories/';
 
-#PHP functions
-require_once $path . "DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once $path . 'DB-Func.php';
+require_once './include/common/common-Func.php';
 
 $sc_id = filter_var(
     $_GET['sc_id'] ?? $_POST['sc_id'] ?? null,
@@ -60,8 +60,8 @@ $dupNbr = filter_var_array(
     FILTER_VALIDATE_INT
 );
 
-/* Set the real page */
-if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['topology_page']) {
+// Set the real page
+if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['topology_page']) {
     $p = $ret['topology_page'];
 }
 
@@ -71,12 +71,12 @@ $aclDbName = $acl->getNameDBAcl();
 $scString = $acl->getServiceCategoriesString();
 
 switch ($o) {
-    case "a": # Add a service category
-    case "w": # Watch a service category
-    case "c": # Modify a service category
-        require_once($path . "formServiceCategories.php");
+    case 'a': // Add a service category
+    case 'w': // Watch a service category
+    case 'c': // Modify a service category
+        require_once $path . 'formServiceCategories.php';
         break;
-    case "s": # Activate a ServiceCategories
+    case 's': // Activate a ServiceCategories
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -84,9 +84,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
-    case "ms":
+    case 'ms':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -94,9 +94,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
-    case "u": # Desactivate a service category
+    case 'u': // Desactivate a service category
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -104,9 +104,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
-    case "mu":
+    case 'mu':
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -114,9 +114,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
-    case "m": # Duplicate n service categories
+    case 'm': // Duplicate n service categories
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -127,9 +127,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
-    case "d": # Delete n service categories
+    case 'd': // Delete n service categories
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
@@ -137,9 +137,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
     default:
-        require_once($path . "listServiceCategories.php");
+        require_once $path . 'listServiceCategories.php';
         break;
 }

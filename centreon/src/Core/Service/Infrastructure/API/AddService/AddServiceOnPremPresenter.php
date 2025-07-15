@@ -83,17 +83,17 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                         'geo_coords' => $response->geoCoords,
                         'severity_id' => $response->severityId,
                         'is_activated' => $response->isActivated,
-                        'macros' => array_map(fn(MacroDto $macro): array => [
+                        'macros' => array_map(fn (MacroDto $macro): array => [
                             'name' => $macro->name,
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
-                        'categories' => array_map(fn($category): array => [
+                        'categories' => array_map(fn ($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
-                        'groups' => array_map(fn($group): array => [
+                        'groups' => array_map(fn ($group): array => [
                             'id' => $group['id'],
                             'name' => $group['name'],
                         ], $response->groups),

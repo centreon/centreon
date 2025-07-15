@@ -19,10 +19,9 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\UpdateNotification\Validator;
 
-beforeEach(function(): void {
+beforeEach(function (): void {
 });
-

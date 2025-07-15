@@ -1,23 +1,21 @@
 <?php
+
 $help = [];
 
 /**
  * General Information
  */
-
 $help['tip_action_name'] = dgettext('help', 'Name of action rule.');
 $help['tip_description'] = dgettext('help', 'Description of action rule.');
 
 /**
  * Relations
  */
-
 $help['tip_linked_groups'] = dgettext('help', 'Implied ACL groups.');
 
 /**
  *  Global Functionalities Access
  */
-
 $help['tip_display_top_counter'] = dgettext(
     'help',
     'The monitoring overview will be displayed at the top of all pages.'
@@ -54,7 +52,6 @@ $help['tip_display_generate_trap'] = dgettext(
 /**
  * Global Nagios Actions (External Process Commands)
  */
-
 $help['tip_shutdown_nagios'] = dgettext('help', 'Allows users to stop the monitoring systems.');
 $help['tip_restart_nagios'] = dgettext('help', 'Allows users to restart the monitoring systems.');
 $help['tip_enable_disable_notifications'] = dgettext('help', 'Allows users to enable or disable notifications.');
@@ -83,7 +80,6 @@ $help['tip_enable_performance_data'] = dgettext(
 /**
  * Services Actions Access
  */
-
 $help['tip_enable_disable_checks_for_a_service'] = dgettext(
     'help',
     'Allows users to enable or disable checks of a service.'
@@ -124,7 +120,6 @@ $help['tip_submit_result_for_a_service'] = dgettext('help', 'Allows users to sub
 /**
  * Hosts Actions Access
  */
-
 $help['tip_enable_disable_checks_for_a_host'] = dgettext('help', 'Allows users to enable or disable checks of a host.');
 $help['tip_enable_disable_notifications_for_a_host'] = dgettext(
     'help',
@@ -160,7 +155,6 @@ $help['tip_submit_result_for_a_host'] = dgettext('help', 'Allows users to submit
 /**
  * Additional Information
  */
-
 $help['tip_status'] = dgettext('help', 'Enable or disable the ACL action rule.');
 
 $help['tip_manage_tokens'] = dgettext('help', 'Provided that the user can access the API Tokens menu, this action will allow them to not only list, create and delete tokens for themselves, but also manage tokens for other users.');
