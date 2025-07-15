@@ -34,7 +34,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       done
     fi
   fi
-
+  su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
   su apache -s /bin/bash -c "php generationCache.php"
   cd -
 fi
