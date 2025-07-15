@@ -474,25 +474,16 @@ jobs:
         working-directory: centreon
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new" && set -e
-          
+
           declare -a pids
           declare -A pid_to_name
-          
-          run_check() {
-            local name="$1"
-            shift
-            (
-            "$@"
-            ) &
-            pid=$!
-            pids+=($pid)
-            pid_to_name[$pid]="$name"
-          }
-          
-          run_check "rector:legacy" composer rector:legacy -- --no-progress-bar
-          run_check "rector:core" composer rector:core -- --no-progress-bar
-          run_check "rector:new" composer rector:new -- --no-progress-bar
-          
+
+          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
+
+          run_parallel_check "rector:legacy" composer rector:legacy -- --no-progress-bar
+          run_parallel_check "rector:core" composer rector:core -- --no-progress-bar
+          run_parallel_check "rector:new" composer rector:new -- --no-progress-bar
+
           result=0
           for pid in "${pids[@]}"; do
           if ! wait "$pid"; then
@@ -502,32 +493,23 @@ jobs:
           echo "✅ Rector ${pid_to_name[$pid]}: Success"
           fi
           done
-          
+
           exit $result
 
       - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new" && set -e
-          
+
           declare -a pids
           declare -A pid_to_name
-          
-          run_check() {
-            local name="$1"
-            shift
-            (
-            "$@"
-            ) &
-            pid=$!
-            pids+=($pid)
-            pid_to_name[$pid]="$name"
-          }
-          
-          run_check "cs:legacy" composer cs:legacy -- --format=txt --show-progress=none
-          run_check "cs:core" composer cs:core -- --format=txt --show-progress=none
-          run_check "cs:new" composer cs:new -- --format=txt --show-progress=none
-          
+
+          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
+
+          run_parallel_check "cs:legacy" composer cs:legacy -- --format=txt --show-progress=none
+          run_parallel_check "cs:core" composer cs:core -- --format=txt --show-progress=none
+          run_parallel_check "cs:new" composer cs:new -- --format=txt --show-progress=none
+
           result=0
           for pid in "${pids[@]}"; do
           if ! wait "$pid"; then
@@ -537,7 +519,7 @@ jobs:
           echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success"
           fi
           done
-          
+
           exit $result
 
       - name: 🔍 PHPStan checks
@@ -548,24 +530,15 @@ jobs:
           declare -a pids
           declare -A pid_to_name
 
-          run_check() {
-            local name="$1"
-            shift
-            (
-            "$@"
-            ) &
-            pid=$!
-            pids+=($pid)
-            pid_to_name[$pid]="$name"
-          }
+          run_parallel_check() { ( "$@" ) & pids+=($!); pid_to_name[$!]="$1"; }
 
-          run_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
-          run_check "stan:legacy:src" composer stan:legacy:src -- --no-progress
-          run_check "stan:legacy:test" composer stan:legacy:test -- --no-progress
-          run_check "stan:core:src" composer stan:core:src -- --no-progress
-          run_check "stan:core:test" composer stan:core:test -- --no-progress
-          run_check "stan:new:src" composer stan:new:src -- --no-progress
-          run_check "stan:new:test" composer stan:new:test -- --no-progress
+          run_parallel_check "stan:legacy:www" composer stan:legacy:www -- --no-progress
+          run_parallel_check "stan:legacy:src" composer stan:legacy:src -- --no-progress
+          run_parallel_check "stan:legacy:test" composer stan:legacy:test -- --no-progress
+          run_parallel_check "stan:core:src" composer stan:core:src -- --no-progress
+          run_parallel_check "stan:core:test" composer stan:core:test -- --no-progress
+          run_parallel_check "stan:new:src" composer stan:new:src -- --no-progress
+          run_parallel_check "stan:new:test" composer stan:new:test -- --no-progress
 
           result=0
           for pid in "${pids[@]}"; do
