@@ -62,13 +62,13 @@ class RequestParameters implements RequestParametersInterface
         self::OPERATOR_NOT_LIKE,
         self::OPERATOR_REGEXP,
         self::OPERATOR_IN,
-        self::OPERATOR_NOT_IN
+        self::OPERATOR_NOT_IN,
     ];
     public const AGGREGATE_OPERATOR_OR = '$or';
     public const AGGREGATE_OPERATOR_AND = '$and';
     public const LIST_AGGREGATE_OPERATORS = [
         self::AGGREGATE_OPERATOR_AND,
-        self::AGGREGATE_OPERATOR_OR
+        self::AGGREGATE_OPERATOR_OR,
     ];
     public const CONCORDANCE_MODE_NO_STRICT = 0;
     public const CONCORDANCE_MODE_STRICT = 1;
@@ -194,7 +194,7 @@ class RequestParameters implements RequestParametersInterface
         $names = [];
         $searchIn = function ($data) use (&$searchIn, &$names, $notAllowedKeys, $withValueAndOperator): void {
             foreach ($data as $key => $value) {
-                if (!in_array($key, $names) && !in_array($key, $notAllowedKeys) && !is_int($key)) {
+                if (! in_array($key, $names) && ! in_array($key, $notAllowedKeys) && ! is_int($key)) {
                     if ($withValueAndOperator) {
                         $names[$key] = $value;
                     } else {

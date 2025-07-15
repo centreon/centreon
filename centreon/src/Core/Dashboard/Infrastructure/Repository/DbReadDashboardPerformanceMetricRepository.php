@@ -117,7 +117,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 message: 'An error occurred while trying to find performance metrics by request parameters and access groups.',
                 context: [
                     'requestParameters' => $requestParameters->toArray(),
-                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                    'accessGroups' => array_map(fn ($group) => $group->getId(), $accessGroups),
                 ],
                 previous: $e
             );
@@ -179,7 +179,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 message: 'An error occurred while trying to find performance metrics by request parameters, access groups and metric name.',
                 context: [
                     'requestParameters' => $requestParameters->toArray(),
-                    'accessGroups' => array_map(fn($group) => $group->getId(), $accessGroups),
+                    'accessGroups' => array_map(fn ($group) => $group->getId(), $accessGroups),
                     'metricName' => $metricName,
                 ],
                 previous: $e
@@ -633,7 +633,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         // To add a regex join clause for service name if it exists in the search parameters.
         // To patch a bug from top/bottom widget
-        if (! $this->queryParameters->isEmpty() && $this->queryParameters->has('serviceRegex')){
+        if (! $this->queryParameters->isEmpty() && $this->queryParameters->has('serviceRegex')) {
             $queryParameter = $this->queryParameters->get('serviceRegex');
             $statement->bindValue(
                 param: $queryParameter->getName(),
@@ -719,7 +719,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @throws ValueObjectException
      * @return string|null
      */
-    private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string {
+    private function addServiceRegexJoinClause(RequestParametersInterface $requestParameters): ?string
+    {
         if (! $requestParameters->hasSearchParameter('name')) {
             return null;
         }
@@ -729,7 +730,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         if (($searchParameters['name'] ?? []) === [] || count($searchParameters['name']) !== 1) {
             return null;
         }
-        
+
         $nameParameter = $searchParameters['name'];
 
         if (! isset($nameParameter[RequestParameters::OPERATOR_REGEXP])) {
