@@ -486,12 +486,12 @@ jobs:
 
           result=0
           for pid in "${pids[@]}"; do
-          if ! wait "$pid"; then
-          echo "❌ Rector ${pid_to_name[$pid]}: Failed"
-          result=1
-          else
-          echo "✅ Rector ${pid_to_name[$pid]}: Success"
-          fi
+            if ! wait "$pid"; then
+              echo "❌ Rector ${pid_to_name[$pid]}: Failed"
+              result=1
+            else
+              echo "✅ Rector ${pid_to_name[$pid]}: Success"
+            fi
           done
 
           exit $result
@@ -512,12 +512,12 @@ jobs:
 
           result=0
           for pid in "${pids[@]}"; do
-          if ! wait "$pid"; then
-          echo "❌ PHP-CS-Fixer ${pid_to_name[$pid]}: Failed"
-          result=1
-          else
-          echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success"
-          fi
+            if ! wait "$pid"; then
+              echo "❌ PHP-CS-Fixer ${pid_to_name[$pid]}: Failed"
+              result=1
+            else
+              echo "✅ PHP-CS-Fixer ${pid_to_name[$pid]}: Success"
+            fi
           done
 
           exit $result
@@ -542,12 +542,12 @@ jobs:
 
           result=0
           for pid in "${pids[@]}"; do
-          if ! wait "$pid"; then
-          echo "❌ PHPStan ${pid_to_name[$pid]}: Failed"
-          result=1
-          else
-          echo "✅ PHPStan ${pid_to_name[$pid]}: Success"
-          fi
+            if ! wait "$pid"; then
+              echo "❌ PHPStan ${pid_to_name[$pid]}: Failed"
+              result=1
+            else
+              echo "✅ PHPStan ${pid_to_name[$pid]}: Success"
+            fi
           done
 
           exit $result
