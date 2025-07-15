@@ -65,7 +65,7 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
               <div className={classes.resources}>
                 <div className={classes.iconValuePair}>
                   <ShortTypeChip
-                    label={resource.parent?.type.charAt(0) as string}
+                    label={resource.parent?.type?.charAt(0) || 'U'}
                   />
                   <SelectableResourceName
                     name={resource.parent?.name as string}
