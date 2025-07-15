@@ -1350,7 +1350,7 @@ function isValidReloadCommandSyntax(string $command): bool
 }
 function isValidPath(string $path): bool
 {
-    return preg_match(
+    return (bool) preg_match(
         '/^(\/[\w^ \s\-\_\\\"\']+)+\/?$/',
         $path
     );
@@ -1358,7 +1358,7 @@ function isValidPath(string $path): bool
 
 function isValidTrapInit(string $trapScript): bool
 {
-    return preg_match(
+    return (bool) preg_match(
         '/[a-zA-Z0-9\-\_]+/',
         $trapScript
     );
