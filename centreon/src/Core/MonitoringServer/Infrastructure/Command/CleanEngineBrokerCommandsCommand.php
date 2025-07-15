@@ -104,7 +104,7 @@ final class CleanEngineBrokerCommandsCommand extends Command
                         ? MonitoringServer::DEFAULT_BROKER_RELOAD_COMMAND
                         : $monitoringServer->getBrokerReloadCommand()
                 ));
-                $output->writeln("Commands has been correctly cleaned");
+                $output->writeln("Commands have been correctly cleaned");
             } catch (RepositoryException $ex) {
                 $this->error("An error occured while cleaning engine commands", [
                     'exception' => $ex
