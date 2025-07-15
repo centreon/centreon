@@ -349,6 +349,14 @@ local function replace_macros(text, macros)
   return retval
 end
 
+--- Escape shell characters in a string to prevent command injection.
+--  This function escapes special shell characters: $, `, (, ), \, |, &, ;, >, <, *, ?, [, ], {, }, and spaces.
+--  @param str The string to escape.
+local function escape_shell_chars(str)
+    local escaped_str = string.gsub(str, "([%$`%(%)|%&;%*%?%[%]{}%s\\><%'])", "\\%1")
+    return escaped_str
+end
+
 --- Send a notification by mail.
 --  @param notif The notification configuration.
 --  @param event The event received from broker (service status/host status)
@@ -386,6 +394,10 @@ local function send_mail(notif, event, conf, hostname)
   sender = string.gsub(data.sender, '"', '\\"')
   -- '%' is a specific character in gsub, we must escape it.
   sender = string.gsub(sender, "%%", "%%%%")
+
+  -- Escape shell characters in the message and subject to prevent command injection.
+  message = escape_shell_chars(message)
+  subject = escape_shell_chars(subject)
 
   -- Constructing the mail command
   local cmd = data.mail_command
