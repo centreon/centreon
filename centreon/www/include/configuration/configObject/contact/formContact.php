@@ -66,6 +66,11 @@ $initialValues = [];
 // Check if this server is a Remote Server to hide some part of form
 $dbResult = $pearDB->query("SELECT i.value FROM informations i WHERE i.key = 'isRemote'");
 $result = $dbResult->fetch();
+//$isRemote = false;
+//if ($result !== false) {
+//    $isRemote = array_map('myDecode', $result);
+//    $isRemote = $isRemote['value'] === 'yes';
+//}
 if ($result === false) {
     $isRemote = false;
 } else {
