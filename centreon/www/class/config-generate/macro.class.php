@@ -74,13 +74,6 @@ class Macro extends AbstractObject
     /** @var array<int, bool> */
     private $pollersEncryptionReadyStatusByHosts = [];
 
-    /** @var null */
-    protected $generate_filename = null;
-    /** @var string */
-    protected string $object_name;
-    /** @var null */
-    protected $stmt_service = null;
-
     /**
      * Macro constructor
      *
@@ -102,27 +95,30 @@ class Macro extends AbstractObject
         $this->buildCache();
     }
 
-    private function setPollersEncryptionReadyStatusByHosts()
-    {
-        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(<<<SQL
-            SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
-                INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
-            SQL
-        );
-        foreach($result as $hostId => $value) {
-            $this->pollersEncryptionReadyStatusByHosts[$hostId] = (bool) $value['is_encryption_ready'];
-        }
-    }
-
     /**
      * @param $service_id
+     * @param int|null $hostId
      *
      * @return array|mixed|null
      */
-    public function getServiceMacroByServiceId($service_id)
+    public function getServiceMacroByServiceId($service_id, ?int $hostId = null)
     {
-        // Get from the cache
+        # Get from the cache
         if (isset($this->macro_service_cache[$service_id])) {
+            if ($hostId !== null) {
+                $isEncryptionReady = $this->pollersEncryptionReadyStatusByHosts[$hostId] === true;
+
+                foreach ($this->macro_service_cache[$service_id] as $name => $value) {
+                    if ($isEncryptionReady) {
+                        $value = 'encrypt::' . $this->engineContextEncryption->crypt($value);
+                    } elseif (str_starts_with($value, 'encrypt::')) {
+                        $value = $this->engineContextEncryption->decrypt(substr($value, strlen('encrypt::')));
+                    }
+
+                    $this->macro_service_cache[$service_id][$name] = $value;
+                }
+            }
+
             return $this->macro_service_cache[$service_id];
         }
         if ($this->done_cache == 1) {
@@ -137,12 +133,25 @@ class Macro extends AbstractObject
      */
     public function getHostMacroByHostId($hostId)
     {
-        // Get from the cache
+        # Get from the cache
         if (isset($this->macroHostCache[$hostId])) {
             return $this->macroHostCache[$hostId];
         }
         if ($this->done_cache == 1) {
             return null;
+        }
+    }
+
+
+    private function setPollersEncryptionReadyStatusByHosts()
+    {
+        $result = $this->backend_instance->db->fetchAllAssociativeIndexed(<<<SQL
+            SELECT nsr.host_host_id, ns.is_encryption_ready FROM ns_host_relation nsr
+                INNER JOIN nagios_server ns ON ns.id = nsr.nagios_server_id
+            SQL
+        );
+        foreach($result as $hostId => $value) {
+            $this->pollersEncryptionReadyStatusByHosts[$hostId] = (bool) $value['is_encryption_ready'];
         }
     }
 
@@ -275,54 +284,6 @@ class Macro extends AbstractObject
         }
 
         return $vaultPathByResources;
-    }
-
-    /**
-     * @param $service_id
-     * @param int|null $hostId
-     *
-     * @return array|mixed|null
-     */
-    public function getServiceMacroByServiceId($service_id, ?int $hostId = null)
-    {
-        # Get from the cache
-        if (isset($this->macro_service_cache[$service_id])) {
-            if ($hostId !== null) {
-                $isEncryptionReady = $this->pollersEncryptionReadyStatusByHosts[$hostId] === true;
-
-                foreach ($this->macro_service_cache[$service_id] as $name => $value) {
-                    if ($isEncryptionReady) {
-                        $value = 'encrypt::' . $this->engineContextEncryption->crypt($value);
-                    } elseif (str_starts_with($value, 'encrypt::')) {
-                        $value = $this->engineContextEncryption->decrypt(substr($value, strlen('encrypt::')));
-                    }
-
-                    $this->macro_service_cache[$service_id][$name] = $value;
-                }
-            }
-
-            return $this->macro_service_cache[$service_id];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
-    }
-
-    /**
-     * @param $hostId
-     *
-     * @return array|mixed|null
-     */
-    public function getHostMacroByHostId($hostId)
-    {
-        # Get from the cache
-        if (isset($this->macroHostCache[$hostId])) {
-
-            return $this->macroHostCache[$hostId];
-        }
-        if ($this->done_cache == 1) {
-            return null;
-        }
     }
 
     /**

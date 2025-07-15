@@ -140,6 +140,62 @@ abstract class AbstractHost extends AbstractObject
     protected $stmt_cg = null;
 
     /**
+     * @param $host_id
+     * @param $host_tpl_id
+     *
+     * @return int
+     */
+    public function isHostTemplate($host_id, $host_tpl_id)
+    {
+        $loop = [];
+        $stack = [];
+
+        $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
+        $stack = $this->hosts[$host_id]['htpl'];
+        while (($host_id = array_shift($stack))) {
+            if (isset($loop[$host_id])) {
+                continue;
+            }
+            $loop[$host_id] = 1;
+            if ($host_id == $host_tpl_id) {
+                return 1;
+            }
+            $stack = array_merge($hosts_tpl[$host_id]['htpl'], $stack);
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($host_id, $attr)
+    {
+        return $this->hosts[$host_id][$attr] ?? null;
+    }
+
+    /**
+     * @param HostCategory $hostCategory
+     * @param array<string,mixed> $host
+     *
+     * @throws PDOException
+     */
+    public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
+    {
+        $host['hostCategories'] = $this->getHostCategoriesByHost($host);
+
+        foreach ($host['hostCategories'] as $hostCategoryId) {
+            $hostCategory->insertHostToCategoryMembers(
+                $hostCategoryId,
+                $host['host_id'],
+                $host['name'] ?? $host['host_name']
+            );
+        }
+    }
+    /**
      * @param int $hostId
      * @param int|null $hostType
      *
@@ -329,215 +385,6 @@ abstract class AbstractHost extends AbstractObject
         }
     }
 
-    /**
-     * @param $host_id
-     * @param $host_tpl_id
-     *
-     * @return int
-     */
-    public function isHostTemplate($host_id, $host_tpl_id)
-    {
-        $loop = [];
-        $stack = [];
-
-        $hosts_tpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $stack = $this->hosts[$host_id]['htpl'];
-        while (($host_id = array_shift($stack))) {
-            if (isset($loop[$host_id])) {
-                continue;
-            }
-            $loop[$host_id] = 1;
-            if ($host_id == $host_tpl_id) {
-                return 1;
-            }
-            $stack = array_merge($hosts_tpl[$host_id]['htpl'], $stack);
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param $host_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($host_id, $attr)
-    {
-        return $this->hosts[$host_id][$attr] ?? null;
-    }
-
-    /**
-     * @param HostCategory $hostCategory
-     * @param array<string,mixed> $host
-     *
-     * @throws PDOException
-     */
-    public function insertHostInHostCategoryMembers(HostCategory $hostCategory, array &$host): void
-    {
-        $host['hostCategories'] = $this->getHostCategoriesByHost($host);
-
-        foreach ($host['hostCategories'] as $hostCategoryId) {
-            $hostCategory->insertHostToCategoryMembers(
-                $hostCategoryId,
-                $host['host_id'],
-                $host['name'] ?? $host['host_name']
-            );
-        }
-    }
-
-    /**
-     * @param int $hostId
-     * @param int|null $hostType
-     *
-     * @throws PDOException
-     * @return mixed
-     */
-    protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST)
-    {
-        $query = "SELECT {$this->attributes_select}
-            FROM host
-            LEFT JOIN extended_host_information
-              ON extended_host_information.host_host_id = host.host_id
-            WHERE host.host_id = :host_id
-              AND host.host_activate = '1'";
-        if (! is_null($hostType)) {
-            $query .= ' AND host.host_register = :host_register';
-        }
-        $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-        if (! is_null($hostType)) {
-            // host_register is an enum
-            $stmt->bindParam(':host_register', $hostType, PDO::PARAM_STR);
-        }
-        $stmt->execute();
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function getImages(&$host)
-    {
-        $media = Media::getInstance($this->dependencyInjector);
-        if (! isset($host['icon_image'])) {
-            $host['icon_image'] = $media->getMediaPathFromId($host['icon_image_id']);
-            $host['icon_id'] = $host['icon_image_id'];
-        }
-        if (! isset($host['statusmap_image'])) {
-            $host['statusmap_image'] = $media->getMediaPathFromId($host['statusmap_image_id']);
-        }
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int
-     */
-    protected function getMacros(&$host)
-    {
-        if (isset($host['macros'])) {
-            return 1;
-        }
-
-        $host['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getHostMacroByHostId($host['host_id']);
-        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
-            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param array $host
-     * @param bool $generate
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    protected function getHostTemplates(array &$host, bool $generate = true): void
-    {
-        if (! isset($host['htpl'])) {
-            if (is_null($this->stmt_htpl)) {
-                $this->stmt_htpl = $this->backend_instance->db->prepare('
-                SELECT host_tpl_id
-                FROM host_template_relation
-                WHERE host_host_id = :host_id
-                ORDER BY `order` ASC
-                ');
-            }
-            $this->stmt_htpl->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-            $this->stmt_htpl->execute();
-            $host['htpl'] = $this->stmt_htpl->fetchAll(PDO::FETCH_COLUMN);
-        }
-
-        if (! $generate) {
-            return;
-        }
-
-        $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
-        $host['use'] = [];
-        foreach ($host['htpl'] as $templateId) {
-            $host['use'][] = $hostTemplate->generateFromHostId($templateId);
-        }
-    }
-
-    /**
-     * @param array $host (passing by Reference)
-     *
-     * @throws PDOException
-     */
-    protected function getContacts(array &$host): void
-    {
-        if (! isset($host['contacts_cache'])) {
-            if (is_null($this->stmt_contact)) {
-                $this->stmt_contact = $this->backend_instance->db->prepare("
-                SELECT chr.contact_id
-                FROM contact_host_relation chr, contact
-                WHERE host_host_id = :host_id
-                AND chr.contact_id = contact.contact_id
-                AND contact.contact_activate = '1'
-                ");
-            }
-            $this->stmt_contact->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-            $this->stmt_contact->execute();
-            $host['contacts_cache'] = $this->stmt_contact->fetchAll(PDO::FETCH_COLUMN);
-        }
-    }
-
-    /**
-     * @param array $host (passing by Reference)
-     *
-     * @throws PDOException
-     */
-    protected function getContactGroups(array &$host): void
-    {
-        if (! isset($host['contact_groups_cache'])) {
-            if (is_null($this->stmt_cg)) {
-                $this->stmt_cg = $this->backend_instance->db->prepare("
-                SELECT contactgroup_cg_id
-                FROM contactgroup_host_relation, contactgroup
-                WHERE host_host_id = :host_id
-                AND contactgroup_cg_id = cg_id
-                AND cg_activate = '1'
-                ");
-            }
-            $this->stmt_cg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-            $this->stmt_cg->execute();
-            $host['contact_groups_cache'] = $this->stmt_cg->fetchAll(PDO::FETCH_COLUMN);
-        }
-    }
 
     /**
      * @param $host_id

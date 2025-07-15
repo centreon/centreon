@@ -79,6 +79,296 @@ class Host extends AbstractHost
     protected $generatedHosts = [];
 
     /**
+     * @param $host_id
+     *
+     * @return mixed
+     */
+    public function getSeverityForService($host_id)
+    {
+        return $this->hosts[$host_id]['severity_id_for_services'];
+    }
+
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return void
+     */
+    public function addHost($host_id, $attr = []): void
+    {
+        $this->hosts[$host_id] = $attr;
+    }
+
+    /**
+     * @param $host
+     * @param $generateConfigurationFile
+     * @param Macro[] $hostTemplateMacros
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
+    {
+        $this->getImages($host);
+        $this->getHostTimezone($host);
+        $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
+        $this->getHostCommands($host);
+        $this->getHostPeriods($host);
+        $this->getContactGroups($host);
+        $this->getContacts($host);
+        $this->getHostGroups($host);
+
+        // Set HostCategories
+        $hostCategory = HostCategory::getInstance($this->dependencyInjector);
+        $this->insertHostInHostCategoryMembers($hostCategory, $host);
+        $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
+
+        $this->getParents($host);
+        $this->getSeverity($host['host_id']);
+
+        $this->manageNotificationInheritance($host, $generateConfigurationFile);
+
+    }
+
+    /**
+     * @param $host
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
+    {
+        $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
+        $this->formatMacros($host, $hostMacros);
+        $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
+        $this->getServicesByHg($host);
+        $this->generateObjectInFile($host, $host['host_id']);
+        $this->addGeneratedHost($host['host_id']);
+    }
+
+    /**
+     * @param $pollerId
+     * @param $localhost
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @return void
+     */
+    public function generateFromPollerId($pollerId, $localhost = 0): void
+    {
+        if (is_null($this->hosts)) {
+            $this->getHosts($pollerId);
+        }
+
+        Service::getInstance($this->dependencyInjector)->set_poller($pollerId);
+
+        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
+        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
+        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
+        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
+        $hostMacros = $readHostMacroRepository->findHostsMacrosWithEncryptionReady($pollerId);
+        $hostTemplateMacros = $readHostMacroRepository->findHostTemplatesMacrosWithEncryptionReady($pollerId);
+        $serviceMacros = $readServiceMacroRepository->findServicesMacrosWithEncryptionReady($pollerId);
+        $serviceTemplateMacros = $readServiceMacroRepository->findServiceTemplatesMacrosWithEncryptionReady($pollerId);
+        foreach ($this->hosts as $host_id => &$host) {
+            $this->hosts_by_name[$host['host_name']] = $host_id;
+            $host['host_id'] = $host_id;
+            $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
+        }
+
+        if ($localhost == 1) {
+            MetaService::getInstance($this->dependencyInjector)->generateObjects();
+        }
+
+        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
+        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
+        Escalation::getInstance($this->dependencyInjector)->generateObjects();
+        Dependency::getInstance($this->dependencyInjector)->generateObjects();
+        Severity::getInstance($this->dependencyInjector)->generateObjects();
+        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
+        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
+    }
+
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     */
+    public function getHostIdByHostName($host_name)
+    {
+        return $this->hosts_by_name[$host_name] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratedParentship()
+    {
+        return $this->generated_parentship;
+    }
+
+    /**
+     * @param $hostId
+     *
+     * @return void
+     */
+    public function addGeneratedHost($hostId): void
+    {
+        $this->generatedHosts[] = $hostId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratedHosts()
+    {
+        return $this->generatedHosts;
+    }
+
+    /**
+     * @param int $hostId
+     * @return array
+     */
+    public function getCgAndContacts(int $hostId): array
+    {
+        // we pass null because it can be a meta_host with host_register = '2'
+        $host = $this->getHostById($hostId, null);
+
+        $this->getContacts($host);
+        $this->getContactGroups($host);
+        $this->getHostTemplates($host, false);
+
+        $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
+
+        $stack = $host['htpl'];
+        $loop = [];
+        while (($hostTplId = array_shift($stack))) {
+            if (isset($loop[$hostTplId])) {
+                continue;
+            }
+            $loop[$hostTplId] = 1;
+
+            $hostTplInstance->addCacheHostTpl($hostTplId);
+            if (! is_null($hostTplInstance->hosts[$hostTplId])) {
+                $hostTplInstance->getHostTemplates($hostTplInstance->hosts[$hostTplId], false);
+                $hostTplInstance->getContactGroups($hostTplInstance->hosts[$hostTplId]);
+                $hostTplInstance->getContacts($hostTplInstance->hosts[$hostTplId]);
+                $stack = array_merge($hostTplInstance->hosts[$hostTplId]['htpl'], $stack);
+            }
+        }
+
+        return $this->manageNotificationInheritance($host, false);
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->hosts_by_name = [];
+        $this->hosts = null;
+        $this->generated_parentship = [];
+        $this->generatedHosts = [];
+        parent::reset();
+    }
+
+    /**
+     * @param $host_id_arg
+     *
+     * @throws PDOException
+     * @return void
+     */
+    protected function getSeverity($host_id_arg)
+    {
+        $host_id = null;
+        $loop = [];
+
+        $severity_instance = Severity::getInstance($this->dependencyInjector);
+        $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
+        $this->hosts[$host_id_arg]['severity'] = $severity_instance->getHostSeverityById($severity_id);
+        if (! is_null($this->hosts[$host_id_arg]['severity'])) {
+            $macros = [
+                '_CRITICALITY_LEVEL' => $this->hosts[$host_id_arg]['severity']['level'],
+                '_CRITICALITY_ID' => $this->hosts[$host_id_arg]['severity']['hc_id'],
+                'severity' => $this->hosts[$host_id_arg]['severity']['hc_id'],
+            ];
+
+            $this->hosts[$host_id_arg]['macros'] = array_merge(
+                $this->hosts[$host_id_arg]['macros'] ?? [],
+                $macros
+            );
+        }
+
+        $hosts_tpl = &HostTemplate::getInstance($this->dependencyInjector)->hosts;
+        $stack = $this->hosts[$host_id_arg]['htpl'];
+        while ((is_null($severity_id) && (! is_null($stack) && ($host_id = array_shift($stack))))) {
+            if (isset($loop[$host_id])) {
+                continue;
+            }
+            $loop[$host_id] = 1;
+            if (isset($hosts_tpl[$host_id]['severity_id'])) {
+                $severity_id = $hosts_tpl[$host_id]['severity_id'];
+                break;
+            }
+            if (isset($hosts_tpl[$host_id]['severity_id_from_below'])) {
+                $severity_id = $hosts_tpl[$host_id]['severity_id_from_below'];
+                break;
+            }
+
+            $stack2 = $hosts_tpl[$host_id]['htpl'];
+            while ((is_null($severity_id) && (! is_null($stack2) && ($host_id2 = array_shift($stack2))))) {
+                if (isset($loop[$host_id2])) {
+                    continue;
+                }
+                $loop[$host_id2] = 1;
+
+                if (isset($hosts_tpl[$host_id2]['severity_id'])) {
+                    $severity_id = $hosts_tpl[$host_id2]['severity_id'];
+                    break;
+                }
+                $stack2 = array_merge($hosts_tpl[$host_id2]['htpl'] ?? [], $stack2);
+            }
+
+            if ($severity_id) {
+                $hosts_tpl[$host_id]['severity_id_from_below'] = $severity_id;
+            }
+        }
+
+        // For applied on services without severity
+        $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
+    }
+
+    /**
+     * @param $poller_id
+     *
+     * @throws PDOException
+     * @return void
+     */
+    private function getHosts($poller_id): void
+    {
+        // We use host_register = 1 because we don't want _Module_* hosts
+        $stmt = $this->backend_instance->db->prepare("SELECT
+              {$this->attributes_select}
+            FROM ns_host_relation, host
+                LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
+            WHERE ns_host_relation.nagios_server_id = :server_id
+                AND ns_host_relation.host_host_id = host.host_id
+                AND host.host_activate = '1' AND host.host_register = '1'");
+        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
      * @param $host
      *
      * @return void
@@ -446,661 +736,5 @@ class Host extends AbstractHost
         }
 
         return $results;
-    }
-
-    /**
-     * @param $host_id
-     *
-     * @return mixed
-     */
-    public function getSeverityForService($host_id)
-    {
-        return $this->hosts[$host_id]['severity_id_for_services'];
-    }
-
-    /**
-     * @param $host_id
-     * @param $attr
-     *
-     * @return void
-     */
-    public function addHost($host_id, $attr = []): void
-    {
-        $this->hosts[$host_id] = $attr;
-    }
-
-    /**
-     * @param $host
-     * @param $generateConfigurationFile
-     * @param Macro[] $hostTemplateMacros
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function processingFromHost(&$host, $generateConfigurationFile = true, array $hostTemplateMacros = []): void
-    {
-        $this->getImages($host);
-        $this->getHostTimezone($host);
-        $this->getHostTemplates($host, $generateConfigurationFile, $hostTemplateMacros);
-        $this->getHostCommands($host);
-        $this->getHostPeriods($host);
-        $this->getContactGroups($host);
-        $this->getContacts($host);
-        $this->getHostGroups($host);
-
-        // Set HostCategories
-        $hostCategory = HostCategory::getInstance($this->dependencyInjector);
-        $this->insertHostInHostCategoryMembers($hostCategory, $host);
-        $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
-
-        $this->getParents($host);
-        $this->getSeverity($host['host_id']);
-
-        $this->manageNotificationInheritance($host, $generateConfigurationFile);
-
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function generateFromHostId(&$host, array $hostMacros, array $hostTemplateMacros, array $serviceMacros, $serviceTemplateMacros): void
-    {
-        $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
-        $this->formatMacros($host, $hostMacros);
-        $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
-        $this->getServicesByHg($host);
-        $this->generateObjectInFile($host, $host['host_id']);
-        $this->addGeneratedHost($host['host_id']);
-    }
-
-    /**
-     * @param $pollerId
-     * @param $localhost
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @return void
-     */
-    public function generateFromPollerId($pollerId, $localhost = 0): void
-    {
-        if (is_null($this->hosts)) {
-            $this->getHosts($pollerId);
-        }
-
-        Service::getInstance($this->dependencyInjector)->set_poller($pollerId);
-
-        /** @var ReadHostMacroRepositoryInterface $readHostMacroRepository */
-        $readHostMacroRepository = $this->kernel->getContainer()->get(ReadHostMacroRepositoryInterface::class);
-        /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
-        $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
-        $hostMacros = $readHostMacroRepository->findHostsMacrosWithEncryptionReady($pollerId);
-        $hostTemplateMacros = $readHostMacroRepository->findHostTemplatesMacrosWithEncryptionReady($pollerId);
-        $serviceMacros = $readServiceMacroRepository->findServicesMacrosWithEncryptionReady($pollerId);
-        $serviceTemplateMacros = $readServiceMacroRepository->findServiceTemplatesMacrosWithEncryptionReady($pollerId);
-        foreach ($this->hosts as $host_id => &$host) {
-            $this->hosts_by_name[$host['host_name']] = $host_id;
-            $host['host_id'] = $host_id;
-            $this->generateFromHostId($host, $hostMacros, $hostTemplateMacros, $serviceMacros, $serviceTemplateMacros);
-        }
-
-        if ($localhost == 1) {
-            MetaService::getInstance($this->dependencyInjector)->generateObjects();
-        }
-
-        Hostgroup::getInstance($this->dependencyInjector)->generateObjects();
-        Servicegroup::getInstance($this->dependencyInjector)->generateObjects();
-        Escalation::getInstance($this->dependencyInjector)->generateObjects();
-        Dependency::getInstance($this->dependencyInjector)->generateObjects();
-        Severity::getInstance($this->dependencyInjector)->generateObjects();
-        HostCategory::getInstance($this->dependencyInjector)->generateObjects();
-        ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
-    }
-
-    /**
-     * @param $host_name
-     *
-     * @return mixed|null
-     */
-    public function getHostIdByHostName($host_name)
-    {
-        return $this->hosts_by_name[$host_name] ?? null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratedParentship()
-    {
-        return $this->generated_parentship;
-    }
-
-    /**
-     * @param $hostId
-     *
-     * @return void
-     */
-    public function addGeneratedHost($hostId): void
-    {
-        $this->generatedHosts[] = $hostId;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratedHosts()
-    {
-        return $this->generatedHosts;
-    }
-
-    /**
-     * @param int $hostId
-     * @return array
-     */
-    public function getCgAndContacts(int $hostId): array
-    {
-        // we pass null because it can be a meta_host with host_register = '2'
-        $host = $this->getHostById($hostId, null);
-
-        $this->getContacts($host);
-        $this->getContactGroups($host);
-        $this->getHostTemplates($host, false);
-
-        $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
-
-        $stack = $host['htpl'];
-        $loop = [];
-        while (($hostTplId = array_shift($stack))) {
-            if (isset($loop[$hostTplId])) {
-                continue;
-            }
-            $loop[$hostTplId] = 1;
-
-            $hostTplInstance->addCacheHostTpl($hostTplId);
-            if (! is_null($hostTplInstance->hosts[$hostTplId])) {
-                $hostTplInstance->getHostTemplates($hostTplInstance->hosts[$hostTplId], false);
-                $hostTplInstance->getContactGroups($hostTplInstance->hosts[$hostTplId]);
-                $hostTplInstance->getContacts($hostTplInstance->hosts[$hostTplId]);
-                $stack = array_merge($hostTplInstance->hosts[$hostTplId]['htpl'], $stack);
-            }
-        }
-
-        return $this->manageNotificationInheritance($host, false);
-    }
-
-    /**
-     * @throws Exception
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->hosts_by_name = [];
-        $this->hosts = null;
-        $this->generated_parentship = [];
-        $this->generatedHosts = [];
-        parent::reset();
-    }
-
-    /**
-     * @param $host_id_arg
-     *
-     * @throws PDOException
-     * @return void
-     */
-    protected function getSeverity($host_id_arg)
-    {
-        $host_id = null;
-        $loop = [];
-
-        $severity_instance = Severity::getInstance($this->dependencyInjector);
-        $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
-        $this->hosts[$host_id_arg]['severity'] = $severity_instance->getHostSeverityById($severity_id);
-        if (! is_null($this->hosts[$host_id_arg]['severity'])) {
-            $macros = [
-                '_CRITICALITY_LEVEL' => $this->hosts[$host_id_arg]['severity']['level'],
-                '_CRITICALITY_ID' => $this->hosts[$host_id_arg]['severity']['hc_id'],
-                'severity' => $this->hosts[$host_id_arg]['severity']['hc_id'],
-            ];
-
-            $this->hosts[$host_id_arg]['macros'] = array_merge(
-                $this->hosts[$host_id_arg]['macros'] ?? [],
-                $macros
-            );
-        }
-
-        $hosts_tpl = &HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $stack = $this->hosts[$host_id_arg]['htpl'];
-        while ((is_null($severity_id) && (! is_null($stack) && ($host_id = array_shift($stack))))) {
-            if (isset($loop[$host_id])) {
-                continue;
-            }
-            $loop[$host_id] = 1;
-            if (isset($hosts_tpl[$host_id]['severity_id'])) {
-                $severity_id = $hosts_tpl[$host_id]['severity_id'];
-                break;
-            }
-            if (isset($hosts_tpl[$host_id]['severity_id_from_below'])) {
-                $severity_id = $hosts_tpl[$host_id]['severity_id_from_below'];
-                break;
-            }
-
-            $stack2 = $hosts_tpl[$host_id]['htpl'];
-            while ((is_null($severity_id) && (! is_null($stack2) && ($host_id2 = array_shift($stack2))))) {
-                if (isset($loop[$host_id2])) {
-                    continue;
-                }
-                $loop[$host_id2] = 1;
-
-                if (isset($hosts_tpl[$host_id2]['severity_id'])) {
-                    $severity_id = $hosts_tpl[$host_id2]['severity_id'];
-                    break;
-                }
-                $stack2 = array_merge($hosts_tpl[$host_id2]['htpl'] ?? [], $stack2);
-            }
-
-            if ($severity_id) {
-                $hosts_tpl[$host_id]['severity_id_from_below'] = $severity_id;
-            }
-        }
-
-        // For applied on services without severity
-        $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getHostGroups(&$host): void
-    {
-        $host['group_tags'] ??= [];
-
-        if (! isset($host['hg'])) {
-            if (is_null($this->stmt_hg)) {
-                $this->stmt_hg = $this->backend_instance->db->prepare(
-                    "SELECT hostgroup_hg_id
-                    FROM hostgroup_relation hgr, hostgroup hg
-                    WHERE host_host_id = :host_id AND hg.hg_id = hgr.hostgroup_hg_id AND hg.hg_activate = '1'"
-                );
-            }
-            $this->stmt_hg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-            $this->stmt_hg->execute();
-            $host['hg'] = $this->stmt_hg->fetchAll(PDO::FETCH_COLUMN);
-        }
-
-        $hostgroup = Hostgroup::getInstance($this->dependencyInjector);
-        foreach ($host['hg'] as $hostGroupId) {
-            $host['group_tags'][] = $hostGroupId;
-            $hostgroup->addHostInHg($hostGroupId, $host['host_id'], $host['host_name']);
-        }
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getParents(&$host): void
-    {
-        if (is_null($this->stmt_parent)) {
-            $this->stmt_parent = $this->backend_instance->db->prepare('SELECT
-                    host_parent_hp_id
-                FROM host_hostparent_relation
-                WHERE host_host_id = :host_id
-                ');
-        }
-        $this->stmt_parent->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_parent->execute();
-        $result = $this->stmt_parent->fetchAll(PDO::FETCH_COLUMN);
-
-        $host['parents'] = [];
-        foreach ($result as $parent_id) {
-            if (isset($this->hosts[$parent_id])) {
-                $host['parents'][] = $this->hosts[$parent_id]['host_name'];
-            }
-        }
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getServices(&$host): void
-    {
-        if (is_null($this->stmt_service)) {
-            $this->stmt_service = $this->backend_instance->db->prepare('SELECT
-                    service_service_id
-                FROM host_service_relation
-                WHERE host_host_id = :host_id AND service_service_id IS NOT NULL
-                ');
-        }
-        $this->stmt_service->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_service->execute();
-        $host['services_cache'] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
-
-        $service = Service::getInstance($this->dependencyInjector);
-        foreach ($host['services_cache'] as $service_id) {
-            $service->generateFromServiceId($host['host_id'], $host['host_name'], $service_id);
-        }
-    }
-
-    /**
-     * @param $host
-     *
-     * @throws PDOException
-     * @return int|void
-     */
-    private function getServicesByHg(&$host)
-    {
-        if (count($host['hg']) == 0) {
-            return 1;
-        }
-        if (is_null($this->stmt_service_sg)) {
-            $query = 'SELECT service_service_id FROM host_service_relation '
-                . 'JOIN hostgroup_relation ON (hostgroup_relation.hostgroup_hg_id = '
-                . 'host_service_relation.hostgroup_hg_id) WHERE hostgroup_relation.host_host_id = :host_id';
-            $this->stmt_service_sg = $this->backend_instance->db->prepare($query);
-        }
-        $this->stmt_service_sg->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_service_sg->execute();
-        $host['services_hg_cache'] = $this->stmt_service_sg->fetchAll(PDO::FETCH_COLUMN);
-
-        $service = Service::getInstance($this->dependencyInjector);
-        foreach ($host['services_hg_cache'] as $service_id) {
-            $service->generateFromServiceId($host['host_id'], $host['host_name'], $service_id, 1);
-        }
-    }
-
-    /**
-     * @param array $host (passing by Reference)
-     * @return array
-     */
-    private function manageCumulativeInheritance(array &$host): array
-    {
-        $results = ['cg' => [], 'contact' => []];
-
-        $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = [$hostIdTopLevel];
-            $loop = [];
-            if (! isset($hostsTpl[$hostIdTopLevel]['contacts_computed_cache'])) {
-                $contacts = [];
-                $cg = [];
-                while (($hostId = array_shift($stack))) {
-                    if (isset($loop[$hostId]) || ! isset($hostsTpl[$hostId])) {
-                        continue;
-                    }
-                    $loop[$hostId] = 1;
-                    // if notifications_enabled is disabled. We don't go in branch
-                    if (
-                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
-                    ) {
-                        continue;
-                    }
-
-                    if (count($hostsTpl[$hostId]['contact_groups_cache']) > 0) {
-                        $cg = array_merge($cg, $hostsTpl[$hostId]['contact_groups_cache']);
-                    }
-                    if (count($hostsTpl[$hostId]['contacts_cache']) > 0) {
-                        $contacts = array_merge($contacts, $hostsTpl[$hostId]['contacts_cache']);
-                    }
-
-                    $stack = array_merge($hostsTpl[$hostId]['htpl'], $stack);
-                }
-
-                $hostsTpl[$hostIdTopLevel]['contacts_computed_cache'] = array_unique($contacts);
-                $hostsTpl[$hostIdTopLevel]['contact_groups_computed_cache'] = array_unique($cg);
-            }
-
-            $results['cg'] = array_merge(
-                $results['cg'],
-                $hostsTpl[$hostIdTopLevel]['contact_groups_computed_cache']
-            );
-            $results['contact'] = array_merge(
-                $results['contact'],
-                $hostsTpl[$hostIdTopLevel]['contacts_computed_cache']
-            );
-        }
-
-        $results['cg'] = array_unique(array_merge($results['cg'], $host['contact_groups_cache']), SORT_NUMERIC);
-        $results['contact'] = array_unique(array_merge($results['contact'], $host['contacts_cache']), SORT_NUMERIC);
-
-        return $results;
-    }
-
-    /**
-     * @param array $host (passing by Reference)
-     * @param string $attribute
-     * @return array
-     */
-    private function manageCloseInheritance(array &$host, string $attribute): array
-    {
-        if (count($host[$attribute . '_cache']) > 0) {
-            return $host[$attribute . '_cache'];
-        }
-
-        $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = [$hostIdTopLevel];
-            $loop = [];
-            if (! isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = [];
-
-                while (($hostId = array_shift($stack))) {
-                    if (isset($loop[$hostId])) {
-                        continue;
-                    }
-                    $loop[$hostId] = 1;
-
-                    if (
-                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
-                    ) {
-                        continue;
-                    }
-
-                    if (count($hostsTpl[$hostId][$attribute . '_cache']) > 0) {
-                        $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache']
-                            = $hostsTpl[$hostId][$attribute . '_cache'];
-                        break;
-                    }
-
-                    $stack = array_merge($hostsTpl[$hostId]['htpl'], $stack);
-                }
-            }
-
-            if (count($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache']) > 0) {
-                return $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'];
-            }
-        }
-
-        return [];
-    }
-
-    /**
-     * @param array $host
-     * @param string $attribute
-     * @param string $attributeAdditive
-     * @return array
-     */
-    private function manageVerticalInheritance(array &$host, string $attribute, string $attributeAdditive): array
-    {
-        $results = $host[$attribute . '_cache'];
-        if (
-            count($results) > 0
-            && (is_null($host[$attributeAdditive]) || $host[$attributeAdditive] != 1)
-        ) {
-            return $results;
-        }
-
-        $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
-        $hostIdCache = null;
-        foreach ($host['htpl'] as $hostIdTopLevel) {
-            $computedCache = [];
-            if (! isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $stack = [[$hostIdTopLevel, 1]];
-                $loop = [];
-                $currentLevelCatch = null;
-                while (([$hostId, $level] = array_shift($stack))) {
-                    if (! is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
-                        break;
-                    }
-                    if (isset($loop[$hostId])) {
-                        continue;
-                    }
-                    $loop[$hostId] = 1;
-
-                    if (
-                        ! is_null($hostsTpl[$hostId]['notifications_enabled'])
-                        && (int) $hostsTpl[$hostId]['notifications_enabled'] === 0
-                    ) {
-                        continue;
-                    }
-
-                    if (count($hostsTpl[$hostId][$attribute . '_cache']) > 0) {
-                        $computedCache = array_merge($computedCache, $hostsTpl[$hostId][$attribute . '_cache']);
-                        $currentLevelCatch = $level;
-                        if (
-                            is_null($hostsTpl[$hostId][$attributeAdditive])
-                            || $hostsTpl[$hostId][$attributeAdditive] != 1
-                        ) {
-                            break;
-                        }
-                    }
-
-                    foreach (array_reverse($hostsTpl[$hostId]['htpl']) as $htplId) {
-                        array_unshift($stack, [$htplId, $level + 1]);
-                    }
-                }
-
-                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = array_unique($computedCache);
-            }
-
-            if (count($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache']) > 0) {
-                $hostIdCache = $hostIdTopLevel;
-                break;
-            }
-        }
-
-        if (! is_null($hostIdCache)) {
-            $results = array_unique(
-                array_merge($results, $hostsTpl[$hostIdCache][$attribute . '_computed_cache']),
-                SORT_NUMERIC
-            );
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param array $host
-     * @param array $cg
-     */
-    private function setContactGroups(array &$host, array $cg = []): void
-    {
-        $cgInstance = Contactgroup::getInstance($this->dependencyInjector);
-        $cgResult = '';
-        $cgResultAppend = '';
-        foreach ($cg as $cgId) {
-            $tmp = $cgInstance->generateFromCgId($cgId);
-            if (! is_null($tmp)) {
-                $cgResult .= $cgResultAppend . $tmp;
-                $cgResultAppend = ',';
-            }
-        }
-        if ($cgResult != '') {
-            $host['contact_groups'] = $cgResult;
-        }
-    }
-
-    /**
-     * @param array $host
-     * @param array $contacts
-     */
-    private function setContacts(array &$host, array $contacts = []): void
-    {
-        $contactInstance = Contact::getInstance($this->dependencyInjector);
-        $contactResult = '';
-        $contactResultAppend = '';
-        foreach ($contacts as $contactId) {
-            $tmp = $contactInstance->generateFromContactId($contactId);
-            if (! is_null($tmp)) {
-                $contactResult .= $contactResultAppend . $tmp;
-                $contactResultAppend = ',';
-            }
-        }
-        if ($contactResult != '') {
-            $host['contacts'] = $contactResult;
-        }
-    }
-
-    /**
-     * @param array $host
-     * @param bool $generate
-     * @return array
-     */
-    private function manageNotificationInheritance(array &$host, bool $generate = true): array
-    {
-        $results = ['cg' => [], 'contact' => []];
-
-        if (! is_null($host['notifications_enabled']) && (int) $host['notifications_enabled'] === 0) {
-            return $results;
-        }
-
-        $mode = $this->getInheritanceMode();
-
-        if ($mode === self::CUMULATIVE_NOTIFICATION) {
-            $results = $this->manageCumulativeInheritance($host);
-        } elseif ($mode === self::CLOSE_NOTIFICATION) {
-            $results['cg'] = $this->manageCloseInheritance($host, 'contact_groups');
-            $results['contact'] = $this->manageCloseInheritance($host, 'contacts');
-        } else {
-            $results['cg'] = $this->manageVerticalInheritance($host, 'contact_groups', 'cg_additive_inheritance');
-            $results['contact'] = $this->manageVerticalInheritance($host, 'contacts', 'contact_additive_inheritance');
-        }
-
-        if ($generate) {
-            $this->setContacts($host, $results['contact']);
-            $this->setContactGroups($host, $results['cg']);
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param $poller_id
-     *
-     * @throws PDOException
-     * @return void
-     */
-    private function getHosts($poller_id): void
-    {
-        // We use host_register = 1 because we don't want _Module_* hosts
-        $stmt = $this->backend_instance->db->prepare("SELECT
-              {$this->attributes_select}
-            FROM ns_host_relation, host
-                LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
-            WHERE ns_host_relation.nagios_server_id = :server_id
-                AND ns_host_relation.host_host_id = host.host_id
-                AND host.host_activate = '1' AND host.host_register = '1'");
-        $stmt->bindParam(':server_id', $poller_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 }

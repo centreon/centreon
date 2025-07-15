@@ -242,8 +242,6 @@ $tab[] = $form->createElement('radio', 'is_default', null, _('Yes'), '1');
 $tab[] = $form->createElement('radio', 'is_default', null, _('No'), '0');
 $form->addGroup($tab, 'is_default', _('Is default poller ?'), '&nbsp;');
 
-
-
 $tab = [];
 $tab[] = $form->createElement('radio', 'ns_activate', null, _('Enabled'), '1');
 $tab[] = $form->createElement('radio', 'ns_activate', null, _('Disabled'), '0');

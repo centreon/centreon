@@ -141,34 +141,6 @@ class HostTemplate extends AbstractHost
 
     /**
      * @param $host_id
-     *
-     * @return int|void
-     * @throws PDOException
-     */
-    private function getSeverity($host_id)
-    {
-        if (isset($this->hosts[$host_id]['severity_id'])) {
-            return 0;
-        }
-
-        $this->hosts[$host_id]['severity_id'] =
-            Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
-        $severity =
-            Severity::getInstance($this->dependencyInjector)
-                ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
-        if (!is_null($severity)) {
-            $macros = [
-                '_CRITICALITY_LEVEL' => $severity['level'],
-                '_CRITICALITY_ID' => $severity['hc_id'],
-                'severity' =>  $severity['hc_id'],
-            ];
-
-            $this->hosts[$host_id]['macros'] = array_merge($this->hosts[$host_id]['macros'] ?? [], $macros);
-        }
-    }
-
-    /**
-     * @param $host_id
      * @param $hostTemplateMacros
      *
      * @return mixed|null

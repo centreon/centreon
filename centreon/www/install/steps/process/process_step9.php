@@ -40,6 +40,7 @@ require_once __DIR__ . '/../../../include/common/vault-functions.php';
 
 use App\Kernel;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Security\Interfaces\EncryptionInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Filesystem\Filesystem;

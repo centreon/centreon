@@ -76,8 +76,31 @@ abstract class AbstractObjectJSON
      */
     protected function __construct(Container $dependencyInjector)
     {
+        $this->kernel = Kernel::createForWeb();
         $this->dependencyInjector = $dependencyInjector;
         $this->backend_instance = Backend::getInstance($this->dependencyInjector);
+        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
+        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
+        try {
+            if ($engineContext === false) {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                    message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'"
+                );
+
+                throw new \RuntimeException("engine-context.json file does not exist");
+            }
+            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
+        } catch (\JsonException|\RuntimeException $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json'",
+                exception: $ex
+            );
+
+            throw $ex;
+        }
     }
 
     /**
@@ -124,37 +147,6 @@ abstract class AbstractObjectJSON
         return $instances[$calledClass];
     }
 
-    /**
-     * AbstractObjectJSON constructor
-     *
-     * @param Container $dependencyInjector
-     */
-    protected function __construct(Container $dependencyInjector)
-    {
-        $this->kernel = Kernel::createForWeb();
-        $this->dependencyInjector = $dependencyInjector;
-        $this->backend_instance = Backend::getInstance($this->dependencyInjector);
-        $this->engineContextEncryption = $this->kernel->getContainer()->get(EncryptionInterface::class);
-        $engineContext = file_get_contents('/etc/centreon-engine/engine-context.json');
-        if ($engineContext === false) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted"
-            );
-        }
-        try {
-            $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
-            $this->engineContextEncryption->setFirstKey($engineContext['app_secret'])->setSecondKey($engineContext['salt']);
-        } catch (\JsonException $ex) {
-            CentreonLog::create()->error(
-                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Unable to parse content of '/etc/centreon-engine/engine-context.json', credentials will not be encrypted",
-                exception: $ex
-            );
-
-            throw $ex;
-        }
-    }
 
     /**
      * @return void
