@@ -105,8 +105,7 @@ final class CleanEngineBrokerCommandsCommand extends Command
                         name: $monitoringServer->getName(),
                         engineRestartCommand: in_array('engineRestartCommand', $invalidPropertyPaths)
                             ? MonitoringServer::DEFAULT_ENGINE_RESTART_COMMAND
--                            : $monitoringServer->getEngineReStartCommand(),
-+                            : $monitoringServer->getEngineRestartCommand(),
+                            : $monitoringServer->getEngineRestartCommand(),
                         engineReloadCommand: in_array('engineReloadCommand', $invalidPropertyPaths)
                             ? MonitoringServer::DEFAULT_ENGINE_RELOAD_COMMAND
                             : $monitoringServer->getEngineReloadCommand(),
