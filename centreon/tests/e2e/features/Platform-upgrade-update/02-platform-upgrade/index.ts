@@ -135,6 +135,7 @@ Given(
             });
           } else {
             major_version_from = previousVersion;
+            cy.wrap(previousVersion).as("majorVersionFrom");
           }
           break;
         case "n - 2":
