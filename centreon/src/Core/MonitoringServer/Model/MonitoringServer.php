@@ -100,5 +100,11 @@ class MonitoringServer
         Assertion::regex($engineReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
         Assertion::regex($engineRestartCommand, self::VALID_COMMAND_RESTART_REGEX);
         Assertion::regex($brokerReloadCommand, self::VALID_COMMAND_RELOAD_REGEX);
+        $this->name = $name;
+        $this->engineStartCommand = $engineStartCommand;
+        $this->engineStopCommand = $engineStopCommand;
+        $this->engineReloadCommand = $engineReloadCommand;
+        $this->engineRestartCommand = $engineRestartCommand;
+        $this->brokerReloadCommand = $brokerReloadCommand;
     }
 }
