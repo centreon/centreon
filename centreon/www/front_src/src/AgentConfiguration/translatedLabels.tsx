@@ -1,6 +1,6 @@
-export const labelAgentsConfigurations = 'Poller/agent configuration';
+export const labelAgentsConfigurations = 'Agent configurations';
 export const labelWelcomeToTheAgentsConfigurationPage =
-  'Welcome to the poller/agent configuration page';
+  'Welcome to the agent configuration page';
 export const labelCreate = 'Create';
 export const labelName = 'Name';
 export const labelAgentType = 'Agent type';
@@ -11,16 +11,15 @@ export const labelCollapse = 'Collapse';
 export const labelAddNewAgent = 'Add new agent configuration';
 export const labelSearch = 'Search';
 export const labelFilters = 'Filters';
-export const labelAgentTypes = 'Agent types';
 export const labelPollers = 'Pollers';
 export const labelClear = 'Clear';
 export const labelDeletePoller = 'Delete poller';
-export const labelDeleteAgent = 'Delete agent';
+export const labelDeleteAgent = 'Delete agent configuration';
 export const labelCancel = 'Cancel';
 export const labelDelete = 'Delete';
 export const labelPollerConfiguration = 'Poller configuration';
 export const labelRequired = 'Required';
-export const labelAddAgentConfiguration = 'Add poller/agent configuration';
+export const labelAddAgentConfiguration = 'Add agent configuration';
 export const labelAdd = 'Add';
 export const labelOTelServer = 'OTLP receiver';
 export const labelPort = 'Port';
@@ -28,9 +27,9 @@ export const labelSave = 'Save';
 export const labelPortExpectedAtMost = 'Port number must be at most 65535';
 export const labelPortMustStartFrom1 = 'Port number must be at least 1';
 export const labelExtensionNotAllowed = 'Extension not allowed';
-export const labelPublicCertificate = 'Public certificate';
+export const labelPublicCertificate = 'Public certificate(.crt,.cer)';
 export const labelCaCertificate = 'CA';
-export const labelPrivateKey = 'Private key';
+export const labelPrivateKey = 'Private key(.key)';
 export const labelOTLPReceiver = 'OTLP Receiver';
 export const labelAddressInvalid = 'Invalid address';
 export const labelMonitoredHosts = 'Monitored hosts';
@@ -42,12 +41,9 @@ export const labelConnectionInitiatedByPoller =
   'Connection initiated by poller';
 export const labelAgent = 'Agent';
 export const labelConfigurationServer = 'Configuration provider';
-export const labelAgentConfigurationCreated =
-  'Poller/agent configuration created';
-export const labelAgentConfigurationUpdated =
-  'Poller/agent configuration updated';
-export const labelUpdateAgentConfiguration =
-  'Update poller/agent configuration';
+export const labelAgentConfigurationCreated = 'Agent configuration created';
+export const labelAgentConfigurationUpdated = 'Agent configuration updated';
+export const labelUpdateAgentConfiguration = 'Update agent configuration';
 export const labelRelativePathAreNotAllowed = 'Relative paths are not allowed';
 export const labelInvalidPath = 'Invalid path';
 export const labelInvalidExtension = 'Invalid extension';
