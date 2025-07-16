@@ -74,14 +74,14 @@ Cypress.Commands.add("getLatestOnPremMajorVersion", () => {
       "https://packages.centreon.com/artifactory/api/storage/rpm-standard",
     )
     .then((res) => {
-      const versions = (res.body.children as any[])
-        .filter(
-          (item) => item.folder === true && /^\d{2}\.\d{2}\/$/.test(item.uri),
-        )
-        .map((item) => item.uri.replace(/\//g, ""))
+      const versions = res.body.children
+        .filter((item) => item.folder === true)
+        .map((item) => item.uri.replace("/", ""))
+        .filter((version) => /^\d{2}\.\d{2}$/.test(version))
         .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 
-      return versions[0] || null;
+      const latest = versions[0];
+      return latest || null;
     });
 });
 
